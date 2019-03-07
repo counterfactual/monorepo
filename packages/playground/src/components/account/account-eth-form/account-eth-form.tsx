@@ -41,7 +41,9 @@ export class AccountEthForm {
     let formattedEth;
 
     try {
-      formattedEth = ethers.utils.formatEther(this.available);
+      formattedEth = parseFloat(
+        ethers.utils.formatEther(this.available)
+      ).toFixed(4);
     } catch {
       formattedEth = "0";
     }
@@ -66,6 +68,7 @@ export class AccountEthForm {
             </div>
           </form-input>
           <form-button
+            class="button"
             disabled={this.disabled}
             onButtonPressed={this.handleSubmit.bind(this)}
           >
