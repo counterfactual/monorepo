@@ -1,6 +1,6 @@
 import { Node } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { parseEther } from "ethers/utils";
+import { formatEther, parseEther } from "ethers/utils";
 import fetch from "node-fetch";
 import { v4 as generateUUID } from "uuid";
 
@@ -9,6 +9,30 @@ import { connectNode } from "./bot";
 const API_TIMEOUT = 30000;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+export async function getFreeBalance(
+  node: Node,
+  multisigAddress: string
+): Promise<NodeTypes.GetFreeBalanceStateResult> {
+  const query = {
+    type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+    requestId: generateUUID(),
+    params: { multisigAddress } as NodeTypes.GetFreeBalanceStateParams
+  };
+
+  const { result } = await node.call(query.type, query);
+
+  return result as NodeTypes.GetFreeBalanceStateResult;
+}
+
+export function renderFreeBalanceInEth(
+  freeBalance: NodeTypes.GetFreeBalanceStateResult
+) {
+  const { aliceBalance, bobBalance } = freeBalance.state;
+  console.info(`Channel's free balance`);
+  console.info(`Alice: ${formatEther(aliceBalance)}`);
+  console.info(`Bob: ${formatEther(bobBalance)}`);
+}
 
 export async function fetchMultisig(baseURL: string, token: string) {
   const bot = await getUser(baseURL, token);
@@ -21,14 +45,21 @@ export async function fetchMultisig(baseURL: string, token: string) {
   return (await getUser(baseURL, token)).multisigAddress;
 }
 
+// FIXME: cross-reference addresses to named-users so we can avoid using
+// Alice and Bob, especially when looking at logs
 export async function deposit(
   node: Node,
   amount: string,
   multisigAddress: string
 ) {
+  const { aliceBalance, bobBalance } = (await getFreeBalance(
+    node,
+    multisigAddress
+  )).state;
+
   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
   try {
-    return node.call(NodeTypes.MethodName.DEPOSIT, {
+    await node.call(NodeTypes.MethodName.DEPOSIT, {
       type: NodeTypes.MethodName.DEPOSIT,
       requestId: generateUUID(),
       params: {
@@ -37,6 +68,39 @@ export async function deposit(
         notifyCounterparty: true
       } as NodeTypes.DepositParams
     });
+
+    const updatedFreeBalance = await getFreeBalance(node, multisigAddress);
+    const updatedAliceBalance = updatedFreeBalance.state.aliceBalance;
+    const updatedBobBalance = updatedFreeBalance.state.bobBalance;
+
+    if (updatedAliceBalance.gt(aliceBalance)) {
+      console.info("Waiting for counter party to deposit same amount");
+      while (
+        !(await getFreeBalance(node, multisigAddress)).state.bobBalance.gt(
+          updatedBobBalance
+        )
+      ) {
+        console.info("Waiting 2 more seconds for counter party deposit");
+        await delay(2000);
+      }
+    } else if (updatedFreeBalance.state.bobBalance.gt(bobBalance)) {
+      console.info("Waiting for counter party to deposit same amount");
+      while (
+        !(await getFreeBalance(node, multisigAddress)).state.aliceBalance.gt(
+          updatedAliceBalance
+        )
+      ) {
+        console.info("Waiting 2 more second for counter party deposit");
+        await delay(2000);
+      }
+    } else {
+      throw Error(`Neither balance was updated.\n
+        Original Free Balance: alice: ${aliceBalance}, bob: ${bobBalance}\n
+        Updated Free Balance: alice: ${updatedAliceBalance}, bob: ${updatedBobBalance}
+      `);
+    }
+
+    renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
   } catch (e) {
     console.error(`Failed to deposit... ${e}`);
     throw e;
@@ -120,10 +184,14 @@ async function post(
   return response;
 }
 
-export async function afterUser(node, address) {
-  console.log("After User");
+export async function afterUser(
+  node: Node,
+  botPublicIdentifer: string,
+  multisigAddress: string
+) {
+  console.log("Setting up bot's event handlers");
 
-  await connectNode(node, address);
+  await connectNode(node, botPublicIdentifer, multisigAddress);
 }
 
 // TODO: don't duplicate these from PG for consistency

@@ -95,12 +95,10 @@ let node: Node;
           value: token!
         }
       ]);
+      console.log(`Account created\n`, bot);
     }
 
-    console.log(`Account created\n`, bot);
-
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
-
     console.log("Account multisig address:", multisigAddress);
 
     let depositAmount = process.argv[2];
@@ -109,9 +107,7 @@ let node: Node;
     }
     await deposit(node, depositAmount, multisigAddress);
 
-    // FIXME: wait for PS deposit
-
-    afterUser(node, bot.nodeAddress);
+    afterUser(node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);

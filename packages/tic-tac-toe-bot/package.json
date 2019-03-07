@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/tic-tac-toe-bot",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "A bot for the Tic Tac Toe Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -19,8 +19,10 @@
   },
   "scripts": {
     "build": "echo 'No build necessary'",
+    "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
+    "serve": "node dist",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -29,7 +31,7 @@
   },
   "dependencies": {
     "@counterfactual/node": "0.1.2",
-    "@counterfactual/dapp-tic-tac-toe": "^0.1.0",
+    "@counterfactual/dapp-tic-tac-toe": "0.1.1",
     "@counterfactual/types": "^0.0.9",
     "eventemitter3": "^3.1.0"
   },
@@ -38,6 +40,9 @@
     "ethers": "^4.0.26",
     "jest": "^24.0.0",
     "uuid": "^3.3.2",
-    "web3": "^1.0.0-beta.46"
+    "web3": "^1.0.0-beta.46",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.3.3333"
   }
 }
