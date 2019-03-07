@@ -93,12 +93,59 @@ export class AccountExchange {
     }
   }
 
+  getMultisigEtherscanLink() {
+    return this.user.multisigAddress ? (
+      <a
+        target="_blank"
+        href={this.getEtherscanAddressURL(this.user.multisigAddress)}
+      >
+        View State Channels Wallet on Etherscan
+      </a>
+    ) : (
+      <a
+        target="_blank"
+        href={this.getEtherscanTxURL(this.user.transactionHash)}
+      >
+        View State Channels Wallet Deployment Transaction on Etherscan
+      </a>
+    );
+  }
+
+  getPendingDepositEtherscanLink() {
+    const Zero = ethers.constants.Zero;
+    const ethPendingDepositAmountWei = this.ethPendingDepositAmountWei || Zero;
+
+    return this.isDepositPending ? (
+      <a
+        href={this.getEtherscanTxURL(this.ethPendingDepositTxHash)}
+        target="_blank"
+      >
+        💰 Pending Deposit of{" "}
+        {ethers.utils.formatEther(ethPendingDepositAmountWei)} ETH
+      </a>
+    ) : null;
+  }
+
+  getPendingWithdrawalEtherscanLink() {
+    const Zero = ethers.constants.Zero;
+    const ethPendingWithdrawalAmountWei =
+      this.ethPendingWithdrawalAmountWei || Zero;
+
+    return this.isWithdrawalPending ? (
+      <a
+        href={this.getEtherscanTxURL(this.ethPendingWithdrawalTxHash)}
+        target="_blank"
+      >
+        💸 Pending Withdrawal of{" "}
+        {ethers.utils.formatEther(ethPendingWithdrawalAmountWei)}
+        ETH
+      </a>
+    ) : null;
+  }
+
   render() {
     const Zero = ethers.constants.Zero;
     const ethFreeBalanceWei = this.ethFreeBalanceWei || Zero;
-    const ethPendingDepositAmountWei = this.ethPendingDepositAmountWei || Zero;
-    const ethPendingWithdrawalAmountWei =
-      this.ethPendingWithdrawalAmountWei || Zero;
 
     return [
       <layout-header />,
@@ -107,7 +154,9 @@ export class AccountExchange {
           <h1>Deposit ETH</h1>
           <account-eth-form
             onSubmit={this.onDepositClicked.bind(this)}
-            button="Deposit"
+            button={this.isDepositPending ? "Deposit in progress" : "Deposit"}
+            disabled={this.isDepositPending ? true : false}
+            loading={this.isDepositPending ? true : false}
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
             min={0.01}
@@ -119,55 +168,26 @@ export class AccountExchange {
           <h1>Withdraw ETH</h1>
           <account-eth-form
             onSubmit={this.onWithdrawClicked.bind(this)}
-            button="Withdraw"
+            button={
+              this.isWithdrawalPending ? "Withdrawal in progress" : "Withdraw"
+            }
+            disabled={this.isWithdrawalPending ? true : false}
+            loading={this.isWithdrawalPending ? true : false}
             error={this.withdrawalError}
             available={this.ethFreeBalanceWei}
             min={0}
             max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
           />
         </div>
-      </div>,
-      <div class="container">
-        <p>
-          {this.user.multisigAddress ? (
-            <a
-              target="_blank"
-              href={this.getEtherscanAddressURL(this.user.multisigAddress)}
-            >
-              View State Channels Wallet on Etherscan
-            </a>
-          ) : (
-            <a
-              target="_blank"
-              href={this.getEtherscanTxURL(this.user.transactionHash)}
-            >
-              View State Channels Wallet Deployment Transaction on Etherscan
-            </a>
-          )}
-        </p>
+        <div class="container">
+          <p>{this.getMultisigEtherscanLink()}</p>
 
-        {/* Debug UI for Deposits */}
-        {this.isDepositPending ? (
-          <a
-            href={this.getEtherscanTxURL(this.ethPendingDepositTxHash)}
-            target="_blank"
-          >
-            💰 Pending Deposit of{" "}
-            {ethers.utils.formatEther(ethPendingDepositAmountWei)} Wei
-          </a>
-        ) : null}
+          {/* Debug UI for Deposits */}
+          <p>{this.getPendingDepositEtherscanLink()}</p>
 
-        {/* Debug UI for Withdrawal */}
-        {this.isWithdrawalPending ? (
-          <a
-            href={this.getEtherscanTxURL(this.ethPendingWithdrawalTxHash)}
-            target="_blank"
-          >
-            💸 Pending Withdrawal of{" "}
-            {ethers.utils.formatEther(ethPendingWithdrawalAmountWei)}
-            Wei
-          </a>
-        ) : null}
+          {/* Debug UI for Withdrawal */}
+          <p>{this.getPendingWithdrawalEtherscanLink()}</p>
+        </div>
       </div>
     ];
   }

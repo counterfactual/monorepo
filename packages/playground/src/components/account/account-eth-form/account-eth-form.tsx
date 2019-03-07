@@ -16,6 +16,8 @@ export class AccountEthForm {
   @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
+  @Prop() loading: boolean = false;
+  @Prop() autofocus: boolean = false;
 
   update(event) {
     this.error = "";
@@ -61,6 +63,7 @@ export class AccountEthForm {
             max={Math.min(parseInt(formattedEth, 10), this.max)}
             step={0.001}
             onChange={e => this.update(e)}
+            autofocus={this.autofocus}
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
@@ -69,6 +72,7 @@ export class AccountEthForm {
           </form-input>
           <form-button
             class="button"
+            spinner={this.loading}
             disabled={this.disabled}
             onButtonPressed={this.handleSubmit.bind(this)}
           >
