@@ -199,6 +199,8 @@ export async function connectNode(
         renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
       }
     );
+
+    console.info("Bot is ready to serve");
   });
 }
 
