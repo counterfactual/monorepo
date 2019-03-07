@@ -191,6 +191,7 @@ export class AccountRegister {
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
+            autofocus={true}
             onChange={e => this.change("username", e)}
           />
           <form-input
@@ -206,6 +207,7 @@ export class AccountRegister {
           </div>
           <div class="error">{this.errors.ethAddress}</div>
           <form-button
+            class="button"
             disabled={this.metamaskConfirmationUIOpen}
             onButtonPressed={async e => await this.formSubmissionHandler()}
           >

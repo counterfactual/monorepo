@@ -14,6 +14,7 @@ export class FormInput {
   @Prop() min: number = -Infinity;
   @Prop() max: number = Infinity;
   @Prop() step: number = 1;
+  @Prop() autofocus: boolean = false;
   @Prop({ mutable: true }) error: string = "";
   @Prop({ mutable: true }) value: string | number = "";
 
@@ -35,6 +36,7 @@ export class FormInput {
         >
           <input
             class="input"
+            autoFocus={this.autofocus}
             disabled={this.disabled}
             type={this.type}
             value={this.value}

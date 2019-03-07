@@ -84,6 +84,7 @@ export class AccountDeposit {
 
         <account-eth-form
           onSubmit={this.formSubmitionHandler.bind(this)}
+          autofocus={true}
           button="Deposit"
           available={this.ethWeb3WalletBalance}
           max={1}

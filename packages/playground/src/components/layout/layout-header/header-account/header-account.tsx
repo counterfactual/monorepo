@@ -156,11 +156,12 @@ export class HeaderAccount {
             <button
               disabled={this.metamaskConfirmationUIOpen}
               onClick={this.onConnectMetamask.bind(this)}
-              class="btn"
+              class="btn btn--connect-to-wallet"
             >
+              <img class="icon" src="/assets/icon/wallet.svg" />
               {this.metamaskConfirmationUIOpen
                 ? "Check Wallet..."
-                : "Connect to Metamask"}
+                : "Connect to Wallet"}
             </button>
           </div>
         </div>
@@ -177,7 +178,10 @@ export class HeaderAccount {
                 class="btn btn-error"
               >
                 <widget-tooltip message={this.error.secondary}>
-                  <div class="widget-error-message">{this.error.primary}</div>
+                  <div class="widget-error-message">
+                    <img class="icon" src="/assets/icon/error.svg" />
+                    {this.error.primary}
+                  </div>
                 </widget-tooltip>
               </button>
             ) : (
@@ -186,11 +190,15 @@ export class HeaderAccount {
                 class="btn"
                 disabled={this.metamaskConfirmationUIOpen}
               >
+                <img class="icon" src="/assets/icon/login.svg" />
                 {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Login"}
               </button>
             )}
             <stencil-route-link url="/register">
-              <button class="btn btn-alternate">Register</button>
+              <button class="btn btn-alternate">
+                <img class="icon" src="/assets/icon/register.svg" />
+                Register
+              </button>
             </stencil-route-link>
           </div>
         </div>
