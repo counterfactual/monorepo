@@ -195,13 +195,13 @@ export async function connectNode(
     node.on(
       NodeTypes.EventName.UNINSTALL_VIRTUAL,
       async (uninstallData: NodeTypes.UninstallEventData) => {
-        console.info(`Uninstalled app: ${uninstallData}}.\n`);
+        console.info(`Uninstalled app:`);
+        console.info(uninstallData);
         renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
       }
     );
-
-    console.info("Bot is ready to serve");
   });
+  console.info("Bot is ready to serve");
 }
 
 type BoardSquare = number | BigNumber;
