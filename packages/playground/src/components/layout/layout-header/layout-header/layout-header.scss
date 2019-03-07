@@ -1,10 +1,37 @@
 .header {
-  padding: 0 2rem;
   border-bottom: 1px solid $c-mediumgrey;
   background-color: $c-white;
 }
 
-.drawer-toggle {
+.desktop-wrapper {
+  padding: 0 2rem;
+}
+
+.mobile-content {
   display: flex;
+  align-items: center;
+}
+
+.drawer-toggle {
+  display: inline-flex;
   height: 40px;
+  padding: 0 25px;
+}
+
+.logo-container {
+  display: inline-flex;
+  padding: 10px 0;
+
+  .logo, stencil-route-link {
+    height: 35px;
+  }
+
+  .logo {
+    border-radius: 4px;
+  }
+}
+
+.account-container {
+  display: flex;
+  margin-left: auto;
 }

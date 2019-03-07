@@ -19,7 +19,6 @@ import { UserSession } from "../../../../types";
 })
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;
-  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop() network: string = "";
   @Prop() error: { primary: string; secondary: string } = {
     primary: "",
@@ -29,7 +28,6 @@ export class HeaderAccount {
   @Prop() hasDetectedNetwork: boolean = false;
   @Prop() metamaskUnlocked: boolean = false;
   @Prop() networkPermitted: boolean = false;
-  @Prop() ethPendingDepositAmountWei?: number;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
   @Prop({ mutable: true }) authenticated: boolean = false;
   @Prop() updateAccount: (e) => void = e => {};
@@ -113,18 +111,6 @@ export class HeaderAccount {
     });
   }
 
-  get ethBalance() {
-    if (!this.ethFreeBalanceWei) {
-      return "0.00 ETH";
-    }
-
-    return `${ethers.utils.formatEther(this.ethFreeBalanceWei)} ETH`;
-  }
-
-  get hasethPendingDepositAmountWei() {
-    return !isNaN(this.ethPendingDepositAmountWei as number);
-  }
-
   render() {
     if (!this.hasDetectedNetwork) {
       return;
@@ -205,31 +191,10 @@ export class HeaderAccount {
       );
     }
 
-    let tooltip = "";
-
-    if (this.hasethPendingDepositAmountWei) {
-      tooltip = "We're waiting for the network to confirm your latest deposit.";
-    }
-
-    if (!this.user.multisigAddress) {
-      tooltip =
-        "We're configuring your state channel with the Playground. This can take 15-90 seconds, depending on network speed.";
-    }
-
     return (
       <div class="account-container">
         <div class="info-container">
-          <stencil-route-link url="/exchange">
-            <header-account-info
-              src="/assets/icon/crypto.svg"
-              header="Balance"
-              content={this.ethBalance}
-              spinner={
-                this.hasethPendingDepositAmountWei || !this.user.multisigAddress
-              }
-              tooltip={tooltip}
-            />
-          </stencil-route-link>
+          <header-balance />
           <stencil-route-link url="/account">
             <header-account-info
               src="/assets/icon/account.svg"
@@ -244,11 +209,9 @@ export class HeaderAccount {
 }
 
 AccountTunnel.injectProps(HeaderAccount, [
-  "ethFreeBalanceWei",
   "user",
   "error",
   "updateAccount",
-  "ethPendingDepositAmountWei",
   "login",
   "autoLogin"
 ]);
