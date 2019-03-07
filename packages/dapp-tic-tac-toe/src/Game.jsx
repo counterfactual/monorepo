@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 // import Timer from './components/Timer';
 import Board from "./components/Board";
+import Coins from './components/Coins';
 import Player from "./components/Player";
 import { Link } from "react-router-dom";
 import { checkDraw, checkVictory } from "./utils/check-end-conditions";
@@ -119,37 +120,43 @@ class Game extends Component {
   }
 
   render() {
+    const youWon = checkVictory(this.state.gameState.board, this.myNumber);
+
     return (
-      <div className="game">
-        <Player
-          winner={this.state.gameState.winner}
-          gameInfo={this.props.gameInfo}
-          isMyTurn={this.isMyTurn}
-          myNumber={this.myNumber}
-          opponentNumber={this.opponentNumber}
-        />
+      <div>
+        <div className="game horizontal-constraint">
+          <Player
+            winner={this.state.gameState.winner}
+            gameInfo={this.props.gameInfo}
+            isMyTurn={this.isMyTurn}
+            myNumber={this.myNumber}
+            opponentNumber={this.opponentNumber}
+          />
 
-        {/* <Timer
-          isMyTurn={this.isMyTurn}
-          onTimeout={this.timeout.bind(this)}
-        /> */}
+          {/* <Timer
+            isMyTurn={this.isMyTurn}
+            onTimeout={this.timeout.bind(this)}
+          /> */}
 
-        <Board
-          disabled={this.state.pendingActionResponse}
-          board={this.state.gameState.board}
-          isMyTurn={this.isMyTurn}
-          myNumber={this.myNumber}
-          opponentNumber={this.opponentNumber}
-          onTakeAction={this.takeAction.bind(this)}
-        />
+          <Board
+            disabled={this.state.pendingActionResponse}
+            board={this.state.gameState.board}
+            isMyTurn={this.isMyTurn}
+            myNumber={this.myNumber}
+            opponentNumber={this.opponentNumber}
+            onTakeAction={this.takeAction.bind(this)}
+          />
 
-        {this.state.gameState.winner ? (
-          <Link to="/wager" className="btn">
-            PLAY AGAIN!
-          </Link>
-        ) : (
-          undefined
-        )}
+          {this.state.gameState.winner ? (
+            <Link to="/wager" className="btn">
+              PLAY AGAIN!
+            </Link>
+          ) : (
+            undefined
+          )}
+        </div>
+
+        { youWon ? <Coins/> : undefined }
       </div>
     );
   }

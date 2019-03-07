@@ -112,6 +112,11 @@ Wrappers - sets playable app area
 **********************/
 .App {
   position: relative;
+  height: 100vh;
+}
+
+.horizontal-constraint {
+  position: relative;
   max-width: var(--app-width);
   height: 100vh;
   margin: 0 auto;
@@ -266,24 +271,6 @@ Waiting Room
 
 .countdown {
   font-size: 4rem;
-}
-
-/**********************
-Game Screen - Winning Screen
-**********************/
-/* If game is won */
-.coins {
-  position: absolute;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 130px;
-  height: calc(100% - 2rem);
-  background-image: url("./assets/images/coins.svg");
-  background-repeat: no-repeat;
-  background-size: contain;
-  content: "";
-  z-index: 0;
 }
 
 /**********************
@@ -479,4 +466,37 @@ Game Screen - Strike Through
   left: 50%;
   height: 100%;
   transform: translate(-50%, -50%) rotate(45deg);
+}
+
+
+/**********************
+Coin Fall
+**********************/
+.coins {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 100;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.coin {
+  position: absolute;
+  animation: fall infinite linear;
+  transform: translateY(-30vh);
+}
+
+@keyframes fall {
+	from { transform: translateY(-30vh); }
+	to { transform: translateY(130vh); }
+}
+
+
+@media screen and (max-width: 600px) {
+  .coin {
+    height: 66px;
+    width: 66px;
+  }
 }

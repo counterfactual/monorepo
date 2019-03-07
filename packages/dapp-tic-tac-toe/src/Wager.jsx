@@ -160,7 +160,7 @@ class Wager extends Component {
     
     if (!isLoaded) {
       return (
-        <div className="wager">
+        <div className="wager horizontal-constraint">
           <div className="message">
             <Logo />
             <h1 className="message__title">Getting ready...</h1>
@@ -175,7 +175,7 @@ class Wager extends Component {
     }
 
     return (
-      <div className="wager">
+      <div className="wager horizontal-constraint">
         <div className="message">
           <Logo />
           <h1 className="message__title">Welcome!</h1>
