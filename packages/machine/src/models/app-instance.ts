@@ -106,7 +106,7 @@ export class AppInstance {
     const latestState = json.latestState;
     for (const key in latestState) {
       // @ts-ignore
-      if (latestState[key]["_hex"]) {
+      if (latestState[key] && latestState[key]["_hex"]) {
         latestState[key] = bigNumberify(latestState[key] as BigNumber);
       }
     }

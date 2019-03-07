@@ -93,7 +93,9 @@ export class DappContainer {
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
 
     // Callback for passing an app instance, if available.
-    iframe.addEventListener("load", this.sendAppInstance.bind(this));
+    setTimeout(() => {
+      this.sendAppInstance();
+    }, 3000);
 
     this.iframe = iframe;
   }

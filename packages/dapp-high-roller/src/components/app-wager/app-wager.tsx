@@ -60,6 +60,7 @@ export class AppWager {
   async handlePlay(e: Event): Promise<void> {
     e.preventDefault();
 
+    // TODO: Rip out the call in this function that the try catch is intended for
     try {
       const initialState: HighRollerAppState = {
         playerAddrs: [
@@ -70,11 +71,7 @@ export class AppWager {
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0,
-        playerNames: [
-          this.account.user.username,
-          this.opponent.attributes.username
-        ]
+        playerSecondNumber: 0
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);

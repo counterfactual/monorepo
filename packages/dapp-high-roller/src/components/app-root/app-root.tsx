@@ -91,16 +91,18 @@ export class AppRoot {
 
         this.userDataReceived = true;
 
-        if (this.state.appInstance) {
-          this.updateOpponent({
-            attributes: {
-              username: this.state.appInstance.initialState.playerNames.find(
-                username => username !== this.state.account.user.username
-              ),
-              nodeAddress: this.state.appInstance.initialState.initiatingAddress
-            }
-          });
-        }
+        // TODO: Fetch the username of the opponent
+        //
+        // if (this.state.appInstance) {
+        //   this.updateOpponent({
+        //     attributes: {
+        //       username: this.state.appInstance.initialState.playerNames.find(
+        //         username => username !== this.state.account.user.username
+        //       ),
+        //       nodeAddress: this.state.appInstance.initialState.initiatingAddress
+        //     }
+        //   });
+        // }
       }
 
       if (
@@ -155,6 +157,7 @@ export class AppRoot {
 
   updateAppInstance(appInstance: AppInstance) {
     this.state = { ...this.state, appInstance };
+    this.goToWaitingRoom(this.history);
     console.log("appInstance updated", appInstance);
   }
 
@@ -249,6 +252,7 @@ export class AppRoot {
   }
 
   render() {
+    console.log("appInstance: ", this.state.appInstance);
     return this.userDataReceived ? (
       <div class="height-100">
         <main class="height-100">
