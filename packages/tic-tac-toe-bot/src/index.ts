@@ -95,12 +95,10 @@ let node: Node;
           value: token!
         }
       ]);
+      console.log(`Account created\n`, bot);
     }
 
-    console.log(`Account created\n`, bot);
-
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
-
     console.log("Account multisig address:", multisigAddress);
 
     let depositAmount = process.argv[2];

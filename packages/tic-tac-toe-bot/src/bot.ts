@@ -1,4 +1,8 @@
-import { Node } from "@counterfactual/node";
+import {
+  Node,
+  NodeMessage,
+  UninstallVirtualMessage
+} from "@counterfactual/node";
 import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
@@ -195,9 +199,9 @@ export async function connectNode(
 
     node.on(
       NodeTypes.EventName.UNINSTALL_VIRTUAL,
-      async (uninstallData: NodeTypes.UninstallEventData) => {
-        console.info(`Uninstalled app:`);
-        console.info(uninstallData);
+      async (uninstallMsg: UninstallVirtualMessage) => {
+        console.info(`Uninstalled app`);
+        console.info(uninstallMsg);
         renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
       }
     );

@@ -80,8 +80,8 @@ export async function deposit(
           updatedBobBalance
         )
       ) {
-        console.info("Waiting 1 more second for counter party deposit");
-        await delay(1000);
+        console.info("Waiting 2 more seconds for counter party deposit");
+        await delay(2000);
       }
     } else if (updatedFreeBalance.state.bobBalance.gt(bobBalance)) {
       console.info("Waiting for counter party to deposit same amount");
@@ -90,8 +90,8 @@ export async function deposit(
           updatedAliceBalance
         )
       ) {
-        console.info("Waiting 1 more second for counter party deposit");
-        await delay(1000);
+        console.info("Waiting 2 more second for counter party deposit");
+        await delay(2000);
       }
     } else {
       throw Error(`Neither balance was updated.\n
