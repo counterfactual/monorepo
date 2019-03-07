@@ -191,6 +191,7 @@ export class AccountRegister {
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
+            autofocus={true}
             onChange={e => this.change("username", e)}
           />
           <form-input
