@@ -8,6 +8,11 @@ const API_TIMEOUT = 30000;
 
 // TODO: don't duplicate these from PG for consistency
 
+let BASE_URL = `https://server-playground-staging.counterfactual.com`;
+if (process.env.TIER && process.env.TIER === "development") {
+  BASE_URL = `http://localhost:9000`;
+}
+
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 export async function fetchMultisig(token: string) {
@@ -178,8 +183,6 @@ export async function getUser(token: string): Promise<UserSession> {
   }
 
   try {
-    const BASE_URL = `https://server-playground-staging.counterfactual.com`;
-
     const json = (await get(BASE_URL, "users/me", token)) as APIResponse;
     const resource = json.data[0] as APIResource<UserAttributes>;
 
