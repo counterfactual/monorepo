@@ -11,10 +11,13 @@ export class AccountEthForm {
   @Prop() header: string = "";
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
+  @Prop() min: number = 0.01;
   @Prop() max: number = 1;
   @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
+  @Prop() loading: boolean = false;
+  @Prop() autofocus: boolean = false;
 
   update(event) {
     this.error = "";
@@ -24,10 +27,29 @@ export class AccountEthForm {
   handleSubmit(event) {
     event.preventDefault();
 
+    const value = Number(this.value);
+
+    if (value < this.min || value > this.max) {
+      this.error = `Please enter a value between ${this.min} and ${
+        this.max
+      } ETH.`;
+      return;
+    }
+
     this.submit.emit(event);
   }
 
   render() {
+    let formattedEth;
+
+    try {
+      formattedEth = parseFloat(
+        ethers.utils.formatEther(this.available)
+      ).toFixed(4);
+    } catch {
+      formattedEth = "0";
+    }
+
     return (
       <div>
         <form-container>
@@ -37,22 +59,20 @@ export class AccountEthForm {
             value={this.value}
             error={this.error}
             disabled={this.disabled}
-            min={0}
-            max={Math.min(
-              parseInt(ethers.utils.formatEther(this.available), 10),
-              this.max
-            )}
+            min={this.min}
+            max={Math.min(parseInt(formattedEth, 10), this.max)}
             step={0.001}
             onChange={e => this.update(e)}
+            autofocus={this.autofocus}
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
-              <div>
-                {ethers.utils.formatEther(this.available).slice(0, 5)} ETH
-              </div>
+              <div>{formattedEth} ETH</div>
             </div>
           </form-input>
           <form-button
+            class="button"
+            spinner={this.loading}
             disabled={this.disabled}
             onButtonPressed={this.handleSubmit.bind(this)}
           >

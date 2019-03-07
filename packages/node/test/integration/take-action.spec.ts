@@ -6,7 +6,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -28,8 +28,7 @@ import {
   generateGetStateRequest,
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
-  makeInstallRequest,
-  TEST_NETWORK
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -42,7 +41,7 @@ describe("Node method follows spec - takeAction", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -67,7 +66,6 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -79,7 +77,6 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

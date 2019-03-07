@@ -77,9 +77,8 @@ export default class NodeWrapper {
   }
 
   public static async createNodeSingleton(
-    network: string,
+    networkOrNetworkContext: string | NetworkContext,
     mnemonic?: string,
-    networkContext?: NetworkContext,
     provider?: JsonRpcProvider,
     storeService?: IStoreService,
     messagingService?: IMessagingService
@@ -95,8 +94,7 @@ export default class NodeWrapper {
       );
 
     NodeWrapper.node = await NodeWrapper.createNode(
-      network,
-      networkContext,
+      networkOrNetworkContext,
       provider,
       mnemonic,
       store,
@@ -117,8 +115,7 @@ export default class NodeWrapper {
   }
 
   public static async createNode(
-    network: string,
-    networkContext?: NetworkContext,
+    networkOrNetworkContext: string | NetworkContext,
     provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: IStoreService,
@@ -134,15 +131,18 @@ export default class NodeWrapper {
       await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
     }
 
+    if (!provider && typeof networkOrNetworkContext !== "string") {
+      throw Error("cannot pass empty provider without network");
+    }
+
     const node = await Node.create(
       messaging,
       store,
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || ethers.getDefaultProvider(network),
-      network,
-      networkContext
+      provider || ethers.getDefaultProvider(networkOrNetworkContext as string),
+      networkOrNetworkContext
     );
 
     return node;

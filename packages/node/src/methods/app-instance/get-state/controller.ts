@@ -4,8 +4,6 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
-import { getAppInstanceState } from "./operation";
-
 /**
  * Handles the retrieval of an AppInstance's state.
  * @param this
@@ -25,8 +23,10 @@ export default class GetStateController extends NodeController {
       Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
     }
 
+    const appInstance = await store.getAppInstance(appInstanceId);
+
     return {
-      state: await getAppInstanceState(appInstanceId, store)
+      state: appInstance.state
     };
   }
 }

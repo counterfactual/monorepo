@@ -11,6 +11,7 @@ export type AccountState = {
 
   ethMultisigBalance: BigNumber;
   ethFreeBalanceWei?: BigNumber;
+  ethCounterpartyFreeBalanceWei?: BigNumber;
 
   ethPendingDepositAmountWei?: BigNumber;
   ethPendingWithdrawalAmountWei?: BigNumber;
@@ -20,6 +21,7 @@ export type AccountState = {
 
   updateAccount?(data: Partial<AccountState>): Promise<void>;
   login?(): Promise<UserSession>;
+  logout?(): void;
   getBalances?(): Promise<
     { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   >;

@@ -68,14 +68,9 @@ export class NodeListener {
         .params as Node.ProposeInstallParams;
 
       const currentEthBalance = this.ethMultisigBalance;
-      const minimumEthBalance = ethers.utils
-        .bigNumberify(proposeInstallParams.myDeposit)
-        .add(
-          await this.provider.estimateGas({
-            to: message.data.proposedByIdentifier,
-            value: proposeInstallParams.myDeposit
-          })
-        );
+      const minimumEthBalance = ethers.utils.bigNumberify(
+        proposeInstallParams.myDeposit
+      );
 
       if (currentEthBalance.lt(minimumEthBalance)) {
         this.currentModalType = "error";

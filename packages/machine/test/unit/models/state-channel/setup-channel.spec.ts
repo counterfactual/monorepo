@@ -1,10 +1,10 @@
-import { generateRandomNetworkContext } from "@counterfactual/machine/test/mocks";
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../src/models";
+import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
   const multisigAddress = getAddress(hexlify(randomBytes(20)));

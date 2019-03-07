@@ -1,4 +1,3 @@
-import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import { NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
@@ -9,6 +8,7 @@ import { Context, ProtocolMessage, UpdateParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
+import { setFinalCommitment } from "./utils/set-final-commitment";
 import {
   addSignedCommitmentInResponse,
   addSignedCommitmentToOutboxForSeq1
@@ -51,7 +51,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(message.toAddress, appSeqNo),
+        xkeyKthAddress(message.toXpub, appSeqNo),
         context.commitments[0],
         context.inbox[0].signature
       );
@@ -78,7 +78,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         .getAppInstance(appIdentityHash).appSeqNo;
 
       validateSignature(
-        xkeyKthAddress(message.fromAddress, appSeqNo),
+        xkeyKthAddress(message.fromXpub, appSeqNo),
         context.commitments[0],
         message.signature
       );

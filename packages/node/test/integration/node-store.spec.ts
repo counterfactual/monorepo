@@ -1,5 +1,5 @@
 import { AddressZero } from "ethers/constants";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
@@ -7,14 +7,12 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 
-import { TEST_NETWORK } from "./utils";
-
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let storeService: IStoreService;
   let node: Node;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -37,7 +35,6 @@ describe("Node can use storage service", () => {
       storeService,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

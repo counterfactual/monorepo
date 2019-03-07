@@ -6,29 +6,7 @@ import { ERRORS } from "./methods/errors";
 
 const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby"]);
 
-export function configureNetworkContext(
-  network: string,
-  networkContext?: NetworkContext
-): NetworkContext {
-  if (networkContext) {
-    console.log(
-      `Configuring Node to use provided network context for network: ${network}`
-    );
-    return networkContext;
-  }
-
-  if (
-    !network ||
-    typeof network !== "string" ||
-    !SUPPORTED_NETWORKS.has(network)
-  ) {
-    throw Error(
-      `${ERRORS.INVALID_NETWORK_NAME}: ${network}. \n
-       The following networks are supported:
-       ${Array.from(SUPPORTED_NETWORKS.values())}`
-    );
-  }
-
+export function configureNetworkContext(network: string): NetworkContext {
   console.log(`Configuring Node to use contracts on network: ${network}`);
 
   switch (network) {
@@ -39,7 +17,11 @@ export function configureNetworkContext(
       return getContractAddressesForNetwork(RinkebyContracts);
     }
     default: {
-      throw Error("Failed to construct a valid network context");
+      throw Error(
+        `${ERRORS.INVALID_NETWORK_NAME}: ${network}. \n
+         The following networks are supported:
+         ${Array.from(SUPPORTED_NETWORKS.values())}`
+      );
     }
   }
 }

@@ -203,18 +203,11 @@ export class StateChannel {
 
     const idx = this.freeBalanceAppIndexes.get(assetType);
 
-    if (!this.appInstances.has(idx!)) {
+    if (idx === undefined || !this.appInstances.has(idx)) {
       throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
     }
 
-    const appInstanceJson = this.appInstances.get(idx!)!.toJson();
-    appInstanceJson.latestState = {
-      ...appInstanceJson.latestState,
-      aliceBalance: bigNumberify(appInstanceJson.latestState.aliceBalance),
-      bobBalance: bigNumberify(appInstanceJson.latestState.bobBalance)
-    };
-
-    return AppInstance.fromJson(appInstanceJson);
+    return this.appInstances.get(idx) as AppInstance;
   }
 
   public getFreeBalanceAddrOf(xpub: string, assetType: AssetType): string {
@@ -234,7 +227,7 @@ export class StateChannel {
   // TODO: This is hard-coded to ETH presently
   public getFreeBalanceValueOf(xpub: string, assetType: AssetType) {
     const addr = this.getFreeBalanceAddrOf(xpub, assetType);
-    const state: ETHBucketAppState = this.getFreeBalanceFor(assetType).state;
+    const state = this.getFreeBalanceFor(assetType).state as ETHBucketAppState;
 
     if (state.alice === addr) {
       return state.aliceBalance;
@@ -254,7 +247,7 @@ export class StateChannel {
     increments: { [xpub: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
-    const freeBalanceState = freeBalance.state;
+    const freeBalanceState = freeBalance.state as ETHBucketAppState;
 
     for (const beneficiaryXpub in increments) {
       const beneficiaryAddress = this.getFreeBalanceAddrOf(
@@ -413,7 +406,7 @@ export class StateChannel {
     /// Decrement from FB
 
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state;
+    const currentFBState = fb.state as ETHBucketAppState;
 
     const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
@@ -501,7 +494,7 @@ export class StateChannel {
     /// Decrement from FB
 
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state;
+    const currentFBState = fb.state as ETHBucketAppState;
 
     const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
     const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
@@ -551,8 +544,8 @@ export class StateChannel {
   /// addresses
   public uninstallApp(
     appInstanceIdentityHash: string,
-    aliceBalanceIncrement: BigNumber,
-    bobBalanceIncrement: BigNumber
+    aliceBalanceIncrement: BigNumber = Zero,
+    bobBalanceIncrement: BigNumber = Zero
   ) {
     const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);

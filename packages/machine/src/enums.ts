@@ -27,13 +27,14 @@ enum Opcode {
 }
 
 enum Protocol {
-  Setup = "setup",
   Install = "install",
-  Update = "update",
-  Withdraw = "withdraw",
-  Uninstall = "uninstall",
   InstallVirtualApp = "install-virtual-app",
-  UninstallVirtualApp = "uninstall-virtual-app"
+  Setup = "setup",
+  TakeAction = "takeAction",
+  Uninstall = "uninstall",
+  UninstallVirtualApp = "uninstall-virtual-app",
+  Update = "update",
+  Withdraw = "withdraw"
 }
 
 export { Opcode, Protocol };

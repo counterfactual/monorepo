@@ -17,7 +17,9 @@ export class WidgetScreen {
 
             {this.exitable ? (
               <stencil-route-link url="/">
-                <button class="close" />
+                <button class="close">
+                  <img src="/assets/icon/close.svg" />
+                </button>
               </stencil-route-link>
             ) : null}
           </div>

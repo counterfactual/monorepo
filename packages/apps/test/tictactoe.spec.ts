@@ -1,8 +1,8 @@
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Struct, Terms } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, WeiPerEther } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import TicTacToeApp from "../build/TicTacToeApp.json";
@@ -10,6 +10,11 @@ import TicTacToeApp from "../build/TicTacToeApp.json";
 chai.use(waffle.solidity);
 
 const { expect } = chai;
+
+const [A, B] = [
+  "0xb37e49bFC97A948617bF3B63BC6942BB15285715",
+  "0xaeF082d339D227646DB914f0cA9fF02c8544F30b"
+];
 
 type TicTacToeAppState = {
   players: string[];
@@ -29,6 +34,10 @@ function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
 
 describe("TicTacToeApp", () => {
   let ticTacToe: Contract;
+
+  async function resolve(state: SolidityABIEncoderV2Struct, terms: Terms) {
+    return await ticTacToe.functions.resolve(encodeState(state), terms);
+  }
 
   function encodeState(state: SolidityABIEncoderV2Struct) {
     return defaultAbiCoder.encode(
@@ -299,6 +308,41 @@ describe("TicTacToeApp", () => {
       await expect(applyAction(preState, action)).to.be.revertedWith(
         "Win Claim not valid"
       );
+    });
+  });
+  describe("resolve", () => {
+    it("playerFirst wins should resolve correctly", async () => {
+      const preState = {
+        players: [A, B],
+        turnNum: 0,
+        winner: 0,
+        board: [[1, 1, 0], [0, 0, 0], [0, 0, 0]]
+      };
+
+      const action = {
+        actionType: 1, // PLAY_AND_WIN
+        playX: 0,
+        playY: 2,
+        winClaim: {
+          winClaimType: 0, // COL
+          idx: 0
+        }
+      };
+
+      const appliedAction = await applyAction(preState, action);
+      const state = decodeBytesToAppState(appliedAction);
+
+      const ret = await resolve(state, {
+        assetType: 0,
+        limit: WeiPerEther.mul(2),
+        token: AddressZero
+      });
+
+      expect(state.winner).to.eq(1, "playerFirst won"); // WON
+      expect(ret.to[0]).to.eq(A, "playerFirst wins money");
+      expect(ret.to[1]).to.eq(B, "playerSecond loses money");
+      expect(ret.value[0]).to.eq(WeiPerEther.mul(2));
+      expect(ret.value[1]).to.eq(0);
     });
   });
 });

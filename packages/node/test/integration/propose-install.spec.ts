@@ -1,5 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -15,8 +15,7 @@ import {
   getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
-  makeInstallRequest,
-  TEST_NETWORK
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -29,7 +28,7 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -54,7 +53,6 @@ describe("Node method follows spec - proposeInstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -66,7 +64,6 @@ describe("Node method follows spec - proposeInstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

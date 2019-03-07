@@ -1,10 +1,15 @@
-import { ETHVirtualAppAgreementCommitment } from "@counterfactual/machine/src/ethereum/eth-virtual-app-agreement-commitment";
-import { VirtualAppSetStateCommitment } from "@counterfactual/machine/src/ethereum/virtual-app-set-state-commitment";
-import { AppInterface, AssetType, NetworkContext } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
-import { bigNumberify } from "ethers/utils";
+import {
+  AppInterface,
+  AssetType,
+  NetworkContext,
+  SolidityABIEncoderV2Struct
+} from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
+import { bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Opcode } from "../enums";
+import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
+import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import {
   AppInstance,
   ETHVirtualAppAgreementInstance,
@@ -14,8 +19,7 @@ import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
-  ProtocolMessage,
-  SolidityABIEncoderV2Struct
+  ProtocolMessage
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
@@ -57,7 +61,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: context.signatures[0], // s1
         signature2: context.signatures[1], // s5
         seq: 1,
-        toAddress: params2.intermediaryXpub
+        toXpub: params2.intermediaryXpub
       });
     },
 
@@ -122,8 +126,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: 2,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.respondingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.respondingXpub,
         signature: message.signature2, // s5
         signature2: context.signatures[1] // s3
       };
@@ -152,8 +156,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.respondingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.respondingXpub,
         signature: context.signatures[2] // s6
       };
     },
@@ -166,8 +170,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.intermediaryXpub,
-        toAddress: params2.initiatingXpub,
+        fromXpub: params2.intermediaryXpub,
+        toXpub: params2.initiatingXpub,
         signature: context.signatures[2], // s6
         signature2: context.signatures[0], // s2
         signature3: context.inbox[0].signature2 // s7
@@ -209,8 +213,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.outbox[0] = {
         ...message,
         seq: -1,
-        fromAddress: params2.respondingXpub,
-        toAddress: params2.intermediaryXpub,
+        fromXpub: params2.respondingXpub,
+        toXpub: params2.intermediaryXpub,
         signature: context.signatures[0], // s4
         signature2: context.signatures[1] // s7
       };
@@ -238,6 +242,8 @@ function createAndAddTarget(
   defaultTimeout: number,
   appInterface: AppInterface,
   initialState: SolidityABIEncoderV2Struct,
+  initiatingBalanceDecrement: BigNumberish, // FIXME: serialize
+  respondingBalanceDecrement: BigNumberish,
   context: Context,
   initiatingXpub: string,
   respondingXpub: string,
@@ -266,8 +272,10 @@ function createAndAddTarget(
     appInterface,
     {
       assetType: AssetType.ETH,
-      limit: Zero, // limit field is ignored, since limits are enforced by virtual app agreement
-      token: AddressZero
+      limit: bigNumberify(initiatingBalanceDecrement).add(
+        bigNumberify(respondingBalanceDecrement)
+      ),
+      token: AddressZero // TODO: support tokens
     },
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no
@@ -303,6 +311,8 @@ function proposeStateTransition1(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,
@@ -383,6 +393,8 @@ function proposeStateTransition2(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,
@@ -513,6 +525,8 @@ function proposeStateTransition3(message: ProtocolMessage, context: Context) {
     defaultTimeout,
     appInterface,
     initialState,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
     context,
     initiatingXpub,
     respondingXpub,

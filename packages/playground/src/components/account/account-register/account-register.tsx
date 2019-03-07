@@ -154,7 +154,7 @@ export class AccountRegister {
         break;
       case "address_already_registered":
         update = {
-          ethAddress: "You already have a Playground account with this address."
+          ethAddress: "Cannot use same ethereum address twice."
         };
         break;
       case "user_save_failed":
@@ -191,6 +191,7 @@ export class AccountRegister {
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
+            autofocus={true}
             onChange={e => this.change("username", e)}
           />
           <form-input
@@ -203,10 +204,10 @@ export class AccountRegister {
           <div class="smallprint">
             <b>Account will be linked to your Ethereum address: </b>
             {this.changeset.ethAddress}
-
-            <div class="error">{this.errors.ethAddress}</div>
           </div>
+          <div class="error">{this.errors.ethAddress}</div>
           <form-button
+            class="button"
             disabled={this.metamaskConfirmationUIOpen}
             onButtonPressed={async e => await this.formSubmissionHandler()}
           >
