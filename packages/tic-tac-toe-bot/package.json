@@ -19,8 +19,10 @@
   },
   "scripts": {
     "build": "echo 'No build necessary'",
+    "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
+    "serve": "node dist",
     "start": "env-cmd development ts-node src/",
     "test": "env-cmd test jest --forceExit"
   },
@@ -38,6 +40,9 @@
     "ethers": "^4.0.26",
     "jest": "^24.0.0",
     "uuid": "^3.3.2",
-    "web3": "^1.0.0-beta.46"
+    "web3": "^1.0.0-beta.46",
+    "ts-node": "^8.0.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.3.3333"
   }
 }
