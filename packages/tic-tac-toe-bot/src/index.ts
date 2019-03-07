@@ -3,9 +3,7 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
-import { v4 as generateUUID } from "uuid";
 
 import {
   afterUser,
@@ -107,7 +105,7 @@ let node: Node;
 
     let depositAmount = process.argv[2];
     if (!depositAmount) {
-      depositAmount = "0.5";
+      depositAmount = "0.005";
     }
     await deposit(node, depositAmount, multisigAddress);
 

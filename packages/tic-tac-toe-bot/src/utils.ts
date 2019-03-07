@@ -56,6 +56,7 @@ export async function deposit(
     node,
     multisigAddress
   )).state;
+
   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
   try {
     await node.call(NodeTypes.MethodName.DEPOSIT, {
