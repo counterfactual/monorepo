@@ -71,29 +71,25 @@ describe("playground-server", () => {
     const provider = new JsonRpcProvider(GANACHE_URL);
 
     playgroundNode = await NodeWrapper.createNodeSingleton(
-      "ganache",
-      global["pgMnemonic"],
       NETWORK_CONTEXT,
+      global["pgMnemonic"],
       provider,
       serviceFactory.createStoreService(generateUUID())
     );
 
     nodeAlice = await NodeWrapper.createNode(
-      "ganache",
       NETWORK_CONTEXT,
       provider,
       global["nodeAMnemonic"]
     );
 
     nodeBob = await NodeWrapper.createNode(
-      "ganache",
       NETWORK_CONTEXT,
       provider,
       global["nodeBMnemonic"]
     );
 
     nodeCharlie = await NodeWrapper.createNode(
-      "ganache",
       NETWORK_CONTEXT,
       provider,
       global["nodeCMnemonic"]

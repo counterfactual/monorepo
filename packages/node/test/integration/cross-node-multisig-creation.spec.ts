@@ -14,8 +14,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import {
   getChannelAddresses,
-  getMultisigCreationTransactionHash,
-  TEST_NETWORK
+  getMultisigCreationTransactionHash
 } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
@@ -54,7 +53,6 @@ describe("Node can create multisig, other owners get notified", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -66,7 +64,6 @@ describe("Node can create multisig, other owners get notified", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
     storeServiceC = firebaseServiceFactory.createStoreService(
@@ -77,7 +74,6 @@ describe("Node can create multisig, other owners get notified", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

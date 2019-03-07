@@ -16,8 +16,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import {
   getMultisigCreationTransactionHash,
   makeDepositRequest,
-  makeWithdrawRequest,
-  TEST_NETWORK
+  makeWithdrawRequest
 } from "./utils";
 
 describe("Node method follows spec - withdraw", () => {
@@ -55,7 +54,6 @@ describe("Node method follows spec - withdraw", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -68,7 +66,6 @@ describe("Node method follows spec - withdraw", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

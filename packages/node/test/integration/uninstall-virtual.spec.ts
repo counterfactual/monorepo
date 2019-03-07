@@ -21,8 +21,7 @@ import {
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualRequest,
-  makeTTTVirtualAppInstanceProposalReq,
-  TEST_NETWORK
+  makeTTTVirtualAppInstanceProposalReq
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -62,7 +61,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -75,7 +73,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -87,7 +84,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

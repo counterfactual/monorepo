@@ -7,8 +7,6 @@ import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 
-import { TEST_NETWORK } from "./utils";
-
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let storeService: IStoreService;
@@ -37,7 +35,6 @@ describe("Node can use storage service", () => {
       storeService,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

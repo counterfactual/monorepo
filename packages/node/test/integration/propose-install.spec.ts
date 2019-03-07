@@ -15,8 +15,7 @@ import {
   getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
-  makeInstallRequest,
-  TEST_NETWORK
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -54,7 +53,6 @@ describe("Node method follows spec - proposeInstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -66,7 +64,6 @@ describe("Node method follows spec - proposeInstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

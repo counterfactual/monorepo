@@ -12,8 +12,7 @@ import {
   confirmProposedVirtualAppInstanceOnNode,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest,
-  TEST_NETWORK
+  makeInstallVirtualProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -53,7 +52,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -66,7 +64,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -78,7 +75,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
