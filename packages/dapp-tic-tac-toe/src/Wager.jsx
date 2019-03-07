@@ -194,6 +194,7 @@ class Wager extends Component {
             className="form__input"
             type="number"
             placeholder="0.01 eth"
+            disabled={true}
             min={0}
             max={0.01}
             step={0.00000001}

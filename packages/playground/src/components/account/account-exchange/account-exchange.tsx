@@ -157,10 +157,11 @@ export class AccountExchange {
             button={this.isDepositPending ? "Deposit in progress" : "Deposit"}
             disabled={this.isDepositPending ? true : false}
             loading={this.isDepositPending ? true : false}
+            provideFaucetLink={true}
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
-            min={0.01}
-            max={1}
+            min={0}
+            max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
           />
         </div>
 
