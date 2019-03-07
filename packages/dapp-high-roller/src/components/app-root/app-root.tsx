@@ -34,6 +34,7 @@ export class AppRoot {
 
   @State() userDataReceived: boolean = false;
   @State() history: RouterHistory = {} as RouterHistory;
+  @State() lastUrl: string = "";
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
@@ -71,12 +72,16 @@ export class AppRoot {
       } as HighRollerAppState
     };
 
-    window.addEventListener("popstate", () => {
-      window.parent.postMessage(
-        `playground:send:dappRoute|${location.hash}`,
-        "*"
-      );
-    });
+    setInterval(() => {
+      const url = `${location.pathname}${location.search}`;
+      if (this.lastUrl !== url) {
+        this.lastUrl = url;
+        window.parent.postMessage(
+          `playground:send:dappRoute|${this.lastUrl}`,
+          "*"
+        );
+      }
+    }, 100);
   }
 
   setupPlaygroundMessageListeners() {
@@ -260,7 +265,7 @@ export class AppRoot {
         <main class="height-100">
           <CounterfactualTunnel.Provider state={this.state}>
             <HighRollerUITunnel.Provider state={this.uiState}>
-              <stencil-router historyType="hash">
+              <stencil-router>
                 <stencil-route-switch scrollTopOffset={0}>
                   <app-provider
                     updateAppInstance={this.state.updateAppInstance.bind(this)}

@@ -60,7 +60,7 @@ export class DappContainer {
       return "";
     }
 
-    return `${dapp.url}${dappState}${window.location.hash}`;
+    return `${dapp.url}${dappState}`;
   }
 
   componentDidLoad(): void {
