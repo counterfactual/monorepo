@@ -340,8 +340,15 @@ export class AppRoot {
   }
 
   async deposit(valueInWei: BigNumber) {
-    const token = localStorage.getItem("playground:user:token")!;
-    const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
+    let multisigAddress = this.accountState.user.multisigAddress;
+    while (!multisigAddress) {
+      multisigAddress = this.accountState.user.multisigAddress;
+      if (multisigAddress) {
+        break;
+      }
+      await delay(1000);
+      console.log("waited for a second");
+    }
 
     const node = CounterfactualNode.getInstance();
 
