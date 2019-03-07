@@ -49,12 +49,16 @@
     font-size: 1rem;
     font-family: inherit;
     color: $c-darkgrey;
+    display: block;
+    margin-top: 1rem;
+    line-height: 1.5rem;
   }
 
   a {
     display: block;
     font-size: 0.9rem;
     font-family: inherit;
+    margin-top: 1rem;
   }
 
   .spinner-loading {
@@ -104,6 +108,16 @@
     40% {
       -webkit-transform: scale(1);
       transform: scale(1);
+    }
+  }
+}
+
+@media screen and (max-width: $screen-sm) {
+  .spinner--loading {
+    label {
+      max-width: 80%;
+      margin-left: auto;
+      margin-right: auto;
     }
   }
 }
