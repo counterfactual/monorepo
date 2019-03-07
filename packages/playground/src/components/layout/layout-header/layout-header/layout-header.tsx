@@ -30,7 +30,11 @@ export class LayoutHeader {
             </a>
             <div class="logo-container">
               <stencil-route-link url="/">
-                <img src="/assets/icon/logo.svg" alt="Counterfactual" class="logo" />
+                <img
+                  src="/assets/icon/logo.svg"
+                  alt="Counterfactual"
+                  class="logo"
+                />
               </stencil-route-link>
             </div>
             <div class="account-container">

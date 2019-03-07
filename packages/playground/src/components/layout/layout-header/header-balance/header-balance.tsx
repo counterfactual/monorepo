@@ -1,8 +1,4 @@
-import {
-  Component,
-  Element,
-  Prop
-} from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 
 import AccountTunnel from "../../../../data/account";
 import { UserSession } from "../../../../types";
