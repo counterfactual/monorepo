@@ -63,14 +63,14 @@ export class Node {
     storeService: IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkContext: string | NetworkContext
+    networkOrNetworkContext: string | NetworkContext
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       nodeConfig,
       provider,
-      networkContext
+      networkOrNetworkContext
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
