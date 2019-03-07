@@ -3,7 +3,9 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
+import { v4 as generateUUID } from "uuid";
 
 import {
   afterUser,
@@ -110,6 +112,17 @@ let node: Node;
     await deposit(node, depositAmount, multisigAddress);
 
     // FIXME: wait for PS deposit
+    const query = {
+      type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+      requestId: generateUUID(),
+      params: { multisigAddress } as NodeTypes.GetFreeBalanceStateParams
+    };
+
+    const { result } = await node.call(query.type, query);
+
+    const { state } = result as NodeTypes.GetFreeBalanceStateResult;
+
+    console.log("free balance ", state);
 
     afterUser(node, bot.nodeAddress);
   } catch (e) {
