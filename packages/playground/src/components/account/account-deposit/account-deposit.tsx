@@ -85,9 +85,11 @@ export class AccountDeposit {
         <account-eth-form
           onSubmit={this.formSubmitionHandler.bind(this)}
           autofocus={true}
+          provideFaucetLink={true}
           button="Deposit"
           available={this.ethWeb3WalletBalance}
-          max={1}
+          min={0}
+          max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
           error={this.error}
         />
       </widget-screen>

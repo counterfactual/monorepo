@@ -11,6 +11,7 @@ export class AccountEthForm {
   @Prop() header: string = "";
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
+  @Prop() provideFaucetLink: boolean = false;
   @Prop() min: number = 0.01;
   @Prop() max: number = 1;
   @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
@@ -22,6 +23,10 @@ export class AccountEthForm {
   update(event) {
     this.error = "";
     this.value = event.target.value;
+  }
+
+  openFaucet() {
+    window.open("https://faucet.metamask.io/", "_blank");
   }
 
   handleSubmit(event) {
@@ -78,6 +83,17 @@ export class AccountEthForm {
           >
             {this.button}
           </form-button>
+
+          {this.provideFaucetLink ? (
+            <form-button
+              class="button button--secondary"
+              onButtonPressed={this.openFaucet.bind(this)}
+            >
+              Get Free ETH (test faucet)
+            </form-button>
+          ) : (
+            undefined
+          )}
         </form-container>
       </div>
     );
