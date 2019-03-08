@@ -10,7 +10,7 @@ import { UserSession } from "../../../types";
 @Component({
   tag: "account-deposit",
   styleUrl: "account-deposit.scss",
-  shadow: true
+  shadow: false
 })
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;

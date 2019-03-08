@@ -3,7 +3,7 @@ import { Component, Prop } from "@stencil/core";
 @Component({
   tag: "widget-screen",
   styleUrl: "widget-screen.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetScreen {
   @Prop() exitable: boolean = true;

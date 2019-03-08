@@ -6,7 +6,7 @@ import { UserSession } from "../../../../types";
 @Component({
   tag: "header-balance",
   styleUrl: "header-balance.scss",
-  shadow: true
+  shadow: false
 })
 export class HeaderBalance {
   @Element() el!: HTMLStencilElement;

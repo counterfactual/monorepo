@@ -3,7 +3,7 @@ import { Component, State } from "@stencil/core";
 @Component({
   tag: "widget-dev-flags",
   styleUrl: "widget-dev-flags.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetDevFlags {
   @State() get matchmakeWith() {

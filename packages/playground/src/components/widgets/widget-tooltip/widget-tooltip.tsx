@@ -3,7 +3,7 @@ import { Component, Prop } from "@stencil/core";
 @Component({
   tag: "widget-tooltip",
   styleUrl: "widget-tooltip.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetTooltip {
   @Prop() message: string = "";

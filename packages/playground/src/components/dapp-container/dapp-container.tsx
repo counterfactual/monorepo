@@ -12,7 +12,7 @@ import { AppDefinition, UserSession } from "../../types";
 @Component({
   tag: "dapp-container",
   styleUrl: "dapp-container.scss",
-  shadow: true
+  shadow: false
 })
 export class DappContainer {
   @Element() private element: HTMLElement | undefined;

@@ -3,7 +3,7 @@ import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 @Component({
   tag: "form-button",
   styleUrl: "form-button.scss",
-  shadow: true
+  shadow: false
 })
 export class FormButton {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;

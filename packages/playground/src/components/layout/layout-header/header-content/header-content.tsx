@@ -3,7 +3,7 @@ import { Component, Event, EventEmitter, Prop, State } from "@stencil/core";
 @Component({
   tag: "header-content",
   styleUrl: "header-content.scss",
-  shadow: true
+  shadow: false
 })
 export class HeaderContent {
   @Event() closeDrawer: EventEmitter = {} as EventEmitter;

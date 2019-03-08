@@ -3,7 +3,7 @@ import { Component } from "@stencil/core";
 @Component({
   tag: "widget-header",
   styleUrl: "widget-header.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetHeader {
   render() {

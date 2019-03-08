@@ -11,7 +11,7 @@ const NETWORK_NAMES = {
 @Component({
   tag: "widget-connection",
   styleUrl: "widget-connection.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetConnection {
   @Element() el!: HTMLStencilElement;

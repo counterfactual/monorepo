@@ -6,7 +6,7 @@ import { AppDefinition, UserSession } from "../../../../types";
 
 @Component({
   tag: "dialog-propose-install",
-  shadow: true
+  shadow: false
 })
 export class DialogProposeInstall {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;

@@ -2,7 +2,7 @@ import { Component, Prop, State } from "@stencil/core";
 
 @Component({
   tag: "dialog-reject-install",
-  shadow: true
+  shadow: false
 })
 export class DialogRejectInstall {
   @Prop() message: any;

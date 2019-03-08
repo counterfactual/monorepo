@@ -3,7 +3,7 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
 @Component({
   tag: "apps-list-item",
   styleUrl: "apps-list-item.scss",
-  shadow: true
+  shadow: false
 })
 export class AppsListItem {
   @Event() appClicked: EventEmitter = {} as EventEmitter;

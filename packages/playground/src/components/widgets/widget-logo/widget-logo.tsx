@@ -3,7 +3,7 @@ import { Component, Prop } from "@stencil/core";
 @Component({
   tag: "widget-logo",
   styleUrl: "widget-logo.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetLogo {
   @Prop() caption: string = "";

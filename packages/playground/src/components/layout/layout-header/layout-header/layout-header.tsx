@@ -3,7 +3,7 @@ import { Component, State } from "@stencil/core";
 @Component({
   tag: "layout-header",
   styleUrl: "layout-header.scss",
-  shadow: true
+  shadow: false
 })
 export class LayoutHeader {
   @State() drawerOpened: boolean = false;

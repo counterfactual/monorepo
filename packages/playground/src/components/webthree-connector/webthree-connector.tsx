@@ -9,7 +9,7 @@ const permittedNetworkIds = ["3"];
 
 @Component({
   tag: "webthree-connector",
-  shadow: true
+  shadow: false
 })
 export class Web3Connector {
   @Prop() accountState: AccountState = {} as AccountState;

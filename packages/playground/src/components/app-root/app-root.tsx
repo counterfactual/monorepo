@@ -31,7 +31,7 @@ const delay = (timeInMilliseconds: number) =>
 @Component({
   tag: "app-root",
   styleUrl: "app-root.scss",
-  shadow: true
+  shadow: false
 })
 export class AppRoot {
   @State() loading: boolean = true;

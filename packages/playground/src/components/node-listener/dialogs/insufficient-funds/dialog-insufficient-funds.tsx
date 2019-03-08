@@ -2,7 +2,7 @@ import { Component, Prop } from "@stencil/core";
 
 @Component({
   tag: "dialog-insufficient-funds",
-  shadow: true
+  shadow: false
 })
 export class DialogInsufficientFunds {
   @Prop() message: any;

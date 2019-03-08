@@ -3,7 +3,7 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
 @Component({
   tag: "account-eth-form",
   styleUrl: "account-eth-form.scss",
-  shadow: true
+  shadow: false
 })
 export class AccountEthForm {
   @Event() submit: EventEmitter = {} as EventEmitter;

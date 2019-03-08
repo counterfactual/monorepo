@@ -15,7 +15,7 @@ type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
 
 @Component({
   tag: "node-listener",
-  shadow: true
+  shadow: false
 })
 export class NodeListener {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;

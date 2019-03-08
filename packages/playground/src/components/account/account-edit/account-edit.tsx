@@ -8,7 +8,7 @@ import { UserChangeset, UserSession } from "../../../types";
 @Component({
   tag: "account-edit",
   styleUrl: "account-edit.scss",
-  shadow: true
+  shadow: false
 })
 export class AccountEdit {
   @Element() el!: HTMLStencilElement;

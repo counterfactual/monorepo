@@ -9,7 +9,7 @@ import { AppDefinition, UserSession } from "../../../types";
 @Component({
   tag: "app-home",
   styleUrl: "app-home.scss",
-  shadow: true
+  shadow: false
 })
 export class AppHome {
   @Element() private element: HTMLElement | undefined;

@@ -15,7 +15,7 @@ import { UserSession } from "../../../../types";
 @Component({
   tag: "header-account",
   styleUrl: "header-account.scss",
-  shadow: true
+  shadow: false
 })
 export class HeaderAccount {
   @Element() el!: HTMLStencilElement;

@@ -6,7 +6,7 @@ import { ErrorMessage } from "../../../types";
 @Component({
   tag: "widget-error-message",
   styleUrl: "widget-error-message.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetErrorMessage {
   @Element() el!: HTMLStencilElement;

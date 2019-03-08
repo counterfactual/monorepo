@@ -11,7 +11,7 @@ const HUB_IS_DEPOSITING_ALERT =
 @Component({
   tag: "account-exchange",
   styleUrl: "account-exchange.scss",
-  shadow: true
+  shadow: false
 })
 export class AccountExchange {
   @Element() el!: HTMLStencilElement;

@@ -28,7 +28,7 @@ function buildLoginSignaturePayload(address: string) {
 @Component({
   tag: "account-register",
   styleUrl: "account-register.scss",
-  shadow: true
+  shadow: false
 })
 export class AccountRegister {
   @Element() el!: HTMLStencilElement;

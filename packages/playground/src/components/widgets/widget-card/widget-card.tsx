@@ -3,7 +3,7 @@ import { Component } from "@stencil/core";
 @Component({
   tag: "widget-card",
   styleUrl: "widget-card.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetCard {
   render() {

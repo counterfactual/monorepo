@@ -3,7 +3,7 @@ import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 @Component({
   tag: "widget-dialog",
   styleUrl: "widget-dialog.scss",
-  shadow: true
+  shadow: false
 })
 export class WidgetDialog {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;

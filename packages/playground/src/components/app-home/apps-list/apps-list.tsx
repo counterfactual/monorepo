@@ -7,7 +7,7 @@ import { AppDefinition, UserSession } from "../../../types";
 @Component({
   tag: "apps-list",
   styleUrl: "apps-list.scss",
-  shadow: true
+  shadow: false
 })
 export class AppsList {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
