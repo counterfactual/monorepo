@@ -1,15 +1,15 @@
 const webdriver = require("selenium-webdriver");
 const chrome = require("selenium-webdriver/chrome");
-const { By } = webdriver;
+const { By, until } = webdriver;
 const path = require("path");
 
 function encode(file) {
   var stream = require("fs").readFileSync(file);
-  return new Buffer(stream).toString("base64");
+  return Buffer.from(stream).toString("base64");
 }
 
 function decode(b64String) {
-  return new Buffer(b64String, "base64");
+  return Buffer.from(b64String, "base64");
 }
 
 let chromeOptions = new chrome.Options();
@@ -46,19 +46,39 @@ module.exports = async function runTests(setup, tests) {
   }
 
   console.log("Setting up test environment...");
-  await setup(driver, session, url, handles, window);
+  try {
+    if (!(await setup(driver, session, url, handles, window))) {
+      console.error(
+        "Setup failed. Make sure you're running a local instance of the Playground."
+      );
+
+      await driver.quit();
+      process.exit(1);
+    }
+  } catch (e) {
+    console.error("Setup failed", e);
+    setTimeout(async () => {
+      await driver.quit();
+      process.exit(1);
+    }, 100);
+    return;
+  }
 
   console.log("Running tests...");
 
-  await Promise.all(
-    tests.map(async (test, index) => {
-      console.log(
-        `Test ${index + 1} of ${tests.length}: `,
-        (await test(driver, session, url, handles, window)) ? "OK" : "Failed"
-      );
-      return Promise.resolve();
-    })
-  );
-
-  driver.close();
+  try {
+    await Promise.all(
+      tests.map(async (test, index) => {
+        console.log(
+          `Scenario ${index + 1} of ${tests.length}: `,
+          (await test(driver, session, url, handles, window)) ? "OK" : "Failed"
+        );
+        return Promise.resolve();
+      })
+    );
+  } catch (error) {
+    console.log("Tests failed", error);
+  } finally {
+    setTimeout(async () => await driver.quit(), 100);
+  }
 };
