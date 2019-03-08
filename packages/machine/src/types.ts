@@ -20,7 +20,7 @@ export type ProtocolExecutionFlow = {
 };
 
 export type Middleware = {
-  (args: any[]): any;
+  (args: any): any;
 };
 
 export type Instruction = Function | Opcode;
