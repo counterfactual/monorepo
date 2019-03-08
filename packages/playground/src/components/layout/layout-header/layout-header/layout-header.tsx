@@ -24,11 +24,25 @@ export class LayoutHeader {
       />,
       <header class="header">
         <div class="hide-on-desktop">
-          <a class="drawer-toggle" onClick={e => this.openDrawerHandler(e)}>
-            <img src="/assets/icon/menu-btn.svg" alt="Menu" />
-          </a>
+          <div class="mobile-content">
+            <a class="drawer-toggle" onClick={e => this.openDrawerHandler(e)}>
+              <img src="/assets/icon/menu-btn.svg" alt="Menu" />
+            </a>
+            <div class="logo-container">
+              <stencil-route-link url="/">
+                <img
+                  src="/assets/icon/logo.svg"
+                  alt="Counterfactual"
+                  class="logo"
+                />
+              </stencil-route-link>
+            </div>
+            <div class="account-container">
+              <header-balance />
+            </div>
+          </div>
         </div>
-        <div class="hide-on-mobile">
+        <div class="hide-on-mobile desktop-wrapper">
           <header-content />
         </div>
       </header>
