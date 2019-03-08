@@ -35,8 +35,7 @@ export default {
     }),
     commonjs({
       include: [
-        "node_modules/eventemitter3/index.js",
-        "../node-provider/node_modules/eventemitter3/index.js"
+        "../../node_modules/eventemitter3/index.js"
       ]
     }),
     typescript(),

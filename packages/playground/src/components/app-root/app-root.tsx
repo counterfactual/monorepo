@@ -12,10 +12,21 @@ import FirebaseDataProvider, {
 } from "../../data/firebase";
 import PlaygroundAPIClient from "../../data/playground-api-client";
 import WalletTunnel, { WalletState } from "../../data/wallet";
+import { UserSession } from "../../types";
 
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
+
+const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+  "1": "",
+  "3": "ropsten",
+  "42": "kovan",
+  "4": "rinkeby"
+};
+
+const delay = (timeInMilliseconds: number) =>
+  new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
 @Component({
   tag: "app-root",
@@ -26,8 +37,9 @@ export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [] };
+  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
+  @State() balancePolling: any;
 
   modal: JSX.Element = <div />;
 
@@ -53,7 +65,7 @@ export class AppRoot {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
-  async updateAppRegistry(newProps: AppRegistryState) {
+  async updateAppRegistry(newProps: Partial<AppRegistryState>) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
   }
 
@@ -177,7 +189,7 @@ export class AppRoot {
     } = this.accountState;
     const { provider } = this.walletState;
 
-    if (!provider) {
+    if (!provider || !multisigAddress || !ethAddress) {
       return;
     }
 
@@ -214,8 +226,6 @@ export class AppRoot {
       signature
     );
 
-    await this.getBalances();
-
     window.localStorage.setItem(
       "playground:user:token",
       loggedUser.token as string
@@ -223,15 +233,19 @@ export class AppRoot {
 
     await this.updateAccount({ user: loggedUser });
 
+    await this.getBalances();
+
     return loggedUser;
   }
 
-  async getBalances(): Promise<{
+  async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
+
     const {
-      user: { multisigAddress, ethAddress }
+      user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
     const node = CounterfactualNode.getInstance();
@@ -244,21 +258,69 @@ export class AppRoot {
     }
 
     const query = {
-      type: Node.MethodName.GET_MY_FREE_BALANCE_FOR_STATE,
+      type: Node.MethodName.GET_FREE_BALANCE_STATE,
       requestId: window["uuid"](),
-      params: { multisigAddress } as Node.GetMyFreeBalanceForStateParams
+      params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
     const { result } = await node.call(query.type, query);
 
-    const { balance } = result as Node.GetMyFreeBalanceForStateResult;
+    const { state } = result as Node.GetFreeBalanceStateResult;
+
+    // Had to reimplement this on the frontend because the method can't be imported
+    // due to ethers not playing nice with ES Modules in this context.
+    const getAddress = (xkey: string, k: number) =>
+      ethers.utils.computeAddress(
+        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
+          .publicKey
+      );
+
+    const balances = [
+      ethers.utils.bigNumberify(state.aliceBalance),
+      ethers.utils.bigNumberify(state.bobBalance)
+    ];
+
+    const [myBalance, counterpartyBalance] = [
+      balances[
+        [state.alice, state.bob].findIndex(
+          address => address === getAddress(nodeAddress, 0)
+        )
+      ],
+      balances[
+        [state.alice, state.bob].findIndex(
+          address => address !== getAddress(nodeAddress, 0)
+        )
+      ]
+    ];
 
     const vals = {
-      ethFreeBalanceWei: ethers.utils.bigNumberify(balance),
-      ethMultisigBalance: await provider!.getBalance(multisigAddress)
+      ethFreeBalanceWei: myBalance,
+      ethMultisigBalance: await provider!.getBalance(multisigAddress),
+      ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
+    const canUseApps =
+      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
+      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+
+    this.updateAppRegistry({
+      canUseApps
+    });
+
     await this.updateAccount(vals);
+
+    // TODO: Replace this with a more event-driven approach,
+    // based on a list of collateralized deposits.
+    if (poll) {
+      if (canUseApps) {
+        clearTimeout(this.balancePolling);
+      } else {
+        this.balancePolling = setTimeout(
+          async () => this.getBalances({ poll }),
+          1000
+        );
+      }
+    }
 
     return vals;
   }
@@ -278,9 +340,15 @@ export class AppRoot {
   }
 
   async deposit(valueInWei: BigNumber) {
-    const {
-      user: { multisigAddress }
-    } = this.accountState;
+    let multisigAddress = this.accountState.user.multisigAddress;
+    while (!multisigAddress) {
+      multisigAddress = this.accountState.user.multisigAddress;
+      if (multisigAddress) {
+        break;
+      }
+      await delay(1000);
+      console.log("waited for a second");
+    }
 
     const node = CounterfactualNode.getInstance();
 
@@ -307,7 +375,7 @@ export class AppRoot {
       console.error(e);
     }
 
-    await this.getBalances();
+    await this.getBalances({ poll: true });
     await this.resetPendingDepositState();
 
     return ret;
@@ -388,7 +456,8 @@ export class AppRoot {
     await this.updateAccount({ user });
 
     if (!user.multisigAddress) {
-      setTimeout(this.fetchMultisig.bind(this, userToken), 1000);
+      await delay(1000);
+      await this.fetchMultisig(userToken);
     } else {
       await this.requestToDepositInitialFunding();
     }
@@ -421,7 +490,7 @@ export class AppRoot {
         const loggedUser = await PlaygroundAPIClient.getUser(token);
         this.updateAccount({ user: loggedUser });
       } catch {
-        window.localStorage.removeItem("playground:user:token");
+        this.logout();
         return;
       }
     }
@@ -433,12 +502,30 @@ export class AppRoot {
     }
   }
 
+  logout() {
+    window.localStorage.removeItem("playground:user:token");
+    this.updateAccount({ user: {} as UserSession });
+  }
+
+  getEtherscanAddressURL(address: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/address/${address}`;
+  }
+
+  getEtherscanTxURL(tx: string) {
+    return `https://${
+      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network as string]
+    }.etherscan.io/tx/${tx}`;
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
       updateAccount: this.updateAccount.bind(this),
       waitForMultisig: this.waitForMultisig.bind(this),
       login: this.login.bind(this),
+      logout: this.logout.bind(this),
       getBalances: this.getBalances.bind(this),
       autoLogin: this.autoLogin.bind(this),
       deposit: this.deposit.bind(this),
@@ -448,6 +535,12 @@ export class AppRoot {
     this.walletState.updateWalletConnection = this.updateWalletConnection.bind(
       this
     );
+
+    this.walletState.getEtherscanAddressURL = this.getEtherscanAddressURL.bind(
+      this
+    );
+    this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
+
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {

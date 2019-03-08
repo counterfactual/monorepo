@@ -24,6 +24,13 @@ export class AccountDeposit {
   @State() error: string = "";
   @State() amountDeposited;
 
+  componentDidUpdate() {
+    if (!this.user || !this.user.id) {
+      this.history.push("/");
+      return;
+    }
+  }
+
   get node() {
     return CounterfactualNode.getInstance();
   }
@@ -77,9 +84,12 @@ export class AccountDeposit {
 
         <account-eth-form
           onSubmit={this.formSubmitionHandler.bind(this)}
+          autofocus={true}
+          provideFaucetLink={true}
           button="Deposit"
           available={this.ethWeb3WalletBalance}
-          max={ethers.utils.parseEther("1")}
+          min={0}
+          max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
           error={this.error}
         />
       </widget-screen>

@@ -31,7 +31,7 @@ export default class Waiting extends Component {
 
   render() {
     return (
-      <div className="wrapper">
+      <div className="wrapper horizontal-constraint">
         <div className="waiting">
           <div className="message">
             <h1 className="message__title">Waiting Room</h1>

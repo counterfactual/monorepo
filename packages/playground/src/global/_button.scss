@@ -17,6 +17,12 @@
     background-color: $c-bluelightened;
   }
 
+  .icon {
+    height: 16px;
+    padding-right: 10px;
+    position: relative;
+    top: 2px;
+  }
 }
 
 .btn-alternate {
@@ -28,15 +34,14 @@
       background-color: $c-lessdarkgrey;
     }
   }
-
 }
 
 .btn-container {
   display: flex;
   flex-direction: row;
-   .btn {
+  .btn {
     margin-right: 10px;
-     &:last-child {
+    &:last-child {
       margin-right: 0;
     }
   }

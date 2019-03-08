@@ -1,5 +1,6 @@
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
+import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes, SigningKey } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
@@ -33,7 +34,10 @@ describe("InstructionExecutor", () => {
   let instructionExecutor: InstructionExecutor;
 
   beforeAll(() => {
-    instructionExecutor = new InstructionExecutor(networkContext);
+    instructionExecutor = new InstructionExecutor(
+      networkContext,
+      {} as JsonRpcProvider // This test does not use a provider
+    );
 
     // We must register _some_ middleware for each opcode or the machine
     // will fail with an error like "While executing op number <x> at seq

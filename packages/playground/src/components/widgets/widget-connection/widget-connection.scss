@@ -27,3 +27,10 @@
     transform: scale(1);
   }
 }
+
+@media screen and (max-width: $screen-sm) {
+  .dot {
+    margin-right: 13px;
+    margin-left: 4px;
+  }
+}

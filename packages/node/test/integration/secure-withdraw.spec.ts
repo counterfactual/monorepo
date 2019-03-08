@@ -1,6 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -16,8 +16,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import {
   getMultisigCreationTransactionHash,
   makeDepositRequest,
-  makeWithdrawRequest,
-  TEST_NETWORK
+  makeWithdrawRequest
 } from "./utils";
 
 describe("Node method follows spec - withdraw", () => {
@@ -30,7 +29,7 @@ describe("Node method follows spec - withdraw", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -55,7 +54,6 @@ describe("Node method follows spec - withdraw", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -68,7 +66,6 @@ describe("Node method follows spec - withdraw", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
@@ -77,7 +74,7 @@ describe("Node method follows spec - withdraw", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after withdrawal", async () => {
+  it("has the right balance for both parties after withdrawal", async done => {
     nodeA.on(
       NODE_EVENTS.CREATE_CHANNEL,
       async (data: NodeTypes.CreateChannelResult) => {
@@ -100,6 +97,8 @@ describe("Node method follows spec - withdraw", () => {
         expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
           0
         );
+
+        done();
       }
     );
     await getMultisigCreationTransactionHash(nodeA, [

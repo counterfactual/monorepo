@@ -1,4 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 
 import { Opcode, Protocol } from "./enums";
 import { MiddlewareContainer } from "./middleware";
@@ -12,6 +13,7 @@ import {
   Middleware,
   ProtocolMessage,
   SetupParams,
+  TakeActionParams,
   UninstallParams,
   UninstallVirtualAppParams,
   UpdateParams,
@@ -21,7 +23,10 @@ import {
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
 
-  constructor(public readonly network: NetworkContext) {
+  constructor(
+    public readonly network: NetworkContext,
+    public readonly provider: BaseProvider
+  ) {
     this.middlewares = new MiddlewareContainer();
   }
 
@@ -55,8 +60,22 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
+    });
+  }
+
+  public async runTakeActionProtocol(
+    sc: Map<string, StateChannel>,
+    params: TakeActionParams
+  ) {
+    const protocol = Protocol.TakeAction;
+    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+      params,
+      protocol,
+      seq: 0,
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -69,8 +88,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -83,8 +102,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.respondingXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.respondingXpub
     });
   }
 
@@ -97,8 +116,8 @@ export class InstructionExecutor {
         protocol,
         params,
         seq: 0,
-        fromAddress: params.initiatingXpub,
-        toAddress: params.respondingXpub
+        fromXpub: params.initiatingXpub,
+        toXpub: params.respondingXpub
       }
     );
   }
@@ -112,8 +131,8 @@ export class InstructionExecutor {
         protocol,
         params,
         seq: 0,
-        fromAddress: params.initiatingXpub,
-        toAddress: params.respondingXpub
+        fromXpub: params.initiatingXpub,
+        toXpub: params.respondingXpub
       }
     );
   }
@@ -127,8 +146,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.intermediaryXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.intermediaryXpub
     });
   }
 
@@ -141,8 +160,8 @@ export class InstructionExecutor {
       params,
       protocol,
       seq: 0,
-      fromAddress: params.initiatingXpub,
-      toAddress: params.intermediaryXpub
+      fromXpub: params.initiatingXpub,
+      toXpub: params.intermediaryXpub
     });
   }
 
@@ -166,7 +185,9 @@ export class InstructionExecutor {
       const instruction = instructions[instructionPointer];
       try {
         if (typeof instruction === "function") {
-          instruction.call(null, msg, context);
+          // NOTE: Must await since provider eth_calls are async
+          // TODO: Remove async once we have a local JS EVM to run solidity code
+          await instruction.call(null, msg, context, this.provider);
         } else {
           await this.middlewares.run(msg, instruction, context);
         }

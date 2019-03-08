@@ -17,8 +17,6 @@ import { v4 as generateUUID } from "uuid";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
-export const TEST_NETWORK = "ganache";
-
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -195,7 +193,7 @@ export function makeInstallProposalRequest(
   proposedToIdentifier: string,
   nullInitialState: boolean = false
 ): NodeTypes.MethodRequest {
-  let initialState = null;
+  let initialState;
 
   if (!nullInitialState) {
     initialState = {
@@ -221,6 +219,30 @@ export function makeInstallProposalRequest(
   };
   return {
     params,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL
+  } as NodeTypes.MethodRequest;
+}
+
+export function makeTTTProposalReq(
+  proposedToIdentifier: string,
+  appId: Address,
+  initialState: SolidityABIEncoderV2Struct,
+  abiEncodings: AppABIEncodings
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      proposedToIdentifier,
+      appId,
+      initialState,
+      abiEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One
+    } as NodeTypes.ProposeInstallParams,
     requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
@@ -357,4 +379,30 @@ export function generateUninstallVirtualRequest(
     requestId: generateUUID(),
     type: NodeTypes.MethodName.UNINSTALL_VIRTUAL
   };
+}
+
+export function makeTTTVirtualAppInstanceProposalReq(
+  proposedToIdentifier: string,
+  appId: Address,
+  initialState: SolidityABIEncoderV2Struct,
+  abiEncodings: AppABIEncodings,
+  intermediaries: string[]
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      intermediaries,
+      proposedToIdentifier,
+      appId,
+      initialState,
+      abiEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One
+    } as NodeTypes.ProposeInstallVirtualParams,
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
+  } as NodeTypes.MethodRequest;
 }

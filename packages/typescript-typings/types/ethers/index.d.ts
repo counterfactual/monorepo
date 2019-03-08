@@ -23,6 +23,7 @@ type BigNumber = {
   toString(): string;
   toHexString(): string;
   static isBigNumber(value: any): value is BigNumber;
+  isBigNumber(value: any): value is BigNumber;
 };
 
 type Signer = {
@@ -43,12 +44,19 @@ declare class Web3Provider {
   estimateGas(tx): Promise<any>;
 }
 
+declare class HDNode {
+  static fromExtendedKey(key: string): HDNode;
+  derivePath(path: string): { publicKey: string };
+}
+
 declare var ethers = {
   utils: {
     formatEther: (value: BigNumber) => string,
     parseEther: (value: string) => BigNumber,
     bigNumberify: (value: any) => BigNumber,
-    solidityKeccak256: (type: string[], data: any[]) => string
+    solidityKeccak256: (type: string[], data: any[]) => string,
+    computeAddress: (value: any) => string,
+    HDNode: HDNode
   },
   constants: {
     Zero: BigNumber

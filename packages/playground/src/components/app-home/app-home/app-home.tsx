@@ -16,6 +16,7 @@ export class AppHome {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() apps: AppDefinition[] = [];
+  @Prop() canUseApps: boolean = false;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() web3Detected: boolean = false;
   @Prop() hasDetectedNetwork: boolean = false;
@@ -139,14 +140,14 @@ export class AppHome {
       return;
     }
 
-    return (
-      <div class="loading">
-        <div class="spinner">
-          <div class="bounce1" />
-          <div class="bounce2" />
-          <div class="bounce3" />
-        </div>
-      </div>
+    return <widget-spinner type="dots" />;
+  }
+
+  getSuggestedWallet() {
+    return screen.width < 600 ? (
+      <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>
+    ) : (
+      <a href="https://metamask.io/">Metamask</a>
     );
   }
 
@@ -160,8 +161,8 @@ export class AppHome {
         <h1>404: Wallet Not Found :(</h1>
         <h2>
           This demo has been designed to be used with a Web3-compatible wallet
-          such as <a href="https://metamask.io/">Metamask</a> to function.
-          Please enable or download one to continue!
+          such as {this.getSuggestedWallet()} to function. Please enable or
+          download one to continue!
         </h2>
       </div>
     );
@@ -188,6 +189,7 @@ export class AppHome {
       <div class="container">
         <apps-list
           apps={this.apps}
+          canUseApps={this.canUseApps}
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
@@ -272,7 +274,7 @@ export class AppHome {
   }
 }
 
-AppRegistryTunnel.injectProps(AppHome, ["apps"]);
+AppRegistryTunnel.injectProps(AppHome, ["apps", "canUseApps"]);
 
 WalletTunnel.injectProps(AppHome, [
   "web3Detected",

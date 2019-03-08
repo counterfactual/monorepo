@@ -46,6 +46,7 @@ export abstract class NodeController {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Queue> {
+    // @ts-ignore
     return null;
   }
 }

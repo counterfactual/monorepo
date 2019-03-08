@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppAction,
   AppInstanceID,
   AppInstanceInfo,
   BlockchainAsset,
@@ -85,7 +84,9 @@ export class AppInstance {
    * @param action Action to take
    * @return JSON representation of latest state after applying the action
    */
-  async takeAction(action: AppAction): Promise<SolidityABIEncoderV2Struct> {
+  async takeAction(
+    action: SolidityABIEncoderV2Struct
+  ): Promise<SolidityABIEncoderV2Struct> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
       {
@@ -103,7 +104,11 @@ export class AppInstance {
    *
    * @async
    */
-  async uninstall(intermediaryIdentifier?: string) {
+  async uninstall() {
+    const intermediaryIdentifier = this.intermediaries
+      ? this.intermediaries[0]
+      : undefined;
+
     await this.provider.callRawNodeMethod(
       intermediaryIdentifier
         ? Node.MethodName.UNINSTALL_VIRTUAL

@@ -6,6 +6,7 @@ import {
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
+import { JsonRpcProvider } from "ethers/providers";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 import { v4 as generateUUID } from "uuid";
@@ -23,7 +24,10 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install without appInstanceId", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    const instructionExecutor = new InstructionExecutor(
+      EMPTY_NETWORK,
+      {} as JsonRpcProvider
+    );
     await expect(
       install(store, instructionExecutor, AddressZero, AddressZero, {
         appInstanceId: undefined! // Simulate an undefined `appInstanceId`
@@ -33,7 +37,10 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install without appInstanceId", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    const instructionExecutor = new InstructionExecutor(
+      EMPTY_NETWORK,
+      {} as JsonRpcProvider
+    );
     const params = { appInstanceId: "" };
     await expect(
       install(store, instructionExecutor, AddressZero, AddressZero, params)
@@ -42,7 +49,10 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install without the AppInstance being proposed first", async () => {
     const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    const instructionExecutor = new InstructionExecutor(
+      EMPTY_NETWORK,
+      {} as JsonRpcProvider
+    );
     const appInstanceId = HashZero;
     await expect(
       install(store, instructionExecutor, AddressZero, AddressZero, {
@@ -56,7 +66,10 @@ describe("Can handle correct & incorrect installs", () => {
   it("fails to install without the AppInstanceId being in a channel", async () => {
     expect.hasAssertions();
 
-    const instructionExecutor = new InstructionExecutor(EMPTY_NETWORK);
+    const instructionExecutor = new InstructionExecutor(
+      EMPTY_NETWORK,
+      {} as JsonRpcProvider
+    );
 
     const mockedStore = mock(Store);
     const store = instance(mockedStore);

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 // import Timer from './components/Timer';
 import Board from "./components/Board";
+import Coins from "./components/Coins";
 import Player from "./components/Player";
 import { Link } from "react-router-dom";
 import { checkDraw, checkVictory } from "./utils/check-end-conditions";
@@ -14,7 +15,11 @@ class Game extends Component {
         players: [],
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
         winner: 0
-      }
+      },
+      pendingActionResponse: false,
+      my0thKeyAddress: window.ethers.utils.HDNode.fromExtendedKey(
+        props.user.nodeAddress
+      ).derivePath("0").address
     };
   }
 
@@ -27,16 +32,27 @@ class Game extends Component {
 
     this.props.appInstance.on("updateState", this.onUpdateState.bind(this));
     const state = await this.props.appInstance.getState();
+
     this.updateGame(state);
   }
 
-  // TODO: This remapping should be removed once the Node properly formats the message.
-  async onUpdateState({ data: { newState } }) {
-    const [players, turnNum, winner, board] = newState;
+  async onUpdateState({
+    data: {
+      newState: { players, turnNum, winner, board }
+    }
+  }) {
     this.updateGame({ players, turnNum, winner, board });
 
-    if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
-      await this.props.appInstance.uninstall(this.props.intermediary);
+    if (
+      window.ethers.utils.bigNumberify(this.myNumber).eq(winner) ||
+      window.ethers.utils.bigNumberify(this.opponentNumber).eq(winner)
+    ) {
+      try {
+        console.log("game over - uninstalling");
+        await this.props.appInstance.uninstall(this.props.intermediary);
+      } catch (e) {
+        console.log("uninstall failed: ", e);
+      }
     }
   }
 
@@ -56,6 +72,8 @@ class Game extends Component {
   }
 
   async takeAction(playX, playY) {
+    this.setState({ pendingActionResponse: true });
+
     const boardCopy = JSON.parse(JSON.stringify(this.state.gameState.board));
     boardCopy[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
 
@@ -77,7 +95,7 @@ class Game extends Component {
       playY
     });
 
-    this.setState({ gameState: response });
+    this.setState({ gameState: response, pendingActionResponse: false });
   }
 
   // TODO: handle timeout
@@ -88,7 +106,7 @@ class Game extends Component {
   get myNumber() {
     return (
       this.state.gameState.players.indexOf(
-        window.ethers.utils.getAddress(this.props.user.ethAddress)
+        window.ethers.utils.getAddress(this.state.my0thKeyAddress)
       ) + 1
     );
   }
@@ -108,36 +126,43 @@ class Game extends Component {
   }
 
   render() {
+    const youWon = checkVictory(this.state.gameState.board, this.myNumber);
+
     return (
-      <div className="game">
-        <Player
-          winner={this.state.gameState.winner}
-          gameInfo={this.props.gameInfo}
-          isMyTurn={this.isMyTurn}
-          myNumber={this.myNumber}
-          opponentNumber={this.opponentNumber}
-        />
+      <div>
+        <div className="game horizontal-constraint">
+          <Player
+            winner={this.state.gameState.winner}
+            gameInfo={this.props.gameInfo}
+            isMyTurn={this.isMyTurn}
+            myNumber={this.myNumber}
+            opponentNumber={this.opponentNumber}
+          />
 
-        {/* <Timer
-          isMyTurn={this.isMyTurn}
-          onTimeout={this.timeout.bind(this)}
-        /> */}
+          {/* <Timer
+            isMyTurn={this.isMyTurn}
+            onTimeout={this.timeout.bind(this)}
+          /> */}
 
-        <Board
-          board={this.state.gameState.board}
-          isMyTurn={this.isMyTurn}
-          myNumber={this.myNumber}
-          opponentNumber={this.opponentNumber}
-          onTakeAction={this.takeAction.bind(this)}
-        />
+          <Board
+            disabled={this.state.pendingActionResponse}
+            board={this.state.gameState.board}
+            isMyTurn={this.isMyTurn}
+            myNumber={this.myNumber}
+            opponentNumber={this.opponentNumber}
+            onTakeAction={this.takeAction.bind(this)}
+          />
 
-        {this.state.gameState.winner ? (
-          <Link to="/wager" className="btn">
-            PLAY AGAIN!
-          </Link>
-        ) : (
-          undefined
-        )}
+          {this.state.gameState.winner ? (
+            <Link to="/wager" className="btn">
+              PLAY AGAIN!
+            </Link>
+          ) : (
+            undefined
+          )}
+        </div>
+
+        {youWon ? <Coins /> : undefined}
       </div>
     );
   }
