@@ -173,6 +173,7 @@ export class HeaderAccount {
             ) : (
               <button
                 onClick={this.onLoginClicked.bind(this)}
+                id="login"
                 class="btn"
                 disabled={this.metamaskConfirmationUIOpen}
               >
@@ -180,7 +181,7 @@ export class HeaderAccount {
                 {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Login"}
               </button>
             )}
-            <stencil-route-link url="/register">
+            <stencil-route-link url="/register" anchorId="register">
               <button class="btn btn-alternate">
                 <img class="icon" src="/assets/icon/register.svg" />
                 Register
