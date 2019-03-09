@@ -68,13 +68,7 @@ module.exports = async function runTests(setup, tests) {
 
   try {
     await Promise.all(
-      tests.map(async (test, index) => {
-        console.log(
-          `Scenario ${index + 1} of ${tests.length}: `,
-          (await test(driver, session, url, handles, window)) ? "OK" : "Failed"
-        );
-        return Promise.resolve();
-      })
+      tests.map(async test => test(driver, session, url, handles, window))
     );
   } catch (error) {
     console.log("Tests failed", error);

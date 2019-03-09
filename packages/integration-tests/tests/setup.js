@@ -8,7 +8,7 @@ module.exports = async (
   /** @type {string} */ windowHandle
 ) => {
   // Configures the wallet.
-  await driver.wait(new Promise(resolve => setTimeout(resolve, 5000)));
+  await driver.sleep(5000);
   await driver.switchTo().window((await driver.getAllWindowHandles())[1]);
 
   const seedPhrase =
@@ -24,7 +24,7 @@ module.exports = async (
   await driver.findElement(By.className("btn-default")).click();
 
   // Add seedphrase and password.
-  await driver.wait(new Promise(resolve => setTimeout(resolve, 3000)));
+  await driver.sleep(2000);
 
   await driver
     .findElement(By.className("first-time-flow__textarea"))
@@ -57,7 +57,7 @@ module.exports = async (
 
   // Checks the local Playground UI to be working.
   await driver.get("http://localhost:3334");
-  await driver.wait(new Promise(resolve => setTimeout(resolve, 5000)));
+  await driver.sleep(3000);
 
   return true;
 };
