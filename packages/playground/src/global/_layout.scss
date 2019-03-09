@@ -4,7 +4,8 @@
   min-height: 100vh;
   transition: transform 150ms;
 
-  &--open { // on menu-btn click
+  &--open {
+    // on menu-btn click
     transform: translateX(-15rem);
   }
 
@@ -21,4 +22,21 @@
 .container {
   max-width: $site-width;
   margin: 0 auto;
+}
+
+// Needed for E2E to recognize elements.
+stencil-route.hydrated {
+  height: 100%;
+  display: flex;
+}
+
+node-listener.hydrated {
+  height: 100%;
+  display: block;
+}
+
+app-root.hydrated,
+layout-header.hydrated,
+header-content.hydrated {
+  display: block;
 }
