@@ -90,28 +90,29 @@ export class AppRoot {
         this.updateAccount(account);
 
         this.userDataReceived = true;
-
-        if (this.state.appInstance) {
-          this.updateOpponent({
-            attributes: {
-              username: this.state.appInstance.initialState.playerNames.find(
-                username => username !== this.state.account.user.username
-              ),
-              nodeAddress: this.state.appInstance.initialState.initiatingAddress
-            }
-          });
-        }
       }
 
       if (
         typeof event.data === "string" &&
-        event.data.startsWith("playground:appInstance")
+        event.data.startsWith("playground:response:appInstance")
       ) {
         const [, data] = event.data.split("|");
 
         if (data) {
+          console.log("Received playground appInstance: ", data);
           const { appInstance } = JSON.parse(data);
           this.updateAppInstance(appInstance);
+
+          this.updateOpponent({
+            attributes: {
+              // username: this.state.appInstance.initialState.playerNames.find(
+              //   username => username !== this.state.account.user.username
+              // ),
+              nodeAddress: this.state.appInstance.initialState.initiatingAddress
+            }
+          });
+
+          this.goToWaitingRoom(this.history);
         }
       }
     });
@@ -293,7 +294,17 @@ export class AppRoot {
                       }}
                     />
                     <stencil-route url="/game" component="app-game" />
-                    <stencil-route url="/waiting" component="app-waiting" />
+                    <stencil-route
+                      url="/waiting"
+                      component="app-waiting"
+                      componentProps={{
+                        cfProvider: this.state.cfProvider,
+                        appInstance: this.state.appInstance,
+                        goToWaitingRoom: this.goToWaitingRoom,
+                        updateAppInstance: this.updateAppInstance,
+                        history: this.history
+                      }}
+                    />
                     <stencil-route
                       url="/accept-invite"
                       component="app-accept-invite"

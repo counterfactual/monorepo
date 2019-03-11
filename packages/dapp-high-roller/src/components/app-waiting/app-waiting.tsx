@@ -18,6 +18,11 @@ export class AppWaiting {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
 
+  @Prop() cfProvider: any;
+  @Prop() opponent: any;
+  @Prop() account: any;
+  @Prop() appInstance: any;
+
   @Prop({ mutable: true }) myName: string = "";
   @Prop({ mutable: true }) betAmount: string = "";
   @Prop({ mutable: true }) opponentName: string = "";
@@ -28,6 +33,10 @@ export class AppWaiting {
   componentWillLoad() {
     this.betAmount = getProp("betAmount", this);
     this.isProposing = getProp("isProposing", this);
+  }
+
+  componentDidLoad() {
+    this.setupWaiting();
   }
 
   countDown() {
@@ -71,7 +80,7 @@ export class AppWaiting {
     if (this.isProposing) {
       this.setupWaitingProposing();
     } else {
-      this.setupWaitingAccepting(cfProvider, appInstance, account, opponent);
+      this.setupWaitingAccepting();
     }
   }
 
@@ -83,50 +92,46 @@ export class AppWaiting {
     this.startCountdown();
   }
 
-  setupWaitingAccepting(cfProvider, appInstance, account, opponent) {
-    cfProvider.once("updateState", () => {
-      this.goToGame(this.opponentName, appInstance.id);
+  setupWaitingAccepting() {
+    this.cfProvider.once("updateState", () => {
+      this.goToGame(this.opponentName, this.appInstance.id);
     });
-    this.myName = account.user.username;
-    this.opponentName = opponent.attributes.username;
+    this.myName = this.account.user.username;
+    this.opponentName = this.opponent.attributes.username;
   }
 
   render() {
     return (
-      <CounterfactualTunnel.Consumer>
-        {({ cfProvider, appInstance, account, opponent }) => [
-          <div>
-            {this.setupWaiting(cfProvider, appInstance, account, opponent)}
-          </div>,
-          <div class="wrapper">
-            <div class="waiting">
-              <div class="message">
-                <img
-                  class="message__icon"
-                  src="/assets/images/logo.svg"
-                  alt="High Roller"
-                />
-                <h1 class="message__title">Waiting Room</h1>
-                <p class="message__body">
-                  {this.isProposing
-                    ? "Waiting for another player to join the game in"
-                    : `Waiting on ${this.opponentName}'s roll...`}
-                </p>
-                {this.isProposing ? (
-                  <p class="countdown">{this.seconds}</p>
-                ) : (
-                  {}
-                )}
-                <p>
-                  Player: {this.myName} <br />
-                  Opponent: {this.opponentName} <br />
-                  Bet Amount: {this.betAmount} ETH
-                </p>
-              </div>
-            </div>
+      <div class="wrapper">
+        <div class="waiting">
+          <div class="message">
+            <img
+              class="message__icon"
+              src="/assets/images/logo.svg"
+              alt="High Roller"
+            />
+            <h1 class="message__title">Waiting Room</h1>
+            <p class="message__body">
+              {this.isProposing
+                ? "Waiting for another player to join the game in"
+                : `Waiting on ${this.opponentName}'s roll...`}
+            </p>
+            {this.isProposing ? <p class="countdown">{this.seconds}</p> : {}}
+            <p>
+              Player: {this.myName} <br />
+              Opponent: {this.opponentName} <br />
+              Bet Amount: {this.betAmount} ETH
+            </p>
           </div>
-        ]}
-      </CounterfactualTunnel.Consumer>
+        </div>
+      </div>
     );
   }
 }
+
+CounterfactualTunnel.injectProps(AppWaiting, [
+  "cfProvider",
+  "appInstance",
+  "account",
+  "opponent"
+]);
