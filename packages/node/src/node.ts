@@ -20,10 +20,7 @@ import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
-import {
-  configureNetworkContext,
-  SUPPORTED_NETWORKS
-} from "./network-configuration";
+import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
@@ -95,25 +92,29 @@ export class Node {
     this.outgoing = new EventEmitter();
     if (typeof networkContext === "string") {
       this.networkContext = configureNetworkContext(networkContext);
+
+      this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
+      if (
+        blocksNeededForConfirmation &&
+        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
+      ) {
+        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
+      }
     } else {
+      // Used for testing / ganache
       this.networkContext = networkContext;
+      this.blocksNeededForConfirmation = 1;
     }
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    if (
-      this.blocksNeededForConfirmation &&
-      typeof networkContext === "string" &&
-      (SUPPORTED_NETWORKS.has(networkContext) &&
-        this.blocksNeededForConfirmation < REASONABLE_NUM_BLOCKS_TO_WAIT)
-    ) {
-      this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    } else {
-      this.blocksNeededForConfirmation = 1;
-    }
+    console.log(
+      `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
+    );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+    console.log(`Node signer address: ${this.signer.address}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,

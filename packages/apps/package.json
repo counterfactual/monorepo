@@ -26,7 +26,7 @@
     "chai": "^4.2.0",
     "ethereum-waffle": "2.0.7",
     "solc": "0.5.3",
-    "ethers": "4.0.26",
+    "ethers": "4.0.27",
     "ethlint": "^1.2.3",
     "mocha": "^6.0.0",
     "truffle-deploy-registry": "0.5.1",

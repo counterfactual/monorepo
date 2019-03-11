@@ -9,7 +9,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
 
 (async () => {
   await NodeWrapper.createNodeSingleton(
-    process.env.ETHEREUM_NETWORK || "ropsten",
+    process.env.ETHEREUM_NETWORK || "kovan",
     process.env.NODE_MNEMONIC
   );
 

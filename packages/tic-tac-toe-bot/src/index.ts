@@ -60,8 +60,8 @@ let node: Node;
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten"),
-    "ropsten"
+    ethers.getDefaultProvider("kovan"),
+    "kovan"
   );
 
   console.log("public identifier", node.publicIdentifier);

@@ -31,7 +31,58 @@
   }
 }
 
+svg {
+  &.login, &.register {
+    path {
+      fill: #ffffff;
+    }
+  }
+
+  &.wallet {
+    path {
+      stroke: #ffffff;
+    }
+
+    path:last-of-type {
+      fill: #ffffff;
+    }
+  }
+
+  &.register {
+    enable-background: new 0 0 48 48;
+    polygon {
+      fill: #ffffff;
+    }
+  }
+}
+
+
 @media screen and (max-width: $screen-sm) {
+  svg {
+    &.login, &.register {
+      path {
+        fill: #000000;
+      }
+    }
+
+    &.wallet {
+      path {
+        stroke: #000000;
+      }
+
+      path:last-of-type {
+        fill: #000000;
+      }
+    }
+
+    &.register {
+      enable-background: new 0 0 48 48;
+      polygon {
+        fill: #000000;
+      }
+    }
+  }
+
   :host {
     width: 100%;
   }

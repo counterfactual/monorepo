@@ -10,7 +10,7 @@ export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 export function configureNetworkContext(network: string): NetworkContext {
   console.log(`Configuring Node to use contracts on network: ${network}`);
 
-  switch (network) {
+  switch (network.toLocaleLowerCase()) {
     case "ropsten": {
       return getContractAddressesForNetwork(RopstenContracts);
     }

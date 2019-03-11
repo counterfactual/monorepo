@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@counterfactual/contracts": "0.1.1",
-    "ethers": "4.0.26",
+    "ethers": "4.0.27",
     "typescript-memoize": "^1.0.0-alpha.3"
   }
 }
