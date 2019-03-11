@@ -122,7 +122,12 @@ export class AppRoot {
   }
 
   async componentDidLoad() {
-    window.parent.postMessage("playground:request:user", "*");
+    if(window === window.parent) {
+      // dApp not running in iFrame
+      window.postMessage({type: "PLUGIN_MESSAGE", data: {message: "playground:request:user"}}, "*")
+    } else {
+      window.parent.postMessage("playground:request:user", "*");
+    }
 
     if (this.state.standalone) {
       const mockAccount = {

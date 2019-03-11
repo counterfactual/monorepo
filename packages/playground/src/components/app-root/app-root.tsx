@@ -61,7 +61,6 @@ export class AppRoot {
       if (typeof event.data !== "string") {
         return;
       }
-      debugger;
     });
 
     this.setup();
