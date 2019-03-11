@@ -39,7 +39,7 @@ export interface NodeConfig {
   STORE_KEY_PREFIX: string;
 }
 
-const REASONABLE_NUM_BLOCKS_TO_WAIT = 3;
+const REASONABLE_NUM_BLOCKS_TO_WAIT = 4;
 
 export class Node {
   /**
@@ -68,8 +68,7 @@ export class Node {
     storeService: IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    network: string,
-    networkContext?: NetworkContext,
+    networkOrNetworkContext: string | NetworkContext,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -77,8 +76,7 @@ export class Node {
       storeService,
       nodeConfig,
       provider,
-      network,
-      networkContext,
+      networkOrNetworkContext,
       blocksNeededForConfirmation
     );
 
@@ -90,18 +88,22 @@ export class Node {
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    public readonly network: string,
-    networkContext?: NetworkContext,
+    networkContext: string | NetworkContext,
     readonly blocksNeededForConfirmation?: number
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.networkContext = configureNetworkContext(network, networkContext);
+    if (typeof networkContext === "string") {
+      this.networkContext = configureNetworkContext(networkContext);
+    } else {
+      this.networkContext = networkContext;
+    }
     this.instructionExecutor = this.buildInstructionExecutor();
 
     if (
       this.blocksNeededForConfirmation &&
-      (SUPPORTED_NETWORKS.has(this.network) &&
+      typeof networkContext === "string" &&
+      (SUPPORTED_NETWORKS.has(networkContext) &&
         this.blocksNeededForConfirmation < REASONABLE_NUM_BLOCKS_TO_WAIT)
     ) {
       this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
@@ -112,7 +114,6 @@ export class Node {
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,

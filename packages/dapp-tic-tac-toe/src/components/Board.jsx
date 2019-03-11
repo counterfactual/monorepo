@@ -31,8 +31,6 @@ class Board extends Component {
             <StrikeThrough className={`strike-through dir-${winClaim.winClaimType}-${winClaim.idx}`} />
             : undefined
         }
-
-        { youWon ? <div className="coins"></div> : undefined }
       </div>
     );
   }

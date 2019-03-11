@@ -28,17 +28,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 18px;
-    width: 18px;
     line-height: 0;
     padding: 0;
-    border: 2px solid $c-black;
-    border-radius: 50%;
-    font-weight: bold;
 
-    &:after {
-      margin-top: -2px;
-      content: "x";
+    img {
+      height: 18px;
+      width: 18px;
     }
   }
 }
@@ -58,5 +53,8 @@
 @media screen and (max-width: $screen-sm) {
   .constraint {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
   }
 }

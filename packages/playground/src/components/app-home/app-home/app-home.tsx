@@ -143,6 +143,14 @@ export class AppHome {
     return <widget-spinner type="dots" />;
   }
 
+  getSuggestedWallet() {
+    return screen.width < 600 ? (
+      <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>
+    ) : (
+      <a href="https://metamask.io/">Metamask</a>
+    );
+  }
+
   checkWeb3Detected() {
     if (this.web3Detected) {
       return;
@@ -153,8 +161,8 @@ export class AppHome {
         <h1>404: Wallet Not Found :(</h1>
         <h2>
           This demo has been designed to be used with a Web3-compatible wallet
-          such as <a href="https://metamask.io/">Metamask</a> to function.
-          Please enable or download one to continue!
+          such as {this.getSuggestedWallet()} to function. Please enable or
+          download one to continue!
         </h2>
       </div>
     );

@@ -7,6 +7,7 @@ import { Component, Prop } from "@stencil/core";
 export class WidgetSpinner {
   @Prop() visible: boolean = false;
   @Prop() type: "circle" | "dots" = "circle";
+  @Prop() color: "black" | "white" = "black";
   @Prop() content: JSX.Element = {} as JSX.Element;
 
   render() {
@@ -15,7 +16,7 @@ export class WidgetSpinner {
         <div
           class={`spinner spinner--circle ${
             !this.visible ? "spinner--hidden" : ""
-          }`}
+          } spinner--color-${this.color}`}
         />
       );
     }

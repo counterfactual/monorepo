@@ -20,16 +20,16 @@
   "ignore": [
     "@stencil/core",
     "@stencil/router",
-    "counterfactual/apps",
-    "counterfactual/cf.js",
-    "counterfactual/contracts",
-    "counterfactual/dapp-high-roller",
-    "counterfactual/dapp-tic-tac-toe",
-    "counterfactual/machine",
-    "counterfactual/node-provider",
-    "counterfactual/node",
-    "counterfactual/playground",
-    "counterfactual/types",
-    "counterfactual/typescript-typings"
+    "@counterfactual/apps",
+    "@counterfactual/cf.js",
+    "@counterfactual/contracts",
+    "@counterfactual/dapp-high-roller",
+    "@counterfactual/dapp-tic-tac-toe",
+    "@counterfactual/machine",
+    "@counterfactual/node-provider",
+    "@counterfactual/node",
+    "@counterfactual/playground",
+    "@counterfactual/types",
+    "@counterfactual/typescript-typings"
   ]
 }

@@ -28,8 +28,7 @@ import {
   generateGetStateRequest,
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
-  makeInstallRequest,
-  TEST_NETWORK
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -67,7 +66,6 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -79,7 +77,6 @@ describe("Node method follows spec - takeAction", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

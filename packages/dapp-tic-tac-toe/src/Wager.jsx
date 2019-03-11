@@ -69,7 +69,9 @@ class Wager extends Component {
 
   createAppFactory() {
     let contractAddress;
-    const networkVersion = window["web3"].currentProvider.networkVersion;
+    // const networkVersion = window["web3"].currentProvider.networkVersion;
+    // FIXME: hard-coding to use Kovan until we fix this
+    const networkVersion = "42";
     const contractName = "TicTacToeApp";
     switch (networkVersion) {
       case "3":
@@ -139,14 +141,12 @@ class Wager extends Component {
         timeout: 100,
         initialState: {
           players: [
-            window.ethers.utils.HDNode
-              .fromExtendedKey(user.nodeAddress)
-              .derivePath("0")
-              .address,
-            window.ethers.utils.HDNode
-              .fromExtendedKey(opponent.nodeAddress)
-              .derivePath("0")
-              .address,
+            window.ethers.utils.HDNode.fromExtendedKey(
+              user.nodeAddress
+            ).derivePath("0").address,
+            window.ethers.utils.HDNode.fromExtendedKey(
+              opponent.nodeAddress
+            ).derivePath("0").address
           ],
           turnNum: 0,
           winner: 0,
@@ -178,7 +178,7 @@ class Wager extends Component {
 
     if (!isLoaded) {
       return (
-        <div className="wager">
+        <div className="wager horizontal-constraint">
           <div className="message">
             <Logo />
             <h1 className="message__title">Getting ready...</h1>
@@ -193,7 +193,7 @@ class Wager extends Component {
     }
 
     return (
-      <div className="wager">
+      <div className="wager horizontal-constraint">
         <div className="message">
           <Logo />
           <h1 className="message__title">Welcome!</h1>
@@ -212,6 +212,7 @@ class Wager extends Component {
             className="form__input"
             type="number"
             placeholder="0.01 eth"
+            disabled={true}
             min={0}
             max={0.01}
             step={0.00000001}

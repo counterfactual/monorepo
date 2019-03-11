@@ -127,8 +127,8 @@ contract TicTacToeApp is CounterfactualApp {
       );
 
     } else {
-      address loser = state.players[state.winner - 1];
-      address winner = state.players[2 - state.winner];
+      address winner = state.players[state.winner - 1];
+      address loser = state.players[2 - state.winner];
 
       amounts[0] = terms.limit;
       amounts[1] = 0;

@@ -14,8 +14,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import {
   getMultisigCreationTransactionHash,
-  makeInstallProposalRequest,
-  TEST_NETWORK
+  makeInstallProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
@@ -53,7 +52,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -65,7 +63,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });

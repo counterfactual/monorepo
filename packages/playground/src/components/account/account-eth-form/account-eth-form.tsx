@@ -11,15 +11,22 @@ export class AccountEthForm {
   @Prop() header: string = "";
   @Prop() button: string = "";
   @Prop() disabled: boolean = false;
+  @Prop() provideFaucetLink: boolean = false;
   @Prop() min: number = 0.01;
   @Prop() max: number = 1;
   @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
+  @Prop() loading: boolean = false;
+  @Prop() autofocus: boolean = false;
 
   update(event) {
     this.error = "";
     this.value = event.target.value;
+  }
+
+  openFaucet() {
+    window.open("https://faucet.metamask.io/", "_blank");
   }
 
   handleSubmit(event) {
@@ -41,9 +48,10 @@ export class AccountEthForm {
     let formattedEth;
 
     try {
-      formattedEth = ethers.utils.formatEther(this.available);
+      formattedEth = parseFloat(
+        ethers.utils.formatEther(this.available)
+      ).toFixed(4);
     } catch {
-    } finally {
       formattedEth = "0";
     }
 
@@ -60,6 +68,7 @@ export class AccountEthForm {
             max={Math.min(parseInt(formattedEth, 10), this.max)}
             step={0.001}
             onChange={e => this.update(e)}
+            autofocus={this.autofocus}
           >
             <div class="balance-label" slot="label">
               <div>Available Balance</div>
@@ -67,11 +76,24 @@ export class AccountEthForm {
             </div>
           </form-input>
           <form-button
+            class="button"
+            spinner={this.loading}
             disabled={this.disabled}
             onButtonPressed={this.handleSubmit.bind(this)}
           >
             {this.button}
           </form-button>
+
+          {this.provideFaucetLink ? (
+            <form-button
+              class="button button--secondary"
+              onButtonPressed={this.openFaucet.bind(this)}
+            >
+              Get Free ETH (test faucet)
+            </form-button>
+          ) : (
+            undefined
+          )}
         </form-container>
       </div>
     );

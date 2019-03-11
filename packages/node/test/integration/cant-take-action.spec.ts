@@ -25,8 +25,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import {
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
-  makeInstallRequest,
-  TEST_NETWORK
+  makeInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
@@ -64,7 +63,6 @@ describe("Node method follows spec - fails with improper action taken", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -76,7 +74,6 @@ describe("Node method follows spec - fails with improper action taken", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
@@ -136,10 +133,13 @@ describe("Node method follows spec - fails with improper action taken", () => {
             }
           });
 
-          nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-            const installReq = makeInstallRequest(msg.data.appInstanceId);
-            nodeB.emit(installReq.type, installReq);
-          });
+          nodeB.on(
+            NodeTypes.EventName.PROPOSE_INSTALL,
+            (msg: ProposeMessage) => {
+              const installReq = makeInstallRequest(msg.data.appInstanceId);
+              nodeB.emit(installReq.type, installReq);
+            }
+          );
 
           nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
         }
