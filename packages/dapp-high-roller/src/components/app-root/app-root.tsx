@@ -82,6 +82,12 @@ export class AppRoot {
   setupPlaygroundMessageListeners() {
     window.addEventListener("message", async (event: MessageEvent) => {
       if (
+        typeof event.data.data.message === "string" && 
+        event.data.data.message.startsWith("playground:response:user")
+      ) {
+        console.log("Got Message From MM! ", event.data.data);
+      }
+      if (
         typeof event.data === "string" &&
         event.data.startsWith("playground:response:user")
       ) {
