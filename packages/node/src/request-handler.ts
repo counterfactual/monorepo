@@ -13,6 +13,8 @@ import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
+const REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN = 4;
+
 /**
  * This class registers handlers for requests to get or set some information
  * about app instances and channels for this Node and any relevant peer Nodes.
@@ -21,6 +23,7 @@ export class RequestHandler {
   private methods = new Map();
   private events = new Map();
   private shardedQueues = new Map<string, Queue>();
+
   store: Store;
 
   constructor(
@@ -31,13 +34,23 @@ export class RequestHandler {
     readonly messagingService: IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
-    readonly provider: JsonRpcProvider | BaseProvider,
+    readonly provider: BaseProvider,
     readonly wallet: Signer,
-    storeKeyPrefix: string
+    storeKeyPrefix: string,
+    readonly blocksNeededForConfirmation?: number
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
+
+    if (!this.blocksNeededForConfirmation) {
+      const name = provider.network ? provider.network.name : "unknown";
+      if (name === "ropsten") {
+        this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN;
+      } else {
+        this.blocksNeededForConfirmation = 1;
+      }
+    }
   }
 
   /**
@@ -95,7 +108,13 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: NodeEvents, msg: NodeMessage) {
-    await this.events.get(event)(this, msg);
+    const controllerExecutionMethod = this.events.get(event);
+
+    if (!controllerExecutionMethod) {
+      throw new Error(`Recent ${event} which has no event handler`);
+    }
+
+    await controllerExecutionMethod(this, msg);
   }
 
   public getShardedQueue(shardKey: string): Queue {

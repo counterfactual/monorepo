@@ -309,8 +309,6 @@ describe("CF.js Provider", () => {
         type: Node.EventName.UPDATE_STATE,
         data: {
           appInstanceId: TEST_APP_INSTANCE_INFO.id,
-          oldState: "4",
-          action: "-1",
           newState: "3"
         }
       });

@@ -31,7 +31,7 @@ describe("CF.js AppFactory", () => {
       expect.assertions(4);
 
       const expectedDeposit = parseEther("0.5");
-      const expectedState = "4000";
+      const expectedState = { val: "4000" };
       const expectedAppInstanceId = "TEST_ID";
 
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
@@ -64,7 +64,7 @@ describe("CF.js AppFactory", () => {
       expect.assertions(5);
 
       const expectedDeposit = parseEther("0.5");
-      const expectedState = "4000";
+      const expectedState = { val: "4000" };
       const expectedAppInstanceId = "TEST_ID";
       const expectedIntermediaries = [TEST_XPUBS[1]];
 
@@ -109,7 +109,7 @@ describe("CF.js AppFactory", () => {
           peerDeposit: parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
-          initialState: "4000"
+          initialState: { val: "4000" }
         });
         done.fail("Expected an error for invalid myDeposit");
       } catch (e) {

@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/machine",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
@@ -17,10 +17,10 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.7",
+    "@counterfactual/types": "0.0.8",
     "@types/chai": "^4.1.7",
     "@types/dotenv-safe": "^5.0.3",
-    "@types/jest": "24.0.9",
+    "@types/jest": "24.0.10",
     "@types/node": "^11.9.0",
     "chai": "^4.2.0",
     "dotenv-safe": "^6.1.0",
@@ -30,7 +30,7 @@
     "rollup": "^1.0.1",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-typescript2": "^0.19.0",
-    "truffle": "5.0.6",
+    "truffle": "5.0.7",
     "ts-jest": "24.0.0",
     "tslint": "^5.11.0",
     "typescript": "^3.3.3333"

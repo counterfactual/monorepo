@@ -4,19 +4,21 @@ import { ProtocolExecutionFlow } from "../types";
 import { INSTALL_PROTOCOL } from "./install";
 import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";
 import { SETUP_PROTOCOL } from "./setup";
+import { TAKE_ACTION_PROTOCOL } from "./take-action";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
 import { UNINSTALL_VIRTUAL_APP_PROTOCOL } from "./uninstall-virtual-app";
 import { UPDATE_PROTOCOL } from "./update";
 import { WITHDRAW_ETH_PROTOCOL } from "./withdraw-eth";
 
 const protocolsByName = {
-  [Protocol.Setup]: SETUP_PROTOCOL,
   [Protocol.Install]: INSTALL_PROTOCOL,
-  [Protocol.Update]: UPDATE_PROTOCOL,
-  [Protocol.Withdraw]: WITHDRAW_ETH_PROTOCOL,
-  [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
   [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL,
-  [Protocol.UninstallVirtualApp]: UNINSTALL_VIRTUAL_APP_PROTOCOL
+  [Protocol.Setup]: SETUP_PROTOCOL,
+  [Protocol.TakeAction]: TAKE_ACTION_PROTOCOL,
+  [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
+  [Protocol.UninstallVirtualApp]: UNINSTALL_VIRTUAL_APP_PROTOCOL,
+  [Protocol.Update]: UPDATE_PROTOCOL,
+  [Protocol.Withdraw]: WITHDRAW_ETH_PROTOCOL
 };
 
 export function getProtocolFromName(
@@ -32,7 +34,8 @@ export {
   INSTALL_PROTOCOL,
   INSTALL_VIRTUAL_APP_PROTOCOL,
   SETUP_PROTOCOL,
-  WITHDRAW_ETH_PROTOCOL,
+  TAKE_ACTION_PROTOCOL,
   UNINSTALL_PROTOCOL,
-  UPDATE_PROTOCOL
+  UPDATE_PROTOCOL,
+  WITHDRAW_ETH_PROTOCOL
 };

@@ -1,6 +1,10 @@
 .form-containers {
   display: flex;
   margin-top: $rhythm * 4;
+  flex-wrap: wrap;
+  max-width: 50rem;
+  margin-left: auto;
+  margin-right: auto;
 
   .form-container {
     padding: $rhythm * 2;
@@ -13,6 +17,11 @@
       margin-right: 0;
       margin-left: auto;
     }
+  }
+
+  .container {
+    width: 100%;
+    padding: $rhythm ($rhythm * 2);
   }
 }
 

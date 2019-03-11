@@ -1,5 +1,6 @@
+import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -24,7 +25,7 @@ import {
   getProposedAppInstanceInfo,
   makeInstallProposalRequest,
   makeInstallRequest,
-  TEST_NETWORK
+  makeTTTProposalReq
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -37,7 +38,7 @@ describe("Node method follows spec - uninstall", () => {
   let nodeB: Node;
   let storeServiceB: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -62,7 +63,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -74,7 +74,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
@@ -88,6 +87,21 @@ describe("Node method follows spec - uninstall", () => {
       "sends acks back to A, A installs it, then A uninstalls",
     () => {
       it("sends proposal with non-null initial state", async done => {
+        const stateEncoding =
+          "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
+        const actionEncoding =
+          "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
+
+        const initialState = {
+          players: [
+            xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
+            xkeyKthAddress(nodeB.publicIdentifier, 0)
+          ],
+          turnNum: 0,
+          winner: 1, // Hard-coded winner for test
+          board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        };
+
         nodeA.on(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
@@ -97,8 +111,14 @@ describe("Node method follows spec - uninstall", () => {
             let appInstanceId;
 
             // second, an app instance must be proposed to be installed into that channel
-            const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-              nodeB.publicIdentifier
+            const appInstanceInstallationProposalRequest = makeTTTProposalReq(
+              nodeB.publicIdentifier,
+              global["networkContext"].TicTacToe,
+              initialState,
+              {
+                stateEncoding,
+                actionEncoding
+              }
             );
 
             // node B then decides to approve the proposal
@@ -141,9 +161,11 @@ describe("Node method follows spec - uninstall", () => {
               expect(
                 await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
               ).toEqual([]);
+
               expect(
                 await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)
               ).toEqual([]);
+
               done();
             });
 

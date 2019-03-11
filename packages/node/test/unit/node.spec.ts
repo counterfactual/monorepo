@@ -1,7 +1,6 @@
 import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src/node";
-import { TEST_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
 import mockMessagingService from "../services/mock-messaging-service";
 
@@ -21,7 +20,6 @@ describe("Primitive Node operations", () => {
       memoryStoreService,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
     expect(node).toBeDefined();

@@ -1,5 +1,6 @@
+import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -19,9 +20,8 @@ import {
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest,
   makeInstallVirtualRequest,
-  TEST_NETWORK
+  makeTTTVirtualAppInstanceProposalReq
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -36,7 +36,7 @@ describe("Node method follows spec - uninstall", () => {
   let nodeC: Node;
   let storeServiceC: IStoreService;
   let nodeConfig: NodeConfig;
-  let provider: BaseProvider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -61,7 +61,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceA,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -74,7 +73,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceB,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
 
@@ -86,7 +84,6 @@ describe("Node method follows spec - uninstall", () => {
       storeServiceC,
       nodeConfig,
       provider,
-      TEST_NETWORK,
       global["networkContext"]
     );
   });
@@ -99,16 +96,36 @@ describe("Node method follows spec - uninstall", () => {
       "then Node A uninstalls the installed AppInstance",
     () => {
       it("sends uninstall ", async done => {
+        const stateEncoding =
+          "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
+        const actionEncoding =
+          "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
+
+        const initialState = {
+          players: [
+            xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
+            xkeyKthAddress(nodeC.publicIdentifier, 0)
+          ],
+          turnNum: 0,
+          winner: 1, // Hard-coded winner for test
+          board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
+        };
+
         nodeA.on(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
             nodeC.on(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
-                const intermediaries = [nodeB.publicIdentifier];
-                const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+                const installVirtualAppInstanceProposalRequest = makeTTTVirtualAppInstanceProposalReq(
                   nodeC.publicIdentifier,
-                  intermediaries
+                  global["networkContext"].TicTacToe,
+                  initialState,
+                  {
+                    stateEncoding,
+                    actionEncoding
+                  },
+                  [nodeB.publicIdentifier]
                 );
 
                 nodeC.on(

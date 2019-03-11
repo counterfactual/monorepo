@@ -1,5 +1,4 @@
 import { InstructionExecutor } from "@counterfactual/machine";
-import { Zero } from "ethers/constants";
 
 import { Store } from "../../../store";
 
@@ -10,10 +9,7 @@ export async function uninstallAppInstanceFromChannel(
   respondingXpub: string,
   intermediaryXpub: string,
   appInstanceId: string
-) {
-  // TODO: this should actually call resolve on the AppInstance and execute
-  // the appropriate payout to the right parties
-
+): Promise<void> {
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
@@ -27,10 +23,7 @@ export async function uninstallAppInstanceFromChannel(
       respondingXpub,
       intermediaryXpub,
       targetAppState: appInstance.state,
-      targetAppIdentityHash: appInstance.identityHash,
-      // FIXME: Compute values here
-      initiatingBalanceIncrement: Zero,
-      respondingBalanceIncrement: Zero
+      targetAppIdentityHash: appInstance.identityHash
     }
   );
 

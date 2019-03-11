@@ -20,7 +20,7 @@ class Wager extends Component {
 
     try {
       const result = await this.matchmake();
-
+      
       const opponent = {
         id: "opponent",
         attributes: {
@@ -68,7 +68,7 @@ class Wager extends Component {
   createAppFactory() {
     return new window.cf.AppFactory(
       // TODO: provide valid appId
-      "0x32Fe8ec842ca039187f9Ed59c065A922fdF52eDe",
+      "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
@@ -84,7 +84,6 @@ class Wager extends Component {
    * Bob(Proposing) waits for Alice(Accepting) to approve -- Add Waiting Room (Waiting for Alice) --
    */
   async proposeInstall(user, opponent, intermediary) {
-    const myAddress = user.ethAddress;
     const appFactory = this.createAppFactory();
 
     const currentEthBalance = window.ethers.utils.parseEther(
@@ -123,7 +122,14 @@ class Wager extends Component {
         ),
         timeout: 100,
         initialState: {
-          players: [myAddress, opponent.ethAddress],
+          players: [
+            window.ethers.utils.HDNode.fromExtendedKey(
+              user.nodeAddress
+            ).derivePath("0").address,
+            window.ethers.utils.HDNode.fromExtendedKey(
+              opponent.nodeAddress
+            ).derivePath("0").address
+          ],
           turnNum: 0,
           winner: 0,
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -151,10 +157,10 @@ class Wager extends Component {
   render() {
     const { error, isLoaded, isWaiting } = this.state;
     const { user } = this.props;
-
+    
     if (!isLoaded) {
       return (
-        <div className="wager">
+        <div className="wager horizontal-constraint">
           <div className="message">
             <Logo />
             <h1 className="message__title">Getting ready...</h1>
@@ -169,7 +175,7 @@ class Wager extends Component {
     }
 
     return (
-      <div className="wager">
+      <div className="wager horizontal-constraint">
         <div className="message">
           <Logo />
           <h1 className="message__title">Welcome!</h1>
@@ -188,6 +194,7 @@ class Wager extends Component {
             className="form__input"
             type="number"
             placeholder="0.01 eth"
+            disabled={true}
             min={0}
             max={0.01}
             step={0.00000001}

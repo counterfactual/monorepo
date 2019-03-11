@@ -1,8 +1,5 @@
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
@@ -11,6 +8,10 @@ import { StateChannel } from "../models";
 import { Context, ProtocolMessage, UninstallParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
+import {
+  computeFreeBalanceIncrements,
+  getAliceBobMap
+} from "./utils/get-resolution-increments";
 import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import { setFinalCommitment } from "./utils/set-final-commitment";
 import {
@@ -85,69 +86,51 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   ]
 };
 
-function proposeStateTransition(message: ProtocolMessage, context: Context) {
+async function proposeStateTransition(
+  message: ProtocolMessage,
+  context: Context,
+  provider: BaseProvider
+) {
+  const { network, stateChannelsMap } = context;
   const {
     appIdentityHash,
-    aliceBalanceIncrement,
-    bobBalanceIncrement,
     multisigAddress
   } = message.params as UninstallParams;
 
-  const sc = context.stateChannelsMap.get(multisigAddress)!;
+  const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
   const sequenceNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
+  const increments = await computeFreeBalanceIncrements(
+    sc,
+    appIdentityHash,
+    provider
+  );
+
+  const aliceBobMap = getAliceBobMap(sc);
+
   const newStateChannel = sc.uninstallApp(
     appIdentityHash,
-    aliceBalanceIncrement,
-    bobBalanceIncrement
-  );
-  context.stateChannelsMap.set!(multisigAddress, newStateChannel);
-
-  context.commitments[0] = constructUninstallOp(
-    context.network,
-    newStateChannel,
-    sequenceNo
+    increments[aliceBobMap.alice],
+    increments[aliceBobMap.bob]
   );
 
-  context.appIdentityHash = appIdentityHash;
-}
+  stateChannelsMap.set(multisigAddress, newStateChannel);
 
-export function constructUninstallOp(
-  network: NetworkContext,
-  stateChannel: StateChannel,
-  seqNoToUninstall: number
-) {
-  if (seqNoToUninstall === undefined) {
-    throw new Error(
-      `Request to uninstall an undefined app id: ${seqNoToUninstall}`
-    );
-  }
+  const freeBalance = newStateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
-  // FIXME: We need a means of checking if proposed resolution is good
-  // if (<app module>.isValidUninstall(app.state, uninstallResolutions)) {
-  //   continue;
-  // }
-
-  // NOTE: You might be wondering ... why isn't aliceBalanceIncrement and
-  //       bobBalanceIncrmeent in the scope of this function? Well, the answer
-  //       is that the Uninstall Protocol requires users to sign a FULL OVERWRITE
-  //       of the FreeBalance app's state. We already assigned the new values in
-  //       the <uninstallApp> method on the StateChannel earlier, which is in scope
-  //       at this point. So, when we pass it into UninstallCommitment below, it reads
-  //       from the newly updated latestState property to generate the commitment.
-
-  return new UninstallCommitment(
+  const uninstallCommitment = new UninstallCommitment(
     network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
+    newStateChannel.multisigAddress,
+    newStateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.terms,
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
-    seqNoToUninstall
+    sequenceNo
   );
+
+  context.commitments[0] = uninstallCommitment;
+  context.appIdentityHash = appIdentityHash;
 }
