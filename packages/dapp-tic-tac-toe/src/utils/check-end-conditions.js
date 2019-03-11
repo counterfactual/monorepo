@@ -20,7 +20,7 @@ function checkHorizontalVictory(board, player) {
     idx = index;
     return row.every(square => bn(square).eq(bn(player)));
   });
-
+console.log("victory", board, player)
   if (victory) {
     return {
       winClaimType: 0,
