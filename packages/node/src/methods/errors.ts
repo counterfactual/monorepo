@@ -41,5 +41,6 @@ export const ERRORS = {
   DEPOSIT_FAILED: "Failed to send funds to the multisig contract",
   WITHDRAWAL_FAILED: "Failed to withdraw funds out of the multisig contract",
   NO_CHANNEL_BETWEEN_NODES: (nodeA: string, nodeB: string) =>
-    `No channel exists between the current user ${nodeA} and the peer ${nodeB}`
+    `No channel exists between the current user ${nodeA} and the peer ${nodeB}`,
+  VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance"
 };

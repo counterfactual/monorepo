@@ -7,7 +7,6 @@ import {
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
@@ -146,7 +145,10 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || ethers.getDefaultProvider(networkOrNetworkContext as string),
+      provider ||
+        new JsonRpcProvider(
+          `https://${networkOrNetworkContext}.infura.io/metamask`
+        ),
       networkOrNetworkContext
     );
 

@@ -76,9 +76,10 @@ export class AppProvider {
     this.cfProvider.on("uninstall", this.onUninstall.bind(this));
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
+    const appId = "0x91907355C59BA005843E791c88aAB80b779446c9";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+      appId,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",

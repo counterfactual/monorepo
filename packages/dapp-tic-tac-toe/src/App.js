@@ -33,6 +33,8 @@ export default class App extends Component {
     this.connect().then(() => {
       this.requestUserData();
       this.waitForCounterpartyAppInstance(props);
+
+      window.parent.postMessage("playground:request:appInstance", "*");
     });
   }
 
@@ -72,7 +74,7 @@ export default class App extends Component {
     window.addEventListener("message", event => {
       if (
         typeof event.data === "string" &&
-        event.data.startsWith("playground:appInstance")
+        event.data.startsWith("playground:response:appInstance")
       ) {
         const [, data] = event.data.split("|");
 

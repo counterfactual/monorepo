@@ -63,8 +63,12 @@ export class AppWager {
     try {
       const initialState: HighRollerAppState = {
         playerAddrs: [
-          this.account.user.ethAddress,
-          this.opponent.attributes.ethAddress
+          ethers.utils.HDNode.fromExtendedKey(
+            this.account.user.nodeAddress
+          ).derivePath("0").address,
+          ethers.utils.HDNode.fromExtendedKey(
+            this.opponent.attributes.nodeAddress
+          ).derivePath("0").address
         ],
         stage: HighRollerStage.PRE_GAME,
         salt: HashZero,

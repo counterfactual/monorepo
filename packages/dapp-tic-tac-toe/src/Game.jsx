@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import Timer from './components/Timer';
 import Board from "./components/Board";
 import Coins from "./components/Coins";
 import Player from "./components/Player";

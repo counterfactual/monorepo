@@ -1,4 +1,4 @@
-import { InstructionExecutor } from "@counterfactual/machine";
+import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 
 import { Store } from "../../../store";
@@ -17,22 +17,27 @@ export async function installVirtual(
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
-  const updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
-    new Map(Object.entries(await store.getAllChannels())),
-    {
-      initiatingXpub: appInstanceInfo.proposedToIdentifier,
-      respondingXpub: appInstanceInfo.proposedByIdentifier,
-      intermediaryXpub: appInstanceInfo.intermediaries![0],
-      defaultTimeout: appInstanceInfo.timeout.toNumber(),
-      appInterface: {
-        addr: appInstanceInfo.appId,
-        ...appInstanceInfo.abiEncodings
-      },
-      initialState: appInstanceInfo.initialState,
-      initiatingBalanceDecrement: appInstanceInfo.myDeposit,
-      respondingBalanceDecrement: appInstanceInfo.peerDeposit
-    }
-  );
+  let updatedStateChannelsMap: Map<string, StateChannel>;
+  try {
+    updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
+      new Map(Object.entries(await store.getAllChannels())),
+      {
+        initiatingXpub: appInstanceInfo.proposedToIdentifier,
+        respondingXpub: appInstanceInfo.proposedByIdentifier,
+        intermediaryXpub: appInstanceInfo.intermediaries![0],
+        defaultTimeout: appInstanceInfo.timeout.toNumber(),
+        appInterface: {
+          addr: appInstanceInfo.appId,
+          ...appInstanceInfo.abiEncodings
+        },
+        initialState: appInstanceInfo.initialState,
+        initiatingBalanceDecrement: appInstanceInfo.myDeposit,
+        respondingBalanceDecrement: appInstanceInfo.peerDeposit
+      }
+    );
+  } catch (e) {
+    return Promise.reject(`${ERRORS.VIRTUAL_APP_INSTALLATION_FAIL}: ${e}`);
+  }
 
   updatedStateChannelsMap.forEach(
     async stateChannel => await store.saveStateChannel(stateChannel)

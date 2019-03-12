@@ -1,7 +1,8 @@
 {
   "name": "@counterfactual/dapp-tic-tac-toe",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "dependencies": {
+    "@counterfactual/apps": "0.1.1",
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
     "react-router-dom": "^4.3.1",
