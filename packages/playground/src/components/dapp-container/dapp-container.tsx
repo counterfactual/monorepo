@@ -92,9 +92,6 @@ export class DappContainer {
     // Callback for processing Playground UI messages
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
 
-    // Callback for passing an app instance, if available.
-    iframe.addEventListener("load", this.sendAppInstance.bind(this));
-
     this.iframe = iframe;
   }
 
@@ -126,6 +123,10 @@ export class DappContainer {
       await this.sendResponseForMatchmakeRequest(this.frameWindow);
     }
 
+    if (event.data === "playground:request:appInstance") {
+      await this.sendResponseForAppInstance(this.frameWindow);
+    }
+
     if (event.data.startsWith("playground:send:dappRoute")) {
       const [, data] = event.data.split("|");
       const searchParams = new URLSearchParams(window.location.search);
@@ -144,11 +145,11 @@ export class DappContainer {
   }
 
   private async sendResponseForRequestUser(frameWindow: Window) {
-    if (!this.ethMultisigBalance) {
-      throw Error(
-        "Cannot send response for user request: no multisig balance found"
-      );
-    }
+    // if (!this.ethMultisigBalance) {
+    //   throw Error(
+    //     "Cannot send response for user request: no multisig balance found"
+    //   );
+    // }
     frameWindow.postMessage(
       `playground:response:user|${JSON.stringify({
         user: {
@@ -271,23 +272,27 @@ export class DappContainer {
     }
   }
 
-  private sendAppInstance(): void {
+  private sendResponseForAppInstance(frameWindow): void {
     const dappInstallationRequest = window.localStorage.getItem(
       "playground:installingDapp"
     );
 
-    if (!this.frameWindow || !dappInstallationRequest) {
+    if (!frameWindow || !dappInstallationRequest) {
       return;
     }
 
     const { installedApp } = JSON.parse(dappInstallationRequest);
 
-    this.frameWindow.postMessage(
-      `playground:appInstance|${
+    frameWindow.postMessage(
+      `playground:response:appInstance|${
         installedApp ? JSON.stringify(installedApp) : ""
       }`,
       "*"
     );
+
+    if (installedApp) {
+      console.log("Playground sent appInstance", JSON.stringify(installedApp));
+    }
 
     window.localStorage.removeItem("playground:installingDapp");
   }

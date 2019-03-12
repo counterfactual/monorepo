@@ -13,7 +13,7 @@ import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
-const REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN = 3;
+const REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN = 4;
 
 /**
  * This class registers handlers for requests to get or set some information

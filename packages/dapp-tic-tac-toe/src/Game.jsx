@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 // import Timer from './components/Timer';
 import Board from "./components/Board";
-import Coins from './components/Coins';
+import Coins from "./components/Coins";
 import Player from "./components/Player";
 import { Link } from "react-router-dom";
 import { checkDraw, checkVictory } from "./utils/check-end-conditions";
@@ -17,10 +17,9 @@ class Game extends Component {
         winner: 0
       },
       pendingActionResponse: false,
-      my0thKeyAddress: window.ethers.utils.HDNode
-        .fromExtendedKey(props.user.nodeAddress)
-        .derivePath("0")
-        .address
+      my0thKeyAddress: window.ethers.utils.HDNode.fromExtendedKey(
+        props.user.nodeAddress
+      ).derivePath("0").address
     };
   }
 
@@ -37,10 +36,17 @@ class Game extends Component {
     this.updateGame(state);
   }
 
-  async onUpdateState({ data: { newState: { players, turnNum, winner, board } } }) {
+  async onUpdateState({
+    data: {
+      newState: { players, turnNum, winner, board }
+    }
+  }) {
     this.updateGame({ players, turnNum, winner, board });
 
-    if (window.ethers.utils.bigNumberify(this.myNumber).eq(winner)) {
+    if (
+      window.ethers.utils.bigNumberify(this.myNumber).eq(winner) ||
+      window.ethers.utils.bigNumberify(this.opponentNumber).eq(winner)
+    ) {
       try {
         console.log("game over - uninstalling");
         await this.props.appInstance.uninstall(this.props.intermediary);
@@ -98,11 +104,11 @@ class Game extends Component {
   }
 
   get myNumber() {
-    return (
-      this.state.gameState.players.indexOf(
-        window.ethers.utils.getAddress(this.state.my0thKeyAddress)
-      ) + 1
+    const index = this.state.gameState.players.indexOf(
+      window.ethers.utils.getAddress(this.state.my0thKeyAddress)
     );
+
+    return index === -1 ? index : index + 1;
   }
 
   get opponentNumber() {
@@ -147,7 +153,7 @@ class Game extends Component {
             onTakeAction={this.takeAction.bind(this)}
           />
 
-          {this.state.gameState.winner ? (
+          {window.ethers.utils.bigNumberify(this.state.gameState.winner).toNumber() ? (
             <Link to="/wager" className="btn">
               PLAY AGAIN!
             </Link>
@@ -156,7 +162,7 @@ class Game extends Component {
           )}
         </div>
 
-        { youWon ? <Coins/> : undefined }
+        {youWon ? <Coins /> : undefined}
       </div>
     );
   }

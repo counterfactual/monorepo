@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/dapp-tic-tac-toe",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "dependencies": {
     "react": "^16.7.0",
     "react-dom": "^16.7.0",
@@ -23,7 +23,7 @@
     "not ie <= 11",
     "not op_mini all"
   ],
-  "description": "> TODO: description",
+  "description": "A game of Tic Tac Toe in a state channel, using the Counterfactual framework",
   "author": "Patience Tema Baron <patience.tema.baron@gmail.com>",
   "homepage": "https://counterfactual.com",
   "license": "MIT",
