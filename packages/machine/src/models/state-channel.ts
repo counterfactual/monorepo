@@ -21,8 +21,8 @@ import {
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 10,
-  freeBalanceInitialStateTimeout: 10,
+  freeBalanceDefaultTimeout: 172800,
+  freeBalanceInitialStateTimeout: 172800,
   // We assume the Free Balance is installed when the Root Nonce value is 0
   rootNonceValueAtFreeBalanceInstall: 0,
   // We assume the Free Balance is the first app ever installed
@@ -64,7 +64,8 @@ export type StateChannelJSON = {
 function createETHFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
-  ethBucketAddress: string
+  ethBucketAddress: string,
+  freeBalanceTimeout: number
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userNeuteredExtendedKeys,
@@ -79,7 +80,7 @@ function createETHFreeBalance(
   return new AppInstance(
     multisigAddress,
     sortedTopLevelKeys,
-    HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
+    freeBalanceTimeout,
     getETHBucketAppInterface(ethBucketAddress),
     unlimitedETH,
     false,
@@ -291,12 +292,14 @@ export class StateChannel {
   public static setupChannel(
     ethBucketAddress: string,
     multisigAddress: string,
-    userNeuteredExtendedKeys: string[]
+    userNeuteredExtendedKeys: string[],
+    freeBalanceTimeout?: number
   ) {
     const fb = createETHFreeBalance(
       multisigAddress,
       userNeuteredExtendedKeys,
-      ethBucketAddress
+      ethBucketAddress,
+      freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
     );
 
     const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);

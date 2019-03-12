@@ -103,7 +103,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       let stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxyAddress,
-        xkeys.map(x => x.neuter().extendedKey)
+        xkeys.map(x => x.neuter().extendedKey),
+        1
       ).setFreeBalance(AssetType.ETH, {
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther

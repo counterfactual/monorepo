@@ -96,7 +96,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       const stateChannel = StateChannel.setupChannel(
         network.ETHBucket,
         proxy,
-        xkeys.map(x => x.neuter().extendedKey)
+        xkeys.map(x => x.neuter().extendedKey),
+        1
       ).setFreeBalance(AssetType.ETH, {
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther
