@@ -8,6 +8,8 @@ import AppProcessor from "./resources/app/processor";
 import AppResource from "./resources/app/resource";
 import MatchmakingRequestProcessor from "./resources/matchmaking-request/processor";
 import MatchmakingRequestResource from "./resources/matchmaking-request/resource";
+import MultisigDeployProcessor from "./resources/multisig-deploy/processor";
+import MultisigDeployResource from "./resources/multisig-deploy/resource";
 import SessionRequestProcessor from "./resources/session-request/processor";
 import SessionRequestResource from "./resources/session-request/resource";
 import UserProcessor from "./resources/user/processor";
@@ -23,13 +25,15 @@ export default function mountApi() {
       MatchmakingRequestResource,
       SessionRequestResource,
       UserResource,
-      MatchedUserResource
+      MatchedUserResource,
+      MultisigDeployResource
     ],
     processors: [
       new AppProcessor(),
       new MatchmakingRequestProcessor(),
       new SessionRequestProcessor(),
-      new UserProcessor()
+      new UserProcessor(),
+      new MultisigDeployProcessor()
     ]
   });
 
