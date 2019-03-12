@@ -52,6 +52,8 @@ class Game extends Component {
       } catch (e) {
         console.log("uninstall failed: ", e);
       }
+    
+      window.parent.postMessage("playground:request:getBalances", "*");
     }
   }
 

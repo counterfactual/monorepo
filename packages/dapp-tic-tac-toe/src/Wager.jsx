@@ -161,6 +161,7 @@ class Wager extends Component {
   onInstall({ data: { appInstance } }) {
     this.props.onChangeAppInstance(this.state.appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
+    window.parent.postMessage("playground:request:getBalances", "*");
   }
 
   onFormSubmitted(e) {
