@@ -26,7 +26,7 @@ export class AccountEthForm {
   }
 
   openFaucet() {
-    window.open("https://faucet.metamask.io/", "_blank");
+    window.open("https://faucet.kovan.network/", "_blank");
   }
 
   handleSubmit(event) {
