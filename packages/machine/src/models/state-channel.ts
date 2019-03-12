@@ -64,7 +64,8 @@ export type StateChannelJSON = {
 function createETHFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
-  ethBucketAddress: string
+  ethBucketAddress: string,
+  freeBalanceTimeout: number
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userNeuteredExtendedKeys,
@@ -79,7 +80,7 @@ function createETHFreeBalance(
   return new AppInstance(
     multisigAddress,
     sortedTopLevelKeys,
-    HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
+    freeBalanceTimeout,
     getETHBucketAppInterface(ethBucketAddress),
     unlimitedETH,
     false,
@@ -291,12 +292,14 @@ export class StateChannel {
   public static setupChannel(
     ethBucketAddress: string,
     multisigAddress: string,
-    userNeuteredExtendedKeys: string[]
+    userNeuteredExtendedKeys: string[],
+    freeBalanceTimeout?: number
   ) {
     const fb = createETHFreeBalance(
       multisigAddress,
       userNeuteredExtendedKeys,
-      ethBucketAddress
+      ethBucketAddress,
+      freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
     );
 
     const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
