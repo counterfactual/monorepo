@@ -9,6 +9,7 @@ import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import WalletTunnel from "../../data/wallet";
 import { AppDefinition } from "../../types";
+import { KOVAN_NETWORK_ID } from "../webthree-connector/webthree-connector";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
@@ -94,7 +95,7 @@ export class NodeListener {
       )).result as Node.InstallVirtualResult;
 
       const app: AppDefinition = this.apps.find(app => {
-        return app.id["42"] === installedApp.appInstance.appId;
+        return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
       })!;
 
       if (!app) {

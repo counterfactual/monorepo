@@ -3,6 +3,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import AppRegistryTunnel from "../../../../data/app-registry";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../../../types";
+import { KOVAN_NETWORK_ID } from "../../../webthree-connector/webthree-connector";
 
 @Component({
   tag: "dialog-propose-install",
@@ -27,7 +28,7 @@ export class DialogProposeInstall {
 
   render() {
     const app = this.apps.find(app => {
-      return app.id["42"] === this.message.data.params.appId;
+      return app.id[KOVAN_NETWORK_ID] === this.message.data.params.appId;
     });
 
     if (!app) {
