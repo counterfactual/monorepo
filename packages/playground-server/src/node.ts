@@ -145,7 +145,10 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || new JsonRpcProvider("https://ropsten.infura.io/metamask"),
+      provider ||
+        new JsonRpcProvider(
+          `https://${networkOrNetworkContext}.infura.io/metamask`
+        ),
       networkOrNetworkContext
     );
 
