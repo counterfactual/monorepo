@@ -199,7 +199,7 @@ export class AppRoot {
     // Connect to the network
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
-    const contractAddress = "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915";
+    const contractAddress = "0x91907355C59BA005843E791c88aAB80b779446c9";
 
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract
