@@ -15,7 +15,7 @@ import {
   UserSession
 } from "./utils";
 
-const provider = ethers.getDefaultProvider("ropsten");
+const provider = ethers.getDefaultProvider("kovan");
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "TTT_USER_TOKEN";
