@@ -453,13 +453,11 @@ export class AppRoot {
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
 
-    await this.updateAccount({ user });
-
     if (!user.multisigAddress) {
       await delay(1000);
       await this.fetchMultisig(userToken);
     } else {
-      await this.requestToDepositInitialFunding();
+      await this.updateAccount({ user });
     }
   }
 
