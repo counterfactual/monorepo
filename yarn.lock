@@ -2159,7 +2159,7 @@
 
 "@types/jest@24.0.10":
   version "24.0.10"
-  resolved "https://registry.npmjs.org/@types/jest/-/jest-24.0.10.tgz#a7b49ed1c23e518b1381596eb0ad9736eb6f2f64"
+  resolved "https://registry.yarnpkg.com/@types/jest/-/jest-24.0.10.tgz#a7b49ed1c23e518b1381596eb0ad9736eb6f2f64"
   integrity sha512-Q+odXTGshlsr9MK75ZBPfiwpo5oDH6KvB+YOSIesc3phbhTRAMWewS9+NywXUSXV/OQzS1L+kq1BLp9o8DmwIA==
   dependencies:
     "@types/jest-diff" "*"
@@ -12922,7 +12922,7 @@ p-pipe@^1.2.0:
 
 p-queue@^4.0.0:
   version "4.0.0"
-  resolved "https://registry.npmjs.org/p-queue/-/p-queue-4.0.0.tgz#ed0eee8798927ed6f2c2f5f5b77fdb2061a5d346"
+  resolved "https://registry.yarnpkg.com/p-queue/-/p-queue-4.0.0.tgz#ed0eee8798927ed6f2c2f5f5b77fdb2061a5d346"
   integrity sha512-3cRXXn3/O0o3+eVmUroJPSj/esxoEFIm0ZOno/T+NzG/VZgPOqQ8WKmlNqubSEpZmCIngEy34unkHGg83ZIBmg==
   dependencies:
     eventemitter3 "^3.1.0"

@@ -70,11 +70,11 @@ export class AppWager {
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0,
-        playerNames: [
-          this.account.user.username,
-          this.opponent.attributes.username
-        ]
+        playerSecondNumber: 0
+        // playerNames: [
+        //   this.account.user.username,
+        //   this.opponent.attributes.username
+        // ]
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
