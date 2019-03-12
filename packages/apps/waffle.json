@@ -1,4 +1,3 @@
 {
-  "npmPath": "../../node_modules",
-  "solcVersion": "v0.5.3+commit.10d17f24"
+  "npmPath": "../../node_modules"
 }

@@ -15982,10 +15982,10 @@ solc@0.5.0:
     semver "^5.5.0"
     yargs "^11.0.0"
 
-solc@0.5.3:
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.3.tgz#bb6d4e8e785b8b3ac0e6d096b9213bf2d0ca15b6"
-  integrity sha512-H9apkutqTa+zEF1T13q5fvAC0aMcbdg6JkUiGXObTJuZydq6Z6EgjI1OS9MGz0y3z4c0Vp1Ww2waEq0jMRm/Rw==
+solc@0.5.5, solc@^0.5.1:
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.5.tgz#bdedd988e1a958f48bb8d84df5414f0ae9f62764"
+  integrity sha512-eh24ieiUC/M0tQPvK/YtORXzW4QNinFzDmF9Nj7/zXlxD06pLz4cnWExz7mzAmiI7f5xFfXlitLbLn2w3U6niw==
   dependencies:
     command-exists "^1.2.8"
     fs-extra "^0.30.0"
@@ -16006,20 +16006,6 @@ solc@^0.4.2:
     require-from-string "^1.1.0"
     semver "^5.3.0"
     yargs "^4.7.1"
-
-solc@^0.5.1:
-  version "0.5.5"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.5.tgz#bdedd988e1a958f48bb8d84df5414f0ae9f62764"
-  integrity sha512-eh24ieiUC/M0tQPvK/YtORXzW4QNinFzDmF9Nj7/zXlxD06pLz4cnWExz7mzAmiI7f5xFfXlitLbLn2w3U6niw==
-  dependencies:
-    command-exists "^1.2.8"
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    tmp "0.0.33"
-    yargs "^11.0.0"
 
 solidity-coverage@0.5.11:
   version "0.5.11"
