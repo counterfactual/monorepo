@@ -21,8 +21,8 @@ import {
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 10,
-  freeBalanceInitialStateTimeout: 10,
+  freeBalanceDefaultTimeout: 172_800,
+  freeBalanceInitialStateTimeout: 172_800,
   // We assume the Free Balance is installed when the Root Nonce value is 0
   rootNonceValueAtFreeBalanceInstall: 0,
   // We assume the Free Balance is the first app ever installed
