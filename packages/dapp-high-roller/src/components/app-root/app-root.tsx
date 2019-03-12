@@ -250,7 +250,7 @@ export class AppRoot {
   }
 
   render() {
-    return this.userDataReceived || true ? (
+    return this.userDataReceived ? (
       <div class="height-100">
         <main class="height-100">
           <CounterfactualTunnel.Provider state={this.state}>
