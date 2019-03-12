@@ -104,11 +104,11 @@ class Game extends Component {
   }
 
   get myNumber() {
-    return (
-      this.state.gameState.players.indexOf(
-        window.ethers.utils.getAddress(this.state.my0thKeyAddress)
-      ) + 1
+    const index = this.state.gameState.players.indexOf(
+      window.ethers.utils.getAddress(this.state.my0thKeyAddress)
     );
+
+    return index === -1 ? index : index + 1;
   }
 
   get opponentNumber() {
@@ -153,7 +153,7 @@ class Game extends Component {
             onTakeAction={this.takeAction.bind(this)}
           />
 
-          {this.state.gameState.winner ? (
+          {window.ethers.utils.bigNumberify(this.state.gameState.winner).toNumber() ? (
             <Link to="/wager" className="btn">
               PLAY AGAIN!
             </Link>
