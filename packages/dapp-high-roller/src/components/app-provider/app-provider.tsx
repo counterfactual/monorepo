@@ -100,16 +100,12 @@ export class AppProvider {
   }
 
   async onUpdateState({ data }: { data: Node.UpdateStateEventData }) {
-    const newStateArray = (data as Node.UpdateStateEventData).newState;
+    const newState = (data as Node.UpdateStateEventData).newState;
 
     const state = {
-      playerAddrs: newStateArray[0],
-      stage: newStateArray[1],
-      salt: newStateArray[2],
-      commitHash: newStateArray[3],
+      ...newState,
       playerFirstNumber:
-        this.highRollerState.playerFirstNumber || newStateArray[4],
-      playerSecondNumber: newStateArray[5]
+        this.highRollerState.playerFirstNumber || newState["playerFirstNumber"]
     } as HighRollerAppState;
 
     console.log(

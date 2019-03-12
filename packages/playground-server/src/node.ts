@@ -10,6 +10,7 @@ import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
+import { Log } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
 import { bindMultisigToUser } from "./db";
@@ -110,6 +111,10 @@ export default class NodeWrapper {
       NodeTypes.EventName.CREATE_CHANNEL,
       onMultisigDeployed.bind(this)
     );
+
+    Log.info("Node singleton instance ready", {
+      tags: { ethAddress: NodeWrapper.node["signer"]["address"] }
+    });
 
     return NodeWrapper.node;
   }
