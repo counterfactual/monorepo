@@ -103,7 +103,7 @@ export class AppWager {
         },
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
-        timeout: 10000,
+        timeout: 172800,
         intermediaries: [this.intermediary]
       });
 
