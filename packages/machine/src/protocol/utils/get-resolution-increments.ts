@@ -38,7 +38,7 @@ export async function computeFreeBalanceIncrements(
   //        arbitrary asset types. Presently it only works for ETH resolutions.
   //        This was added to get the Playground demo launched sooner.
   const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-  while (resolution.value.every(v => v.eq(Zero)) && attempts < 10) {
+  while (resolution.value.every(v => v.eq(Zero)) && attempts < 15) {
     console.log(
       `Found empty resolution. Querying blockchain again. Attempt #${attempts}`
     );
