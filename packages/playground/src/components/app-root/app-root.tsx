@@ -163,17 +163,6 @@ export class AppRoot {
       }
     };
 
-    const networkName =
-      NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[
-        window["web3"].currentProvider.networkVersion
-      ];
-
-    if (!networkName) {
-      throw Error(
-        `Unsupported network: ${window["web3"].currentProvider.networkVersion}`
-      );
-    }
-
     await CounterfactualNode.create({
       messagingService,
       storeService,
@@ -181,7 +170,7 @@ export class AppRoot {
         STORE_KEY_PREFIX: "store"
       },
       // TODO: handle changes on the UI
-      network: networkName
+      network: "kovan"
     });
   }
 

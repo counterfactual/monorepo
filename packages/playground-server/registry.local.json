@@ -8,7 +8,7 @@
       },
       "attributes": {
         "name": "High Roller",
-        "url": "http://localhost:3334",
+        "url": "http://localhost:3333",
         "slug": "high-roller",
         "icon": "assets/images/logo.png"
       },

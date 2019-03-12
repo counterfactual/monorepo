@@ -60,7 +60,7 @@ let node: Node;
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("kovan"),
+    provider,
     "kovan"
   );
 
