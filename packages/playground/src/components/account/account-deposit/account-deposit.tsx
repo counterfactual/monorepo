@@ -1,8 +1,8 @@
-import { Node } from "@counterfactual/types";
-import { Component, Element, Prop, State } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
+import AppRegistryTunnel from "../../../data/app-registry";
 import CounterfactualNode from "../../../data/counterfactual";
 import WalletTunnel from "../../../data/wallet";
 import { UserSession } from "../../../types";
@@ -20,8 +20,11 @@ export class AccountDeposit {
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() signer: Signer = {} as Signer;
+  @Prop() deposit: (valueInWei: BigNumber) => void = () => {};
+  @Prop() canUseApps: Boolean = false;
 
   @State() error: string = "";
+  @State() stage: "ready" | "depositing" | "finished" = "ready";
   @State() amountDeposited;
 
   componentDidUpdate() {
@@ -29,6 +32,11 @@ export class AccountDeposit {
       this.history.push("/");
       return;
     }
+  }
+
+  @Watch("canUseApps")
+  onDepositFinished() {
+    this.stage = "finished";
   }
 
   get node() {
@@ -39,40 +47,26 @@ export class AccountDeposit {
     this.amountDeposited = ethers.utils.parseEther(e.target.value);
 
     try {
-      if (this.user.multisigAddress) {
-        this.node.once(Node.EventName.DEPOSIT_STARTED, args => {
-          this.updateAccount({
-            ethPendingDepositTxHash: args.txHash,
-            ethPendingDepositAmountWei: this.amountDeposited
-          });
-        });
-
-        await this.node.call(Node.MethodName.DEPOSIT, {
-          type: Node.MethodName.DEPOSIT,
-          requestId: window["uuid"](),
-          params: {
-            multisigAddress: this.user.multisigAddress,
-            amount: this.amountDeposited,
-            notifyCounterparty: true
-          } as Node.DepositParams
-        });
-
-        this.updateAccount({
-          ethPendingDepositAmountWei: undefined,
-          precommitedDepositAmountWei: undefined
-        });
-      } else {
-        this.updateAccount({
-          precommitedDepositAmountWei: this.amountDeposited
-        });
-      }
-      this.history.push("/");
+      this.stage = "depositing";
+      await this.deposit(this.amountDeposited);
     } catch (error) {
       this.error = error.message;
+      this.stage = "ready";
     }
   }
 
   render() {
+    if (this.stage === "finished") {
+      return <stencil-router-redirect url="/" />;
+    }
+
+    const buttonTexts = {
+      ready: "Deposit",
+      depositing: "Making deposit..."
+    };
+
+    const isFormBusy = this.stage === "depositing";
+
     return (
       <widget-screen exitable={false}>
         <div slot="header">Fund your account</div>
@@ -86,16 +80,19 @@ export class AccountDeposit {
           onSubmit={this.formSubmitionHandler.bind(this)}
           autofocus={true}
           provideFaucetLink={true}
-          button="Deposit"
+          button={buttonTexts[this.stage]}
           available={this.ethWeb3WalletBalance}
           min={0}
           max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
           error={this.error}
+          loading={isFormBusy}
+          disabled={isFormBusy}
         />
       </widget-screen>
     );
   }
 }
 
-AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user"]);
+AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user", "deposit"]);
+AppRegistryTunnel.injectProps(AccountDeposit, ["canUseApps"]);
 WalletTunnel.injectProps(AccountDeposit, ["signer", "ethWeb3WalletBalance"]);
