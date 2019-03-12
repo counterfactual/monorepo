@@ -257,11 +257,11 @@ export class StateChannel {
       );
       if (beneficiaryAddress === freeBalanceState.alice) {
         freeBalanceState.aliceBalance = bigNumberify(
-          increments[beneficiaryXpub]
+          increments[beneficiaryXpub] || Zero
         ).add(freeBalanceState.aliceBalance);
       } else if (beneficiaryAddress === freeBalanceState.bob) {
         freeBalanceState.bobBalance = bigNumberify(
-          increments[beneficiaryXpub]
+          increments[beneficiaryXpub] || Zero
         ).add(freeBalanceState.bobBalance);
       } else {
         throw Error(`No such beneficiary ${beneficiaryAddress} found`);
