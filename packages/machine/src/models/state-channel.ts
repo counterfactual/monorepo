@@ -5,7 +5,7 @@ import {
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, formatEther } from "ethers/utils";
 
 import {
   getETHBucketAppInterface,
@@ -409,13 +409,29 @@ export class StateChannel {
     /// Decrement from FB
 
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state as ETHBucketAppState;
+    const {
+      alice,
+      aliceBalance,
+      bob,
+      bobBalance
+    } = fb.state as ETHBucketAppState;
 
-    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
-    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
+    const updatedAliceBalance = aliceBalance.sub(aliceBalanceDecrement);
+    const updatedBobBalance = bobBalance.sub(bobBalanceDecrement);
 
-    if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
-      throw Error(INSUFFICIENT_FUNDS);
+    if (updatedAliceBalance.lt(Zero)) {
+      throw Error(
+        `${alice} cannot install virtual app agreement instance. Its balance in channel with ${bob} is insufficient by ${formatEther(
+          aliceBalance.sub(updatedAliceBalance)
+        )}`
+      );
+    }
+    if (updatedBobBalance.lt(Zero)) {
+      throw Error(
+        `\n${bob} cannot install virtual app agreement instance. Its balance in channel with ${alice} is insufficient ${formatEther(
+          bobBalance.sub(updatedBobBalance)
+        )}`
+      );
     }
 
     /// Add modified FB to appInstances
@@ -426,7 +442,7 @@ export class StateChannel {
 
     appInstances.set(
       fb.identityHash,
-      fb.setState({ ...currentFBState, aliceBalance, bobBalance })
+      fb.setState({ ...fb.state, updatedAliceBalance, updatedBobBalance })
     );
 
     // Add to ethVirtualAppAgreementInstances

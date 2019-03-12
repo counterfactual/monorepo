@@ -36,6 +36,8 @@ export interface NodeConfig {
   STORE_KEY_PREFIX: string;
 }
 
+const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
+
 export class Node {
   /**
    * Because the Node receives and sends out messages based on Event type
@@ -63,14 +65,16 @@ export class Node {
     storeService: IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: string | NetworkContext
+    networkOrNetworkContext: string | NetworkContext,
+    blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       nodeConfig,
       provider,
-      networkOrNetworkContext
+      networkOrNetworkContext,
+      blocksNeededForConfirmation
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
@@ -81,20 +85,35 @@ export class Node {
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: string | NetworkContext
+    networkContext: string | NetworkContext,
+    readonly blocksNeededForConfirmation?: number
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
+    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
     if (typeof networkContext === "string") {
       this.networkContext = configureNetworkContext(networkContext);
+
+      if (
+        blocksNeededForConfirmation &&
+        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
+      ) {
+        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
+      }
     } else {
+      // Used for testing / ganache
       this.networkContext = networkContext;
     }
     this.instructionExecutor = this.buildInstructionExecutor();
+
+    console.log(
+      `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
+    );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+    console.log(`Node signer address: ${this.signer.address}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -105,7 +124,8 @@ export class Node {
       this.networkContext,
       this.provider,
       new Wallet(this.signer.privateKey, this.provider),
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
+      this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
     return this;

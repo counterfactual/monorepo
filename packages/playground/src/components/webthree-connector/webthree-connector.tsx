@@ -5,7 +5,9 @@ import { WalletState } from "../../data/wallet";
 
 const { Web3Provider } = ethers.providers;
 
-const permittedNetworkIds = ["3"];
+const KOVAN_NETWORK_ID = "42";
+
+const permittedNetworkIds = [KOVAN_NETWORK_ID];
 
 @Component({
   tag: "webthree-connector",

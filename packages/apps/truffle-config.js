@@ -17,6 +17,16 @@ module.exports = {
       gas: 0xfffffffffff,
       gasPrice: 0x01
     },
+    kovan: {
+      network_id: 42,
+      provider: () =>
+        new HDWalletProvider(
+          process.env.ETH_ACCOUNT_MNENOMIC,
+          `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
+        ),
+      gas: process.env.DEFAULT_GAS,
+      gasPrice: process.env.DEFAULT_GAS_PRICE
+    },
     ropsten: {
       network_id: 3,
       provider: () =>

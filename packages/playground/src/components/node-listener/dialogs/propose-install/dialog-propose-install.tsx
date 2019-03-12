@@ -4,6 +4,8 @@ import AppRegistryTunnel from "../../../../data/app-registry";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../../../types";
 
+const KOVAN_NETWORK_ID = "42";
+
 @Component({
   tag: "dialog-propose-install",
   shadow: true
@@ -26,6 +28,15 @@ export class DialogProposeInstall {
   }
 
   render() {
+    const app = this.apps.find(app => {
+      return app.id[KOVAN_NETWORK_ID] === this.message.data.params.appId;
+    });
+
+    if (!app) {
+      throw Error(
+        "You've received an installation proposal from a different Ethereum network"
+      );
+    }
     return (
       <widget-dialog
         visible={true}
@@ -37,15 +48,8 @@ export class DialogProposeInstall {
             <strong>
               {ethers.utils.formatEther(this.message.data.params.myDeposit)} ETH
             </strong>{" "}
-            to play{" "}
-            <strong>
-              {
-                this.apps.find(
-                  app => app.id === this.message.data.params.appId
-                )!.name
-              }
-            </strong>{" "}
-            with <strong>{this.user.username}</strong>.
+            to play <strong>{app.name}</strong> with{" "}
+            <strong>{this.user.username}</strong>.
           </label>
         }
         primaryButtonText="Accept"

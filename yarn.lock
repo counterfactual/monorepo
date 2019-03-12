@@ -855,13 +855,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/node-provider@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.1.1.tgz#a1ba7d4374acda9d5dca283f28b3449d397b2102"
-  integrity sha512-ahD3SBa9B36LD0me9Enj/tg0lH3zODcG+hFPTatI+C/Brn/572Bvph0GY4hbPenfucD0KkJ6qdQVaCm8q1JSEA==
-  dependencies:
-    eventemitter3 "^3.1.0"
-
 "@counterfactual/types@0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.8.tgz#728b8191cc57bb9ec12e859257ffc6c120e49e01"
@@ -7622,7 +7615,7 @@ firebase-token-generator@^2.0.0:
 
 firebase@5.8.6:
   version "5.8.6"
-  resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.8.6.tgz#542e940fc331334ce4bfc163639e048f9fd53caf"
+  resolved "https://registry.npmjs.org/firebase/-/firebase-5.8.6.tgz#542e940fc331334ce4bfc163639e048f9fd53caf"
   integrity sha512-pMAtOn1XZlC2CXADDL9Zx6+b1mDMfkGBBJ67VUOKtZX+4vi8S2DfgMSM0kWPiyuMZ1JgSUz/ZJWzAv2BCBaxeg==
   dependencies:
     "@firebase/app" "0.3.11"

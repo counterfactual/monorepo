@@ -50,8 +50,13 @@ export async function fetchMultisig(baseURL: string, token: string) {
 export async function deposit(
   node: Node,
   amount: string,
-  multisigAddress: string
+  multisigAddress: string,
+  skip: boolean = false
 ) {
+  if (skip) {
+    return;
+  }
+
   const { aliceBalance, bobBalance } = (await getFreeBalance(
     node,
     multisigAddress

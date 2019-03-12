@@ -16,7 +16,7 @@ import {
 } from "./utils";
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "https://ropsten.infura.io/metamask"
+  "https://kovan.infura.io/metamask"
 );
 
 const BASE_URL = process.env.BASE_URL!;
@@ -62,11 +62,11 @@ let node: Node;
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten"),
-    "ropsten"
+    provider,
+    "kovan"
   );
 
-  console.log("public identifier", node.publicIdentifier);
+  console.log("Public Identifier", node.publicIdentifier);
 
   try {
     const privateKey = process.env.PRIVATE_KEY;
@@ -105,9 +105,9 @@ let node: Node;
 
     let depositAmount = process.argv[2];
     if (!depositAmount) {
-      depositAmount = "0.005";
+      depositAmount = "0.02";
     }
-    await deposit(node, depositAmount, multisigAddress);
+    await deposit(node, depositAmount, multisigAddress, false);
 
     afterUser(node, bot.nodeAddress, multisigAddress);
   } catch (e) {
