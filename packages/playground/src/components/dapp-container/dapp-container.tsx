@@ -26,6 +26,9 @@ export class DappContainer {
 
   @Prop() user: UserSession = {} as UserSession;
   @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
+  @Prop() getBalances: () => Promise<
+    { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
+  > = async () => undefined;
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -125,6 +128,10 @@ export class DappContainer {
 
     if (event.data === "playground:request:appInstance") {
       await this.sendResponseForAppInstance(this.frameWindow);
+    }
+
+    if (event.data === "playground:request:getBalances") {
+      await this.sendResponseForGetBalances(this.frameWindow);
     }
 
     if (event.data.startsWith("playground:send:dappRoute")) {
@@ -296,7 +303,20 @@ export class DappContainer {
 
     window.localStorage.removeItem("playground:installingDapp");
   }
+
+  private async sendResponseForGetBalances(frameWindow): Promise<void> {
+    const balances = await this.getBalances();
+
+    frameWindow.postMessage(
+      `playground:response:getBalances|${JSON.stringify(balances)}`,
+      "*"
+    );
+  }
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
-AccountTunnel.injectProps(DappContainer, ["ethMultisigBalance", "user"]);
+AccountTunnel.injectProps(DappContainer, [
+  "ethMultisigBalance",
+  "getBalances",
+  "user"
+]);
