@@ -116,8 +116,20 @@ export class RequestHandler {
   }
 
   public async getSigner(): Promise<Signer> {
-    return this.provider instanceof JsonRpcProvider
-      ? await this.provider.getSigner()
-      : this.wallet;
+    try {
+      const signer = await (this.provider as JsonRpcProvider).getSigner();
+      await signer.getAddress();
+      return signer;
+    } catch (e) {
+      if (e.code === "UNSUPPORTED_OPERATION") {
+        return this.wallet;
+      }
+      throw e;
+    }
+  }
+
+  public async getSignerAddress(): Promise<string> {
+    const signer = await this.getSigner();
+    return await signer.getAddress();
   }
 }

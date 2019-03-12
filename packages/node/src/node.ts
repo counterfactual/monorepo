@@ -36,7 +36,7 @@ export interface NodeConfig {
   STORE_KEY_PREFIX: string;
 }
 
-const REASONABLE_NUM_BLOCKS_TO_WAIT = 4;
+const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
 export class Node {
   /**
@@ -90,10 +90,10 @@ export class Node {
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
+    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
     if (typeof networkContext === "string") {
       this.networkContext = configureNetworkContext(networkContext);
 
-      this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
       if (
         blocksNeededForConfirmation &&
         blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
@@ -103,7 +103,6 @@ export class Node {
     } else {
       // Used for testing / ganache
       this.networkContext = networkContext;
-      this.blocksNeededForConfirmation = 1;
     }
     this.instructionExecutor = this.buildInstructionExecutor();
 

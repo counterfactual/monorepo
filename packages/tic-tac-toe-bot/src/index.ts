@@ -15,7 +15,9 @@ import {
   UserSession
 } from "./utils";
 
-const provider = ethers.getDefaultProvider("kovan");
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://kovan.infura.io/metamask"
+);
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "TTT_USER_TOKEN";

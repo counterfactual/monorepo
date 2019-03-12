@@ -40,12 +40,12 @@ export default class DepositController extends NodeController {
       return Promise.reject(ERRORS.CANNOT_DEPOSIT);
     }
 
-    const balanceOfSigner = await provider.getBalance(
-      await (await requestHandler.getSigner()).getAddress()
-    );
+    const address = await requestHandler.getSignerAddress();
+
+    const balanceOfSigner = await provider.getBalance(address);
 
     if (balanceOfSigner.lt(amount)) {
-      return Promise.reject(ERRORS.INSUFFICIENT_FUNDS);
+      return Promise.reject(`${ERRORS.INSUFFICIENT_FUNDS}: ${address}`);
     }
   }
 
