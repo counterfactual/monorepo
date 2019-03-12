@@ -3,7 +3,7 @@ import { AssetType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
@@ -38,10 +38,13 @@ export async function computeFreeBalanceIncrements(
   //        arbitrary asset types. Presently it only works for ETH resolutions.
   //        This was added to get the Playground demo launched sooner.
   const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-  while (resolution.value.every(v => v.eq(Zero)) && attempts < 15) {
-    console.log(
-      `Found empty resolution. Querying blockchain again. Attempt #${attempts}`
-    );
+  while (
+    bigNumberify(appInstance.terms.limit).gt(Zero) &&
+    resolution.value.every(v => v.eq(Zero)) &&
+    attempts < 15
+  ) {
+    console.log(appInstance.terms);
+    console.log(`Empty resolution. Querying chain again. Attempt #${attempts}`);
 
     resolution = await appContract.functions.resolve(
       appInstance.encodedLatestState,
