@@ -1,6 +1,7 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { AssetType } from "@counterfactual/types";
 import { Contract } from "ethers";
+import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
@@ -27,10 +28,31 @@ export async function computeFreeBalanceIncrements(
     provider
   );
 
-  const resolution: TransferTransaction = await appContract.functions.resolve(
+  let attempts = 1;
+  let resolution: TransferTransaction = await appContract.functions.resolve(
     appInstance.encodedLatestState,
     appInstance.terms
   );
+
+  // FIXME: This retry logic should apply to all view functions _and_ works for
+  //        arbitrary asset types. Presently it only works for ETH resolutions.
+  //        This was added to get the Playground demo launched sooner.
+  const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+  while (resolution.value.every(v => v.eq(Zero)) && attempts < 10) {
+    console.log(
+      `Found empty resolution. Querying blockchain again. Attempt #${attempts}`
+    );
+
+    resolution = await appContract.functions.resolve(
+      appInstance.encodedLatestState,
+      appInstance.terms
+    );
+
+    attempts += 1;
+
+    await wait(1000 * attempts);
+  }
+  // END FIXME
 
   if (resolution.assetType !== AssetType.ETH) {
     return Promise.reject("Node only supports ETH resolutions at the moment.");
