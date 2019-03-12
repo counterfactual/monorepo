@@ -22,8 +22,10 @@
   },
   "scripts": {
     "build": "tsc",
+    "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
+    "serve": "node dist",
     "start": "env-cmd development ts-node src/",
     "start:staging": "env-cmd staging ts-node src/"
   },
@@ -43,6 +45,8 @@
     "node-fetch": "^2.3.0",
     "prettier": "^1.15.3",
     "ts-node": "^8.0.2",
+    "tslint": "^5.11.0",
+    "typescript": "^3.3.3333",
     "uuid": "^3.3.2",
     "web3": "^1.0.0-beta.46"
   },
