@@ -39,6 +39,9 @@ export class AppRoot {
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
+  @State() lastDeposit = ethers.constants.Zero;
+  @State() lastCounterpartyBalance = ethers.constants.Zero;
+
   modal: JSX.Element = <div />;
 
   componentWillLoad() {
@@ -296,15 +299,17 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps =
-      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
-      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = counterpartyBalance
+      .sub(this.lastCounterpartyBalance)
+      .eq(this.lastDeposit);
 
     this.updateAppRegistry({
       canUseApps
     });
 
     await this.updateAccount(vals);
+
+    this.lastCounterpartyBalance = counterpartyBalance;
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -352,15 +357,19 @@ export class AppRoot {
     let ret;
 
     try {
+      const amount = ethers.utils.bigNumberify(valueInWei);
+
       ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
+          amount,
           multisigAddress,
-          amount: ethers.utils.bigNumberify(valueInWei),
           notifyCounterparty: true
         } as Node.DepositParams
       });
+
+      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
@@ -443,13 +452,11 @@ export class AppRoot {
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
 
-    await this.updateAccount({ user });
-
     if (!user.multisigAddress) {
       await delay(1000);
       await this.fetchMultisig(userToken);
     } else {
-      await this.requestToDepositInitialFunding();
+      await this.updateAccount({ user });
     }
   }
 
