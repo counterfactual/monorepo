@@ -31,7 +31,7 @@
   "homepage": "https://counterfactual.com",
   "devDependencies": {
     "@counterfactual/typescript-typings": "0.1.0",
-    "@types/jest": "24.0.10",
+    "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.2",
     "env-cmd": "^8.0.2",
     "jest": "23.6.0",
