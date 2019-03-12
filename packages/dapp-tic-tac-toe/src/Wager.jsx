@@ -120,7 +120,7 @@ class Wager extends Component {
         myDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
-        timeout: 172_800,
+        timeout: 172800,
         initialState: {
           players: [
             window.ethers.utils.HDNode.fromExtendedKey(
