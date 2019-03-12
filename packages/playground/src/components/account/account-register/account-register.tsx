@@ -57,7 +57,8 @@ export class AccountRegister {
     | "ready"
     | "awaitingForWallet"
     | "creatingAccount"
-    | "deployingMultisig" = "ready";
+    | "deployingMultisig"
+    | "finished" = "ready";
 
   async login(e: MouseEvent) {
     e.preventDefault();
@@ -109,10 +110,8 @@ export class AccountRegister {
 
   @Watch("user")
   onUserUpdated() {
-    if (this.user.multisigAddress) {
-      console.log("Found multisig address", this.user.multisigAddress);
-      this.stage = "ready";
-      this.history.push("/deposit");
+    if (this.user.multisigAddress && this.stage === "deployingMultisig") {
+      this.stage = "finished";
     }
   }
 
@@ -198,6 +197,10 @@ export class AccountRegister {
   }
 
   render() {
+    if (this.stage === "finished") {
+      return <stencil-router-redirect url="/deposit" />;
+    }
+
     if (this.user.ethAddress) {
       this.changeset.ethAddress = this.user.ethAddress;
     }
