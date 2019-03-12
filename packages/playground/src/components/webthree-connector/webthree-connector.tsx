@@ -5,7 +5,7 @@ import { WalletState } from "../../data/wallet";
 
 const { Web3Provider } = ethers.providers;
 
-export const KOVAN_NETWORK_ID = "42";
+const KOVAN_NETWORK_ID = "42";
 
 const permittedNetworkIds = [KOVAN_NETWORK_ID];
 

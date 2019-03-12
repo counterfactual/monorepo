@@ -9,7 +9,8 @@ import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import WalletTunnel from "../../data/wallet";
 import { AppDefinition } from "../../types";
-import { KOVAN_NETWORK_ID } from "../webthree-connector/webthree-connector";
+
+const KOVAN_NETWORK_ID = "42";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };

@@ -3,7 +3,8 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import AppRegistryTunnel from "../../../../data/app-registry";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../../../types";
-import { KOVAN_NETWORK_ID } from "../../../webthree-connector/webthree-connector";
+
+const KOVAN_NETWORK_ID = "42";
 
 @Component({
   tag: "dialog-propose-install",
