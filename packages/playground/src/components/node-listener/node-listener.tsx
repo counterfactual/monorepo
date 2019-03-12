@@ -93,9 +93,8 @@ export class NodeListener {
         request
       )).result as Node.InstallVirtualResult;
 
-      const networkId = window["web3"].currentProvider.networkVersion;
       const app: AppDefinition = this.apps.find(app => {
-        return app.id[networkId] === installedApp.appInstance.appId;
+        return app.id["42"] === installedApp.appInstance.appId;
       })!;
 
       if (!app) {

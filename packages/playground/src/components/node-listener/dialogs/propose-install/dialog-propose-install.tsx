@@ -26,9 +26,8 @@ export class DialogProposeInstall {
   }
 
   render() {
-    const networkId = window["web3"].currentProvider.networkVersion;
     const app = this.apps.find(app => {
-      return app.id[networkId] === this.message.data.params.appId;
+      return app.id["42"] === this.message.data.params.appId;
     });
 
     if (!app) {

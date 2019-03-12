@@ -175,7 +175,7 @@ export class AppHome {
 
     return (
       <div class="error-message">
-        <h1>Please Switch to Ropsten or Kovan</h1>
+        <h1>Please Switch to Kovan</h1>
         <h2>
           The Playground demo is currently only deployed on the Ropsten and
           Kovan test networks. Please switch to continue.

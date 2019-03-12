@@ -18,11 +18,9 @@ const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
+// Only Kovan is supported for now
 const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
-  "1": "",
-  "3": "ropsten",
-  "42": "kovan",
-  "4": "rinkeby"
+  "42": "kovan"
 };
 
 const delay = (timeInMilliseconds: number) =>
