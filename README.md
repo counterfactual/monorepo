@@ -55,9 +55,9 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 **Utilities**
 
-| Package                                                          | Version                                                                                                                                     | Description                        |
-| ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`@counterfactual/types`](/packages/types)                       | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                       | Shared type declarations           |
+| Package                                                              | Version                                                                                                                                         | Description                        |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`@counterfactual/types`](/packages/types)                           | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                           | Shared type declarations           |
 | [`@counterfactual/typescript-typings`](/packages/typescript-typings) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-typings.svg)](https://www.npmjs.com/package/@counterfactual/typescript-typings) | Shims for external library typings |
 
 ## Contributing
@@ -68,9 +68,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Ethereum Networks
 
-The default Ethereum network currently used by the Playground is Ropsten.
-
-The Kovan testnet is also supported and can be used by setting the environment variable `ETHEREUM_NETWORK` to `kovan`.
+The Playground currently only supports the Kovan network.
 
 ### Installing dependencies
 
