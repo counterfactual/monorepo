@@ -185,25 +185,28 @@ export async function connectNode(
       requestId: generateUUID()
     };
 
-    await node.call(request.type, request);
-
-    node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
-      if (updateEventData.data.appInstanceId === appInstanceId) {
-        respond(node, botPublicIdentifier, updateEventData);
-      }
-    });
-
-    if (multisigAddress) {
-      node.on(
-        NodeTypes.EventName.UNINSTALL_VIRTUAL,
-        async (uninstallMsg: UninstallVirtualMessage) => {
-          console.info(`Uninstalled app`);
-          console.info(uninstallMsg);
-          renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+    try {
+      await node.call(request.type, request);
+      node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
+        if (updateEventData.data.appInstanceId === appInstanceId) {
+          respond(node, botPublicIdentifier, updateEventData);
         }
-      );
+      });
+    } catch (e) {
+      console.error(`Node call to install virtual app failed: ${e}`);
     }
   });
+
+  if (multisigAddress) {
+    node.on(
+      NodeTypes.EventName.UNINSTALL_VIRTUAL,
+      async (uninstallMsg: UninstallVirtualMessage) => {
+        console.info(`Uninstalled app`);
+        console.info(uninstallMsg);
+        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+      }
+    );
+  }
   console.info("Bot is ready to serve");
 }
 

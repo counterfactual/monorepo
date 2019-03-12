@@ -855,16 +855,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/dapp-tic-tac-toe@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.npmjs.org/@counterfactual/dapp-tic-tac-toe/-/dapp-tic-tac-toe-0.1.1.tgz#381b653511f547b57c404f2df95463a8346bf835"
-  integrity sha512-otmefY45fk7JEuiIkqz01vLnfdWwQkHZiOoOOKgBC8kTPUFxGyW9dkyAv7l397StDDDznomMszph9eZIUa1VfA==
-  dependencies:
-    react "^16.7.0"
-    react-dom "^16.7.0"
-    react-router-dom "^4.3.1"
-    react-scripts "2.1.5"
-
 "@counterfactual/types@0.0.8":
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.8.tgz#728b8191cc57bb9ec12e859257ffc6c120e49e01"
