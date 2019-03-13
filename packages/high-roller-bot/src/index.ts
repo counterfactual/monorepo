@@ -4,26 +4,27 @@ import {
   Node
 } from "@counterfactual/node";
 import { ethers } from "ethers";
-import fs from "fs";
-import path from "path";
 
-import { afterUser } from "./bot";
 import {
+  afterUser,
   buildRegistrationSignaturePayload,
   createAccount,
   deposit,
-  fetchMultisig
+  fetchMultisig,
+  getUser,
+  UserSession
 } from "./utils";
 
-const provider = ethers.getDefaultProvider("ropsten");
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://kovan.infura.io/metamask"
+);
 
-let BASE_URL = `https://server-playground-staging.counterfactual.com`;
+const BASE_URL = process.env.BASE_URL!;
+const TOKEN_PATH = "TTT_USER_TOKEN";
 
 console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
 if (process.env.TIER && process.env.TIER === "development") {
-  BASE_URL = `http://localhost:9000`;
-
   const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
   const firebaseServerPort = process.env.FIREBASE_SERVER_PORT;
   serviceFactory = new FirebaseServiceFactory({
@@ -45,32 +46,11 @@ if (process.env.TIER && process.env.TIER === "development") {
   });
 }
 
-// const STATE_ENCODING = `
-//       tuple(
-//         address[2] playerAddrs,
-//         uint8 stage,
-//         bytes32 salt,
-//         bytes32 commitHash,
-//         uint256 playerFirstNumber,
-//         uint256 playerSecondNumber
-//       )
-//     `;
-// const ACTION_ENCODING = `
-//     tuple(
-//         uint8 actionType,
-//         uint256 number,
-//         bytes32 actionHash,
-//       )
-//     `;
-
-const settingsPath = path.resolve(__dirname, "settings.json");
 let node: Node;
 
-async function bootstrap() {
-  const settings = JSON.parse(fs.readFileSync(settingsPath, "utf8"));
-
+(async () => {
   console.log("Creating store");
-  const store = serviceFactory.createStoreService("highRollerBotStore12");
+  const store = serviceFactory.createStoreService("tttBotStore1");
 
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
@@ -82,56 +62,58 @@ async function bootstrap() {
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten"),
-    "ropsten"
+    provider,
+    "kovan"
   );
 
-  console.log("public identifier", node.publicIdentifier);
-  if (settings["token"]) {
-    await afterUser(node);
-  } else {
-    try {
-      const user = {
-        email: "HighRollerBot",
-        ethAddress: "0xdab32c06dab94feae04ebd7a54128bc22115eb51",
-        nodeAddress: node.publicIdentifier,
-        username: "HighRollerBot"
-      };
-      const privateKey = settings["privateKey"];
-      if (!privateKey) {
-        throw Error('No private key specified in "settings.json". Exiting.');
-      }
-      const wallet = new ethers.Wallet(privateKey, provider);
-      const signature = await wallet.signMessage(
-        buildRegistrationSignaturePayload(user)
-      );
+  console.log("Public Identifier", node.publicIdentifier);
 
-      console.log(BASE_URL);
-      const createdAccount = await createAccount(BASE_URL, user, signature);
-      settings["token"] = createdAccount.token;
-      console.log("Account created. Fetching multisig address");
-      const multisigAddress = await fetchMultisig(createdAccount.token!);
-
-      console.log(`Account created with token: ${createdAccount.token}`);
-      console.log(`multisigAddress: ${JSON.stringify(multisigAddress)}`);
-
-      let depositAmount = process.argv[2];
-      if (!depositAmount) {
-        depositAmount = "0.01";
-      }
-      await deposit(node, depositAmount, multisigAddress);
-
-      // save token to settings after user & channel are  successfully created and funded
-      fs.writeFileSync(settingsPath, JSON.stringify(settings));
-
-      await afterUser(node);
-    } catch (e) {
-      console.error("\n");
-      console.error(e);
-      console.error("\n");
-      process.exit(1);
+  try {
+    const privateKey = process.env.PRIVATE_KEY;
+    if (!privateKey) {
+      throw Error("No private key specified in env. Exiting.");
     }
-  }
-}
+    const wallet = new ethers.Wallet(privateKey, provider);
+    const user = {
+      email: "TicTacToeBot",
+      ethAddress: wallet.address,
+      nodeAddress: node.publicIdentifier,
+      username: "TicTacToeBot"
+    };
+    const signature = await wallet.signMessage(
+      buildRegistrationSignaturePayload(user)
+    );
 
-bootstrap();
+    let bot: UserSession;
+    let token = await store.get(TOKEN_PATH);
+    if (token) {
+      bot = await getUser(BASE_URL, token);
+    } else {
+      bot = await createAccount(BASE_URL, user, signature);
+      token = bot.token;
+      await store.set([
+        {
+          key: TOKEN_PATH,
+          value: token!
+        }
+      ]);
+      console.log(`Account created\n`, bot);
+    }
+
+    const multisigAddress = await fetchMultisig(BASE_URL, token!);
+    console.log("Account multisig address:", multisigAddress);
+
+    let depositAmount = process.argv[2];
+    if (!depositAmount) {
+      depositAmount = "0.02";
+    }
+    await deposit(node, depositAmount, multisigAddress, false);
+
+    afterUser(node, bot.nodeAddress, multisigAddress);
+  } catch (e) {
+    console.error("\n");
+    console.error(e);
+    console.error("\n");
+    process.exit(1);
+  }
+})();

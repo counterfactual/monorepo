@@ -1,7 +1,1 @@
-jest-cache
-jest-coverage/clover.xml
-jest-coverage/coverage-final.json
-jest-coverage/lcov-report/
-jest-coverage/lcov.info
-**/.js
-.env
+test/test-db.sqlite

@@ -1,25 +1,25 @@
-# [Playground Bot](https://github.com/counterfactual/monorepo/packages/playground-bot) <img align="right" src="../../logo.svg" height="80px" />
+# [Tic Tac Toe Bot](https://github.com/counterfactual/monorepo/packages/tic-tac-toe-bot) <img align="right" src="../../logo.svg" height="80px" />
 
-The Playground Bot
+ The Tic Tac Toe Bot
 
-Lorem Ipsum?
+ Lorem Ipsum?
 
-## Usage
+ ## Usage
 
-To run the bot:
+ To run the bot:
 
-```shell
+ ```shell
 yarn start
 ```
 
-## Testing
+ ## Testing
 
-You can run tests at any time using:
+ You can run tests at any time using:
 
-```shell
+ ```shell
 yarn test
 ```
 
-## Environment settings
+ ## Environment settings
 
-TODO Probably need to use some env things here
+ TODO Probably need to use some env things here

@@ -13,9 +13,6 @@
   "files": [
     "src"
   ],
-  "publishConfig": {
-    "registry": "https://registry.yarnpkg.com"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/counterfactual/monorepo.git"
@@ -23,66 +20,27 @@
   "scripts": {
     "build": "echo 'No build necessary'",
     "postinstall": "sh ./scripts/postinstall.sh",
-    "lint": "tslint -c tslint.json -p tsconfig.json",
-    "lint:fix": "tslint -c tslint.json -p tsconfig.json --fix",
+    "lint": "tslint -c tslint.json -p .",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
     "start": "env-cmd development ts-node src/",
-    "start:staging": "env-cmd staging ts-node src/"
+    "test": "env-cmd test jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/node": "0.1.4",
+    "@counterfactual/types": "0.0.9",
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
-    "@counterfactual/cf.js": "0.1.1",
-    "@counterfactual/node": "0.1.4",
-    "@counterfactual/types": "0.0.9",
     "env-cmd": "^8.0.2",
     "ethers": "4.0.27",
     "jest": "^24.0.0",
-    "node-fetch": "^2.3.0",
-    "prettier": "^1.15.3",
+    "uuid": "^3.3.2",
     "ts-node": "^8.0.2",
     "tslint": "^5.11.0",
-    "typescript": "^3.3.3333",
-    "uuid": "^3.3.2"
-  },
-  "jest": {
-    "bail": true,
-    "cacheDirectory": "jest-cache",
-    "coverageDirectory": "jest-coverage",
-    "coveragePathIgnorePatterns": [
-      "test"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "branches": 90,
-        "functions": 90,
-        "lines": 90,
-        "statements": 90
-      }
-    },
-    "moduleFileExtensions": [
-      "ts",
-      "js",
-      "json"
-    ],
-    "rootDir": ".",
-    "roots": [
-      "test"
-    ],
-    "testPathIgnorePatterns": [
-      "node_modules",
-      "dist"
-    ],
-    "testEnvironment": "node",
-    "testRegex": "\\.spec.(jsx?|tsx?)$",
-    "testURL": "http://localhost/",
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "verbose": false
+    "typescript": "^3.3.3333"
   }
 }
