@@ -68,10 +68,6 @@ export async function getPeersAddressFromAppInstanceID(
   return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
 }
 
-export function isNotDefinedOrEmpty(str?: string) {
-  return !str || str.trim() === "";
-}
-
 export function getCounterpartyAddress(
   myIdentifier: Address,
   appInstanceAddresses: Address[]
@@ -86,8 +82,4 @@ export function getBalanceIncrement(
   afterDeposit: BigNumber
 ): BigNumber {
   return afterDeposit.sub(beforeDeposit);
-}
-
-export function getAlice(channel: StateChannel): string {
-  return channel.multisigOwners[0];
 }
