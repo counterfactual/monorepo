@@ -9,7 +9,7 @@ import "./lib/LibNIKE.sol";
 /// @title ChannelizedCoinShufflePlusApp
 /// @author Alex Xiong - <alex.xiong.tech@gmail.com>
 /// @notice A channelized CoinShuffle++ protocol in Counterfactual framework
-contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
+contract ChannelizedCoinShufflePlusApp is CounterfactualApp, LibNIKE {
 
   //TODO: add DC-net functions and assistant functions
   enum Round {
@@ -22,7 +22,7 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
 
   struct Action {
     ActionType actionType;
-    bytes[] npk;
+    PK[] npk;
     bytes[] commitments;
     bytes[] dcMessages;
     address[] recipents;
@@ -31,7 +31,7 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
   struct AppState {
     Round round;
     address[] peers;
-    bytes[] npk;
+    PK[] npk;
     bytes[] commitments;
     bytes[] dcMessages;
     address[] recipents;
@@ -76,15 +76,21 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
-    // TODO: this is temp hack, should add proper check on new input.
-    require(state.peers.length > 0, "participants/peers not set yet.");
 
+    require(state.peers.length > 0, "participants/peers not set yet.");
+    // TODO: extra check that peers are actual channel peers is better.
+    // also peers is in the same order of signingKeys of this app.
     uint256 setSize = state.peers.length;
 
     AppState memory nextState = state;
+
     if (action.actionType == ActionType.SET_NPK) {
       require(state.round == Round.KEY_EXCHANGE, "Cannot update public keys for when not in KEY_EXCHANGE round.");
       require(action.npk.length > state.npk.length, "Can only append PK to the list");
+      for (uint i = state.npk.length; i<action.npk.length; i++) {
+        require(validatePK(action.npk[i]), "Invalid Public Key!");
+      }
+
       nextState.npk = action.npk;
       if (action.npk.length == setSize) {
         nextState.round = Round.COMMITMENT;
@@ -143,5 +149,21 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
       amounts,
       data
     );
+  }
+
+  function getEncodedAppState(AppState memory appState)
+    public
+    pure
+    returns (bytes memory)
+  {
+    return abi.encode(appState);
+  }
+
+  function getAppStateHash(AppState memory appState)
+    public
+    pure
+    returns (bytes32)
+  {
+    return keccak256(getEncodedAppState(appState));
   }
 }

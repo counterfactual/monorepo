@@ -7,7 +7,6 @@ pragma experimental "ABIEncoderV2";
 /// @notice This contracts expose standard function APIs of an NIKE primitive
 /// NIKE definition: https://eprint.iacr.org/2012/732.pdf
 contract LibNIKE {
-  Params public sysParams;
   /// @notice Params is a set of system parameters, may differ for each NIKE
   struct Params {
     uint256 idSpace;
@@ -22,13 +21,6 @@ contract LibNIKE {
     string id;
   }
 
-  /// @notice CommonSetup function equivalence, due to difficulty in getting
-  /// randomness in contract level, system params are randomly generated offchain
-  /// and pass in as constructor's params.
-  constructor(Params memory params) public {
-    sysParams = params;
-  }
-
   function keyGen(string memory id)
     public
     view
@@ -38,18 +30,24 @@ contract LibNIKE {
     // TODO
   }
 
-  function sharedKey(string id_1, bytes pk_1, string id_2, bytes sk_2)
+  function sharedKey
+  (
+    string memory id_1,
+    bytes memory pk_1,
+    string memory id_2,
+    bytes memory sk_2
+  )
     public
     view
-    returns (bytes)
+    returns (bytes memory)
     /* solium-disable-next-line */
   {
     // TODO
   }
 
-  function validatePK(bytes pk)
+  function validatePK(PK memory pk)
     public
-    view
+    pure
     returns (bool)
     /* solium-disable-next-line */
   {
