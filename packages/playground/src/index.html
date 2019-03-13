@@ -46,7 +46,7 @@
     <script>
       window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
       ga('create', 'UA-114409337-5', 'auto');
-      
+
       const userId = window.localStorage.getItem("playground:user:token")
 
       if (userId) {
@@ -54,7 +54,7 @@
       }
 
       ga('require', 'urlChangeTracker');
-      
+
       ga('send', 'pageview');
     </script>
     <script async src="https://www.google-analytics.com/analytics.js"></script>
@@ -74,29 +74,27 @@
     <link rel="icon" type="image/x-icon" href="/assets/icon/favicon.ico" />
     <link rel="manifest" href="/manifest.json" />
 
-    <meta property="og:title" content="Counterfactual Playground" />
-    <meta property="og:type" content="website" />
-    <meta
-      property="og:description"
-      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
-    />
-    <meta property="og:url" content="http://playground.counterfactual.com/" />
-    <meta property="og:image" content="/assets/icon/logo-banner.jpeg" />
+    <meta property="og:image" content="/assets/social/linkedin.png" />
+    <meta property="og:image:width" content="700" />
+    <meta property="og:image:height" content="400" />
 
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="/assets/social/facebook.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="628" />
+
+    <meta property="og:title" content="State Channels Playground" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="A demo of state channels on Ethereum built using Counterfactual. Dapps with no fees and instant response times." />
+    <meta property="og:url" content="http://playground.counterfactual.com/" />
+
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@statechannels" />
     <meta name="twitter:creator" content="@statechannels" />
     <meta name="twitter:title" content="Counterfactual Playground" />
-    <meta
-      name="twitter:description"
-      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
-    />
-    <meta name="twitter:image" content="/assets/icon/logo-square.jpeg" />
+    <meta name="twitter:description" content="A demo of state channels on Ethereum built using Counterfactual. Dapps with no fees and instant response times." />
+    <meta name="twitter:image" content="/assets/social/twitter.png" />
 
-    <meta
-      name="description"
-      content="The Playground is a full demo implementation of the Counterfactual stack, running live on Ropsten. It lets you create an account, use demo applications, and learn about how to use Counterfactual to build your own app."
-    />
+    <meta name="description" content="A demo of state channels on Ethereum built using Counterfactual. Dapps with no fees and instant response times." />
   </head>
   <body>
     <app-root></app-root>
