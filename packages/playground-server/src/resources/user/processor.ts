@@ -3,7 +3,6 @@ import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
 import {
-  bindTransactionHashToUser,
   createUser,
   ethAddressAlreadyRegistered,
   getUsers,
@@ -11,7 +10,6 @@ import {
   usernameAlreadyRegistered
 } from "../../db";
 import errors from "../../errors";
-import NodeWrapper from "../../node";
 
 import User from "./resource";
 
@@ -37,10 +35,9 @@ export default class UserProcessor extends OperationProcessor<User> {
   }
 
   public async add(op: Operation): Promise<User> {
-    // Create the multisig and return its address.
     const user = op.data as User;
 
-    const { username, email, ethAddress, nodeAddress } = user.attributes;
+    const { username, email, ethAddress } = user.attributes;
 
     if (!username) {
       throw errors.UsernameRequired();
@@ -62,25 +59,11 @@ export default class UserProcessor extends OperationProcessor<User> {
       throw errors.AddressAlreadyRegistered();
     }
 
-    const { transactionHash } = await NodeWrapper.createStateChannelFor(
-      nodeAddress
-    );
-
-    user.attributes.transactionHash = transactionHash;
-
     // Create the Playground User.
     const newUser = await createUser(user);
 
     Log.info("User has been created", {
       tags: { userId: user.id, endpoint: "createAccount" }
-    });
-
-    await bindTransactionHashToUser(newUser, transactionHash);
-
-    Log.info("Multisig has been requested", {
-      tags: {
-        endpoint: "createAccount"
-      }
     });
 
     // Update user with token.

@@ -1,6 +1,6 @@
 declare var ga: any;
 
-import { Component, Element, Prop, State } from "@stencil/core";
+import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
@@ -38,6 +38,7 @@ export class AccountRegister {
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() signer: Signer = {} as Signer;
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() waitForMultisig: () => Promise<void> = async () => {};
 
   changeset: UserChangeset = {
     username: "",
@@ -52,7 +53,12 @@ export class AccountRegister {
     ethAddress: "",
     nodeAddress: ""
   };
-  @State() metamaskConfirmationUIOpen: boolean = false;
+  @State() stage:
+    | "ready"
+    | "awaitingForWallet"
+    | "creatingAccount"
+    | "deployingMultisig"
+    | "finished" = "ready";
 
   async login(e: MouseEvent) {
     e.preventDefault();
@@ -80,19 +86,19 @@ export class AccountRegister {
   }
 
   async formSubmissionHandler() {
-    const data = this.changeset;
+    this.clearErrorMessage();
 
+    const data = this.changeset;
     const payload = buildRegistrationSignaturePayload(data);
 
-    this.metamaskConfirmationUIOpen = true;
+    this.stage = "awaitingForWallet";
 
     try {
       const signature = await this.signer.signMessage(payload);
       await this.register(signature);
     } catch (e) {
       this.handleMetamaskErrors(e);
-    } finally {
-      this.metamaskConfirmationUIOpen = false;
+      this.stage = "ready";
     }
   }
 
@@ -102,8 +108,17 @@ export class AccountRegister {
     }
   }
 
+  @Watch("user")
+  onUserUpdated() {
+    if (this.user.multisigAddress && this.stage === "deployingMultisig") {
+      this.stage = "finished";
+    }
+  }
+
   async register(signedMessage: string) {
     try {
+      this.stage = "creatingAccount";
+
       const newAccount = await PlaygroundAPIClient.createAccount(
         this.changeset,
         signedMessage
@@ -116,17 +131,24 @@ export class AccountRegister {
         newAccount.token as string
       );
 
-      ga("set", "userId", newAccount.token);
+      ga("set", "userId", newAccount.id);
 
-      this.history.push("/deposit");
+      this.stage = "deployingMultisig";
+      this.waitForMultisig();
     } catch (e) {
       this.setErrorMessage(e.code);
+      this.stage = "ready";
     }
+  }
+
+  clearErrorMessage() {
+    this.errors = { username: "", email: "", ethAddress: "", nodeAddress: "" };
   }
 
   setErrorMessage(errorCode: string) {
     let update = {};
-    this.errors = { username: "", email: "", ethAddress: "", nodeAddress: "" };
+
+    this.clearErrorMessage();
 
     switch (errorCode) {
       case "username_required":
@@ -175,19 +197,51 @@ export class AccountRegister {
   }
 
   render() {
+    if (this.stage === "finished") {
+      return <stencil-router-redirect url="/deposit" />;
+    }
+
     if (this.user.ethAddress) {
       this.changeset.ethAddress = this.user.ethAddress;
     }
 
+    const buttonTexts = {
+      ready: "Register",
+      awaitingForWallet: "Check Wallet...",
+      creatingAccount: "Creating your account...",
+      deployingMultisig: "Creating state channel..."
+    };
+
+    const inputIsDisabled = this.stage !== "ready";
+
+    let slotElement = (
+      <div slot="post">
+        Already have an account?{" "}
+        <a href="#" onClick={async e => await this.login(e)}>
+          Login here
+        </a>
+      </div>
+    );
+
+    if (this.stage === "deployingMultisig") {
+      slotElement = (
+        <div slot="post">
+          <b>This can take around 15-90 seconds.</b>
+          <br />
+          Please be patient! :)
+        </div>
+      );
+    }
+
     return (
-      <widget-screen>
+      <widget-screen exitable={!inputIsDisabled}>
         <div slot="header">Create a Playground Account</div>
 
         <form-container
           onFormSubmitted={async e => await this.formSubmissionHandler()}
         >
           <form-input
-            disabled={this.metamaskConfirmationUIOpen}
+            disabled={inputIsDisabled}
             label="Username"
             value={this.changeset.username}
             error={this.errors.username}
@@ -195,7 +249,7 @@ export class AccountRegister {
             onChange={e => this.change("username", e)}
           />
           <form-input
-            disabled={this.metamaskConfirmationUIOpen}
+            disabled={inputIsDisabled}
             label="Email address"
             value={this.changeset.email}
             error={this.errors.email}
@@ -208,24 +262,23 @@ export class AccountRegister {
           <div class="error">{this.errors.ethAddress}</div>
           <form-button
             class="button"
-            disabled={this.metamaskConfirmationUIOpen}
+            disabled={inputIsDisabled}
+            spinner={inputIsDisabled}
             onButtonPressed={async e => await this.formSubmissionHandler()}
           >
-            {this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Register"}
+            {buttonTexts[this.stage]}
           </form-button>
         </form-container>
-
-        <div slot="post">
-          Already have an account?{" "}
-          <a href="#" onClick={async e => await this.login(e)}>
-            Login here
-          </a>
-        </div>
+        {slotElement}
       </widget-screen>
     );
   }
 }
 
-AccountTunnel.injectProps(AccountRegister, ["updateAccount", "user"]);
+AccountTunnel.injectProps(AccountRegister, [
+  "updateAccount",
+  "user",
+  "waitForMultisig"
+]);
 
 WalletTunnel.injectProps(AccountRegister, ["connected", "signer"]);

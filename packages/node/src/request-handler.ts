@@ -13,8 +13,6 @@ import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
 
-const REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN = 4;
-
 /**
  * This class registers handlers for requests to get or set some information
  * about app instances and channels for this Node and any relevant peer Nodes.
@@ -37,20 +35,11 @@ export class RequestHandler {
     readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string,
-    readonly blocksNeededForConfirmation?: number
+    readonly blocksNeededForConfirmation: number
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
     this.mapPublicApiMethods();
     this.mapEventHandlers();
-
-    if (!this.blocksNeededForConfirmation) {
-      const name = provider.network ? provider.network.name : "unknown";
-      if (name === "ropsten") {
-        this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT_ON_ROPSTEN;
-      } else {
-        this.blocksNeededForConfirmation = 1;
-      }
-    }
   }
 
   /**
@@ -127,8 +116,20 @@ export class RequestHandler {
   }
 
   public async getSigner(): Promise<Signer> {
-    return this.provider instanceof JsonRpcProvider
-      ? await this.provider.getSigner()
-      : this.wallet;
+    try {
+      const signer = await (this.provider as JsonRpcProvider).getSigner();
+      await signer.getAddress();
+      return signer;
+    } catch (e) {
+      if (e.code === "UNSUPPORTED_OPERATION") {
+        return this.wallet;
+      }
+      throw e;
+    }
+  }
+
+  public async getSignerAddress(): Promise<string> {
+    const signer = await this.getSigner();
+    return await signer.getAddress();
   }
 }

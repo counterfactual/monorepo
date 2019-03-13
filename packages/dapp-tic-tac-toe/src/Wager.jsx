@@ -1,3 +1,5 @@
+import KovanContracts from "@counterfactual/apps/networks/42.json";
+import RopstenContracts from "@counterfactual/apps/networks/3.json";
 import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
 import Waiting from "./Waiting";
@@ -20,7 +22,7 @@ class Wager extends Component {
 
     try {
       const result = await this.matchmake();
-      
+
       const opponent = {
         id: "opponent",
         attributes: {
@@ -66,9 +68,25 @@ class Wager extends Component {
   }
 
   createAppFactory() {
+    let contractAddress;
+    // const networkVersion = window["web3"].currentProvider.networkVersion;
+    // FIXME: hard-coding to use Kovan until we fix this
+    const networkVersion = "42";
+    const contractName = "TicTacToeApp";
+    switch (networkVersion) {
+      case "3":
+        contractAddress = getContractAddress(RopstenContracts, contractName);
+        break;
+      case "42":
+        contractAddress = getContractAddress(KovanContracts, contractName);
+        break;
+      default:
+        throw Error(
+          `The App has not been deployed to network ID ${networkVersion}`
+        );
+    }
     return new window.cf.AppFactory(
-      // TODO: provide valid appId
-      "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
+      contractAddress,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
@@ -120,7 +138,7 @@ class Wager extends Component {
         myDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
-        timeout: 100,
+        timeout: 172800,
         initialState: {
           players: [
             window.ethers.utils.HDNode.fromExtendedKey(
@@ -143,6 +161,7 @@ class Wager extends Component {
   onInstall({ data: { appInstance } }) {
     this.props.onChangeAppInstance(this.state.appInstance);
     this.props.history.push(`/game?appInstanceId=${appInstance.id}`);
+    window.parent.postMessage("playground:request:getBalances", "*");
   }
 
   onFormSubmitted(e) {
@@ -157,7 +176,7 @@ class Wager extends Component {
   render() {
     const { error, isLoaded, isWaiting } = this.state;
     const { user } = this.props;
-    
+
     if (!isLoaded) {
       return (
         <div className="wager horizontal-constraint">
@@ -212,3 +231,9 @@ class Wager extends Component {
 }
 
 export default Wager;
+
+function getContractAddress(migrations, contractName) {
+  return migrations.filter(migration => {
+    return migration.contractName === contractName;
+  })[0].address;
+}

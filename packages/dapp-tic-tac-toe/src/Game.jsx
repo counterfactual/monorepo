@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import Timer from './components/Timer';
 import Board from "./components/Board";
 import Coins from "./components/Coins";
 import Player from "./components/Player";
@@ -53,6 +52,8 @@ class Game extends Component {
       } catch (e) {
         console.log("uninstall failed: ", e);
       }
+    
+      window.parent.postMessage("playground:request:getBalances", "*");
     }
   }
 
@@ -72,13 +73,13 @@ class Game extends Component {
   }
 
   async takeAction(playX, playY) {
+    const { board } = this.state.gameState;
     this.setState({ pendingActionResponse: true });
 
-    const boardCopy = JSON.parse(JSON.stringify(this.state.gameState.board));
-    boardCopy[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
-
-    const winClaim = checkVictory(boardCopy, this.myNumber);
-    const draw = checkDraw(boardCopy);
+    board[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
+  
+    const winClaim = checkVictory(board, this.myNumber);
+    const draw = checkDraw(board);
 
     let actionType = 0;
 

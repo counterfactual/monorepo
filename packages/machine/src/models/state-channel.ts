@@ -5,7 +5,7 @@ import {
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, formatEther } from "ethers/utils";
 
 import {
   getETHBucketAppInterface,
@@ -21,8 +21,8 @@ import {
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 10,
-  freeBalanceInitialStateTimeout: 10,
+  freeBalanceDefaultTimeout: 172800,
+  freeBalanceInitialStateTimeout: 172800,
   // We assume the Free Balance is installed when the Root Nonce value is 0
   rootNonceValueAtFreeBalanceInstall: 0,
   // We assume the Free Balance is the first app ever installed
@@ -64,7 +64,8 @@ export type StateChannelJSON = {
 function createETHFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
-  ethBucketAddress: string
+  ethBucketAddress: string,
+  freeBalanceTimeout: number
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userNeuteredExtendedKeys,
@@ -79,7 +80,7 @@ function createETHFreeBalance(
   return new AppInstance(
     multisigAddress,
     sortedTopLevelKeys,
-    HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
+    freeBalanceTimeout,
     getETHBucketAppInterface(ethBucketAddress),
     unlimitedETH,
     false,
@@ -256,11 +257,11 @@ export class StateChannel {
       );
       if (beneficiaryAddress === freeBalanceState.alice) {
         freeBalanceState.aliceBalance = bigNumberify(
-          increments[beneficiaryXpub]
+          increments[beneficiaryXpub] || Zero
         ).add(freeBalanceState.aliceBalance);
       } else if (beneficiaryAddress === freeBalanceState.bob) {
         freeBalanceState.bobBalance = bigNumberify(
-          increments[beneficiaryXpub]
+          increments[beneficiaryXpub] || Zero
         ).add(freeBalanceState.bobBalance);
       } else {
         throw Error(`No such beneficiary ${beneficiaryAddress} found`);
@@ -291,12 +292,14 @@ export class StateChannel {
   public static setupChannel(
     ethBucketAddress: string,
     multisigAddress: string,
-    userNeuteredExtendedKeys: string[]
+    userNeuteredExtendedKeys: string[],
+    freeBalanceTimeout?: number
   ) {
     const fb = createETHFreeBalance(
       multisigAddress,
       userNeuteredExtendedKeys,
-      ethBucketAddress
+      ethBucketAddress,
+      freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
     );
 
     const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
@@ -406,13 +409,29 @@ export class StateChannel {
     /// Decrement from FB
 
     const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state as ETHBucketAppState;
+    const {
+      alice,
+      aliceBalance,
+      bob,
+      bobBalance
+    } = fb.state as ETHBucketAppState;
 
-    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
-    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
+    const updatedAliceBalance = aliceBalance.sub(aliceBalanceDecrement);
+    const updatedBobBalance = bobBalance.sub(bobBalanceDecrement);
 
-    if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
-      throw Error(INSUFFICIENT_FUNDS);
+    if (updatedAliceBalance.lt(Zero)) {
+      throw Error(
+        `${alice} cannot install virtual app agreement instance. Its balance in channel with ${bob} is insufficient by ${formatEther(
+          aliceBalance.sub(updatedAliceBalance)
+        )}`
+      );
+    }
+    if (updatedBobBalance.lt(Zero)) {
+      throw Error(
+        `\n${bob} cannot install virtual app agreement instance. Its balance in channel with ${alice} is insufficient ${formatEther(
+          bobBalance.sub(updatedBobBalance)
+        )}`
+      );
     }
 
     /// Add modified FB to appInstances
@@ -423,7 +442,7 @@ export class StateChannel {
 
     appInstances.set(
       fb.identityHash,
-      fb.setState({ ...currentFBState, aliceBalance, bobBalance })
+      fb.setState({ ...fb.state, updatedAliceBalance, updatedBobBalance })
     );
 
     // Add to ethVirtualAppAgreementInstances

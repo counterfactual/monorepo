@@ -50,8 +50,13 @@ export async function fetchMultisig(baseURL: string, token: string) {
 export async function deposit(
   node: Node,
   amount: string,
-  multisigAddress: string
+  multisigAddress: string,
+  skip: boolean = false
 ) {
+  if (skip) {
+    return;
+  }
+
   const { aliceBalance, bobBalance } = (await getFreeBalance(
     node,
     multisigAddress
@@ -205,6 +210,21 @@ export async function createAccount(
     const data = toAPIResource<UserChangeset, UserAttributes>(user);
     const json = (await post(baseURL, "users", data, signature)) as APIResponse;
     const resource = json.data as APIResource<UserAttributes>;
+
+    const jsonMultisig = (await post(
+      baseURL,
+      "multisig-deploys",
+      {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      },
+      signature
+    )) as APIResponse;
+    const resourceMultisig = jsonMultisig.data as APIResource<
+      Partial<UserAttributes>
+    >;
+
+    resource.attributes.transactionHash = resourceMultisig.id as string;
 
     return fromAPIResource<UserSession, UserAttributes>(resource);
   } catch (e) {

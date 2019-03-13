@@ -7,7 +7,6 @@ import {
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
@@ -146,7 +145,10 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || ethers.getDefaultProvider(networkOrNetworkContext as string),
+      provider ||
+        new JsonRpcProvider(
+          `https://${networkOrNetworkContext}.infura.io/metamask`
+        ),
       networkOrNetworkContext
     );
 
@@ -154,7 +156,7 @@ export default class NodeWrapper {
   }
 
   public static async createStateChannelFor(
-    userAddress: string
+    nodeAddress: string
   ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -168,7 +170,7 @@ export default class NodeWrapper {
       NodeTypes.MethodName.CREATE_CHANNEL,
       {
         params: {
-          owners: [node.publicIdentifier, userAddress]
+          owners: [node.publicIdentifier, nodeAddress]
         } as NodeTypes.CreateChannelParams,
         type: NodeTypes.MethodName.CREATE_CHANNEL,
         requestId: generateUUID()
@@ -191,7 +193,9 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
       params: response.data as NodeTypes.DepositParams
     });
   } catch (e) {
-    console.error("Failed to deposit on the server...", e);
+    Log.error("Failed to deposit on the server", {
+      tags: { reason: e.message, stackTrace: e.stack }
+    });
   }
 }
 

@@ -29,7 +29,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
-    "@counterfactual/node-provider": "0.1.1",
+    "@counterfactual/node-provider": "0.1.2",
     "@counterfactual/types": "0.0.9",
     "ethers": "4.0.27",
     "eventemitter3": "^3.1.0"

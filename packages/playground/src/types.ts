@@ -68,7 +68,8 @@ export type APIResourceType =
   | "matchmakingRequest"
   | "matchedUser"
   | "session"
-  | "app";
+  | "app"
+  | "multisigDeploy";
 
 export type APIResourceRelationships = {
   [key in APIResourceType]?: APIDataContainer

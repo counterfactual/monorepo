@@ -1,5 +1,5 @@
 import { Address } from "@counterfactual/types";
-import { KnexRecord } from "@ebryn/jsonapi-ts";
+import { KnexRecord, ResourceTypeAttributes } from "@ebryn/jsonapi-ts";
 import knex from "knex";
 import { Log } from "logepi";
 import { v4 as generateUuid } from "uuid";
@@ -189,8 +189,9 @@ export async function getUsers(
   );
 }
 
-export async function getUser(userToFind: User): Promise<User> {
+export async function getUser(userToFind: Partial<User>): Promise<User> {
   const db = getDatabase();
+  const { ethAddress } = userToFind.attributes as ResourceTypeAttributes;
 
   const query = db("users")
     .columns({
@@ -202,7 +203,7 @@ export async function getUser(userToFind: User): Promise<User> {
       nodeAddress: "node_address"
     })
     .select()
-    .where("eth_address", "=", userToFind.attributes.ethAddress);
+    .where("eth_address", "=", userToFind.attributes!.ethAddress);
 
   const users: ({
     id: string;
@@ -221,7 +222,7 @@ export async function getUser(userToFind: User): Promise<User> {
 
   if (users.length === 0) {
     Log.info("No user found with provided address", {
-      tags: { user: userToFind.attributes.ethAddress }
+      tags: { user: ethAddress }
     });
     throw Errors.UserNotFound();
   }

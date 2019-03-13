@@ -18,11 +18,9 @@ const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
 
+// Only Kovan is supported for now
 const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
-  "1": "",
-  "3": "ropsten",
-  "42": "kovan",
-  "4": "rinkeby"
+  "42": "kovan"
 };
 
 const delay = (timeInMilliseconds: number) =>
@@ -40,6 +38,9 @@ export class AppRoot {
   @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
+
+  @State() lastDeposit = ethers.constants.Zero;
+  @State() lastCounterpartyBalance = ethers.constants.Zero;
 
   modal: JSX.Element = <div />;
 
@@ -171,9 +172,8 @@ export class AppRoot {
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
       },
-      // TODO: fetch this from the provider's network
       // TODO: handle changes on the UI
-      network: "ropsten"
+      network: "kovan"
     });
   }
 
@@ -299,15 +299,17 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps =
-      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
-      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = counterpartyBalance
+      .sub(this.lastCounterpartyBalance)
+      .eq(this.lastDeposit);
 
     this.updateAppRegistry({
       canUseApps
     });
 
     await this.updateAccount(vals);
+
+    this.lastCounterpartyBalance = counterpartyBalance;
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -340,15 +342,8 @@ export class AppRoot {
   }
 
   async deposit(valueInWei: BigNumber) {
-    let multisigAddress = this.accountState.user.multisigAddress;
-    while (!multisigAddress) {
-      multisigAddress = this.accountState.user.multisigAddress;
-      if (multisigAddress) {
-        break;
-      }
-      await delay(1000);
-      console.log("waited for a second");
-    }
+    const token = localStorage.getItem("playground:user:token")!;
+    const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
     const node = CounterfactualNode.getInstance();
 
@@ -362,15 +357,19 @@ export class AppRoot {
     let ret;
 
     try {
+      const amount = ethers.utils.bigNumberify(valueInWei);
+
       ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
+          amount,
           multisigAddress,
-          amount: ethers.utils.bigNumberify(valueInWei),
           notifyCounterparty: true
         } as Node.DepositParams
       });
+
+      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
@@ -453,13 +452,11 @@ export class AppRoot {
 
     const user = await PlaygroundAPIClient.getUser(userToken as string);
 
-    await this.updateAccount({ user });
-
     if (!user.multisigAddress) {
       await delay(1000);
       await this.fetchMultisig(userToken);
     } else {
-      await this.requestToDepositInitialFunding();
+      await this.updateAccount({ user });
     }
   }
 

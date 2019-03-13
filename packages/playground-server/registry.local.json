@@ -2,7 +2,10 @@
   "data": [
     {
       "type": "app",
-      "id": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+      "id": {
+        "3": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+        "42": "0x91907355C59BA005843E791c88aAB80b779446c9"
+      },
       "attributes": {
         "name": "High Roller",
         "url": "http://localhost:3333",
@@ -13,7 +16,10 @@
     },
     {
       "type": "app",
-      "id": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
+      "id": {
+        "3": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
+        "42": "0x3d9CbDd5e869638ca8A114289E42aeE8d0966B5b"
+      },
       "attributes": {
         "name": "Tic Tac Toe",
         "url": "http://localhost:3000",

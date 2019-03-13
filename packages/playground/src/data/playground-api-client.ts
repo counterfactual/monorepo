@@ -158,6 +158,16 @@ export default class PlaygroundAPIClient {
       const json = (await post("users", data, signature)) as APIResponse;
       const resource = json.data as APIResource<UserAttributes>;
 
+      const jsonMultisig = (await post("multisig-deploys", {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      })) as APIResponse;
+      const resourceMultisig = jsonMultisig.data as APIResource<
+        Partial<UserAttributes>
+      >;
+
+      resource.attributes.transactionHash = resourceMultisig.id as string;
+
       return fromAPIResource<UserSession, UserAttributes>(resource);
     } catch (e) {
       return Promise.reject(e);
