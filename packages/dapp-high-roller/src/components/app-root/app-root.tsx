@@ -189,7 +189,7 @@ export class AppRoot {
     num1: number,
     num2: number
   ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
-    const randomness = solidityKeccak256(["uint256", "uint256"], [num1, num2]);
+    const randomness = solidityKeccak256(["uint256"], [num1 * num2]);
 
     // The Contract interface
     const abi = [
