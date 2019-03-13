@@ -855,11 +855,6 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@counterfactual/types@0.0.8":
-  version "0.0.8"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.8.tgz#728b8191cc57bb9ec12e859257ffc6c120e49e01"
-  integrity sha512-XjTQge+ETV3YCaxlqaI+MiRkY5t3jwIvM6LWSXBKBrSEShAORRaDltOhdHkLz5U4y7NXL2+DIrnz8AwYBCed0A==
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -6165,6 +6160,11 @@ dotenv@^6.1.0:
   version "6.2.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
   integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
+
+dotenv@^7.0.0:
+  version "7.0.0"
+  resolved "https://registry.npmjs.org/dotenv/-/dotenv-7.0.0.tgz#a2be3cd52736673206e8a85fb5210eea29628e7c"
+  integrity sha512-M3NhsLbV1i6HuGzBUH8vXrtxOk+tWmzWKDMbAVSUp3Zsjm7ywFeuwrUXhmhQyRK1q5B5GGy7hcXPbj3bnfZg2g==
 
 drbg.js@^1.0.1:
   version "1.0.1"
