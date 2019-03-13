@@ -442,7 +442,11 @@ export class StateChannel {
 
     appInstances.set(
       fb.identityHash,
-      fb.setState({ ...fb.state, updatedAliceBalance, updatedBobBalance })
+      fb.setState({
+        ...fb.state,
+        aliceBalance: updatedAliceBalance,
+        bobBalance: updatedBobBalance
+      })
     );
 
     // Add to ethVirtualAppAgreementInstances
