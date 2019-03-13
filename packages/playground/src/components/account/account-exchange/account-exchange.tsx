@@ -161,7 +161,11 @@ export class AccountExchange {
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
             min={0}
-            max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
+            max={Number(
+              Number(
+                ethers.utils.formatEther(this.ethWeb3WalletBalance)
+              ).toFixed(4)
+            )}
           />
         </div>
 
