@@ -85,6 +85,7 @@ export async function deposit(
           updatedBobBalance
         )
       ) {
+        // FIXME: determine delay period from env var
         console.info("Waiting 2 more seconds for counter party deposit");
         await delay(2000);
       }
@@ -190,13 +191,14 @@ async function post(
 }
 
 export async function afterUser(
+  botName: string,
   node: Node,
   botPublicIdentifer: string,
   multisigAddress: string
 ) {
   console.log("Setting up bot's event handlers");
 
-  await connectNode(node, botPublicIdentifer, multisigAddress);
+  await connectNode(botName, node, botPublicIdentifer, multisigAddress);
 }
 
 // TODO: don't duplicate these from PG for consistency

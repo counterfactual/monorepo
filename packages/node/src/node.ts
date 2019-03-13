@@ -127,7 +127,6 @@ export class Node {
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
       this.blocksNeededForConfirmation!
     );
-    console.info(`Node ETH account: ${this.signer.address}`);
     this.registerMessagingConnection();
     return this;
   }

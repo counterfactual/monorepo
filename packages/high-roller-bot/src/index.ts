@@ -20,7 +20,7 @@ const provider = new ethers.providers.JsonRpcProvider(
 );
 
 const BASE_URL = process.env.BASE_URL!;
-const TOKEN_PATH = "TTT_USER_TOKEN";
+const TOKEN_PATH = "HR_USER_TOKEN";
 
 console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
@@ -50,7 +50,7 @@ let node: Node;
 
 (async () => {
   console.log("Creating store");
-  const store = serviceFactory.createStoreService("tttBotStore1");
+  const store = serviceFactory.createStoreService("hrBotStore1");
 
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
@@ -75,10 +75,10 @@ let node: Node;
     }
     const wallet = new ethers.Wallet(privateKey, provider);
     const user = {
-      email: "TicTacToeBot",
+      email: "HighRollerBot",
       ethAddress: wallet.address,
       nodeAddress: node.publicIdentifier,
-      username: "TicTacToeBot"
+      username: "HighRollerBot"
     };
     const signature = await wallet.signMessage(
       buildRegistrationSignaturePayload(user)
@@ -103,13 +103,14 @@ let node: Node;
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
     console.log("Account multisig address:", multisigAddress);
 
+    // FIXME: use env var to specify whether to deposit (and the amount)
     let depositAmount = process.argv[2];
     if (!depositAmount) {
       depositAmount = "0.02";
     }
-    await deposit(node, depositAmount, multisigAddress, false);
+    await deposit(node, depositAmount, multisigAddress, true);
 
-    afterUser(node, bot.nodeAddress, multisigAddress);
+    afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);

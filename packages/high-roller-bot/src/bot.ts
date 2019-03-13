@@ -1,201 +1,96 @@
-import { Node, UninstallVirtualMessage } from "@counterfactual/node";
+import {
+  Node,
+  ProposeVirtualMessage,
+  UninstallVirtualMessage,
+  UpdateStateMessage
+} from "@counterfactual/node";
 import { Address, Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
-import { Zero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { solidityKeccak256 } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { getFreeBalance, renderFreeBalanceInEth } from "./utils";
 
-function checkDraw(board: Board) {
-  return board.every((row: BoardRow) =>
-    row.every((square: BoardSquare) => !bigNumberify(square).eq(Zero))
-  );
+/// Returns the commit hash that can be used to commit to chosenNumber
+/// using appSalt
+function computeCommitHash(appSalt: string, chosenNumber: number) {
+  return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
 }
 
-function checkVictory(board: Board, player: number) {
-  return (
-    checkHorizontalVictory(board, player) ||
-    checkVerticalVictory(board, player) ||
-    checkDiagonalVictory(board, player) ||
-    checkCrossDiagonalVictory(board, player)
-  );
-}
+function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
+  const data: NodeTypes.UpdateStateEventData = msg.data;
+  const { appInstanceId, newState } = data;
+  console.log("new state");
+  console.log(newState);
 
-function checkHorizontalVictory(board: Board, player: number) {
-  let idx;
-  const victory = board.some((row: BoardRow, index) => {
-    idx = index;
-    return row.every((square: BoardSquare) =>
-      bigNumberify(square).eq(bigNumberify(player))
-    );
-  });
+  if (newState.stage === 2) {
+    console.log("Commiting number");
+    // Stage.COMMITTING_NUM
+    const numToCommit = Math.floor(Math.random() * Math.floor(1000));
 
-  return victory
-    ? {
-        idx,
-        winClaimType: WinClaimType.COL
-      }
-    : false;
-}
+    const numberSalt =
+      "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+    const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
+    const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
-function checkVerticalVictory(board: Board, player: number) {
-  let idx;
-  const victory = board[0].some((columnStart: BoardSquare, index) => {
-    idx = index;
-    return (
-      bigNumberify(columnStart).eq(bigNumberify(player)) &&
-      bigNumberify(board[1][index]).eq(bigNumberify(player)) &&
-      bigNumberify(board[2][index]).eq(bigNumberify(player))
-    );
-  });
+    console.log("commit hash action");
+    console.log(hash);
 
-  return victory
-    ? {
-        idx,
-        winClaimType: WinClaimType.ROW
-      }
-    : false;
-}
+    const commitHashAction = {
+      number: numToCommit,
+      actionType: 2, // ActionType.COMMIT_TO_NUM
+      actionHash: hash
+    };
 
-function checkDiagonalVictory(board: Board, player: number) {
-  const victory =
-    bigNumberify(board[0][0]).eq(bigNumberify(player)) &&
-    bigNumberify(board[1][1]).eq(bigNumberify(player)) &&
-    bigNumberify(board[2][2]).eq(bigNumberify(player));
-
-  return victory
-    ? {
-        idx: 0,
-        winClaimType: WinClaimType.DIAG
-      }
-    : false;
-}
-
-function checkCrossDiagonalVictory(board: Board, player: number) {
-  const victory =
-    bigNumberify(board[0][2]).eq(bigNumberify(player)) &&
-    bigNumberify(board[1][1]).eq(bigNumberify(player)) &&
-    bigNumberify(board[2][0]).eq(bigNumberify(player));
-
-  return victory
-    ? {
-        idx: 0,
-        winClaimType: WinClaimType.CROSS_DIAG
-      }
-    : false;
-}
-
-function respond(
-  node: Node,
-  nodeAddress: Address,
-  { data: { appInstanceId, newState } }
-) {
-  const { board, players, turnNum, winner } = newState;
-  const playerAddress = ethers.utils.HDNode.fromExtendedKey(
-    nodeAddress
-  ).derivePath("0").address;
-  const botPlayerNumber = players.indexOf(playerAddress) + 1;
-  const isBotTurn =
-    bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
-  const noWinnerYet =
-    bigNumberify(winner).toNumber() === Winner.GAME_IN_PROGRESS;
-
-  if (noWinnerYet && isBotTurn) {
-    const action = takeTurn(board, botPlayerNumber);
     const request = {
       params: {
         appInstanceId,
-        action
-      },
+        action: commitHashAction
+      } as NodeTypes.TakeActionParams,
       requestId: generateUUID(),
       type: NodeTypes.MethodName.TAKE_ACTION
     };
-
     node.call(request.type, request);
   }
 }
 
-export function takeTurn(board: Board, botPlayerNumber: number) {
-  const { playX, playY } = makeMove(board);
-  board[playX][playY] = bigNumberify(botPlayerNumber);
-  const winClaim = checkVictory(board, botPlayerNumber);
-
-  return {
-    playX,
-    playY,
-    actionType: determineActionType(board, botPlayerNumber),
-    winClaim: winClaim || { winClaimType: WinClaimType.COL, idx: 0 }
-  };
-}
-
-function makeMove(board: Board) {
-  const possibleMoves: Coordinates[] = [];
-
-  for (let x = 0; x < 3; x += 1) {
-    for (let y = 0; y < 3; y += 1) {
-      if (bigNumberify(board[x][y]).toNumber() === 0) {
-        possibleMoves.push({
-          x,
-          y
-        } as Coordinates);
-      }
-    }
-  }
-
-  if (possibleMoves.length === 0) {
-    throw new Error("Yikes! No place left to move.");
-  }
-
-  const move = possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-  const playX = move.x;
-  const playY = move.y;
-
-  return {
-    playX,
-    playY
-  };
-}
-
-function determineActionType(board: Board, botPlayerNumber: number) {
-  if (checkVictory(board, botPlayerNumber)) {
-    return ActionType.PLAY_AND_WIN;
-  }
-  if (checkDraw(board)) {
-    return ActionType.PLAY_AND_DRAW;
-  }
-  return ActionType.PLAY;
-}
-
 export async function connectNode(
+  botName: string,
   node: Node,
   botPublicIdentifier: string,
   multisigAddress?: string
 ) {
-  node.on(NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL, async data => {
-    const appInstanceId = data.data.appInstanceId;
-    const intermediaries = data.data.params.intermediaries;
+  node.on(
+    NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL,
+    async (msg: ProposeVirtualMessage) => {
+      console.log("abi encoding");
+      console.log(msg.data.params.abiEncodings);
+      const appInstanceId = msg.data.appInstanceId;
+      const intermediaries = msg.data.params.intermediaries;
 
-    const request = {
-      type: NodeTypes.MethodName.INSTALL_VIRTUAL,
-      params: {
-        appInstanceId,
-        intermediaries
-      },
-      requestId: generateUUID()
-    };
+      const request = {
+        type: NodeTypes.MethodName.INSTALL_VIRTUAL,
+        params: {
+          appInstanceId,
+          intermediaries
+        },
+        requestId: generateUUID()
+      };
 
-    try {
-      await node.call(request.type, request);
-      node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
-        if (updateEventData.data.appInstanceId === appInstanceId) {
-          respond(node, botPublicIdentifier, updateEventData);
-        }
-      });
-    } catch (e) {
-      console.error(`Node call to install virtual app failed: ${e}`);
+      try {
+        await node.call(request.type, request);
+        node.on(
+          NodeTypes.EventName.UPDATE_STATE,
+          async (updateEventData: UpdateStateMessage) => {
+            if (updateEventData.data.appInstanceId === appInstanceId) {
+              respond(node, botPublicIdentifier, updateEventData);
+            }
+          }
+        );
+      } catch (e) {
+        console.error(`Node call to install virtual app failed: ${e}`);
+      }
     }
-  });
+  );
 
   if (multisigAddress) {
     node.on(
@@ -207,35 +102,5 @@ export async function connectNode(
       }
     );
   }
-  console.info("Bot is ready to serve");
-}
-
-type BoardSquare = number | BigNumber;
-type BoardRow = BoardSquare[];
-type Board = BoardRow[];
-
-type Coordinates = {
-  x: number;
-  y: number;
-};
-
-enum Winner {
-  GAME_IN_PROGRESS = 0,
-  PLAYER_1,
-  PLAYER_2,
-  GAME_DRAWN
-}
-
-enum ActionType {
-  PLAY = 0,
-  PLAY_AND_WIN,
-  PLAY_AND_DRAW,
-  DRAW
-}
-
-enum WinClaimType {
-  COL = 0,
-  ROW,
-  DIAG,
-  CROSS_DIAG
+  console.info(`Bot ${botName} is ready to serve`);
 }

@@ -20,7 +20,7 @@ import {
 declare var ethers;
 declare var web3;
 
-const { solidityKeccak256 } = ethers.utils;
+const { bigNumberify, solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
 
 @Component({
@@ -189,7 +189,10 @@ export class AppRoot {
     num1: number,
     num2: number
   ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
-    const randomness = solidityKeccak256(["uint256"], [num1 * num2]);
+    const randomness = solidityKeccak256(
+      ["uint256"],
+      [bigNumberify(num1).toNumber() * bigNumberify(num2).toNumber()]
+    );
 
     // The Contract interface
     const abi = [
