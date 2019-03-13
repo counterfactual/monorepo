@@ -211,6 +211,21 @@ export async function createAccount(
     const json = (await post(baseURL, "users", data, signature)) as APIResponse;
     const resource = json.data as APIResource<UserAttributes>;
 
+    const jsonMultisig = (await post(
+      baseURL,
+      "multisig-deploys",
+      {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      },
+      signature
+    )) as APIResponse;
+    const resourceMultisig = jsonMultisig.data as APIResource<
+      Partial<UserAttributes>
+    >;
+
+    resource.attributes.transactionHash = resourceMultisig.id as string;
+
     return fromAPIResource<UserSession, UserAttributes>(resource);
   } catch (e) {
     return Promise.reject(e);
