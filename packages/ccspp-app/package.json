@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Channelized CoinShuffle++ protocol built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
-  "author": "Alex Xiong - <alex.xiong.tech@gmail.com>",
+  "author": "Alex Xiong - <alex@alexxiong.com>",
   "license": "MIT",
   "private": true,
   "files": [

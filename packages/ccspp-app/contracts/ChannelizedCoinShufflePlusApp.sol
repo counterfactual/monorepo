@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
+import "./lib/LibNIKE.sol";
 
 
 /// @title ChannelizedCoinShufflePlusApp
@@ -10,6 +11,7 @@ import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 /// @notice A channelized CoinShuffle++ protocol in Counterfactual framework
 contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
 
+  //TODO: add DC-net functions and assistant functions
   enum Round {
     KEY_EXCHANGE, COMMITMENT, DC_NET, CONFIRMATION, REVEAL_KEY, DONE
   }
@@ -66,6 +68,7 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
     }
   }
 
+  // TODO:add action param verification
   function applyAction(bytes memory encodedState, bytes memory encodedAction)
     public
     pure
@@ -73,6 +76,7 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
+    // TODO: this is temp hack, should add proper check on new input.
     require(state.peers.length > 0, "participants/peers not set yet.");
 
     uint256 setSize = state.peers.length;
