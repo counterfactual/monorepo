@@ -18,8 +18,8 @@ import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
+import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import AutoNonceWallet from "./methods/state-channel/deposit/auto-nonce-wallet";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
