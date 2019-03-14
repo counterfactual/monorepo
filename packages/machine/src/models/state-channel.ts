@@ -165,7 +165,11 @@ export class StateChannel {
       }
     );
     if (appInstances.length !== 1) {
-      throw Error(`No AppInstance of addr ${address} exists on this channel`);
+      throw Error(
+        `No AppInstance of addr ${address} exists on channel: ${
+          this.multisigAddress
+        }`
+      );
     }
     return appInstances[0];
   }
