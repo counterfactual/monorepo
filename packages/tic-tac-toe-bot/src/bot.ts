@@ -168,6 +168,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
 }
 
 export async function connectNode(
+  botName: string,
   node: Node,
   botPublicIdentifier: string,
   multisigAddress?: string
@@ -207,7 +208,7 @@ export async function connectNode(
       }
     );
   }
-  console.info("Bot is ready to serve");
+  console.info(`Bot ${botName} is ready to serve`);
 }
 
 type BoardSquare = number | BigNumber;

@@ -110,7 +110,7 @@ let node: Node;
       await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
     }
 
-    afterUser(node, bot.nodeAddress, multisigAddress);
+    afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);

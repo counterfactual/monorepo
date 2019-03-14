@@ -7,6 +7,9 @@ import { v4 as generateUUID } from "uuid";
 import { connectNode } from "./bot";
 
 const API_TIMEOUT = 30000;
+const DELAY_SECONDS = process.env.DELAY_SECONDS
+  ? Number(process.env.DELAY_SECONDS)
+  : 5;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -38,9 +41,10 @@ export async function fetchMultisig(baseURL: string, token: string) {
   const bot = await getUser(baseURL, token);
   if (!bot.multisigAddress) {
     console.info(
-      "The Bot doesn't have a channel with the Playground yet...Waiting for another 5 seconds"
+      `The Bot doesn't have a channel with the Playground yet...Waiting for another ${DELAY_SECONDS} seconds`
     );
-    await delay(5000).then(() => fetchMultisig(baseURL, token));
+    // Convert to milliseconds
+    await delay(DELAY_SECONDS * 1000).then(() => fetchMultisig(baseURL, token));
   }
   return (await getUser(baseURL, token)).multisigAddress;
 }
@@ -85,8 +89,10 @@ export async function deposit(
           updatedBobBalance
         )
       ) {
-        console.info("Waiting 2 more seconds for counter party deposit");
-        await delay(2000);
+        console.info(
+          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
+        );
+        await delay(DELAY_SECONDS * 1000);
       }
     } else if (updatedFreeBalance.state.bobBalance.gt(bobBalance)) {
       console.info("Waiting for counter party to deposit same amount");
@@ -95,8 +101,10 @@ export async function deposit(
           updatedAliceBalance
         )
       ) {
-        console.info("Waiting 2 more second for counter party deposit");
-        await delay(2000);
+        console.info(
+          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
+        );
+        await delay(DELAY_SECONDS * 1000);
       }
     } else {
       throw Error(`Neither balance was updated.\n
@@ -190,13 +198,14 @@ async function post(
 }
 
 export async function afterUser(
+  botName: string,
   node: Node,
   botPublicIdentifer: string,
   multisigAddress: string
 ) {
   console.log("Setting up bot's event handlers");
 
-  await connectNode(node, botPublicIdentifer, multisigAddress);
+  await connectNode(botName, node, botPublicIdentifer, multisigAddress);
 }
 
 // TODO: don't duplicate these from PG for consistency
