@@ -87,6 +87,9 @@ let node: Node;
     let bot: UserSession;
     let token = await store.get(TOKEN_PATH);
     if (token) {
+      console.log(
+        `Getting pre-existing user ${user.username} account: ${token}`
+      );
       bot = await getUser(BASE_URL, token);
     } else {
       bot = await createAccount(BASE_URL, user, signature);
@@ -103,11 +106,9 @@ let node: Node;
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
     console.log("Account multisig address:", multisigAddress);
 
-    let depositAmount = process.argv[2];
-    if (!depositAmount) {
-      depositAmount = "0.02";
+    if (process.env.DEPOSIT_AMOUNT) {
+      await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
     }
-    await deposit(node, depositAmount, multisigAddress, false);
 
     afterUser(node, bot.nodeAddress, multisigAddress);
   } catch (e) {

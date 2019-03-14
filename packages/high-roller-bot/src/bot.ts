@@ -19,11 +19,14 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
 function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
   const data: NodeTypes.UpdateStateEventData = msg.data;
   const { appInstanceId, newState } = data;
-  console.log("new state");
-  console.log(newState);
+
+  // FIXME: introduce better logging
+  if (process.env.LOG_LEVEL && process.env.LOG_LEVEL === "DEBUG") {
+    console.log("new state");
+    console.log(newState);
+  }
 
   if (newState.stage === 2) {
-    console.log("Commiting number");
     // Stage.COMMITTING_NUM
     const numToCommit = Math.floor(Math.random() * Math.floor(1000));
 
@@ -31,9 +34,6 @@ function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
       "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
     const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
     const hash = computeCommitHash(numberSalt, playerFirstNumber);
-
-    console.log("commit hash action");
-    console.log(hash);
 
     const commitHashAction = {
       number: numToCommit,
@@ -62,8 +62,6 @@ export async function connectNode(
   node.on(
     NodeTypes.EventName.PROPOSE_INSTALL_VIRTUAL,
     async (msg: ProposeVirtualMessage) => {
-      console.log("abi encoding");
-      console.log(msg.data.params.abiEncodings);
       const appInstanceId = msg.data.appInstanceId;
       const intermediaries = msg.data.params.intermediaries;
 

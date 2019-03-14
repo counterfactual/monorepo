@@ -28,10 +28,10 @@ export async function getFreeBalance(
 export function renderFreeBalanceInEth(
   freeBalance: NodeTypes.GetFreeBalanceStateResult
 ) {
-  const { aliceBalance, bobBalance } = freeBalance.state;
+  const { alice, aliceBalance, bob, bobBalance } = freeBalance.state;
   console.info(`Channel's free balance`);
-  console.info(`Alice: ${formatEther(aliceBalance)}`);
-  console.info(`Bob: ${formatEther(bobBalance)}`);
+  console.info(`Alice: ${formatEther(aliceBalance)}  - (${alice})`);
+  console.info(`Bob: ${formatEther(bobBalance)}  - (${bob})`);
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {

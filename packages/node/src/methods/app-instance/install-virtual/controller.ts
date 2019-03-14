@@ -27,24 +27,15 @@ export default class InstallVirtualController extends NodeController {
   ): Promise<Node.InstallVirtualResult> {
     const { appInstanceId } = params;
 
-    const channel = await requestHandler.store.getChannelFromAppInstanceID(
-      appInstanceId
-    );
     const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
       appInstanceId
     );
-
-    console.log("getting proposed app instance");
-    console.log(proposedAppInstanceInfo);
-    console.log(channel);
 
     const appInstanceInfo = await installVirtual(
       requestHandler.store,
       requestHandler.instructionExecutor,
       params
     );
-
-    console.log("installed virtual app");
 
     const installVirtualApprovalMsg: InstallVirtualMessage = {
       from: requestHandler.publicIdentifier,
