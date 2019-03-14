@@ -425,18 +425,18 @@ export class AppRoot {
 
     const provider = this.walletState.provider as Web3Provider;
 
-    let onlyCallOnceLock = false;
+    let onMultisigMinedHasBeenCalled = false;
     const onMultisigMined = async () => {
-      if (!onlyCallOnceLock) {
+      if (!onMultisigMinedHasBeenCalled) {
         await this.fetchMultisig();
-        onlyCallOnceLock = true;
+        onMultisigMinedHasBeenCalled = true;
       }
     };
 
     provider.once(transactionHash, onMultisigMined);
 
     setTimeout(() => {
-      if (!onlyCallOnceLock) {
+      if (!onMultisigMinedHasBeenCalled) {
         console.log("Tx event not emitted within 24s, polling every 5s now");
         const poll = setInterval(async () => {
           if (await provider.getTransactionReceipt(transactionHash)) {
@@ -468,8 +468,6 @@ export class AppRoot {
 
   async fetchMultisig(token?: string) {
     let userToken = token;
-
-    console.log("fetching multisig");
 
     if (!userToken) {
       userToken = this.accountState.user.token;
