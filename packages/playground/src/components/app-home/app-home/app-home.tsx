@@ -217,7 +217,7 @@ export class AppHome {
             <h3>What's going on here?</h3>
             <p>
               You are now a Node in a hub-and-spoke state channels network demo
-              called the Counterfactual Playground, running on Ropsten. This
+              called the Counterfactual Playground, running on Kovan. This
               webpage is your state channels wallet. Our team runs the hub.
               Users that connect to our hub can use an unlimited number of
               off-chain applications with <b>zero fees</b> and{" "}
