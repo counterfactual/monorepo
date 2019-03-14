@@ -52,7 +52,7 @@ class Game extends Component {
       } catch (e) {
         console.log("uninstall failed: ", e);
       }
-    
+
       window.parent.postMessage("playground:request:getBalances", "*");
     }
   }
@@ -74,10 +74,11 @@ class Game extends Component {
 
   async takeAction(playX, playY) {
     const { board } = this.state.gameState;
+
     this.setState({ pendingActionResponse: true });
 
     board[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
-  
+
     const winClaim = checkVictory(board, this.myNumber);
     const draw = checkDraw(board);
 
