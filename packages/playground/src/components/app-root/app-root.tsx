@@ -182,7 +182,7 @@ export class AppRoot {
   async loadApps() {
     const apps = await PlaygroundAPIClient.getApps();
 
-    this.updateAppRegistry({ apps });
+    await this.updateAppRegistry({ apps });
   }
 
   bindProviderEvents() {
@@ -305,7 +305,7 @@ export class AppRoot {
       .sub(this.lastCounterpartyBalance)
       .eq(this.lastDeposit);
 
-    this.updateAppRegistry({
+    await this.updateAppRegistry({
       canUseApps
     });
 

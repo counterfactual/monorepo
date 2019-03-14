@@ -189,7 +189,6 @@ export class AppHome {
       <div class="container">
         <apps-list
           apps={this.apps}
-          canUseApps={this.canUseApps}
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
