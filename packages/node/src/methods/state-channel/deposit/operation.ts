@@ -87,6 +87,8 @@ export async function makeDeposit(
   const { multisigAddress, amount } = params;
   const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
+  const signer = await requestHandler.getSigner();
+
   const tx: TransactionRequest = {
     to: multisigAddress,
     value: bigNumberify(amount),
@@ -96,19 +98,8 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  const queue = requestHandler.getShardedQueue("onChainTx");
-  const signer = await requestHandler.getSigner();
-
   try {
-    txResponse = await queue.add(async () => {
-      const txResponse = await signer.sendTransaction(tx);
-
-      // Waits 1 block before continuing to ensure no other tx
-      // is attempted to be signed by this Node with same nonce
-      await txResponse.wait(1);
-
-      return txResponse;
-    });
+    txResponse = await signer.sendTransaction(tx);
   } catch (e) {
     if (e.toString().includes("reject") || e.toString().includes("denied")) {
       outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
@@ -126,7 +117,7 @@ export async function makeDeposit(
 
   await provider.waitForTransaction(
     txResponse.hash as string,
-    blocksNeededForConfirmation - 1
+    blocksNeededForConfirmation
   );
 
   return true;

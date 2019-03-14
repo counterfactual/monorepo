@@ -13,13 +13,13 @@ import {
   WithdrawParams
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { Wallet } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
 import { Deferred } from "./deferred";
+import AutoNonceWallet from "./methods/state-channel/deposit/auto-nonce-wallet";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
@@ -123,7 +123,7 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      new Wallet(this.signer.privateKey, this.provider),
+      new AutoNonceWallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
       this.blocksNeededForConfirmation!
     );
