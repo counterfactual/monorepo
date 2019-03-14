@@ -23,6 +23,8 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "42": "kovan"
 };
 
+const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
+
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
@@ -417,12 +419,33 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const { user } = this.accountState;
+    const {
+      user: { transactionHash }
+    } = this.accountState;
+
     const provider = this.walletState.provider as Web3Provider;
 
-    provider.once(user.transactionHash, async () => {
-      await this.fetchMultisig();
-    });
+    let onlyCallOnceLock = false;
+    const onMultisigMined = async () => {
+      if (!onlyCallOnceLock) {
+        await this.fetchMultisig();
+        onlyCallOnceLock = true;
+      }
+    };
+
+    provider.once(transactionHash, onMultisigMined);
+
+    setTimeout(() => {
+      if (!onlyCallOnceLock) {
+        console.log("Tx event not emitted within 24s, polling every 5s now");
+        const poll = setInterval(async () => {
+          if (await provider.getTransactionReceipt(transactionHash)) {
+            clearInterval(poll);
+            await onMultisigMined();
+          }
+        }, 5000);
+      }
+    }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
   }
 
   async requestToDepositInitialFunding() {
@@ -445,6 +468,8 @@ export class AppRoot {
 
   async fetchMultisig(token?: string) {
     let userToken = token;
+
+    console.log("fetching multisig");
 
     if (!userToken) {
       userToken = this.accountState.user.token;
