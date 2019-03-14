@@ -188,7 +188,7 @@ export class AppRoot {
   async highRoller(
     num1: any,
     num2: any
-  ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
+  ): Promise<{ playerFirstRoll: number[]; playerSecondRoll: number[] }> {
     const randomness = solidityKeccak256(["uint256"], [num1.mul(num2)]);
 
     // The Contract interface
@@ -208,8 +208,8 @@ export class AppRoot {
     const result = await contract.highRoller(randomness);
 
     return {
-      myRoll: this.getDieNumbers(result[0]),
-      opponentRoll: this.getDieNumbers(result[1])
+      playerFirstRoll: this.getDieNumbers(result[0]),
+      playerSecondRoll: this.getDieNumbers(result[1])
     };
   }
 

@@ -35,9 +35,12 @@ export class AppProvider {
   @Prop() highRoller: (
     num1: number,
     num2: number
-  ) => Promise<{ myRoll: number[]; opponentRoll: number[] }> = async () => ({
-    myRoll: [0, 0],
-    opponentRoll: [0, 0]
+  ) => Promise<{
+    playerFirstRoll: number[];
+    playerSecondRoll: number[];
+  }> = async () => ({
+    playerFirstRoll: [0, 0],
+    playerSecondRoll: [0, 0]
   });
   @Prop() generateRandomRoll: () => number[] = () => [0, 0];
   @Prop() highRollerState: HighRollerAppState = {} as HighRollerAppState;
@@ -130,10 +133,11 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    const myRoll =
-      state.stage < HighRollerStage.DONE ? rolls.myRoll : rolls.opponentRoll;
-    const opponentRoll =
-      state.stage < HighRollerStage.DONE ? rolls.opponentRoll : rolls.myRoll;
+    const isProposing = state.stage === HighRollerStage.DONE;
+    const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
+    const opponentRoll = isProposing
+      ? rolls.playerSecondRoll
+      : rolls.playerFirstRoll;
 
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
