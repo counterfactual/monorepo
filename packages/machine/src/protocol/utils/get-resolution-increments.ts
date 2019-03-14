@@ -43,7 +43,6 @@ export async function computeFreeBalanceIncrements(
     resolution.value.every(v => v.eq(Zero)) &&
     attempts < 15
   ) {
-    console.log(appInstance.terms);
     console.log(`Empty resolution. Querying chain again. Attempt #${attempts}`);
 
     resolution = await appContract.functions.resolve(
