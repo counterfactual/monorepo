@@ -109,7 +109,7 @@ describe("playground-server", () => {
     it("wires the node up to automated ttt responses", async done => {
       let appInstanceId;
 
-      await connectNode(nodeBot, nodeBot.publicIdentifier);
+      await connectNode("tttBot", nodeBot, nodeBot.publicIdentifier);
 
       nodeAlice.on("installVirtualEvent", message => {
         appInstanceId = message.data.params.appInstanceId;
