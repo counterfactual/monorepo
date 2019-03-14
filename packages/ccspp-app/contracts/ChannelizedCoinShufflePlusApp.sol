@@ -1,15 +1,17 @@
-pragma solidity 0.5;
+pragma solidity ^0.5.5;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
+import "./lib/LibSignature.sol";
 import "./lib/LibNIKE.sol";
 
 
 /// @title ChannelizedCoinShufflePlusApp
 /// @author Alex Xiong - <alex.xiong.tech@gmail.com>
 /// @notice A channelized CoinShuffle++ protocol in Counterfactual framework
-contract ChannelizedCoinShufflePlusApp is CounterfactualApp, LibNIKE {
+contract ChannelizedCoinShufflePlusApp is CounterfactualApp, LibNIKE,
+LibSignature {
 
   //TODO: add DC-net functions and assistant functions
   enum Round {
@@ -165,5 +167,54 @@ contract ChannelizedCoinShufflePlusApp is CounterfactualApp, LibNIKE {
     returns (bytes32)
   {
     return keccak256(getEncodedAppState(appState));
+  }
+
+  /// @notice pre-KeyExchange hash commit to session id and run number
+  /// @param sid session id for NIKE
+  /// @param run number of run for DiceMix
+  function getSidPreHash(uint8 sid, uint8 run)
+    public
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encodePacked("sidHpre", sid, run));
+  }
+
+  /// @notice construct the message to sign in KeyExchange round
+  /// @param pk is the public key from LibNIKE.keyGen
+  /// @param sidHpre is the sidPreHash identifier derived
+  function getPKMessage(PK memory pk, bytes32 sidHpre)
+    public
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encode(pk, sidHpre));
+  }
+
+  /// @notice helper function for client to verify signed message in KE
+  /// utilize LibSignature functions
+  /// @param signingKey the (ephemeral) address of the signing party
+  function verifySignedPKMessage(
+    bytes memory signature,
+    uint8 sid,
+    uint8 run,
+    PK memory pk,
+    address signingKey
+  )
+    public
+    pure
+    returns (bool)
+  {
+    if (validatePK(pk)) {
+      address[] memory signers;
+      signers[0] = signingKey;
+
+      return verifySignatures(
+        signature,
+        getPKMessage(pk, getSidPreHash(sid, run)),
+        signers
+      );
+    }
+    return false;
   }
 }

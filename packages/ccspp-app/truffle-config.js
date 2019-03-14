@@ -4,6 +4,11 @@ require("ts-node/register");
 require("dotenv").config();
 
 module.exports = {
+  compilers: {
+    solc: {
+      version: "0.5.5",
+    },
+  },
   networks: {
     ganache: {
       network_id: 7777777,
