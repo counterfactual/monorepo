@@ -10,9 +10,11 @@ export default class AutoNonceWallet extends Wallet {
         this.noncePromise = this.provider.getTransactionCount(this.address);
       }
 
-      tx.nonce = await this.noncePromise;
+      const tmp = this.noncePromise;
 
       this.noncePromise = this.noncePromise.then(nonce => nonce + 1);
+
+      tx.nonce = await tmp;
     }
 
     return await super.sendTransaction(tx);
