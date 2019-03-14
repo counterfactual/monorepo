@@ -39,7 +39,7 @@ class Square extends Component {
     return (
       <button
         className="square"
-        disabled={this.disabled}
+        disabled={this.mark !== 0 || this.disabled}
         onClick={this.handleClick.bind(this)}
       >
         {this.src ? <img src={this.src} alt={this.alt} /> : undefined}
