@@ -1,4 +1,6 @@
 export const ERRORS = {
+  APP_ALREADY_UNINSTALLED: id =>
+    `Cannot uninstall app ${id}, it has already been uninstalled`,
   NO_APP_INSTANCE_ID_FOR_GET_STATE:
     "No AppInstanceID specified to get state for",
   NO_APP_INSTANCE_ID_TO_GET_DETAILS:

@@ -23,6 +23,20 @@ export default class UninstallController extends NodeController {
     );
   }
 
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.UninstallParams
+  ) {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
+  }
+
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.UninstallParams
@@ -40,6 +54,10 @@ export default class UninstallController extends NodeController {
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
 
     const to = getCounterpartyAddress(
       publicIdentifier,
