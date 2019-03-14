@@ -186,8 +186,8 @@ export class AppRoot {
   }
 
   async highRoller(
-    num1: BigNumber,
-    num2: BigNumber
+    num1: any,
+    num2: any
   ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
     const randomness = solidityKeccak256(["uint256"], [num1.mul(num2)]);
 
