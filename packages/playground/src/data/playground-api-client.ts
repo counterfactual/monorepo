@@ -14,7 +14,7 @@ import {
 } from "../types";
 
 const BASE_URL = `ENV:API_HOST`;
-const API_TIMEOUT = 5 * 60 * 1000;
+const API_TIMEOUT = 30000;
 
 function timeout(delay: number = API_TIMEOUT) {
   const handler = setTimeout(() => {

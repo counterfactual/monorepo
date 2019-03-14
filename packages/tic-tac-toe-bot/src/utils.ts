@@ -6,7 +6,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "./bot";
 
-const API_TIMEOUT = 5 * 60 * 1000;
+const API_TIMEOUT = 30000;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 

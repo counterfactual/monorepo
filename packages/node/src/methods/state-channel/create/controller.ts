@@ -50,7 +50,7 @@ export default class CreateChannelController extends NodeController {
       blocksNeededForConfirmation
     } = requestHandler;
 
-    const tx = await this.createMultsigTx(owners, wallet, networkContext);
+    const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
 
     tx.wait(blocksNeededForConfirmation).then(receipt =>
       this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
@@ -106,7 +106,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
   }
 
-  private async createMultsigTx(
+  private async sendMultisigDeployTx(
     xpubs: string[],
     signer: Signer,
     networkContext: NetworkContext
