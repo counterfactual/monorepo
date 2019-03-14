@@ -1,25 +1,17 @@
-# [Tic Tac Toe Bot](https://github.com/counterfactual/monorepo/packages/tic-tac-toe-bot) <img align="right" src="../../logo.svg" height="80px" />
+# [High Roller Bot](https://github.com/counterfactual/monorepo/packages/high-roller-bot) <img align="right" src="../../logo.svg" height="80px" />
 
- The Tic Tac Toe Bot
+The High Roller Bot
 
- Lorem Ipsum?
+## Usage
 
- ## Usage
+To run the bot:
 
- To run the bot:
-
- ```shell
+```shell
 yarn start
 ```
 
- ## Testing
+Environment Variables
 
- You can run tests at any time using:
-
- ```shell
-yarn test
-```
-
- ## Environment settings
-
- TODO Probably need to use some env things here
+| Variable         | Purpose                                                                                  |
+| ---------------- | ---------------------------------------------------------------------------------------- |
+| `DEPOSIT_AMOUNT` | The amount the bot should deposit. The bot will not deposit anything if this is not set. |
