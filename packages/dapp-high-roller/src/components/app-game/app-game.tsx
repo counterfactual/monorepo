@@ -150,7 +150,7 @@ export class AppGame {
 
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-      const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
+      const playerFirstNumber = 1 + Math.floor(Math.random() * Math.floor(1000));
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const commitHashAction: Action = {
@@ -172,7 +172,7 @@ export class AppGame {
     } else {
       await this.beginRolling("myRoll");
 
-      const playerSecondNumber = Math.floor(Math.random() * Math.floor(1000));
+      const playerSecondNumber = 1 + Math.floor(Math.random() * Math.floor(1000));
 
       const commitHashAction: Action = {
         number: playerSecondNumber,
