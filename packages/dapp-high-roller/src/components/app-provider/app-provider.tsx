@@ -35,7 +35,10 @@ export class AppProvider {
   @Prop() highRoller: (
     num1: number,
     num2: number
-  ) => Promise<{ playerFirstRoll: number[]; playerSecondRoll: number[] }> = async () => ({
+  ) => Promise<{
+    playerFirstRoll: number[];
+    playerSecondRoll: number[];
+  }> = async () => ({
     playerFirstRoll: [0, 0],
     playerSecondRoll: [0, 0]
   });
@@ -132,7 +135,9 @@ export class AppProvider {
 
     const isProposing = state.stage === HighRollerStage.DONE;
     const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
-    const opponentRoll = isProposing ? rolls.playerSecondRoll : rolls.playerFirstRoll;
+    const opponentRoll = isProposing
+      ? rolls.playerSecondRoll
+      : rolls.playerFirstRoll;
 
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
