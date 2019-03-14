@@ -5,7 +5,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { TransactionRequest } from "ethers/providers";
+import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
@@ -87,6 +87,8 @@ export async function makeDeposit(
   const { multisigAddress, amount } = params;
   const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
+  const signer = await requestHandler.getSigner();
+
   const tx: TransactionRequest = {
     to: multisigAddress,
     value: bigNumberify(amount),
@@ -94,10 +96,10 @@ export async function makeDeposit(
     gasPrice: await provider.getGasPrice()
   };
 
-  let txResponse;
+  let txResponse: TransactionResponse;
 
   try {
-    txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
+    txResponse = await signer.sendTransaction(tx);
   } catch (e) {
     if (e.toString().includes("reject") || e.toString().includes("denied")) {
       outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
