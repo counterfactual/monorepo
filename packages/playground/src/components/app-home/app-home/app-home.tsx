@@ -246,21 +246,25 @@ export class AppHome {
             <h3>What is Counterfactual?</h3>
             <p>
               Counterfactual is an open-source project comprised of several
-              components: a library for off-chain applications, an intuitive
-              generalized state channels protocol, and a set of Ethereum smart
-              contracts. It enables developers to build trustless distributed
-              applications with minimal overhead. Watch{" "}
+              components:
+              <ul>
+                <li>A library for off-chain applications</li>
+                <li>An intuitive generalized state channels protocol</li>
+                <li>A set of Ethereum smart contracts</li>
+              </ul>{" "}
+              It enables developers to build trustless distributed applications
+              with minimal overhead. Watch{" "}
               <a href="https://youtu.be/tfKtLNlPL2w?t=72" target="_blank">
                 our recent talk
               </a>{" "}
-              at EthCC in Paris for more info.
+              at EthCC for more.
             </p>
           </div>
           <div class="flex-item">
             <h3>How is this secure?</h3>
             <p>
-              Counterfactual uses state channels which are a Layer 2 scalability
-              technique. For a complete overview, read Josh Stark's article{" "}
+              Counterfactual uses state channels, a Layer 2 scalability
+              technique. For a complete overview, read{" "}
               <a
                 href="https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4"
                 target="_blank"
