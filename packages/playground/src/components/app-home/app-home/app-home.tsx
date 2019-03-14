@@ -248,9 +248,9 @@ export class AppHome {
               Counterfactual is an open-source project comprised of several
               components:
               <ul>
-                <li>A library for off-chain applications</li>
-                <li>An intuitive generalized state channels protocol</li>
-                <li>A set of Ethereum smart contracts</li>
+                <li>• A library for off-chain applications</li>
+                <li>• An intuitive generalized state channels protocol</li>
+                <li>• A set of Ethereum smart contracts</li>
               </ul>{" "}
               It enables developers to build trustless distributed applications
               with minimal overhead. Watch{" "}
