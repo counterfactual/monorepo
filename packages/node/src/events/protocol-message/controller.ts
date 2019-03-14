@@ -40,8 +40,6 @@ export default async function protocolMessageEventController(
   await requestHandler
     .getShardedQueue("instructionExecutorCoreQueue")
     .add(async () => {
-      console.log("executing protocol message");
-      console.log(nodeMsg.data);
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         nodeMsg.data,
         new Map<string, StateChannel>(

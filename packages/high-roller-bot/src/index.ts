@@ -87,6 +87,7 @@ let node: Node;
     let bot: UserSession;
     let token = await store.get(TOKEN_PATH);
     if (token) {
+      console.log(`Getting pre-existing user account: ${token}`);
       bot = await getUser(BASE_URL, token);
     } else {
       bot = await createAccount(BASE_URL, user, signature);
@@ -103,12 +104,9 @@ let node: Node;
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
     console.log("Account multisig address:", multisigAddress);
 
-    // FIXME: use env var to specify whether to deposit (and the amount)
-    let depositAmount = process.argv[2];
-    if (!depositAmount) {
-      depositAmount = "0.02";
+    if (process.env.DEPOSIT_AMOUNT) {
+      await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
     }
-    await deposit(node, depositAmount, multisigAddress, true);
 
     afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
