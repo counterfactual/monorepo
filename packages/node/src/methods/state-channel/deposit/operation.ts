@@ -98,25 +98,33 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  try {
-    txResponse = await signer.sendTransaction(tx);
-  } catch (e) {
-    if (e.toString().includes("reject") || e.toString().includes("denied")) {
-      outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-      console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
-      return false;
-    }
+  let retryCount = 3;
+  while (retryCount > 0) {
+    try {
+      txResponse = await signer.sendTransaction(tx);
+      break;
+    } catch (e) {
+      if (e.toString().includes("reject") || e.toString().includes("denied")) {
+        outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+        console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+        return false;
+      }
 
-    throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+      retryCount -= 1;
+
+      if (retryCount === 0) {
+        throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+      }
+    }
   }
 
   outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
     value: amount,
-    txHash: txResponse.hash
+    txHash: txResponse!.hash
   });
 
   await provider.waitForTransaction(
-    txResponse.hash as string,
+    txResponse!.hash as string,
     blocksNeededForConfirmation
   );
 
