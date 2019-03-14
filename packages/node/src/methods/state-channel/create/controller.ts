@@ -50,9 +50,19 @@ export default class CreateChannelController extends NodeController {
       blocksNeededForConfirmation
     } = requestHandler;
 
-    const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
+    const tx: TransactionResponse = await requestHandler
+      .getShardedQueue("onChainTx")
+      .add(async () => {
+        const tx = await this.createMultsigTx(owners, wallet, networkContext);
 
-    tx.wait(blocksNeededForConfirmation).then(receipt =>
+        // Waits 1 block before continuing to ensure no other tx
+        // is attempted to be signed by this Node
+        await tx.wait(1);
+
+        return tx;
+      });
+
+    tx.wait(blocksNeededForConfirmation - 1).then(receipt =>
       this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
     );
 
@@ -106,7 +116,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
   }
 
-  private async sendMultisigDeployTx(
+  private async createMultsigTx(
     xpubs: string[],
     signer: Signer,
     networkContext: NetworkContext

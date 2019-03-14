@@ -5,7 +5,7 @@ import {
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { TransactionRequest } from "ethers/providers";
+import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
@@ -94,10 +94,21 @@ export async function makeDeposit(
     gasPrice: await provider.getGasPrice()
   };
 
-  let txResponse;
+  let txResponse: TransactionResponse;
+
+  const queue = requestHandler.getShardedQueue("onChainTx");
+  const signer = await requestHandler.getSigner();
 
   try {
-    txResponse = await (await requestHandler.getSigner()).sendTransaction(tx);
+    txResponse = await queue.add(async () => {
+      const txResponse = await signer.sendTransaction(tx);
+
+      // Waits 1 block before continuing to ensure no other tx
+      // is attempted to be signed by this Node with same nonce
+      await txResponse.wait(1);
+
+      return txResponse;
+    });
   } catch (e) {
     if (e.toString().includes("reject") || e.toString().includes("denied")) {
       outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
@@ -115,7 +126,7 @@ export async function makeDeposit(
 
   await provider.waitForTransaction(
     txResponse.hash as string,
-    blocksNeededForConfirmation
+    blocksNeededForConfirmation - 1
   );
 
   return true;
