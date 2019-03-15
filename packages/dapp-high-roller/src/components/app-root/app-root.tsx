@@ -73,7 +73,11 @@ export class AppRoot {
 
     window.addEventListener("popstate", () => {
       window.parent.postMessage(
-        `playground:send:dappRoute|${location.hash}`,
+        `playground:send:dappRoute|${location.hash}${
+          this.state.appInstance
+            ? `?appInstanceId=${this.state.appInstance.id}`
+            : ""
+        }`,
         "*"
       );
     });
