@@ -39,6 +39,7 @@ export class AppGame {
 
   @Prop() cfProvider: cf.Provider = {} as cf.Provider;
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
+  @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @Prop() account: any = { user: { username: "Facundo" } };
   @Prop() opponent: any = { attributes: { username: "John" } };
@@ -188,12 +189,24 @@ export class AppGame {
     }
   }
 
-  handleRematch(): void {
-    this.gameState = GameState.Play;
-    this.highRollerState = this.defaultHighRollerState;
+  async handleRematch(): Promise<void> {
+    await this.appFactory.proposeInstallVirtual({
+      initialState: this.defaultHighRollerState,
+      proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
+      asset: {
+        assetType: 0 /* AssetType.ETH */
+      },
+      peerDeposit: ethers.utils.parseEther(this.betAmount),
+      myDeposit: ethers.utils.parseEther(this.betAmount),
+      timeout: 172800,
+      intermediaries: this.appInstance.intermediaries as string[]
+    });
   }
 
   handleExit(): void {
+    this.updateUIState({
+      highRollerState: this.defaultHighRollerState
+    });
     this.history.push({
       pathname: "/wager",
       state: {},
@@ -255,7 +268,8 @@ CounterfactualTunnel.injectProps(AppGame, [
   "account",
   "opponent",
   "cfProvider",
-  "appInstance"
+  "appInstance",
+  "appFactory"
 ]);
 
 HighRollerUITunnel.injectProps(AppGame, [
