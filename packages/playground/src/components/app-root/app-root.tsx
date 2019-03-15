@@ -41,7 +41,6 @@ export class AppRoot {
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
-  @State() lastDeposit = ethers.constants.Zero;
   @State() lastCounterpartyBalance = ethers.constants.Zero;
 
   modal: JSX.Element = <div />;
@@ -301,23 +300,23 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
+    await this.updateAccount(vals);
+
     const canUseApps = counterpartyBalance
       .sub(this.lastCounterpartyBalance)
-      .eq(this.lastDeposit);
+      .eq(this.accountState.ethPendingDepositAmountWei || counterpartyBalance);
 
     await this.updateAppRegistry({
       canUseApps
     });
-
-    await this.updateAccount(vals);
-
-    this.lastCounterpartyBalance = counterpartyBalance;
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
     if (poll) {
       if (canUseApps) {
         clearTimeout(this.balancePolling);
+        this.lastCounterpartyBalance = counterpartyBalance;
+        await this.resetPendingDepositState();
       } else {
         this.balancePolling = setTimeout(
           async () => this.getBalances({ poll }),
@@ -370,14 +369,11 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-
-      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
 
     await this.getBalances({ poll: true });
-    await this.resetPendingDepositState();
 
     return ret;
   }
