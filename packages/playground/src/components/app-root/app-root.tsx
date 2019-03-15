@@ -24,6 +24,7 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
 };
 
 const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
+const HEARTBEAT_INTERVAL = 30 * 1000;
 
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
@@ -37,14 +38,17 @@ export class AppRoot {
   @State() loading: boolean = true;
   @State() accountState: AccountState = {} as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
+  @State() appRegistryState: AppRegistryState = {
+    apps: [],
+    canUseApps: false,
+    schemaVersion: "",
+    maintenanceMode: false
+  };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
   @State() lastDeposit = ethers.constants.Zero;
   @State() lastCounterpartyBalance = ethers.constants.Zero;
-
-  modal: JSX.Element = <div />;
 
   componentWillLoad() {
     // Test for Local Storage.
@@ -94,7 +98,11 @@ export class AppRoot {
 
   async setup() {
     if (typeof window["web3"] !== "undefined") {
-      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+      await Promise.all([
+        this.createNodeProvider(),
+        this.loadApps(),
+        this.heartbeat()
+      ]);
     }
 
     this.loading = false;
@@ -185,6 +193,14 @@ export class AppRoot {
     this.updateAppRegistry({ apps });
   }
 
+  async heartbeat() {
+    setInterval(async () => {
+      const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+
+      this.updateAppRegistry({ ...heartbeat });
+    }, HEARTBEAT_INTERVAL);
+  }
+
   bindProviderEvents() {
     const {
       user: { multisigAddress, ethAddress }
@@ -244,8 +260,6 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
-
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
@@ -448,24 +462,6 @@ export class AppRoot {
     }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
   }
 
-  async requestToDepositInitialFunding() {
-    const { precommitedDepositAmountWei } = this.accountState;
-
-    if (precommitedDepositAmountWei) {
-      this.modal = (
-        <widget-dialog
-          visible={true}
-          dialogTitle="Your account is ready!"
-          content="To complete your registration, we'll ask you to confirm the deposit in the next step."
-          primaryButtonText="Proceed"
-          onPrimaryButtonClicked={async () =>
-            await this.confirmDepositInitialFunding()
-          }
-        />
-      );
-    }
-  }
-
   async fetchMultisig(token?: string) {
     let userToken = token;
 
@@ -481,17 +477,6 @@ export class AppRoot {
     } else {
       await this.updateAccount({ user });
     }
-  }
-
-  async confirmDepositInitialFunding() {
-    this.modal = {};
-
-    await this.deposit(this.accountState
-      .precommitedDepositAmountWei as BigNumber);
-
-    this.updateAccount({
-      precommitedDepositAmountWei: undefined
-    });
   }
 
   async autoLogin() {
@@ -564,7 +549,38 @@ export class AppRoot {
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.loading) {
-      return;
+      return <widget-spinner type="dots" />;
+    }
+
+    if (this.appRegistryState.maintenanceMode) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="Under maintenance"
+          content="Sorry! We're not available at this moment. Please check back in a couple of minutes."
+        />
+      );
+    }
+
+    if (this.appRegistryState.schemaVersion) {
+      const localSchemaVersion = window.localStorage.get(
+        "playground:schemaVersion"
+      ) as string;
+      if (localSchemaVersion !== this.appRegistryState.schemaVersion) {
+        return (
+          <widget-dialog
+            visible={true}
+            dialogTitle="A new version of is available!"
+            content="Click OK to update your experience."
+            primaryButtonText="OK"
+            onPrimaryButtonClicked={() => window.location.reload()}
+          />
+        );
+      }
+      window.localStorage.set(
+        "playground:schemaVersion",
+        this.appRegistryState.schemaVersion
+      );
     }
 
     return (
@@ -611,7 +627,6 @@ export class AppRoot {
                 accountState={this.accountState}
                 walletState={this.walletState}
               />
-              {this.modal || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
