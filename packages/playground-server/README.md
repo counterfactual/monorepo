@@ -52,7 +52,7 @@ $ node
 
 And save it in `.env.local`.
 
-**Option 1** Compute it:
+**Option 1** Compute the address:
 
 ```node
 $ node
