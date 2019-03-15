@@ -197,12 +197,8 @@ export class AppGame {
   }
 
   handleExit(): void {
-    this.history.push({
-      pathname: "/wager",
-      state: {},
-      query: {},
-      key: ""
-    });
+    // TODO: This is not good practice, but it's good enough.
+    window.location.assign("/");
   }
 
   render() {
