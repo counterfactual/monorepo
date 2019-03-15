@@ -63,7 +63,6 @@ export class AppRoot {
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
-    this.blockOnInsufficientBalance();
   }
 
   async updateWalletConnection(newProps: WalletState) {
@@ -100,48 +99,6 @@ export class AppRoot {
     }
 
     this.loading = false;
-  }
-
-  async blockOnInsufficientBalance() {
-    if (
-      !this.accountState.user ||
-      !this.accountState.user.multisigAddress ||
-      this.accountState.ethPendingDepositAmountWei ||
-      this.accountState.ethPendingDepositTxHash ||
-      window.location.href.includes("/deposit")
-    ) {
-      return;
-    }
-
-    if (!this.accountState.enoughLocalBalance) {
-      this.modal = (
-        <widget-dialog
-          dialogTitle="Insufficient funds"
-          visible={true}
-          content="Your balance needs to be of at least 0.01 ETH."
-          primaryButtonText="OK, I'll deposit"
-          secondaryButtonText="Close"
-          onPrimaryButtonClicked={this.redirectToDeposit.bind(this)}
-          onSecondaryButtonClicked={() => (this.modal = {})}
-        />
-      );
-      return;
-    }
-
-    if (!this.accountState.enoughCounterpartyBalance) {
-      this.modal = (
-        <widget-dialog
-          dialogTitle="The Playground Node has insufficient funds"
-          visible={true}
-          content="Eventually we'll take care of this automatically, but in the meantime, you'll need to deposit some ETH."
-          primaryButtonText="OK, I'll deposit"
-          secondaryButtonText="Close"
-          onPrimaryButtonClicked={this.redirectToDeposit.bind(this)}
-          onSecondaryButtonClicked={() => (this.modal = {})}
-        />
-      );
-      return;
-    }
   }
 
   async redirectToDeposit() {

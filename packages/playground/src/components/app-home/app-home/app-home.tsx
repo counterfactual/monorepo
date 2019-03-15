@@ -22,6 +22,11 @@ export class AppHome {
   @Prop() hasDetectedNetwork: boolean = false;
   @Prop() networkPermitted: boolean = false;
 
+  @Prop() enoughCounterpartyBalance: boolean = true;
+  @Prop() enoughLocalBalance: boolean = true;
+  @Prop() ethPendingDepositAmountWei: any;
+  @Prop() ethPendingDepositTxHash: string = "";
+
   @Prop() hasLocalStorage: boolean = false;
   @State() runningApps: AppDefinition[] = [];
 
@@ -285,6 +290,47 @@ export class AppHome {
     );
   }
 
+  checkInsufficientBalance() {
+    if (!this.user || !this.user.multisigAddress) {
+      return;
+    }
+
+    if (!this.enoughLocalBalance) {
+      return (
+        <div class="error-message">
+          <h1>Insufficient funds</h1>
+          <h2>
+            Your balance needs to be of at least 0.01 ETH.
+            <br />
+            <br />
+            <stencil-route-link url="/exchange">
+              Click here
+            </stencil-route-link>{" "}
+            to deposit more funds.
+          </h2>
+        </div>
+      );
+    }
+
+    if (!this.enoughCounterpartyBalance) {
+      return (
+        <div class="error-message">
+          <h1>The Playground Node has insufficient funds</h1>
+          <h2>
+            Eventually we'll take care of this automatically, but in the
+            meantime, you'll need to deposit some ETH.
+            <br />
+            <br />
+            <stencil-route-link url="/exchange">
+              Click here
+            </stencil-route-link>{" "}
+            to deposit more funds.
+          </h2>
+        </div>
+      );
+    }
+  }
+
   render() {
     const content =
       this.checkLocalStorage() ||
@@ -292,6 +338,7 @@ export class AppHome {
       this.checkWeb3Detected() ||
       this.checkNetworkPermitted() ||
       this.checkUserNotLoggedIn() ||
+      this.checkInsufficientBalance() ||
       this.showApps();
 
     return this.hasLocalStorage ? (
@@ -322,4 +369,10 @@ WalletTunnel.injectProps(AppHome, [
   "hasDetectedNetwork"
 ]);
 
-AccountTunnel.injectProps(AppHome, ["user"]);
+AccountTunnel.injectProps(AppHome, [
+  "user",
+  "enoughCounterpartyBalance",
+  "enoughLocalBalance",
+  "ethPendingDepositAmountWei",
+  "ethPendingDepositTxHash"
+]);
