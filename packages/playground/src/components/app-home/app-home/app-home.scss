@@ -37,8 +37,9 @@ button:hover {
   display: flex;
   align-items: center;
   flex-direction: column;
-  width: 60%;
   position: relative;
+  margin-top: 40px;
+  width: 60%;
   top: 40%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -63,6 +64,7 @@ button:hover {
       flex-direction: column;
       margin: 20px;
       max-width: 50%;
+      min-width: 50%;
       text-align: left;
     }
   }
@@ -70,6 +72,10 @@ button:hover {
   @media screen and (max-width: $screen-sm) {
     width: 90%;
     top: 50%;
+
+    .welcome-message {
+      width: 80%;
+    }
 
     .flex-container {
       flex-direction: column;
