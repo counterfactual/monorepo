@@ -11,7 +11,7 @@ export default class HeartbeatProcessor extends OperationProcessor<Heartbeat> {
         type: "heartbeat",
         attributes: {
           schemaVersion: String(process.env.PLAYGROUND_SCHEMA_VERSION),
-          maintenanceMode: Boolean(process.env.PLAYGROUND_MAINTENANCE_MODE)
+          maintenanceMode: process.env.PLAYGROUND_MAINTENANCE_MODE === "true"
         },
         relationships: {}
       }
