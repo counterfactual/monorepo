@@ -20,7 +20,7 @@ import {
 declare var ethers;
 declare var web3;
 
-const { solidityKeccak256 } = ethers.utils;
+const { bigNumberify, solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
 
 @Component({
