@@ -99,9 +99,9 @@ export class AppRoot {
   async setup() {
     if (typeof window["web3"] !== "undefined") {
       await Promise.all([
+        this.heartbeat(),
         this.createNodeProvider(),
-        this.loadApps(),
-        this.heartbeat()
+        this.loadApps()
       ]);
     }
 
@@ -571,10 +571,6 @@ export class AppRoot {
 
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
-    if (this.loading) {
-      return <widget-spinner type="dots" />;
-    }
-
     if (this.appRegistryState.maintenanceMode) {
       return (
         <widget-dialog
@@ -583,6 +579,10 @@ export class AppRoot {
           content="Sorry! We're not available at this moment. Please check back in a couple of minutes."
         />
       );
+    }
+
+    if (this.loading) {
+      return <widget-spinner type="dots" />;
     }
 
     const localSchemaVersion = window.localStorage.getItem(
