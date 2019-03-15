@@ -77,6 +77,8 @@ export class DappContainer {
     this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
     this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this));
 
+    this.node.on("protocolMessageEvent", this.getBalances.bind(this));
+
     /**
      * Once the component has loaded, we store a reference of the IFRAME
      * element's window so we can bind the message relay system.
