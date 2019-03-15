@@ -1,7 +1,6 @@
 import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 import AccountTunnel from "../../../data/account";
-import AppRegistryTunnel from "../../../data/app-registry";
 import { AppDefinition, UserSession } from "../../../types";
 
 @Component({
@@ -13,7 +12,6 @@ export class AppsList {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Event() appClicked: EventEmitter = {} as EventEmitter;
   @Prop() apps: AppDefinition[] = [];
-  @Prop() canUseApps: boolean = false;
   @Prop() name: string = "";
   @Prop() user: UserSession = {} as UserSession;
 
@@ -31,7 +29,6 @@ export class AppsList {
             <apps-list-item
               onAppClicked={e => this.appClickedHandler(e)}
               icon={app.icon}
-              canUse={this.canUseApps}
               name={app.name}
               notifications={app.notifications}
               url={app.url}
@@ -44,4 +41,3 @@ export class AppsList {
 }
 
 AccountTunnel.injectProps(AppsList, ["user"]);
-AppRegistryTunnel.injectProps(AppsList, ["canUseApps"]);

@@ -66,7 +66,7 @@ export class AccountExchange {
 
   @Watch("ethPendingWithdrawalAmountWei")
   onEthPendingWithdrawalAmountWeiChanged() {
-    this.updateDepositPendingState();
+    this.updateWithdrawalPendingState();
   }
 
   @State() depositError: string = "";
