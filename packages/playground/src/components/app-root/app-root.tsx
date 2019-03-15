@@ -36,7 +36,10 @@ const delay = (timeInMilliseconds: number) =>
 })
 export class AppRoot {
   @State() loading: boolean = true;
-  @State() accountState: AccountState = {} as AccountState;
+  @State() accountState: AccountState = {
+    enoughCounterpartyBalance: true,
+    enoughLocalBalance: true
+  } as AccountState;
   @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = {
     apps: [],
@@ -47,8 +50,8 @@ export class AppRoot {
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
-  @State() lastDeposit = ethers.constants.Zero;
-  @State() lastCounterpartyBalance = ethers.constants.Zero;
+  @State() modal: JSX.Element = <div />;
+  @State() redirect: JSX.Element = <div />;
 
   componentWillLoad() {
     // Test for Local Storage.
@@ -106,6 +109,11 @@ export class AppRoot {
     }
 
     this.loading = false;
+  }
+
+  async redirectToDeposit() {
+    this.modal = {};
+    this.redirect = <stencil-router-redirect url="/deposit" />;
   }
 
   async createNodeProvider() {
@@ -190,7 +198,7 @@ export class AppRoot {
   async loadApps() {
     const apps = await PlaygroundAPIClient.getApps();
 
-    this.updateAppRegistry({ apps });
+    await this.updateAppRegistry({ apps });
   }
 
   async heartbeat() {
@@ -262,6 +270,8 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
@@ -317,17 +327,21 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps = counterpartyBalance
-      .sub(this.lastCounterpartyBalance)
-      .eq(this.lastDeposit);
+    const enoughCounterpartyBalance = counterpartyBalance.gte(
+      MINIMUM_EXPECTED_FREE_BALANCE
+    );
+    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
 
-    this.updateAppRegistry({
+    await this.updateAppRegistry({
       canUseApps
     });
 
-    await this.updateAccount(vals);
-
-    this.lastCounterpartyBalance = counterpartyBalance;
+    await this.updateAccount({
+      ...vals,
+      enoughCounterpartyBalance,
+      enoughLocalBalance
+    });
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -386,8 +400,6 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-
-      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
@@ -648,6 +660,8 @@ export class AppRoot {
                 accountState={this.accountState}
                 walletState={this.walletState}
               />
+              {this.modal || {}}
+              {this.redirect || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>

@@ -22,6 +22,11 @@ export class AppHome {
   @Prop() hasDetectedNetwork: boolean = false;
   @Prop() networkPermitted: boolean = false;
 
+  @Prop() enoughCounterpartyBalance: boolean = true;
+  @Prop() enoughLocalBalance: boolean = true;
+  @Prop() ethPendingDepositAmountWei: any;
+  @Prop() ethPendingDepositTxHash: string = "";
+
   @Prop() hasLocalStorage: boolean = false;
   @State() runningApps: AppDefinition[] = [];
 
@@ -189,7 +194,6 @@ export class AppHome {
       <div class="container">
         <apps-list
           apps={this.apps}
-          canUseApps={this.canUseApps}
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
@@ -241,8 +245,90 @@ export class AppHome {
             </p>
           </div>
         </div>
+        <div class="flex-container">
+          <div class="flex-item">
+            <h3>What is Counterfactual?</h3>
+            <p>
+              Counterfactual is an open-source project comprised of several
+              components:
+              <ul>
+                <li>• A library for off-chain applications</li>
+                <li>• An intuitive generalized state channels protocol</li>
+                <li>• A set of Ethereum smart contracts</li>
+              </ul>{" "}
+              It enables developers to build trustless distributed applications
+              with minimal overhead. Watch{" "}
+              <a href="https://youtu.be/tfKtLNlPL2w?t=72" target="_blank">
+                our recent talk
+              </a>{" "}
+              at EthCC for more.
+            </p>
+          </div>
+          <div class="flex-item">
+            <h3>How is this secure?</h3>
+            <p>
+              Counterfactual uses state channels, a Layer 2 scalability
+              technique. For a complete overview, read{" "}
+              <a
+                href="https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4"
+                target="_blank"
+              >
+                Making Sense of Layer 2
+              </a>{" "}
+              or watch the associated{" "}
+              <a
+                href="https://www.youtube.com/watch?v=RghzB4C9aSg"
+                target="_blank"
+              >
+                talk from Devcon IV
+              </a>
+              .
+            </p>
+          </div>
+        </div>
       </div>
     );
+  }
+
+  checkInsufficientBalance() {
+    if (!this.user || !this.user.multisigAddress) {
+      return;
+    }
+
+    if (!this.enoughLocalBalance) {
+      return (
+        <div class="error-message">
+          <h1>Insufficient funds</h1>
+          <h2>
+            Your balance needs to be of at least 0.01 ETH.
+            <br />
+            <br />
+            <stencil-route-link url="/exchange">
+              Click here
+            </stencil-route-link>{" "}
+            to deposit more funds.
+          </h2>
+        </div>
+      );
+    }
+
+    if (!this.enoughCounterpartyBalance) {
+      return (
+        <div class="error-message">
+          <h1>The Playground Node has insufficient funds</h1>
+          <h2>
+            Eventually we'll take care of this automatically, but in the
+            meantime, you'll need to deposit some ETH.
+            <br />
+            <br />
+            <stencil-route-link url="/exchange">
+              Click here
+            </stencil-route-link>{" "}
+            to deposit more funds.
+          </h2>
+        </div>
+      );
+    }
   }
 
   render() {
@@ -252,6 +338,7 @@ export class AppHome {
       this.checkWeb3Detected() ||
       this.checkNetworkPermitted() ||
       this.checkUserNotLoggedIn() ||
+      this.checkInsufficientBalance() ||
       this.showApps();
 
     return this.hasLocalStorage ? (
@@ -282,4 +369,10 @@ WalletTunnel.injectProps(AppHome, [
   "hasDetectedNetwork"
 ]);
 
-AccountTunnel.injectProps(AppHome, ["user"]);
+AccountTunnel.injectProps(AppHome, [
+  "user",
+  "enoughCounterpartyBalance",
+  "enoughLocalBalance",
+  "ethPendingDepositAmountWei",
+  "ethPendingDepositTxHash"
+]);
