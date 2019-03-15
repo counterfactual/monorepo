@@ -107,7 +107,8 @@ export class AppRoot {
       !this.accountState.user ||
       !this.accountState.user.multisigAddress ||
       this.accountState.ethPendingDepositAmountWei ||
-      this.accountState.ethPendingDepositTxHash
+      this.accountState.ethPendingDepositTxHash ||
+      window.location.href.includes("/deposit")
     ) {
       return;
     }
