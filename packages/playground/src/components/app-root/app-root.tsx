@@ -24,6 +24,7 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
 };
 
 const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
+const HEARTBEAT_INTERVAL = 30 * 1000;
 
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
@@ -40,7 +41,12 @@ export class AppRoot {
     enoughLocalBalance: true
   } as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
+  @State() appRegistryState: AppRegistryState = {
+    apps: [],
+    canUseApps: false,
+    schemaVersion: "",
+    maintenanceMode: false
+  };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
@@ -95,7 +101,11 @@ export class AppRoot {
 
   async setup() {
     if (typeof window["web3"] !== "undefined") {
-      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+      await Promise.all([
+        this.heartbeat(),
+        this.createNodeProvider(),
+        this.loadApps()
+      ]);
     }
 
     this.loading = false;
@@ -189,6 +199,16 @@ export class AppRoot {
     const apps = await PlaygroundAPIClient.getApps();
 
     await this.updateAppRegistry({ apps });
+  }
+
+  async heartbeat() {
+    setInterval(async () => this.doHeartbeat(), HEARTBEAT_INTERVAL);
+    this.doHeartbeat();
+  }
+
+  async doHeartbeat() {
+    const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+    this.updateAppRegistry({ ...heartbeat });
   }
 
   bindProviderEvents() {
@@ -518,6 +538,27 @@ export class AppRoot {
     }.etherscan.io/tx/${tx}`;
   }
 
+  upgrade() {
+    const keysToPreserve = ["MNEMONIC", "playground:matchmakeWith"];
+
+    const preservedKeys = keysToPreserve
+      .map(key => ({ [key]: localStorage.getItem(key) as string }))
+      .reduce((obj, keyContainer) => ({ ...obj, ...keyContainer }), {});
+
+    window.localStorage.clear();
+
+    keysToPreserve.forEach(key => {
+      window.localStorage.setItem(key, preservedKeys[key]);
+    });
+
+    window.localStorage.setItem(
+      "playground:schemaVersion",
+      this.appRegistryState.schemaVersion
+    );
+
+    window.location.reload();
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -542,8 +583,37 @@ export class AppRoot {
 
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
+    if (this.appRegistryState.maintenanceMode) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="Under maintenance"
+          content="Sorry! We're not available at this moment. Please check back in a couple of minutes."
+        />
+      );
+    }
+
     if (this.loading) {
-      return;
+      return <widget-spinner type="dots" />;
+    }
+
+    const localSchemaVersion = window.localStorage.getItem(
+      "playground:schemaVersion"
+    ) as string;
+
+    if (
+      localSchemaVersion &&
+      localSchemaVersion !== this.appRegistryState.schemaVersion
+    ) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="A new version of the Playground is available!"
+          content="Click OK to update your experience."
+          primaryButtonText="OK"
+          onPrimaryButtonClicked={this.upgrade.bind(this)}
+        />
+      );
     }
 
     return (

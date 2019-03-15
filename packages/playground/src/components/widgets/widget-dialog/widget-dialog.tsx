@@ -51,9 +51,13 @@ export class WidgetDialog {
             ) : (
               {}
             )}
-            <button onClick={() => this.primaryButtonClickedHandler()}>
-              {this.primaryButtonText}
-            </button>
+            {this.primaryButtonText ? (
+              <button onClick={() => this.primaryButtonClickedHandler()}>
+                {this.primaryButtonText}
+              </button>
+            ) : (
+              {}
+            )}
           </footer>
         </dialog>
       </div>
