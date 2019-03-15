@@ -6,9 +6,9 @@ require("dotenv").config();
 module.exports = {
   compilers: {
     solc: {
-      version: "0.5.5",
-    },
-  },
+      version: "../../node_modules/solc"
+    }
+  }
   networks: {
     ganache: {
       network_id: 7777777,
