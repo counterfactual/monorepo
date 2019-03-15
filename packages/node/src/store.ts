@@ -360,6 +360,9 @@ export class Store {
     multisigAddress: string,
     commitment: Transaction
   ) {
+    if (!commitment) {
+      throw Error("Bad commitment passed to storeWithdrawalCommitment");
+    }
     return this.storeService.set([
       {
         key: [
@@ -377,6 +380,9 @@ export class Store {
     protocol: Protocol,
     commitment: Transaction
   ) {
+    if (!commitment) {
+      throw Error("Bad commitment passed to setCommitmentForAppIdentityHash");
+    }
     return this.storeService.set([
       {
         key: this.computeAppInstanceCommitmentKey(appIdentityHash, protocol),
@@ -389,6 +395,9 @@ export class Store {
     multisigAddress: string,
     commitment: Transaction
   ) {
+    if (!commitment) {
+      throw Error("Bad commitment passed to setSetupCommitmentForMultisig");
+    }
     return this.storeService.set([
       {
         key: this.computeMultisigSetupCommitmentKey(multisigAddress),

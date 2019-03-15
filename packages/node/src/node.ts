@@ -290,8 +290,6 @@ export class Node {
             context.finalCommitment!
           );
         } else {
-          /// install-virtual-app, uninstall-virtual-app
-          console.log("skipping commitment write - not implemented yet");
         }
         next();
       }

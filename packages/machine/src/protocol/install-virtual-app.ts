@@ -95,9 +95,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         context.commitments[1],
         context.inbox[0].signature3
       );
-    },
-
-    Opcode.WRITE_COMMITMENT
+    }
   ],
 
   1: [
@@ -178,9 +176,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       };
     },
 
-    Opcode.IO_SEND,
-
-    Opcode.WRITE_COMMITMENT
+    Opcode.IO_SEND
   ],
 
   2: [
@@ -232,9 +228,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature,
         true
       );
-    },
-
-    Opcode.WRITE_COMMITMENT
+    }
   ]
 };
 
