@@ -128,6 +128,17 @@ export class AppRoot {
     }
 
     if (!this.accountState.enoughCounterpartyBalance) {
+      this.modal = (
+        <widget-dialog
+          dialogTitle="The Playground Node has insufficient funds"
+          visible={true}
+          content="Eventually we'll take care of this automatically, but in the meantime, you'll need to deposit some ETH."
+          primaryButtonText="OK, I'll deposit"
+          secondaryButtonText="Close"
+          onPrimaryButtonClicked={this.redirectToDeposit.bind(this)}
+          onSecondaryButtonClicked={() => (this.modal = {})}
+        />
+      );
       return;
     }
   }
