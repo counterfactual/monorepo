@@ -46,6 +46,8 @@ export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
 const devAndTestingEnvironments = new Set(["development", "test"]);
 
 export let serviceFactory: FirebaseServiceFactory;
+
+console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
 if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
   confirmFirebaseConfigurationEnvVars();
   serviceFactory = new FirebaseServiceFactory({
