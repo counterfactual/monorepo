@@ -194,11 +194,13 @@ export class AppRoot {
   }
 
   async heartbeat() {
-    setInterval(async () => {
-      const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+    setInterval(async () => this.doHeartbeat(), HEARTBEAT_INTERVAL);
+    this.doHeartbeat();
+  }
 
-      this.updateAppRegistry({ ...heartbeat });
-    }, HEARTBEAT_INTERVAL);
+  async doHeartbeat() {
+    const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+    this.updateAppRegistry({ ...heartbeat });
   }
 
   bindProviderEvents() {
@@ -524,6 +526,15 @@ export class AppRoot {
     }.etherscan.io/tx/${tx}`;
   }
 
+  upgrade() {
+    window.localStorage.setItem(
+      "playground:schemaVersion",
+      this.appRegistryState.schemaVersion
+    );
+
+    window.location.reload();
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -562,24 +573,22 @@ export class AppRoot {
       );
     }
 
-    if (this.appRegistryState.schemaVersion) {
-      const localSchemaVersion = window.localStorage.get(
-        "playground:schemaVersion"
-      ) as string;
-      if (localSchemaVersion !== this.appRegistryState.schemaVersion) {
-        return (
-          <widget-dialog
-            visible={true}
-            dialogTitle="A new version of is available!"
-            content="Click OK to update your experience."
-            primaryButtonText="OK"
-            onPrimaryButtonClicked={() => window.location.reload()}
-          />
-        );
-      }
-      window.localStorage.set(
-        "playground:schemaVersion",
-        this.appRegistryState.schemaVersion
+    const localSchemaVersion = window.localStorage.getItem(
+      "playground:schemaVersion"
+    ) as string;
+
+    if (
+      localSchemaVersion &&
+      localSchemaVersion !== this.appRegistryState.schemaVersion
+    ) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="A new version of the Playground is available!"
+          content="Click OK to update your experience."
+          primaryButtonText="OK"
+          onPrimaryButtonClicked={this.upgrade.bind(this)}
+        />
       );
     }
 
