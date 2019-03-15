@@ -35,16 +35,17 @@ const delay = (timeInMilliseconds: number) =>
 })
 export class AppRoot {
   @State() loading: boolean = true;
-  @State() accountState: AccountState = {} as AccountState;
+  @State() accountState: AccountState = {
+    enoughCounterpartyBalance: true,
+    enoughLocalBalance: true
+  } as AccountState;
   @State() walletState: WalletState = {};
   @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
-  @State() lastDeposit = ethers.constants.Zero;
-  @State() lastCounterpartyBalance = ethers.constants.Zero;
-
-  modal: JSX.Element = <div />;
+  @State() modal: JSX.Element = <div />;
+  @State() redirect: JSX.Element = <div />;
 
   componentWillLoad() {
     // Test for Local Storage.
@@ -62,6 +63,7 @@ export class AppRoot {
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
+    this.blockOnInsufficientBalance();
   }
 
   async updateWalletConnection(newProps: WalletState) {
@@ -98,6 +100,41 @@ export class AppRoot {
     }
 
     this.loading = false;
+  }
+
+  async blockOnInsufficientBalance() {
+    if (
+      !this.accountState.user ||
+      !this.accountState.user.multisigAddress ||
+      this.accountState.ethPendingDepositAmountWei ||
+      this.accountState.ethPendingDepositTxHash
+    ) {
+      return;
+    }
+
+    if (!this.accountState.enoughLocalBalance) {
+      this.modal = (
+        <widget-dialog
+          dialogTitle="Insufficient funds"
+          visible={true}
+          content="Your balance needs to be of at least 0.01 ETH."
+          primaryButtonText="OK, I'll deposit"
+          secondaryButtonText="Close"
+          onPrimaryButtonClicked={this.redirectToDeposit.bind(this)}
+          onSecondaryButtonClicked={() => (this.modal = {})}
+        />
+      );
+      return;
+    }
+
+    if (!this.accountState.enoughCounterpartyBalance) {
+      return;
+    }
+  }
+
+  async redirectToDeposit() {
+    this.modal = {};
+    this.redirect = <stencil-router-redirect url="/deposit" />;
   }
 
   async createNodeProvider() {
@@ -244,7 +281,7 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
@@ -301,17 +338,21 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps = counterpartyBalance
-      .sub(this.lastCounterpartyBalance)
-      .eq(this.lastDeposit);
+    const enoughCounterpartyBalance = counterpartyBalance.gte(
+      MINIMUM_EXPECTED_FREE_BALANCE
+    );
+    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
 
     await this.updateAppRegistry({
       canUseApps
     });
 
-    await this.updateAccount(vals);
-
-    this.lastCounterpartyBalance = counterpartyBalance;
+    await this.updateAccount({
+      ...vals,
+      enoughCounterpartyBalance,
+      enoughLocalBalance
+    });
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -370,8 +411,6 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-
-      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
@@ -448,24 +487,6 @@ export class AppRoot {
     }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
   }
 
-  async requestToDepositInitialFunding() {
-    const { precommitedDepositAmountWei } = this.accountState;
-
-    if (precommitedDepositAmountWei) {
-      this.modal = (
-        <widget-dialog
-          visible={true}
-          dialogTitle="Your account is ready!"
-          content="To complete your registration, we'll ask you to confirm the deposit in the next step."
-          primaryButtonText="Proceed"
-          onPrimaryButtonClicked={async () =>
-            await this.confirmDepositInitialFunding()
-          }
-        />
-      );
-    }
-  }
-
   async fetchMultisig(token?: string) {
     let userToken = token;
 
@@ -481,17 +502,6 @@ export class AppRoot {
     } else {
       await this.updateAccount({ user });
     }
-  }
-
-  async confirmDepositInitialFunding() {
-    this.modal = {};
-
-    await this.deposit(this.accountState
-      .precommitedDepositAmountWei as BigNumber);
-
-    this.updateAccount({
-      precommitedDepositAmountWei: undefined
-    });
   }
 
   async autoLogin() {
@@ -612,6 +622,7 @@ export class AppRoot {
                 walletState={this.walletState}
               />
               {this.modal || {}}
+              {this.redirect || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
