@@ -96,10 +96,11 @@ export class AppProvider {
     this.updateCfProvider(this.cfProvider);
   }
 
-  isReadyForHighRoller(state) {
+  isReadyForHighRoller(state: HighRollerAppState) {
     return (
       bn(state.playerFirstNumber).toNumber() &&
-      bn(state.playerSecondNumber).toNumber()
+      bn(state.playerSecondNumber).toNumber() &&
+      state.stage === HighRollerStage.DONE
     );
   }
 
@@ -118,6 +119,18 @@ export class AppProvider {
       "playerSecondNumber",
       state.playerSecondNumber
     );
+
+    if (state.stage === HighRollerStage.REVEALING) {
+      // TODO randomize this and save it in proposingPlayer state
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
+      return await this.appInstance.takeAction({
+        actionType: ActionType.REVEAL,
+        actionHash: numberSalt,
+        number: state.playerFirstNumber.toString()
+      });
+    }
 
     if (!this.isReadyForHighRoller(state)) {
       this.updateUIState({ highRollerState: state });
@@ -163,18 +176,6 @@ export class AppProvider {
     };
 
     this.updateUIState(newUIState);
-
-    if (state.stage === HighRollerStage.REVEALING) {
-      const numberSalt =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-      const hash = computeCommitHash(numberSalt, state.playerFirstNumber);
-
-      await this.appInstance.takeAction({
-        actionType: ActionType.REVEAL,
-        actionHash: hash,
-        number: state.playerFirstNumber.toString()
-      });
-    }
 
     if (state.stage === HighRollerStage.DONE) {
       await this.appInstance.uninstall(this.intermediary);
