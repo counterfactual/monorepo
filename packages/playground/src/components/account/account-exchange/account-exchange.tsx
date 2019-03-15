@@ -49,17 +49,42 @@ export class AccountExchange {
     });
   }
 
+  @Watch("ethPendingDepositTxHash")
+  onEthPendingDepositTxHashChanged() {
+    this.updateDepositPendingState();
+  }
+
+  @Watch("ethPendingDepositAmountWei")
+  onEthPendingDepositAmountWeiChanged() {
+    this.updateDepositPendingState();
+  }
+
+  @Watch("ethPendingWithdrawalTxHash")
+  onEthPendingWithdrawalTxHashChanged() {
+    this.updateWithdrawalPendingState();
+  }
+
+  @Watch("ethPendingWithdrawalAmountWei")
+  onEthPendingWithdrawalAmountWeiChanged() {
+    this.updateDepositPendingState();
+  }
+
   @State() depositError: string = "";
   @State() withdrawalError: string = "";
 
-  get isDepositPending() {
-    return this.ethPendingDepositTxHash && this.ethPendingDepositAmountWei;
+  @State() isDepositPending: Boolean = false;
+  @State() isWithdrawalPending: Boolean = false;
+
+  updateDepositPendingState() {
+    this.isDepositPending =
+      Boolean(this.ethPendingDepositTxHash) &&
+      Boolean(this.ethPendingDepositAmountWei);
   }
 
-  get isWithdrawalPending() {
-    return (
-      this.ethPendingWithdrawalTxHash && this.ethPendingWithdrawalAmountWei
-    );
+  updateWithdrawalPendingState() {
+    this.isWithdrawalPending =
+      Boolean(this.ethPendingWithdrawalTxHash) &&
+      Boolean(this.ethPendingWithdrawalAmountWei);
   }
 
   @Watch("user")
@@ -161,7 +186,11 @@ export class AccountExchange {
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
             min={0}
-            max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
+            max={Number(
+              Number(
+                ethers.utils.formatEther(this.ethWeb3WalletBalance)
+              ).toFixed(4)
+            )}
           />
         </div>
 

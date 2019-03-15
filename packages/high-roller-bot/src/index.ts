@@ -3,7 +3,9 @@ import {
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
-import { ethers } from "ethers";
+import { Wallet } from "ethers";
+import { JsonRpcProvider } from "ethers/providers";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import {
   afterUser,
@@ -15,14 +17,11 @@ import {
   UserSession
 } from "./utils";
 
-const provider = new ethers.providers.JsonRpcProvider(
-  "https://kovan.infura.io/metamask"
-);
+const provider = new JsonRpcProvider("https://kovan.infura.io/metamask");
 
 const BASE_URL = process.env.BASE_URL!;
-const TOKEN_PATH = "TTT_USER_TOKEN";
+const TOKEN_PATH = "HR_USER_TOKEN";
 
-console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
 if (process.env.TIER && process.env.TIER === "development") {
   const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
@@ -49,12 +48,10 @@ if (process.env.TIER && process.env.TIER === "development") {
 let node: Node;
 
 (async () => {
-  console.log("Creating store");
-  const store = serviceFactory.createStoreService("tttBotStore1");
+  const store = serviceFactory.createStoreService("hrBotStore1");
 
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
-  console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");
   node = await Node.create(
     messService,
@@ -66,19 +63,24 @@ let node: Node;
     "kovan"
   );
 
-  console.log("Public Identifier", node.publicIdentifier);
+  console.log(`Node Public Identifier: ${node.publicIdentifier}`);
+  console.log(
+    `0th derived key: ${
+      fromExtendedKey(node.publicIdentifier).derivePath("0").address
+    }`
+  );
 
   try {
     const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
       throw Error("No private key specified in env. Exiting.");
     }
-    const wallet = new ethers.Wallet(privateKey, provider);
+    const wallet = new Wallet(privateKey, provider);
     const user = {
-      email: "TicTacToeBot",
+      email: "HighRollerBot",
       ethAddress: wallet.address,
       nodeAddress: node.publicIdentifier,
-      username: "TicTacToeBot"
+      username: "HighRollerBot"
     };
     const signature = await wallet.signMessage(
       buildRegistrationSignaturePayload(user)

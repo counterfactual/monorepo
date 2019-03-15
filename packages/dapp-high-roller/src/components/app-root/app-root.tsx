@@ -20,7 +20,7 @@ import {
 declare var ethers;
 declare var web3;
 
-const { solidityKeccak256 } = ethers.utils;
+const { bigNumberify, solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
 
 @Component({
@@ -186,10 +186,10 @@ export class AppRoot {
   }
 
   async highRoller(
-    num1: number,
-    num2: number
-  ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
-    const randomness = solidityKeccak256(["uint256"], [num1 * num2]);
+    num1: any,
+    num2: any
+  ): Promise<{ playerFirstRoll: number[]; playerSecondRoll: number[] }> {
+    const randomness = solidityKeccak256(["uint256"], [num1.mul(num2)]);
 
     // The Contract interface
     const abi = [
@@ -208,8 +208,8 @@ export class AppRoot {
     const result = await contract.highRoller(randomness);
 
     return {
-      myRoll: this.getDieNumbers(result[0]),
-      opponentRoll: this.getDieNumbers(result[1])
+      playerFirstRoll: this.getDieNumbers(result[0]),
+      playerSecondRoll: this.getDieNumbers(result[1])
     };
   }
 

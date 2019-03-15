@@ -27,6 +27,20 @@ export default class UninstallVirtualController extends NodeController {
     return requestHandler.getShardedQueue(metachannel.multisigAddress);
   }
 
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.UninstallVirtualParams
+  ) {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
+  }
+
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
@@ -39,6 +53,10 @@ export default class UninstallVirtualController extends NodeController {
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
 
     const to = getCounterpartyAddress(
       publicIdentifier,
