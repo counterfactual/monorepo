@@ -50,9 +50,9 @@ $ node
 'camera enter drive paper elegant camp above attend board thought inch crash'
 ```
 
-And save it in `.env.local`.
+And save it in `.env.defaults`.
 
-**Option 1** Compute it:
+**Option 1** Compute the address:
 
 ```node
 $ node
@@ -62,6 +62,7 @@ $ node
 ```
 
 **Option 2** Read the logs of `playground-server` when running it:
+
 ```
 @counterfactual/playground-server: Node signer address: 0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c
 ```
