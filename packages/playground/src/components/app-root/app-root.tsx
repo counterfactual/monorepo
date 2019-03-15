@@ -527,6 +527,18 @@ export class AppRoot {
   }
 
   upgrade() {
+    const keysToPreserve = ["MNEMONIC", "playground:matchmakeWith"];
+
+    const preservedKeys = keysToPreserve
+      .map(key => ({ [key]: localStorage.getItem(key) as string }))
+      .reduce((obj, keyContainer) => ({ ...obj, ...keyContainer }), {});
+
+    window.localStorage.clear();
+
+    keysToPreserve.forEach(key => {
+      window.localStorage.setItem(key, preservedKeys[key]);
+    });
+
     window.localStorage.setItem(
       "playground:schemaVersion",
       this.appRegistryState.schemaVersion
