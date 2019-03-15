@@ -60,6 +60,10 @@ export class AccountDeposit {
       return <stencil-router-redirect url="/" />;
     }
 
+    if (!this.ethWeb3WalletBalance) {
+      return <widget-spinner type="dots" />;
+    }
+
     const buttonTexts = {
       ready: "Deposit",
       depositing: "Making deposit..."

@@ -19,6 +19,9 @@ export type AccountState = {
   ethPendingDepositTxHash?: string;
   ethPendingWithdrawalTxHash?: string;
 
+  enoughCounterpartyBalance: boolean;
+  enoughLocalBalance: boolean;
+
   updateAccount?(data: Partial<AccountState>): Promise<void>;
   login?(): Promise<UserSession>;
   logout?(): void;
