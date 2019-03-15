@@ -6,6 +6,8 @@ import { KoaLoggingMiddleware as logs } from "logepi";
 import validateSignature from "./middlewares/validate-signature";
 import AppProcessor from "./resources/app/processor";
 import AppResource from "./resources/app/resource";
+import HeartbeatProcessor from "./resources/heartbeat/processor";
+import Heartbeat from "./resources/heartbeat/resource";
 import MatchmakingRequestProcessor from "./resources/matchmaking-request/processor";
 import MatchmakingRequestResource from "./resources/matchmaking-request/resource";
 import MultisigDeployProcessor from "./resources/multisig-deploy/processor";
@@ -22,18 +24,20 @@ export default function mountApi() {
     namespace: "api",
     types: [
       AppResource,
+      Heartbeat,
       MatchmakingRequestResource,
-      SessionRequestResource,
-      UserResource,
       MatchedUserResource,
-      MultisigDeployResource
+      MultisigDeployResource,
+      SessionRequestResource,
+      UserResource
     ],
     processors: [
       new AppProcessor(),
+      new HeartbeatProcessor(),
       new MatchmakingRequestProcessor(),
+      new MultisigDeployProcessor(),
       new SessionRequestProcessor(),
-      new UserProcessor(),
-      new MultisigDeployProcessor()
+      new UserProcessor()
     ]
   });
 
