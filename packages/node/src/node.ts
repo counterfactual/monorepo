@@ -236,7 +236,9 @@ export class Node {
         ]);
 
         if (!('data' in msg)) {
-          throw Error("timed out after 30s");
+          throw Error(
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
+          );
         }
 
         // Removes the deferral from the list of pending defferals after
