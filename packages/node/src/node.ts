@@ -230,14 +230,13 @@ export class Node {
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await Promise.race([
-          counterpartyResponse,
-          timeout(30000)
-        ]);
+        const msg = await Promise.race([counterpartyResponse, timeout(30000)]);
 
-        if (!('data' in msg)) {
+        if (!("data" in msg)) {
           throw Error(
-            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
+              data.protocol
+            }`
           );
         }
 
