@@ -14,12 +14,21 @@ import { v4 as generateUUID } from "uuid";
 
 import { bindMultisigToUser } from "./db";
 
+const firebaseConfigurationKeys = {
+  apiKey: "FIREBASE_API_KEY",
+  authDomain: "FIREBASE_AUTH_DOMAIN",
+  databaseURL: "FIREBASE_DATABASE_URL",
+  projectId: "FIREBASE_PROJECT_ID",
+  storageBucket: "FIREBASE_STORAGE_BUCKET",
+  messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID"
+};
+
 export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   firebaseServer: FirebaseServer;
   constructor(private readonly host: string, private readonly port: string) {
     super({
       databaseURL: `ws://${host}:${port}`,
-      projectId: "something",
+      projectId: "projectId",
       apiKey: "",
       authDomain: "",
       storageBucket: "",
@@ -34,21 +43,27 @@ export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   }
 }
 
+const devAndTestingEnvironments = new Set(["development", "test"]);
+
 export let serviceFactory: FirebaseServiceFactory;
-if (process.env.FIREBASE_SERVER_HOST && process.env.FIREBASE_SERVER_PORT) {
-  serviceFactory = new LocalFirebaseServiceFactory(
-    process.env.FIREBASE_SERVER_HOST,
-    process.env.FIREBASE_SERVER_PORT
-  );
-} else {
+
+console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
+if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+  confirmFirebaseConfigurationEnvVars();
   serviceFactory = new FirebaseServiceFactory({
-    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-    authDomain: "foobar-91a31.firebaseapp.com",
-    databaseURL: "https://foobar-91a31.firebaseio.com",
-    projectId: "foobar-91a31",
-    storageBucket: "foobar-91a31.appspot.com",
-    messagingSenderId: "432199632441"
+    apiKey: process.env[firebaseConfigurationKeys.apiKey]!,
+    authDomain: process.env[firebaseConfigurationKeys.authDomain]!,
+    databaseURL: process.env[firebaseConfigurationKeys.databaseURL]!,
+    projectId: process.env[firebaseConfigurationKeys.projectId]!,
+    storageBucket: process.env[firebaseConfigurationKeys.storageBucket]!,
+    messagingSenderId: process.env[firebaseConfigurationKeys.messagingSenderId]!
   });
+} else {
+  confirmLocalFirebaseConfigurationEnvVars();
+  serviceFactory = new LocalFirebaseServiceFactory(
+    process.env.FIREBASE_SERVER_HOST!,
+    process.env.FIREBASE_SERVER_PORT!
+  );
 }
 
 export default class NodeWrapper {
@@ -206,4 +221,24 @@ export async function onMultisigDeployed(
     result.counterpartyXpub, // FIXME: Not standard data flow
     result.multisigAddress
   );
+}
+
+function confirmFirebaseConfigurationEnvVars() {
+  for (const key of Object.keys(firebaseConfigurationKeys)) {
+    if (!process.env[firebaseConfigurationKeys[key]]) {
+      throw Error(
+        `Firebase ${key} is not set via env var FIREBASE_${
+          firebaseConfigurationKeys[key]
+        }`
+      );
+    }
+  }
+}
+
+function confirmLocalFirebaseConfigurationEnvVars() {
+  if (!process.env.FIREBASE_SERVER_HOST || !process.env.FIREBASE_SERVER_PORT) {
+    throw Error(
+      "Firebase server hostname and port number must be set via FIREBASE_SERVER_HOST and FIREBASE_SERVER_PORT env vars"
+    );
+  }
 }
