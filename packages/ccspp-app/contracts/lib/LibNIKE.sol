@@ -23,22 +23,21 @@ contract LibNIKE {
 
   function keyGen(string memory id)
     public
-    view
+    pure
     returns (PK memory pk, bytes memory sk)
     /* solium-disable-next-line */
   {
     // TODO
   }
 
-  function sharedKey
-  (
+  function sharedKey(
     string memory id_1,
-    bytes memory pk_1,
+    PK memory pk_1,
     string memory id_2,
     bytes memory sk_2
   )
     public
-    view
+    pure
     returns (bytes memory)
     /* solium-disable-next-line */
   {

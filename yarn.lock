@@ -3980,6 +3980,10 @@ bignumber.js@^7.2.0, bignumber.js@^7.2.1:
   version "2.0.7"
   resolved "git+https://github.com/debris/bignumber.js.git#94d7146671b9719e00a09c29b01a691bc85048c2"
 
+"bignumber.js@git+https://github.com/frozeman/bignumber.js-nolookahead.git":
+  version "2.0.7"
+  resolved "git+https://github.com/frozeman/bignumber.js-nolookahead.git#57692b3ecfc98bbdd6b3a516cb2353652ea49934"
+
 binary-extensions@^1.0.0:
   version "1.13.1"
   resolved "https://registry.yarnpkg.com/binary-extensions/-/binary-extensions-1.13.1.tgz#598afe54755b2868a5330d2aff9d4ebb53209b65"
@@ -6965,6 +6969,17 @@ ethereum-common@^0.0.18:
   version "0.0.18"
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
+
+ethereum-waffle@2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.6.tgz#a7c46b5a7b1dda1f84a75f50241a1325a0367abe"
+  integrity sha512-D/g1vyLBvwEM2oZEfehPn5eEDBYQ4QgqmxT6rNdRE0A+0iONAcY3xc4wmku7gShk/P5xMpSeiIr3997XndcAKw==
+  dependencies:
+    "@resolver-engine/imports" "^0.3.2"
+    "@resolver-engine/imports-fs" "^0.3.2"
+    ethers "^4.0.0"
+    ganache-core "2.4.0"
+    solc "^0.5.1"
 
 ethereum-waffle@2.0.7:
   version "2.0.7"
@@ -10620,6 +10635,11 @@ js-levenshtein@^1.1.3:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/js-levenshtein/-/js-levenshtein-1.1.6.tgz#c6cee58eb3550372df8deb85fad5ce66ce01d59d"
   integrity sha512-X2BB11YZtrRqY4EnQcLX5Rh373zbK4alC1FW7D7MBhL2gtcC17cTnr6DmfHZeS0s2rTHjUTMMHfG7gO8SSdw+g==
+
+js-sha3@0.5.5:
+  version "0.5.5"
+  resolved "https://registry.yarnpkg.com/js-sha3/-/js-sha3-0.5.5.tgz#baf0c0e8c54ad5903447df96ade7a4a1bca79a4a"
+  integrity sha1-uvDA6MVK1ZA0R9+Wreekobynmko=
 
 js-sha3@0.5.7, js-sha3@^0.5.7:
   version "0.5.7"
@@ -16197,6 +16217,11 @@ solc@^0.5.1:
     tmp "0.0.33"
     yargs "^11.0.0"
 
+solidity-conv@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/solidity-conv/-/solidity-conv-0.0.1.tgz#728147e65c2c6cd5c25635e0bfb3816e4fa90eaa"
+  integrity sha512-MyT2uyvWVkOH6AXNRAjULYdpWRnB1hQTDXcqKubonICsVJEiGutkfMhVQjPUzytqwZV+198V9bHzltCBVdwQJg==
+
 solidity-coverage@0.5.11:
   version "0.5.11"
   resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.5.11.tgz#1ee45f6d98b75a615aadb8f9aa7db4a2b32258e7"
@@ -17251,6 +17276,11 @@ trough@^1.0.0:
   dependencies:
     glob "^7.1.2"
 
+truffle-blockchain-utils@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.5.tgz#a4e5c064dadd69f782a137f3d276d21095da7a47"
+  integrity sha1-pOXAZNrdafeCoTfz0nbSEJXaekc=
+
 truffle-blockchain-utils@^0.0.8:
   version "0.0.8"
   resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.8.tgz#09995c36016a54092b337f237c3dc1a3dca12341"
@@ -17290,6 +17320,11 @@ truffle-deploy-registry@0.5.1, truffle-deploy-registry@^0.5.0:
     commander "^2.19.0"
     mkdirp "^0.5.1"
     rimraf "^2.6.3"
+
+truffle-error@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/truffle-error/-/truffle-error-0.0.3.tgz#4bf55242e14deee1c7194932709182deff2c97ca"
+  integrity sha1-S/VSQuFN7uHHGUkycJGC3v8sl8o=
 
 truffle-error@^0.0.4:
   version "0.0.4"
@@ -18544,6 +18579,17 @@ web3-utils@1.0.0-beta.37:
     randomhex "0.1.5"
     underscore "1.8.3"
     utf8 "2.1.1"
+
+web3@0.20.6:
+  version "0.20.6"
+  resolved "https://registry.yarnpkg.com/web3/-/web3-0.20.6.tgz#3e97306ae024fb24e10a3d75c884302562215120"
+  integrity sha1-PpcwauAk+yThCj11yIQwJWIhUSA=
+  dependencies:
+    bignumber.js "git+https://github.com/frozeman/bignumber.js-nolookahead.git"
+    crypto-js "^3.1.4"
+    utf8 "^2.1.1"
+    xhr2 "*"
+    xmlhttprequest "*"
 
 web3@1.0.0-beta.35:
   version "1.0.0-beta.35"

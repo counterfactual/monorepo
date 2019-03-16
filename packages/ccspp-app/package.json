@@ -31,10 +31,13 @@
     "ethers": "4.0.26",
     "ethlint": "^1.2.3",
     "mocha": "^6.0.0",
+    "truffle": "5.0.5",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.4",
-    "truffle": "5.0.5",
     "ts-mocha": "^6.0.0",
     "tslint": "^5.11.0"
+  },
+  "dependencies": {
+    "solidity-conv": "^0.0.1"
   }
 }

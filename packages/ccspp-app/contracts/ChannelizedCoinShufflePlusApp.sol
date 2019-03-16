@@ -5,13 +5,14 @@ import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 import "./lib/LibSignature.sol";
 import "./lib/LibNIKE.sol";
+import "solidity-conv/contracts/LibBytesString.sol";
 
 
 /// @title ChannelizedCoinShufflePlusApp
 /// @author Alex Xiong - <alex.xiong.tech@gmail.com>
 /// @notice A channelized CoinShuffle++ protocol in Counterfactual framework
 contract ChannelizedCoinShufflePlusApp is CounterfactualApp, LibNIKE,
-LibSignature {
+LibSignature, LibBytesString {
 
   //TODO: add DC-net functions and assistant functions
   enum Round {
@@ -216,5 +217,64 @@ LibSignature {
       );
     }
     return false;
+  }
+
+  /// @notice helper function to construct sidH
+  function getSidHash(
+    uint sid,
+    uint run,
+    address[] memory signingKeys,
+    PK[] memory pks
+  )
+    public
+    pure
+    returns (bytes32)
+  {
+    // NOTE: strictly following the spec in CoinShuffle++
+    return keccak256(abi.encode("sidH", sid, signingKeys, pks, run));
+  }
+
+  /// @notice generate shared keys with all other peers
+  /// @param signingKeys the ephemeral keys/identities of all peers in this app
+  /// @param npks list of public key broadcasted by peers for this run
+  /// @param my signingKey of the func caller
+  /// @param sk secret key of the func caller
+  /// @param sidH a unique identifier of a particular run & session
+  function DCKeys(
+    address[] memory signingKeys,
+    PK[] memory npks,
+    address my,
+    bytes memory sk,
+    bytes32 sidH
+  )
+    public
+    pure
+    returns (bytes32[] memory)
+  {
+    string memory id_2 = addressToString(my);
+    bytes32[] memory ret = new bytes32[](signingKeys.length);
+
+    for (uint i = 0; i<signingKeys.length; i++){
+      if (signingKeys[i] != my) {
+        string memory id_1 = addressToString(signingKeys[i]);
+        ret[i] = sharedKeyWithSidH(id_1, npks[i], id_2, sk, sidH);
+      }
+    }
+    return ret;
+  }
+
+  /// @notice a helper wrapper around NIKE.sharedKey for DiceMix
+  function sharedKeyWithSidH(
+    string memory id_1,
+    PK memory pk_1,
+    string memory id_2,
+    bytes memory sk_2,
+    bytes32 sidH
+  )
+    public
+    pure
+    returns (bytes32)
+  {
+    return keccak256(abi.encodePacked(sharedKey(id_1, pk_1, id_2, sk_2),sidH));
   }
 }
