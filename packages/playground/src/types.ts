@@ -140,3 +140,8 @@ export type AppAttributes = {
   icon: string;
   url: string;
 };
+
+export type Heartbeat = {
+  schemaVersion: string;
+  maintenanceMode: boolean;
+};

@@ -24,6 +24,7 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
 };
 
 const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
+const HEARTBEAT_INTERVAL = 30 * 1000;
 
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
@@ -35,16 +36,22 @@ const delay = (timeInMilliseconds: number) =>
 })
 export class AppRoot {
   @State() loading: boolean = true;
-  @State() accountState: AccountState = {} as AccountState;
+  @State() accountState: AccountState = {
+    enoughCounterpartyBalance: true,
+    enoughLocalBalance: true
+  } as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
+  @State() appRegistryState: AppRegistryState = {
+    apps: [],
+    canUseApps: false,
+    schemaVersion: "",
+    maintenanceMode: false
+  };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
-  @State() lastDeposit = ethers.constants.Zero;
-  @State() lastCounterpartyBalance = ethers.constants.Zero;
-
-  modal: JSX.Element = <div />;
+  @State() modal: JSX.Element = <div />;
+  @State() redirect: JSX.Element = <div />;
 
   componentWillLoad() {
     // Test for Local Storage.
@@ -94,10 +101,19 @@ export class AppRoot {
 
   async setup() {
     if (typeof window["web3"] !== "undefined") {
-      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+      await Promise.all([
+        this.heartbeat(),
+        this.createNodeProvider(),
+        this.loadApps()
+      ]);
     }
 
     this.loading = false;
+  }
+
+  async redirectToDeposit() {
+    this.modal = {};
+    this.redirect = <stencil-router-redirect url="/deposit" />;
   }
 
   async createNodeProvider() {
@@ -185,6 +201,16 @@ export class AppRoot {
     await this.updateAppRegistry({ apps });
   }
 
+  async heartbeat() {
+    setInterval(async () => this.doHeartbeat(), HEARTBEAT_INTERVAL);
+    this.doHeartbeat();
+  }
+
+  async doHeartbeat() {
+    const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+    this.updateAppRegistry({ ...heartbeat });
+  }
+
   bindProviderEvents() {
     const {
       user: { multisigAddress, ethAddress }
@@ -244,7 +270,7 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
@@ -301,17 +327,21 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps = counterpartyBalance
-      .sub(this.lastCounterpartyBalance)
-      .eq(this.lastDeposit);
+    const enoughCounterpartyBalance = counterpartyBalance.gte(
+      MINIMUM_EXPECTED_FREE_BALANCE
+    );
+    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
 
     await this.updateAppRegistry({
       canUseApps
     });
 
-    await this.updateAccount(vals);
-
-    this.lastCounterpartyBalance = counterpartyBalance;
+    await this.updateAccount({
+      ...vals,
+      enoughCounterpartyBalance,
+      enoughLocalBalance
+    });
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -370,8 +400,6 @@ export class AppRoot {
           notifyCounterparty: true
         } as Node.DepositParams
       });
-
-      this.lastDeposit = amount;
     } catch (e) {
       console.error(e);
     }
@@ -448,24 +476,6 @@ export class AppRoot {
     }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
   }
 
-  async requestToDepositInitialFunding() {
-    const { precommitedDepositAmountWei } = this.accountState;
-
-    if (precommitedDepositAmountWei) {
-      this.modal = (
-        <widget-dialog
-          visible={true}
-          dialogTitle="Your account is ready!"
-          content="To complete your registration, we'll ask you to confirm the deposit in the next step."
-          primaryButtonText="Proceed"
-          onPrimaryButtonClicked={async () =>
-            await this.confirmDepositInitialFunding()
-          }
-        />
-      );
-    }
-  }
-
   async fetchMultisig(token?: string) {
     let userToken = token;
 
@@ -481,17 +491,6 @@ export class AppRoot {
     } else {
       await this.updateAccount({ user });
     }
-  }
-
-  async confirmDepositInitialFunding() {
-    this.modal = {};
-
-    await this.deposit(this.accountState
-      .precommitedDepositAmountWei as BigNumber);
-
-    this.updateAccount({
-      precommitedDepositAmountWei: undefined
-    });
   }
 
   async autoLogin() {
@@ -539,6 +538,27 @@ export class AppRoot {
     }.etherscan.io/tx/${tx}`;
   }
 
+  upgrade() {
+    const keysToPreserve = ["MNEMONIC", "playground:matchmakeWith"];
+
+    const preservedKeys = keysToPreserve
+      .map(key => ({ [key]: localStorage.getItem(key) as string }))
+      .reduce((obj, keyContainer) => ({ ...obj, ...keyContainer }), {});
+
+    window.localStorage.clear();
+
+    keysToPreserve.forEach(key => {
+      window.localStorage.setItem(key, preservedKeys[key]);
+    });
+
+    window.localStorage.setItem(
+      "playground:schemaVersion",
+      this.appRegistryState.schemaVersion
+    );
+
+    window.location.reload();
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -563,8 +583,37 @@ export class AppRoot {
 
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
+    if (this.appRegistryState.maintenanceMode) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="Under maintenance"
+          content="Sorry! We're not available at this moment. Please check back in a couple of minutes."
+        />
+      );
+    }
+
     if (this.loading) {
-      return;
+      return <widget-spinner type="dots" />;
+    }
+
+    const localSchemaVersion = window.localStorage.getItem(
+      "playground:schemaVersion"
+    ) as string;
+
+    if (
+      localSchemaVersion &&
+      localSchemaVersion !== this.appRegistryState.schemaVersion
+    ) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="A new version of the Playground is available!"
+          content="Click OK to update your experience."
+          primaryButtonText="OK"
+          onPrimaryButtonClicked={this.upgrade.bind(this)}
+        />
+      );
     }
 
     return (
@@ -612,6 +661,7 @@ export class AppRoot {
                 walletState={this.walletState}
               />
               {this.modal || {}}
+              {this.redirect || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
