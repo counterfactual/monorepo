@@ -79,7 +79,7 @@ export class Store {
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
-    debugLog(`Getting channel: ${channel}`);
+    debugLog("Getting channel: ", channel);
     return channel;
   }
 
