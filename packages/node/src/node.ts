@@ -232,7 +232,7 @@ export class Node {
 
         const msg = await Promise.race([counterpartyResponse, timeout(30000)]);
 
-        if (!("data" in msg)) {
+        if (!msg || !("data" in msg)) {
           throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
               data.protocol
