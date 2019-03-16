@@ -454,17 +454,21 @@ const isBrowser =
   {}.toString.call(window) === "[object Window]";
 
 export function debugLog(...messages: any) {
-  const logPrefix = "NodeDebugLog";
-  if (isBrowser) {
-    if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
-      // for some reason `debug` doesn't actually log in the browser
-      console.info(logPrefix, messages);
+  try {
+    const logPrefix = "NodeDebugLog";
+    if (isBrowser) {
+      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
+        // for some reason `debug` doesn't actually log in the browser
+        console.info(logPrefix, messages);
+      }
+      // node.js side
+    } else if (
+      process.env.LOG_LEVEL !== undefined &&
+      process.env.LOG_LEVEL === "DEBUG"
+    ) {
+      console.debug(logPrefix, messages);
     }
-    // node.js side
-  } else if (
-    process.env.LOG_LEVEL !== undefined &&
-    process.env.LOG_LEVEL === "DEBUG"
-  ) {
-    console.debug(logPrefix, messages);
+  } catch (e) {
+    console.error("Failed to log: ", e);
   }
 }
