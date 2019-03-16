@@ -30,6 +30,10 @@ import {
   NodeMessageWrappedProtocolMessage
 } from "./types";
 
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
   // execution environment.
@@ -226,7 +230,15 @@ export class Node {
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await counterpartyResponse;
+        const msg = await Promise.race([counterpartyResponse, timeout(30000)]);
+
+        if (!("data" in msg)) {
+          throw Error(
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
+              data.protocol
+            }`
+          );
+        }
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)
