@@ -588,7 +588,17 @@ export class AppRoot {
         <widget-dialog
           visible={true}
           dialogTitle="Under maintenance"
-          content="Sorry! We're not available at this moment. Please check back in a couple of minutes."
+          content={
+            <p>
+              Sorry! We're currently working on a few things behind the scenes
+              to keep the demo functional. Please come back later. In the
+              meantime, follow us on Twitter
+              <a href="https://twitter.com/statechannels" target="_blank">
+                @statechannels
+              </a>
+              to learn more and keep up to date on the project.
+            </p>
+          }
         />
       );
     }
