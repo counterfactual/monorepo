@@ -448,3 +448,22 @@ export class Node {
     });
   }
 }
+
+const isBrowser =
+  typeof window !== "undefined" &&
+  {}.toString.call(window) === "[object Window]";
+
+export function debugLog(...messages: any) {
+  if (isBrowser) {
+    if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
+      // for some reason `debug` doesn't actually log in the browser
+      console.info(messages);
+    }
+    // node.js side
+  } else if (
+    process.env.LOG_LEVEL !== undefined &&
+    process.env.LOG_LEVEL === "DEBUG"
+  ) {
+    console.debug(messages);
+  }
+}

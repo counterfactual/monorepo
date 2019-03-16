@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -36,12 +36,12 @@
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/machine": "0.1.4",
     "@counterfactual/types": "0.0.9",
-    "@firebase/util": "0.*",
     "@firebase/app-types": "0.*",
+    "@firebase/util": "0.*",
     "ethers": "4.0.27",
     "eventemitter3": "^3.1.0",
-    "p-queue": "^4.0.0",
     "firebase": "5.9.0",
+    "p-queue": "^4.0.0",
     "uuid": "^3.3.2"
   }
 }
