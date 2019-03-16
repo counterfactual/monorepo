@@ -590,9 +590,12 @@ export class AppRoot {
           dialogTitle="Under maintenance"
           content={
             <p>
-              Sorry! We're currently working on a few things behind the scenes to keep the demo functional.
-              Please come back later. In the meantime, follow us on Twitter
-              <a href="https://twitter.com/statechannels" target="_blank">@statechannels</a>
+              Sorry! We're currently working on a few things behind the scenes
+              to keep the demo functional. Please come back later. In the
+              meantime, follow us on Twitter
+              <a href="https://twitter.com/statechannels" target="_blank">
+                @statechannels
+              </a>
               to learn more and keep up to date on the project.
             </p>
           }
