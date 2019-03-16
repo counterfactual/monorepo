@@ -594,7 +594,8 @@ export class AppRoot {
               to keep the demo functional. Please come back later. In the
               meantime, follow us on Twitter
               <a href="https://twitter.com/statechannels" target="_blank">
-                @statechannels
+                {" "}
+                @statechannels{" "}
               </a>
               to learn more and keep up to date on the project.
             </p>
