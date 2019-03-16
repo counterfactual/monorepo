@@ -31,6 +31,6 @@
     "jest": "23.6.0",
     "puppeteer": "1.13.0",
     "typescript": "^3.3.3333",
-    "workbox-build": "3.4.1"
+    "workbox-build": "4.1.1"
   }
 }
