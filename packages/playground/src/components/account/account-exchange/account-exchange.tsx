@@ -185,12 +185,8 @@ export class AccountExchange {
             provideFaucetLink={true}
             error={this.depositError}
             available={this.ethWeb3WalletBalance}
-            min={0}
-            max={Number(
-              Number(
-                ethers.utils.formatEther(this.ethWeb3WalletBalance)
-              ).toFixed(4)
-            )}
+            min={0.1}
+            max={1}
           />
         </div>
 
