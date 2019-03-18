@@ -55,7 +55,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | m1      | s1         |
 | m2      | s1, s2     |
 | m3      | s3         |
-| m4      | s2, s3     |
+| m4      | s3, s2     |
 | m5      | s4         |
 | m6      | s5         |
 | m7      | s6         |
@@ -108,8 +108,8 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | `fromAddress` | `address`                   | `intermediaryAddress`     |
 | `toAddress`   | `address`                   | `initiatingAddress`       |
 | `seq`         | `number`                    | `-1`                      |
-| `signature`   | `signature`                 | The S2 signature          |
-| `signature2`  | `signature`                 | The S3 signature          |
+| `signature`   | `signature`                 | The S3 signature          |
+| `signature2`  | `signature`                 | The S2 signature          |
 
 ### M5
 
