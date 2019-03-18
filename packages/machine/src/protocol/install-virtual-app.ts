@@ -135,9 +135,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     Opcode.OP_SIGN_AS_INTERMEDIARY,
 
     (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[0].transaction(
-        [context.signatures[0], message.signature!],
-      );
+      context.finalCommitment = context.commitments[0].transaction([
+        context.signatures[0],
+        message.signature!
+      ]);
     },
     Opcode.WRITE_COMMITMENT,
 
