@@ -173,7 +173,7 @@ export function confirmFirebaseConfigurationEnvVars() {
   for (const key of Object.keys(FIREBASE_CONFIGURATION_ENV_KEYS)) {
     if (!process.env[FIREBASE_CONFIGURATION_ENV_KEYS[key]]) {
       throw Error(
-        `Firebase ${key} is not set via env var FIREBASE_${
+        `Firebase ${key} is not set via env var ${
           FIREBASE_CONFIGURATION_ENV_KEYS[key]
         }`
       );
