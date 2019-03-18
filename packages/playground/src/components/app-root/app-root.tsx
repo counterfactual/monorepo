@@ -330,6 +330,8 @@ export class AppRoot {
           ethMultisigBalance: ethers.constants.Zero
         };
       }
+
+      throw e;
     }
 
     const { state } = result as Node.GetFreeBalanceStateResult;
