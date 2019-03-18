@@ -167,7 +167,10 @@ async function get(
     } catch (e) {
       retriesAvailable -= 1;
       if (e.type === "invalid-json" && retriesAvailable >= 0) {
-        console.log(`URL ${baseURL}/${endpoint} gave invalid JSON. Retrying.`);
+        console.log(
+          `Call to ${baseURL}/api/${endpoint} returned invalid JSON. Retrying (attempt #${10 -
+            retriesAvailable}).`
+        );
         await delay(3000);
       } else throw e;
     }
