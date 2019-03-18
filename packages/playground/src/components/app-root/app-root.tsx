@@ -277,6 +277,7 @@ export class AppRoot {
     ) as string;
 
     if (!token) {
+      console.error("Couldn't delete account; no token was provided");
       return;
     }
 
@@ -284,8 +285,8 @@ export class AppRoot {
 
     try {
       await PlaygroundAPIClient.deleteAccount(user);
-    } finally {
       this.updateAccount({ hasCorruptStateChannelState: false });
+    } finally {
       this.logout();
       return;
     }
