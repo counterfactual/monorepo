@@ -234,6 +234,7 @@ export async function createAccount(
     >;
 
     resource.attributes.transactionHash = resourceMultisig.id as string;
+    console.log(`Multisig deployment tx hash: ${resourceMultisig.id}`);
 
     return fromAPIResource<UserSession, UserAttributes>(resource);
   } catch (e) {
