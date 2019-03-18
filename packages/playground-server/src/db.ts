@@ -241,6 +241,35 @@ export async function getUser(userToFind: Partial<User>): Promise<User> {
   });
 }
 
+export async function getUsernameFromMultisigAddress(
+  multisigAddress: string
+): Promise<string> {
+  const db = getDatabase();
+
+  const query = db("users")
+    .columns({
+      username: "username",
+      multisigAddress: "multisig_address"
+    })
+    .select()
+    .where("multisig_address", "=", multisigAddress);
+
+  const users: ({
+    username: string;
+    multisigAddress: string;
+  })[] = await query;
+
+  await db.destroy();
+
+  if (users.length === 0) {
+    throw Errors.UserNotFound();
+  }
+
+  const [user] = users;
+
+  return user.username;
+}
+
 export async function userExists(user: User): Promise<boolean> {
   const db = getDatabase();
 
