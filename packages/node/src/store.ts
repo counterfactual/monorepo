@@ -1,6 +1,5 @@
 import {
   AppInstance,
-  Protocol,
   StateChannel,
   StateChannelJSON,
   Transaction
@@ -10,15 +9,14 @@ import {
   AppInstanceInfo,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
-import { defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
 import {
-  DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
+  DB_NAMESPACE_ALL_COMMITMENTS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
-  DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
@@ -377,73 +375,20 @@ export class Store {
     ]);
   }
 
-  public async setCommitmentForAppIdentityHash(
-    appIdentityHash: string,
-    protocol: Protocol,
-    commitment: Transaction
-  ) {
+  public async setCommitment(args: any[], commitment: Transaction) {
     return this.storeService.set([
       {
-        key: this.computeAppInstanceCommitmentKey(appIdentityHash, protocol),
-        value: commitment
+        key: [
+          this.storeKeyPrefix,
+          DB_NAMESPACE_ALL_COMMITMENTS,
+          solidityKeccak256(
+            ["address", "uint256", "bytes"],
+            [commitment.to, commitment.value, commitment.data]
+          )
+        ].join("/"),
+        value: args.concat([commitment])
       }
     ]);
-  }
-
-  public async setSetupCommitmentForMultisig(
-    multisigAddress: string,
-    commitment: Transaction
-  ) {
-    return this.storeService.set([
-      {
-        key: this.computeMultisigSetupCommitmentKey(multisigAddress),
-        value: commitment
-      }
-    ]);
-  }
-
-  private async loadCommitment(key: string): Promise<Transaction> {
-    const { to, value, data } = await this.storeService.get(key);
-    return {
-      to,
-      data,
-      value: parseInt(value, 10)
-    };
-  }
-
-  public async getCommitmentForAppIdentityHash(
-    appIdentityHash: string,
-    protocol: Protocol
-  ): Promise<Transaction> {
-    const key = this.computeAppInstanceCommitmentKey(appIdentityHash, protocol);
-    return this.loadCommitment(key);
-  }
-
-  public async getSetupCommitmentForMultisig(
-    multisigAddress: string
-  ): Promise<Transaction> {
-    const key = this.computeMultisigSetupCommitmentKey(multisigAddress);
-    return this.loadCommitment(key);
-  }
-
-  private computeAppInstanceCommitmentKey(
-    appIdentityHash: string,
-    protocol: Protocol
-  ): string {
-    return [
-      this.storeKeyPrefix,
-      DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT,
-      appIdentityHash,
-      protocol
-    ].join("/");
-  }
-
-  private computeMultisigSetupCommitmentKey(multisigAddress: string): string {
-    return [
-      this.storeKeyPrefix,
-      DB_NAMESPACE_MULTISIG_ADDRESS_TO_SETUP_COMMITMENT,
-      multisigAddress
-    ].join("/");
   }
 
   public async getAppInstance(appInstanceId: string): Promise<AppInstance> {

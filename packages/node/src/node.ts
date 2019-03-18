@@ -274,8 +274,8 @@ export class Node {
         } else if (protocol === Protocol.Setup) {
           const params = message.params as SetupParams;
           verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
+          await this.requestHandler.store.setCommitment(
+            [Protocol.Setup, params.multisigAddress],
             context.finalCommitment!
           );
         } else if (
@@ -297,13 +297,16 @@ export class Node {
             );
           }
           verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
+          await this.requestHandler.store.setCommitment(
+            [protocol, params.multisigAddress],
             context.finalCommitment!
           );
         } else {
-          /// install-virtual-app, uninstall-virtual-app
-          console.log("skipping commitment write - not implemented yet");
+          verifyFinalCommitment(context.finalCommitment);
+          await this.requestHandler.store.setCommitment(
+            [protocol],
+            context.finalCommitment!
+          );
         }
         next();
       }
