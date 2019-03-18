@@ -97,6 +97,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        context.inbox[0].signature3!,
+        context.signatures[1]
+      ]);
+    },
     Opcode.WRITE_COMMITMENT
   ],
 
@@ -150,6 +156,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[2].transaction([
+        context.inbox[0].signature2!,
+        context.signatures[2]
+      ]);
+    },
+    Opcode.WRITE_COMMITMENT,
+
     // M4
     (message: ProtocolMessage, context: Context) => {
       const params2 = message.params as InstallVirtualAppParams;
@@ -178,9 +192,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       };
     },
 
-    Opcode.IO_SEND,
-
-    Opcode.WRITE_COMMITMENT
+    Opcode.IO_SEND
   ],
 
   2: [
@@ -234,6 +246,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       );
     },
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[1].transaction([
+        context.inbox[0].signature!,
+        context.signatures[1]
+      ]);
+    },
     Opcode.WRITE_COMMITMENT
   ]
 };
