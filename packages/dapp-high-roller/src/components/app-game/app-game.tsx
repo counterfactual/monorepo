@@ -235,12 +235,12 @@ export class AppGame {
               <button class="btn btn--exit" onClick={() => this.handleExit()}>
                 Exit
               </button>
-              <button
+              {/* <button
                 class="btn btn--rematch"
                 onClick={() => this.handleRematch()}
               >
                 Rematch
-              </button>
+              </button> */}
             </div>
           )}
         </div>
