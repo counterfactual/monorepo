@@ -227,6 +227,13 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // Sign two commitments
     Opcode.OP_SIGN,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction(
+        [message.signature2!, context.signatures[0]],
+      );
+    },
+    Opcode.WRITE_COMMITMENT,
+
     // M3
     (message: ProtocolMessage, context: Context) => {
       const params2 = message.params as InstallVirtualAppParams;
