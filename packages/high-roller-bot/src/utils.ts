@@ -161,7 +161,7 @@ async function get(
   let response;
   let retriesAvailable = 10;
 
-  while (typeof response === "undefined" && retriesAvailable > 0) {
+  while (typeof response === "undefined") {
     try {
       response = (await httpResponse.json()) as APIResponse;
     } catch (e) {
