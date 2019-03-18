@@ -460,13 +460,16 @@ export function debugLog(...messages: any) {
       if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
         // for some reason `debug` doesn't actually log in the browser
         console.info(logPrefix, messages);
+        console.trace();
       }
       // node.js side
     } else if (
       process.env.LOG_LEVEL !== undefined &&
       process.env.LOG_LEVEL === "DEBUG"
     ) {
-      console.debug(logPrefix, messages);
+      console.debug(logPrefix, JSON.stringify(messages, null, 4));
+      console.trace();
+      console.log("\n");
     }
   } catch (e) {
     console.error("Failed to log: ", e);
