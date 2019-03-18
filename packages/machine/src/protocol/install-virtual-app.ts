@@ -134,6 +134,13 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     // Sign three commitments; pass `true` to hashToSign if asked
     Opcode.OP_SIGN_AS_INTERMEDIARY,
 
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction(
+        [context.signatures[0], message.signature!],
+      );
+    },
+    Opcode.WRITE_COMMITMENT,
+
     // M2
     (message: ProtocolMessage, context: Context) => {
       const params2 = message.params as InstallVirtualAppParams;
@@ -163,6 +170,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         context.inbox[0].signature2
       );
     },
+
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[2].transaction(
+        [context.inbox[0].signature2!, message.signature2!],
+        context.signatures[2]
+      );
+    },
+    Opcode.WRITE_COMMITMENT,
 
     (message: ProtocolMessage, context: Context) => {
       context.finalCommitment = context.commitments[1].transaction([
