@@ -38,6 +38,7 @@ export class AccountRegister {
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() signer: Signer = {} as Signer;
   @Prop() history: RouterHistory = {} as RouterHistory;
+  @Prop() metamaskUnlocked: boolean = false;
   @Prop() waitForMultisig: () => Promise<void> = async () => {};
 
   changeset: UserChangeset = {
@@ -59,6 +60,13 @@ export class AccountRegister {
     | "creatingAccount"
     | "deployingMultisig"
     | "finished" = "ready";
+
+  componentDidUpdate() {
+    if (!this.metamaskUnlocked) {
+      this.history.push("/");
+      return;
+    }
+  }
 
   async login(e: MouseEvent) {
     e.preventDefault();
@@ -281,4 +289,8 @@ AccountTunnel.injectProps(AccountRegister, [
   "waitForMultisig"
 ]);
 
-WalletTunnel.injectProps(AccountRegister, ["connected", "signer"]);
+WalletTunnel.injectProps(AccountRegister, [
+  "connected",
+  "signer",
+  "metamaskUnlocked"
+]);
