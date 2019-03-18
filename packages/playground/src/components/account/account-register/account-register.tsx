@@ -289,4 +289,8 @@ AccountTunnel.injectProps(AccountRegister, [
   "waitForMultisig"
 ]);
 
-WalletTunnel.injectProps(AccountRegister, ["connected", "signer", "metamaskUnlocked"]);
+WalletTunnel.injectProps(AccountRegister, [
+  "connected",
+  "signer",
+  "metamaskUnlocked"
+]);
