@@ -12,11 +12,13 @@ import {
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
+import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
-import { bindMultisigToUser } from "./db";
+import { bindMultisigToUser, getUsernameFromMultisigAddress } from "./db";
+import informSlack from "./utils";
 
 export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   firebaseServer: FirebaseServer;
@@ -196,6 +198,18 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     return;
   }
 
+  const username = await getUsernameFromMultisigAddress(
+    response.data.multisigAddress
+  );
+
+  informSlack(
+    `💰 *USER_DEPOSITED* (_${username}_) | User deposited ${formatEther(
+      response.data.amount
+    )} ETH <http://kovan.etherscan.io/address/${
+      response.data.multisigAddress
+    }|_(view on etherscan)_>.`
+  );
+
   try {
     await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
       requestId: generateUUID(),
@@ -207,6 +221,14 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
       tags: { error: e }
     });
   }
+
+  informSlack(
+    `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
+      response.data.amount
+    )} ETH <http://kovan.etherscan.io/address/${
+      response.data.multisigAddress
+    }|_(view on etherscan)_>.`
+  );
 }
 
 export async function onMultisigDeployed(
