@@ -1,11 +1,4 @@
-import {
-  Component,
-  Element,
-  Event,
-  EventEmitter,
-  Prop,
-  State
-} from "@stencil/core";
+import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
 import AppRegistryTunnel from "../../../data/app-registry";
 
@@ -24,8 +17,6 @@ export class AppsListItem {
   @Prop() url: string = "";
   @Prop() canUseApps: boolean = false;
 
-  @State() modalVisible: boolean = false;
-
   private getAppSlug() {
     return this.name.toLowerCase().replace(/ /g, "-");
   }
@@ -35,23 +26,12 @@ export class AppsListItem {
     this.appClicked.emit(event);
   }
 
-  showModal() {
-    this.modalVisible = true;
-  }
-
-  hideModal() {
-    this.modalVisible = false;
-  }
-
   private openApp(event: MouseEvent) {
     event.preventDefault();
 
     if (!this.canUseApps) {
-      this.showModal();
       return;
     }
-
-    this.hideModal();
 
     this.appClicked.emit({
       name: this.name,
@@ -75,13 +55,6 @@ export class AppsListItem {
           </div>
           <span class="name">{this.name}</span>
         </a>
-        <widget-dialog
-          visible={this.modalVisible}
-          dialogTitle="One moment, please!"
-          content="Your state channel is still collateralizing. Try again in 10-15 seconds."
-          primaryButtonText="OK, I'll wait"
-          onPrimaryButtonClicked={this.hideModal.bind(this)}
-        />
       </li>
     );
   }
