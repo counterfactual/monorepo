@@ -241,6 +241,19 @@ export async function getUser(userToFind: Partial<User>): Promise<User> {
   });
 }
 
+export async function deleteAccount(userId: string) {
+  const db = getDatabase();
+
+  const query = db("users")
+    .select()
+    .where("id", "=", userId)
+    .del();
+
+  await query;
+
+  await db.destroy();
+}
+
 export async function getUsernameFromMultisigAddress(
   multisigAddress: string
 ): Promise<string> {

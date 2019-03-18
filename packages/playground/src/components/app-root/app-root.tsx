@@ -271,6 +271,27 @@ export class AppRoot {
     return loggedUser;
   }
 
+  async deleteAccount(): Promise<void> {
+    const token = window.localStorage.getItem(
+      "playground:user:token"
+    ) as string;
+
+    if (!token) {
+      console.error("Couldn't delete account; no token was provided");
+      return;
+    }
+
+    const user = await PlaygroundAPIClient.getUser(token);
+
+    try {
+      await PlaygroundAPIClient.deleteAccount(user);
+      this.updateAccount({ hasCorruptStateChannelState: false });
+    } finally {
+      this.logout();
+      return;
+    }
+  }
+
   async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
@@ -296,7 +317,20 @@ export class AppRoot {
       params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
-    const { result } = await node.call(query.type, query);
+    let result;
+
+    try {
+      result = await node.call(query.type, query);
+    } catch (e) {
+      // TODO: Use better typed error messages with error codes
+      if (e.includes("Call to getStateChannel failed")) {
+        await this.updateAccount({ hasCorruptStateChannelState: true });
+        return {
+          ethFreeBalanceWei: ethers.constants.Zero,
+          ethMultisigBalance: ethers.constants.Zero
+        };
+      }
+    }
 
     const { state } = result as Node.GetFreeBalanceStateResult;
 
@@ -571,6 +605,7 @@ export class AppRoot {
       waitForMultisig: this.waitForMultisig.bind(this),
       login: this.login.bind(this),
       logout: this.logout.bind(this),
+      deleteAccount: this.deleteAccount.bind(this),
       getBalances: this.getBalances.bind(this),
       autoLogin: this.autoLogin.bind(this),
       deposit: this.deposit.bind(this),

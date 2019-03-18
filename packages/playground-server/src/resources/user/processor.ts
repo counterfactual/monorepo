@@ -4,6 +4,7 @@ import { Log } from "logepi";
 
 import {
   createUser,
+  deleteAccount,
   ethAddressAlreadyRegistered,
   getUsers,
   updateUser,
@@ -107,5 +108,10 @@ export default class UserProcessor extends OperationProcessor<User> {
     });
 
     return updatedUser;
+  }
+
+  public async remove(op: Operation): Promise<void> {
+    const userId = op.ref.id as string;
+    await deleteAccount(userId);
   }
 }

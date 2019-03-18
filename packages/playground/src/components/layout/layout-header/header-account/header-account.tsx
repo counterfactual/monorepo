@@ -33,6 +33,7 @@ export class HeaderAccount {
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() login: () => Promise<UserSession> = async () => ({} as UserSession);
   @Prop() autoLogin: () => Promise<void> = async () => {};
+  @Prop() hasCorruptStateChannelState: boolean = false;
 
   @Event() authenticationChanged: EventEmitter = {} as EventEmitter;
 
@@ -178,6 +179,15 @@ export class HeaderAccount {
       );
     }
 
+    if (this.hasCorruptStateChannelState) {
+      return (
+        <div class="account-container">
+          <widget-error-message />
+          <div class="message-container">Corrupt State</div>
+        </div>
+      );
+    }
+
     if (!this.authenticated) {
       return (
         <div class="account-container">
@@ -250,7 +260,8 @@ AccountTunnel.injectProps(HeaderAccount, [
   "error",
   "updateAccount",
   "login",
-  "autoLogin"
+  "autoLogin",
+  "hasCorruptStateChannelState"
 ]);
 
 WalletTunnel.injectProps(HeaderAccount, [
