@@ -103,7 +103,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         context.signatures[1]
       );
     },
-    Opcode.WRITE_COMMITMENT
+    Opcode.WRITE_COMMITMENT,
+
+    (message: ProtocolMessage, context: Context) => {
+      context.finalCommitment = context.commitments[0].transaction(
+        [context.inbox[0].signature2!, context.signatures[0]]
+      );
+    },
+    Opcode.WRITE_COMMITMENT,
+
   ],
 
   1: [
