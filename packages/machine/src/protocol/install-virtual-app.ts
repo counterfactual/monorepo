@@ -157,6 +157,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     (message: ProtocolMessage, context: Context) => {
+      console.log("hello!");
+      console.log(context.signatures[2]);
+      console.log(context.inbox[0].signature2);
       context.finalCommitment = context.commitments[2].transaction([
         context.inbox[0].signature2!,
         context.signatures[2]
