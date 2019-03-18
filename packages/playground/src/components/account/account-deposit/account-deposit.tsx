@@ -86,8 +86,8 @@ export class AccountDeposit {
           provideFaucetLink={true}
           button={buttonTexts[this.stage]}
           available={this.ethWeb3WalletBalance}
-          min={0}
-          max={Number(ethers.utils.formatEther(this.ethWeb3WalletBalance))}
+          min={0.1}
+          max={1}
           error={this.error}
           loading={isFormBusy}
           disabled={isFormBusy}

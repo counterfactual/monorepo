@@ -7,6 +7,7 @@ import {
   APIResponse,
   AppAttributes,
   AppDefinition,
+  Heartbeat,
   SessionAttributes,
   UserAttributes,
   UserChangeset,
@@ -149,6 +150,19 @@ function toAPIResource<TModel, TResource>(
 }
 
 export default class PlaygroundAPIClient {
+  public static async getHeartbeat(): Promise<Heartbeat> {
+    try {
+      const json = (await get("heartbeats")) as APIResponse;
+
+      return (json.data as APIResource[])[0].attributes as Heartbeat;
+    } catch {
+      return {
+        schemaVersion: "",
+        maintenanceMode: true
+      };
+    }
+  }
+
   public static async createAccount(
     user: UserChangeset,
     signature: string

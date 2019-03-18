@@ -24,6 +24,7 @@ import {
 } from "./db-schema";
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
+import { debugLog } from "./node";
 import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
 
@@ -53,6 +54,7 @@ export class Store {
       channels[key] = StateChannel.fromJson(value);
     }
 
+    debugLog("Getting all channels: ", channels);
     return channels;
   }
 
@@ -76,7 +78,9 @@ export class Store {
       );
     }
 
-    return StateChannel.fromJson(stateChannelJson);
+    const channel = StateChannel.fromJson(stateChannelJson);
+    debugLog("Getting channel: ", channel);
+    return channel;
   }
 
   /**
@@ -114,6 +118,7 @@ export class Store {
       stateChannel.userNeuteredExtendedKeys
     );
 
+    debugLog("Saving channel: ", stateChannel);
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${

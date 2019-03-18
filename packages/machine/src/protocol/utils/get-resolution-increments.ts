@@ -41,7 +41,7 @@ export async function computeFreeBalanceIncrements(
   while (
     bigNumberify(appInstance.terms.limit).gt(Zero) &&
     resolution.value.every(v => v.eq(Zero)) &&
-    attempts < 15
+    attempts < 10
   ) {
     console.log(`Empty resolution. Querying chain again. Attempt #${attempts}`);
 
