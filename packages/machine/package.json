@@ -28,7 +28,7 @@
     "ganache-cli": "6.4.1",
     "jest": "23.6.0",
     "rollup": "^1.0.1",
-    "rollup-plugin-json": "^3.1.0",
+    "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-typescript2": "^0.19.0",
     "truffle": "5.0.7",
     "ts-jest": "24.0.0",
