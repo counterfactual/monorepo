@@ -76,7 +76,7 @@ export class AccountEdit {
             value={this.changeset.username}
           />
           <form-input
-            label="Email address"
+            label="Twitter handle"
             value={this.changeset.email}
             onChange={e => this.change("email", e)}
           />
