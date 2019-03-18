@@ -100,6 +100,37 @@ async function post(
   return response;
 }
 
+async function remove(
+  endpoint: string,
+  data: APIResource,
+  token?: string,
+  authType: "Bearer" | "Signature" = "Signature"
+): Promise<APIResponse> {
+  const requestTimeout = timeout();
+
+  const httpResponse = await fetch(
+    `${BASE_URL}/api/${endpoint}/${data.attributes.id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json; charset=utf-8",
+        Authorization: `${authType} ${token}`
+      }
+    }
+  );
+
+  requestTimeout.cancel();
+
+  const response = (await httpResponse.json()) as APIResponse;
+
+  if (response.errors) {
+    const error = response.errors[0] as APIError;
+    throw error;
+  }
+
+  return response;
+}
+
 async function get(endpoint: string, token?: string): Promise<APIResponse> {
   const requestTimeout = timeout();
 
@@ -197,6 +228,17 @@ export default class PlaygroundAPIClient {
       const resource = json.data as APIResource<UserAttributes>;
 
       return fromAPIResource<UserSession, UserAttributes>(resource);
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
+
+  public static async deleteAccount(user: UserChangeset): Promise<void> {
+    try {
+      const data = toAPIResource<UserChangeset, UserAttributes>(user);
+      await remove("users", data, window.localStorage.getItem(
+        "playground:user:token"
+      ) as string);
     } catch (e) {
       return Promise.reject(e);
     }

@@ -28,7 +28,10 @@ export class AppHome {
   @Prop() ethPendingDepositTxHash: string = "";
 
   @Prop() hasLocalStorage: boolean = false;
+  @Prop() hasCorruptStateChannelState: boolean = false;
   @State() runningApps: AppDefinition[] = [];
+
+  @Prop() deleteAccount?: () => Promise<void>;
 
   appClickedHandler(e) {
     this.history.push(e.detail.dappContainerUrl, e.detail);
@@ -189,6 +192,22 @@ export class AppHome {
     );
   }
 
+  checkCorruptState() {
+    if (!this.hasCorruptStateChannelState) {
+      return;
+    }
+
+    return (
+      <div class="error-message">
+        <h1>☠️ Corrupt Wallet State</h1>
+        <h2>
+          Unfortunately, your state channel state has become corrupted or lost.
+          Please <a onClick={this.deleteAccount}>click here</a> to start over.
+        </h2>
+      </div>
+    );
+  }
+
   showApps() {
     return (
       <div class="container">
@@ -339,6 +358,7 @@ export class AppHome {
       this.checkNetworkPermitted() ||
       this.checkUserNotLoggedIn() ||
       this.checkInsufficientBalance() ||
+      this.checkCorruptState() ||
       this.showApps();
 
     return this.hasLocalStorage ? (
@@ -371,8 +391,10 @@ WalletTunnel.injectProps(AppHome, [
 
 AccountTunnel.injectProps(AppHome, [
   "user",
+  "hasCorruptStateChannelState",
   "enoughCounterpartyBalance",
   "enoughLocalBalance",
   "ethPendingDepositAmountWei",
-  "ethPendingDepositTxHash"
+  "ethPendingDepositTxHash",
+  "deleteAccount"
 ]);
