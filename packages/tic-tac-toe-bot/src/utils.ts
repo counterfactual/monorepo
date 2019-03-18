@@ -166,8 +166,10 @@ async function get(
       response = (await httpResponse.json()) as APIResponse;
     } catch (e) {
       retriesAvailable -= 1;
-      if (e.type === "invalid-json" && retriesAvailable >= 0) await delay(3000);
-      else throw e;
+      if (e.type === "invalid-json" && retriesAvailable >= 0) {
+        console.log(`URL ${baseURL}/${endpoint} gave invalid JSON. Retrying.`);
+        await delay(3000);
+      } else throw e;
     }
   }
 
