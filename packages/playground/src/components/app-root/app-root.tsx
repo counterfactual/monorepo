@@ -447,33 +447,8 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const {
-      user: { transactionHash }
-    } = this.accountState;
-
-    const provider = this.walletState.provider as Web3Provider;
-
-    let onMultisigMinedHasBeenCalled = false;
-    const onMultisigMined = async () => {
-      if (!onMultisigMinedHasBeenCalled) {
-        await this.fetchMultisig();
-        onMultisigMinedHasBeenCalled = true;
-      }
-    };
-
-    provider.once(transactionHash, onMultisigMined);
-
-    setTimeout(() => {
-      if (!onMultisigMinedHasBeenCalled) {
-        console.log("Tx event not emitted within 24s, polling every 5s now");
-        const poll = setInterval(async () => {
-          if (await provider.getTransactionReceipt(transactionHash)) {
-            clearInterval(poll);
-            await onMultisigMined();
-          }
-        }, 5000);
-      }
-    }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
+    const node = CounterfactualNode.getInstance();
+    node.once(Node.EventName.CREATE_CHANNEL, this.fetchMultisig.bind(this));
   }
 
   async fetchMultisig(token?: string) {

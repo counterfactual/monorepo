@@ -4,10 +4,14 @@ import {
   UninstallVirtualAppParams,
   WithdrawParams
 } from "@counterfactual/machine";
-import { TakeActionParams } from "@counterfactual/machine/dist/src/types";
+import {
+  SetupParams,
+  TakeActionParams
+} from "@counterfactual/machine/dist/src/types";
 
 import { RequestHandler } from "../../request-handler";
 import {
+  CreateChannelMessage,
   NODE_EVENTS,
   NodeMessageWrappedProtocolMessage,
   UninstallMessage,
@@ -73,6 +77,20 @@ export default async function protocolMessageEventController(
         };
 
         outgoing.emit(withdrawMsg.type, withdrawMsg);
+      } else if (protocol === Protocol.Setup) {
+        const { multisigAddress, initiatingXpub } = params as SetupParams;
+        const setupMsg: CreateChannelMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.CREATE_CHANNEL,
+          data: {
+            multisigAddress,
+            owners: (stateChannelsMap.get(multisigAddress) as StateChannel)
+              .multisigOwners,
+            counterpartyXpub: initiatingXpub
+          }
+        };
+
+        outgoing.emit(setupMsg.type, setupMsg);
       } else if (protocol === Protocol.TakeAction) {
         const { multisigAddress, appIdentityHash } = params as TakeActionParams;
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
