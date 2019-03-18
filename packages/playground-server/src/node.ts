@@ -204,7 +204,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     });
   } catch (e) {
     Log.error("Failed to deposit on the server", {
-      tags: { reason: e.message, stackTrace: e.stack }
+      tags: { error: e }
     });
   }
 }
