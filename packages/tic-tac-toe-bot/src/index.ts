@@ -1,4 +1,8 @@
 import {
+  confirmFirebaseConfigurationEnvVars,
+  confirmLocalFirebaseConfigurationEnvVars,
+  devAndTestingEnvironments,
+  FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory,
   MNEMONIC_PATH,
   Node
@@ -22,9 +26,22 @@ const provider = new ethers.providers.JsonRpcProvider(
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "TTT_USER_TOKEN";
 
-console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
-if (process.env.TIER && process.env.TIER === "development") {
+console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
+if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+  confirmFirebaseConfigurationEnvVars();
+  serviceFactory = new FirebaseServiceFactory({
+    apiKey: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.apiKey]!,
+    authDomain: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authDomain]!,
+    databaseURL: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.databaseURL]!,
+    projectId: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.projectId]!,
+    storageBucket: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.storageBucket]!,
+    messagingSenderId: process.env[
+      FIREBASE_CONFIGURATION_ENV_KEYS.messagingSenderId
+    ]!
+  });
+} else {
+  confirmLocalFirebaseConfigurationEnvVars();
   const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
   const firebaseServerPort = process.env.FIREBASE_SERVER_PORT;
   serviceFactory = new FirebaseServiceFactory({
@@ -34,15 +51,6 @@ if (process.env.TIER && process.env.TIER === "development") {
     projectId: "",
     storageBucket: "",
     messagingSenderId: ""
-  });
-} else {
-  serviceFactory = new FirebaseServiceFactory({
-    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-    authDomain: "foobar-91a31.firebaseapp.com",
-    databaseURL: "https://foobar-91a31.firebaseio.com",
-    projectId: "foobar-91a31",
-    storageBucket: "foobar-91a31.appspot.com",
-    messagingSenderId: "432199632441"
   });
 }
 
