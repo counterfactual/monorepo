@@ -17,6 +17,12 @@ import { UserSession } from "../../types";
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
+const FIREBASE_API_KEY: string = "ENV:FIREBASE_API_KEY";
+const FIREBASE_AUTH_DOMAIN: string = "ENV:FIREBASE_AUTH_DOMAIN";
+const FIREBASE_DATABASE_URL: string = "ENV:FIREBASE_DATABASE_URL";
+const FIREBASE_MESSAGING_SENDER_ID: string = "ENV:FIREBASE_MESSAGING_SENDER_ID";
+const FIREBASE_PROJECT_ID: string = "ENV:FIREBASE_PROJECT_ID";
+const FIREBASE_STORAGE_BUCKET: string = "ENV:FIREBASE_STORAGE_BUCKET";
 
 // Only Kovan is supported for now
 const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
@@ -121,17 +127,7 @@ export class AppRoot {
       return;
     }
 
-    // TODO: This is a dummy firebase data provider.
-    // TODO: This configuration should come from the backend.
-    let configuration: FirebaseAppConfiguration = {
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    };
-
+    let configuration: FirebaseAppConfiguration;
     if (TIER === "dev") {
       configuration = {
         databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
@@ -140,6 +136,15 @@ export class AppRoot {
         authDomain: "",
         storageBucket: "",
         messagingSenderId: ""
+      };
+    } else {
+      configuration = {
+        apiKey: FIREBASE_API_KEY,
+        authDomain: FIREBASE_AUTH_DOMAIN,
+        databaseURL: FIREBASE_DATABASE_URL,
+        projectId: FIREBASE_PROJECT_ID,
+        storageBucket: FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: FIREBASE_MESSAGING_SENDER_ID
       };
     }
 
