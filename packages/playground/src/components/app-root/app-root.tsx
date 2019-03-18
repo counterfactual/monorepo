@@ -317,10 +317,10 @@ export class AppRoot {
       params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
-    let result;
+    let response;
 
     try {
-      result = await node.call(query.type, query);
+      response = await node.call(query.type, query);
     } catch (e) {
       // TODO: Use better typed error messages with error codes
       if (e.includes("Call to getStateChannel failed")) {
@@ -330,9 +330,11 @@ export class AppRoot {
           ethMultisigBalance: ethers.constants.Zero
         };
       }
+
+      throw e;
     }
 
-    const { state } = result as Node.GetFreeBalanceStateResult;
+    const { state } = response.result as Node.GetFreeBalanceStateResult;
 
     // Had to reimplement this on the frontend because the method can't be imported
     // due to ethers not playing nice with ES Modules in this context.
