@@ -166,7 +166,7 @@ async function get(
       response = (await httpResponse.json()) as APIResponse;
     } catch (e) {
       retriesAvailable -= 1;
-      if (e.type === "invalid-json" && retriesAvailable > 0) await delay(1000);
+      if (e.type === "invalid-json" && retriesAvailable >= 0) await delay(3000);
       else throw e;
     }
   }
