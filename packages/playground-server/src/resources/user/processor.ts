@@ -34,18 +34,19 @@ export default class UserProcessor extends OperationProcessor<User> {
     );
   }
 
+  // NOTE: Email temporarily removed
   public async add(op: Operation): Promise<User> {
     const user = op.data as User;
 
-    const { username, email, ethAddress } = user.attributes;
+    const { username, /* email, */ ethAddress } = user.attributes;
 
     if (!username) {
       throw errors.UsernameRequired();
     }
 
-    if (!email) {
-      throw errors.EmailRequired();
-    }
+    // if (!email) {
+    //   throw errors.EmailRequired();
+    // }
 
     if (!ethAddress) {
       throw errors.UserAddressRequired();
