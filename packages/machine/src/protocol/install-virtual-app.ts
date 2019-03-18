@@ -98,10 +98,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[1].transaction([
-        context.inbox[0].signature3!,
+      context.finalCommitment = context.commitments[1].transaction(
+        [context.inbox[0].signature!, context.inbox[0].signature3!],
         context.signatures[1]
-      ]);
+      );
     },
     Opcode.WRITE_COMMITMENT
   ],
@@ -247,10 +247,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     },
 
     (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[1].transaction([
-        context.inbox[0].signature!,
+      context.finalCommitment = context.commitments[1].transaction(
+        [context.inbox[0].signature!],
         context.signatures[1]
-      ]);
+      );
     },
     Opcode.WRITE_COMMITMENT
   ]
