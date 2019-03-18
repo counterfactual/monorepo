@@ -250,7 +250,7 @@ export class AccountRegister {
           />
           <form-input
             disabled={inputIsDisabled}
-            label="Email address"
+            label="Email (optional)"
             value={this.changeset.email}
             error={this.errors.email}
             onChange={e => this.change("email", e)}
