@@ -235,7 +235,7 @@ export class AppHome {
         class="welcome-message"
         style={{ display: this.user.id ? "contents" : "flex" }}
       >
-        <h1>Welcome! 👋</h1>
+        {!this.user.id ? <h1>Welcome! 👋</h1> : undefined}
         {!this.user.id ? (
           <h2>
             This a demonstration of{" "}
