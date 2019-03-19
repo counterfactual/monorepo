@@ -235,14 +235,18 @@ export class AppHome {
         class="welcome-message"
         style={{ display: this.user.id ? "contents" : "flex" }}
       >
-        <h1>Welcome! 👋</h1>
-        <h2>
-          This a demonstration of{" "}
-          <a href="https://counterfactual.com/statechannels">
-            generalized state channels
-          </a>{" "}
-          on Ethereum.
-        </h2>
+        {!this.user.id ? <h1>Welcome! 👋</h1> : undefined}
+        {!this.user.id ? (
+          <h2>
+            This a demonstration of{" "}
+            <a href="https://counterfactual.com/statechannels">
+              generalized state channels
+            </a>{" "}
+            on Ethereum.
+          </h2>
+        ) : (
+          undefined
+        )}
         <div class="flex-container">
           <div class="flex-item">
             <h3>What's going on here?</h3>
