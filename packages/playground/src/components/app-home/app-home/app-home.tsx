@@ -266,7 +266,7 @@ export class AppHome {
               This demo is built using{" "}
               <a href="https://counterfactual.com">Counterfactual</a>. We've
               written all about the internal architecture in{" "}
-              <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+              <a href="https://medium.com/statechannels/development-update-3-counterfactual-playground-release-f428be4b8950">
                 this blog post
               </a>
               . To learn more, check out our{" "}
