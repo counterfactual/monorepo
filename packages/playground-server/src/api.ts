@@ -43,10 +43,21 @@ export default function mountApi() {
 
   const api = new Koa();
 
+  // @joel: Move this to logepi.
+  const isUrlExcluded = (url: string, excludeList: string[]) =>
+    excludeList.some(endpoint => url.endsWith(endpoint));
+
+  const conditionalLogs = ({ exclude }) => (ctx, next) =>
+    isUrlExcluded(ctx.req.url as string, exclude) ? next() : logs()(ctx, next);
+
   api
     .use(cors({ keepHeadersOnError: false }))
     .use(jsonApiKoa(app, validateSignature(app)))
-    .use(logs());
+    .use(
+      conditionalLogs({
+        exclude: ["/heartbeats", "/apps"]
+      })
+    );
 
   return api;
 }
