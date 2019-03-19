@@ -168,15 +168,33 @@ export class Node {
 
         let keyIndex = 0;
 
+        console.log("Signing Op code");
+        console.log("Intermediary?", asIntermediary);
+
         if ([Protocol.Update, Protocol.TakeAction].includes(protocol)) {
+          console.log("protocol");
+          console.log(protocol);
           const { appIdentityHash, multisigAddress } = params as UpdateParams;
+          console.log("appIdentityHash");
+          console.log(appIdentityHash);
+          console.log("multisigAddress");
+          console.log(multisigAddress);
           const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
           keyIndex = sc.getAppInstance(appIdentityHash).appSeqNo;
         }
+        console.log("Using index: ", keyIndex);
+        console.log("Signer");
+        console.log(this.signer);
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
+
+        console.log("Getting digests");
+        commitments.forEach(commitment => {
+          console.log(commitment);
+          console.log(commitment.hashToSign(asIntermediary));
+        });
 
         context.signatures = commitments.map(commitment =>
           signingKey.signDigest(commitment.hashToSign(asIntermediary))
