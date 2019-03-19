@@ -216,6 +216,7 @@ export class AppHome {
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
+        {this.welcomeText()}
       </div>
     );
   }
@@ -225,8 +226,15 @@ export class AppHome {
       return;
     }
 
+    return this.welcomeText();
+  }
+
+  welcomeText() {
     return (
-      <div class="welcome-message">
+      <div
+        class="welcome-message"
+        style={{ display: this.user.id ? "contents" : "flex" }}
+      >
         <h1>Welcome! 👋</h1>
         <h2>
           This a demonstration of{" "}
