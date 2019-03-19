@@ -59,6 +59,8 @@ export type StateChannelJSON = {
   ][];
   readonly freeBalanceAppIndexes: [number, string][];
   readonly monotonicNumInstalledApps: number;
+  readonly rootNonceValue: number;
+  readonly createdAt: number;
 };
 
 function createETHFreeBalance(
@@ -114,7 +116,8 @@ export class StateChannel {
       string
     > = new Map<AssetType, string>([]),
     private readonly monotonicNumInstalledApps: number = 0,
-    public readonly rootNonceValue: number = 0
+    public readonly rootNonceValue: number = 0,
+    public readonly createdAt: number = Date.now()
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (xpub.slice(0, 4) !== "xpub") {
@@ -645,7 +648,9 @@ export class StateChannel {
         (appInstanceEntry): [string, ETHVirtualAppAgreementJson] => {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
         }
-      )
+      ),
+      rootNonceValue: this.rootNonceValue,
+      createdAt: this.createdAt
     };
   }
 
@@ -674,7 +679,9 @@ export class StateChannel {
         )
       ),
       new Map(json.freeBalanceAppIndexes),
-      json.monotonicNumInstalledApps
+      json.monotonicNumInstalledApps,
+      json.rootNonceValue,
+      json.createdAt
     );
   }
 }
