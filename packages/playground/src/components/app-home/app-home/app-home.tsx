@@ -166,11 +166,10 @@ export class AppHome {
 
     return (
       <div class="error-message">
-        <h1>404: Wallet Not Found :(</h1>
         <h2>
-          This demo has been designed to be used with a Web3-compatible wallet
-          such as {this.getSuggestedWallet()} to function. Please enable or
-          download one to continue!
+          Welcome to the Playground demo :) This demo requires a Web3-compatible
+          wallet such as MetaMask, Coinbase Wallet, Cipher, or Status. Please
+          enable or download one to continue!
         </h2>
       </div>
     );
