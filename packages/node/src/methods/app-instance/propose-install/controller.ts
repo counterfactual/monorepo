@@ -20,8 +20,8 @@ export default class ProposeInstallController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue("proposals");
+  ): Promise<Queue[]> {
+    return [requestHandler.getShardedQueue("proposals")];
   }
 
   protected async executeMethodImplementation(

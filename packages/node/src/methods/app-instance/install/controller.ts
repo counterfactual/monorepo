@@ -19,15 +19,17 @@ export default class InstallController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.InstallParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
-    );
+    return [
+      requestHandler.getShardedQueue(
+        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+      )
+    ];
   }
 
   protected async executeMethodImplementation(
