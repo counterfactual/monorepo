@@ -27,7 +27,7 @@ export class AppWaiting {
   @Prop({ mutable: true }) betAmount: string = "";
   @Prop({ mutable: true }) opponentName: string = "";
   @Prop({ mutable: true }) isProposing: boolean = false;
-  @State() seconds: number = 15;
+  @State() seconds: number = 60;
   @State() isCountdownStarted: boolean = false;
 
   componentWillLoad() {

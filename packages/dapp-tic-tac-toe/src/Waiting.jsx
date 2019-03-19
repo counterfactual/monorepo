@@ -5,7 +5,7 @@ export default class Waiting extends Component {
     super(props);
 
     this.state = {
-      seconds: 15
+      seconds: 60
     };
   }
 
