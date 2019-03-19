@@ -58,7 +58,6 @@ export class Store {
       channels[key] = StateChannel.fromJson(value);
     }
 
-    debugLog("Getting all channels: ", channels);
     return channels;
   }
 
