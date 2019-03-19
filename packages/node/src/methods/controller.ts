@@ -35,8 +35,6 @@ export abstract class NodeController {
 
     await this.afterExecution(requestHandler, params);
 
-    console.log(ret);
-
     return ret;
   }
 
