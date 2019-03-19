@@ -359,7 +359,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps + 1
+      this.monotonicNumInstalledApps + 1,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -381,7 +383,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -403,7 +407,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -470,7 +476,9 @@ export class StateChannel {
       appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps + 1
+      this.monotonicNumInstalledApps + 1,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -495,7 +503,9 @@ export class StateChannel {
       this.appInstances,
       ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
     ).incrementFreeBalance(AssetType.ETH, increments);
   }
 
@@ -512,7 +522,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -565,7 +577,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps + 1
+      this.monotonicNumInstalledApps + 1,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
@@ -614,7 +628,9 @@ export class StateChannel {
       appInstances,
       this.ethVirtualAppAgreementInstances,
       this.freeBalanceAppIndexes,
-      this.monotonicNumInstalledApps
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
     );
   }
 
