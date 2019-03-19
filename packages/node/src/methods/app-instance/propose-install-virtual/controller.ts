@@ -3,6 +3,7 @@ import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
+import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
@@ -24,7 +25,32 @@ export default class ProposeInstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue("proposals")];
+    const { store } = requestHandler;
+    const { proposedToIdentifier } = params;
+
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([
+        requestHandler.publicIdentifier,
+        params.intermediaries[0]
+      ])
+    );
+
+    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+
+    try {
+      const metachannelAddress = await store.getMultisigAddressFromOwnersHash(
+        hashOfOrderedPublicIdentifiers([
+          requestHandler.publicIdentifier,
+          proposedToIdentifier
+        ])
+      );
+      queues.push(requestHandler.getShardedQueue(metachannelAddress));
+    } catch (e) {
+      // It is possible the metachannel has never been created
+      if (e !== ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
+    }
+
+    return queues;
   }
 
   protected async executeMethodImplementation(
