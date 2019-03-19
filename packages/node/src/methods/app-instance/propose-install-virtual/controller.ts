@@ -23,8 +23,8 @@ export default class ProposeInstallVirtualController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue("proposals");
+  ): Promise<Queue[]> {
+    return [requestHandler.getShardedQueue("proposals")];
   }
 
   protected async executeMethodImplementation(

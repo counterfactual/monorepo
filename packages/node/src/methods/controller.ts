@@ -10,17 +10,32 @@ export abstract class NodeController {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Node.MethodResult> {
-    const shardedQueue = await this.enqueueByShard(requestHandler, params);
+    const shardedQueues = await this.enqueueByShard(requestHandler, params);
 
-    const execute = async () => {
-      return await this.executeMethodImplementation(requestHandler, params);
+    let promise;
+
+    const executeCached = async () => {
+      if (!promise) {
+        promise = this.executeMethodImplementation(requestHandler, params);
+      }
+      return await promise;
     };
 
     await this.beforeExecution(requestHandler, params);
 
-    const ret = await (shardedQueue ? shardedQueue.add(execute) : execute());
+    let ret;
+
+    if (shardedQueues.length > 0) {
+      for (const queue of shardedQueues) queue.add(executeCached);
+      for (const queue of shardedQueues) await queue;
+      ret = await promise;
+    } else {
+      ret = await executeCached();
+    }
 
     await this.afterExecution(requestHandler, params);
+
+    console.log(ret);
 
     return ret;
   }
@@ -45,8 +60,8 @@ export abstract class NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.MethodParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     // @ts-ignore
-    return null;
+    return [];
   }
 }

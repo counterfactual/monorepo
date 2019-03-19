@@ -35,8 +35,8 @@ export default class CreateChannelController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue(CreateChannelController.methodName);
+  ): Promise<Queue[]> {
+    return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
   }
 
   protected async executeMethodImplementation(

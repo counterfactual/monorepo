@@ -3,7 +3,9 @@ import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
+import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
+import { ERRORS } from "../../errors";
 
 import { installVirtual } from "./operation";
 
@@ -13,12 +15,30 @@ export default class InstallVirtualController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
-    return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([
+        requestHandler.publicIdentifier,
+        params.intermediaries[0]
+      ])
     );
+
+    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+
+    try {
+      const metachannel = await store.getChannelFromAppInstanceID(
+        appInstanceId
+      );
+      queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));
+    } catch (e) {
+      // It is possible the metachannel has never been created
+      if (e !== ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
+    }
+
+    return queues;
   }
 
   protected async executeMethodImplementation(
