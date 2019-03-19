@@ -16,8 +16,15 @@ export default class InstallVirtualController extends NodeController {
   ): Promise<Queue> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
+
+    const metachannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    // TODO: Also block the channel with the counterparty
+
     return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+      await store.getMultisigAddressFromAppInstanceID(
+        metachannel.multisigAddress
+      )
     );
   }
 

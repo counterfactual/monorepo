@@ -18,8 +18,11 @@ export default class UninstallController extends NodeController {
   ): Promise<Queue> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
+
+    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+
     return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+      await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
     );
   }
 
