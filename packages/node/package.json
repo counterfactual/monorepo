@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -34,7 +34,7 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
-    "@counterfactual/machine": "0.1.5",
+    "@counterfactual/machine": "0.1.6",
     "@counterfactual/types": "0.0.9",
     "@firebase/util": "0.*",
     "ethers": "4.0.27",
