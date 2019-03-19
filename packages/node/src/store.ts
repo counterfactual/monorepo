@@ -51,7 +51,7 @@ export class Store {
     )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
     const sortedChannels = Object.entries(channelsJSON).sort(
-      (a, b) => a[1].createdAt || 0 - b[1].createdAt || 0
+      (a, b) => b[1].createdAt || 0 - a[1].createdAt || 0
     );
 
     for (const [key, value] of sortedChannels) {
