@@ -153,7 +153,11 @@ export class AppHome {
 
   getSuggestedWallet() {
     return screen.width < 600 ? (
-      <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>
+      <span>
+        <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>,
+        <a href="https://www.cipherbrowser.com/"> Cipher</a>, or
+        <a href="https://dev.status.im/"> Status</a>
+      </span>
     ) : (
       <a href="https://metamask.io/">Metamask</a>
     );
@@ -168,8 +172,8 @@ export class AppHome {
       <div class="error-message">
         <h2>
           Welcome to the Playground demo :) This demo requires a Web3-compatible
-          wallet such as MetaMask, Coinbase Wallet, Cipher, or Status. Please
-          enable or download one to continue!
+          wallet such as {this.getSuggestedWallet()}. Please enable or download
+          one to continue!
         </h2>
       </div>
     );
@@ -269,7 +273,7 @@ export class AppHome {
                 this blog post
               </a>
               . To learn more, check out our{" "}
-              <a href="https://github.com/counterfactal">GitHub</a> page and
+              <a href="https://github.com/counterfactual">GitHub</a> page and
               follow us on{" "}
               <a href="https://twitter.com/statechannels">Twitter</a>
             </p>
