@@ -16,8 +16,8 @@ export default class WithdrawController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.DepositParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue(params.multisigAddress);
+  ): Promise<Queue[]> {
+    return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
 
   protected async beforeExecution(
@@ -52,6 +52,10 @@ export default class WithdrawController extends NodeController {
     await runWithdrawProtocol(requestHandler, params);
 
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
+
+    if (!commitment) {
+      throw Error("no commitment found");
+    }
 
     const tx = {
       ...commitment,

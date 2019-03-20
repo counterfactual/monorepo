@@ -2,7 +2,10 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { getCounterpartyAddress } from "../../../utils";
+import {
+  getCounterpartyAddress,
+  hashOfOrderedPublicIdentifiers
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
@@ -14,17 +17,23 @@ export default class UninstallVirtualController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([
+        params.intermediaryIdentifier,
+        requestHandler.publicIdentifier
+      ])
+    );
+
     const metachannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    // TODO: Also shard based on channel with intermediary. This should
-    //       prevent all updates to the channel with the intermediary &
-    //       the virtual app itself.
-
-    return requestHandler.getShardedQueue(metachannel.multisigAddress);
+    return [
+      requestHandler.getShardedQueue(metachannel.multisigAddress),
+      requestHandler.getShardedQueue(multisigAddress)
+    ];
   }
 
   protected async beforeExecution(

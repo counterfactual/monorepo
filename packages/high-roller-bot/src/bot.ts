@@ -85,9 +85,9 @@ export async function connectNode(
           }
         );
       } catch (e) {
-        console.error(
-          `Node call to install virtual app failed. Request: ${request}. Error: ${e}.`
-        );
+        console.error("Node call to install virtual app failed.");
+        console.error(request);
+        console.error(e);
       }
     }
   );

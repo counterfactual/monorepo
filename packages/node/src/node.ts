@@ -1,16 +1,8 @@
 import {
-  Context,
-  InstallParams,
   InstructionExecutor,
   Opcode,
   Protocol,
-  ProtocolMessage,
-  SetupParams,
-  StateChannel,
-  Transaction,
-  UninstallParams,
-  UpdateParams,
-  WithdrawParams
+  ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
@@ -151,38 +143,19 @@ export class Node {
 
     // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
-      return async (
-        message: ProtocolMessage,
-        next: Function,
-        context: Context
-      ) => {
-        const { protocol, params } = message;
-        const { stateChannelsMap, commitments } = context;
-
-        if (commitments.length === 0) {
-          // TODO: I think this should be inside the machine for all protocols
-          throw Error(
-            "Reached OP_SIGN middleware without generated commitment."
-          );
+      return async (args: any[]) => {
+        if (args.length !== 1 && args.length !== 2) {
+          throw Error("OP_SIGN middleware received wrong number of arguments.");
         }
 
-        let keyIndex = 0;
-
-        if ([Protocol.Update, Protocol.TakeAction].includes(protocol)) {
-          const { appIdentityHash, multisigAddress } = params as UpdateParams;
-          const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-          keyIndex = sc.getAppInstance(appIdentityHash).appSeqNo;
-        }
+        const [commitment, overrideKeyIndex] = args;
+        const keyIndex = overrideKeyIndex || 0;
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        context.signatures = commitments.map(commitment =>
-          signingKey.signDigest(commitment.hashToSign(asIntermediary))
-        );
-
-        next();
+        return signingKey.signDigest(commitment.hashToSign(asIntermediary));
       };
     };
 
@@ -193,28 +166,25 @@ export class Node {
       makeSigner(true)
     );
 
-    instructionExecutor.register(
-      Opcode.IO_SEND,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const [data] = context.outbox;
-        const from = this.publicIdentifier;
-        const to = data.toXpub;
+    instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
+      const [data] = args;
+      const fromXpub = this.publicIdentifier;
+      data.fromXpub = fromXpub;
+      const to = data.toXpub;
 
-        await this.messagingService.send(to, {
-          from,
-          data,
-          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-        } as NodeMessageWrappedProtocolMessage);
-
-        next();
-      }
-    );
+      await this.messagingService.send(to, {
+        data,
+        from: fromXpub,
+        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+      } as NodeMessageWrappedProtocolMessage);
+    });
 
     instructionExecutor.register(
       Opcode.IO_SEND_AND_WAIT,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const [data] = context.outbox;
-        const from = this.publicIdentifier;
+      async (args: any[]) => {
+        const [data] = args;
+        const fromXpub = this.publicIdentifier;
+        data.fromXpub = fromXpub;
         const to = data.toXpub;
 
         const key = this.encodeProtocolMessage(data);
@@ -225,8 +195,8 @@ export class Node {
         const counterpartyResponse = deferral.promise;
 
         await this.messagingService.send(to, {
-          from,
           data,
+          from: fromXpub,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
@@ -246,66 +216,27 @@ export class Node {
         // per counterparty at the moment.
         this.ioSendDeferrals.delete(key);
 
-        context.inbox.push(msg.data);
-
-        next();
+        return msg.data;
       }
     );
 
-    const verifyFinalCommitment = (finalCommitment?: Transaction) => {
-      if (finalCommitment === undefined) {
-        throw Error(
-          "called WRITE_COMMITMENT with empty context.finalCommitment"
-        );
-      }
-    };
-
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const { protocol } = message;
+      async (args: any[]) => {
+        const [protocol, commitment, ...key] = args;
+
         if (protocol === Protocol.Withdraw) {
-          const params = message.params as WithdrawParams;
-          verifyFinalCommitment(context.finalCommitment);
+          const [multisigAddress] = key;
           await this.requestHandler.store.storeWithdrawalCommitment(
-            params.multisigAddress,
-            context.finalCommitment!
-          );
-        } else if (protocol === Protocol.Setup) {
-          const params = message.params as SetupParams;
-          verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            context.finalCommitment!
-          );
-        } else if (
-          protocol === Protocol.Install ||
-          protocol === Protocol.Uninstall ||
-          protocol === Protocol.Update
-        ) {
-          /// install, update, uninstall,
-          /// All other protocols are stored under the key
-          /// appIdentityHash/protocolName. This means that an app only has one
-          /// update commitment.
-          const params = message.params as
-            | UpdateParams
-            | InstallParams
-            | UninstallParams;
-          if (!params.multisigAddress) {
-            throw Error(
-              "WRITE_COMMITMENT: params did not contain multisigAddress"
-            );
-          }
-          verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            context.finalCommitment!
+            multisigAddress,
+            commitment
           );
         } else {
-          /// install-virtual-app, uninstall-virtual-app
-          console.log("skipping commitment write - not implemented yet");
+          await this.requestHandler.store.setCommitment(
+            [protocol, ...key],
+            commitment
+          );
         }
-        next();
       }
     );
 
@@ -460,13 +391,16 @@ export function debugLog(...messages: any) {
       if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
         // for some reason `debug` doesn't actually log in the browser
         console.info(logPrefix, messages);
+        console.trace();
       }
       // node.js side
     } else if (
       process.env.LOG_LEVEL !== undefined &&
       process.env.LOG_LEVEL === "DEBUG"
     ) {
-      console.debug(logPrefix, messages);
+      console.debug(logPrefix, JSON.stringify(messages, null, 4));
+      console.trace();
+      console.log("\n");
     }
   } catch (e) {
     console.error("Failed to log: ", e);

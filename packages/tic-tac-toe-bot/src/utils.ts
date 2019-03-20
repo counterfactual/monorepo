@@ -158,7 +158,23 @@ async function get(
 
   requestTimeout.cancel();
 
-  const response = (await httpResponse.json()) as APIResponse;
+  let response;
+  let retriesAvailable = 10;
+
+  while (typeof response === "undefined") {
+    try {
+      response = (await httpResponse.json()) as APIResponse;
+    } catch (e) {
+      retriesAvailable -= 1;
+      if (e.type === "invalid-json" && retriesAvailable >= 0) {
+        console.log(
+          `Call to ${baseURL}/api/${endpoint} returned invalid JSON. Retrying (attempt #${10 -
+            retriesAvailable}).`
+        );
+        await delay(3000);
+      } else throw e;
+    }
+  }
 
   if (response.errors) {
     const error = response.errors[0] as APIError;

@@ -28,7 +28,10 @@ export class AppHome {
   @Prop() ethPendingDepositTxHash: string = "";
 
   @Prop() hasLocalStorage: boolean = false;
+  @Prop() hasCorruptStateChannelState: boolean = false;
   @State() runningApps: AppDefinition[] = [];
+
+  @Prop() deleteAccount?: () => Promise<void>;
 
   appClickedHandler(e) {
     this.history.push(e.detail.dappContainerUrl, e.detail);
@@ -150,7 +153,11 @@ export class AppHome {
 
   getSuggestedWallet() {
     return screen.width < 600 ? (
-      <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>
+      <span>
+        <a href="https://wallet.coinbase.com/">Coinbase Wallet</a>,
+        <a href="https://www.cipherbrowser.com/"> Cipher</a>, or
+        <a href="https://dev.status.im/"> Status</a>
+      </span>
     ) : (
       <a href="https://metamask.io/">Metamask</a>
     );
@@ -163,11 +170,10 @@ export class AppHome {
 
     return (
       <div class="error-message">
-        <h1>404: Wallet Not Found :(</h1>
         <h2>
-          This demo has been designed to be used with a Web3-compatible wallet
-          such as {this.getSuggestedWallet()} to function. Please enable or
-          download one to continue!
+          Welcome to the Playground demo :) This demo requires a Web3-compatible
+          wallet such as {this.getSuggestedWallet()}. Please enable or download
+          one to continue!
         </h2>
       </div>
     );
@@ -189,6 +195,22 @@ export class AppHome {
     );
   }
 
+  checkCorruptState() {
+    if (!this.hasCorruptStateChannelState) {
+      return;
+    }
+
+    return (
+      <div class="error-message">
+        <h1>☠️ Corrupt Wallet State</h1>
+        <h2>
+          Unfortunately, your state channel state has become corrupted or lost.
+          Please <a onClick={this.deleteAccount}>click here</a> to start over.
+        </h2>
+      </div>
+    );
+  }
+
   showApps() {
     return (
       <div class="container">
@@ -197,6 +219,7 @@ export class AppHome {
           onAppClicked={e => this.appClickedHandler(e)}
           name="Available Apps"
         />
+        {this.welcomeText()}
       </div>
     );
   }
@@ -206,16 +229,27 @@ export class AppHome {
       return;
     }
 
+    return this.welcomeText();
+  }
+
+  welcomeText() {
     return (
-      <div class="welcome-message">
-        <h1>Welcome! 👋</h1>
-        <h2>
-          This a demonstration of{" "}
-          <a href="https://counterfactual.com/statechannels">
-            generalized state channels
-          </a>{" "}
-          on Ethereum.
-        </h2>
+      <div
+        class="welcome-message"
+        style={{ display: this.user.id ? "contents" : "flex" }}
+      >
+        {!this.user.id ? <h1>Welcome! 👋</h1> : undefined}
+        {!this.user.id ? (
+          <h2>
+            This a demonstration of{" "}
+            <a href="https://counterfactual.com/statechannels">
+              generalized state channels
+            </a>{" "}
+            on Ethereum.
+          </h2>
+        ) : (
+          undefined
+        )}
         <div class="flex-container">
           <div class="flex-item">
             <h3>What's going on here?</h3>
@@ -235,11 +269,11 @@ export class AppHome {
               This demo is built using{" "}
               <a href="https://counterfactual.com">Counterfactual</a>. We've
               written all about the internal architecture in{" "}
-              <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">
+              <a href="https://medium.com/statechannels/development-update-3-counterfactual-playground-release-f428be4b8950">
                 this blog post
               </a>
               . To learn more, check out our{" "}
-              <a href="https://github.com/counterfactal">GitHub</a> page and
+              <a href="https://github.com/counterfactual">GitHub</a> page and
               follow us on{" "}
               <a href="https://twitter.com/statechannels">Twitter</a>
             </p>
@@ -339,6 +373,7 @@ export class AppHome {
       this.checkNetworkPermitted() ||
       this.checkUserNotLoggedIn() ||
       this.checkInsufficientBalance() ||
+      this.checkCorruptState() ||
       this.showApps();
 
     return this.hasLocalStorage ? (
@@ -371,8 +406,10 @@ WalletTunnel.injectProps(AppHome, [
 
 AccountTunnel.injectProps(AppHome, [
   "user",
+  "hasCorruptStateChannelState",
   "enoughCounterpartyBalance",
   "enoughLocalBalance",
   "ethPendingDepositAmountWei",
-  "ethPendingDepositTxHash"
+  "ethPendingDepositTxHash",
+  "deleteAccount"
 ]);

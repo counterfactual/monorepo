@@ -23,7 +23,7 @@ export default class AppProcessor extends OperationProcessor<App> {
           .toString()
       );
 
-      Log.info("Loaded App registry", {
+      Log.debug("Loaded App registry", {
         tags: { totalApps: registry.data.length, endpoint: "apps" }
       });
 

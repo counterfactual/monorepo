@@ -1,5 +1,5 @@
 import { Opcode } from "./enums";
-import { Context, Middleware, ProtocolMessage } from "./types";
+import { Middleware } from "./types";
 
 export class MiddlewareContainer {
   public readonly middlewares: { [I in Opcode]: Middleware[] } = {
@@ -14,23 +14,7 @@ export class MiddlewareContainer {
     this.middlewares[scope].push(method);
   }
 
-  public async run(msg: ProtocolMessage, opCode: Opcode, context: Context) {
-    let counter = 0;
-    const middlewares = this.middlewares;
-
-    async function callback(): Promise<void> {
-      if (counter === middlewares[opCode].length - 1) {
-        return;
-      }
-
-      // This is hacky, prevents next from being called more than once
-      counter += 1;
-
-      const middleware = middlewares[opCode][counter];
-
-      return middleware(msg, callback, context);
-    }
-
+  public async run(opCode: Opcode, args: any[]) {
     const middleware = this.middlewares[opCode][0];
 
     if (middleware === undefined) {
@@ -39,6 +23,6 @@ export class MiddlewareContainer {
       );
     }
 
-    return middleware(msg, callback, context);
+    return middleware(args);
   }
 }

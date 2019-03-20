@@ -19,8 +19,8 @@ export default class DepositController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.DepositParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue(params.multisigAddress);
+  ): Promise<Queue[]> {
+    return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
 
   protected async beforeExecution(

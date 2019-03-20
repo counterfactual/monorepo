@@ -1,7 +1,7 @@
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
-import { ProtocolExecutionFlow } from "..";
+import { Protocol, ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
@@ -12,90 +12,98 @@ import {
   computeFreeBalanceIncrements,
   getAliceBobMap
 } from "./utils/get-resolution-increments";
-import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import { setFinalCommitment } from "./utils/set-final-commitment";
-import {
-  addSignedCommitmentInResponse,
-  addSignedCommitmentToOutboxForSeq1
-} from "./utils/signature-forwarder";
+import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
  *
  * specs.counterfactual.com/06-uninstall-protocol#messages
- *
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    // Compute the next state of the channel
-    proposeStateTransition,
+  0: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const { respondingXpub } = message.params;
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
+      message,
+      context,
+      provider
+    );
+    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentToOutboxForSeq1,
+    const { signature: theirSig } = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        ...message,
+        toXpub: respondingXpub,
+        signature: mySig,
+        seq: 1
+      }
+    ];
 
-    // Send the message to your counterparty and wait for a reply
-    Opcode.IO_SEND_AND_WAIT,
+    validateSignature(respondingAddress, uninstallCommitment, theirSig);
+    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Uninstall,
+      finalCommitment,
+      appIdentityHash
+    ];
+  },
+  1: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const { initiatingXpub } = message.params;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    // Verify a message was received
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+    const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
+      message,
+      context,
+      provider
+    );
 
-    // Verify they did indeed countersign the right thing
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.toXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      ),
+    const theirSig = message.signature!;
+    validateSignature(initiatingAddress, uninstallCommitment, theirSig);
 
-    setFinalCommitment(true),
+    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    Opcode.WRITE_COMMITMENT
-  ],
+    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Uninstall,
+      finalCommitment,
+      appIdentityHash
+    ];
 
-  1: [
-    // Compute the _proposed_ next state of the channel
-    proposeStateTransition,
-
-    // Validate your counterparty's signature is for the above proposal
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.fromXpub, 0),
-        context.commitments[0],
-        message.signature
-      ),
-
-    // Sign the same state update yourself
-    Opcode.OP_SIGN,
-
-    // Write commitment
-
-    setFinalCommitment(false),
-
-    Opcode.WRITE_COMMITMENT,
-
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponse,
-
-    // Send the message to your counterparty
-    Opcode.IO_SEND
-  ]
+    yield [
+      Opcode.IO_SEND,
+      {
+        ...message,
+        toXpub: initiatingXpub,
+        signature: mySig,
+        seq: UNASSIGNED_SEQ_NO
+      }
+    ];
+  }
 };
 
 async function proposeStateTransition(
   message: ProtocolMessage,
   context: Context,
   provider: BaseProvider
-) {
-  const { network, stateChannelsMap } = context;
+): Promise<[UninstallCommitment, string]> {
   const {
     appIdentityHash,
     multisigAddress
   } = message.params as UninstallParams;
+  const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
@@ -131,6 +139,5 @@ async function proposeStateTransition(
     sequenceNo
   );
 
-  context.commitments[0] = uninstallCommitment;
-  context.appIdentityHash = appIdentityHash;
+  return [uninstallCommitment, appIdentityHash];
 }

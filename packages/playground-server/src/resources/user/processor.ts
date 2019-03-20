@@ -4,12 +4,14 @@ import { Log } from "logepi";
 
 import {
   createUser,
+  deleteAccount,
   ethAddressAlreadyRegistered,
   getUsers,
   updateUser,
   usernameAlreadyRegistered
 } from "../../db";
 import errors from "../../errors";
+import informSlack from "../../utils";
 
 import User from "./resource";
 
@@ -37,14 +39,10 @@ export default class UserProcessor extends OperationProcessor<User> {
   public async add(op: Operation): Promise<User> {
     const user = op.data as User;
 
-    const { username, email, ethAddress } = user.attributes;
+    const { username, /* email, */ ethAddress } = user.attributes;
 
     if (!username) {
       throw errors.UsernameRequired();
-    }
-
-    if (!email) {
-      throw errors.EmailRequired();
     }
 
     if (!ethAddress) {
@@ -63,8 +61,12 @@ export default class UserProcessor extends OperationProcessor<User> {
     const newUser = await createUser(user);
 
     Log.info("User has been created", {
-      tags: { userId: user.id, endpoint: "createAccount" }
+      tags: { username, userId: user.id, endpoint: "createAccount" }
     });
+
+    informSlack(
+      `👩‍💻 *USER_CREATED* (_${username}_) | User created an account on the Playground.`
+    );
 
     // Update user with token.
     newUser.attributes.token = sign(
@@ -106,5 +108,10 @@ export default class UserProcessor extends OperationProcessor<User> {
     });
 
     return updatedUser;
+  }
+
+  public async remove(op: Operation): Promise<void> {
+    const userId = op.ref.id as string;
+    await deleteAccount(userId);
   }
 }

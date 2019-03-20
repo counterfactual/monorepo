@@ -1,18 +1,13 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { Opcode, Protocol } from "../enums";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, SetupParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
-import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import { setFinalCommitment } from "./utils/set-final-commitment";
-import {
-  addSignedCommitmentInResponse,
-  addSignedCommitmentToOutboxForSeq1
-} from "./utils/signature-forwarder";
+import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -21,66 +16,68 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    // Compute the next state of the channel
-    proposeStateTransition,
+  0: async function*(message: ProtocolMessage, context: Context) {
+    const { respondingXpub, multisigAddress } = message.params as SetupParams;
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+    const setupCommitment = proposeStateTransition(message, context);
+    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    const { signature: theirSig } = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        ...message,
+        toXpub: respondingXpub,
+        signature: mySig,
+        seq: 1
+      }
+    ];
+    validateSignature(respondingAddress, setupCommitment, theirSig);
 
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentToOutboxForSeq1,
+    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
 
-    // Send the message to your counterparty and wait for a reply
-    Opcode.IO_SEND_AND_WAIT,
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Setup,
+      finalCommitment,
+      multisigAddress
+    ];
+  },
 
-    // Verify a message was received
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+  1: async function*(message: ProtocolMessage, context: Context) {
+    const { initiatingXpub, multisigAddress } = message.params as SetupParams;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    // Verify they did indeed countersign the right thing
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.toXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      ),
+    const setupCommitment = proposeStateTransition(message, context);
 
-    setFinalCommitment(true),
+    const theirSig = message.signature!;
+    validateSignature(initiatingAddress, setupCommitment, theirSig);
 
-    // Consider the state transition finished and commit it
-    Opcode.WRITE_COMMITMENT
-  ],
+    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-  1: [
-    // Compute the _proposed_ next state of the channel
-    proposeStateTransition,
+    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Setup,
+      finalCommitment,
+      multisigAddress
+    ];
 
-    // Validate your counterparty's signature is for the above proposal
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.fromXpub, 0),
-        context.commitments[0],
-        message.signature
-      ),
-
-    // Sign the same state update yourself
-    Opcode.OP_SIGN,
-
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponse,
-
-    // Send the message to your counterparty
-    Opcode.IO_SEND,
-
-    setFinalCommitment(false),
-
-    // Consider the state transition finished and commit it
-    Opcode.WRITE_COMMITMENT
-  ]
+    yield [
+      Opcode.IO_SEND,
+      {
+        ...message,
+        toXpub: initiatingXpub,
+        signature: mySig,
+        seq: UNASSIGNED_SEQ_NO
+      }
+    ];
+  }
 };
 
-function proposeStateTransition(message: ProtocolMessage, context: Context) {
+function proposeStateTransition(
+  message: ProtocolMessage,
+  context: Context
+): SetupCommitment {
   const {
     multisigAddress,
     initiatingXpub,
@@ -96,12 +93,17 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     multisigAddress,
     [initiatingXpub, respondingXpub]
   );
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
 
-  context.stateChannelsMap.set(multisigAddress, newStateChannel);
-  context.commitments[0] = constructSetupCommitment(
+  const setupCommitment = constructSetupCommitment(
     context.network,
     newStateChannel
   );
+
+  return setupCommitment;
 }
 
 export function constructSetupCommitment(

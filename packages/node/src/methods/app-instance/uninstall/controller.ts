@@ -15,12 +15,17 @@ export default class UninstallController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
-    return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
-    );
+
+    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    return [
+      requestHandler.getShardedQueue(
+        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+      )
+    ];
   }
 
   protected async beforeExecution(
