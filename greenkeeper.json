@@ -20,6 +20,7 @@
   "ignore": [
     "@stencil/core",
     "@stencil/router",
+    "workbox-build",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
     "@counterfactual/contracts",
