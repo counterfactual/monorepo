@@ -1,3 +1,4 @@
+import { CreateChannelMessage } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
@@ -488,50 +489,17 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const {
-      user: { transactionHash }
-    } = this.accountState;
-
-    const provider = this.walletState.provider as Web3Provider;
-
-    let onMultisigMinedHasBeenCalled = false;
-    const onMultisigMined = async () => {
-      if (!onMultisigMinedHasBeenCalled) {
-        await this.fetchMultisig();
-        onMultisigMinedHasBeenCalled = true;
-      }
-    };
-
-    provider.once(transactionHash, onMultisigMined);
-
-    setTimeout(() => {
-      if (!onMultisigMinedHasBeenCalled) {
-        console.log("Tx event not emitted within 24s, polling every 5s now");
-        const poll = setInterval(async () => {
-          if (await provider.getTransactionReceipt(transactionHash)) {
-            clearInterval(poll);
-            await onMultisigMined();
-          }
-        }, 5000);
-      }
-    }, TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN);
+    const node = CounterfactualNode.getInstance();
+    node.once(
+      Node.EventName.CREATE_CHANNEL,
+      this.setMultisigAddress.bind(this)
+    );
   }
 
-  async fetchMultisig(token?: string) {
-    let userToken = token;
-
-    if (!userToken) {
-      userToken = this.accountState.user.token;
-    }
-
-    const user = await PlaygroundAPIClient.getUser(userToken as string);
-
-    if (!user.multisigAddress) {
-      await delay(1000);
-      await this.fetchMultisig(userToken);
-    } else {
-      await this.updateAccount({ user });
-    }
+  async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
+    const { user } = this.accountState;
+    user.multisigAddress = createChannelMsg.data.multisigAddress;
+    await this.updateAccount({ user });
   }
 
   async autoLogin() {

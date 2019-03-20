@@ -91,10 +91,10 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       "Virtual AppInstance with Node C. Node C rejects proposal. Node A confirms rejection",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.on(
+        nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.on(
+            nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
                 const intermediaries = [nodeB.publicIdentifier];
