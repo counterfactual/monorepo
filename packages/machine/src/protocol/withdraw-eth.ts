@@ -6,7 +6,7 @@ import {
 import { AddressZero, Zero } from "ethers/constants";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { Opcode, Protocol } from "../enums";
 import {
   InstallCommitment,
   UninstallCommitment,
@@ -16,7 +16,6 @@ import { AppInstance, StateChannel } from "../models";
 import { Context, ProtocolMessage, WithdrawParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
-import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -24,138 +23,140 @@ import { validateSignature } from "./utils/signature-validator";
  * https://specs.counterfactual.com/11-withdraw-protocol *
  */
 export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    addInstallRefundAppCommitmentToContext,
+  0: async function*(message: ProtocolMessage, context: Context) {
+    const {
+      respondingXpub,
+      multisigAddress
+    } = message.params as WithdrawParams;
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    addMultisigSendCommitmentToContext,
+    const [
+      installRefundCommitment,
+      refundAppIdentityHash
+    ] = addInstallRefundAppCommitmentToContext(message, context);
 
-    Opcode.OP_SIGN,
+    const withdrawETHCommitment = addMultisigSendCommitmentToContext(
+      message,
+      context
+    );
 
-    (message: ProtocolMessage, context: Context) => {
-      context.outbox.push({
+    const s1 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s3 = yield [Opcode.OP_SIGN, withdrawETHCommitment];
+
+    const m2 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
         ...message,
-        fromXpub: message.params.initiatingXpub,
-        toXpub: message.params.respondingXpub,
-        signature: context.signatures[0],
-        signature2: context.signatures[1],
+        toXpub: respondingXpub,
+        signature: s1,
+        signature2: s3,
         seq: 1
-      });
-    },
+      }
+    ];
 
-    Opcode.IO_SEND_AND_WAIT,
+    const { signature: s2, signature2: s4, signature3: s6 } = m2;
 
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+    const uninstallRefundCommitment = addUninstallRefundAppCommitmentToContext(
+      message,
+      context,
+      refundAppIdentityHash
+    );
 
-    addUninstallRefundAppCommitmentToContext,
+    validateSignature(respondingAddress, installRefundCommitment, s2);
+    validateSignature(respondingAddress, withdrawETHCommitment, s4);
+    validateSignature(respondingAddress, uninstallRefundCommitment, s6);
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.params.respondingXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      );
+    const s5 = yield [Opcode.OP_SIGN, uninstallRefundCommitment];
 
-      validateSignature(
-        xkeyKthAddress(message.params.respondingXpub, 0),
-        context.commitments[1],
-        context.inbox[0].signature2
-      );
-
-      validateSignature(
-        xkeyKthAddress(message.params.respondingXpub, 0),
-        context.commitments[2],
-        context.inbox[0].signature3
-      );
-    },
-
-    Opcode.OP_SIGN,
-
-    (message: ProtocolMessage, context: Context) => {
-      context.outbox[0] = {
+    yield [
+      Opcode.IO_SEND,
+      {
         ...message,
-        fromXpub: message.params.initiatingXpub,
-        toXpub: message.params.respondingXpub,
-        signature: context.signatures[2],
+        toXpub: respondingXpub,
+        signature: s5,
         seq: -1
-      };
-    },
+      }
+    ];
 
-    Opcode.IO_SEND,
+    const finalCommitment = withdrawETHCommitment.transaction([s3, s4]);
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[1].transaction([
-        context.inbox[0].signature2!, // s4
-        context.signatures[1] // s3
-      ]);
-    },
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Withdraw,
+      finalCommitment,
+      multisigAddress
+    ];
+  },
 
-    Opcode.WRITE_COMMITMENT
-  ],
+  1: async function*(message: ProtocolMessage, context: Context) {
+    const {
+      initiatingXpub,
+      multisigAddress
+    } = message.params as WithdrawParams;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-  1: [
-    addInstallRefundAppCommitmentToContext,
+    const [
+      installRefundCommitment,
+      refundAppIdentityHash
+    ] = addInstallRefundAppCommitmentToContext(message, context);
 
-    addMultisigSendCommitmentToContext,
+    const withdrawETHCommitment = addMultisigSendCommitmentToContext(
+      message,
+      context
+    );
+    const uninstallRefundCommitment = addUninstallRefundAppCommitmentToContext(
+      message,
+      context,
+      refundAppIdentityHash
+    );
 
-    addUninstallRefundAppCommitmentToContext,
+    const { signature: s1, signature2: s3 } = message;
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.params.initiatingXpub, 0),
-        context.commitments[0],
-        message.signature
-      );
+    validateSignature(initiatingAddress, installRefundCommitment, s1);
 
-      validateSignature(
-        xkeyKthAddress(message.params.initiatingXpub, 0),
-        context.commitments[1],
-        message.signature2
-      );
-    },
+    validateSignature(initiatingAddress, withdrawETHCommitment, s3);
 
-    Opcode.OP_SIGN,
+    const s2 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s4 = yield [Opcode.OP_SIGN, withdrawETHCommitment];
+    const s6 = yield [Opcode.OP_SIGN, uninstallRefundCommitment];
 
-    (message: ProtocolMessage, context: Context) => {
-      context.finalCommitment = context.commitments[1].transaction([
-        message.signature2!, // s3
-        context.signatures[1] // s4
-      ]);
-    },
+    const finalCommitment = withdrawETHCommitment.transaction([s3, s4]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Withdraw,
+      finalCommitment,
+      multisigAddress
+    ];
 
-    (message: ProtocolMessage, context: Context) => {
-      context.outbox[0] = {
+    const m3 = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
         ...message,
-        fromXpub: message.params.respondingXpub,
-        toXpub: message.params.initiatingXpub,
-        signature: context.signatures[0],
-        signature2: context.signatures[1],
-        signature3: context.signatures[2],
+        toXpub: initiatingXpub,
+        signature: s2,
+        signature2: s4,
+        signature3: s6,
         seq: -1
-      };
-    },
+      }
+    ];
 
-    Opcode.IO_SEND_AND_WAIT,
+    const { signature: s5 } = m3;
 
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+    validateSignature(initiatingAddress, uninstallRefundCommitment, s5);
 
-    (message: ProtocolMessage, context: Context) => {
-      validateSignature(
-        xkeyKthAddress(message.params.initiatingXpub, 0),
-        context.commitments[2],
-        context.inbox[0].signature
-      );
-    },
-
-    Opcode.WRITE_COMMITMENT
-  ]
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Withdraw,
+      finalCommitment,
+      multisigAddress
+    ];
+  }
 };
 
 function addInstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
   context: Context
-) {
+): [InstallCommitment, string] {
   const {
     recipient,
     amount,
@@ -210,39 +211,42 @@ function addInstallRefundAppCommitmentToContext(
     aliceBalanceDecrement,
     bobBalanceDecrement
   );
-
-  context.stateChannelsMap.set(multisigAddress, newStateChannel);
-
-  const appIdentityHash = appInstance.identityHash;
-
-  context.commitments[0] = constructInstallOp(
-    context.network,
-    newStateChannel,
-    appIdentityHash
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
   );
 
-  context.appIdentityHash = appIdentityHash;
+  const installRefundCommitment = constructInstallOp(
+    context.network,
+    newStateChannel,
+    appInstance.identityHash
+  );
+
+  return [installRefundCommitment, appInstance.identityHash];
 }
 
 function addUninstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
-  context: Context
-) {
+  context: Context,
+  appIdentityHash: string
+): UninstallCommitment {
   const { multisigAddress } = message.params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const newStateChannel = stateChannel.uninstallApp(
-    context.appIdentityHash!,
+    appIdentityHash,
     Zero,
     Zero
   );
-
-  context.stateChannelsMap.set(multisigAddress, newStateChannel);
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
 
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  context.commitments[2] = new UninstallCommitment(
+  const uninstallCommitment = new UninstallCommitment(
     context.network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
@@ -253,6 +257,8 @@ function addUninstallRefundAppCommitmentToContext(
     freeBalance.timeout,
     freeBalance.appSeqNo
   );
+
+  return uninstallCommitment;
 }
 
 function addMultisigSendCommitmentToContext(
@@ -267,7 +273,7 @@ function addMultisigSendCommitmentToContext(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  context.commitments[1] = new WithdrawETHCommitment(
+  return new WithdrawETHCommitment(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     recipient,

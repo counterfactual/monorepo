@@ -1,85 +1,90 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
 import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
+import { Opcode, Protocol } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
 import { Context, InstallParams, ProtocolMessage } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
-import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import { setFinalCommitment } from "./utils/set-final-commitment";
-import {
-  addSignedCommitmentInResponse,
-  addSignedCommitmentToOutboxForSeq1
-} from "./utils/signature-forwarder";
+import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
  *
  * specs.counterfactual.com/05-install-protocol#messages
- *
  */
 export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    // Compute the next state of the channel
-    proposeStateTransition,
+  0: async function*(message: ProtocolMessage, context: Context) {
+    const { respondingXpub } = message.params;
+    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    const [appIdentityHash, commitment] = proposeStateTransition(
+      message,
+      context
+    );
 
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentToOutboxForSeq1,
+    const mySig = yield [Opcode.OP_SIGN, commitment];
 
-    // Send the message to your counterparty and wait for a reply
-    Opcode.IO_SEND_AND_WAIT,
+    const { signature: theirSig } = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        ...message,
+        toXpub: respondingXpub,
+        signature: mySig,
+        seq: 1
+      }
+    ];
 
-    // Verify a message was received
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+    validateSignature(respondingAddress, commitment, theirSig);
+    const finalCommitment = commitment.transaction([mySig, theirSig]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Install,
+      finalCommitment,
+      appIdentityHash
+    ];
+  },
 
-    // Verify they did indeed countersign the right thing
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.toXpub, 0),
-        context.commitments[0],
-        context.inbox[0].signature
-      ),
+  1: async function*(message: ProtocolMessage, context: Context) {
+    const { initiatingXpub } = message.params;
+    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    setFinalCommitment(true),
+    const [appIdentityHash, commitment] = proposeStateTransition(
+      message,
+      context
+    );
 
-    Opcode.WRITE_COMMITMENT
-  ],
+    const theirSig = message.signature!;
+    validateSignature(initiatingAddress, commitment, theirSig);
 
-  1: [
-    // Compute the _proposed_ next state of the channel
-    proposeStateTransition,
+    const mySig = yield [Opcode.OP_SIGN, commitment];
 
-    // Validate your counterparty's signature is for the above proposal
-    (message: ProtocolMessage, context: Context) =>
-      validateSignature(
-        xkeyKthAddress(message.fromXpub, 0),
-        context.commitments[0],
-        message.signature
-      ),
+    const finalCommitment = commitment.transaction([mySig, theirSig]);
+    yield [
+      Opcode.WRITE_COMMITMENT,
+      Protocol.Install,
+      finalCommitment,
+      appIdentityHash
+    ];
 
-    // Sign the same state update yourself
-    Opcode.OP_SIGN,
-
-    setFinalCommitment(false),
-
-    Opcode.WRITE_COMMITMENT,
-
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponse,
-
-    // Send the message to your counterparty
-    Opcode.IO_SEND
-  ]
+    yield [
+      Opcode.IO_SEND,
+      {
+        ...message,
+        toXpub: initiatingXpub,
+        signature: mySig,
+        seq: UNASSIGNED_SEQ_NO
+      }
+    ];
+  }
 };
 
-function proposeStateTransition(message: ProtocolMessage, context: Context) {
+function proposeStateTransition(
+  message: ProtocolMessage,
+  context: Context
+): [string, InstallCommitment] {
   const {
     aliceBalanceDecrement,
     bobBalanceDecrement,
@@ -115,18 +120,17 @@ function proposeStateTransition(message: ProtocolMessage, context: Context) {
     aliceBalanceDecrement,
     bobBalanceDecrement
   );
-
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
 
-  context.commitments[0] = constructInstallOp(
+  const commitment = constructInstallOp(
     context.network,
     newStateChannel,
     appIdentityHash
   );
 
-  context.appIdentityHash = appIdentityHash;
+  return [appIdentityHash, commitment];
 }
 
 function constructInstallOp(

@@ -1,4 +1,3 @@
-import { setFinalCommitment } from "@counterfactual/machine/src/protocol/utils/set-final-commitment";
 import { BaseProvider } from "ethers/providers";
 
 import { ProtocolExecutionFlow } from "..";
@@ -8,11 +7,6 @@ import { StateChannel } from "../models/state-channel";
 import { Context, ProtocolMessage, TakeActionParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
-import { verifyInboxLengthEqualTo1 } from "./utils/inbox-validator";
-import {
-  addSignedCommitmentInResponse,
-  addSignedCommitmentToOutboxForSeq1
-} from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
 type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
@@ -24,83 +18,91 @@ type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
  *
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
-  0: [
-    // Compute the next state of the channel
-    addStateTransitionAndCommitmentToContext,
+  0: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const {
+      appIdentityHash,
+      multisigAddress,
+      respondingXpub
+    } = message.params as TakeActionParams;
+    const channel = context.stateChannelsMap.get(
+      multisigAddress
+    ) as StateChannel;
+    const appSeqNo = channel.getAppInstance(appIdentityHash).appSeqNo;
 
-    // Sign `context.commitment.hashToSign`
-    Opcode.OP_SIGN,
+    const setStateCommitment = await addStateTransitionAndCommitmentToContext(
+      message as TakeActionProtocolMessage,
+      context,
+      provider
+    );
 
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentToOutboxForSeq1,
+    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    // Send the message to your counterparty and wait for a reply
-    Opcode.IO_SEND_AND_WAIT,
+    const { signature } = yield [
+      Opcode.IO_SEND_AND_WAIT,
+      {
+        ...message,
+        seq: 1,
+        toXpub: respondingXpub,
+        signature: mySig
+      }
+    ];
 
-    // Verify a message was received
-    (_: ProtocolMessage, context: Context) =>
-      verifyInboxLengthEqualTo1(context.inbox),
+    validateSignature(
+      xkeyKthAddress(respondingXpub, appSeqNo),
+      setStateCommitment,
+      signature
+    );
+  },
+  1: async function*(
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) {
+    const setStateCommitment = await addStateTransitionAndCommitmentToContext(
+      message as TakeActionProtocolMessage,
+      context,
+      provider
+    );
 
-    // Verify they did indeed countersign the right thing
-    (message: TakeActionProtocolMessage, context: Context) => {
-      const { toXpub } = message;
-      const { stateChannelsMap } = context;
-      const { appIdentityHash, multisigAddress } = message.params;
+    const { signature, params } = message;
+    const {
+      appIdentityHash,
+      multisigAddress,
+      initiatingXpub
+    } = params as TakeActionParams;
 
-      const channel = stateChannelsMap.get(multisigAddress) as StateChannel;
-      const appSeqNo = channel.getAppInstance(appIdentityHash).appSeqNo;
+    const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
+    const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
-      validateSignature(
-        xkeyKthAddress(toXpub, appSeqNo),
-        context.commitments[0],
-        context.inbox[0].signature
-      );
-    },
+    validateSignature(
+      xkeyKthAddress(initiatingXpub, appSeqNo),
+      setStateCommitment,
+      signature
+    );
 
-    setFinalCommitment(true),
+    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    Opcode.WRITE_COMMITMENT
-  ],
-
-  1: [
-    // Compute the _proposed_ next state of the channel
-    addStateTransitionAndCommitmentToContext,
-
-    // Validate your counterparty's signature is for the above proposal
-    (message: TakeActionProtocolMessage, context: Context) => {
-      const { signature, fromXpub, params } = message;
-      const { appIdentityHash, multisigAddress } = params;
-
-      const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
-      const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
-
-      validateSignature(
-        xkeyKthAddress(fromXpub, appSeqNo),
-        context.commitments[0],
-        signature
-      );
-    },
-
-    // Sign the same state update yourself
-    Opcode.OP_SIGN,
-
-    setFinalCommitment(false),
-
-    Opcode.WRITE_COMMITMENT,
-
-    // Wrap the signature into a message to be sent
-    addSignedCommitmentInResponse,
-
-    // Send the message to your counterparty
-    Opcode.IO_SEND
-  ]
+    yield [
+      Opcode.IO_SEND,
+      {
+        ...message,
+        toXpub: initiatingXpub,
+        seq: -1,
+        signature: mySig
+      }
+    ];
+  }
 };
 
 async function addStateTransitionAndCommitmentToContext(
   message: TakeActionProtocolMessage,
   context: Context,
   provider: BaseProvider
-) {
+): Promise<SetStateCommitment> {
   const { network, stateChannelsMap } = context;
   const { appIdentityHash, action, multisigAddress } = message.params;
 
@@ -124,6 +126,6 @@ async function addStateTransitionAndCommitmentToContext(
   );
 
   context.stateChannelsMap.set(multisigAddress, newChannel);
-  context.commitments[0] = setStateCommitment;
-  context.appIdentityHash = appIdentityHash;
+
+  return setStateCommitment;
 }

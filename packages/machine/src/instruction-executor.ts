@@ -9,7 +9,6 @@ import {
   Context,
   InstallParams,
   InstallVirtualAppParams,
-  Instruction,
   Middleware,
   ProtocolMessage,
   SetupParams,
@@ -167,48 +166,27 @@ export class InstructionExecutor {
 
   private async runProtocol(
     stateChannelsMap: Map<string, StateChannel>,
-    instructions: Instruction[],
+    instruction: (
+      message: ProtocolMessage,
+      context: Context,
+      provider: BaseProvider
+    ) => AsyncIterableIterator<any>,
     msg: ProtocolMessage
   ): Promise<Map<string, StateChannel>> {
     const context: Context = {
       stateChannelsMap,
-      network: this.network,
-      outbox: [],
-      inbox: [],
-      commitments: [],
-      signatures: []
+      network: this.network
     };
 
-    let instructionPointer = 0;
-
-    while (instructionPointer < instructions.length) {
-      const instruction = instructions[instructionPointer];
-      try {
-        if (typeof instruction === "function") {
-          // NOTE: Must await since provider eth_calls are async
-          // TODO: Remove async once we have a local JS EVM to run solidity code
-          await instruction.call(null, msg, context, this.provider);
-        } else {
-          await this.middlewares.run(msg, instruction, context);
-        }
-        instructionPointer += 1;
-      } catch (e) {
-        throw Error(
-          `While executing op number ${instructionPointer} at seq ${
-            msg.seq
-          } of protocol ${
-            msg.protocol
-          }, execution failed with the following error. ${e.stack}`
-        );
+    let lastMiddlewareRet: any = undefined;
+    const it = instruction(msg, context, this.provider);
+    while (true) {
+      const ret = await it.next(lastMiddlewareRet);
+      if (ret.done) {
+        break;
       }
-    }
-
-    if (context.stateChannelsMap === undefined) {
-      throw Error(
-        `After protocol ${
-          msg.protocol
-        } executed, expected context.stateChannel to be set, but it is undefined`
-      );
+      const [opcode, ...args] = ret.value;
+      lastMiddlewareRet = await this.middlewares.run(opcode, args);
     }
 
     // TODO: it is possible to compute a diff of the original state channel

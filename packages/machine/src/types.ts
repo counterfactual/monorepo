@@ -4,35 +4,31 @@ import {
   SolidityABIEncoderV2Struct,
   Terms
 } from "@counterfactual/types";
+import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
 
 import { Opcode, Protocol } from "./enums";
 import { Transaction } from "./ethereum/types";
-import { EthereumCommitment } from "./ethereum/utils";
 import { StateChannel } from "./models";
 
 export type ProtocolExecutionFlow = {
-  [x: number]: Instruction[];
+  [x: number]: (
+    message: ProtocolMessage,
+    context: Context,
+    provider: BaseProvider
+  ) => AsyncIterableIterator<any[]>;
 };
 
 export type Middleware = {
-  (message: ProtocolMessage, next: Function, context: Context): void;
+  (args: any[]): any;
 };
 
 export type Instruction = Function | Opcode;
 
-/// TODO(xuanji): the following fields are hacked in to make install-virtual-app work:
-/// - commitments[], signatures[]: the intermediary needs to generate three signatures:
-///   two sigs authorizing ETHVirtualAppAgreements, and one authorizing virtualAppSetState.
 export interface Context {
   network: NetworkContext;
-  outbox: ProtocolMessage[];
-  inbox: ProtocolMessage[];
   stateChannelsMap: Map<string, StateChannel>;
-  commitments: EthereumCommitment[];
-  signatures: Signature[];
   appIdentityHash?: string;
-  finalCommitment?: Transaction; // todo: is one enough?
 }
 
 export type ProtocolMessage = {
