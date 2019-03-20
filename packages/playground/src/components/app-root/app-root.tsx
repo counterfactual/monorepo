@@ -1,3 +1,4 @@
+import { CreateChannelMessage } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
@@ -448,24 +449,16 @@ export class AppRoot {
 
   waitForMultisig() {
     const node = CounterfactualNode.getInstance();
-    node.once(Node.EventName.CREATE_CHANNEL, this.fetchMultisig.bind(this));
+    node.once(
+      Node.EventName.CREATE_CHANNEL,
+      this.setMultisigAddress.bind(this)
+    );
   }
 
-  async fetchMultisig(token?: string) {
-    let userToken = token;
-
-    if (!userToken) {
-      userToken = this.accountState.user.token;
-    }
-
-    const user = await PlaygroundAPIClient.getUser(userToken as string);
-
-    if (!user.multisigAddress) {
-      await delay(1000);
-      await this.fetchMultisig(userToken);
-    } else {
-      await this.updateAccount({ user });
-    }
+  async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
+    const { user } = this.accountState;
+    user.multisigAddress = createChannelMsg.data.multisigAddress;
+    await this.updateAccount({ user });
   }
 
   async autoLogin() {
