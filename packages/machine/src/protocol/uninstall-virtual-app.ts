@@ -9,7 +9,12 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models";
-import { Context, ProtocolMessage, UninstallVirtualAppParams } from "../types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  UninstallVirtualAppParams
+} from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress } from "../xkeys";
 
@@ -31,7 +36,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message,
+      message.params,
       context,
       false
     );
@@ -55,7 +60,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     validateSignature(intermediaryAddress, lockCommitment, s2, true);
 
     const uninstallLeft = await addLeftUninstallAgreementToContext(
-      message,
+      message.params,
       context,
       provider
     );
@@ -74,7 +79,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     validateSignature(intermediaryAddress, uninstallLeft, s6);
-    removeVirtualAppInstance(message, context);
+    removeVirtualAppInstance(message.params, context);
   },
 
   1: async function*(
@@ -90,7 +95,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message,
+      message.params,
       context,
       true
     );
@@ -131,7 +136,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s4 } = m5;
 
     const leftUninstallCommitment = await addLeftUninstallAgreementToContext(
-      message,
+      message.params,
       context,
       provider
     );
@@ -152,7 +157,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      message,
+      message.params,
       context,
       provider
     );
@@ -173,7 +178,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     validateSignature(respondingAddress, rightUninstallCommitment, s7);
 
-    removeVirtualAppInstance(message, context);
+    removeVirtualAppInstance(message.params, context);
   },
 
   2: async function*(
@@ -189,7 +194,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message,
+      message.params,
       context,
       false
     );
@@ -214,7 +219,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s6 } = m7;
 
     const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      message,
+      message.params,
       context,
       provider
     );
@@ -233,17 +238,20 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    removeVirtualAppInstance(message, context);
+    removeVirtualAppInstance(message.params, context);
   }
 };
 
-function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
+function removeVirtualAppInstance(
+  params: ProtocolParameters,
+  context: Context
+) {
   const {
     intermediaryXpub,
     respondingXpub,
     initiatingXpub,
     targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+  } = params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -256,7 +264,7 @@ function removeVirtualAppInstance(message: ProtocolMessage, context: Context) {
 }
 
 function addVirtualAppStateTransitionToContext(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context,
   isIntermediary: boolean
 ): VirtualAppSetStateCommitment {
@@ -266,7 +274,7 @@ function addVirtualAppStateTransitionToContext(
     initiatingXpub,
     targetAppIdentityHash,
     targetAppState
-  } = message.params as UninstallVirtualAppParams;
+  } = params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -315,7 +323,7 @@ function constructUninstallOp(
 }
 
 async function addRightUninstallAgreementToContext(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context,
   provider: BaseProvider
 ) {
@@ -325,7 +333,7 @@ async function addRightUninstallAgreementToContext(
     intermediaryXpub,
     respondingXpub,
     targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+  } = params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],
@@ -364,7 +372,7 @@ async function addRightUninstallAgreementToContext(
 }
 
 async function addLeftUninstallAgreementToContext(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context,
   provider: BaseProvider
 ): Promise<UninstallCommitment> {
@@ -375,7 +383,7 @@ async function addLeftUninstallAgreementToContext(
     intermediaryXpub,
     respondingXpub,
     targetAppIdentityHash
-  } = message.params as UninstallVirtualAppParams;
+  } = params as UninstallVirtualAppParams;
 
   const key = virtualChannelKey(
     [initiatingXpub, respondingXpub],

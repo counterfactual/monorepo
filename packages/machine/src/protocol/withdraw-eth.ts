@@ -13,7 +13,12 @@ import {
   WithdrawETHCommitment
 } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Context, ProtocolMessage, WithdrawParams } from "../types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  WithdrawParams
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { validateSignature } from "./utils/signature-validator";
@@ -33,7 +38,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const [
       installRefundCommitment,
       refundAppIdentityHash
-    ] = addInstallRefundAppCommitmentToContext(message, context);
+    ] = addInstallRefundAppCommitmentToContext(message.params, context);
 
     const withdrawETHCommitment = addMultisigSendCommitmentToContext(
       message,
@@ -98,7 +103,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const [
       installRefundCommitment,
       refundAppIdentityHash
-    ] = addInstallRefundAppCommitmentToContext(message, context);
+    ] = addInstallRefundAppCommitmentToContext(message.params, context);
 
     const withdrawETHCommitment = addMultisigSendCommitmentToContext(
       message,
@@ -154,14 +159,15 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function addInstallRefundAppCommitmentToContext(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [InstallCommitment, string] {
   const {
     recipient,
     amount,
-    multisigAddress
-  } = message.params as WithdrawParams;
+    multisigAddress,
+    initiatingXpub
+  } = params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -196,10 +202,8 @@ function addInstallRefundAppCommitmentToContext(
   let bobBalanceDecrement = Zero;
 
   if (
-    stateChannel.getFreeBalanceAddrOf(
-      message.params.initiatingXpub,
-      AssetType.ETH
-    ) === stateChannel.multisigOwners[0]
+    stateChannel.getFreeBalanceAddrOf(initiatingXpub, AssetType.ETH) ===
+    stateChannel.multisigOwners[0]
   ) {
     aliceBalanceDecrement = amount;
   } else {

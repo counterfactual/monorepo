@@ -4,7 +4,12 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import { Context, InstallParams, ProtocolMessage } from "../types";
+import {
+  Context,
+  InstallParams,
+  ProtocolMessage,
+  ProtocolParameters
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -21,7 +26,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [appIdentityHash, commitment] = proposeStateTransition(
-      message,
+      message.params,
       context
     );
 
@@ -52,7 +57,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
     const [appIdentityHash, commitment] = proposeStateTransition(
-      message,
+      message.params,
       context
     );
 
@@ -82,7 +87,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [string, InstallCommitment] {
   const {
@@ -94,7 +99,7 @@ function proposeStateTransition(
     appInterface,
     defaultTimeout,
     multisigAddress
-  } = message.params as InstallParams;
+  } = params as InstallParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
