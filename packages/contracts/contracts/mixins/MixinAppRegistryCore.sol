@@ -20,7 +20,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     view
     returns (LibStateChannelApp.AppChallenge memory)
   {
-    return appStates[identityHash];
+    return appChallenges[identityHash];
   }
 
   /// @notice Checks whether or not some application's state is OFF or timed out
@@ -32,10 +32,10 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     returns (bool)
   {
     return (
-      appStates[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
+      appChallenges[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
       (
-        appStates[identityHash].status == LibStateChannelApp.AppStatus.DISPUTE &&
-        appStates[identityHash].finalizesAt <= block.number
+        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.DISPUTE &&
+        appChallenges[identityHash].finalizesAt <= block.number
       )
     );
   }

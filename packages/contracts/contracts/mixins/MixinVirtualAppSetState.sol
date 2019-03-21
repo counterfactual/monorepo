@@ -19,8 +19,8 @@ contract MixinVirtualAppSetState is
   /// signatures[0], instead of signing a message that authorizes
   /// a state update with a given stateHash, signs a message that authorizes all
   /// updates with nonce < nonceExpiry
-  struct VirtualAppSignedStateHashUpdate {
-    bytes32 stateHash;
+  struct VirtualAppSignedAppChallengeUpdate {
+    bytes32 appStateHash;
     uint256 nonce;
     uint256 timeout;
     bytes signatures;
@@ -29,13 +29,13 @@ contract MixinVirtualAppSetState is
 
   function virtualAppSetState(
     AppIdentity memory appIdentity,
-    VirtualAppSignedStateHashUpdate memory req
+    VirtualAppSignedAppChallengeUpdate memory req
   )
     public
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[identityHash];
+    AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
       challenge.status == AppStatus.ON,
@@ -43,7 +43,7 @@ contract MixinVirtualAppSetState is
     );
 
     require(
-      correctKeysSignedTheStateUpdate(
+      correctKeysSignedAppChallengeUpdate(
         identityHash,
         appIdentity.signingKeys,
         req
@@ -61,7 +61,7 @@ contract MixinVirtualAppSetState is
       "Tried to call setState with nonce greater than intemediary nonce expiry");
 
     challenge.status = req.timeout > 0 ? AppStatus.DISPUTE : AppStatus.OFF;
-    challenge.appStateHash = req.stateHash;
+    challenge.appStateHash = req.appStateHash;
     challenge.nonce = req.nonce;
     challenge.finalizesAt = block.number + req.timeout;
     challenge.disputeNonce = 0;
@@ -69,18 +69,18 @@ contract MixinVirtualAppSetState is
     challenge.latestSubmitter = msg.sender;
   }
 
-  function correctKeysSignedTheStateUpdate(
+  function correctKeysSignedAppChallengeUpdate(
     bytes32 identityHash,
     address[] memory signingKeys,
-    VirtualAppSignedStateHashUpdate memory req
+    VirtualAppSignedAppChallengeUpdate memory req
   )
     private
     pure
     returns (bool)
   {
-    bytes32 digest1 = computeStateHash(
+    bytes32 digest1 = computeAppChallengeHash(
       identityHash,
-      req.stateHash,
+      req.appStateHash,
       req.nonce,
       req.timeout
     );

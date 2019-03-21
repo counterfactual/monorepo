@@ -54,7 +54,7 @@ export class SetStateCommitment extends EthereumCommitment {
     signatures: Signature[]
   ): SignedStateHashUpdate {
     return {
-      stateHash: this.hashedAppState,
+      appStateHash: this.hashedAppState,
       nonce: this.appLocalNonce,
       timeout: this.timeout,
       signatures: signaturesToBytesSortedBySignerAddress(
