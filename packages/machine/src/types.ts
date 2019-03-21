@@ -34,7 +34,6 @@ export interface Context {
 export type ProtocolMessage = {
   protocol: Protocol;
   params: ProtocolParameters;
-  fromXpub: string;
   toXpub: string;
   seq: number;
   signature?: Signature;
