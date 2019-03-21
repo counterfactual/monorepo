@@ -4,7 +4,12 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import { Context, ProtocolMessage, UpdateParams } from "../types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  UpdateParams
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -24,7 +29,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(message, context);
+    ] = proposeStateTransition(message.params, context);
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
@@ -58,7 +63,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(message, context);
+    ] = proposeStateTransition(message.params, context);
 
     const { initiatingXpub } = message.params;
 
@@ -93,14 +98,10 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [string, SetStateCommitment, number] {
-  const {
-    appIdentityHash,
-    newState,
-    multisigAddress
-  } = message.params as UpdateParams;
+  const { appIdentityHash, newState, multisigAddress } = params as UpdateParams;
   const newStateChannel = context.stateChannelsMap
     .get(multisigAddress)!
     .setState(appIdentityHash, newState);

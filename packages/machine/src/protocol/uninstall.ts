@@ -5,7 +5,12 @@ import { Protocol, ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
-import { Context, ProtocolMessage, UninstallParams } from "../types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  UninstallParams
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import {
@@ -30,7 +35,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
-      message,
+      message.params,
       context,
       provider
     );
@@ -64,7 +69,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
-      message,
+      message.params,
       context,
       provider
     );
@@ -95,14 +100,11 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 async function proposeStateTransition(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context,
   provider: BaseProvider
 ): Promise<[UninstallCommitment, string]> {
-  const {
-    appIdentityHash,
-    multisigAddress
-  } = message.params as UninstallParams;
+  const { appIdentityHash, multisigAddress } = params as UninstallParams;
   const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
