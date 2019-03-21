@@ -198,7 +198,7 @@ export class Node {
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await Promise.race([counterpartyResponse, timeout(30000)]);
+        const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
         if (!msg || !("data" in msg)) {
           throw Error(
