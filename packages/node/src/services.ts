@@ -1,4 +1,5 @@
 import * as firebase from "firebase/app";
+import "firebase/auth";
 import "firebase/database";
 
 import { NodeMessage } from "./types";
@@ -30,7 +31,9 @@ export const FIREBASE_CONFIGURATION_ENV_KEYS = {
   databaseURL: "FIREBASE_DATABASE_URL",
   projectId: "FIREBASE_PROJECT_ID",
   storageBucket: "FIREBASE_STORAGE_BUCKET",
-  messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID"
+  messagingSenderId: "FIREBASE_MESSAGING_SENDER_ID",
+  authEmail: "FIREBASE_AUTH_EMAIL",
+  authPassword: "FIREBASE_AUTH_PASSWORD"
 };
 
 export const EMPTY_FIREBASE_CONFIG = {
@@ -58,6 +61,18 @@ export class FirebaseServiceFactory {
       ...EMPTY_FIREBASE_CONFIG,
       databaseURL: `ws://${host}:${port}`
     });
+  }
+
+  async auth(email: string, password: string) {
+    try {
+      console.log(`Authenticating with email: ${email}`);
+      await this.app.auth().signInWithEmailAndPassword(email, password);
+    } catch (e) {
+      console.error(
+        `Error authenticating against Firebase with email: ${email}`
+      );
+      console.error(e);
+    }
   }
 
   createMessagingService(messagingServiceKey: string): IMessagingService {
