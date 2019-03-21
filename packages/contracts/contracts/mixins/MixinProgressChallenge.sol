@@ -37,7 +37,7 @@ contract MixinProgressChallenge is
 
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[identityHash];
+    AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,

@@ -121,7 +121,7 @@ describe("AppRegistry Dispute", () => {
     setStateAsOwner = (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
-        stateHash: appState || HashZero,
+        appStateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: HashZero
       });
@@ -133,11 +133,10 @@ describe("AppRegistry Dispute", () => {
         encodeAction(action),
         actionSig,
         false
-      )
+      );
   });
 
   it("Can call progressChallenge", async () => {
-
     expect(await latestNonce()).to.eq(0);
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
     expect(await latestNonce()).to.eq(1);

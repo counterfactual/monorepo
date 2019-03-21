@@ -101,7 +101,7 @@ describe("set state on free balance", () => {
       gasLimit: SETSTATE_COMMITMENT_GAS
     });
 
-    const contractAppState = await appRegistry.appStates(
+    const contractAppState = await appRegistry.appChallenges(
       freeBalanceETH.identityHash
     );
 

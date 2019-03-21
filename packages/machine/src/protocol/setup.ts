@@ -4,7 +4,12 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import { Context, ProtocolMessage, SetupParams } from "../types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  SetupParams
+} from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -19,7 +24,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(message: ProtocolMessage, context: Context) {
     const { respondingXpub, multisigAddress } = message.params as SetupParams;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
-    const setupCommitment = proposeStateTransition(message, context);
+    const setupCommitment = proposeStateTransition(message.params, context);
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
     const { signature: theirSig } = yield [
@@ -47,7 +52,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const { initiatingXpub, multisigAddress } = message.params as SetupParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    const setupCommitment = proposeStateTransition(message, context);
+    const setupCommitment = proposeStateTransition(message.params, context);
 
     const theirSig = message.signature!;
     validateSignature(initiatingAddress, setupCommitment, theirSig);
@@ -75,14 +80,14 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 };
 
 function proposeStateTransition(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): SetupCommitment {
   const {
     multisigAddress,
     initiatingXpub,
     respondingXpub
-  } = message.params as SetupParams;
+  } = params as SetupParams;
 
   if (context.stateChannelsMap.has(multisigAddress)) {
     throw Error(`Found an already-setup channel at ${multisigAddress}`);

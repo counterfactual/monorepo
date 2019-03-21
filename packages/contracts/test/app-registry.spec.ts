@@ -9,7 +9,7 @@ import AppRegistry from "../build/AppRegistry.json";
 import {
   AppInstance,
   AssetType,
-  computeStateHash,
+  computeAppChallengeHash,
   expect,
   Terms
 } from "./utils";
@@ -54,10 +54,8 @@ describe("AppRegistry", () => {
     wallet = (await waffle.getWallets(provider))[0];
     wallet2 = (await waffle.getWallets(provider))[1];
 
-
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
-
     });
   });
 
@@ -84,7 +82,7 @@ describe("AppRegistry", () => {
     setStateAsOwner = (nonce: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce,
-        stateHash: appState || HashZero,
+        appStateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: HashZero
       });
@@ -95,7 +93,7 @@ describe("AppRegistry", () => {
     setStateWithSignatures = async (nonce: number, appState?: string) => {
 
       const stateHash = keccak256(appState || HashZero);
-      const digest = computeStateHash(
+      const digest = computeAppChallengeHash(
         appInstance.identityHash,
         stateHash,
         nonce,
@@ -114,8 +112,8 @@ describe("AppRegistry", () => {
       const data = appRegistry.interface.functions.setState.encode([
         appInstance.appIdentity,
         {
-          nonce,
-          stateHash,
+          appStateHash: stateHash,
+          nonce: nonce,
           timeout: ONCHAIN_CHALLENGE_TIMEOUT,
           signatures: bytes
         }
@@ -124,16 +122,16 @@ describe("AppRegistry", () => {
       await wallet2.sendTransaction({
         data,
         to: appRegistry.address
-      })
-    }
+      });
+    };
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
         nonce: (await latestNonce()) + 1,
-        stateHash: await latestAppState(),
+        appStateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
-          computeStateHash(
+          computeAppChallengeHash(
             appInstance.identityHash,
             await latestAppState(),
             await latestNonce(),
@@ -261,7 +259,7 @@ describe("AppRegistry", () => {
     // Tell the AppRegistry to start timer
     const stateHash = hexlify(randomBytes(32));
     await appRegistry.functions.setState(appInstance.appIdentity, {
-      stateHash,
+      appStateHash: stateHash,
       nonce: 1,
       timeout: 10,
       signatures: HashZero
@@ -276,7 +274,7 @@ describe("AppRegistry", () => {
       disputeNonce,
       finalizesAt,
       nonce
-    } = await appRegistry.functions.appStates(appInstance.identityHash);
+    } = await appRegistry.functions.appChallenges(appInstance.identityHash);
 
     expect(status).to.be.eq(1);
     expect(latestSubmitter).to.be.eq(await wallet.getAddress());

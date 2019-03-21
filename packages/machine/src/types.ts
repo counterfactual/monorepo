@@ -20,7 +20,7 @@ export type ProtocolExecutionFlow = {
 };
 
 export type Middleware = {
-  (args: any[]): any;
+  (args: any): any;
 };
 
 export type Instruction = Function | Opcode;
@@ -28,13 +28,11 @@ export type Instruction = Function | Opcode;
 export interface Context {
   network: NetworkContext;
   stateChannelsMap: Map<string, StateChannel>;
-  appIdentityHash?: string;
 }
 
 export type ProtocolMessage = {
   protocol: Protocol;
   params: ProtocolParameters;
-  fromXpub: string;
   toXpub: string;
   seq: number;
   signature?: Signature;

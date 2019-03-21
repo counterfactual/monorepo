@@ -19,7 +19,8 @@ import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
-  ProtocolMessage
+  ProtocolMessage,
+  ProtocolParameters
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
@@ -45,7 +46,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const [
       leftCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition1(message, context);
+    ] = proposeStateTransition1(message.params, context);
 
     const s1 = yield [Opcode.OP_SIGN, leftCommitment];
     const s5 = yield [Opcode.OP_SIGN, virtualAppSetStateCommitment];
@@ -88,7 +89,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       leftCommitment,
       rightCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition2(message, context);
+    ] = proposeStateTransition2(message.params, context);
 
     const { signature: s1, signature2: s5 } = message;
 
@@ -157,7 +158,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const [
       rightCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition3(message, context);
+    ] = proposeStateTransition3(message.params, context);
 
     const {
       initiatingXpub,
@@ -254,7 +255,7 @@ function createAndAddTarget(
 }
 
 function proposeStateTransition1(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [ETHVirtualAppAgreementCommitment, VirtualAppSetStateCommitment] {
   const {
@@ -266,7 +267,7 @@ function proposeStateTransition1(
     initiatingXpub,
     intermediaryXpub,
     respondingXpub
-  } = message.params as InstallVirtualAppParams;
+  } = params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
     defaultTimeout,
@@ -340,7 +341,7 @@ function proposeStateTransition1(
 }
 
 function proposeStateTransition2(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [
   StateChannel,
@@ -358,7 +359,7 @@ function proposeStateTransition2(
     initialState,
     initiatingBalanceDecrement,
     respondingBalanceDecrement
-  } = message.params as InstallVirtualAppParams;
+  } = params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
     defaultTimeout,
@@ -478,7 +479,7 @@ function proposeStateTransition2(
 }
 
 function proposeStateTransition3(
-  message: ProtocolMessage,
+  params: ProtocolParameters,
   context: Context
 ): [ETHVirtualAppAgreementCommitment, VirtualAppSetStateCommitment] {
   const {
@@ -490,7 +491,7 @@ function proposeStateTransition3(
     initiatingXpub,
     respondingXpub,
     intermediaryXpub
-  } = message.params as InstallVirtualAppParams;
+  } = params as InstallVirtualAppParams;
 
   const targetAppInstance = createAndAddTarget(
     defaultTimeout,
