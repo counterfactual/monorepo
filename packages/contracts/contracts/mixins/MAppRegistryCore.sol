@@ -11,7 +11,7 @@ contract MAppRegistryCore {
 
   // A mapping of appIdentityHash to AppChallenge structs which represents
   // the current on-chain status of some particular applications state.
-  mapping (bytes32 => LibStateChannelApp.AppChallenge) public appStates;
+  mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
 
   // A mapping of appIdentityHash to Transaction structs which represents
   // the *final* resolution of a particular application
@@ -41,13 +41,13 @@ contract MAppRegistryCore {
     return keccak256(abi.encode(appIdentity));
   }
 
-  /// @notice Compute a unique hash for a state of this state channel and application
+  /// @notice Compute a unique hash for the state of a channelized app instance
   /// @param identityHash The unique hash of an `AppIdentity`
-  /// @param appStateHash The hash of a state to be signed
+  /// @param appStateHash The hash of the app state to be signed
   /// @param nonce The nonce corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
-  function computeStateHash(
+  function computeAppChallengeHash(
     bytes32 identityHash,
     bytes32 appStateHash,
     uint256 nonce,

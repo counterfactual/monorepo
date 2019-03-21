@@ -28,7 +28,7 @@ contract MixinSetResolution is
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage app = appStates[identityHash];
+    AppChallenge storage app = appChallenges[identityHash];
 
     require(
       app.status == AppStatus.OFF ||

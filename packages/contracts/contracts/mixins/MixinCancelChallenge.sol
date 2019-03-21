@@ -30,14 +30,14 @@ contract MixinCancelChallenge is
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage challenge = appStates[identityHash];
+    AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
       "cancelChallenge called on app not in DISPUTE state"
     );
 
-    bytes32 stateHash = computeStateHash(
+    bytes32 stateHash = computeAppChallengeHash(
       identityHash,
       challenge.appStateHash,
       challenge.nonce,
