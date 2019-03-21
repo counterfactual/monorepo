@@ -106,6 +106,9 @@ export class AppRoot {
   }
 
   async setup() {
+    this.loadEnv();
+    this.loadSentry();
+
     if (typeof window["web3"] !== "undefined") {
       await Promise.all([
         this.heartbeat(),
@@ -198,6 +201,24 @@ export class AppRoot {
       // TODO: handle changes on the UI
       network: "kovan"
     });
+  }
+
+  loadEnv() {
+    if (TIER === "dev") {
+      window["TIER"] = "dev";
+    } else {
+      window["TIER"] = "production";
+    }
+  }
+
+  loadSentry() {
+    if (TIER === "dev") {
+      // Do nothing
+    } else {
+      window["Sentry"].init({
+        dsn: "https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439"
+      });
+    }
   }
 
   async loadApps() {
