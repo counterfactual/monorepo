@@ -28,7 +28,6 @@ export type Instruction = Function | Opcode;
 export interface Context {
   network: NetworkContext;
   stateChannelsMap: Map<string, StateChannel>;
-  appIdentityHash?: string;
 }
 
 export type ProtocolMessage = {
