@@ -169,7 +169,6 @@ export class Node {
     instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
       const [data] = args;
       const fromXpub = this.publicIdentifier;
-      data.fromXpub = fromXpub;
       const to = data.toXpub;
 
       await this.messagingService.send(to, {
@@ -184,10 +183,9 @@ export class Node {
       async (args: any[]) => {
         const [data] = args;
         const fromXpub = this.publicIdentifier;
-        data.fromXpub = fromXpub;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(data);
+        const key = this.encodeProtocolMessage(fromXpub, data);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
         this.ioSendDeferrals.set(key, deferral);
@@ -338,7 +336,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.data));
+      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
 
     if (
       isProtocolMessage(msg) &&
@@ -351,7 +349,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = this.encodeProtocolMessage(msg.data);
+    const key = this.encodeProtocolMessage(msg.from, msg.data);
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
@@ -371,10 +369,10 @@ export class Node {
     }
   }
 
-  private encodeProtocolMessage(msg: ProtocolMessage) {
+  private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
     return JSON.stringify({
       protocol: msg.protocol,
-      fromto: [msg.fromXpub, msg.toXpub].sort().toString(),
+      fromto: [fromXpub, msg.toXpub].sort().toString(),
       params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
     });
   }
