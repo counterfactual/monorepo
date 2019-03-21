@@ -57,6 +57,13 @@ if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
 let node: Node;
 
 (async () => {
+  if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+    await serviceFactory.auth(
+      process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
+      process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
+    );
+  }
+
   const store = serviceFactory.createStoreService("hrBotStore1");
 
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
