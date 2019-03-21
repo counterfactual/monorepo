@@ -382,7 +382,7 @@ const isBrowser =
   typeof window !== "undefined" &&
   {}.toString.call(window) === "[object Window]";
 
-export function debugLog(...messages: any) {
+export function debugLog(...messages: any[]) {
   try {
     const logPrefix = "NodeDebugLog";
     if (isBrowser) {
