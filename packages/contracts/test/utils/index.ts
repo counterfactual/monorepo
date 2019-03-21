@@ -37,8 +37,8 @@ export class Terms {
   }
 }
 
-// TS version of MAppRegistryCore::computeStateHash
-export const computeStateHash = (
+// TS version of MAppRegistryCore::computeAppChallengeHash
+export const computeAppChallengeHash = (
   id: string,
   appStateHash: string,
   nonce: number,
