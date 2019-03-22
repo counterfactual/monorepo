@@ -4,7 +4,6 @@ import StateChannelTransaction from "@counterfactual/contracts/build/StateChanne
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
-const solidity = matchers.default;
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 import { Signature, SigningKey } from "ethers/utils";
@@ -41,7 +40,7 @@ let intermediarySignature: Signature;
 
 expect.extend({ toBeEq });
 
-const expect2 = chai.use(solidity).expect;
+const expect2 = chai.use(matchers.default).expect;
 
 beforeAll(async () => {
   [{}, wallet, networkId] = await connectToGanache();
