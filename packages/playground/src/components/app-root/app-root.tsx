@@ -206,9 +206,13 @@ export class AppRoot {
 
   loadEnv() {
     if (TIER === "dev") {
-      window["TIER"] = "dev";
+      window["globalConfig"] = {
+        TIER: "dev"
+      };
     } else {
-      window["TIER"] = "production";
+      window["globalConfig"] = {
+        TIER: "production"
+      };
     }
   }
 
