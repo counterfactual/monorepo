@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity 0.5.6;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/Transfer.sol";
@@ -49,11 +49,11 @@ contract ResolveToPay5WeiApp is CounterfactualApp {
     revert("Not implemented");
   }
 
-  function applyAction(bytes memory, bytes memory)
+  function applyAction(bytes memory encodedState, bytes memory)
     public
     pure
     returns (bytes memory)
   {
-    revert("Not implemented");
+    return encodedState;
   }
 }

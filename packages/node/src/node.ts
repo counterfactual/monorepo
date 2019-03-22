@@ -1,24 +1,16 @@
 import {
-  Context,
-  InstallParams,
   InstructionExecutor,
   Opcode,
   Protocol,
-  ProtocolMessage,
-  SetupParams,
-  StateChannel,
-  Transaction,
-  UninstallParams,
-  UpdateParams,
-  WithdrawParams
+  ProtocolMessage
 } from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { Wallet } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 
+import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
@@ -30,11 +22,17 @@ import {
   NodeMessageWrappedProtocolMessage
 } from "./types";
 
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
   // execution environment.
   STORE_KEY_PREFIX: string;
 }
+
+const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
 export class Node {
   /**
@@ -63,14 +61,16 @@ export class Node {
     storeService: IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: string | NetworkContext
+    networkOrNetworkContext: string | NetworkContext,
+    blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
       messagingService,
       storeService,
       nodeConfig,
       provider,
-      networkOrNetworkContext
+      networkOrNetworkContext,
+      blocksNeededForConfirmation
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
@@ -81,20 +81,35 @@ export class Node {
     private readonly storeService: IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: string | NetworkContext
+    networkContext: string | NetworkContext,
+    readonly blocksNeededForConfirmation?: number
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
+    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
     if (typeof networkContext === "string") {
       this.networkContext = configureNetworkContext(networkContext);
+
+      if (
+        blocksNeededForConfirmation &&
+        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
+      ) {
+        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
+      }
     } else {
+      // Used for testing / ganache
       this.networkContext = networkContext;
     }
     this.instructionExecutor = this.buildInstructionExecutor();
+
+    console.log(
+      `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
+    );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
+    console.log(`Node signer address: ${this.signer.address}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -104,8 +119,9 @@ export class Node {
       this.instructionExecutor,
       this.networkContext,
       this.provider,
-      new Wallet(this.signer.privateKey, this.provider),
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
+      new AutoNonceWallet(this.signer.privateKey, this.provider),
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
+      this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
     return this;
@@ -127,38 +143,19 @@ export class Node {
 
     // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
-      return async (
-        message: ProtocolMessage,
-        next: Function,
-        context: Context
-      ) => {
-        const { protocol, params } = message;
-        const { stateChannelsMap, commitments } = context;
-
-        if (commitments.length === 0) {
-          // TODO: I think this should be inside the machine for all protocols
-          throw Error(
-            "Reached OP_SIGN middleware without generated commitment."
-          );
+      return async (args: any[]) => {
+        if (args.length !== 1 && args.length !== 2) {
+          throw Error("OP_SIGN middleware received wrong number of arguments.");
         }
 
-        let keyIndex = 0;
-
-        if ([Protocol.Update, Protocol.TakeAction].includes(protocol)) {
-          const { appIdentityHash, multisigAddress } = params as UpdateParams;
-          const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-          keyIndex = sc.getAppInstance(appIdentityHash).appSeqNo;
-        }
+        const [commitment, overrideKeyIndex] = args;
+        const keyIndex = overrideKeyIndex || 0;
 
         const signingKey = new SigningKey(
           this.signer.derivePath(`${keyIndex}`).privateKey
         );
 
-        context.signatures = commitments.map(commitment =>
-          signingKey.signDigest(commitment.hashToSign(asIntermediary))
-        );
-
-        next();
+        return signingKey.signDigest(commitment.hashToSign(asIntermediary));
       };
     };
 
@@ -169,31 +166,26 @@ export class Node {
       makeSigner(true)
     );
 
-    instructionExecutor.register(
-      Opcode.IO_SEND,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const [data] = context.outbox;
-        const from = this.publicIdentifier;
-        const to = data.toXpub;
+    instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
+      const [data] = args;
+      const fromXpub = this.publicIdentifier;
+      const to = data.toXpub;
 
-        await this.messagingService.send(to, {
-          from,
-          data,
-          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-        } as NodeMessageWrappedProtocolMessage);
-
-        next();
-      }
-    );
+      await this.messagingService.send(to, {
+        data,
+        from: fromXpub,
+        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+      } as NodeMessageWrappedProtocolMessage);
+    });
 
     instructionExecutor.register(
       Opcode.IO_SEND_AND_WAIT,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const [data] = context.outbox;
-        const from = this.publicIdentifier;
+      async (args: any[]) => {
+        const [data] = args;
+        const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(data);
+        const key = this.encodeProtocolMessage(fromXpub, data);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
         this.ioSendDeferrals.set(key, deferral);
@@ -201,12 +193,20 @@ export class Node {
         const counterpartyResponse = deferral.promise;
 
         await this.messagingService.send(to, {
-          from,
           data,
+          from: fromXpub,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
-        const msg = await counterpartyResponse;
+        const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
+
+        if (!msg || !("data" in msg)) {
+          throw Error(
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
+              data.protocol
+            }`
+          );
+        }
 
         // Removes the deferral from the list of pending defferals after
         // its promise has been resolved and the necessary callback (above)
@@ -214,66 +214,27 @@ export class Node {
         // per counterparty at the moment.
         this.ioSendDeferrals.delete(key);
 
-        context.inbox.push(msg.data);
-
-        next();
+        return msg.data;
       }
     );
 
-    const verifyFinalCommitment = (finalCommitment?: Transaction) => {
-      if (finalCommitment === undefined) {
-        throw Error(
-          "called WRITE_COMMITMENT with empty context.finalCommitment"
-        );
-      }
-    };
-
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
-      async (message: ProtocolMessage, next: Function, context: Context) => {
-        const { protocol } = message;
+      async (args: any[]) => {
+        const [protocol, commitment, ...key] = args;
+
         if (protocol === Protocol.Withdraw) {
-          const params = message.params as WithdrawParams;
-          verifyFinalCommitment(context.finalCommitment);
+          const [multisigAddress] = key;
           await this.requestHandler.store.storeWithdrawalCommitment(
-            params.multisigAddress,
-            context.finalCommitment!
-          );
-        } else if (protocol === Protocol.Setup) {
-          const params = message.params as SetupParams;
-          verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            context.finalCommitment!
-          );
-        } else if (
-          protocol === Protocol.Install ||
-          protocol === Protocol.Uninstall ||
-          protocol === Protocol.Update
-        ) {
-          /// install, update, uninstall,
-          /// All other protocols are stored under the key
-          /// appIdentityHash/protocolName. This means that an app only has one
-          /// update commitment.
-          const params = message.params as
-            | UpdateParams
-            | InstallParams
-            | UninstallParams;
-          if (!params.multisigAddress) {
-            throw Error(
-              "WRITE_COMMITMENT: params did not contain multisigAddress"
-            );
-          }
-          verifyFinalCommitment(context.finalCommitment);
-          await this.requestHandler.store.setSetupCommitmentForMultisig(
-            params.multisigAddress,
-            context.finalCommitment!
+            multisigAddress,
+            commitment
           );
         } else {
-          /// install-virtual-app, uninstall-virtual-app
-          console.log("skipping commitment write - not implemented yet");
+          await this.requestHandler.store.setCommitment(
+            [protocol, ...key],
+            commitment
+          );
         }
-        next();
       }
     );
 
@@ -375,7 +336,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.data));
+      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
 
     if (
       isProtocolMessage(msg) &&
@@ -388,7 +349,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = this.encodeProtocolMessage(msg.data);
+    const key = this.encodeProtocolMessage(msg.from, msg.data);
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
@@ -408,11 +369,38 @@ export class Node {
     }
   }
 
-  private encodeProtocolMessage(msg: ProtocolMessage) {
+  private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
     return JSON.stringify({
       protocol: msg.protocol,
-      fromto: [msg.fromXpub, msg.toXpub].sort().toString(),
+      fromto: [fromXpub, msg.toXpub].sort().toString(),
       params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
     });
+  }
+}
+
+const isBrowser =
+  typeof window !== "undefined" &&
+  {}.toString.call(window) === "[object Window]";
+
+export function debugLog(...messages: any[]) {
+  try {
+    const logPrefix = "NodeDebugLog";
+    if (isBrowser) {
+      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
+        // for some reason `debug` doesn't actually log in the browser
+        console.info(logPrefix, messages);
+        console.trace();
+      }
+      // node.js side
+    } else if (
+      process.env.LOG_LEVEL !== undefined &&
+      process.env.LOG_LEVEL === "DEBUG"
+    ) {
+      console.debug(logPrefix, JSON.stringify(messages, null, 4));
+      console.trace();
+      console.log("\n");
+    }
+  } catch (e) {
+    console.error("Failed to log: ", e);
   }
 }

@@ -15,12 +15,31 @@ export default class UninstallController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
-    return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
-    );
+
+    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    return [
+      requestHandler.getShardedQueue(
+        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+      )
+    ];
+  }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.UninstallParams
+  ) {
+    const { store } = requestHandler;
+    const { appInstanceId } = params;
+
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
   }
 
   protected async executeMethodImplementation(
@@ -40,6 +59,10 @@ export default class UninstallController extends NodeController {
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    if (!stateChannel.hasAppInstance(appInstanceId)) {
+      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+    }
 
     const to = getCounterpartyAddress(
       publicIdentifier,

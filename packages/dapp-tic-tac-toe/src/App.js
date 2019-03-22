@@ -16,9 +16,9 @@ export default class App extends Component {
       : new window.cf.NodeProvider();
     const cfProvider = new window.cf.Provider(nodeProvider);
     const gameInfo = {
-      myName: params.get("myName") || "Bob",
+      myName: params.get("myName") || "You",
       betAmount: params.get("betAmount") || "0.01",
-      opponentName: params.get("opponentName") || "Alice",
+      opponentName: params.get("opponentName") || "Opponent",
       appInstanceId: params.get("appInstanceId")
     };
 
@@ -33,6 +33,8 @@ export default class App extends Component {
     this.connect().then(() => {
       this.requestUserData();
       this.waitForCounterpartyAppInstance(props);
+
+      window.parent.postMessage("playground:request:appInstance", "*");
     });
   }
 
@@ -72,7 +74,7 @@ export default class App extends Component {
     window.addEventListener("message", event => {
       if (
         typeof event.data === "string" &&
-        event.data.startsWith("playground:appInstance")
+        event.data.startsWith("playground:response:appInstance")
       ) {
         const [, data] = event.data.split("|");
 

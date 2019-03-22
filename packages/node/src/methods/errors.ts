@@ -1,4 +1,6 @@
 export const ERRORS = {
+  APP_ALREADY_UNINSTALLED: id =>
+    `Cannot uninstall app ${id}, it has already been uninstalled`,
   NO_APP_INSTANCE_ID_FOR_GET_STATE:
     "No AppInstanceID specified to get state for",
   NO_APP_INSTANCE_ID_TO_GET_DETAILS:
@@ -41,5 +43,6 @@ export const ERRORS = {
   DEPOSIT_FAILED: "Failed to send funds to the multisig contract",
   WITHDRAWAL_FAILED: "Failed to withdraw funds out of the multisig contract",
   NO_CHANNEL_BETWEEN_NODES: (nodeA: string, nodeB: string) =>
-    `No channel exists between the current user ${nodeA} and the peer ${nodeB}`
+    `No channel exists between the current user ${nodeA} and the peer ${nodeB}`,
+  VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance"
 };

@@ -1,4 +1,8 @@
 import {
+  confirmFirebaseConfigurationEnvVars,
+  confirmLocalFirebaseConfigurationEnvVars,
+  devAndTestingEnvironments,
+  FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory,
   MNEMONIC_PATH,
   Node
@@ -15,14 +19,29 @@ import {
   UserSession
 } from "./utils";
 
-const provider = ethers.getDefaultProvider("ropsten");
+const provider = new ethers.providers.JsonRpcProvider(
+  "https://kovan.infura.io/metamask"
+);
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "TTT_USER_TOKEN";
 
-console.log("Creating serviceFactory");
 let serviceFactory: FirebaseServiceFactory;
-if (process.env.TIER && process.env.TIER === "development") {
+console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
+if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+  confirmFirebaseConfigurationEnvVars();
+  serviceFactory = new FirebaseServiceFactory({
+    apiKey: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.apiKey]!,
+    authDomain: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authDomain]!,
+    databaseURL: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.databaseURL]!,
+    projectId: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.projectId]!,
+    storageBucket: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.storageBucket]!,
+    messagingSenderId: process.env[
+      FIREBASE_CONFIGURATION_ENV_KEYS.messagingSenderId
+    ]!
+  });
+} else {
+  confirmLocalFirebaseConfigurationEnvVars();
   const firebaseServerHost = process.env.FIREBASE_SERVER_HOST;
   const firebaseServerPort = process.env.FIREBASE_SERVER_PORT;
   serviceFactory = new FirebaseServiceFactory({
@@ -33,20 +52,18 @@ if (process.env.TIER && process.env.TIER === "development") {
     storageBucket: "",
     messagingSenderId: ""
   });
-} else {
-  serviceFactory = new FirebaseServiceFactory({
-    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-    authDomain: "foobar-91a31.firebaseapp.com",
-    databaseURL: "https://foobar-91a31.firebaseio.com",
-    projectId: "foobar-91a31",
-    storageBucket: "foobar-91a31.appspot.com",
-    messagingSenderId: "432199632441"
-  });
 }
 
 let node: Node;
 
 (async () => {
+  if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+    await serviceFactory.auth(
+      process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
+      process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
+    );
+  }
+
   console.log("Creating store");
   const store = serviceFactory.createStoreService("tttBotStore1");
 
@@ -60,11 +77,11 @@ let node: Node;
     {
       STORE_KEY_PREFIX: "store"
     },
-    ethers.getDefaultProvider("ropsten"),
-    "ropsten"
+    provider,
+    "kovan"
   );
 
-  console.log("public identifier", node.publicIdentifier);
+  console.log("Public Identifier", node.publicIdentifier);
 
   try {
     const privateKey = process.env.PRIVATE_KEY;
@@ -85,6 +102,9 @@ let node: Node;
     let bot: UserSession;
     let token = await store.get(TOKEN_PATH);
     if (token) {
+      console.log(
+        `Getting pre-existing user ${user.username} account: ${token}`
+      );
       bot = await getUser(BASE_URL, token);
     } else {
       bot = await createAccount(BASE_URL, user, signature);
@@ -101,13 +121,11 @@ let node: Node;
     const multisigAddress = await fetchMultisig(BASE_URL, token!);
     console.log("Account multisig address:", multisigAddress);
 
-    let depositAmount = process.argv[2];
-    if (!depositAmount) {
-      depositAmount = "0.005";
+    if (process.env.DEPOSIT_AMOUNT) {
+      await deposit(node, process.env.DEPOSIT_AMOUNT, multisigAddress);
     }
-    await deposit(node, depositAmount, multisigAddress);
 
-    afterUser(node, bot.nodeAddress, multisigAddress);
+    afterUser(user.username, node, bot.nodeAddress, multisigAddress);
   } catch (e) {
     console.error("\n");
     console.error(e);

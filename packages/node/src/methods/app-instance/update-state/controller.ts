@@ -16,13 +16,15 @@ export default class UpdateStateController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
-  ): Promise<Queue> {
+  ): Promise<Queue[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    return requestHandler.getShardedQueue(
-      await store.getMultisigAddressFromAppInstanceID(appInstanceId)
-    );
+    return [
+      requestHandler.getShardedQueue(
+        await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+      )
+    ];
   }
 
   protected async beforeExecution(

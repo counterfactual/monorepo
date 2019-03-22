@@ -1,3 +1,4 @@
+import { CreateChannelMessage } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
@@ -17,13 +18,20 @@ import { UserSession } from "../../types";
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
+const FIREBASE_API_KEY: string = "ENV:FIREBASE_API_KEY";
+const FIREBASE_AUTH_DOMAIN: string = "ENV:FIREBASE_AUTH_DOMAIN";
+const FIREBASE_DATABASE_URL: string = "ENV:FIREBASE_DATABASE_URL";
+const FIREBASE_MESSAGING_SENDER_ID: string = "ENV:FIREBASE_MESSAGING_SENDER_ID";
+const FIREBASE_PROJECT_ID: string = "ENV:FIREBASE_PROJECT_ID";
+const FIREBASE_STORAGE_BUCKET: string = "ENV:FIREBASE_STORAGE_BUCKET";
 
+// Only Kovan is supported for now
 const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
-  "1": "",
-  "3": "ropsten",
-  "42": "kovan",
-  "4": "rinkeby"
+  "42": "kovan"
 };
+
+const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
+const HEARTBEAT_INTERVAL = 30 * 1000;
 
 const delay = (timeInMilliseconds: number) =>
   new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
@@ -35,13 +43,22 @@ const delay = (timeInMilliseconds: number) =>
 })
 export class AppRoot {
   @State() loading: boolean = true;
-  @State() accountState: AccountState = {} as AccountState;
+  @State() accountState: AccountState = {
+    enoughCounterpartyBalance: true,
+    enoughLocalBalance: true
+  } as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: AppRegistryState = { apps: [], canUseApps: false };
+  @State() appRegistryState: AppRegistryState = {
+    apps: [],
+    canUseApps: false,
+    schemaVersion: "",
+    maintenanceMode: false
+  };
   @State() hasLocalStorage: boolean = false;
   @State() balancePolling: any;
 
-  modal: JSX.Element = <div />;
+  @State() modal: JSX.Element = <div />;
+  @State() redirect: JSX.Element = <div />;
 
   componentWillLoad() {
     // Test for Local Storage.
@@ -101,10 +118,19 @@ export class AppRoot {
 
   async setup() {
     if (typeof window["web3"] !== "undefined") {
-      await Promise.all([this.createNodeProvider(), this.loadApps()]);
+      await Promise.all([
+        this.heartbeat(),
+        this.createNodeProvider(),
+        this.loadApps()
+      ]);
     }
 
     this.loading = false;
+  }
+
+  async redirectToDeposit() {
+    this.modal = {};
+    this.redirect = <stencil-router-redirect url="/deposit" />;
   }
 
   async createNodeProvider() {
@@ -112,17 +138,7 @@ export class AppRoot {
       return;
     }
 
-    // TODO: This is a dummy firebase data provider.
-    // TODO: This configuration should come from the backend.
-    let configuration: FirebaseAppConfiguration = {
-      apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-      authDomain: "foobar-91a31.firebaseapp.com",
-      databaseURL: "https://foobar-91a31.firebaseio.com",
-      projectId: "foobar-91a31",
-      storageBucket: "foobar-91a31.appspot.com",
-      messagingSenderId: "432199632441"
-    };
-
+    let configuration: FirebaseAppConfiguration;
     if (TIER === "dev") {
       configuration = {
         databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
@@ -131,6 +147,15 @@ export class AppRoot {
         authDomain: "",
         storageBucket: "",
         messagingSenderId: ""
+      };
+    } else {
+      configuration = {
+        apiKey: FIREBASE_API_KEY,
+        authDomain: FIREBASE_AUTH_DOMAIN,
+        databaseURL: FIREBASE_DATABASE_URL,
+        projectId: FIREBASE_PROJECT_ID,
+        storageBucket: FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: FIREBASE_MESSAGING_SENDER_ID
       };
     }
 
@@ -181,16 +206,25 @@ export class AppRoot {
       nodeConfig: {
         STORE_KEY_PREFIX: "store"
       },
-      // TODO: fetch this from the provider's network
       // TODO: handle changes on the UI
-      network: "ropsten"
+      network: "kovan"
     });
   }
 
   async loadApps() {
     const apps = await PlaygroundAPIClient.getApps();
 
-    this.updateAppRegistry({ apps });
+    await this.updateAppRegistry({ apps });
+  }
+
+  async heartbeat() {
+    setInterval(async () => this.doHeartbeat(), HEARTBEAT_INTERVAL);
+    this.doHeartbeat();
+  }
+
+  async doHeartbeat() {
+    const heartbeat = await PlaygroundAPIClient.getHeartbeat();
+    this.updateAppRegistry({ ...heartbeat });
   }
 
   bindProviderEvents() {
@@ -248,11 +282,32 @@ export class AppRoot {
     return loggedUser;
   }
 
+  async deleteAccount(): Promise<void> {
+    const token = window.localStorage.getItem(
+      "playground:user:token"
+    ) as string;
+
+    if (!token) {
+      console.error("Couldn't delete account; no token was provided");
+      return;
+    }
+
+    const user = await PlaygroundAPIClient.getUser(token);
+
+    try {
+      await PlaygroundAPIClient.deleteAccount(user);
+      this.updateAccount({ hasCorruptStateChannelState: false });
+    } finally {
+      this.logout();
+      return;
+    }
+  }
+
   async getBalances({ poll = false } = {}): Promise<{
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.001");
+    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
@@ -273,9 +328,24 @@ export class AppRoot {
       params: { multisigAddress } as Node.GetFreeBalanceStateParams
     };
 
-    const { result } = await node.call(query.type, query);
+    let response;
 
-    const { state } = result as Node.GetFreeBalanceStateResult;
+    try {
+      response = await node.call(query.type, query);
+    } catch (e) {
+      // TODO: Use better typed error messages with error codes
+      if (e.includes("Call to getStateChannel failed")) {
+        await this.updateAccount({ hasCorruptStateChannelState: true });
+        return {
+          ethFreeBalanceWei: ethers.constants.Zero,
+          ethMultisigBalance: ethers.constants.Zero
+        };
+      }
+
+      throw e;
+    }
+
+    const { state } = response.result as Node.GetFreeBalanceStateResult;
 
     // Had to reimplement this on the frontend because the method can't be imported
     // due to ethers not playing nice with ES Modules in this context.
@@ -309,15 +379,21 @@ export class AppRoot {
       ethCounterpartyFreeBalanceWei: counterpartyBalance
     };
 
-    const canUseApps =
-      myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE) &&
-      counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const enoughCounterpartyBalance = counterpartyBalance.gte(
+      MINIMUM_EXPECTED_FREE_BALANCE
+    );
+    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
 
-    this.updateAppRegistry({
+    await this.updateAppRegistry({
       canUseApps
     });
 
-    await this.updateAccount(vals);
+    await this.updateAccount({
+      ...vals,
+      enoughCounterpartyBalance,
+      enoughLocalBalance
+    });
 
     // TODO: Replace this with a more event-driven approach,
     // based on a list of collateralized deposits.
@@ -350,15 +426,8 @@ export class AppRoot {
   }
 
   async deposit(valueInWei: BigNumber) {
-    let multisigAddress = this.accountState.user.multisigAddress;
-    while (!multisigAddress) {
-      multisigAddress = this.accountState.user.multisigAddress;
-      if (multisigAddress) {
-        break;
-      }
-      await delay(1000);
-      console.log("waited for a second");
-    }
+    const token = localStorage.getItem("playground:user:token")!;
+    const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
     const node = CounterfactualNode.getInstance();
 
@@ -372,12 +441,14 @@ export class AppRoot {
     let ret;
 
     try {
+      const amount = ethers.utils.bigNumberify(valueInWei);
+
       ret = await node.call(Node.MethodName.DEPOSIT, {
         type: Node.MethodName.DEPOSIT,
         requestId: window["uuid"](),
         params: {
+          amount,
           multisigAddress,
-          amount: ethers.utils.bigNumberify(valueInWei),
           notifyCounterparty: true
         } as Node.DepositParams
       });
@@ -428,60 +499,17 @@ export class AppRoot {
   }
 
   waitForMultisig() {
+    const node = CounterfactualNode.getInstance();
+    node.once(
+      Node.EventName.CREATE_CHANNEL,
+      this.setMultisigAddress.bind(this)
+    );
+  }
+
+  async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
     const { user } = this.accountState;
-    const provider = this.walletState.provider as Web3Provider;
-
-    provider.once(user.transactionHash, async () => {
-      await this.fetchMultisig();
-    });
-  }
-
-  async requestToDepositInitialFunding() {
-    const { precommitedDepositAmountWei } = this.accountState;
-
-    if (precommitedDepositAmountWei) {
-      this.modal = (
-        <widget-dialog
-          visible={true}
-          dialogTitle="Your account is ready!"
-          content="To complete your registration, we'll ask you to confirm the deposit in the next step."
-          primaryButtonText="Proceed"
-          onPrimaryButtonClicked={async () =>
-            await this.confirmDepositInitialFunding()
-          }
-        />
-      );
-    }
-  }
-
-  async fetchMultisig(token?: string) {
-    let userToken = token;
-
-    if (!userToken) {
-      userToken = this.accountState.user.token;
-    }
-
-    const user = await PlaygroundAPIClient.getUser(userToken as string);
-
+    user.multisigAddress = createChannelMsg.data.multisigAddress;
     await this.updateAccount({ user });
-
-    if (!user.multisigAddress) {
-      await delay(1000);
-      await this.fetchMultisig(userToken);
-    } else {
-      await this.requestToDepositInitialFunding();
-    }
-  }
-
-  async confirmDepositInitialFunding() {
-    this.modal = {};
-
-    await this.deposit(this.accountState
-      .precommitedDepositAmountWei as BigNumber);
-
-    this.updateAccount({
-      precommitedDepositAmountWei: undefined
-    });
   }
 
   async autoLogin() {
@@ -529,6 +557,27 @@ export class AppRoot {
     }.etherscan.io/tx/${tx}`;
   }
 
+  upgrade() {
+    const keysToPreserve = ["MNEMONIC", "playground:matchmakeWith"];
+
+    const preservedKeys = keysToPreserve
+      .map(key => ({ [key]: localStorage.getItem(key) as string }))
+      .reduce((obj, keyContainer) => ({ ...obj, ...keyContainer }), {});
+
+    window.localStorage.clear();
+
+    keysToPreserve.forEach(key => {
+      window.localStorage.setItem(key, preservedKeys[key]);
+    });
+
+    window.localStorage.setItem(
+      "playground:schemaVersion",
+      this.appRegistryState.schemaVersion
+    );
+
+    window.location.reload();
+  }
+
   render() {
     this.accountState = {
       ...this.accountState,
@@ -536,6 +585,7 @@ export class AppRoot {
       waitForMultisig: this.waitForMultisig.bind(this),
       login: this.login.bind(this),
       logout: this.logout.bind(this),
+      deleteAccount: this.deleteAccount.bind(this),
       getBalances: this.getBalances.bind(this),
       autoLogin: this.autoLogin.bind(this),
       deposit: this.deposit.bind(this),
@@ -553,8 +603,48 @@ export class AppRoot {
 
     this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
+    if (this.appRegistryState.maintenanceMode) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="Under maintenance"
+          content={
+            <p>
+              Sorry! We're currently working on a few things behind the scenes
+              to keep the demo functional. Please come back later. In the
+              meantime, follow us on Twitter
+              <a href="https://twitter.com/statechannels" target="_blank">
+                {" "}
+                @statechannels{" "}
+              </a>
+              to learn more and keep up to date on the project.
+            </p>
+          }
+        />
+      );
+    }
+
     if (this.loading) {
-      return;
+      return <widget-spinner type="dots" />;
+    }
+
+    const localSchemaVersion = window.localStorage.getItem(
+      "playground:schemaVersion"
+    ) as string;
+
+    if (
+      localSchemaVersion &&
+      localSchemaVersion !== this.appRegistryState.schemaVersion
+    ) {
+      return (
+        <widget-dialog
+          visible={true}
+          dialogTitle="A new version of the Playground is available!"
+          content="Click OK to update your experience."
+          primaryButtonText="OK"
+          onPrimaryButtonClicked={this.upgrade.bind(this)}
+        />
+      );
     }
 
     return (
@@ -602,6 +692,7 @@ export class AppRoot {
                 walletState={this.walletState}
               />
               {this.modal || {}}
+              {this.redirect || {}}
             </div>
           </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>

@@ -7,6 +7,8 @@ export type AccountState = {
   user: UserSession;
   error?: ErrorMessage;
 
+  hasCorruptStateChannelState?: boolean;
+
   precommitedDepositAmountWei?: BigNumber;
 
   ethMultisigBalance: BigNumber;
@@ -19,9 +21,13 @@ export type AccountState = {
   ethPendingDepositTxHash?: string;
   ethPendingWithdrawalTxHash?: string;
 
+  enoughCounterpartyBalance: boolean;
+  enoughLocalBalance: boolean;
+
   updateAccount?(data: Partial<AccountState>): Promise<void>;
   login?(): Promise<UserSession>;
   logout?(): void;
+  deleteAccount?(): Promise<void>;
   getBalances?(): Promise<
     { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   >;

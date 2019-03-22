@@ -3,6 +3,7 @@ import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
+import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
@@ -20,8 +21,22 @@ export default class ProposeInstallController extends NodeController {
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
-  ): Promise<Queue> {
-    return requestHandler.getShardedQueue("proposals");
+  ): Promise<Queue[]> {
+    const { store } = requestHandler;
+    const { proposedToIdentifier } = params;
+
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([
+        requestHandler.publicIdentifier,
+        proposedToIdentifier
+      ])
+    );
+
+    return [
+      requestHandler.getShardedQueue(
+        await store.getMultisigAddressFromAppInstanceID(multisigAddress)
+      )
+    ];
   }
 
   protected async executeMethodImplementation(

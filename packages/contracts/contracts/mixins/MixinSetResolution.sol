@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity 0.5.6;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -28,7 +28,7 @@ contract MixinSetResolution is
   {
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
-    AppChallenge storage app = appStates[identityHash];
+    AppChallenge storage app = appChallenges[identityHash];
 
     require(
       app.status == AppStatus.OFF ||

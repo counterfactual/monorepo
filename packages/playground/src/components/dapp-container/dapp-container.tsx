@@ -26,6 +26,9 @@ export class DappContainer {
 
   @Prop() user: UserSession = {} as UserSession;
   @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
+  @Prop() getBalances: () => Promise<
+    { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
+  > = async () => undefined;
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
@@ -74,6 +77,8 @@ export class DappContainer {
     this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this));
     this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this));
 
+    this.node.on("protocolMessageEvent", this.getBalances.bind(this));
+
     /**
      * Once the component has loaded, we store a reference of the IFRAME
      * element's window so we can bind the message relay system.
@@ -91,9 +96,6 @@ export class DappContainer {
 
     // Callback for processing Playground UI messages
     window.addEventListener("message", this.handlePlaygroundMessage.bind(this));
-
-    // Callback for passing an app instance, if available.
-    iframe.addEventListener("load", this.sendAppInstance.bind(this));
 
     this.iframe = iframe;
   }
@@ -126,6 +128,14 @@ export class DappContainer {
       await this.sendResponseForMatchmakeRequest(this.frameWindow);
     }
 
+    if (event.data === "playground:request:appInstance") {
+      await this.sendResponseForAppInstance(this.frameWindow);
+    }
+
+    if (event.data === "playground:request:getBalances") {
+      await this.sendResponseForGetBalances(this.frameWindow);
+    }
+
     if (event.data.startsWith("playground:send:dappRoute")) {
       const [, data] = event.data.split("|");
       const searchParams = new URLSearchParams(window.location.search);
@@ -144,11 +154,11 @@ export class DappContainer {
   }
 
   private async sendResponseForRequestUser(frameWindow: Window) {
-    if (!this.ethMultisigBalance) {
-      throw Error(
-        "Cannot send response for user request: no multisig balance found"
-      );
-    }
+    // if (!this.ethMultisigBalance) {
+    //   throw Error(
+    //     "Cannot send response for user request: no multisig balance found"
+    //   );
+    // }
     frameWindow.postMessage(
       `playground:response:user|${JSON.stringify({
         user: {
@@ -271,27 +281,44 @@ export class DappContainer {
     }
   }
 
-  private sendAppInstance(): void {
+  private sendResponseForAppInstance(frameWindow): void {
     const dappInstallationRequest = window.localStorage.getItem(
       "playground:installingDapp"
     );
 
-    if (!this.frameWindow || !dappInstallationRequest) {
+    if (!frameWindow || !dappInstallationRequest) {
       return;
     }
 
     const { installedApp } = JSON.parse(dappInstallationRequest);
 
-    this.frameWindow.postMessage(
-      `playground:appInstance|${
+    frameWindow.postMessage(
+      `playground:response:appInstance|${
         installedApp ? JSON.stringify(installedApp) : ""
       }`,
       "*"
     );
 
+    if (installedApp) {
+      console.log("Playground sent appInstance", JSON.stringify(installedApp));
+    }
+
     window.localStorage.removeItem("playground:installingDapp");
+  }
+
+  private async sendResponseForGetBalances(frameWindow): Promise<void> {
+    const balances = await this.getBalances();
+
+    frameWindow.postMessage(
+      `playground:response:getBalances|${JSON.stringify(balances)}`,
+      "*"
+    );
   }
 }
 
 AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
-AccountTunnel.injectProps(DappContainer, ["ethMultisigBalance", "user"]);
+AccountTunnel.injectProps(DappContainer, [
+  "ethMultisigBalance",
+  "getBalances",
+  "user"
+]);

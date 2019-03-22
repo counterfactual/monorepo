@@ -37,3 +37,32 @@ Instead of using the regular PostgreSQL database, the test scope uses a volatile
 ## Environment settings
 
 Unlike other packages, the Server relies on a [`.env-cmdrc`](./.env-cmdrc) which allows to configure multiple environments in the same file. See [env-cmd](https://www.npmjs.com/package/env-cmd#rc-file-usage)'s reference for more information on how it works.
+
+## Funding the Hub Account for Playground Testing
+
+### Where do I send Kovan ETH for testing?
+
+First of all, you need to generate a mnemonic:
+
+```node
+$ node
+> require("ethers").Wallet.createRandom().mnemonic
+'camera enter drive paper elegant camp above attend board thought inch crash'
+```
+
+And save it in `.env.defaults`.
+
+**Option 1** Compute the address:
+
+```node
+$ node
+> const x = require("ethers").Wallet.createRandom().mnemonic;
+> require("ethers").utils.HDNode.fromMnemonic(x).derivePath("m/44'/60'/0'/25446").address
+'0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c'
+```
+
+**Option 2** Read the logs of `playground-server` when running it:
+
+```
+@counterfactual/playground-server: Node signer address: 0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c
+```

@@ -1,5 +1,9 @@
 import {
+  confirmFirebaseConfigurationEnvVars,
+  confirmLocalFirebaseConfigurationEnvVars,
   DepositConfirmationMessage,
+  devAndTestingEnvironments,
+  FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory,
   IMessagingService,
   IStoreService,
@@ -7,19 +11,21 @@ import {
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
+import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
+import { Log } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
-import { bindMultisigToUser } from "./db";
+import { bindMultisigToUser, getUsernameFromMultisigAddress } from "./db";
+import informSlack from "./utils";
 
 export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
   firebaseServer: FirebaseServer;
   constructor(private readonly host: string, private readonly port: string) {
     super({
       databaseURL: `ws://${host}:${port}`,
-      projectId: "something",
+      projectId: "projectId",
       apiKey: "",
       authDomain: "",
       storageBucket: "",
@@ -35,20 +41,26 @@ export class LocalFirebaseServiceFactory extends FirebaseServiceFactory {
 }
 
 export let serviceFactory: FirebaseServiceFactory;
-if (process.env.FIREBASE_SERVER_HOST && process.env.FIREBASE_SERVER_PORT) {
-  serviceFactory = new LocalFirebaseServiceFactory(
-    process.env.FIREBASE_SERVER_HOST,
-    process.env.FIREBASE_SERVER_PORT
-  );
-} else {
+
+console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
+if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+  confirmFirebaseConfigurationEnvVars();
   serviceFactory = new FirebaseServiceFactory({
-    apiKey: "AIzaSyA5fy_WIAw9mqm59mdN61CiaCSKg8yd4uw",
-    authDomain: "foobar-91a31.firebaseapp.com",
-    databaseURL: "https://foobar-91a31.firebaseio.com",
-    projectId: "foobar-91a31",
-    storageBucket: "foobar-91a31.appspot.com",
-    messagingSenderId: "432199632441"
+    apiKey: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.apiKey]!,
+    authDomain: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authDomain]!,
+    databaseURL: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.databaseURL]!,
+    projectId: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.projectId]!,
+    storageBucket: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.storageBucket]!,
+    messagingSenderId: process.env[
+      FIREBASE_CONFIGURATION_ENV_KEYS.messagingSenderId
+    ]!
   });
+} else {
+  confirmLocalFirebaseConfigurationEnvVars();
+  serviceFactory = new LocalFirebaseServiceFactory(
+    process.env.FIREBASE_SERVER_HOST!,
+    process.env.FIREBASE_SERVER_PORT!
+  );
 }
 
 export default class NodeWrapper {
@@ -87,6 +99,13 @@ export default class NodeWrapper {
       return NodeWrapper.node;
     }
 
+    if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+      await serviceFactory.auth(
+        process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
+        process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
+      );
+    }
+
     const store =
       storeService ||
       serviceFactory.createStoreService(
@@ -110,6 +129,10 @@ export default class NodeWrapper {
       NodeTypes.EventName.CREATE_CHANNEL,
       onMultisigDeployed.bind(this)
     );
+
+    Log.info("Node singleton instance ready", {
+      tags: { ethAddress: NodeWrapper.node["signer"]["address"] }
+    });
 
     return NodeWrapper.node;
   }
@@ -141,7 +164,10 @@ export default class NodeWrapper {
       {
         STORE_KEY_PREFIX: "store"
       },
-      provider || ethers.getDefaultProvider(networkOrNetworkContext as string),
+      provider ||
+        new JsonRpcProvider(
+          `https://${networkOrNetworkContext}.infura.io/metamask`
+        ),
       networkOrNetworkContext
     );
 
@@ -149,7 +175,7 @@ export default class NodeWrapper {
   }
 
   public static async createStateChannelFor(
-    userAddress: string
+    nodeAddress: string
   ): Promise<NodeTypes.CreateChannelTransactionResult> {
     if (!NodeWrapper.node) {
       throw new Error(
@@ -163,7 +189,7 @@ export default class NodeWrapper {
       NodeTypes.MethodName.CREATE_CHANNEL,
       {
         params: {
-          owners: [node.publicIdentifier, userAddress]
+          owners: [node.publicIdentifier, nodeAddress]
         } as NodeTypes.CreateChannelParams,
         type: NodeTypes.MethodName.CREATE_CHANNEL,
         requestId: generateUUID()
@@ -179,6 +205,18 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     return;
   }
 
+  const username = await getUsernameFromMultisigAddress(
+    response.data.multisigAddress
+  );
+
+  informSlack(
+    `💰 *USER_DEPOSITED* (_${username}_) | User deposited ${formatEther(
+      response.data.amount
+    )} ETH <http://kovan.etherscan.io/address/${
+      response.data.multisigAddress
+    }|_(view on etherscan)_>.`
+  );
+
   try {
     await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
       requestId: generateUUID(),
@@ -186,8 +224,18 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
       params: response.data as NodeTypes.DepositParams
     });
   } catch (e) {
-    console.error("Failed to deposit on the server...", e);
+    Log.error("Failed to deposit on the server", {
+      tags: { error: e }
+    });
   }
+
+  informSlack(
+    `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
+      response.data.amount
+    )} ETH <http://kovan.etherscan.io/address/${
+      response.data.multisigAddress
+    }|_(view on etherscan)_>.`
+  );
 }
 
 export async function onMultisigDeployed(

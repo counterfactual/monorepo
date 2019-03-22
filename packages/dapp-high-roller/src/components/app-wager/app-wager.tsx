@@ -63,18 +63,22 @@ export class AppWager {
     try {
       const initialState: HighRollerAppState = {
         playerAddrs: [
-          this.account.user.ethAddress,
-          this.opponent.attributes.ethAddress
+          ethers.utils.HDNode.fromExtendedKey(
+            this.account.user.nodeAddress
+          ).derivePath("0").address,
+          ethers.utils.HDNode.fromExtendedKey(
+            this.opponent.attributes.nodeAddress
+          ).derivePath("0").address
         ],
         stage: HighRollerStage.PRE_GAME,
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0,
-        playerNames: [
-          this.account.user.username,
-          this.opponent.attributes.username
-        ]
+        playerSecondNumber: 0
+        // playerNames: [
+        //   this.account.user.username,
+        //   this.opponent.attributes.username
+        // ]
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
@@ -103,7 +107,7 @@ export class AppWager {
         },
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
-        timeout: 10000,
+        timeout: 172800,
         intermediaries: [this.intermediary]
       });
 

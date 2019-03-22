@@ -1,9 +1,5 @@
-import { Component, Element, Prop, Watch } from "@stencil/core";
+import { Component, Element, Prop } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
-
-import CounterfactualTunnel from "../../data/counterfactual";
-import { AppInstance } from "../../data/mock-app-instance";
-import { cf } from "../../data/types";
 
 /**
  * User Story
@@ -18,30 +14,12 @@ import { cf } from "../../data/types";
 export class AppLogo {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
 
-  @Prop() goToWaitingRoom: (
-    history: RouterHistory,
-    initialState: any
-  ) => void = () => {};
   @Prop() provideRouterHistory: (history: RouterHistory) => void = () => {};
-  @Prop() appInstance: any;
   @Prop() history: RouterHistory = {} as RouterHistory;
-  @Prop() cfProvider: cf.Provider = {} as cf.Provider;
-  @Prop() opponent: any;
-  @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
 
-  @Watch("cfProvider")
-  async onCfProviderReady() {
-    if (this.appInstance) {
-      const appInstance = await this.cfProvider.getOrCreateAppInstance(
-        this.appInstance.id,
-        this.appInstance
-      );
-      this.updateAppInstance(appInstance);
-      this.goToWaitingRoom(this.history, this.opponent);
-    }
-  }
   async componentWillLoad() {
     this.provideRouterHistory(this.history);
+    window.parent.postMessage("playground:request:appInstance", "*");
   }
 
   render() {
@@ -59,5 +37,3 @@ export class AppLogo {
     );
   }
 }
-
-CounterfactualTunnel.injectProps(AppLogo, ["cfProvider", "opponent"]);

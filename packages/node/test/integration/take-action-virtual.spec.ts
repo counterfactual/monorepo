@@ -131,10 +131,10 @@ describe("Node method follows spec - takeAction virtual", () => {
           }
         };
 
-        nodeA.on(
+        nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.on(
+            nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
                 const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(

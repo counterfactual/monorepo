@@ -168,6 +168,7 @@ function determineActionType(board: Board, botPlayerNumber: number) {
 }
 
 export async function connectNode(
+  botName: string,
   node: Node,
   botPublicIdentifier: string,
   multisigAddress?: string
@@ -185,26 +186,31 @@ export async function connectNode(
       requestId: generateUUID()
     };
 
-    await node.call(request.type, request);
-
-    node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
-      if (updateEventData.data.appInstanceId === appInstanceId) {
-        respond(node, botPublicIdentifier, updateEventData);
-      }
-    });
-
-    if (multisigAddress) {
-      node.on(
-        NodeTypes.EventName.UNINSTALL_VIRTUAL,
-        async (uninstallMsg: UninstallVirtualMessage) => {
-          console.info(`Uninstalled app`);
-          console.info(uninstallMsg);
-          renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+    try {
+      await node.call(request.type, request);
+      node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
+        if (updateEventData.data.appInstanceId === appInstanceId) {
+          respond(node, botPublicIdentifier, updateEventData);
         }
-      );
+      });
+    } catch (e) {
+      console.error("Node call to install virtual app failed.");
+      console.error(request);
+      console.error(e);
     }
   });
-  console.info("Bot is ready to serve");
+
+  if (multisigAddress) {
+    node.on(
+      NodeTypes.EventName.UNINSTALL_VIRTUAL,
+      async (uninstallMsg: UninstallVirtualMessage) => {
+        console.info(`Uninstalled app`);
+        console.info(uninstallMsg);
+        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+      }
+    );
+  }
+  console.info(`Bot ${botName} is ready to serve`);
 }
 
 type BoardSquare = number | BigNumber;

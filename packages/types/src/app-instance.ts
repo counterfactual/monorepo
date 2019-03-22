@@ -37,7 +37,7 @@ export type AppInterface = {
 };
 
 export type SignedStateHashUpdate = {
-  stateHash: string;
+  appStateHash: string;
   nonce: number;
   timeout: number;
   signatures: string;

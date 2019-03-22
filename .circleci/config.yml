@@ -132,16 +132,6 @@ workflows:
           requires:
             - build
 
-      - heroku/deploy-via-git:
-          requires:
-            - build
-            - run-tests
-            - run-playground-tests
-            - run-tslint
-          filters:
-            branches:
-              only: master
-
       - publish-to-npm:
           requires:
             - build
@@ -151,3 +141,29 @@ workflows:
           filters:
             branches:
               only: master
+
+      - heroku/deploy-via-git:
+          app-name: playground-server-staging
+          requires:
+            - publish-to-npm
+          filters:
+            branches:
+              only: master
+
+      - heroku/deploy-via-git:
+          app-name: hr-bot-staging
+          requires:
+            - publish-to-npm
+          filters:
+            branches:
+              only: master
+
+      - heroku/deploy-via-git:
+          app-name: ttt-bot-staging
+          requires:
+            - publish-to-npm
+          filters:
+            branches:
+              only: master
+
+

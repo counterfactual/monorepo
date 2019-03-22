@@ -1,4 +1,4 @@
-pragma solidity 0.5.3;
+pragma solidity 0.5.6;
 
 
 /// @title LibStateChannelApp
@@ -23,6 +23,8 @@ contract LibStateChannelApp {
   }
 
   // A structure representing the state of an AppInstance from POV of the blockchain
+  // NOTE: AppChallenge is the overall state of an channelized app instance,
+  // AppState refers to the states specific to the AppDefinition(e.g. chess position)
   struct AppChallenge {
     AppStatus status;
     address latestSubmitter;

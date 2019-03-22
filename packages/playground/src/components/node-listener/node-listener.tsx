@@ -7,8 +7,10 @@ import { RouterHistory } from "@stencil/router";
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
-import WalletTunnel, { WalletState } from "../../data/wallet";
+import WalletTunnel from "../../data/wallet";
 import { AppDefinition } from "../../types";
+
+const KOVAN_NETWORK_ID = "42";
 
 type NodeMessageHandlerCallback = (data: any) => void;
 type NodeMessageResolver = { [key: string]: NodeMessageHandlerCallback };
@@ -93,10 +95,15 @@ export class NodeListener {
         request
       )).result as Node.InstallVirtualResult;
 
-      const app = this.apps.find(
-        app => app.id === installedApp.appInstance.appId
-      ) as AppDefinition;
+      const app: AppDefinition = this.apps.find(app => {
+        return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
+      })!;
 
+      if (!app) {
+        throw Error(
+          "You've received an installation proposal from a different Ethereum network"
+        );
+      }
       window.localStorage.setItem(
         "playground:installingDapp",
         JSON.stringify({

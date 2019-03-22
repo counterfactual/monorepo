@@ -1,4 +1,6 @@
-import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
+
+import AppRegistryTunnel from "../../../data/app-registry";
 
 @Component({
   tag: "apps-list-item",
@@ -6,12 +8,14 @@ import { Component, Event, EventEmitter, Prop } from "@stencil/core";
   shadow: true
 })
 export class AppsListItem {
+  @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
+
   @Event() appClicked: EventEmitter = {} as EventEmitter;
   @Prop() icon: string = "";
   @Prop() name: string = "";
   @Prop() notifications: number | null = null;
   @Prop() url: string = "";
-  @Prop() canUse: boolean = false;
+  @Prop() canUseApps: boolean = false;
 
   private getAppSlug() {
     return this.name.toLowerCase().replace(/ /g, "-");
@@ -25,7 +29,7 @@ export class AppsListItem {
   private openApp(event: MouseEvent) {
     event.preventDefault();
 
-    if (!this.canUse) {
+    if (!this.canUseApps) {
       return;
     }
 
@@ -40,7 +44,7 @@ export class AppsListItem {
     return (
       <li class="item">
         <a
-          href={this.canUse ? `/dapp/${this.getAppSlug()}` : "#"}
+          href={this.canUseApps ? `/dapp/${this.getAppSlug()}` : "#"}
           onClick={e => this.openApp(e)}
         >
           <div class="icon">
@@ -55,3 +59,5 @@ export class AppsListItem {
     );
   }
 }
+
+AppRegistryTunnel.injectProps(AppsListItem, ["canUseApps"]);

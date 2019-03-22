@@ -35,9 +35,12 @@ export class AppProvider {
   @Prop() highRoller: (
     num1: number,
     num2: number
-  ) => Promise<{ myRoll: number[]; opponentRoll: number[] }> = async () => ({
-    myRoll: [0, 0],
-    opponentRoll: [0, 0]
+  ) => Promise<{
+    playerFirstRoll: number[];
+    playerSecondRoll: number[];
+  }> = async () => ({
+    playerFirstRoll: [0, 0],
+    playerSecondRoll: [0, 0]
   });
   @Prop() generateRandomRoll: () => number[] = () => [0, 0];
   @Prop() highRollerState: HighRollerAppState = {} as HighRollerAppState;
@@ -76,9 +79,10 @@ export class AppProvider {
     this.cfProvider.on("uninstall", this.onUninstall.bind(this));
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
+    const appId = "0x91907355C59BA005843E791c88aAB80b779446c9";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
+      appId,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
@@ -92,24 +96,21 @@ export class AppProvider {
     this.updateCfProvider(this.cfProvider);
   }
 
-  isReadyForHighRoller(state) {
+  isReadyForHighRoller(state: HighRollerAppState) {
     return (
       bn(state.playerFirstNumber).toNumber() &&
-      bn(state.playerSecondNumber).toNumber()
+      bn(state.playerSecondNumber).toNumber() &&
+      state.stage === HighRollerStage.DONE
     );
   }
 
   async onUpdateState({ data }: { data: Node.UpdateStateEventData }) {
-    const newStateArray = (data as Node.UpdateStateEventData).newState;
+    const newState = (data as Node.UpdateStateEventData).newState;
 
     const state = {
-      playerAddrs: newStateArray[0],
-      stage: newStateArray[1],
-      salt: newStateArray[2],
-      commitHash: newStateArray[3],
+      ...newState,
       playerFirstNumber:
-        this.highRollerState.playerFirstNumber || newStateArray[4],
-      playerSecondNumber: newStateArray[5]
+        this.highRollerState.playerFirstNumber || newState["playerFirstNumber"]
     } as HighRollerAppState;
 
     console.log(
@@ -118,6 +119,18 @@ export class AppProvider {
       "playerSecondNumber",
       state.playerSecondNumber
     );
+
+    if (state.stage === HighRollerStage.REVEALING) {
+      // TODO randomize this and save it in proposingPlayer state
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
+      return await this.appInstance.takeAction({
+        actionType: ActionType.REVEAL,
+        actionHash: numberSalt,
+        number: state.playerFirstNumber.toString()
+      });
+    }
 
     if (!this.isReadyForHighRoller(state)) {
       this.updateUIState({ highRollerState: state });
@@ -133,10 +146,11 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    const myRoll =
-      state.stage < HighRollerStage.DONE ? rolls.myRoll : rolls.opponentRoll;
-    const opponentRoll =
-      state.stage < HighRollerStage.DONE ? rolls.opponentRoll : rolls.myRoll;
+    const isProposing = state.stage === HighRollerStage.DONE;
+    const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
+    const opponentRoll = isProposing
+      ? rolls.playerSecondRoll
+      : rolls.playerFirstRoll;
 
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
@@ -162,18 +176,6 @@ export class AppProvider {
     };
 
     this.updateUIState(newUIState);
-
-    if (state.stage === HighRollerStage.REVEALING) {
-      const numberSalt =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-      const hash = computeCommitHash(numberSalt, state.playerFirstNumber);
-
-      await this.appInstance.takeAction({
-        actionType: ActionType.REVEAL,
-        actionHash: hash,
-        number: state.playerFirstNumber.toString()
-      });
-    }
 
     if (state.stage === HighRollerStage.DONE) {
       await this.appInstance.uninstall(this.intermediary);

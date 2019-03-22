@@ -26,7 +26,7 @@ export class AccountEthForm {
   }
 
   openFaucet() {
-    window.open("https://faucet.metamask.io/", "_blank");
+    window.open("https://faucet.kovan.network/", "_blank");
   }
 
   handleSubmit(event) {
@@ -34,10 +34,10 @@ export class AccountEthForm {
 
     const value = Number(this.value);
 
-    if (value < this.min || value > this.max) {
-      this.error = `Please enter a value between ${this.min} and ${
+    if (!value || value < this.min || value > this.max) {
+      this.error = `Enter an amount larger than ${this.min} and smaller than ${
         this.max
-      } ETH.`;
+      }.`;
       return;
     }
 

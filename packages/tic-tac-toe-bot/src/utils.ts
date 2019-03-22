@@ -7,6 +7,9 @@ import { v4 as generateUUID } from "uuid";
 import { connectNode } from "./bot";
 
 const API_TIMEOUT = 30000;
+const DELAY_SECONDS = process.env.DELAY_SECONDS
+  ? Number(process.env.DELAY_SECONDS)
+  : 5;
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
@@ -28,19 +31,20 @@ export async function getFreeBalance(
 export function renderFreeBalanceInEth(
   freeBalance: NodeTypes.GetFreeBalanceStateResult
 ) {
-  const { aliceBalance, bobBalance } = freeBalance.state;
+  const { alice, aliceBalance, bob, bobBalance } = freeBalance.state;
   console.info(`Channel's free balance`);
-  console.info(`Alice: ${formatEther(aliceBalance)}`);
-  console.info(`Bob: ${formatEther(bobBalance)}`);
+  console.info(`Alice: ${formatEther(aliceBalance)}  - (${alice})`);
+  console.info(`Bob: ${formatEther(bobBalance)}  - (${bob})`);
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
   const bot = await getUser(baseURL, token);
   if (!bot.multisigAddress) {
     console.info(
-      "The Bot doesn't have a channel with the Playground yet...Waiting for another 5 seconds"
+      `The Bot doesn't have a channel with the Playground yet...Waiting for another ${DELAY_SECONDS} seconds`
     );
-    await delay(5000).then(() => fetchMultisig(baseURL, token));
+    // Convert to milliseconds
+    await delay(DELAY_SECONDS * 1000).then(() => fetchMultisig(baseURL, token));
   }
   return (await getUser(baseURL, token)).multisigAddress;
 }
@@ -50,8 +54,13 @@ export async function fetchMultisig(baseURL: string, token: string) {
 export async function deposit(
   node: Node,
   amount: string,
-  multisigAddress: string
+  multisigAddress: string,
+  skip: boolean = false
 ) {
+  if (skip) {
+    return;
+  }
+
   const { aliceBalance, bobBalance } = (await getFreeBalance(
     node,
     multisigAddress
@@ -80,8 +89,10 @@ export async function deposit(
           updatedBobBalance
         )
       ) {
-        console.info("Waiting 2 more seconds for counter party deposit");
-        await delay(2000);
+        console.info(
+          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
+        );
+        await delay(DELAY_SECONDS * 1000);
       }
     } else if (updatedFreeBalance.state.bobBalance.gt(bobBalance)) {
       console.info("Waiting for counter party to deposit same amount");
@@ -90,8 +101,10 @@ export async function deposit(
           updatedAliceBalance
         )
       ) {
-        console.info("Waiting 2 more second for counter party deposit");
-        await delay(2000);
+        console.info(
+          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
+        );
+        await delay(DELAY_SECONDS * 1000);
       }
     } else {
       throw Error(`Neither balance was updated.\n
@@ -145,7 +158,23 @@ async function get(
 
   requestTimeout.cancel();
 
-  const response = (await httpResponse.json()) as APIResponse;
+  let response;
+  let retriesAvailable = 10;
+
+  while (typeof response === "undefined") {
+    try {
+      response = (await httpResponse.json()) as APIResponse;
+    } catch (e) {
+      retriesAvailable -= 1;
+      if (e.type === "invalid-json" && retriesAvailable >= 0) {
+        console.log(
+          `Call to ${baseURL}/api/${endpoint} returned invalid JSON. Retrying (attempt #${10 -
+            retriesAvailable}).`
+        );
+        await delay(3000);
+      } else throw e;
+    }
+  }
 
   if (response.errors) {
     const error = response.errors[0] as APIError;
@@ -185,13 +214,14 @@ async function post(
 }
 
 export async function afterUser(
+  botName: string,
   node: Node,
   botPublicIdentifer: string,
   multisigAddress: string
 ) {
   console.log("Setting up bot's event handlers");
 
-  await connectNode(node, botPublicIdentifer, multisigAddress);
+  await connectNode(botName, node, botPublicIdentifer, multisigAddress);
 }
 
 // TODO: don't duplicate these from PG for consistency
@@ -205,6 +235,21 @@ export async function createAccount(
     const data = toAPIResource<UserChangeset, UserAttributes>(user);
     const json = (await post(baseURL, "users", data, signature)) as APIResponse;
     const resource = json.data as APIResource<UserAttributes>;
+
+    const jsonMultisig = (await post(
+      baseURL,
+      "multisig-deploys",
+      {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      },
+      signature
+    )) as APIResponse;
+    const resourceMultisig = jsonMultisig.data as APIResource<
+      Partial<UserAttributes>
+    >;
+
+    resource.attributes.transactionHash = resourceMultisig.id as string;
 
     return fromAPIResource<UserSession, UserAttributes>(resource);
   } catch (e) {

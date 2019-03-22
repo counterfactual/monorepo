@@ -20,7 +20,7 @@ import {
 declare var ethers;
 declare var web3;
 
-const { solidityKeccak256 } = ethers.utils;
+const { bigNumberify, solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
 
 @Component({
@@ -96,28 +96,29 @@ export class AppRoot {
         this.updateAccount(account);
 
         this.userDataReceived = true;
-
-        if (this.state.appInstance) {
-          this.updateOpponent({
-            attributes: {
-              username: this.state.appInstance.initialState.playerNames.find(
-                username => username !== this.state.account.user.username
-              ),
-              nodeAddress: this.state.appInstance.initialState.initiatingAddress
-            }
-          });
-        }
       }
 
       if (
         typeof event.data === "string" &&
-        event.data.startsWith("playground:appInstance")
+        event.data.startsWith("playground:response:appInstance")
       ) {
         const [, data] = event.data.split("|");
 
         if (data) {
+          console.log("Received playground appInstance: ", data);
           const { appInstance } = JSON.parse(data);
           this.updateAppInstance(appInstance);
+
+          this.updateOpponent({
+            attributes: {
+              // username: this.state.appInstance.initialState.playerNames.find(
+              //   username => username !== this.state.account.user.username
+              // ),
+              nodeAddress: this.state.appInstance.initialState.initiatingAddress
+            }
+          });
+
+          this.goToWaitingRoom(this.history);
         }
       }
     });
@@ -196,10 +197,10 @@ export class AppRoot {
   }
 
   async highRoller(
-    num1: number,
-    num2: number
-  ): Promise<{ myRoll: number[]; opponentRoll: number[] }> {
-    const randomness = solidityKeccak256(["uint256", "uint256"], [num1, num2]);
+    num1: any,
+    num2: any
+  ): Promise<{ playerFirstRoll: number[]; playerSecondRoll: number[] }> {
+    const randomness = solidityKeccak256(["uint256"], [num1.mul(num2)]);
 
     // The Contract interface
     const abi = [
@@ -209,7 +210,7 @@ export class AppRoot {
     // Connect to the network
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
-    const contractAddress = "0x6296F3ACf03b6D787BD1068B4DB8093c54d5d915";
+    const contractAddress = "0x91907355C59BA005843E791c88aAB80b779446c9";
 
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract
@@ -218,8 +219,8 @@ export class AppRoot {
     const result = await contract.highRoller(randomness);
 
     return {
-      myRoll: this.getDieNumbers(result[0]),
-      opponentRoll: this.getDieNumbers(result[1])
+      playerFirstRoll: this.getDieNumbers(result[0]),
+      playerSecondRoll: this.getDieNumbers(result[1])
     };
   }
 
@@ -304,7 +305,17 @@ export class AppRoot {
                       }}
                     />
                     <stencil-route url="/game" component="app-game" />
-                    <stencil-route url="/waiting" component="app-waiting" />
+                    <stencil-route
+                      url="/waiting"
+                      component="app-waiting"
+                      componentProps={{
+                        cfProvider: this.state.cfProvider,
+                        appInstance: this.state.appInstance,
+                        goToWaitingRoom: this.goToWaitingRoom,
+                        updateAppInstance: this.updateAppInstance,
+                        history: this.history
+                      }}
+                    />
                     <stencil-route
                       url="/accept-invite"
                       component="app-accept-invite"

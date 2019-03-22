@@ -68,7 +68,8 @@ export type APIResourceType =
   | "matchmakingRequest"
   | "matchedUser"
   | "session"
-  | "app";
+  | "app"
+  | "multisigDeploy";
 
 export type APIResourceRelationships = {
   [key in APIResourceType]?: APIDataContainer
@@ -138,4 +139,9 @@ export type AppAttributes = {
   slug: string;
   icon: string;
   url: string;
+};
+
+export type Heartbeat = {
+  schemaVersion: string;
+  maintenanceMode: boolean;
 };

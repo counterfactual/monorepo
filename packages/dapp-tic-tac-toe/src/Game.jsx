@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import Timer from './components/Timer';
 import Board from "./components/Board";
 import Coins from "./components/Coins";
 import Player from "./components/Player";
@@ -43,16 +42,14 @@ class Game extends Component {
   }) {
     this.updateGame({ players, turnNum, winner, board });
 
-    if (
-      window.ethers.utils.bigNumberify(this.myNumber).eq(winner) ||
-      window.ethers.utils.bigNumberify(this.opponentNumber).eq(winner)
-    ) {
+    if (!window.ethers.constants.Zero.eq(winner)) {
       try {
-        console.log("game over - uninstalling");
         await this.props.appInstance.uninstall(this.props.intermediary);
       } catch (e) {
         console.log("uninstall failed: ", e);
       }
+
+      window.parent.postMessage("playground:request:getBalances", "*");
     }
   }
 
@@ -72,13 +69,14 @@ class Game extends Component {
   }
 
   async takeAction(playX, playY) {
+    const { board } = this.state.gameState;
+
     this.setState({ pendingActionResponse: true });
 
-    const boardCopy = JSON.parse(JSON.stringify(this.state.gameState.board));
-    boardCopy[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
+    board[playX][playY] = window.ethers.utils.bigNumberify(this.myNumber);
 
-    const winClaim = checkVictory(boardCopy, this.myNumber);
-    const draw = checkDraw(boardCopy);
+    const winClaim = checkVictory(board, this.myNumber);
+    const draw = checkDraw(board);
 
     let actionType = 0;
 
@@ -104,11 +102,11 @@ class Game extends Component {
   }
 
   get myNumber() {
-    return (
-      this.state.gameState.players.indexOf(
-        window.ethers.utils.getAddress(this.state.my0thKeyAddress)
-      ) + 1
+    const index = this.state.gameState.players.indexOf(
+      window.ethers.utils.getAddress(this.state.my0thKeyAddress)
     );
+
+    return index === -1 ? index : index + 1;
   }
 
   get opponentNumber() {
@@ -153,7 +151,7 @@ class Game extends Component {
             onTakeAction={this.takeAction.bind(this)}
           />
 
-          {this.state.gameState.winner ? (
+          {window.ethers.utils.bigNumberify(this.state.gameState.winner).toNumber() ? (
             <Link to="/wager" className="btn">
               PLAY AGAIN!
             </Link>

@@ -62,6 +62,9 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     signatures: Signature[],
     intermediarySignature: Signature
   ): Transaction {
+    if (!intermediarySignature) {
+      throw Error("transaction must receive intermediary signature");
+    }
     return {
       to: this.networkContext.AppRegistry,
       value: 0,
@@ -78,7 +81,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     intermediarySignature: Signature
   ): any {
     return {
-      stateHash: this.hashedSolidityABIEncoderV2Struct!,
+      appStateHash: this.hashedSolidityABIEncoderV2Struct!,
       nonce: this.appLocalNonce!,
       timeout: this.timeout,
       signatures: signaturesToBytes(
