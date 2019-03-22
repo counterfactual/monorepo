@@ -76,6 +76,20 @@ export class AppRoot {
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
+    this.setSentryUser(this.accountState);
+  }
+
+  setSentryUser(accountState: AccountState) {
+    window["Sentry"].configureScope(scope => {
+      scope.setUser({
+        email: accountState.user.email,
+        username: accountState.user.username,
+        id: accountState.user.id
+      });
+      scope.setExtra("ethAddress", accountState.user.ethAddress);
+      scope.setExtra("multisigAddress", accountState.user.multisigAddress);
+      scope.setExtra("nodeAddress", accountState.user.nodeAddress);
+    });
   }
 
   async updateWalletConnection(newProps: WalletState) {
