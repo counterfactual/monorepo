@@ -9,6 +9,7 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
+import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
@@ -127,6 +128,7 @@ export class Node {
     return this;
   }
 
+  @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
   }
