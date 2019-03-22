@@ -221,7 +221,8 @@ export class AppRoot {
       // Do nothing
     } else {
       window["Sentry"].init({
-        dsn: "https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439"
+        dsn: "https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439",
+        release: `playground@${Date.now()}`
       });
     }
   }
