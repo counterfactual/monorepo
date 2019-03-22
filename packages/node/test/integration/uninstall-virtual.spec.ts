@@ -24,7 +24,7 @@ import {
   makeTTTVirtualAppInstanceProposalReq
 } from "./utils";
 
-describe("Node method follows spec - uninstall", () => {
+describe("Node method follows spec - uninstall virtual", () => {
   jest.setTimeout(80000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
@@ -111,10 +111,10 @@ describe("Node method follows spec - uninstall", () => {
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         };
 
-        nodeA.on(
+        nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.on(
+            nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (data: NodeTypes.CreateChannelResult) => {
                 const installVirtualAppInstanceProposalRequest = makeTTTVirtualAppInstanceProposalReq(

@@ -47,7 +47,7 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
       data: appRegistryIface.functions.setState.encode([
         this.freeBalanceAppIdentity,
         {
-          stateHash: this.freeBalanceStateHash,
+          appStateHash: this.freeBalanceStateHash,
           nonce: this.freeBalanceNonce,
           timeout: this.freeBalanceTimeout,
           // Don't need signatures since a multisig is always calling MultiSend

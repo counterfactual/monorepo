@@ -149,7 +149,7 @@ describe("ETHVirtualAppAgreement", () => {
     );
 
     await appRegistry.functions.setState(appIdentity, {
-      stateHash: keccak256(HashZero),
+      appStateHash: keccak256(HashZero),
       nonce: 1,
       timeout: 0,
       signatures: HashZero

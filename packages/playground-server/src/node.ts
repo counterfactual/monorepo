@@ -99,6 +99,13 @@ export default class NodeWrapper {
       return NodeWrapper.node;
     }
 
+    if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+      await serviceFactory.auth(
+        process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
+        process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
+      );
+    }
+
     const store =
       storeService ||
       serviceFactory.createStoreService(
