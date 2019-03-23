@@ -50,7 +50,7 @@ We want to establish clear standards for how all of these generalized state chan
 
 ### One round trip communication
 
-The protocol has been optimized to require the minimum number of round trips possible for secure updates to the off-chain state. This has effectively led to the use of multiple transactions being bundled inside a single transaction using the [`MultiSend`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/delegateTargets/MultiSend.sol) contract built by Gnosis.
+The protocol has been optimized to require the minimum number of round trips possible for secure updates to the off-chain state. This has effectively led to the use of multiple transactions being bundled inside a single transaction using the [`MultiSend`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/MultiSend.sol) contract built by Gnosis.
 
 The goal of having one round trip for each protocol execution is purely an optimization and it is the case that "uncompressed" variations do exist that are equally as secure but more costly in communication overhead. This is [currently up for discussion](https://github.com/counterfactual/specs/issues/13).
 
