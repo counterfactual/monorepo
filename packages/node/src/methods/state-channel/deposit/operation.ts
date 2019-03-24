@@ -123,10 +123,7 @@ export async function makeDeposit(
     txHash: txResponse!.hash
   });
 
-  await provider.waitForTransaction(
-    txResponse!.hash as string,
-    blocksNeededForConfirmation
-  );
+  await txResponse!.wait(blocksNeededForConfirmation);
 
   return true;
 }
