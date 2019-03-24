@@ -52,13 +52,13 @@ export function createProviderConsumer<T extends object>(
     };
   }
 
-  const Provider: FunctionalComponent<{ state: T }> = ({ state }, children) => {
+  const provider: FunctionalComponent<{ state: T }> = ({ state }, children) => {
     currentState = state;
     notifyConsumers();
     return children;
   };
 
-  const Consumer: FunctionalComponent<{}> = (props, children) => {
+  const consumer: FunctionalComponent<{}> = (props, children) => {
     // The casting on subscribe is to allow for crossover through the stencil compiler
     // In the future we should allow for generics in components.
     return consumerRender(
@@ -68,13 +68,13 @@ export function createProviderConsumer<T extends object>(
   };
 
   function wrapConsumer(childComponent: any, fieldList: PropList) {
-    const Child = childComponent.is;
+    const child = childComponent.is;
 
     return ({ children, ...props }: any) => {
       return (
-        <Child ref={attachListener(fieldList)} {...props}>
+        <child ref={attachListener(fieldList)} {...props}>
           {children}
-        </Child>
+        </child>
       );
     };
   }
@@ -84,10 +84,10 @@ export function createProviderConsumer<T extends object>(
 
     const elementRefName = Object.keys(childComponent.properties).find(
       propName => {
-        return childComponent.properties[propName].elementRef == true;
+        return childComponent.properties[propName].elementRef === true;
       }
     );
-    if (elementRefName == undefined) {
+    if (elementRefName === undefined) {
       throw new Error(
         `Please ensure that your Component ${
           childComponent.is
@@ -114,9 +114,9 @@ export function createProviderConsumer<T extends object>(
   }
 
   return {
-    Provider,
-    Consumer,
     wrapConsumer,
-    injectProps
+    injectProps,
+    Provider: provider,
+    Consumer: consumer
   };
 }
