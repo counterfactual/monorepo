@@ -21,6 +21,9 @@
   "ignore": [
     "@stencil/core",
     "@stencil/router",
+    "@types/jest",
+    "jest-cli",
+    "jest",
     "workbox-build",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
