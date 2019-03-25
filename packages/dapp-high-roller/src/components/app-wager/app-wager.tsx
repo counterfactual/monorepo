@@ -192,22 +192,43 @@ export class AppWager {
     }
 
     return new Promise(resolve => {
+      let gotResponse = false; // Needed because MM sends multiple messages
       const onMatchmakeResponse = (event: MessageEvent) => {
-        if (
-          !event.data.toString().startsWith("playground:response:matchmake")
-        ) {
-          return;
+        if (event.data.toString().startsWith("playground:response:matchmake")) {
+          window.removeEventListener("message", onMatchmakeResponse);
+
+          const [, data] = event.data.split("|");
+          resolve(JSON.parse(data));
         }
-
-        window.removeEventListener("message", onMatchmakeResponse);
-
-        const [, data] = event.data.split("|");
-        resolve(JSON.parse(data));
+        if (
+          event.data.data &&
+          typeof event.data.data.message === "string" &&
+          event.data.data.message.startsWith("playground:response:matchmake")
+        ) {
+          if (gotResponse) {
+            return;
+          }
+          gotResponse = true;
+          console.log("MM Matchmake Data! ", event.data.data);
+          const opponent = { data: event.data.data.data };
+          resolve(opponent);
+        }
       };
 
       window.addEventListener("message", onMatchmakeResponse);
 
-      window.parent.postMessage("playground:request:matchmake", "*");
+      if (window === window.parent) {
+        // dApp not running in iFrame
+        window.postMessage(
+          {
+            type: "PLUGIN_MESSAGE",
+            data: { message: "playground:request:matchmake" }
+          },
+          "*"
+        );
+      } else {
+        window.parent.postMessage("playground:request:matchmake", "*");
+      }
     });
   }
 
