@@ -10,7 +10,7 @@ It also operates as an _intermediary Node_ between peers.
 
 ## Usage
 
-For the server to operate successfully, it must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. You can follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions. Once the server's ETH account is funded, you can start the server by running:
+For the server to operate successfully, it must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions. Once the server's ETH account is funded, you can start the server by running:
 
 ```shell
 yarn start
