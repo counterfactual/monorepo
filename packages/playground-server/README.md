@@ -10,13 +10,13 @@ It also operates as an _intermediary Node_ between peers.
 
 ## Usage
 
-While the server can run as a stand-alone API:
+For the server to operate successfully, it must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions. Once the server's ETH account is funded, you can start the server by running:
 
 ```shell
 yarn start
 ```
 
-It makes more sense to execute it along with the full Playground stack from the monorepo:
+If running the entire Playground (and not just the server), from the root of the monorepo, execute:
 
 ```shell
 yarn run:playground
@@ -50,7 +50,7 @@ $ node
 'camera enter drive paper elegant camp above attend board thought inch crash'
 ```
 
-And save it in `.env.defaults`.
+And save it in `.env`.
 
 **Option 1** Compute the address:
 
