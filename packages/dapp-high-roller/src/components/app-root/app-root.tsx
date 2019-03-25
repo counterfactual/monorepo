@@ -88,31 +88,10 @@ export class AppRoot {
       ) {
         console.log("Got Message From MM! ", event.data.data);
         if (event.data.data.message.startsWith("playground:response:user")) {
-          const userToken = event.data.data.data;
-          // TODO Need to user ENV here to know where to send to
-          fetch("http://localhost:9000/api/users/me", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${userToken}`
-            }
-          }).then(response => {
-            response.json().then(data => {
-              const userData = data.data[0];
+          const account = event.data.data.data;
 
-              console.log("User Info ", userData);
-
-              const account = {
-                balance: "0.2", // Need to get from iFrame Node?
-                user: {
-                  id: userData.id,
-                  ...userData.attributes,
-                  token: userToken
-                }
-              };
-              this.updateAccount(account);
-              this.userDataReceived = true;
-            });
-          });
+          this.updateAccount(account);
+          this.userDataReceived = true;
         }
       }
       if (
