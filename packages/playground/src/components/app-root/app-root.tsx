@@ -72,13 +72,30 @@ export class AppRoot {
 
     // Callback for processing Playground UI messages
     window.addEventListener("message", event => {
-      if (!["contentscript", "inpage"].includes(event.data.target)) {
+      if (
+        !["contentscript", "inpage"].includes(
+          event.data.target
+        )
+      ) {
         console.log("event: ", event.data);
       }
       if (typeof event.data !== "string") {
         return;
       }
     });
+
+    if (window.parent !== window) {
+      const userToken = localStorage.getItem("playground:user:token");
+      if (userToken) {
+        window.postMessage(
+          {
+            type: "PLUGIN_MESSAGE",
+            data: { message: "playground:set:user", data: userToken }
+          },
+          "*"
+        );
+      }
+    }
 
     this.setup();
   }

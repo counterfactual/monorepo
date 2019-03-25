@@ -82,10 +82,38 @@ export class AppRoot {
   setupPlaygroundMessageListeners() {
     window.addEventListener("message", async (event: MessageEvent) => {
       if (
-        typeof event.data.data.message === "string" && 
+        event.data.data &&
+        typeof event.data.data.message === "string" &&
         event.data.data.message.startsWith("playground:response:user")
       ) {
         console.log("Got Message From MM! ", event.data.data);
+        if (event.data.data.message.startsWith("playground:response:user")) {
+          const userToken = event.data.data.data;
+          // TODO Need to user ENV here to know where to send to
+          fetch("http://localhost:9000/api/users/me", {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${userToken}`
+            }
+          }).then(response => {
+            response.json().then(data => {
+              const userData = data.data[0];
+
+              console.log("User Info ", userData);
+
+              const account = {
+                balance: "0.2", // Need to get from iFrame Node?
+                user: {
+                  id: userData.id,
+                  ...userData.attributes,
+                  token: userToken
+                }
+              };
+              this.updateAccount(account);
+              this.userDataReceived = true;
+            });
+          });
+        }
       }
       if (
         typeof event.data === "string" &&
@@ -129,9 +157,15 @@ export class AppRoot {
   }
 
   async componentDidLoad() {
-    if(window === window.parent) {
+    if (window === window.parent) {
       // dApp not running in iFrame
-      window.postMessage({type: "PLUGIN_MESSAGE", data: {message: "playground:request:user"}}, "*")
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "playground:request:user" }
+        },
+        "*"
+      );
     } else {
       window.parent.postMessage("playground:request:user", "*");
     }
