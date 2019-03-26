@@ -4,12 +4,7 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { SetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  UpdateParams
-} from "../types";
+import { Context, ProtocolParameters, UpdateParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -22,21 +17,21 @@ import { validateSignature } from "./utils/signature-validator";
  *
  */
 export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(message: ProtocolMessage, context: Context) {
-    const { respondingXpub } = message.params;
+  0: async function*(context: Context) {
+    const { respondingXpub } = context.message.params;
 
     const [
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(message.params, context);
+    ] = proposeStateTransition(context.message.params, context);
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
@@ -58,16 +53,16 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(message: ProtocolMessage, context: Context) {
+  1: async function*(context: Context) {
     const [
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(message.params, context);
+    ] = proposeStateTransition(context.message.params, context);
 
-    const { initiatingXpub } = message.params;
+    const { initiatingXpub } = context.message.params;
 
-    const theirSig = message.signature!;
+    const theirSig = context.message.signature!;
 
     validateSignature(
       xkeyKthAddress(initiatingXpub, appSeqNo),
@@ -88,7 +83,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO

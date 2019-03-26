@@ -28,20 +28,18 @@ import { validateSignature } from "./utils/signature-validator";
  * https://specs.counterfactual.com/11-withdraw-protocol *
  */
 export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(message: ProtocolMessage, context: Context) {
-    const {
-      respondingXpub,
-      multisigAddress
-    } = message.params as WithdrawParams;
+  0: async function*(context: Context) {
+    const { respondingXpub, multisigAddress } = context.message
+      .params as WithdrawParams;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [
       installRefundCommitment,
       refundAppIdentityHash
-    ] = addInstallRefundAppCommitmentToContext(message.params, context);
+    ] = addInstallRefundAppCommitmentToContext(context.message.params, context);
 
     const withdrawETHCommitment = addMultisigSendCommitmentToContext(
-      message,
+      context.message,
       context
     );
 
@@ -51,7 +49,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m2 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: s1,
         signature2: s3,
@@ -62,7 +60,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s2, signature2: s4, signature3: s6 } = m2;
 
     const uninstallRefundCommitment = addUninstallRefundAppCommitmentToContext(
-      message,
+      context.message,
       context,
       refundAppIdentityHash
     );
@@ -76,7 +74,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: s5,
         seq: -1
@@ -93,29 +91,27 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(message: ProtocolMessage, context: Context) {
-    const {
-      initiatingXpub,
-      multisigAddress
-    } = message.params as WithdrawParams;
+  1: async function*(context: Context) {
+    const { initiatingXpub, multisigAddress } = context.message
+      .params as WithdrawParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
     const [
       installRefundCommitment,
       refundAppIdentityHash
-    ] = addInstallRefundAppCommitmentToContext(message.params, context);
+    ] = addInstallRefundAppCommitmentToContext(context.message.params, context);
 
     const withdrawETHCommitment = addMultisigSendCommitmentToContext(
-      message,
+      context.message,
       context
     );
     const uninstallRefundCommitment = addUninstallRefundAppCommitmentToContext(
-      message,
+      context.message,
       context,
       refundAppIdentityHash
     );
 
-    const { signature: s1, signature2: s3 } = message;
+    const { signature: s1, signature2: s3 } = context.message;
 
     validateSignature(initiatingAddress, installRefundCommitment, s1);
 
@@ -136,7 +132,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         signature: s2,
         signature2: s4,

@@ -19,7 +19,6 @@ import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
-  ProtocolMessage,
   ProtocolParameters
 } from "../types";
 import { virtualChannelKey } from "../virtual-app-key";
@@ -35,18 +34,16 @@ import { validateSignature } from "./utils/signature-validator";
  * Commitments Storage Layout:
  */
 export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(message: ProtocolMessage, context: Context) {
-    const {
-      intermediaryXpub,
-      respondingXpub
-    } = message.params as InstallVirtualAppParams;
+  0: async function*(context: Context) {
+    const { intermediaryXpub, respondingXpub } = context.message
+      .params as InstallVirtualAppParams;
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [
       leftCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition1(message.params, context);
+    ] = proposeStateTransition1(context.message.params, context);
 
     const s1 = yield [Opcode.OP_SIGN, leftCommitment];
     const s5 = yield [Opcode.OP_SIGN, virtualAppSetStateCommitment];
@@ -55,7 +52,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m5 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         signature: s1,
         signature2: s5,
         toXpub: intermediaryXpub,
@@ -75,11 +72,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     validateSignature(respondingAddress, virtualAppSetStateCommitment, s7);
   },
 
-  1: async function*(message: ProtocolMessage, context: Context) {
-    const {
-      initiatingXpub,
-      respondingXpub
-    } = message.params as InstallVirtualAppParams;
+  1: async function*(context: Context) {
+    const { initiatingXpub, respondingXpub } = context.message
+      .params as InstallVirtualAppParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
@@ -89,9 +84,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       leftCommitment,
       rightCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition2(message.params, context);
+    ] = proposeStateTransition2(context.message.params, context);
 
-    const { signature: s1, signature2: s5 } = message;
+    const { signature: s1, signature2: s5 } = context.message;
 
     validateSignature(initiatingAddress, leftCommitment, s1);
     validateSignature(initiatingAddress, virtualAppSetStateCommitment, s5);
@@ -106,7 +101,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         seq: 2,
         toXpub: respondingXpub,
         signature: s5,
@@ -124,7 +119,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -135,7 +130,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s6,
@@ -154,21 +149,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
   },
 
-  2: async function*(message: ProtocolMessage, context: Context) {
+  2: async function*(context: Context) {
     const [
       rightCommitment,
       virtualAppSetStateCommitment
-    ] = proposeStateTransition3(message.params, context);
+    ] = proposeStateTransition3(context.message.params, context);
 
-    const {
-      initiatingXpub,
-      intermediaryXpub
-    } = message.params as InstallVirtualAppParams;
+    const { initiatingXpub, intermediaryXpub } = context.message
+      .params as InstallVirtualAppParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
     // m2
-    const { signature: s5, signature2: s3 } = message;
+    const { signature: s5, signature2: s3 } = context.message;
 
     validateSignature(initiatingAddress, virtualAppSetStateCommitment, s5);
     validateSignature(intermediaryAddress, rightCommitment, s3);
@@ -180,7 +173,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m4 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s4,
