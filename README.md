@@ -80,6 +80,10 @@ To install the dependencies:
 yarn
 ```
 
+### Docker
+
+[Docker](https://www.docker.com/get-started) is also required as part of spinning up a Postgres SQL database needed by the Playground server.
+
 ### Building packages
 
 To build all packages:

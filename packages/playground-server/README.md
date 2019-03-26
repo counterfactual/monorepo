@@ -10,7 +10,18 @@ It also operates as an _intermediary Node_ between peers.
 
 ## Usage
 
-For the server to operate successfully, it must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions. Once the server's ETH account is funded, you can start the server by running:
+Successfully running the server requires 2 steps:
+
+- Funding the server's ETH account: The server must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions.
+- Having a database to store users connecting to the Playground server. This database is auto-configured and started as part of the `start` script, [assuming you have Docker installed](../../README). Note: this database is persistent so if cleaning the state is desired, the wipe must be done manually by executing:
+
+```shell
+docker exec playground-server_postgres_1 psql -U postgres <<EOSQL
+TRUNCATE playground_db.users;
+EOSQL
+```
+
+Then the Playground server can be started by executing:
 
 ```shell
 yarn start
