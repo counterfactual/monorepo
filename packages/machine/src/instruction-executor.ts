@@ -158,20 +158,18 @@ export class InstructionExecutor {
 
   private async runProtocol(
     stateChannelsMap: Map<string, StateChannel>,
-    instruction: (
-      message: ProtocolMessage,
-      context: Context,
-      provider: BaseProvider
-    ) => AsyncIterableIterator<any>,
-    msg: ProtocolMessage
+    instruction: (context: Context) => AsyncIterableIterator<any>,
+    message: ProtocolMessage
   ): Promise<Map<string, StateChannel>> {
     const context: Context = {
+      message,
       stateChannelsMap,
-      network: this.network
+      network: this.network,
+      provider: this.provider
     };
 
     let lastMiddlewareRet: any = undefined;
-    const it = instruction(msg, context, this.provider);
+    const it = instruction(context);
     while (true) {
       const ret = await it.next(lastMiddlewareRet);
       if (ret.done) {
