@@ -120,6 +120,7 @@ export default class NodeProvider implements INodeProvider {
     this.log("connect", "Attempting to connect");
 
     return new Promise<NodeProvider>((resolve, reject) => {
+      let receivedPort = false;
       window.addEventListener("message", event => {
         if (event.data === "cf-node-provider:port") {
           this.log(
@@ -134,9 +135,28 @@ export default class NodeProvider implements INodeProvider {
           this.notifyNodeProviderIsConnected();
           resolve(this);
         }
+        if (event.data.type === "plugin_message_response") {
+          if (receivedPort) {
+            return;
+          }
+          receivedPort = true;
+          console.log(event.data);
+        }
       });
 
-      context.postMessage("cf-node-provider:init", "*");
+      if (window === window.parent) {
+        // dApp not running in iFrame
+        window.postMessage(
+          {
+            type: "PLUGIN_MESSAGE",
+            data: { message: "cf-node-provider:init" }
+          },
+          "*"
+        );
+      } else {
+        context.postMessage("cf-node-provider:init", "*");
+      }
+
       this.log(
         "connect",
         "used window.postMessage() to send",
@@ -164,7 +184,18 @@ export default class NodeProvider implements INodeProvider {
   }
 
   private notifyNodeProviderIsConnected() {
-    window.postMessage("cf-node-provider:ready", "*");
+    if (window === window.parent) {
+      // dApp not running in iFrame
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "cf-node-provider:ready" }
+        },
+        "*"
+      );
+    } else {
+      window.postMessage("cf-node-provider:ready", "*");
+    }
     this.log(
       "notifyNodeProviderIsConnected",
       "used window.postMessage() to send:",
