@@ -1,0 +1,12 @@
+graph LR
+    subgraph ConditionalTransaction
+        executeAppConditionalTransaction
+        executeAppConditionalTransaction.->REGISTRY
+        executeAppConditionalTransaction.->NONCE_REGISTRY
+        executeAppConditionalTransaction.->uninstallKey
+        executeAppConditionalTransaction.->freeBalanceCfAddress
+        executeAppConditionalTransaction.->terms
+    end
+    subgraph Multisig
+        execTransaction-->executeAppConditionalTransaction
+    end
