@@ -18,6 +18,10 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
+      - run: sudo add-apt-repository ppa:ethereum/ethereum
+      - run: sudo apt-get update
+      - run: sudo apt-get install solc
+
       - run: yarn --frozen-lockfile
       - run: yarn build
 
