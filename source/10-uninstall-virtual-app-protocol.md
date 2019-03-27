@@ -48,7 +48,9 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 
 ## Messages
 
-![](./build/uninstall-virtual-app-exchange.png)
+```eval_rst
+.. mermaid:: diagrams/uninstall-virtual-app-exchange.mmd
+```
 
 | Message | Signatures |
 | ------- | ---------- |

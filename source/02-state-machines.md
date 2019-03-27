@@ -2,11 +2,6 @@
 
 The following is a loose description of the concepts we use for an off-chain application. Most importantly, the `AppRegistry` is the actual contract that is responsible for adjudicating a challenge on-chain and it uses an `App` (defined using an `AppDefinition`) to handle cases where adjudication requires on-chain logic to determine state validity.
 
-# Table of Contents
-
-- [AppRegistry](#appregistry)
-- [AppDefinition](#appdefinitions)
-
 ## AppRegistry
 
 We refer to the contract that adjudicates a dispute in a state channel application as the [`AppRegistry`](#appregistry). This is the most fundamental contract for providing the security guarantees that off-chain state updates of the latest nonce and valid update status can be considered "final". It does this by implementing the challenge-response mechanism.
@@ -37,7 +32,7 @@ In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing 
 
 The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
 
-![statechannel statuses](./img/statechannel-statuses.svg)
+![statechannel statuses](img/statechannel-statuses.svg)
 
 > TODO: enumerate methods defined on AppRegistry.sol that can change status
 
@@ -68,21 +63,13 @@ where `nextState` has type `AppState`.
 
 If `AppState` defines the data structure needed to represent the state of an app instance, `applyAction` defines the app logic that operates on the app. In a Tic-Tac-Toe game, `AppState` represents the state of the board, and `applyAction` and `getTurnTaker` together implement the logic of Tic-Tac-Toe. The return value of `getTurnTaker` corresponds to an address which can unilaterally update the app state. This update is done through the `applyAction` function; the caller also specifies the type of update (e.g. placing an X at a certain place on the board) by passing in additional data of type `struct Action` (this struct is also defined by the app developer).
 
-<center>
-    <br />
-    <img src="./img/applyAction.svg" height="300">
-    <br />
-</center>
+![](img/applyAction.svg)
 
 ### resolve
 
 From certain app states, `resolve` can be called to return a value of type `struct Transfer.Transaction` (this is defined by framework code in `Transfer.sol`). This allows the state deposit assigned to the app to be reassigned, for e.g., to the winner of the Tic-Tac-Toe game.
 
-<center>
-    <br/>
-    <img src="./img/resolve.svg" height="250">
-    <br/>
-</center>
+![](img/resolve.svg)
 
 ### isStateTerminal
 

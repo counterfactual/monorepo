@@ -37,7 +37,9 @@ This is exactly the same kind of uninstall commitment produced by the uninstall 
 
 ## Messages
 
-![](./build/withdraw-exchange.png)
+```eval_rst
+.. mermaid:: diagrams/withdraw-exchange.mmd
+```
 
 |     Field     |   Description    |
 | ------------- | ---------------- |

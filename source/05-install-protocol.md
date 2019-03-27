@@ -4,12 +4,15 @@ To illustrate the install protocol, first assume that the multisignature wallet 
 
 In this example, the application is Tic-Tac-Toe. You can see with the visual representation below that the funds available in the free balance decrease and the funds committed to the Tic-Tac-Toe application increase by the corresponding amount.
 
-![](./build/install-protocol-state.png)
-
+```eval_rst
+.. mermaid:: diagrams/install-protocol-state.mmd
+```
 
 ## Messages
 
-![](./build/install-protocol-exchange.png)
+```eval_rst
+.. mermaid:: diagrams/install-protocol-exchange.mmd
+```
 
 ### Types
 
@@ -73,7 +76,9 @@ The following parameters are included in the commitment:
 
 The commitment can be visually represented like:
 
-![](./build/install-protocol-commitment.png)
+```eval_rst
+.. mermaid:: diagrams/install-protocol-commitment.mmd
+```
 
 
 > NOTE: Although not shown in the visualization, the order of transactions is important. The `multiSend` must encode the call to `proxyCall` **before** the call to `executeAppConditionalTransaction`.

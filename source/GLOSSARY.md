@@ -1,4 +1,4 @@
-## Glossary and Terminology Guide
+# Glossary and Terminology Guide
 
 For an introduction to the concepts and terminology behind state channels, please see the [original paper](https://l4.ventures/papers/statechannels.pdf).
 

@@ -2,8 +2,6 @@
 
 To exemplify the protocols as we define them, we will assume there exists a multisignature wallet shared between two parties, Alice and Bob. This is the only required re-usable on-chain component (with the exception of supporting libraries) to execute each of the protocols below.
 
-# Type Definitions and Global Variables
-
 ## Primitive Types
 
 |   Type    |          Description          |                                                      Sample                                                       |

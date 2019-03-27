@@ -1,13 +1,5 @@
 # Introduction
 
-## Table of Contents
-
-- [Introduction](#introduction)
-- [Design Goals](#design-goals)
-- [Structure](#structure)
-
-## Introduction
-
 Counterfactual is a state channels based protocol for off-chain blockchain-based applications.
 
 Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. State channels allow users to interact with each other without paying blockchain transaction fees and with instant finality. Channelization is the only technique that securely realises the latter property.
@@ -36,7 +28,7 @@ We want channels that can be easily incorporated into new applications without t
 
 ### Parallel operations
 
-We want to support multiple parallel operations inside of a single channel that do not interfere with each other. We have designed these simple state-machine-based "Apps" to maintain control of the state assigned to them in a fashion completely independent of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all fully parallelized operations within the [Counterfactual protocol](./00-protocol.md).
+We want to support multiple parallel operations inside of a single channel that do not interfere with each other. We have designed these simple state-machine-based "Apps" to maintain control of the state assigned to them in a fashion completely independent of each other. Typical operations like installing new applications, uninstalling old applications, and updating applications are all fully parallelized operations within the protocol.
 
 ### Upgradeable
 
