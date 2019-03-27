@@ -19,7 +19,7 @@
 
 # -- Project information -----------------------------------------------------
 
-project = u'cf-specs2'
+project = u'cf-specs'
 copyright = u'2019, Counterfactual Contributors'
 author = u'Counterfactual Contributors'
 
@@ -94,7 +94,7 @@ html_static_path = []
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'cf-specs2doc'
+htmlhelp_basename = 'cf-specsdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -121,7 +121,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'cf-specs2.tex', u'cf-specs2 Documentation',
+    (master_doc, 'cf-specs.tex', u'cf-specs Documentation',
      u'Counterfactual Contributors', 'manual'),
 ]
 
@@ -131,7 +131,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'cf-specs2', u'cf-specs2 Documentation',
+    (master_doc, 'cf-specs', u'cf-specs Documentation',
      [author], 1)
 ]
 
@@ -142,8 +142,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'cf-specs2', u'cf-specs2 Documentation',
-     author, 'cf-specs2', 'One line description of project.',
+    (master_doc, 'cf-specs', u'cf-specs Documentation',
+     author, 'cf-specs', 'One line description of project.',
      'Miscellaneous'),
 ]
 
