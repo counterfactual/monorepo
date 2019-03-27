@@ -1,7 +1,7 @@
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
-import NodeWrapper from "./node";
+import { NodeWrapper, serviceFactory } from "./node";
 
 const BANNED_MNEMONICS = new Set([
   "science amused table oyster text message core mirror patch bubble provide industry",
@@ -41,5 +41,11 @@ const API_TIMEOUT = 5 * 60 * 1000;
 
   Log.info("API is now ready", { tags: { port } });
 })();
+
+process.on("SIGINT", async () => {
+  console.log("Shutting down playground-server...");
+  const resolvedServiceFactory = await serviceFactory;
+  await resolvedServiceFactory.closeServiceConnections();
+});
 
 export * from "./types";
