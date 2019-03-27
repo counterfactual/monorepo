@@ -6,7 +6,7 @@ orbs:
 defaults: &defaults
   working_directory: /home/circleci/project
   docker:
-    - image: circleci/node:10
+    - image: circleci/node:10-jessie
 
 jobs:
   build:
@@ -18,9 +18,13 @@ jobs:
       - restore_cache:
           key: dependency-cache-{{ checksum ".dependencies_checksum" }}
 
-      - run: sudo add-apt-repository ppa:ethereum/ethereum
-      - run: sudo apt-get update
-      - run: sudo apt-get install solc
+      - run:
+          name: "Install solc binary"
+          command: |
+            sudo apt-get install software-properties-common
+            sudo add-apt-repository -y ppa:ethereum/ethereum
+            sudo apt-get update
+            sudo apt-get install solc
 
       - run: yarn --frozen-lockfile
       - run: yarn build
