@@ -113,7 +113,7 @@ if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
   );
 } else {
   confirmLocalFirebaseConfigurationEnvVars();
-  if (process.env.PERSISTENT_PLAYGROUND) {
+  if (process.env.PLAYGROUND_PERSISTENCE_ENABLED) {
     console.log("Playground persistance is enabled");
     serviceFactory = LocalPersistentFirebaseServiceFactory.create(
       process.env.FIREBASE_SERVER_HOST!,

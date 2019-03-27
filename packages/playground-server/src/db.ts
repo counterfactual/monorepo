@@ -428,8 +428,6 @@ export async function bindTransactionHashToUser(
 export async function storePlaygroundSnapshot(snapshot: any): Promise<boolean> {
   const db = getDatabase();
 
-  console.log(snapshot);
-
   const query = db("playground_snapshot")
     .delete()
     .insert({ snapshot: Buffer.from(JSON.stringify(snapshot)) });
