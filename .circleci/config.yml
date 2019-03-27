@@ -21,6 +21,19 @@ jobs:
       - run:
           name: "Install solc binary"
           command: |
+            # install CMake and Boost prerequisite first
+            wget http://www.cmake.org/files/v3.13/cmake-3.13.4.tar.gz
+            tar -xvzf cmake-3.13.4.tar.gz
+            cd cmake-3.13.4
+            sudo ./configure --prefix=/opt/cmake & make & make install
+            /opt/cmake/bin/cmake -v
+            cd ../
+            wget https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.7z.tar.gz
+            tar -xvzf boost_1_69_0.7z.tar.gz
+            cd boost_1_69_0.7z
+            sudo ./bootstrap.sh
+            sudo ./b2 --with=all -j 2 install
+
             git clone --recursive https://github.com/ethereum/solidity.git
             cd solidity
             sudo chmod +x ./scripts/*.sh
