@@ -217,7 +217,7 @@ export class AccountRegister {
       ready: "Register",
       awaitingForWallet: "Check Wallet...",
       creatingAccount: "Creating your account...",
-      deployingMultisig: "Creating state channel..."
+      deployingMultisig: "Deploying contract..."
     };
 
     const inputIsDisabled = this.stage !== "ready";
