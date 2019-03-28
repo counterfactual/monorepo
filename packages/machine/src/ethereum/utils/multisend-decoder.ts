@@ -41,7 +41,7 @@ export function decodeMultisendCalldata(txs: string) {
 
   while (i < hexDataLength(txs)) {
     // We expect 0x80 to be a hard-coded pointer to the `data` location. Refer to
-    // https://solidity.readthedocs.io/en/v0.5.6/abi-spec.html for ABI specification
+    // https://solidity.readthedocs.io/en/v0.5.7/abi-spec.html for ABI specification
     const ptr = hexDataSlice(txs, i + 0x60, i + 0x80);
     if (parseInt(ptr, 16) !== 0x80) {
       throw Error(
