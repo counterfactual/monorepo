@@ -19,7 +19,7 @@ Successfully running the server requires 2 steps:
 postgresql://postgres@localhost:5432/postgres
 ```
 
-If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, simply execute
+If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, in `packages/playground-server` simply execute
 
 ```
 docker-compose up
