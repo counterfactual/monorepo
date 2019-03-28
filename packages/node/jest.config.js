@@ -29,7 +29,7 @@ module.exports = {
     "node_modules",
     "dist"
   ],
-  "testRegex": "\\.spec.(jsx?|tsx?|js?)$",
+  "testRegex": "\\.spec.(jsx?|tsx?)$",
   "testURL": "http://localhost/",
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
