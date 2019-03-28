@@ -11,7 +11,6 @@ import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { StateChannel } from "../models";
 import {
   Context,
-  ProtocolMessage,
   ProtocolParameters,
   UninstallVirtualAppParams
 } from "../types";
@@ -23,20 +22,14 @@ import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments"
 import { validateSignature } from "./utils/signature-validator";
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const {
-      intermediaryXpub,
-      respondingXpub
-    } = message.params as UninstallVirtualAppParams;
+  0: async function*(context: Context) {
+    const { intermediaryXpub, respondingXpub } = context.message
+      .params as UninstallVirtualAppParams;
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message.params,
+      context.message.params,
       context,
       false
     );
@@ -47,7 +40,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m1
-        ...message,
+        ...context.message,
         seq: 1,
         toXpub: intermediaryXpub,
         signature: s1
@@ -60,9 +53,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     validateSignature(intermediaryAddress, lockCommitment, s2, true);
 
     const uninstallLeft = await addLeftUninstallAgreementToContext(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
 
     const s4 = yield [Opcode.OP_SIGN, uninstallLeft];
@@ -71,7 +64,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s6 } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s4
@@ -79,29 +72,23 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     validateSignature(intermediaryAddress, uninstallLeft, s6);
-    removeVirtualAppInstance(message.params, context);
+    removeVirtualAppInstance(context.message.params, context);
   },
 
-  1: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const {
-      initiatingXpub,
-      respondingXpub
-    } = message.params as UninstallVirtualAppParams;
+  1: async function*(context: Context) {
+    const { initiatingXpub, respondingXpub } = context.message
+      .params as UninstallVirtualAppParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message.params,
+      context.message.params,
       context,
       true
     );
 
     // m1 contains s1
-    const s1 = message.signature;
+    const s1 = context.message.signature;
 
     validateSignature(initiatingAddress, lockCommitment, s1);
 
@@ -111,7 +98,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m2
-        ...message,
+        ...context.message,
         seq: 2,
         toXpub: respondingXpub,
         signature: s1,
@@ -126,7 +113,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m4
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s3,
@@ -136,9 +123,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s4 } = m5;
 
     const leftUninstallCommitment = await addLeftUninstallAgreementToContext(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
 
     validateSignature(initiatingAddress, leftUninstallCommitment, s4);
@@ -149,7 +136,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s5
@@ -157,9 +144,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
 
     const s6 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
@@ -168,7 +155,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m7
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -178,28 +165,22 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     validateSignature(respondingAddress, rightUninstallCommitment, s7);
 
-    removeVirtualAppInstance(message.params, context);
+    removeVirtualAppInstance(context.message.params, context);
   },
 
-  2: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const {
-      initiatingXpub,
-      intermediaryXpub
-    } = message.params as UninstallVirtualAppParams;
+  2: async function*(context: Context) {
+    const { initiatingXpub, intermediaryXpub } = context.message
+      .params as UninstallVirtualAppParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      message.params,
+      context.message.params,
       context,
       false
     );
 
-    const { signature: s1, signature2: s2 } = message;
+    const { signature: s1, signature2: s2 } = context.message;
 
     validateSignature(initiatingAddress, lockCommitment, s1);
     validateSignature(intermediaryAddress, lockCommitment, s2, true);
@@ -210,7 +191,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m3
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s3
@@ -219,9 +200,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s6 } = m7;
 
     const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
 
     validateSignature(intermediaryAddress, rightUninstallCommitment, s6);
@@ -231,14 +212,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s7
       }
     ];
 
-    removeVirtualAppInstance(message.params, context);
+    removeVirtualAppInstance(context.message.params, context);
   }
 };
 

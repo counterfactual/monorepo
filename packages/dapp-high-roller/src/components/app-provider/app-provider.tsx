@@ -12,7 +12,6 @@ import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
 import { cf, HighRollerUIMutableState, Node } from "../../data/types";
-import { computeCommitHash } from "../../utils/utils";
 
 declare var cf;
 declare var ethers;

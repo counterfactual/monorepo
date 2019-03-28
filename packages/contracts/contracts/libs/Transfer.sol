@@ -1,4 +1,4 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
@@ -40,7 +40,7 @@ library Transfer {
       uint256 value = txn.value[i];
 
       if (txn.assetType == uint8(Transfer.Asset.ETH)) {
-        // solidity.readthedocs.io/en/v0.5.6/050-breaking-changes.html
+        // solidity.readthedocs.io/en/v0.5.7/050-breaking-changes.html
         address payable receiver = address(uint160(to));
         receiver.transfer(value);
       } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
