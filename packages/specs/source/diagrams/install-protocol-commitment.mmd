@@ -1,0 +1,22 @@
+graph LR
+    subgraph ConditionalTransaction
+        executeAppConditionalTransaction
+        executeAppConditionalTransaction.->REGISTRY
+        executeAppConditionalTransaction.->NONCE_REGISTRY
+        executeAppConditionalTransaction.->uninstallKey
+        executeAppConditionalTransaction.->appCfAddress
+        executeAppConditionalTransaction.->terms
+    end
+    subgraph AppRegistry
+        setState
+        setState-->appIdentity:AppIdentity
+        setState-->req:SignedStateHashUpdate
+    end
+    subgraph MultiSend
+        multiSend
+        multiSend-->setState
+        multiSend-->executeAppConditionalTransaction
+    end
+    subgraph Multisig
+        execTransaction-->multiSend
+    end
