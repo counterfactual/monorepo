@@ -1,6 +1,7 @@
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
+import { detectDBAndSchema } from "./db";
 import NodeWrapper from "./node";
 
 const BANNED_MNEMONICS = new Set([
@@ -27,6 +28,8 @@ const API_TIMEOUT = 5 * 60 * 1000;
     );
     process.exit(1);
   }
+
+  await detectDBAndSchema();
 
   await NodeWrapper.createNodeSingleton(
     process.env.ETHEREUM_NETWORK || "kovan",

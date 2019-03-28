@@ -23,7 +23,7 @@
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
-    "start": "env-cmd development --fallback ts-node -r dotenv-extended/config src/",
+    "start": "env-cmd development ts-node -r dotenv-extended/config src/",
     "test": "env-cmd test --fallback jest --forceExit",
     "test:ci": "env-cmd test --fallback jest --forceExit"
   },
