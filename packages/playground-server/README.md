@@ -13,15 +13,23 @@ It also operates as an _intermediary Node_ between peers.
 Successfully running the server requires 2 steps:
 
 - Funding the server's ETH account: The server must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions.
-- Having a database to store users connecting to the Playground server. This database is auto-configured and started as part of the `start` script, [assuming you have Docker installed](../../README). Note: this database is persistent so if cleaning the state is desired, the wipe must be done manually by executing:
+- Having a database to store users connecting to the Playground server. If you have a database already running, you can set its connection string via `DB_CONNECTION_STRING` as an environment variable for the Playground server to connect to. For example, the default connection string used is
 
-```shell
-docker exec playground-server_postgres_1 psql -U postgres <<EOSQL
-TRUNCATE playground_db.users;
-EOSQL
+```
+postgresql://postgres@localhost:5432/postgres
 ```
 
-Then the Playground server can be started by executing:
+If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, simply execute
+
+```
+docker-compose up
+```
+
+which will start a Postgres instance for you and expose it on port 5432.
+
+The database gets auto-configured with the right schema if the appopriate table doesn't exist.
+
+Once the database is up and running, the Playground server can be started by executing:
 
 ```shell
 yarn start
