@@ -23,6 +23,5 @@ module.exports = {
     "js",
     "json"
   ],
-  "testURL": "http://localhost/",
-  "extraGlobals": ["Math"]
+  "testURL": "http://localhost/"
 }
