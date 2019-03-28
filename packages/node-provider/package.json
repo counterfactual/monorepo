@@ -19,10 +19,10 @@
   "devDependencies": {
     "@counterfactual/types": "0.0.9",
     "@types/jest": "24.0.11",
-    "@types/node": "^11.11.6",
+    "@types/node": "^11.12.0",
     "jest": "24.5.0",
-    "rollup": "^1.7.2",
-    "rollup-plugin-commonjs": "^9.2.0",
+    "rollup": "^1.7.4",
+    "rollup-plugin-commonjs": "^9.2.2",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
     "ts-jest": "24.0.0",
