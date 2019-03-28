@@ -134,13 +134,21 @@ export default class NodeProvider implements INodeProvider {
           this.startMessagePort(event);
           this.notifyNodeProviderIsConnected();
           resolve(this);
-        }
-        if (event.data.type === "plugin_message_response") {
-          if (receivedPort) {
-            return;
+        } else if (event.data.type === "plugin_message_response") {
+          if (event.data.data.message === "cf-node-provider:port") {
+            if (receivedPort) {
+              return;
+            }
+            receivedPort = true;
+            this.log(
+              "connect",
+              "Received message via window.onMessage event",
+              "cf-node-provider-port"
+            );
+            this.startMessagePort(event);
+            this.notifyNodeProviderIsConnected();
+            resolve(this);
           }
-          receivedPort = true;
-          console.log(event.data);
         }
       });
 
