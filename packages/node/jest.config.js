@@ -29,10 +29,11 @@ module.exports = {
     "node_modules",
     "dist"
   ],
-  "testRegex": "\\.spec.(jsx?|tsx?)$",
+  "testRegex": "\\.spec.(jsx?|tsx?|js?)$",
   "testURL": "http://localhost/",
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
-  "verbose": true
+  "verbose": true,
+  "extraGlobals": ["Math"]
 }
