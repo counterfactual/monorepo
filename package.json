@@ -3,7 +3,8 @@
   "workspaces": {
     "packages": [
       "packages/*"
-    ]
+    ],
+    "nohoist": ["**/@stencil", "**/@stencil/**"]
   },
   "engines": {
     "yarn": "^1.10"
