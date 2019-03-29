@@ -30,18 +30,19 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.15",
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
+    "@counterfactual/node": "0.1.15",
     "@counterfactual/types": "^0.0.9",
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
     "env-cmd": "^8.0.2",
     "ethers": "4.0.27",
-    "jest": "^24.0.0",
-    "uuid": "^3.3.2",
-    "ts-node": "^8.0.2",
-    "tslint": "^5.11.0",
-    "typescript": "^3.3.3333"
+    "jest": "24.5.0",
+    "jest-cli": "24.5.0",
+    "ts-node": "^8.0.3",
+    "tslint": "^5.14.0",
+    "typescript": "^3.3.4000",
+    "uuid": "^3.3.2"
   }
 }

@@ -14,11 +14,11 @@
     "copyfiles": "^2.0.0",
     "ethereum-waffle": "2.0.7",
     "ethers": "4.0.27",
-    "tslint": "5.13.0",
-    "typescript": "^3.3.3333"
+    "tslint": "5.14.0",
+    "typescript": "^3.3.4000"
   },
   "dependencies": {
-    "@types/node": "^11.9.0",
-    "truffle-contract": "^4.0.1"
+    "@types/node": "^11.12.0",
+    "truffle-contract": "^4.0.10"
   }
 }
