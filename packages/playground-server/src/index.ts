@@ -1,8 +1,8 @@
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
-import { NodeWrapper, serviceFactory } from "./node";
 import { detectDBAndSchema } from "./db";
+import { NodeWrapper, serviceFactory } from "./node";
 
 const BANNED_MNEMONICS = new Set([
   "science amused table oyster text message core mirror patch bubble provide industry",
