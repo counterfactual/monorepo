@@ -22,7 +22,7 @@ class Wager extends Component {
 
     try {
       const result = await this.matchmake();
-
+      
       const opponent = {
         id: "opponent",
         attributes: {
@@ -50,20 +50,30 @@ class Wager extends Component {
     return new Promise(resolve => {
       const onMatchmakeResponse = event => {
         if (
-          !event.data.toString().startsWith("playground:response:matchmake")
+          event.data.data &&
+          event.data.data.message &&
+          event.data.data.message.startsWith("playground:response:matchmake")
         ) {
-          return;
+          window.removeEventListener("message", onMatchmakeResponse);
+          
+          resolve(event.data.data);
         }
-
-        window.removeEventListener("message", onMatchmakeResponse);
-
-        const [, data] = event.data.split("|");
-        resolve(JSON.parse(data));
       };
 
       window.addEventListener("message", onMatchmakeResponse);
 
-      window.parent.postMessage("playground:request:matchmake", "*");
+      if (window === window.parent) {
+        // dApp not running in iFrame
+        window.postMessage(
+          {
+            type: "PLUGIN_MESSAGE",
+            data: { message: "playground:request:matchmake" }
+          },
+          "*"
+        );
+      } else {
+        window.parent.postMessage("playground:request:matchmake", "*");
+      }
     });
   }
 

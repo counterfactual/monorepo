@@ -50,12 +50,13 @@ export default class App extends Component {
 
   requestUserData() {
     window.addEventListener("message", event => {
+      
       if (
-        typeof event.data === "string" &&
-        event.data.startsWith("playground:response:user")
+        event.data.data &&
+        typeof event.data.data.message === "string" &&
+        event.data.data.message.startsWith("playground:response:user")
       ) {
-        const [, data] = event.data.split("|");
-        const playgroundState = JSON.parse(data);
+        const playgroundState = event.data.data.data;
         this.setState({
           user: playgroundState.user,
           balance: playgroundState.balance,
@@ -67,7 +68,19 @@ export default class App extends Component {
       }
     });
 
-    window.parent.postMessage("playground:request:user", "*");
+    if (window === window.parent) {
+      // dApp not running in iFrame
+      console.log("plugin message")
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "playground:request:user" }
+        },
+        "*"
+      );
+    } else {
+      window.parent.postMessage("playground:request:user", "*");
+    }
   }
 
   waitForCounterpartyAppInstance(props) {
