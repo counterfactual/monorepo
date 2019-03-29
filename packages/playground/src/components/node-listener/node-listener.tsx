@@ -38,12 +38,20 @@ export class NodeListener {
   };
 
   get node() {
+    if (window.parent !== window) {
+      // Inside iFrame
+      throw new Error("Don't get Node when in iFrame");
+    }
     return CounterfactualNode.getInstance();
   }
 
   async componentWillLoad() {
     if (this.web3Detected) {
-      this.bindNodeEvents();
+      if (window.parent === window && false) {
+        // TODO remove FALSE
+        // Not Inside iFrame
+        // this.bindNodeEvents();
+      }
     }
   }
 

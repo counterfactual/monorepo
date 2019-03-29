@@ -45,7 +45,10 @@ export class AccountRegister {
     username: "",
     email: "",
     ethAddress: this.user.ethAddress,
-    nodeAddress: CounterfactualNode.getInstance().publicIdentifier
+    nodeAddress:
+      window.parent !== window
+        ? localStorage.getItem("playground:node:address") || ""
+        : CounterfactualNode.getInstance().publicIdentifier
   };
 
   @State() errors: UserChangeset = {

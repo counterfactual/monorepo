@@ -71,20 +71,17 @@ export class AppRoot {
     }
 
     // Callback for processing Playground UI messages
-    window.addEventListener("message", event => {
-      if (
-        !["contentscript", "inpage"].includes(
-          event.data.target
-        )
-      ) {
-        console.log("event: ", event.data);
-      }
-      if (typeof event.data !== "string") {
-        return;
-      }
-    });
+    // window.addEventListener("message", event => {
+    //   if (!["contentscript", "inpage"].includes(event.data.target)) {
+    //     console.log("event: ", event.data);
+    //   }
+    //   if (typeof event.data !== "string") {
+    //     return;
+    //   }
+    // });
 
     if (window.parent !== window) {
+      // Inside iFrame
       const userToken = localStorage.getItem("playground:user:token");
       if (userToken) {
         window.postMessage(
@@ -98,6 +95,40 @@ export class AppRoot {
     }
 
     this.setup();
+  }
+
+  async getNodeAddress(): Promise<string> {
+    const nodeAddress = localStorage.getItem("playground:node:address");
+    if (nodeAddress) {
+      return nodeAddress;
+    }
+
+    return new Promise<string>((resolve, reject) => {
+      let receivedPort = false;
+      window.addEventListener("message", event => {
+        if (event.data.type === "plugin_message_response") {
+          if (event.data.data.message === "metamask:set:nodeAddress") {
+            if (receivedPort) {
+              return;
+            }
+            receivedPort = true;
+            localStorage.setItem(
+              "playground:node:address",
+              event.data.data.data
+            );
+            resolve(event.data.data.data);
+          }
+        }
+      });
+
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "metamask:get:nodeAddress" }
+        },
+        "*"
+      );
+    });
   }
 
   async updateAccount(newProps: Partial<AccountState>) {
@@ -134,12 +165,16 @@ export class AppRoot {
   }
 
   async setup() {
+    const toSetup: Promise<any>[] = [this.heartbeat(), this.loadApps()];
+    if (window.parent === window && false) {
+      // TODO remove FALSE
+      // Not Inside iFrame
+      // toSetup.push(this.createNodeProvider());
+    } else {
+      toSetup.push(this.getNodeAddress());
+    }
     if (typeof window["web3"] !== "undefined") {
-      await Promise.all([
-        this.heartbeat(),
-        this.createNodeProvider(),
-        this.loadApps()
-      ]);
+      await Promise.all(toSetup);
     }
 
     this.loading = false;
@@ -159,7 +194,7 @@ export class AppRoot {
     if (TIER === "dev") {
       configuration = {
         databaseURL: `ws://${FIREBASE_SERVER_HOST}:${FIREBASE_SERVER_PORT}`,
-        projectId: "",
+        projectId: "projectId",
         apiKey: "",
         authDomain: "",
         storageBucket: "",
@@ -516,6 +551,9 @@ export class AppRoot {
   }
 
   waitForMultisig() {
+    // TODO need to make postMessage to MM Background Script
+    // MM will createChannel and send back createChannelMsg
+    // This will get forwarded to setMultigAddress
     const node = CounterfactualNode.getInstance();
     node.once(
       Node.EventName.CREATE_CHANNEL,

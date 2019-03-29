@@ -48,7 +48,7 @@ if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
     apiKey: "",
     authDomain: "",
     databaseURL: `ws://${firebaseServerHost}:${firebaseServerPort}`,
-    projectId: "",
+    projectId: "projectId",
     storageBucket: "",
     messagingSenderId: ""
   });
