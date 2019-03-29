@@ -4,12 +4,7 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { SetupCommitment } from "../ethereum";
 import { StateChannel } from "../models/state-channel";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  SetupParams
-} from "../types";
+import { Context, ProtocolParameters, SetupParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -21,16 +16,20 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(message: ProtocolMessage, context: Context) {
-    const { respondingXpub, multisigAddress } = message.params as SetupParams;
+  0: async function*(context: Context) {
+    const { respondingXpub, multisigAddress } = context.message
+      .params as SetupParams;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
-    const setupCommitment = proposeStateTransition(message.params, context);
+    const setupCommitment = proposeStateTransition(
+      context.message.params,
+      context
+    );
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
@@ -48,13 +47,17 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(message: ProtocolMessage, context: Context) {
-    const { initiatingXpub, multisigAddress } = message.params as SetupParams;
+  1: async function*(context: Context) {
+    const { initiatingXpub, multisigAddress } = context.message
+      .params as SetupParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    const setupCommitment = proposeStateTransition(message.params, context);
+    const setupCommitment = proposeStateTransition(
+      context.message.params,
+      context
+    );
 
-    const theirSig = message.signature!;
+    const theirSig = context.message.signature!;
     validateSignature(initiatingAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
@@ -70,7 +73,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO

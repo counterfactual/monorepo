@@ -12,6 +12,7 @@
         "packages/node-provider/package.json",
         "packages/node/package.json",
         "packages/playground/package.json",
+        "packages/specs/package.json",
         "packages/types/package.json",
         "packages/typescript-typings/package.json"
       ]
@@ -20,6 +21,9 @@
   "ignore": [
     "@stencil/core",
     "@stencil/router",
+    "@types/jest",
+    "jest-cli",
+    "jest",
     "workbox-build",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
@@ -30,6 +34,7 @@
     "@counterfactual/node-provider",
     "@counterfactual/node",
     "@counterfactual/playground",
+    "@counterfactual/specs",
     "@counterfactual/types",
     "@counterfactual/typescript-typings"
   ]

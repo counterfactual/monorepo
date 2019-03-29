@@ -18,25 +18,18 @@ type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
  *
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const {
-      appIdentityHash,
-      multisigAddress,
-      respondingXpub
-    } = message.params as TakeActionParams;
+  0: async function*(context: Context) {
+    const { appIdentityHash, multisigAddress, respondingXpub } = context.message
+      .params as TakeActionParams;
     const channel = context.stateChannelsMap.get(
       multisigAddress
     ) as StateChannel;
     const appSeqNo = channel.getAppInstance(appIdentityHash).appSeqNo;
 
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
-      message as TakeActionProtocolMessage,
+      context.message as TakeActionProtocolMessage,
       context,
-      provider
+      context.provider
     );
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
@@ -44,7 +37,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     const { signature } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         seq: 1,
         toXpub: respondingXpub,
         signature: mySig
@@ -57,18 +50,14 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       signature
     );
   },
-  1: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
+  1: async function*(context: Context) {
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
-      message as TakeActionProtocolMessage,
+      context.message as TakeActionProtocolMessage,
       context,
-      provider
+      context.provider
     );
 
-    const { signature, params } = message;
+    const { signature, params } = context.message;
     const {
       appIdentityHash,
       multisigAddress,
@@ -89,7 +78,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         seq: -1,
         signature: mySig

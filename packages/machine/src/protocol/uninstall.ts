@@ -5,12 +5,7 @@ import { Protocol, ProtocolExecutionFlow } from "..";
 import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
 import { StateChannel } from "../models";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  UninstallParams
-} from "../types";
+import { Context, ProtocolParameters, UninstallParams } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import {
@@ -26,25 +21,21 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/06-uninstall-protocol#messages
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const { respondingXpub } = message.params;
+  0: async function*(context: Context) {
+    const { respondingXpub } = context.message.params;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
@@ -60,21 +51,17 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       appIdentityHash
     ];
   },
-  1: async function*(
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) {
-    const { initiatingXpub } = message.params;
+  1: async function*(context: Context) {
+    const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
-      message.params,
+      context.message.params,
       context,
-      provider
+      context.provider
     );
 
-    const theirSig = message.signature!;
+    const theirSig = context.message.signature!;
     validateSignature(initiatingAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
@@ -90,7 +77,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO

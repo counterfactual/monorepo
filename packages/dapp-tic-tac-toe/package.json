@@ -3,13 +3,13 @@
   "version": "0.1.2",
   "dependencies": {
     "@counterfactual/apps": "0.1.1",
-    "react": "^16.7.0",
-    "react-dom": "^16.7.0",
-    "react-router-dom": "^4.3.1",
-    "react-scripts": "2.1.5"
+    "react": "^16.8.5",
+    "react-dom": "^16.8.5",
+    "react-router-dom": "^5.0.0",
+    "react-scripts": "2.1.8"
   },
   "scripts": {
-    "start": "BROWSER=none && react-scripts start",
+    "start": "SKIP_PREFLIGHT_CHECK=true react-scripts start",
     "build": "SKIP_PREFLIGHT_CHECK=true react-scripts build && cp src/_redirects build/_redirects",
     "netlify": "sh netlify.sh",
     "test": "SKIP_PREFLIGHT_CHECK=true CI=true react-scripts test --setupFiles ./src/testSetup.js",

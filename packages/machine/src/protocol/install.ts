@@ -4,12 +4,7 @@ import { ProtocolExecutionFlow } from "..";
 import { Opcode, Protocol } from "../enums";
 import { InstallCommitment } from "../ethereum";
 import { AppInstance, StateChannel } from "../models";
-import {
-  Context,
-  InstallParams,
-  ProtocolMessage,
-  ProtocolParameters
-} from "../types";
+import { Context, InstallParams, ProtocolParameters } from "../types";
 import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -21,12 +16,12 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/05-install-protocol#messages
  */
 export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(message: ProtocolMessage, context: Context) {
-    const { respondingXpub } = message.params;
+  0: async function*(context: Context) {
+    const { respondingXpub } = context.message.params;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
     const [appIdentityHash, commitment] = proposeStateTransition(
-      message.params,
+      context.message.params,
       context
     );
 
@@ -35,7 +30,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...message,
+        ...context.message,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
@@ -52,16 +47,16 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(message: ProtocolMessage, context: Context) {
-    const { initiatingXpub } = message.params;
+  1: async function*(context: Context) {
+    const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
     const [appIdentityHash, commitment] = proposeStateTransition(
-      message.params,
+      context.message.params,
       context
     );
 
-    const theirSig = message.signature!;
+    const theirSig = context.message.signature!;
     validateSignature(initiatingAddress, commitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, commitment];
@@ -77,7 +72,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...message,
+        ...context.message,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO

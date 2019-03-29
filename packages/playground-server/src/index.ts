@@ -2,6 +2,7 @@ import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
 import { NodeWrapper, serviceFactory } from "./node";
+import { detectDBAndSchema } from "./db";
 
 const BANNED_MNEMONICS = new Set([
   "science amused table oyster text message core mirror patch bubble provide industry",
@@ -27,6 +28,8 @@ const API_TIMEOUT = 5 * 60 * 1000;
     );
     process.exit(1);
   }
+
+  await detectDBAndSchema();
 
   await NodeWrapper.createNodeSingleton(
     process.env.ETHEREUM_NETWORK || "kovan",

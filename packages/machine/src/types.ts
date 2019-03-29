@@ -12,11 +12,7 @@ import { Transaction } from "./ethereum/types";
 import { StateChannel } from "./models";
 
 export type ProtocolExecutionFlow = {
-  [x: number]: (
-    message: ProtocolMessage,
-    context: Context,
-    provider: BaseProvider
-  ) => AsyncIterableIterator<any[]>;
+  [x: number]: (context: Context) => AsyncIterableIterator<any[]>;
 };
 
 export type Middleware = {
@@ -25,9 +21,12 @@ export type Middleware = {
 
 export type Instruction = Function | Opcode;
 
+/// Arguments passed to a protocol execulion flow
 export interface Context {
   network: NetworkContext;
   stateChannelsMap: Map<string, StateChannel>;
+  message: ProtocolMessage;
+  provider: BaseProvider;
 }
 
 export type ProtocolMessage = {
