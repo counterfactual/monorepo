@@ -86,18 +86,18 @@ class LocalPersistentFirebaseServiceFactory extends FirebaseServiceFactory
 
   async closeServiceConnections() {
     const snapshot = await this.firebaseServer.getValue();
-    storePlaygroundSnapshot(snapshot);
 
+    await storePlaygroundSnapshot(snapshot);
     await this.firebaseServer.close();
   }
 }
 
-export let serviceFactory: Promise<IClosableFirebaseServiceFactory>;
+export let serviceFactoryPromise: Promise<IClosableFirebaseServiceFactory>;
 
 console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
 if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
   confirmFirebaseConfigurationEnvVars();
-  serviceFactory = Promise.resolve(
+  serviceFactoryPromise = Promise.resolve(
     new StandardFirebaseServiceFactory({
       apiKey: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.apiKey]!,
       authDomain: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authDomain]!,
@@ -115,12 +115,12 @@ if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
   confirmLocalFirebaseConfigurationEnvVars();
   if (process.env.PLAYGROUND_PERSISTENCE_ENABLED) {
     console.log("Playground persistance is enabled");
-    serviceFactory = LocalPersistentFirebaseServiceFactory.create(
+    serviceFactoryPromise = LocalPersistentFirebaseServiceFactory.create(
       process.env.FIREBASE_SERVER_HOST!,
       process.env.FIREBASE_SERVER_PORT!
     );
   } else {
-    serviceFactory = Promise.resolve(
+    serviceFactoryPromise = Promise.resolve(
       new LocalFirebaseServiceFactory(
         process.env.FIREBASE_SERVER_HOST!,
         process.env.FIREBASE_SERVER_PORT!
@@ -165,10 +165,10 @@ export class NodeWrapper {
       return NodeWrapper.node;
     }
 
-    const serviceFactoryResolved = await serviceFactory;
+    const serviceFactory = await serviceFactoryPromise;
 
     if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
-      await serviceFactoryResolved.auth(
+      await serviceFactory.auth(
         process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
         process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
       );
@@ -176,7 +176,7 @@ export class NodeWrapper {
 
     const store =
       storeService ||
-      serviceFactoryResolved.createStoreService(
+      serviceFactory.createStoreService(
         `${process.env.STORE_PREFIX}-pg-server-store`
       );
 
@@ -212,7 +212,7 @@ export class NodeWrapper {
     storeService?: IStoreService,
     messagingService?: IMessagingService
   ): Promise<Node> {
-    const serviceFactoryResolved = await serviceFactory;
+    const serviceFactoryResolved = await serviceFactoryPromise;
 
     const store =
       storeService || serviceFactoryResolved.createStoreService(generateUUID());
