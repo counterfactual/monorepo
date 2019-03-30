@@ -482,21 +482,21 @@ export class AppRoot {
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
     return new Promise<string>((resolve, reject) => {
-      const cb = async (event) => {
+      const cb = async event => {
         if (event.data.type === "plugin_message_response") {
           if (event.data.data.message === "metamask:response:deposit") {
             window.removeEventListener("message", cb);
 
             await this.getBalances({ poll: true });
             await this.resetPendingDepositState();
-        console.log("deposit response", event.data)
+            console.log("deposit response", event.data);
             resolve(event.data.data);
           }
         }
-      }
+      };
       window.addEventListener("message", cb);
 
-       window.postMessage(
+      window.postMessage(
         {
           type: "PLUGIN_MESSAGE",
           data: {
@@ -551,17 +551,17 @@ export class AppRoot {
     // MM will createChannel and send back createChannelMsg
     // This will get forwarded to setMultigAddress
 
-    const cb = async (event) => {
+    const cb = async event => {
       if (event.data.type === "plugin_message_response") {
         if (event.data.data.message === "metamask:emit:createChannel") {
           window.removeEventListener("message", cb);
 
-          this.setMultisigAddress(event.data.data);
+          this.setMultisigAddress(event.data.data.data);
         }
       }
-    }
+    };
     window.addEventListener("message", cb);
-      window.postMessage(
+    window.postMessage(
       {
         type: "PLUGIN_MESSAGE",
         data: {
