@@ -481,37 +481,33 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
-    const node = CounterfactualNode.getInstance();
+    return new Promise<string>((resolve, reject) => {
+      const cb = async (event) => {
+        if (event.data.type === "plugin_message_response") {
+          if (event.data.data.message === "metamask:response:deposit") {
+            window.removeEventListener("message", cb);
 
-    node.once(Node.EventName.DEPOSIT_STARTED, args =>
-      this.updateAccount({
-        ethPendingDepositTxHash: args.txHash,
-        ethPendingDepositAmountWei: valueInWei
-      })
-    );
+            await this.getBalances({ poll: true });
+            await this.resetPendingDepositState();
+        console.log("deposit response", event.data)
+            resolve(event.data.data);
+          }
+        }
+      }
+      window.addEventListener("message", cb);
 
-    let ret;
-
-    try {
-      const amount = ethers.utils.bigNumberify(valueInWei);
-
-      ret = await node.call(Node.MethodName.DEPOSIT, {
-        type: Node.MethodName.DEPOSIT,
-        requestId: window["uuid"](),
-        params: {
-          amount,
-          multisigAddress,
-          notifyCounterparty: true
-        } as Node.DepositParams
-      });
-    } catch (e) {
-      console.error(e);
-    }
-
-    await this.getBalances({ poll: true });
-    await this.resetPendingDepositState();
-
-    return ret;
+       window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: {
+            multisigAddress,
+            valueInWei,
+            message: "metamask:request:deposit"
+          }
+        },
+        "*"
+      );
+    });
   }
 
   async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
@@ -554,10 +550,25 @@ export class AppRoot {
     // TODO need to make postMessage to MM Background Script
     // MM will createChannel and send back createChannelMsg
     // This will get forwarded to setMultigAddress
-    const node = CounterfactualNode.getInstance();
-    node.once(
-      Node.EventName.CREATE_CHANNEL,
-      this.setMultisigAddress.bind(this)
+
+    const cb = async (event) => {
+      if (event.data.type === "plugin_message_response") {
+        if (event.data.data.message === "metamask:emit:createChannel") {
+          window.removeEventListener("message", cb);
+
+          this.setMultisigAddress(event.data.data);
+        }
+      }
+    }
+    window.addEventListener("message", cb);
+      window.postMessage(
+      {
+        type: "PLUGIN_MESSAGE",
+        data: {
+          message: "metamask:listen:createChannel"
+        }
+      },
+      "*"
     );
   }
 
