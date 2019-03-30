@@ -71,6 +71,22 @@ export class AccountRegister {
     }
   }
 
+  sendUserTokenToMetaMask() {
+    if (window.parent !== window) {
+      // Inside iFrame
+      const userToken = localStorage.getItem("playground:user:token");
+      if (userToken) {
+        window.postMessage(
+          {
+            type: "PLUGIN_MESSAGE",
+            data: { message: "playground:set:user", data: userToken }
+          },
+          "*"
+        );
+      }
+    }
+  }
+
   async login(e: MouseEvent) {
     e.preventDefault();
 
@@ -86,6 +102,8 @@ export class AccountRegister {
     );
 
     window.localStorage.setItem("playground:user:token", user.token as string);
+
+    this.sendUserTokenToMetaMask();
 
     this.updateAccount({ user });
 
@@ -141,6 +159,8 @@ export class AccountRegister {
         "playground:user:token",
         newAccount.token as string
       );
+
+      this.sendUserTokenToMetaMask();
 
       ga("set", "userId", newAccount.id);
 
