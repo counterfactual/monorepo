@@ -491,6 +491,19 @@ export class AppRoot {
             await this.resetPendingDepositState();
             console.log("deposit response", event.data);
             resolve(event.data.data);
+          } else if (event.data.data.message === "metamask:request:signer") {
+            console.log("Request for provider.getSigner");
+            const signer = "0x123";
+            window.postMessage(
+              {
+                type: "PLUGIN_MESSAGE",
+                data: {
+                  data: signer,
+                  message: "metamask:response:signer"
+                }
+              },
+              "*"
+            );
           }
         }
       };
