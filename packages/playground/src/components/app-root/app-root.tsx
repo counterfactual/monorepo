@@ -131,6 +131,26 @@ export class AppRoot {
     });
   }
 
+  async setupMM(): Promise<null> {
+    return new Promise<null>((resolve, reject) => {
+      window.addEventListener("message", event => {
+        if (event.data.type === "plugin_message_response") {
+          if (event.data.data.message === "metamask:setup:complete") {
+            resolve();
+          }
+        }
+      });
+
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "metamask:setup:initiate" }
+        },
+        "*"
+      );
+    });
+  }
+
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
@@ -171,6 +191,7 @@ export class AppRoot {
       // Not Inside iFrame
       // toSetup.push(this.createNodeProvider());
     } else {
+      toSetup.push(this.setupMM());
       toSetup.push(this.getNodeAddress());
     }
     if (typeof window["web3"] !== "undefined") {
