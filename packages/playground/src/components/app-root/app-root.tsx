@@ -502,6 +502,7 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
+    let didSendSigner = false;
     return new Promise<string>((resolve, reject) => {
       const cb = async event => {
         if (event.data.type === "plugin_message_response") {
@@ -512,36 +513,50 @@ export class AppRoot {
             await this.resetPendingDepositState();
             console.log("deposit response", event.data);
             resolve(event.data.data);
-          } else if (event.data.data.message === "metamask:request:signer") {
-            console.log("Request for provider.getSigner");
-            const signer = "0x123";
-            window.postMessage(
-              {
-                type: "plugin_message_response",
-                data: {
-                  data: signer,
-                  message: "metamask:response:signer"
-                }
-              },
-              "*"
-            );
-          } else if (event.data.data.message === "metamask:request:sendTransaction") {
+          } else if (
+            event.data.data.message === "metamask:request:signer:address"
+          ) {
+            if (!didSendSigner) {
+              didSendSigner = true;
+              console.log("Request for provider signer address");
+              const { signer } = this.walletState;
+              if (!signer) {
+                throw new Error("No signer in getSigner listener");
+              }
+              const address = await signer.getAddress();
+              window.postMessage(
+                {
+                  type: "PLUGIN_MESSAGE",
+                  data: {
+                    data: address,
+                    message: "metamask:response:signer:address"
+                  }
+                },
+                "*"
+              );
+            }
+          } else if (
+            event.data.data.message ===
+            "metamask:request:signer:sendTransaction"
+          ) {
             console.log("Request for provider.sendTransaction");
             const { provider } = this.walletState;
 
-            if (!provider) return;
-
-            const response = await provider.sendTransaction(event.data.data.data.signedTransaction);
-            window.postMessage(
-              {
-                type: "plugin_message_response",
-                data: {
-                  data: response,
-                  message: "metamask:response:signer"
-                }
-              },
-              "*"
-            );
+            if (provider) {
+              const response = await provider.sendTransaction(
+                event.data.data.data.signedTransaction
+              );
+              window.postMessage(
+                {
+                  type: "PLUGIN_MESSAGE",
+                  data: {
+                    data: response,
+                    message: "metamask:response:signer:sendTransaction"
+                  }
+                },
+                "*"
+              );
+            }
           }
         }
       };
