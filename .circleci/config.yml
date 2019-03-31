@@ -8,44 +8,67 @@ defaults: &defaults
   docker:
     - image: circleci/node:10
 
+save_code: &save_code
+  save_cache:
+    key: code-{{ .Revision }}
+    paths:
+      - .git
+
+save_dep: &save_dep
+  save_cache:
+    key: dependency-cache-{{ checksum "yarn.lock" }}
+    paths:
+      - node_modules
+
+restore_code: &restore_code
+  restore_cache:
+    key: code-{{ .Revision }}
+
+restore_dep: &restore_dep
+  restore_cache:
+    key: dependency-cache-{{ checksum "yarn.lock" }}
+
 jobs:
   build:
-    <<: *defaults
+    working_directory: /home/circleci/project
+    machine: true
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
-
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - run:
           name: "Install solc binary"
           command: |
-            # install CMake and Boost prerequisite first
-            wget http://www.cmake.org/files/v3.13/cmake-3.13.4.tar.gz
-            tar -xvzf cmake-3.13.4.tar.gz
-            cd cmake-3.13.4
-            sudo ./configure --prefix=/opt/cmake & make & make install
-            /opt/cmake/bin/cmake -v
-            cd ../
-            wget https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.7z.tar.gz
-            tar -xvzf boost_1_69_0.7z.tar.gz
-            cd boost_1_69_0.7z
-            sudo ./bootstrap.sh
-            sudo ./b2 --with=all -j 2 install
+            sudo apt-get install software-properties-common
+            sudo add-apt-repository -y ppa:ethereum/ethereum
+            sudo apt-get update & sudo apt-get install dpkg
+            sudo DEBIAN_FRONTEND=noninteractive apt-get install solc
 
-            git clone --recursive https://github.com/ethereum/solidity.git
-            cd solidity
-            sudo chmod +x ./scripts/*.sh
-            ./scripts/install_deps.sh & ./scripts/build.sh
+      - run:
+          name: "Install nvm and install node 10"
+          command: |
+            set +e
+            curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
+            export NVM_DIR="/opt/circleci/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            nvm install v10.0.0
+            nvm alias default v10.0.0
+            node -v
+            # Each step uses the same `$BASH_ENV`, so need to modify it
+            echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
+            echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
 
-      - run: yarn --frozen-lockfile
-      - run: yarn build
+      - run:
+          name: "Running yarn build"
+          command: |
+            nvm use v10.0.0
+            npm install -g yarn
+            yarn --frozen-lockfile
+            yarn build
 
-      - save_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-          paths:
-            - node_modules
+      - <<: *save_dep
+      - <<: *save_code
 
       - persist_to_workspace:
           root: /home/circleci/project
@@ -56,11 +79,9 @@ jobs:
   run-tests:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
-
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
@@ -76,11 +97,9 @@ jobs:
     docker:
       - image: circleci/node:10-browsers
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
-
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
@@ -103,11 +122,9 @@ jobs:
   run-tslint:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
-
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - attach_workspace:
           at: /home/circleci/project
@@ -117,11 +134,9 @@ jobs:
   publish-to-npm:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
-
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
