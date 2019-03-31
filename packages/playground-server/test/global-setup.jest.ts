@@ -14,29 +14,25 @@ dotenvExtended.load();
 
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
-// This runs once for all test suites.
+const CF_PATH = "m/44'/60'/0'/25446";
 
 export default async function() {
   mkdirp.sync(DIR);
 
   const pgMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(pgMnemonic).derivePath("m/44'/60'/0'/25446")
-    .privateKey;
+  const privateKeyPG = fromMnemonic(pgMnemonic).derivePath(CF_PATH).privateKey;
 
   const nodeAMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyA = fromMnemonic(nodeAMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyA = fromMnemonic(nodeAMnemonic).derivePath(CF_PATH)
+    .privateKey;
 
   const nodeBMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyB = fromMnemonic(nodeBMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyB = fromMnemonic(nodeBMnemonic).derivePath(CF_PATH)
+    .privateKey;
 
   const nodeCMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(nodeCMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
+  const privateKeyC = fromMnemonic(nodeCMnemonic).derivePath(CF_PATH)
+    .privateKey;
 
   const server = ganache.server({
     accounts: [
@@ -58,9 +54,11 @@ export default async function() {
       }
     ]
   });
-  // @ts-ignore
-  global.ganacheServer = server;
+
+  global["ganacheServer"] = server;
+
   server.listen(parseInt(process.env.GANACHE_PORT!, 10));
+
   const provider = new Web3Provider(server.provider);
 
   const wallet = new Wallet(privateKeyA, provider);

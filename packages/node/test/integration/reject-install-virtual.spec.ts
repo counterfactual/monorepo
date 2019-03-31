@@ -10,6 +10,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
+import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 import {
   confirmProposedVirtualAppInstanceOnNode,
@@ -50,7 +51,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
@@ -62,7 +63,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: process.env.B_MNEMONIC }]);
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: B_MNEMONIC }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,

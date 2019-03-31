@@ -14,30 +14,24 @@ dotenvExtended.load();
 
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
-// This runs once for all test suites.
+const CF_PATH = "m/44'/60'/0'/25446";
 
 module.exports = async () => {
   mkdirp.sync(DIR);
 
   const playgroundMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(playgroundMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
-
-  const aliceMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyA = fromMnemonic(aliceMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).privateKey;
-
-  const botMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(botMnemonic).derivePath("m/44'/60'/0'/25446")
+  const privateKeyPG = fromMnemonic(playgroundMnemonic).derivePath(CF_PATH)
     .privateKey;
 
-  const aliceAddress = fromMnemonic(aliceMnemonic).derivePath(
-    "m/44'/60'/0'/25446"
-  ).address;
-  const botAddress = fromMnemonic(botMnemonic).derivePath("m/44'/60'/0'/25446")
-    .address;
+  const aliceMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyA = fromMnemonic(aliceMnemonic).derivePath(CF_PATH)
+    .privateKey;
+
+  const botMnemonic = Wallet.createRandom().mnemonic;
+  const privateKeyC = fromMnemonic(botMnemonic).derivePath(CF_PATH).privateKey;
+
+  const aliceAddress = fromMnemonic(aliceMnemonic).derivePath(CF_PATH).address;
+  const botAddress = fromMnemonic(botMnemonic).derivePath(CF_PATH).address;
 
   const server = ganache.server({
     accounts: [
@@ -55,14 +49,17 @@ module.exports = async () => {
       }
     ]
   });
-  // @ts-ignore
-  global.ganacheServer = server;
+
+  global["ganacheServer"] = server;
+
   server.listen(parseInt(process.env.GANACHE_PORT!, 10));
+
   const provider = new Web3Provider(server.provider);
 
   const wallet = new Wallet(privateKeyA, provider);
 
   const networkContext = await configureNetworkContext(wallet);
+
   const data = {
     playgroundMnemonic,
     aliceMnemonic,

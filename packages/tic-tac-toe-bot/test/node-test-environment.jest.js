@@ -17,10 +17,13 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
+
     let data = readFileSync(path.join(DIR, "data"), "utf8");
+
     if (!data) {
       throw new Error("Global setup state not found");
     }
+
     data = JSON.parse(data);
 
     const networkContext = {

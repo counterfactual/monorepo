@@ -23,6 +23,7 @@ import {
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
+import { A_MNEMONIC } from "../test-constants.jest";
 
 import {
   generateGetStateRequest,
@@ -60,7 +61,7 @@ describe("Node method follows spec - takeAction", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
