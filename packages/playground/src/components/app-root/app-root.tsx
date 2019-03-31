@@ -517,7 +517,7 @@ export class AppRoot {
             event.data.data.message === "metamask:request:signer:address"
           ) {
             if (!didSendSigner) {
-              didSendSigner = true;
+              // didSendSigner = true;
               console.log("Request for provider signer address");
               const { signer } = this.walletState;
               if (!signer) {
@@ -539,12 +539,15 @@ export class AppRoot {
             event.data.data.message ===
             "metamask:request:signer:sendTransaction"
           ) {
-            console.log("Request for provider.sendTransaction");
+            console.log("Request for provider.sendTransaction", event);
             const { provider } = this.walletState;
 
             if (provider) {
+              const {signedTransaction} = event.data.data.data;
+              signedTransaction.gasPrice = ethers.utils.bigNumberify(signedTransaction.gasPrice._hex);
+              signedTransaction.value = ethers.utils.bigNumberify(signedTransaction.value._hex)
               const response = await provider.sendTransaction(
-                event.data.data.data.signedTransaction
+                signedTransaction
               );
               window.postMessage(
                 {
