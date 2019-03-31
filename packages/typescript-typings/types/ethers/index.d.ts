@@ -43,6 +43,7 @@ declare class Web3Provider {
   removeAllListeners(event: string): void;
   estimateGas(tx): Promise<any>;
   getTransactionReceipt(tx: string): Promise<any>;
+  sendTransaction(signedTransaction: string): Promise<any>
 }
 
 declare class HDNode {

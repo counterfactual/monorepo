@@ -517,9 +517,26 @@ export class AppRoot {
             const signer = "0x123";
             window.postMessage(
               {
-                type: "PLUGIN_MESSAGE",
+                type: "plugin_message_response",
                 data: {
                   data: signer,
+                  message: "metamask:response:signer"
+                }
+              },
+              "*"
+            );
+          } else if (event.data.data.message === "metamask:request:sendTransaction") {
+            console.log("Request for provider.sendTransaction");
+            const { provider } = this.walletState;
+
+            if (!provider) return;
+
+            const response = await provider.sendTransaction(event.data.data.data.signedTransaction);
+            window.postMessage(
+              {
+                type: "plugin_message_response",
+                data: {
+                  data: response,
                   message: "metamask:response:signer"
                 }
               },
