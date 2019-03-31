@@ -29,6 +29,8 @@ which will start a Postgres instance for you and expose it on port 5432.
 
 The database gets auto-configured with the right schema if the appopriate table doesn't exist.
 
+- (Optional) By default the local in-mem Firebase instance is volatile which means that all open channels will have to be re-created after `playground-server` restart. In order to enable persistency set the the environment variable `PLAYGROUND_PERSISTENCE_ENABLED=true`
+
 Once the database is up and running, the Playground server can be started by executing:
 
 ```shell

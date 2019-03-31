@@ -17,7 +17,7 @@ import { v4 as generateUUID } from "uuid";
 import mountApi from "../src/api";
 import { getDatabase } from "../src/db";
 import Errors from "../src/errors";
-import NodeWrapper, { serviceFactory } from "../src/node";
+import { NodeWrapper, serviceFactoryPromise } from "../src/node";
 import MatchmakingRequest from "../src/resources/matchmaking-request/resource";
 import User from "../src/resources/user/resource";
 
@@ -69,6 +69,7 @@ describe("playground-server", () => {
 
   beforeAll(async () => {
     const provider = new JsonRpcProvider(GANACHE_URL);
+    const serviceFactory = await serviceFactoryPromise;
 
     playgroundNode = await NodeWrapper.createNodeSingleton(
       NETWORK_CONTEXT,

@@ -1,7 +1,7 @@
 CREATE SCHEMA playground_db
     AUTHORIZATION postgres;
 
- CREATE TABLE playground_db."users"
+CREATE TABLE playground_db."users"
 (
     id uuid NOT NULL,
     username character varying(255) COLLATE pg_catalog."default" NOT NULL,
@@ -20,4 +20,16 @@ WITH (
 TABLESPACE pg_default;
 
  ALTER TABLE playground_db.users
+    OWNER to postgres;
+
+CREATE TABLE playground_db."playground_snapshot"
+(
+    snapshot bytea
+)
+WITH (
+    OIDS = FALSE
+)
+TABLESPACE pg_default;
+
+ALTER TABLE playground_db.playground_snapshot
     OWNER to postgres;

@@ -467,6 +467,54 @@ export async function bindTransactionHashToUser(
   }
 }
 
+export async function storePlaygroundSnapshot(snapshot: any): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("playground_snapshot")
+    .delete()
+    .insert({ snapshot: Buffer.from(JSON.stringify(snapshot)) });
+
+  try {
+    await query;
+
+    Log.debug("Executed storePlaygroundSnapshot query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
+export async function getPlaygroundSnapshot(): Promise<any> {
+  const db = getDatabase();
+
+  const query = db("playground_snapshot").select("snapshot");
+
+  try {
+    const snapshot = await query;
+
+    Log.debug("Executed getPlaygroundSnapshot query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    if (!snapshot[0]) {
+      return null;
+    }
+
+    const rawJSON = snapshot[0].snapshot.toString();
+
+    return JSON.parse(rawJSON);
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
 function compactObject(filters: {}): {} {
   Object.keys(filters).forEach(
     key => filters[key] === undefined && delete filters[key]
