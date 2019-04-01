@@ -29,7 +29,7 @@ contract MAppRegistryCore {
   }
 
   /// @notice Compute a unique hash for a single instance of an App
-  /// @param appIdentity An `AppIdentity` struct that encodes all unqiue info for an App
+  /// @param appIdentity An `AppIdentity` struct that encodes all unique info for an App
   /// @return A bytes32 hash of the AppIdentity
   function appIdentityToHash(
     LibStateChannelApp.AppIdentity memory appIdentity
