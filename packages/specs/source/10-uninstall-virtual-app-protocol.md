@@ -24,7 +24,7 @@ At the end of this protocol the commitments `{left,right}ETHVirtualAppAgreement`
 
 ### lockCommitment
 
-The protocol produces a commitment to call `virtualAppSetState` with the final state of the app and at a high app local nonce. The existence of this commitment and the high local nonce means that the `s6` signature (from `intermediary` on the `targetVirtualAppSetState` commitment) is no longer useful, and the changes to the app state cannot be made without the intemediary's signature.
+The protocol produces a commitment to call `virtualAppSetState` with the final state of the app and at a high app local nonce. The existence of this commitment and the high local nonce means that the `s6` signature (from `intermediary` on the `targetVirtualAppSetState` commitment) is no longer useful, and the changes to the app state cannot be made without the intermediary's signature.
 
 ### uninstallLeft
 

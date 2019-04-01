@@ -70,7 +70,7 @@ The commitments that these two messages rely on have the following parameters:
 
 |       Parameter        |   Type    |                           Description                            |
 | ---------------------- | --------- | ---------------------------------------------------------------- |
-| **`rootNonceTimeout`** | `uint256` | Relative timeout in seconds after which the root nonce finalizes |
+| **`rootNonceTimeout`** | `uint256` | Relative timeout in blocks after which the root nonce finalizes |
 | **`rootNonceSalt`**    | `bytes32` | Arbitrary value to facilitate uniqueness of the root nonce       |
 
 The commitment can be visually represented like:
