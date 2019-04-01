@@ -367,8 +367,8 @@ export type HighRollerUIMutableState = {
 export type HighRollerUIState = HighRollerUIMutableState & {
   updateUIState: (state: HighRollerUIMutableState) => void;
   highRoller: (
-    num1: any,
-    num2: any
-  ) => Promise<{ playerFirstRoll: number[]; playerSecondRoll: number[] }>;
+    num1: number,
+    num2: number
+  ) => Promise<{ myRoll: number[]; opponentRoll: number[] }>;
   generateRandomRoll: () => number[];
 };
