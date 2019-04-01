@@ -80,7 +80,6 @@ describe("ProxyFactory with CREATE2", function(this: Mocha) {
 
       const echoProxy = new Contract(create2(initcode), Echo.abi, wallet);
 
-      // FIXME: For some reason we get "contract not deployed"
       expect(await echoProxy.functions.helloWorld()).to.eq("hello world");
     });
   });
