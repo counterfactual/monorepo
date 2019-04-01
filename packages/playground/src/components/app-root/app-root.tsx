@@ -386,7 +386,6 @@ export class AppRoot {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
-    const node = CounterfactualNode.getInstance();
 
     if (!multisigAddress || !ethAddress) {
       return {
@@ -395,93 +394,93 @@ export class AppRoot {
       };
     }
 
-    const query = {
-      type: Node.MethodName.GET_FREE_BALANCE_STATE,
-      requestId: window["uuid"](),
-      params: { multisigAddress } as Node.GetFreeBalanceStateParams
-    };
+    return new Promise<{
+      ethFreeBalanceWei: BigNumber;
+      ethMultisigBalance: BigNumber;
+    }>((resolve, reject) => {
+      
+      const cb = async event => {
+        if (event.data.type === "plugin_message_response") {
+          if (event.data.data.message === "metamask:response:balances") {
+            window.removeEventListener("message", cb);
+            const state = event.data.data.data;
+            console.log("received getBalances response", event.data)
+            // Had to reimplement this on the frontend because the method can't be imported
+            // due to ethers not playing nice with ES Modules in this context.
+            const getAddress = (xkey: string, k: number) =>
+              ethers.utils.computeAddress(
+                ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
+                  .publicKey
+              );
+        
+            const balances = [
+              ethers.utils.bigNumberify(state.aliceBalance),
+              ethers.utils.bigNumberify(state.bobBalance)
+            ];
+        
+            const [myBalance, counterpartyBalance] = [
+              balances[
+                [state.alice, state.bob].findIndex(
+                  address => address === getAddress(nodeAddress, 0)
+                )
+              ],
+              balances[
+                [state.alice, state.bob].findIndex(
+                  address => address !== getAddress(nodeAddress, 0)
+                )
+              ]
+            ];
+        
+            const vals = {
+              ethFreeBalanceWei: myBalance,
+              ethMultisigBalance: await provider!.getBalance(multisigAddress),
+              ethCounterpartyFreeBalanceWei: counterpartyBalance
+            };
+        
+            const enoughCounterpartyBalance = counterpartyBalance.gte(
+              MINIMUM_EXPECTED_FREE_BALANCE
+            );
+            const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+            const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
+        
+            await this.updateAppRegistry({
+              canUseApps
+            });
+        
+            await this.updateAccount({
+              ...vals,
+              enoughCounterpartyBalance,
+              enoughLocalBalance
+            });
+        
+            // TODO: Replace this with a more event-driven approach,
+            // based on a list of collateralized deposits.
+            if (poll) {
+              if (canUseApps) {
+                clearTimeout(this.balancePolling);
+              } else {
+                this.balancePolling = setTimeout(
+                  async () => this.getBalances({ poll }),
+                  1000
+                );
+              }
+            }
+        
+            resolve(vals);
+          }
+        }
+      };
 
-    let response;
+      window.addEventListener("message", cb);
 
-    try {
-      response = await node.call(query.type, query);
-    } catch (e) {
-      // TODO: Use better typed error messages with error codes
-      if (e.includes("Call to getStateChannel failed")) {
-        await this.updateAccount({ hasCorruptStateChannelState: true });
-        return {
-          ethFreeBalanceWei: ethers.constants.Zero,
-          ethMultisigBalance: ethers.constants.Zero
-        };
-      }
-
-      throw e;
-    }
-
-    const { state } = response.result as Node.GetFreeBalanceStateResult;
-
-    // Had to reimplement this on the frontend because the method can't be imported
-    // due to ethers not playing nice with ES Modules in this context.
-    const getAddress = (xkey: string, k: number) =>
-      ethers.utils.computeAddress(
-        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
-          .publicKey
+      window.postMessage(
+        {
+          type: "PLUGIN_MESSAGE",
+          data: { message: "metamask:request:balances", multisigAddress }
+        },
+        "*"
       );
-
-    const balances = [
-      ethers.utils.bigNumberify(state.aliceBalance),
-      ethers.utils.bigNumberify(state.bobBalance)
-    ];
-
-    const [myBalance, counterpartyBalance] = [
-      balances[
-        [state.alice, state.bob].findIndex(
-          address => address === getAddress(nodeAddress, 0)
-        )
-      ],
-      balances[
-        [state.alice, state.bob].findIndex(
-          address => address !== getAddress(nodeAddress, 0)
-        )
-      ]
-    ];
-
-    const vals = {
-      ethFreeBalanceWei: myBalance,
-      ethMultisigBalance: await provider!.getBalance(multisigAddress),
-      ethCounterpartyFreeBalanceWei: counterpartyBalance
-    };
-
-    const enoughCounterpartyBalance = counterpartyBalance.gte(
-      MINIMUM_EXPECTED_FREE_BALANCE
-    );
-    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
-    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
-
-    await this.updateAppRegistry({
-      canUseApps
     });
-
-    await this.updateAccount({
-      ...vals,
-      enoughCounterpartyBalance,
-      enoughLocalBalance
-    });
-
-    // TODO: Replace this with a more event-driven approach,
-    // based on a list of collateralized deposits.
-    if (poll) {
-      if (canUseApps) {
-        clearTimeout(this.balancePolling);
-      } else {
-        this.balancePolling = setTimeout(
-          async () => this.getBalances({ poll }),
-          1000
-        );
-      }
-    }
-
-    return vals;
   }
 
   async resetPendingDepositState() {
@@ -540,15 +539,16 @@ export class AppRoot {
             "metamask:request:signer:sendTransaction"
           ) {
             console.log("Request for provider.sendTransaction", event);
-            const { provider } = this.walletState;
+            const { signer } = this.walletState;
 
-            if (provider) {
+            if (signer) {
               const {signedTransaction} = event.data.data.data;
               signedTransaction.gasPrice = ethers.utils.bigNumberify(signedTransaction.gasPrice._hex);
               signedTransaction.value = ethers.utils.bigNumberify(signedTransaction.value._hex)
-              const response = await provider.sendTransaction(
+              const response = await signer.sendTransaction(
                 signedTransaction
               );
+              delete response.wait;
               window.postMessage(
                 {
                   type: "PLUGIN_MESSAGE",
