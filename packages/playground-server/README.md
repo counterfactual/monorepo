@@ -10,7 +10,28 @@ It also operates as an _intermediary Node_ between peers.
 
 ## Usage
 
-For the server to operate successfully, it must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions. Once the server's ETH account is funded, you can start the server by running:
+Successfully running the server requires 2 steps:
+
+- Funding the server's ETH account: The server must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions.
+- Having a database to store users connecting to the Playground server. If you have a database already running, you can set its connection string via `DB_CONNECTION_STRING` as an environment variable for the Playground server to connect to. For example, the default connection string used is
+
+```
+postgresql://postgres@localhost:5432/postgres
+```
+
+If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, in `packages/playground-server` simply execute
+
+```
+docker-compose up
+```
+
+which will start a Postgres instance for you and expose it on port 5432.
+
+The database gets auto-configured with the right schema if the appopriate table doesn't exist.
+
+- (Optional) By default the local in-mem Firebase instance is volatile which means that all open channels will have to be re-created after `playground-server` restart. In order to enable persistency set the the environment variable `PLAYGROUND_PERSISTENCE_ENABLED=true`
+
+Once the database is up and running, the Playground server can be started by executing:
 
 ```shell
 yarn start

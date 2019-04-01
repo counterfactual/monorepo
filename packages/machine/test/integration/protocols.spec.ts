@@ -60,7 +60,7 @@ beforeAll(async () => {
   ).deploy();
 });
 
-describe("Three mininodes", async () => {
+describe("Three mininodes", () => {
   jest.setTimeout(JEST_TEST_WAIT_TIME);
 
   it("Can run all the protocols", async () => {

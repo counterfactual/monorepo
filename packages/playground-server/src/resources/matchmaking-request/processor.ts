@@ -2,7 +2,7 @@ import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { v4 as generateUUID } from "uuid";
 
 import { getUsers, matchmakeUser } from "../../db";
-import NodeWrapper from "../../node";
+import { NodeWrapper } from "../../node";
 import User, { MatchedUser } from "../user/resource";
 
 import MatchmakingRequest from "./resource";

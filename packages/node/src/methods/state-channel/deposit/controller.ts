@@ -53,7 +53,13 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { store, provider } = requestHandler;
+    const {
+      store,
+      provider,
+      messagingService,
+      publicIdentifier,
+      outgoing
+    } = requestHandler;
     const { multisigAddress } = params;
 
     await installBalanceRefundApp(requestHandler, params);
@@ -65,13 +71,13 @@ export default class DepositController extends NodeController {
     if (depositSucceeded) {
       if (params.notifyCounterparty) {
         const [peerAddress] = await getPeersAddressFromChannel(
-          requestHandler.publicIdentifier,
+          publicIdentifier,
           store,
           multisigAddress
         );
 
-        await requestHandler.messagingService.send(peerAddress, {
-          from: requestHandler.publicIdentifier,
+        await messagingService.send(peerAddress, {
+          from: publicIdentifier,
           type: NODE_EVENTS.DEPOSIT_CONFIRMED,
           data: {
             ...params,
@@ -81,7 +87,7 @@ export default class DepositController extends NodeController {
         } as DepositConfirmationMessage);
       }
 
-      requestHandler.outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
+      outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
     }
 
     return {

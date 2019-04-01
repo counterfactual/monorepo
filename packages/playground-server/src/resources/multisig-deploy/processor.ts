@@ -1,7 +1,7 @@
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 
 import { getUser } from "../../db";
-import NodeWrapper from "../../node";
+import { NodeWrapper } from "../../node";
 import informSlack from "../../utils";
 import User from "../user/resource";
 

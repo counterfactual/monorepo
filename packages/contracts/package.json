@@ -30,7 +30,7 @@
     "@counterfactual/types": "0.0.9",
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/chai": "^4.1.7",
-    "@types/node": "^11.9.0",
+    "@types/node": "^11.12.0",
     "chai": "^4.2.0",
     "dotenv": "^7.0.0",
     "eth-gas-reporter": "0.1.12",
@@ -40,14 +40,14 @@
     "ganache-cli": "6.4.1",
     "openzeppelin-solidity": "2.2.0",
     "shx": "^0.3.2",
-    "solc": "0.5.6",
+    "solc": "0.5.7",
     "solidity-coverage": "0.5.11",
-    "truffle": "5.0.7",
+    "truffle": "5.0.10",
     "truffle-deploy-registry": "^0.5.0",
-    "truffle-hdwallet-provider": "1.0.5",
+    "truffle-hdwallet-provider": "1.0.6",
     "ts-mocha": "^6.0.0",
-    "ts-node": "^8.0.2",
-    "tslint": "5.13.0",
-    "zos-lib": "^2.0.0"
+    "ts-node": "^8.0.3",
+    "tslint": "5.14.0",
+    "zos-lib": "^2.2.2"
   }
 }

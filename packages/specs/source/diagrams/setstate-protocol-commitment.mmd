@@ -1,0 +1,6 @@
+graph LR
+    subgraph AppRegistry
+        setState
+        setState-->appIdentity:AppIdentity
+        setState-->req:SignedStateHashUpdate
+    end

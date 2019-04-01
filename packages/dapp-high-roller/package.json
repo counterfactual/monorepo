@@ -12,7 +12,7 @@
     "test:e2e": "echo 'E2E tests are disabled, skipping'"
   },
   "dependencies": {
-    "@stencil/core": "~0.18.0",
+    "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3"
   },
   "repository": {
@@ -29,8 +29,9 @@
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.3",
     "jest": "23.6.0",
-    "puppeteer": "1.13.0",
-    "typescript": "^3.3.3333",
+    "jest-cli": "23.6.0",
+    "puppeteer": "1.14.0",
+    "typescript": "^3.3.4000",
     "workbox-build": "3.4.1"
   }
 }
