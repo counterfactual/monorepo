@@ -3,6 +3,7 @@ import {
   AppInterface,
   AssetType,
   ETHBucketAppState,
+  FreeBalanceAppState,
   SignedStateHashUpdate,
   Terms,
   Transaction
@@ -24,6 +25,7 @@ import {
 export interface NetworkContext {
   AppRegistry: string;
   ETHBalanceRefund: string;
+  FreeBalanceAppState: string;
   ETHBucket: string;
   MultiSend: string;
   NonceRegistry: string;
@@ -46,6 +48,7 @@ export {
   BlockchainAsset,
   Bytes32,
   ETHBucketAppState,
+  FreeBalanceAppState,
   INodeProvider,
   Node,
   SignedStateHashUpdate,

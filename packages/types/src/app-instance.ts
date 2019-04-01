@@ -49,3 +49,8 @@ export type ETHBucketAppState = {
   aliceBalance: BigNumber;
   bobBalance: BigNumber;
 };
+
+export type FreeBalanceAppState = {
+  peers: string[];
+  balances: BigNumber[];
+};
