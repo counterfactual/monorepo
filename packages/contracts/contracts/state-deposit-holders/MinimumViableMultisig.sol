@@ -32,7 +32,7 @@ contract MinimumViableMultisig is LibSignature {
   /// @notice Contract constructor
   /// @param owners An array of unique addresses representing the multisig owners
   function setup(address[] memory owners) public {
-    require(_owners.length == 0, "Contract hasn't been set up before");
+    require(_owners.length == 0, "Contract has been set up before");
     _owners = owners;
   }
 
