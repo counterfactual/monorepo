@@ -40,30 +40,31 @@ jobs:
       - run:
           name: "Install solc binary"
           command: |
-            sudo apt-get install software-properties-common
+            sudo apt install software-properties-common
             sudo add-apt-repository -y ppa:ethereum/ethereum
-            sudo apt-get update & sudo apt-get install dpkg
-            sudo DEBIAN_FRONTEND=noninteractive apt-get install solc
+            sudo -i & rm /var/lib/apt/lists/partial/* & exit
+            sudo apt update
+            sudo DEBIAN_FRONTEND=noninteractive apt install solc
 
       - run:
-          name: "Install nvm and install node 10"
+          name: "Install nvm, node 10 and yarn"
           command: |
             set +e
             curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.34.0/install.sh | bash
             export NVM_DIR="/opt/circleci/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-            nvm install v10.0.0
-            nvm alias default v10.0.0
-            node -v
+            nvm install v10
+            nvm alias default v10
             # Each step uses the same `$BASH_ENV`, so need to modify it
             echo 'export NVM_DIR="/opt/circleci/.nvm"' >> $BASH_ENV
             echo "[ -s \"$NVM_DIR/nvm.sh\" ] && . \"$NVM_DIR/nvm.sh\"" >> $BASH_ENV
+            curl -o- -L https://yarnpkg.com/install.sh | bash
+            # to enable yarn for future steps without opening another terminal
+            source $BASH_ENV
 
       - run:
           name: "Running yarn build"
           command: |
-            nvm use v10.0.0
-            npm install -g yarn
             yarn --frozen-lockfile
             yarn build
 
