@@ -1,12 +1,12 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, Event, Wallet } from "ethers";
-import { Zero } from "ethers/constants";
 import { TransactionResponse, Web3Provider } from "ethers/providers";
 import {
   defaultAbiCoder,
   getAddress,
   keccak256,
-  solidityKeccak256
+  solidityKeccak256,
+  solidityPack
 } from "ethers/utils";
 
 import Echo from "../build/Echo.json";
@@ -24,11 +24,23 @@ describe("ProxyFactory with CREATE2", function(this: Mocha) {
   let pf: Contract;
   let echo: Contract;
 
-  function create2(initcode: string, salt: number = 0) {
+  function create2(
+    initcode: string,
+    saltNonce: number = 0,
+    initializer: string = "0x"
+  ) {
     return getAddress(
       solidityKeccak256(
         ["bytes1", "address", "uint256", "bytes32"],
-        ["0xff", pf.address, salt, keccak256(initcode)]
+        [
+          "0xff",
+          pf.address,
+          solidityKeccak256(
+            ["bytes32", "uint256"],
+            [keccak256(initializer), saltNonce]
+          ),
+          keccak256(initcode)
+        ]
       ).slice(-40)
     );
   }
@@ -45,12 +57,18 @@ describe("ProxyFactory with CREATE2", function(this: Mocha) {
     it("can be used to deploy a contract at a predictable address", async () => {
       const masterCopy = echo.address;
 
-      const initcode = defaultAbiCoder.encode(
-        ["bytes", "address"],
+      const initcode = solidityPack(
+        ["bytes", "uint256"],
         [`0x${Proxy.bytecode}`, echo.address]
       );
 
-      const tx: TransactionResponse = await pf.createProxy(masterCopy, Zero);
+      const saltNonce = 0;
+
+      const tx: TransactionResponse = await pf.createProxyWithNonce(
+        masterCopy,
+        "0x",
+        saltNonce
+      );
 
       const receipt = await tx.wait();
 
@@ -58,12 +76,12 @@ describe("ProxyFactory with CREATE2", function(this: Mocha) {
 
       expect(event.event).to.eq("ProxyCreation");
       expect(event.eventSignature).to.eq("ProxyCreation(address)");
-      expect(event.args![0]).to.eq(create2(initcode));
+      expect(event.args![0]).to.eq(create2(initcode, saltNonce));
 
       const echoProxy = new Contract(create2(initcode), Echo.abi, wallet);
 
       // FIXME: For some reason we get "contract not deployed"
-      expect(await echoProxy.functions.helloWorld()).toBe("hello world");
+      expect(await echoProxy.functions.helloWorld()).to.eq("hello world");
     });
   });
 });
