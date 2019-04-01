@@ -1,16 +1,25 @@
-import { SolidityABIEncoderV2Struct, Terms } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
+import { ethers } from "ethers";
 
-import CoinShufflePlusApp from
-"../build/ChannelizedCoinShufflePlusApp.json";
+import ChannelizedCoinShufflePlusApp from "../build/ChannelizedCoinShufflePlusApp.json";
 
 chai.use(waffle.solidity);
-const {expect} = chai;
+const { expect } = chai;
 
-describe("ChannelizedCoinShufflePlusApp", () => {
-  before(async ()=> {
-    const provider = waffle.createMockProvider();
-    const wallet = (await waffle.getWallets(provider))[0];
-  })
+describe("Curve25519 Contract", () => {
+  const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
+  const wallet: ethers.Wallet = waffle.getWallets(provider)[0];
+  let shuffler: ethers.Contract;
+
+  before(async () => {
+    shuffler = await waffle.deployContract(
+      wallet,
+      ChannelizedCoinShufflePlusApp
+    );
+  });
+
+  it("placeholder", async () => {
+    expect(1).to.eq(1);
+  });
 });

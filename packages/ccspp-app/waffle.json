@@ -1,3 +1,6 @@
 {
+  "sourcesPath": "./contracts",
+  "targetPath": "./build",
+  "legacyOutput": true,
   "npmPath": "../../node_modules"
 }
