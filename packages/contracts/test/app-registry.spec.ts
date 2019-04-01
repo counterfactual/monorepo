@@ -1,8 +1,9 @@
+import { utils } from "@counterfactual/cf.js";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { hexlify, randomBytes, SigningKey, keccak256 } from "ethers/utils";
+import { hexlify, keccak256, randomBytes, SigningKey } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
@@ -13,7 +14,6 @@ import {
   expect,
   Terms
 } from "./utils";
-import { utils } from "@counterfactual/cf.js";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =
@@ -91,7 +91,6 @@ describe("AppRegistry", () => {
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
     setStateWithSignatures = async (nonce: number, appState?: string) => {
-
       const stateHash = keccak256(appState || HashZero);
       const digest = computeAppChallengeHash(
         appInstance.identityHash,
@@ -107,13 +106,16 @@ describe("AppRegistry", () => {
       const signature2 = await signer2.signDigest(digest);
 
       const bytes = signaturesToBytesSortedBySignerAddress(
-        digest, signature1, signature2);
+        digest,
+        signature1,
+        signature2
+      );
 
       const data = appRegistry.interface.functions.setState.encode([
         appInstance.appIdentity,
         {
+          nonce,
           appStateHash: stateHash,
-          nonce: nonce,
           timeout: ONCHAIN_CHALLENGE_TIMEOUT,
           signatures: bytes
         }
@@ -141,8 +143,8 @@ describe("AppRegistry", () => {
       });
   });
 
-  describe("updating app state", async () => {
-    describe("with owner", async () => {
+  describe("updating app state", () => {
+    describe("with owner", () => {
       it("should work with higher nonce", async () => {
         expect(await latestNonce()).to.eq(0);
         await setStateAsOwner(1);
