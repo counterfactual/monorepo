@@ -503,6 +503,7 @@ export class AppRoot {
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
     let didSendSigner = false;
+    let didRequestTransaction = false;
     return new Promise<string>((resolve, reject) => {
       const cb = async event => {
         if (event.data.type === "plugin_message_response") {
@@ -539,29 +540,37 @@ export class AppRoot {
             event.data.data.message ===
             "metamask:request:signer:sendTransaction"
           ) {
-            console.log("Request for provider.sendTransaction", event);
-            const { signer } = this.walletState;
+            if (!didRequestTransaction) {
+              didRequestTransaction = true;
+              window.setTimeout(() => {
+                didRequestTransaction = false;
+              }, 500);
+              console.log("Request for provider.sendTransaction", event);
+              const { signer } = this.walletState;
 
-            if (signer) {
-              const { signedTransaction } = event.data.data.data;
-              signedTransaction.gasPrice = ethers.utils.bigNumberify(
-                signedTransaction.gasPrice._hex
-              );
-              signedTransaction.value = ethers.utils.bigNumberify(
-                signedTransaction.value._hex
-              );
-              const response = await signer.sendTransaction(signedTransaction);
-              delete response.wait;
-              window.postMessage(
-                {
-                  type: "PLUGIN_MESSAGE",
-                  data: {
-                    data: response,
-                    message: "metamask:response:signer:sendTransaction"
-                  }
-                },
-                "*"
-              );
+              if (signer) {
+                const { signedTransaction } = event.data.data.data;
+                signedTransaction.gasPrice = ethers.utils.bigNumberify(
+                  signedTransaction.gasPrice._hex
+                );
+                signedTransaction.value = ethers.utils.bigNumberify(
+                  signedTransaction.value._hex
+                );
+                const response = await signer.sendTransaction(
+                  signedTransaction
+                );
+                delete response.wait;
+                window.postMessage(
+                  {
+                    type: "PLUGIN_MESSAGE",
+                    data: {
+                      data: response,
+                      message: "metamask:response:signer:sendTransaction"
+                    }
+                  },
+                  "*"
+                );
+              }
             }
           }
         }
