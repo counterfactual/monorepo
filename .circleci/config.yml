@@ -31,18 +31,22 @@ restore_dep: &restore_dep
 jobs:
   build:
     working_directory: /home/circleci/project
+    # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
     docker:
       - image: web3docker/counterfactual:0.0.1
     steps:
       - <<: *restore_code
       - checkout
-      - <<: *restore_dep
+      - <<: *save_code
 
-      - run: yarn --frozen-file
+      - <<: *restore_dep
+      - run:
+          name: "yarn --frozen-lockfile"
+          command: yarn --frozen-lockfile
+
       - run: yarn build
 
       - <<: *save_dep
-      - <<: *save_code
 
       - persist_to_workspace:
           root: /home/circleci/project
@@ -55,8 +59,8 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-      - <<: *restore_dep
 
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -73,8 +77,8 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-      - <<: *restore_dep
 
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -98,6 +102,7 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
+
       - <<: *restore_dep
 
       - attach_workspace:
@@ -110,8 +115,8 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-      - <<: *restore_dep
 
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
