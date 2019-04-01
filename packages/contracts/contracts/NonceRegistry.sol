@@ -67,6 +67,8 @@ contract NonceRegistry {
   }
 
   /// @notice Computes a unique key for the particular salt and msg.sender
+  /// @param sender The message sender that set the nonce
+  /// @param timeout The number of blocks before the nonce finalizes
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(address sender, uint256 timeout, bytes32 salt)
