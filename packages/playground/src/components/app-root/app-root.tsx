@@ -398,13 +398,12 @@ export class AppRoot {
       ethFreeBalanceWei: BigNumber;
       ethMultisigBalance: BigNumber;
     }>((resolve, reject) => {
-      
       const cb = async event => {
         if (event.data.type === "plugin_message_response") {
           if (event.data.data.message === "metamask:response:balances") {
             window.removeEventListener("message", cb);
             const state = event.data.data.data;
-            console.log("received getBalances response", event.data)
+            console.log("received getBalances response", event.data);
             // Had to reimplement this on the frontend because the method can't be imported
             // due to ethers not playing nice with ES Modules in this context.
             const getAddress = (xkey: string, k: number) =>
@@ -412,12 +411,12 @@ export class AppRoot {
                 ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
                   .publicKey
               );
-        
+
             const balances = [
               ethers.utils.bigNumberify(state.aliceBalance),
               ethers.utils.bigNumberify(state.bobBalance)
             ];
-        
+
             const [myBalance, counterpartyBalance] = [
               balances[
                 [state.alice, state.bob].findIndex(
@@ -430,29 +429,31 @@ export class AppRoot {
                 )
               ]
             ];
-        
+
             const vals = {
               ethFreeBalanceWei: myBalance,
               ethMultisigBalance: await provider!.getBalance(multisigAddress),
               ethCounterpartyFreeBalanceWei: counterpartyBalance
             };
-        
+
             const enoughCounterpartyBalance = counterpartyBalance.gte(
               MINIMUM_EXPECTED_FREE_BALANCE
             );
-            const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+            const enoughLocalBalance = myBalance.gte(
+              MINIMUM_EXPECTED_FREE_BALANCE
+            );
             const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
-        
+
             await this.updateAppRegistry({
               canUseApps
             });
-        
+
             await this.updateAccount({
               ...vals,
               enoughCounterpartyBalance,
               enoughLocalBalance
             });
-        
+
             // TODO: Replace this with a more event-driven approach,
             // based on a list of collateralized deposits.
             if (poll) {
@@ -465,7 +466,7 @@ export class AppRoot {
                 );
               }
             }
-        
+
             resolve(vals);
           }
         }
@@ -542,12 +543,14 @@ export class AppRoot {
             const { signer } = this.walletState;
 
             if (signer) {
-              const {signedTransaction} = event.data.data.data;
-              signedTransaction.gasPrice = ethers.utils.bigNumberify(signedTransaction.gasPrice._hex);
-              signedTransaction.value = ethers.utils.bigNumberify(signedTransaction.value._hex)
-              const response = await signer.sendTransaction(
-                signedTransaction
+              const { signedTransaction } = event.data.data.data;
+              signedTransaction.gasPrice = ethers.utils.bigNumberify(
+                signedTransaction.gasPrice._hex
               );
+              signedTransaction.value = ethers.utils.bigNumberify(
+                signedTransaction.value._hex
+              );
+              const response = await signer.sendTransaction(signedTransaction);
               delete response.wait;
               window.postMessage(
                 {

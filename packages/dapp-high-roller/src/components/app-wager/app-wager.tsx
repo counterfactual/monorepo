@@ -25,6 +25,7 @@ const { HashZero } = ethers.constants;
 export class AppWager {
   @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
 
+  @Prop() provideRouterHistory: (history: RouterHistory) => void = () => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
   @State() betAmount: string = "0.01";
@@ -48,8 +49,9 @@ export class AppWager {
   @Prop() updateOpponent: (opponent: any) => void = () => {};
 
   async componentWillLoad() {
-    this.myName = this.account.user.username;
+    this.provideRouterHistory(this.history);
 
+    this.myName = this.account.user.username;
     return await this.matchmake();
   }
 

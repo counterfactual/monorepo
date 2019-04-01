@@ -314,7 +314,10 @@ export class AppRoot {
                       url="/wager"
                       component="app-wager"
                       componentProps={{
-                        updateOpponent: this.state.updateOpponent
+                        updateOpponent: this.state.updateOpponent,
+                        provideRouterHistory: this.receiveRouterHistory.bind(
+                          this
+                        )
                       }}
                     />
                     <stencil-route url="/game" component="app-game" />
