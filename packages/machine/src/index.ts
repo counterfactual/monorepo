@@ -16,12 +16,12 @@ import {
   ProtocolExecutionFlow,
   ProtocolMessage,
   SetupParams,
+  TakeActionParams,
   Transaction,
   UninstallParams,
   UninstallVirtualAppParams,
   UpdateParams,
-  WithdrawParams,
-  TakeActionParams
+  WithdrawParams
 } from "./types";
 import {
   xkeyKthAddress,
