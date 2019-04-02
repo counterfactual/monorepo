@@ -11,7 +11,7 @@
   "scripts": {
     "build": "waffle waffle.json",
     "migrate": "truffle migrate",
-    "test": "./scripts/test.sh",
+    "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "yarn lint:sol --fix",
