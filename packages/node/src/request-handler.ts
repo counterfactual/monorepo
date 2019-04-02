@@ -1,4 +1,3 @@
-import { InstructionExecutor } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
@@ -9,6 +8,7 @@ import {
   eventNameToImplementation,
   methodNameToImplementation
 } from "./api-router";
+import { InstructionExecutor } from "./machine";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";

@@ -1,9 +1,3 @@
-import {
-  InstructionExecutor,
-  Opcode,
-  Protocol,
-  ProtocolMessage
-} from "@counterfactual/machine";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
@@ -13,6 +7,12 @@ import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
+import {
+  InstructionExecutor,
+  Opcode,
+  Protocol,
+  ProtocolMessage
+} from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";

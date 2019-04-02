@@ -1,4 +1,3 @@
-import { StateChannel, xkeyKthAddress } from "@counterfactual/machine";
 import {
   AssetType,
   Node,
@@ -8,6 +7,7 @@ import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
+import { StateChannel, xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";

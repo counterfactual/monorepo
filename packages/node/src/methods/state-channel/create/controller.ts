@@ -1,12 +1,12 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { xkeysToSortedKthAddresses } from "@counterfactual/machine";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Event, Signer } from "ethers";
 import { TransactionReceipt, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 
+import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";

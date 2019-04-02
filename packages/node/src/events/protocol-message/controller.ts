@@ -5,8 +5,7 @@ import {
   TakeActionParams,
   UninstallVirtualAppParams,
   WithdrawParams
-} from "@counterfactual/machine";
-
+} from "../../machine";
 import { RequestHandler } from "../../request-handler";
 import {
   CreateChannelMessage,

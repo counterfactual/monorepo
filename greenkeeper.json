@@ -30,7 +30,6 @@
     "@counterfactual/contracts",
     "@counterfactual/dapp-high-roller",
     "@counterfactual/dapp-tic-tac-toe",
-    "@counterfactual/machine",
     "@counterfactual/node-provider",
     "@counterfactual/node",
     "@counterfactual/playground",
