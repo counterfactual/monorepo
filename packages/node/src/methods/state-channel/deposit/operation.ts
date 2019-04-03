@@ -67,7 +67,7 @@ export async function installBalanceRefundApp(
         token: AddressZero
       },
       appInterface: {
-        addr: networkContext.ETHBalanceRefund,
+        addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:
           "tuple(address recipient, address multisig,  uint256 threshold)",
         actionEncoding: undefined
