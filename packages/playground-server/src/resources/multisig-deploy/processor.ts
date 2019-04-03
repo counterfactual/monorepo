@@ -17,8 +17,9 @@ export default class MultisigDeployProcessor extends OperationProcessor<
       User
     >);
 
+    const { nodeAddress } = user.attributes;
     const { transactionHash } = await NodeWrapper.createStateChannelFor(
-      user.attributes.nodeAddress
+      nodeAddress as string
     );
 
     informSlack(
