@@ -1,10 +1,10 @@
 import {
   Protocol,
-  StateChannel,
-  UninstallVirtualAppParams,
-  WithdrawParams,
   SetupParams,
-  TakeActionParams
+  StateChannel,
+  TakeActionParams,
+  UninstallVirtualAppParams,
+  WithdrawParams
 } from "@counterfactual/machine";
 
 import { RequestHandler } from "../../request-handler";
