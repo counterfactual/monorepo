@@ -884,10 +884,10 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
-"@ebryn/jsonapi-ts@0.1.5":
-  version "0.1.5"
-  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.5.tgz#8f7713f11d88883207999529bce7feac3862aa22"
-  integrity sha512-9QwNuo3Mzow6aoSCa0M8uGEPp+ZLmDPITv/wKDaKjEKTYSa/KBJEHg74TKYVFiW0u6h+LvcZztZvinl+umMoRw==
+"@ebryn/jsonapi-ts@0.1.17":
+  version "0.1.17"
+  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.17.tgz#8258e3bf58875b4ff6c237f6c2d73fe73f35fd68"
+  integrity sha512-CVpzxJhuRrCS1SLgfoqbH6kuftWhkSrrtTSFZVIan+PJO+GcDm4qRpFy/TuWdjGO7+1BE1Lo+fve0zXMp0K1nA==
   dependencies:
     ember-cli-string-utils "^1.1.0"
     escape-string-regexp "^1.0.5"
