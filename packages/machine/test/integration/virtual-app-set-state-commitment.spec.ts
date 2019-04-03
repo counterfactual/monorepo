@@ -1,6 +1,4 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
@@ -14,8 +12,8 @@ import { AppInstance, StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
+import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { WaffleLegacyOutput } from "./waffle-type";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -45,30 +43,9 @@ const expect2 = chai.use(matchers.default).expect;
 beforeAll(async () => {
   [{}, wallet, networkId] = await connectToGanache();
 
-  const relevantArtifacts = [
-    { contractName: "AppRegistry", ...AppRegistry },
-    { contractName: "ETHBucket", ...ETHBucket },
-    { contractName: "StateChannelTransaction", ...StateChannelTransaction }
-  ];
+  network = makeNetworkContext(networkId);
 
-  network = {
-    // Fetches the values from build artifacts of the contracts needed
-    // for this test and sets the ones we don't care about to 0x0
-    ETHBalanceRefundApp: AddressZero,
-    ...relevantArtifacts.reduce(
-      (accumulator: { [x: string]: string }, artifact: WaffleLegacyOutput) => ({
-        ...accumulator,
-        [artifact.contractName as string]: artifact.networks![networkId].address
-      }),
-      {}
-    )
-  } as NetworkContext;
-
-  appRegistry = new Contract(
-    (AppRegistry as WaffleLegacyOutput).networks![networkId].address,
-    AppRegistry.abi,
-    wallet
-  );
+  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });
 
 beforeEach(() => {

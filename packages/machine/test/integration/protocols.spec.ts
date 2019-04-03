@@ -1,23 +1,18 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
-import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
-import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { xkeyKthAddress } from "@counterfactual/machine/src";
-import { sortAddresses } from "@counterfactual/machine/src/xkeys";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
+import { xkeyKthAddress } from "../../src";
+import { sortAddresses } from "../../src/xkeys";
+
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
+import { makeNetworkContext } from "./make-network-context";
 import { MessageRouter } from "./message-router";
 import { MiniNode } from "./mininode";
-import { WaffleLegacyOutput } from "./waffle-type";
 
 const JEST_TEST_WAIT_TIME = 50000;
 
@@ -32,26 +27,7 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
-  const relevantArtifacts = [
-    { contractName: "AppRegistry", ...AppRegistry },
-    { contractName: "ETHBucket", ...ETHBucket },
-    { contractName: "StateChannelTransaction", ...StateChannelTransaction },
-    { contractName: "NonceRegistry", ...NonceRegistry },
-    { contractName: "MultiSend", ...MultiSend },
-    { contractName: "ETHVirtualAppAgreement", ...ETHVirtualAppAgreement }
-    // todo: add more
-  ];
-
-  network = {
-    ETHBalanceRefundApp: AddressZero,
-    ...relevantArtifacts.reduce(
-      (accumulator: { [x: string]: string }, artifact: WaffleLegacyOutput) => ({
-        ...accumulator,
-        [artifact.contractName as string]: artifact.networks![networkId].address
-      }),
-      {}
-    )
-  } as NetworkContext;
+  network = makeNetworkContext(networkId);
 
   appDefinition = await new ContractFactory(
     ResolveToPay5WeiApp.abi,

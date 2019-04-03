@@ -1,13 +1,10 @@
-import {
-  InstructionExecutor,
-  Opcode,
-  StateChannel
-} from "@counterfactual/machine/src";
-import { EthereumCommitment } from "@counterfactual/machine/src/ethereum/types";
 import { NetworkContext } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
+
+import { InstructionExecutor, Opcode, StateChannel } from "../../src";
+import { EthereumCommitment } from "../../src/ethereum/types";
 
 import { getRandomHDNodes } from "./random-signing-keys";
 
