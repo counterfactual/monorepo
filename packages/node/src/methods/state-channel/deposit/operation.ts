@@ -67,7 +67,7 @@ export async function installBalanceRefundApp(
         token: AddressZero
       },
       appInterface: {
-        addr: networkContext.ETHBalanceRefund,
+        addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:
           "tuple(address recipient, address multisig,  uint256 threshold)",
         actionEncoding: undefined
@@ -139,7 +139,7 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
-  const { ETHBalanceRefund } = networkContext;
+  const { ETHBalanceRefundApp } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -149,7 +149,7 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
+  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefundApp);
 
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747

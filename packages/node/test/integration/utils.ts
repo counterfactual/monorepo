@@ -319,7 +319,7 @@ export function confirmProposedVirtualAppInstanceOnNode(
 
 export const EMPTY_NETWORK: NetworkContext = {
   AppRegistry: AddressZero,
-  ETHBalanceRefund: AddressZero,
+  ETHBalanceRefundApp: AddressZero,
   ETHBucket: AddressZero,
   MultiSend: AddressZero,
   NonceRegistry: AddressZero,

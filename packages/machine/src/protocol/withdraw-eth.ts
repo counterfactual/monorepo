@@ -172,7 +172,7 @@ function addInstallRefundAppCommitmentToContext(
     stateChannel.getNextSigningKeys(),
     1008,
     {
-      addr: context.network.ETHBalanceRefund,
+      addr: context.network.ETHBalanceRefundApp,
       stateEncoding:
         "tuple(address recipient, address multisig,  uint256 threshold)",
       actionEncoding: undefined
