@@ -2,7 +2,7 @@ import { Resource } from "@ebryn/jsonapi-ts";
 
 export default class User extends Resource {
   static get type() {
-    return "type";
+    return "user";
   }
 
   static attributes = {
