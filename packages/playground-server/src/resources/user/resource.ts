@@ -25,5 +25,5 @@ export class MatchedUser extends Resource {
     username: "",
     ethAddress: "",
     nodeAddress: ""
-  }
+  };
 }
