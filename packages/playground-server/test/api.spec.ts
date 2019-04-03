@@ -350,7 +350,7 @@ describe("playground-server", () => {
           errors: [
             {
               status: HttpStatusCode.Unauthorized,
-              code: "access_denied"
+              code: "unauthorized"
             }
           ]
         });
