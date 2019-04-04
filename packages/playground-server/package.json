@@ -34,7 +34,7 @@
     "@counterfactual/node": "0.1.15",
     "@counterfactual/types": "0.0.9",
     "@counterfactual/typescript-typings": "0.1.0",
-    "@ebryn/jsonapi-ts": "0.1.5",
+    "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
     "axios": "^0.18.0",
     "escape-string-regexp": "^1.0.5",
@@ -57,12 +57,12 @@
     "@types/uuid": "^3.4.4",
     "dotenv-extended": "^2.3.0",
     "env-cmd": "^8.0.2",
-    "jest": "24.5.0",
-    "jest-cli": "24.5.0",
+    "jest": "24.6.0",
+    "jest-cli": "24.6.0",
     "sqlite3": "^4.0.4",
-    "ts-jest": "24.0.0",
+    "ts-jest": "24.0.1",
     "ts-node": "^8.0.3",
     "tslint": "^5.14.0",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.4.1"
   }
 }

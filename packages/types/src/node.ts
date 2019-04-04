@@ -24,7 +24,7 @@ export namespace Node {
     AppRegistry: Address;
     // App-specific
     PaymentApp: Address;
-    ETHBalanceRefund: Address;
+    ETHBalanceRefundApp: Address;
   };
 
   export enum ErrorType {

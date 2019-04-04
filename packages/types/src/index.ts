@@ -23,7 +23,7 @@ import {
 
 export interface NetworkContext {
   AppRegistry: string;
-  ETHBalanceRefund: string;
+  ETHBalanceRefundApp: string;
   ETHBucket: string;
   MultiSend: string;
   NonceRegistry: string;
