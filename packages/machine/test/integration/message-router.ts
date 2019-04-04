@@ -1,4 +1,4 @@
-import { Opcode } from "@counterfactual/machine/src";
+import { Opcode } from "../../src";
 
 import { MiniNode } from "./mininode";
 

@@ -33,6 +33,19 @@ export interface NetworkContext {
   ProxyFactory: string;
 }
 
+// Keep in sync with above
+export const networkContextProps = [
+  "AppRegistry",
+  "ETHBalanceRefundApp",
+  "ETHBucket",
+  "MultiSend",
+  "NonceRegistry",
+  "StateChannelTransaction",
+  "ETHVirtualAppAgreement",
+  "MinimumViableMultisig",
+  "ProxyFactory"
+];
+
 export {
   ABIEncoding,
   Address,
