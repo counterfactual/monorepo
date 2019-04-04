@@ -5,13 +5,13 @@ import {
   Node,
   NodeConfig
 } from "@counterfactual/node";
+import { LocalFirebaseServiceFactory } from "@counterfactual/node/test/services/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import { Log, LogLevel } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
-import { LocalFirebaseServiceFactory } from "../../node/test/services/firebase-server";
 import { connectNode } from "../src/bot";
 
 jest.setTimeout(50000);
