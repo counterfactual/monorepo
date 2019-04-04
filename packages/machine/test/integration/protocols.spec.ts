@@ -43,7 +43,7 @@ beforeAll(async () => {
   ];
 
   network = {
-    ETHBalanceRefund: AddressZero,
+    ETHBalanceRefundApp: AddressZero,
     ...relevantArtifacts.reduce(
       (accumulator: { [x: string]: string }, artifact: WaffleLegacyOutput) => ({
         ...accumulator,

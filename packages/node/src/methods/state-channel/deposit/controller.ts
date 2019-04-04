@@ -34,7 +34,7 @@ export default class DepositController extends NodeController {
 
     if (
       channel.hasAppInstanceOfKind(
-        requestHandler.networkContext.ETHBalanceRefund
+        requestHandler.networkContext.ETHBalanceRefundApp
       )
     ) {
       return Promise.reject(ERRORS.CANNOT_DEPOSIT);
