@@ -1,11 +1,10 @@
 pragma solidity ^0.5.5;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 import "./lib/LibSignature.sol";
 import "./lib/LibNIKE.sol";
-import "solidity-conv/contracts/LibBytesString.sol";
+import "./lib/LibBytesString.sol";
 
 
 /// @title ChannelizedCoinShufflePlusApp

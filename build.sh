@@ -31,6 +31,7 @@ else
     playground \
     dapp-high-roller \
     dapp-tic-tac-toe \
+    ccspp-app \
   "
 fi
 

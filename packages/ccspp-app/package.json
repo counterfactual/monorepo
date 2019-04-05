@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "build": "waffle waffle.json",
-    "migrate": "truffle migrate",
-    "test": "./scripts/test.sh",
+    "migrate": "./scripts/migrate.sh",
+    "migrate:kovan": "truffle migrate --network=kovan & apply-registry",
+    "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
     "lint": "yarn lint:ts && yarn lint:sol",
     "lint:sol:fix": "yarn lint:sol --fix",
@@ -44,8 +45,5 @@
     "tslint": "^5.14.0",
     "tslint-config-prettier": "^1.18.0",
     "typescript": "^3.3.3333"
-  },
-  "dependencies": {
-    "solidity-conv": "^0.0.1"
   }
 }

@@ -24,4 +24,4 @@ ganache-cli \
 
 PID_FOR_GANACHE_CLI=$!
 
-yarn run ts-mocha ${1:-test/*.spec.ts}
+yarn run truffle migrate --network=ganache

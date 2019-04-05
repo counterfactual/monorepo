@@ -3,19 +3,32 @@ import * as waffle from "ethereum-waffle";
 import { ethers } from "ethers";
 
 import ChannelizedCoinShufflePlusApp from "../build/ChannelizedCoinShufflePlusApp.json";
+import LibNibble from "../build/LibNibble.json";
 
 chai.use(waffle.solidity);
 const { expect } = chai;
 
-describe("Curve25519 Contract", () => {
+describe("ChannelizedCoinShuffleApp Contract", () => {
   const provider: ethers.providers.Web3Provider = waffle.createMockProvider();
   const wallet: ethers.Wallet = waffle.getWallets(provider)[0];
   let shuffler: ethers.Contract;
+  let libnibble: ethers.Contract;
 
   before(async () => {
+    libnibble = await waffle.deployContract(wallet, LibNibble);
+    waffle.link(
+      ChannelizedCoinShufflePlusApp,
+      "contracts/lib/LibNibble.sol:LibNibble",
+      libnibble.address
+    );
     shuffler = await waffle.deployContract(
       wallet,
-      ChannelizedCoinShufflePlusApp
+      ChannelizedCoinShufflePlusApp,
+      [],
+      {
+        gasPrice: 30000000000,
+        gasLimit: 6000000
+      }
     );
   });
 
