@@ -1,12 +1,9 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
+import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256 } from "ethers/utils";
 
@@ -16,8 +13,8 @@ import { StateChannel } from "../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
+import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { WaffleLegacyOutput } from "./waffle-type";
 
 // To be honest, 30000 is an arbitrary large number that has never failed
 // to reach the done() call in the test case, not intelligently chosen
@@ -45,31 +42,9 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, networkId] = await connectToGanache();
 
-  const relevantArtifacts = [
-    { contractName: "AppRegistry", ...AppRegistry },
-    { contractName: "ETHBucket", ...ETHBucket },
-    { contractName: "NonceRegistry", ...NonceRegistry },
-    { contractName: "StateChannelTransaction", ...StateChannelTransaction }
-  ];
+  network = makeNetworkContext(networkId);
 
-  network = {
-    // Fetches the values from build artifacts of the contracts needed
-    // for this test and sets the ones we don't care about to 0x0
-    ETHBalanceRefundApp: AddressZero,
-    ...relevantArtifacts.reduce(
-      (accumulator: { [x: string]: string }, artifact: WaffleLegacyOutput) => ({
-        ...accumulator,
-        [artifact.contractName as string]: artifact.networks![networkId].address
-      }),
-      {}
-    )
-  } as NetworkContext;
-
-  appRegistry = new Contract(
-    (AppRegistry as WaffleLegacyOutput).networks![networkId].address,
-    AppRegistry.abi,
-    wallet
-  );
+  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });
 
 /**
@@ -87,7 +62,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     );
 
     const proxyFactory = new Contract(
-      (ProxyFactory as WaffleLegacyOutput).networks![networkId].address,
+      network.ProxyFactory,
       ProxyFactory.abi,
       wallet
     );
@@ -164,8 +139,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     });
 
     await proxyFactory.functions.createProxy(
-      (MinimumViableMultisig as WaffleLegacyOutput).networks![networkId]
-        .address,
+      network.MinimumViableMultisig,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
         multisigOwnerKeys.map(x => x.address)
       ]),
