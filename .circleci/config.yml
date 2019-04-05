@@ -32,7 +32,7 @@ jobs:
             - packages/*/dist
             - packages/*/build
 
-  run-tests:
+  run-non-playground-tests:
     <<: *defaults
     steps:
       - checkout
@@ -124,7 +124,7 @@ workflows:
           requires:
             - build
 
-      - run-tests:
+      - run-non-playground-tests:
           requires:
             - build
 
@@ -135,7 +135,7 @@ workflows:
       - publish-to-npm:
           requires:
             - build
-            - run-tests
+            - run-non-playground-tests
             - run-playground-tests
             - run-tslint
           filters:
