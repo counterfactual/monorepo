@@ -82,6 +82,9 @@ yarn
 
 ### Building packages
 
+Make sure you have installed `solc` compiler binary on your machine
+([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)).
+
 To build all packages:
 
 ```shell
