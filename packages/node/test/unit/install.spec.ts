@@ -5,11 +5,11 @@ import {
 } from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { HashZero, Zero } from "ethers/constants";
+import { BaseProvider } from "ethers/providers";
+import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
-import { v4 as generateUUID } from "uuid";
 
 import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
@@ -20,61 +20,40 @@ import memoryStoreService from "../services/memory-store-service";
 import { createProposedAppInstanceInfo } from "./utils";
 
 describe("Can handle correct & incorrect installs", () => {
-  const storeKeyPrefix = "store";
+  let store: Store;
+  let ie: InstructionExecutor;
 
-  it("fails to install without appInstanceId", async () => {
-    const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(
-      EMPTY_NETWORK,
-      {} as JsonRpcProvider
-    );
+  beforeAll(() => {
+    store = new Store(memoryStoreService, "install.spec.ts-test-store");
+    ie = new InstructionExecutor(EMPTY_NETWORK, {} as BaseProvider);
+  });
+
+  it("fails to install with undefined appInstanceId", async () => {
     await expect(
-      install(store, instructionExecutor, AddressZero, AddressZero, {
-        appInstanceId: undefined! // Simulate an undefined `appInstanceId`
-      })
+      install(store, ie, "a", "b", { appInstanceId: undefined! })
     ).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
-  it("fails to install without appInstanceId", async () => {
-    const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(
-      EMPTY_NETWORK,
-      {} as JsonRpcProvider
-    );
-    const params = { appInstanceId: "" };
+  it("fails to install with empty string appInstanceId", async () => {
     await expect(
-      install(store, instructionExecutor, AddressZero, AddressZero, params)
+      install(store, ie, "a", "b", { appInstanceId: "" })
     ).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
-    const store = new Store(memoryStoreService, storeKeyPrefix);
-    const instructionExecutor = new InstructionExecutor(
-      EMPTY_NETWORK,
-      {} as JsonRpcProvider
-    );
-    const appInstanceId = HashZero;
     await expect(
-      install(store, instructionExecutor, AddressZero, AddressZero, {
-        appInstanceId
-      })
+      install(store, ie, "a", "b", { appInstanceId: HashZero })
     ).rejects.toEqual(
-      ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+      ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
     );
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {
     expect.hasAssertions();
 
-    const instructionExecutor = new InstructionExecutor(
-      EMPTY_NETWORK,
-      {} as JsonRpcProvider
-    );
-
     const mockedStore = mock(Store);
-    const store = instance(mockedStore);
 
-    const appInstanceId = generateUUID();
+    const appInstanceId = hexlify(randomBytes(32));
     const proposedAppInstanceInfo = createProposedAppInstanceInfo(
       appInstanceId
     );
@@ -88,20 +67,18 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     await expect(
-      install(store, instructionExecutor, AddressZero, AddressZero, {
-        appInstanceId
-      })
+      install(instance(mockedStore), ie, "a", "b", { appInstanceId })
     ).rejects.toEqual(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
     const mockedInstructionExecutor = mock(InstructionExecutor);
-    const instructionExecutor = instance(mockedInstructionExecutor);
+    const ie = instance(mockedInstructionExecutor);
 
     const mockedStore = mock(Store);
     const store = instance(mockedStore);
 
-    const appInstanceId = generateUUID();
+    const appInstanceId = hexlify(randomBytes(32));
     const multisigAddress = Wallet.createRandom().address;
     const hdnodes = [
       fromMnemonic(Wallet.createRandom().mnemonic),
@@ -150,7 +127,7 @@ describe("Can handle correct & incorrect installs", () => {
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
-      install(store, instructionExecutor, AddressZero, AddressZero, {
+      install(store, ie, "a", "b", {
         appInstanceId
       })
     ).resolves.toEqual(proposedAppInstanceInfo);

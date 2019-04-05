@@ -36,13 +36,12 @@ library Transfer {
   /// TODO: Add support for an OTHER Asset type and do a (to, value, data) CALL
   function execute(Transfer.Transaction memory txn) public {
     for (uint256 i = 0; i < txn.to.length; i++) {
+      // solidity.readthedocs.io/en/v0.5.7/050-breaking-changes.html
       address payable to = address(uint160(txn.to[i]));
       uint256 value = txn.value[i];
 
       if (txn.assetType == uint8(Transfer.Asset.ETH)) {
-        // solidity.readthedocs.io/en/v0.5.7/050-breaking-changes.html
-        address payable receiver = address(uint160(to));
-        receiver.transfer(value);
+        to.transfer(value);
       } else if (txn.assetType == uint8(Transfer.Asset.ERC20)) {
         require(
           ERC20(txn.token).transfer(to, value),

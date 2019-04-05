@@ -6,6 +6,7 @@ import { IStoreService, Node, NodeConfig } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
+import { A_MNEMONIC } from "../test-constants.jest";
 
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
@@ -22,7 +23,7 @@ describe("Node can use storage service", () => {
     storeService = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY!
     );
-    storeService.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+    storeService.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
 
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!

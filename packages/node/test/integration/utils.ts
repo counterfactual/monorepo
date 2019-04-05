@@ -7,6 +7,7 @@ import {
   BlockchainAsset,
   ETHBucketAppState,
   NetworkContext,
+  networkContextProps,
   Node as NodeTypes,
   SolidityABIEncoderV2Struct
 } from "@counterfactual/types";
@@ -317,17 +318,13 @@ export function confirmProposedVirtualAppInstanceOnNode(
   );
 }
 
-export const EMPTY_NETWORK: NetworkContext = {
-  AppRegistry: AddressZero,
-  ETHBalanceRefund: AddressZero,
-  ETHBucket: AddressZero,
-  MultiSend: AddressZero,
-  NonceRegistry: AddressZero,
-  StateChannelTransaction: AddressZero,
-  ETHVirtualAppAgreement: AddressZero,
-  MinimumViableMultisig: AddressZero,
-  ProxyFactory: AddressZero
-};
+const emptyNetworkMap = new Map(
+  networkContextProps.map((i): [string, string] => [i, AddressZero])
+);
+export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
+  (main, [key, value]) => ({ ...main, [key]: value }),
+  {}
+) as NetworkContext;
 
 export function generateGetStateRequest(
   appInstanceId: AppInstanceID

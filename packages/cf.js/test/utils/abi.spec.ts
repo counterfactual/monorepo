@@ -3,7 +3,7 @@ import { abi } from "../../src/utils";
 const encoded255 =
   "0x00000000000000000000000000000000000000000000000000000000000000ff";
 
-describe("Utils / abi", async () => {
+describe("Utils / abi", () => {
   it("can encode values when provided a type", () => {
     expect(abi.encode(["uint8"], [255])).toEqual(encoded255);
   });

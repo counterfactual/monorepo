@@ -1,22 +1,29 @@
 import { Resource } from "@ebryn/jsonapi-ts";
 
 export default class User extends Resource {
-  // @ts-ignore
-  public attributes: {
-    username: string;
-    ethAddress: string;
-    nodeAddress: string;
-    email: string;
-    multisigAddress: string;
-    transactionHash: string;
-    token: string;
+  static get type() {
+    return "user";
+  }
+
+  static attributes = {
+    username: "",
+    ethAddress: "",
+    nodeAddress: "",
+    email: "",
+    multisigAddress: "",
+    transactionHash: "",
+    token: ""
   };
 }
 
 export class MatchedUser extends Resource {
-  // attributes: {
-  //   username: string;
-  //   ethAddress: string;
-  //   nodeAddress: string;
-  // };
+  static get type() {
+    return "matchedUser";
+  }
+
+  static attributes = {
+    username: "",
+    ethAddress: "",
+    nodeAddress: ""
+  };
 }

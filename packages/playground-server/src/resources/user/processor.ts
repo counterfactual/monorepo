@@ -1,4 +1,4 @@
-import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
+import { Authorize, Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 import { sign } from "jsonwebtoken";
 import { Log } from "logepi";
 
@@ -18,22 +18,25 @@ import User from "./resource";
 export default class UserProcessor extends OperationProcessor<User> {
   public resourceClass = User;
 
-  public async get(op: Operation): Promise<User[]> {
-    const isMe =
+  public async identify(op: Operation): Promise<User[]> {
+    return getUsers({ id: op.ref.id });
+  }
+
+  @Authorize()
+  public async get(op: Operation): Promise<any> {
+    const isRequestingSelfData =
       op.ref.id === "me" || (this.app.user && this.app.user.id === op.ref.id);
 
-    if (op.ref.id === "me") {
-      if (this.app.user) {
-        op.ref.id = this.app.user.id;
-      } else {
-        return [];
-      }
+    if (isRequestingSelfData) {
+      return this.identify({ ...op, ref: { ...op.ref, id: this.app.user.id } });
     }
 
-    return getUsers(
-      op.ref.id ? { id: op.ref.id } : op.params.filter || {},
-      !isMe ? ["username", "ethAddress", "nodeAddress", "multisigAddress"] : []
-    );
+    return getUsers(op.ref.id ? { id: op.ref.id } : op.params.filter || {}, [
+      "username",
+      "ethAddress",
+      "nodeAddress",
+      "multisigAddress"
+    ]);
   }
 
   public async add(op: Operation): Promise<User> {

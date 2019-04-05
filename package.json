@@ -4,7 +4,10 @@
     "packages": [
       "packages/*"
     ],
-    "nohoist": ["**/@stencil", "**/@stencil/**"]
+    "nohoist": [
+      "**/@stencil",
+      "**/@stencil/**"
+    ]
   },
   "engines": {
     "yarn": "^1.10"
@@ -35,7 +38,7 @@
     "tslint-config-airbnb": "^5.11.0",
     "tslint-config-prettier": "^1.15.0",
     "tslint-plugin-prettier": "^2.0.0",
-    "typescript": "^3.3.4000"
+    "typescript": "^3.4.1"
   },
   "resolutions": {
     "**/tslint-microsoft-contrib": "^6.0.0",

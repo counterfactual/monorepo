@@ -1,8 +1,12 @@
 import { Resource } from "@ebryn/jsonapi-ts";
 
 export default class Heartbeat extends Resource {
-  attributes: {
-    schemaVersion: string;
-    maintenanceMode: boolean;
+  static get type() {
+    return "heartbeat";
+  }
+
+  static attributes = {
+    schemaVersion: "",
+    maintenanceMode: false
   };
 }

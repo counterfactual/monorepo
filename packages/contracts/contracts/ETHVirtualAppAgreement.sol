@@ -8,7 +8,7 @@ import "./NonceRegistry.sol";
 
 /// @title ETHVirtualAppAgreement
 /// @notice Commitment target to support "virtual apps", i.e., apps which have
-/// ETH committed to them via intemediary lock-up instead of having ETH directly
+/// ETH committed to them via intermediary lock-up instead of having ETH directly
 /// committed in a ledger channel.
 /// The `target` contract must return via getResolution the outcome of the app
 /// with the same asset type as `agreement.terms`. The value of the resolution
