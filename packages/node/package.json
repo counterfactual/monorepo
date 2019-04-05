@@ -40,7 +40,7 @@
     "@firebase/util": "0.2.11",
     "ethers": "4.0.27",
     "eventemitter3": "^3.1.0",
-    "firebase": "5.9.2",
+    "firebase": "5.9.3",
     "p-queue": "^4.0.0",
     "uuid": "^3.3.2"
   }
