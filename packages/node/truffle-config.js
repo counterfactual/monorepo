@@ -19,7 +19,7 @@ module.exports = {
   },
   compilers: {
     solc: {
-      version: "../contracts/node_modules/solc",
+      version: "../../node_modules/solc",
       settings: {
         evmVersion: "constantinople"
       }
