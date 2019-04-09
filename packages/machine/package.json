@@ -32,6 +32,7 @@
     "rollup-plugin-typescript2": "^0.20.1",
     "truffle": "5.0.12",
     "ts-jest": "24.0.1",
+    "ts-jest": "24.0.2",
     "tslint": "^5.14.0",
     "typescript": "^3.4.1"
   },
