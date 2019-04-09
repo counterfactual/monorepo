@@ -18,7 +18,7 @@
     "@types/node": "^11.13.0",
     "dotenv-extended": "^2.3.0",
     "firebase-server": "^1.0.1",
-    "ganache-core": "2.5.3",
+    "ganache-core": "2.5.4",
     "jest": "24.6.0",
     "jest-cli": "24.6.0",
     "jest-dot-reporter": "^1.0.7",
@@ -27,7 +27,7 @@
     "rollup-plugin-json": "^4.0.0",
     "rollup-plugin-node-resolve": "^4.0.0",
     "rollup-plugin-typescript2": "^0.20.1",
-    "ts-jest": "24.0.1",
+    "ts-jest": "24.0.2",
     "ts-mockito": "^2.3.1",
     "tslint": "^5.14.0",
     "typescript": "^3.4.1"
