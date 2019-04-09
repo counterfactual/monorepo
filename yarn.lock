@@ -933,6 +933,17 @@
     tslib "1.9.3"
     xmlhttprequest "1.8.0"
 
+"@firebase/app@0.3.14":
+  version "0.3.14"
+  resolved "https://registry.yarnpkg.com/@firebase/app/-/app-0.3.14.tgz#26537d25d87647af530d72967d159544e4093ffa"
+  integrity sha512-l/Qdi0XRbiciTTivIQsvTtgdbLeTOIjksA28ktMXVyqr/cBYFDInrNrQDh9r5/PIrE6YJjmADSO0lTAAitVTQg==
+  dependencies:
+    "@firebase/app-types" "0.3.7"
+    "@firebase/util" "0.2.11"
+    dom-storage "2.1.0"
+    tslib "1.9.3"
+    xmlhttprequest "1.8.0"
+
 "@firebase/auth-types@0.5.5":
   version "0.5.5"
   resolved "https://registry.yarnpkg.com/@firebase/auth-types/-/auth-types-0.5.5.tgz#3de465bfbf344a79e419d286e060011b7c8cb992"
@@ -945,6 +956,13 @@
   dependencies:
     "@firebase/auth-types" "0.5.5"
 
+"@firebase/auth@0.9.7":
+  version "0.9.7"
+  resolved "https://registry.yarnpkg.com/@firebase/auth/-/auth-0.9.7.tgz#8c7d0908810bf8771db653a4dde401cc2d26befc"
+  integrity sha512-6DyylOzHfnf1NZUOJQNs2S1HpRN8fH/O/oIByO1qTC7SqOa9Tnz4d8Lmc/Z/UfjMENCcaZbxs4p58GGYiEkjZQ==
+  dependencies:
+    "@firebase/auth-types" "0.5.5"
+
 "@firebase/database-types@0.3.8":
   version "0.3.8"
   resolved "https://registry.yarnpkg.com/@firebase/database-types/-/database-types-0.3.8.tgz#d35b2fb09fa0ba1f542c16b6fa5a7471f85fc2a4"
@@ -954,6 +972,17 @@
   version "0.3.16"
   resolved "https://registry.yarnpkg.com/@firebase/database/-/database-0.3.16.tgz#ce6d9366428b4d239c7fb0a3eef267c4acdf41dc"
   integrity sha512-89Zx6PtZrYcOeOJKoTGSvr/YhNZ3KYLUfloDLgXtNGP6iABkxdpI154kLGL9Bas70ueoIX5ScFmd9eKSwUwWuA==
+  dependencies:
+    "@firebase/database-types" "0.3.8"
+    "@firebase/logger" "0.1.10"
+    "@firebase/util" "0.2.11"
+    faye-websocket "0.11.1"
+    tslib "1.9.3"
+
+"@firebase/database@0.3.17":
+  version "0.3.17"
+  resolved "https://registry.yarnpkg.com/@firebase/database/-/database-0.3.17.tgz#12c2ec7bb528ffb97efebfd15e2157114164fd27"
+  integrity sha512-YHXdBOoBowRiDUPSXuc9/6zo8JOm0gEt9/NC7s9Izf3TW71N6XBLXlL13j5zEO2UEhRSDIufvWty7TiMLPir4g==
   dependencies:
     "@firebase/database-types" "0.3.8"
     "@firebase/logger" "0.1.10"
@@ -977,10 +1006,10 @@
     grpc "1.19.0"
     tslib "1.9.3"
 
-"@firebase/firestore@1.1.2":
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/@firebase/firestore/-/firestore-1.1.2.tgz#9a45ed9a76e801a77f1be61cd6d1fc68c04b4a8d"
-  integrity sha512-ULOF3Bx2zMzrSRzE+ZKz4SNjXYTz2K+ysoAWBHz/PUX6ThOpphDosX1zcW3z4HyaqfMSrneRGJzht830PaH37A==
+"@firebase/firestore@1.1.3":
+  version "1.1.3"
+  resolved "https://registry.yarnpkg.com/@firebase/firestore/-/firestore-1.1.3.tgz#5f195e3387ee7b3d1b0c303602362635b10403ac"
+  integrity sha512-usijF8/S9XUXvG8q9cEEnX2s8P3X/Nf+704VbzHQGqWGiUBnYgNCmhLE/FWOUugMmdJ6XymRcTNHMGxJcKGPMQ==
   dependencies:
     "@firebase/firestore-types" "1.1.1"
     "@firebase/logger" "0.1.10"
@@ -1021,6 +1050,24 @@
     "@firebase/messaging-types" "0.2.8"
     "@firebase/util" "0.2.11"
     tslib "1.9.3"
+
+"@firebase/messaging@0.3.16":
+  version "0.3.16"
+  resolved "https://registry.yarnpkg.com/@firebase/messaging/-/messaging-0.3.16.tgz#b97a514450b0d0744211f3c62cb8d29886b2db96"
+  integrity sha512-NeogyiCKWZkmWU/sT081qNObq9UqUfwJor/AqqlP0sxmzaVyXm2Ds+n5QtnQ79LkJenrsf6GDQPmOrgU+lLwdQ==
+  dependencies:
+    "@firebase/messaging-types" "0.2.8"
+    "@firebase/util" "0.2.11"
+    tslib "1.9.3"
+
+"@firebase/polyfill@0.3.10":
+  version "0.3.10"
+  resolved "https://registry.yarnpkg.com/@firebase/polyfill/-/polyfill-0.3.10.tgz#76f3bdc71544b1a4168170a13e1068de851b0323"
+  integrity sha512-9LmGf0LbwmAokfolFqWP1IFzLWORU90v81VQbBYgr3AYqijG5ufju7vCv1HLUznjyOsbcpGQpxg0os3rxsG55g==
+  dependencies:
+    core-js "3.0.0"
+    promise-polyfill "8.1.0"
+    whatwg-fetch "2.0.4"
 
 "@firebase/polyfill@0.3.9":
   version "0.3.9"
@@ -6968,10 +7015,21 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.7.tgz#1b8dbe3bb101c343d3577da600011ebda8ff5791"
-  integrity sha512-/wuagm5jAdL1S34P0brYMed/wmzPgIXeyfM7EGWeW6Yoo/Z/+af48z8DUi2250tyLE7TUESf7XfsRgrIBagVug==
+ethereum-waffle@2.0.8:
+  version "2.0.8"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.8.tgz#266e0ae8b14ca71e8d4840e61274efac69f81480"
+  integrity sha512-ar8Cs2/DTdIO8LgGYb+YFdirSZ3Md9pp2NFpXT1/40NtBsNu80yRFQFSqM12sLmWR3LjzVXeyAJhmBkYAvf5xQ==
+  dependencies:
+    "@resolver-engine/imports" "^0.3.2"
+    "@resolver-engine/imports-fs" "^0.3.2"
+    ethers "^4.0.0"
+    ganache-core "2.4.0"
+    solc "^0.5.1"
+
+ethereum-waffle@2.0.9:
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.9.tgz#cda1bd6ceea3eb868cb0e0f00b0a2a51747ad6d7"
+  integrity sha512-oHAb/3IQ539JA/BiGv+BYF2nCJ2dH9QFuBdELOp7JaqplnNtmSeqgnfbWpQ4jDIqiIFKJwI5/VeNbQCVX8ndHQ==
   dependencies:
     "@resolver-engine/imports" "^0.3.2"
     "@resolver-engine/imports-fs" "^0.3.2"
@@ -7740,18 +7798,18 @@ firebase-token-generator@^2.0.0:
   resolved "https://registry.yarnpkg.com/firebase-token-generator/-/firebase-token-generator-2.0.0.tgz#9767d759ec13abdc99ba115fd5ea99d8b93d1206"
   integrity sha1-l2fXWewTq9yZuhFf1eqZ2Lk9EgY=
 
-firebase@5.9.2:
-  version "5.9.2"
-  resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.9.2.tgz#ddf54bea24910b148fa1480570683b489db02f1e"
-  integrity sha512-AvXD/LEr9BqyOP3zFNid3+MzWQXNMRVaAT+VkUEkS0iPQLspjUgM2LhUvqRmF//BE+R/fIe9LIEef0WRrvNnCg==
+firebase@5.9.3:
+  version "5.9.3"
+  resolved "https://registry.yarnpkg.com/firebase/-/firebase-5.9.3.tgz#76fc8df62a2d45afeba339b02b047f4a6f2680ce"
+  integrity sha512-58ytmGOhthiMyBIQBsbqNJ/uiJswXcAOEkYeA88362sZhnrRFhzE4QWg4wWZkeDQ09gZvJRC660P8gb3tiDGdg==
   dependencies:
-    "@firebase/app" "0.3.13"
-    "@firebase/auth" "0.9.6"
-    "@firebase/database" "0.3.16"
-    "@firebase/firestore" "1.1.2"
+    "@firebase/app" "0.3.14"
+    "@firebase/auth" "0.9.7"
+    "@firebase/database" "0.3.17"
+    "@firebase/firestore" "1.1.3"
     "@firebase/functions" "0.4.3"
-    "@firebase/messaging" "0.3.15"
-    "@firebase/polyfill" "0.3.9"
+    "@firebase/messaging" "0.3.16"
+    "@firebase/polyfill" "0.3.10"
     "@firebase/storage" "0.2.12"
 
 "firebase@>= 5.0.0":
@@ -16156,36 +16214,10 @@ sol-explore@^1.6.2:
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.0.tgz#2deb2ae992acac3afb909f85c38d00f01dcb335e"
-  integrity sha512-mdLHDl9WeYrN+FIKcMc9PlPfnA9DG9ur5QpCDKcv6VC4RINAsTF4EMuXMZMKoQTvZhtLyJIVH/BZ+KU830Z8Xg==
-  dependencies:
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    yargs "^11.0.0"
-
-solc@0.5.7:
+solc@0.5.0, solc@0.5.7, solc@^0.5.1, solc@^0.5.7:
   version "0.5.7"
   resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.7.tgz#d84697ac5cc63d9b2139bfb349cec64b64861cdc"
   integrity sha512-DaYFzB3AAYjzPtgUl9LenPY2xjI3wG9k8U8T8YE/sXHVIoCirCY5MB6mhcFPgk/VyUtaWZPUCWiYS1E6RSiiqw==
-  dependencies:
-    command-exists "^1.2.8"
-    fs-extra "^0.30.0"
-    keccak "^1.0.2"
-    memorystream "^0.3.1"
-    require-from-string "^2.0.0"
-    semver "^5.5.0"
-    tmp "0.0.33"
-    yargs "^11.0.0"
-
-solc@^0.5.1:
-  version "0.5.6"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.6.tgz#13015328c61c188b96ef2c2889d73ac705195fba"
-  integrity sha512-BuvrLwOSAGEUbE4jffLBcO9Vm8OVgxImE5qFTHzjH2n+RqBHeqDDOY0gU4LvGWsA6ttjADJyRriF9Pp0vjIq2g==
   dependencies:
     command-exists "^1.2.8"
     fs-extra "^0.30.0"
@@ -17323,10 +17355,10 @@ truffle-interface-adapter@^0.1.2:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.10:
-  version "5.0.10"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.10.tgz#f773522becbed0f66b372c6a9a1f36d233337e1e"
-  integrity sha512-wVp7ruznIm1iX7fTHZwjKZCaOkkQcTR1eWOCi2yTQ85wg1iQITpV7NLDpVandaNcz5Z0e8EdOrH9lFKLgxiAxQ==
+truffle@5.0.11:
+  version "5.0.11"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.11.tgz#e593674415bf5e4a02eed5b940d736dece5ab447"
+  integrity sha512-LyXKxrvPuWuM31AF0U+d890e3ojYAjt4CeHO1zrjBG+/2ac/Fv31yqZS/cXN8xU09xCVC9uEcJ2Z23j9Q2KhRg==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"

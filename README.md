@@ -82,6 +82,13 @@ yarn
 
 ### Building packages
 
+It is recommended (optional) that you installed `solc` compiler binary on your machine
+([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `contracts` and `apps`
+
+```shell
+NATIVE_SOLC=true
+```
+
 To build all packages:
 
 ```shell

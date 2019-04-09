@@ -8,7 +8,7 @@
     "build"
   ],
   "scripts": {
-    "build": "waffle waffle.json",
+    "build": "waffle waffle.js",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -24,7 +24,7 @@
     "@types/chai": "^4.1.7",
     "@types/mocha": "^5.2.5",
     "chai": "^4.2.0",
-    "ethereum-waffle": "2.0.8",
+    "ethereum-waffle": "2.0.9",
     "solc": "0.5.7",
     "ethers": "4.0.27",
     "ethlint": "^1.2.4",
