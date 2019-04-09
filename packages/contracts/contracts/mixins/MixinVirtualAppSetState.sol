@@ -96,13 +96,13 @@ contract MixinVirtualAppSetState is
     );
 
     require(
-      signingKeys[0] == recoverKey(req.signatures, digest2, 0), "Invalid intermediary signature passed to virtualAppSetState"
+      signingKeys[0] == recoverKey(req.signatures, digest2, 0), "Invalid signature"
     );
 
     address lastSigner = address(0);
     for (uint256 i = 1; i < signingKeys.length; i++) {
       require(
-        signingKeys[i] == recoverKey(req.signatures, digest1, i), "Invalid non-intermediary signature passed to virtualAppSetState"
+        signingKeys[i] == recoverKey(req.signatures, digest1, i), "Invalid signature"
       );
 
       require(signingKeys[i] > lastSigner, "Signers not in ascending order");

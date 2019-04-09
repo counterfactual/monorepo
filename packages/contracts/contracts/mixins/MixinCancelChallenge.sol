@@ -47,7 +47,7 @@ contract MixinCancelChallenge is
     if (msg.sender != appIdentity.owner) {
       require(
         verifySignatures(signatures, stateHash, appIdentity.signingKeys),
-        "Invalid signatures passed to cancelChallenge"
+        "Invalid signatures"
       );
     }
 
