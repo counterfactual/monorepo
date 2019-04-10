@@ -1,5 +1,6 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
+import { AppIdentity, NetworkContext } from "@counterfactual/types";
+import { AddressZero, HashZero } from "ethers/constants";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
 import * as log from "loglevel";
 
@@ -15,21 +16,20 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly appIdentity: AppIdentity,
-    public readonly terms: Terms,
     public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceTerms: Terms,
     public readonly freeBalanceStateHash: string,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
-    public readonly rootNonceValue: number
+    public readonly rootNonceValue: number,
+    public readonly interpreterAddr?: string,
+    public readonly interpreterParams?: string
   ) {
     super(
       networkContext,
       multisig,
       multisigOwners,
       freeBalanceAppIdentity,
-      freeBalanceTerms,
       freeBalanceStateHash,
       freeBalanceNonce,
       freeBalanceTimeout
@@ -68,12 +68,13 @@ export class InstallCommitment extends MultiSendCommitment {
       to: this.networkContext.StateChannelTransaction,
       value: 0,
       data: iface.functions.executeAppConditionalTransaction.encode([
-        this.networkContext.AppRegistry,
-        this.networkContext.NonceRegistry,
-        uninstallKey,
-        this.rootNonceValue,
-        appIdentityHash,
-        this.terms
+        /* appRegistry */ this.networkContext.AppRegistry,
+        /* nonceRegistry */ this.networkContext.NonceRegistry,
+        /* uninstallKey */ uninstallKey,
+        /* rootNonceExpectedValue */ this.rootNonceValue,
+        /* appIdentityHash* */ appIdentityHash,
+        /* interpreterAddress */ this.interpreterAddr || AddressZero,
+        /* interpreterParams */ this.interpreterParams || HashZero
       ]),
       operation: MultisigOperation.DelegateCall
     };

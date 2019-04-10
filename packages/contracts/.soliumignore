@@ -1,2 +1,3 @@
 node_modules
 coverageEnv
+contracts/interpreters/ETHInterpreter.sol

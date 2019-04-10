@@ -1,8 +1,6 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "./libs/Transfer.sol";
-
 
 contract CounterfactualApp {
 
@@ -30,12 +28,21 @@ contract CounterfactualApp {
     revert("The applyAction method has no implementation for this App");
   }
 
-  function resolve(bytes calldata, Transfer.Terms calldata)
+  function resolve(bytes calldata)
     external
     pure
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
     revert("The resolve method has no implementation for this App");
+  }
+
+  // a hack
+  function resolveType()
+    external
+    pure
+    returns (uint256)
+  {
+    revert("The resolveType method has no implementation for this App");
   }
 
 }

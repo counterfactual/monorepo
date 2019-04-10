@@ -1,7 +1,8 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
 
 
 /// @title High Roller App
@@ -33,7 +34,6 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   struct AppState {
-    address[2] playerAddrs;
     Stage stage;
     bytes32 salt;
     bytes32 commitHash;
@@ -120,59 +120,39 @@ contract HighRollerApp is CounterfactualApp {
     return abi.encode(nextState);
   }
 
-  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+  function resolve(bytes calldata encodedState)
     external
     pure
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    uint256[] memory amounts = new uint256[](2);
-    address[] memory to = new address[](2);
-    to[0] = appState.playerAddrs[0];
-    to[1] = appState.playerAddrs[1];
     bytes32 expectedCommitHash = keccak256(
       abi.encodePacked(appState.salt, appState.playerFirstNumber)
     );
     if (expectedCommitHash == appState.commitHash) {
-      amounts = getWinningAmounts(
-        appState.playerFirstNumber, appState.playerSecondNumber, terms.limit
-      );
+      return abi.encode(getWinningAmounts(
+        appState.playerFirstNumber, appState.playerSecondNumber
+      ));
     } else {
-      amounts[0] = 0;
-      amounts[1] = terms.limit;
+      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO);
     }
-
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
-    );
   }
 
-  function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit)
+  function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (uint256[] memory)
+    returns (TwoPartyOutcome.Resolution)
   {
-    uint256[] memory amounts = new uint256[](2);
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
     if (playerFirstTotal > playerSecondTotal) {
-      amounts[0] = termsLimit;
-      amounts[1] = 0;
+      return TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE;
     } else if (playerFirstTotal < playerSecondTotal) {
-      amounts[0] = 0;
-      amounts[1] = termsLimit;
+      return TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO;
     } else {
-      amounts[0] = termsLimit / 2;
-      amounts[1] = termsLimit / 2;
+      return TwoPartyOutcome.Resolution.SPLIT_AND_SEND_TO_BOTH_ADDRS;
     }
-    return amounts;
   }
 
   function highRoller(bytes32 randomness)

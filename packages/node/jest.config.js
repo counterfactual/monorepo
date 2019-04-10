@@ -1,5 +1,4 @@
 module.exports = {
-  "bail": true,
   "coverageDirectory": "jest-coverage",
   "coveragePathIgnorePatterns": [
     "test"
@@ -33,6 +32,6 @@ module.exports = {
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
-  "verbose": true,
+  "verbose": false,
   "extraGlobals": ["Math"]
 }

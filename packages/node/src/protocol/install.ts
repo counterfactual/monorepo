@@ -1,4 +1,5 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -86,11 +87,12 @@ function proposeStateTransition(
   context: Context
 ): [string, InstallCommitment] {
   const {
-    aliceBalanceDecrement,
-    bobBalanceDecrement,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
+    initiatingXpub,
+    respondingXpub,
     signingKeys,
     initialState,
-    terms,
     appInterface,
     defaultTimeout,
     multisigAddress
@@ -98,28 +100,30 @@ function proposeStateTransition(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
+  const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
+  const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
+
   const appInstance = new AppInstance(
-    multisigAddress,
-    signingKeys,
-    defaultTimeout,
-    appInterface,
-    terms,
-    // KEY: Sets it to NOT be a virtual app
-    false,
-    // KEY: The app sequence number
-    stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
-    initialState,
-    // KEY: Set the nonce to be 0
-    0,
-    defaultTimeout
+    /* multisigAddress */ multisigAddress,
+    /* signingKeys */ signingKeys,
+    /* defaultTimeout */ defaultTimeout,
+    /* appInterface */ appInterface,
+    /* isVirtualApp */ false,
+    /* appSeqNo */ stateChannel.numInstalledApps,
+    /* rootNonceValue */ stateChannel.rootNonceValue,
+    /* latestState */ initialState,
+    /* latestNonce */ 0,
+    /* defaultTimeout */ defaultTimeout,
+    /* beneficiaries */ [initiatingFbAddress, respondingFbAddress],
+    /* limitOrTotal */ bigNumberify(initiatingBalanceDecrement).add(
+      respondingBalanceDecrement
+    )
   );
 
-  const newStateChannel = stateChannel.installApp(
-    appInstance,
-    aliceBalanceDecrement,
-    bobBalanceDecrement
-  );
+  const newStateChannel = stateChannel.installApp(appInstance, {
+    [initiatingFbAddress]: initiatingBalanceDecrement,
+    [respondingFbAddress]: respondingBalanceDecrement
+  });
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
@@ -147,9 +151,7 @@ function constructInstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     app.identity,
-    app.terms,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,

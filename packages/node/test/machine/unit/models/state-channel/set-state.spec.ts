@@ -2,6 +2,7 @@ import { AddressZero, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
+import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
@@ -20,7 +21,7 @@ describe("StateChannel::setState", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const userNeuteredExtendedKeys = [
+    const xpubs = [
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
     ];
@@ -28,13 +29,15 @@ describe("StateChannel::setState", () => {
     sc1 = StateChannel.setupChannel(
       networkContext.ETHBucket,
       multisigAddress,
-      userNeuteredExtendedKeys
+      xpubs
     );
 
     testApp = createAppInstance(sc1);
 
-    sc1 = sc1.installApp(testApp, Zero, Zero);
-
+    sc1 = sc1.installApp(testApp, {
+      [xkeyKthAddress(xpubs[0], 0)]: Zero,
+      [xkeyKthAddress(xpubs[1], 0)]: Zero
+    });
     sc2 = sc1.setState(testApp.identityHash, APP_STATE);
   });
 

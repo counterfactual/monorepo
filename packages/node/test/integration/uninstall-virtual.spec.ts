@@ -1,6 +1,5 @@
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
@@ -38,10 +37,6 @@ describe("Node method follows spec - uninstall virtual", () => {
     () => {
       it("sends uninstall ", async done => {
         const initialState = {
-          players: [
-            xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
-            xkeyKthAddress(nodeC.publicIdentifier, 0)
-          ],
           turnNum: 0,
           winner: 1, // Hard-coded winner for test
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]

@@ -7,12 +7,6 @@ export enum AssetType {
   ERC20 = 1
 }
 
-export type Terms = {
-  assetType: AssetType;
-  limit: BigNumber;
-  token: Address;
-};
-
 export type Transaction = {
   assetType: AssetType;
   limit: BigNumber;
@@ -26,7 +20,7 @@ export type AppIdentity = {
   owner: string;
   signingKeys: string[];
   appDefinitionAddress: string;
-  termsHash: string;
+  interpreterHash: string;
   defaultTimeout: number;
 };
 
@@ -44,8 +38,6 @@ export type SignedStateHashUpdate = {
 };
 
 export type ETHBucketAppState = {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
-};
+  amount: { _hex: string },
+  to: string
+}[];

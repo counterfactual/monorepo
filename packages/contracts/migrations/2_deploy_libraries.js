@@ -4,7 +4,7 @@ const StateChannelTransaction = artifacts.require("StateChannelTransaction");
 const LibStaticCall = artifacts.require("LibStaticCall");
 const Transfer = artifacts.require("Transfer");
 const AppRegistry = artifacts.require("AppRegistry");
-const VirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
+const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 
 /// Deploy the libraries Transfer and StaticCall and link their dependents
 /// against them.
@@ -18,11 +18,11 @@ module.exports = (deployer, network) => {
     const transfer = await deployer.deploy(Transfer);
     await deployer.link(Transfer, StateChannelTransaction);
     await deployer.link(Transfer, AppRegistry);
-    await deployer.link(Transfer, VirtualAppAgreement);
+    await deployer.link(Transfer, TwoPartyVirtualEthAsLump);
 
     const staticCall = await deployer.deploy(LibStaticCall);
     await deployer.link(LibStaticCall, AppRegistry);
-    await deployer.link(LibStaticCall, VirtualAppAgreement);
+    await deployer.link(LibStaticCall, TwoPartyVirtualEthAsLump);
     await deployer.link(LibStaticCall, StateChannelTransaction);
 
     if (!tdr.isDryRunNetworkName(network)) {

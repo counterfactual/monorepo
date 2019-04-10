@@ -1,8 +1,7 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/Transfer.sol";
-import "../CounterfactualApp.sol";
+import "../interpreters/ETHInterpreter.sol";
 
 
 contract ETHBalanceRefundApp {
@@ -13,27 +12,28 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata encodedState)
+    external
     view
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
+    AppState memory appState = abi.decode(encodedState, (AppState));
 
-    uint256[] memory amounts = new uint256[](1);
-    amounts[0] = address(state.multisig).balance - state.threshold;
+    ETHInterpreter.ETHTransfer[] memory ret =
+      new ETHInterpreter.ETHTransfer[](1);
+    ret[0].amount = address(appState.multisig).balance - appState.threshold;
+    ret[0].to = appState.recipient;
 
-    address[] memory to = new address[](1);
-    to[0] = state.recipient;
-
-    bytes[] memory data;
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
-    );
+    return abi.encode(ret);
   }
+
+  function resolveType()
+    external
+    pure
+    returns (uint256)
+  {
+    return 1;
+  }
+
+
 }

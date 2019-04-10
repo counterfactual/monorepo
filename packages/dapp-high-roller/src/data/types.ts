@@ -29,14 +29,6 @@ export interface Transaction {
   data: string[];
 }
 
-export interface AppIdentity {
-  owner: string;
-  signingKeys: string[];
-  appDefinitionAddress: string;
-  termsHash: string;
-  defaultTimeout: number;
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
   nonce: number;
@@ -290,6 +282,7 @@ export namespace Node {
   export type Message = MethodRequest | MethodResponse | Event | Error;
 }
 
+// keep in sync with cf.js/src/app-factory.ts
 export namespace cf {
   export type AppFactory = {
     new (

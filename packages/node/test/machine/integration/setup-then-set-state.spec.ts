@@ -97,16 +97,14 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
       await appRegistry.functions.setResolution(
         freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState,
-        freeBalanceETH.encodedTerms
+        freeBalanceETH.encodedLatestState
       );
 
       const setupCommitment = new SetupCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).terms
+        stateChannel.getFreeBalanceFor(AssetType.ETH).identity
       );
 
       const setupTx = setupCommitment.transaction([

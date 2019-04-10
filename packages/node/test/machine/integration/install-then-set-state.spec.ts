@@ -5,7 +5,12 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, keccak256, parseEther } from "ethers/utils";
+import {
+  defaultAbiCoder,
+  Interface,
+  keccak256,
+  parseEther
+} from "ethers/utils";
 
 import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
@@ -87,29 +92,26 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       const state = freeBalanceETH.state;
 
       // todo(xuanji): don't reuse state
+      // todo(xuanji): use createAppInstance
       const appInstance = new AppInstance(
         stateChannel.multisigAddress,
         uniqueAppSigningKeys.map(x => x.address),
         freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
         freeBalanceETH.appInterface, // Re-use the ETHBucket App
-        {
-          assetType: AssetType.ETH,
-          limit: parseEther("2"),
-          token: AddressZero
-        },
         false,
         stateChannel.numInstalledApps,
         stateChannel.rootNonceValue,
         state,
         0,
-        freeBalanceETH.timeout // Re-use ETH FreeBalance timeout
+        freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
+        [AddressZero, AddressZero],
+        Zero
       );
 
-      stateChannel = stateChannel.installApp(
-        appInstance,
-        WeiPerEther,
-        WeiPerEther
-      );
+      stateChannel = stateChannel.installApp(appInstance, {
+        [multisigOwnerKeys[0].address]: WeiPerEther,
+        [multisigOwnerKeys[1].address]: WeiPerEther
+      });
 
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -135,8 +137,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await appRegistry.functions.setResolution(
         appInstance.identity,
-        appInstance.encodedLatestState,
-        appInstance.encodedTerms
+        appInstance.encodedLatestState
       );
 
       const installCommitment = new InstallCommitment(
@@ -144,14 +145,14 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
         appInstance.identity,
-        appInstance.terms,
         freeBalanceETH.identity,
-        freeBalanceETH.terms,
         freeBalanceETH.hashOfLatestState,
         freeBalanceETH.nonce,
         freeBalanceETH.timeout,
         appInstance.appSeqNo,
-        stateChannel.rootNonceValue
+        stateChannel.rootNonceValue,
+        network.ETHInterpreter,
+        defaultAbiCoder.encode(["uint256"], [freeBalanceETH.limitOrTotal])
       );
 
       const installTx = installCommitment.transaction([
@@ -161,7 +162,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         to: proxyAddress,
-        value: WeiPerEther.mul(2)
+        value: parseEther("2")
       });
 
       await wallet.sendTransaction({

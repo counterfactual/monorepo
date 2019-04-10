@@ -2,8 +2,7 @@ import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
 import {
   AppIdentity,
   ETHBucketAppState,
-  NetworkContext,
-  Terms
+  NetworkContext
 } from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
@@ -21,7 +20,6 @@ export class UninstallCommitment extends MultiSendCommitment {
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceTerms: Terms,
     public readonly freeBalanceState: ETHBucketAppState,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
@@ -32,7 +30,6 @@ export class UninstallCommitment extends MultiSendCommitment {
       multisig,
       multisigOwners,
       freeBalanceAppIdentity,
-      freeBalanceTerms,
       keccak256(encodeETHBucketAppState(freeBalanceState)),
       freeBalanceNonce,
       freeBalanceTimeout
@@ -44,11 +41,11 @@ export class UninstallCommitment extends MultiSendCommitment {
       to: this.networkContext.NonceRegistry,
       value: 0,
       data: nonceRegistryIface.functions.setNonce.encode([
-        0, // Timeout is 0 for dependencyNonce!
-        keccak256(defaultAbiCoder.encode(["uint256"], [this.dependencyNonce])),
-        // Hard coded the update to 1 because that is the value
-        // that represents an app as being "uninstalled"
-        DependencyValue.UNINSTALLED
+        /* timeout */ 0,
+        /* salt */ keccak256(
+          defaultAbiCoder.encode(["uint256"], [this.dependencyNonce])
+        ),
+        /* nonceValue */ DependencyValue.CANCELLED
       ]),
       operation: MultisigOperation.Call
     };
