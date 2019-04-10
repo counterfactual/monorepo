@@ -1,4 +1,3 @@
-import { AppInstance } from "@counterfactual/machine";
 import {
   AppABIEncodings,
   AssetType,
@@ -10,6 +9,7 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
+import { AppInstance } from "../../src/machine";
 import { ProposedAppInstanceInfo } from "../../src/models";
 
 export function computeRandomXpub() {

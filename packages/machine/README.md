@@ -1,4 +1,4 @@
-# [@counterfactual/machine](https://github.com/counterfactual/monorepo/tree/master/packages/machine) <img align="right" src="../../logo.svg" height="80px" />
+# [counterfactual/machine](https://github.com/counterfactual/monorepo/tree/master/packages/machine) <img align="right" src="../../logo.svg" height="80px" />
 
 This is the TypeScript implementation of the [Counterfactual protocol](https://github.com/counterfactual/specs/blob/master/v0/protocols.md). It is responsible for executing the Counterfactual protocols [specified here](https://specs.counterfactual.com) and producing correctly constructed signed commitments that correspond to state transitions of the users' state channels.
 

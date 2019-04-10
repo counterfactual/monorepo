@@ -1,8 +1,8 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 
+import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";

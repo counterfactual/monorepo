@@ -1,6 +1,6 @@
-import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 
+import { InstructionExecutor, StateChannel } from "../../../machine";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
 

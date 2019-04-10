@@ -1,5 +1,6 @@
-import { ProtocolMessage } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
+
+import { ProtocolMessage } from "./machine";
 /**
  * The message interface for Nodes to communicate with each other.
  */

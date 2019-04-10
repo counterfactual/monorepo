@@ -1,5 +1,4 @@
-import { InstructionExecutor, StateChannel } from "@counterfactual/machine";
-
+import { InstructionExecutor, StateChannel } from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(

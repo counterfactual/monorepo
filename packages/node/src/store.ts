@@ -1,10 +1,4 @@
 import {
-  AppInstance,
-  StateChannel,
-  StateChannelJSON,
-  Transaction
-} from "@counterfactual/machine";
-import {
   Address,
   AppInstanceInfo,
   SolidityABIEncoderV2Struct
@@ -20,6 +14,12 @@ import {
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
+import {
+  AppInstance,
+  StateChannel,
+  StateChannelJSON,
+  Transaction
+} from "./machine";
 import { ERRORS } from "./methods/errors";
 import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
 import { debugLog } from "./node";

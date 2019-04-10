@@ -1,10 +1,10 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { xkeyKthAddress } from "../../src/machine";
 import { MNEMONIC_PATH } from "../../src/signer";
 import {
   InstallVirtualMessage,

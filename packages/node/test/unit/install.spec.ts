@@ -1,8 +1,3 @@
-import {
-  InstructionExecutor,
-  StateChannel,
-  xkeysToSortedKthAddresses
-} from "@counterfactual/machine";
 import { AssetType } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
@@ -11,6 +6,11 @@ import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 
+import {
+  InstructionExecutor,
+  StateChannel,
+  xkeysToSortedKthAddresses
+} from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
 import { Store } from "../../src/store";

@@ -51,8 +51,6 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 | [`@counterfactual/node`](/packages/node)                   | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node)                   | The core state channels client that a user runs                  |
 | [`@counterfactual/cf.js`](/packages/cf.js)                 | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js)                 | A JS API for interacting with off-chain apps                     |
 | [`@counterfactual/node-provider`](/packages/node-provider) | [![npm](https://img.shields.io/npm/v/@counterfactual/node-provider.svg)](https://www.npmjs.com/package/@counterfactual/node-provider) | Wrapper around API calls to a Node                               |
-| [`@counterfactual/machine`](/packages/machine)             | [![npm](https://img.shields.io/npm/v/@counterfactual/machine.svg)](https://www.npmjs.com/package/@counterfactual/machine)             | Extendible middleware-based executor of Counterfactual protocols |
-
 **Utilities**
 
 | Package                                                              | Version                                                                                                                                         | Description                        |

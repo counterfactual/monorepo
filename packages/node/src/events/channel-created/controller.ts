@@ -1,5 +1,4 @@
-import { StateChannel } from "@counterfactual/machine";
-
+import { StateChannel } from "../../machine";
 import { RequestHandler } from "../../request-handler";
 import { CreateChannelMessage } from "../../types";
 
