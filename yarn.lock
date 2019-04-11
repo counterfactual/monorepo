@@ -884,13 +884,14 @@
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
   integrity sha512-5a6wqoJV/xEdbRNKVo6I4hO3VjyDq//8q2f9I6PBAvMesJHFauXDorcNCsr9RzvsZnaWi5NYCcfyqP1QeFHFbw==
 
-"@ebryn/jsonapi-ts@0.1.17":
-  version "0.1.17"
-  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.17.tgz#8258e3bf58875b4ff6c237f6c2d73fe73f35fd68"
-  integrity sha512-CVpzxJhuRrCS1SLgfoqbH6kuftWhkSrrtTSFZVIan+PJO+GcDm4qRpFy/TuWdjGO7+1BE1Lo+fve0zXMp0K1nA==
+"@ebryn/jsonapi-ts@0.1.19":
+  version "0.1.19"
+  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.19.tgz#42f289cf9e73349bd5892f9a2ff447c911d9453a"
+  integrity sha512-KWH8lkow962blcNND5ii0pTFdUMLhISzERQd390SOTKRPJzxM5y+tz+1yj0RscSrJYB348hW5kh+4dQgv9Adlw==
   dependencies:
     ember-cli-string-utils "^1.1.0"
     escape-string-regexp "^1.0.5"
+    flatten "^1.0.2"
     jsonwebtoken "^8.4.0"
     knex "~0.16.3"
     koa "^2.6.2"
