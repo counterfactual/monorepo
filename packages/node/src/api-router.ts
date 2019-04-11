@@ -32,6 +32,41 @@ import {
 } from "./methods";
 import { NODE_EVENTS } from "./types";
 
+// Maps controllers to JSONAPI operations.
+export const controllersToOperations = {
+  // Channel operations
+  CreateChannelController: { type: "channel", op: "add" },
+  GetAllChannelAddressesController: { type: "channel", op: "get" },
+  DepositController: { type: "channel", op: "deposit" },
+  WithdrawController: { type: "channel", op: "withdraw" },
+  // TODO: Revisit this.
+  GetFreeBalanceStateController: { type: "channel", op: "getFreeBalanceState" },
+  GetMyFreeBalanceForStateController: {
+    type: "channel",
+    op: "getMyFreeBalanceForState"
+  },
+
+  // Proposal operations
+  ProposeInstallAppInstanceController: { type: "proposal", op: "install" },
+  ProposeInstallVirtualAppInstanceController: {
+    type: "proposal",
+    op: "installVirtual"
+  },
+  GetProposedAppInstancesController: { type: "proposal", op: "get" },
+  RejectInstallController: { type: "proposal", op: "reject" },
+
+  // App operations
+  InstallAppInstanceController: { type: "app", op: "install" },
+  InstallVirtualAppInstanceController: { type: "app", op: "installVirtual" },
+  UninstallController: { type: "app", op: "uninstall" },
+  UninstallVirtualController: { type: "app", op: "uninstallVirtual" },
+  TakeActionController: { type: "app", op: "takeAction" },
+  UpdateStateController: { type: "app", op: "updateState" },
+  GetAppInstanceController: { type: "app", op: "get", params: ["id"] },
+  GetAppInstanceStateController: { type: "app", op: "getState" },
+  GetInstalledAppInstancesController: { type: "app", op: "get" }
+};
+
 const controllers = [
   /**
    * Stateful / interactive methods
