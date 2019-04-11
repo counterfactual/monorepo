@@ -1,0 +1,37 @@
+{
+  "name": "@counterfactual/cf-wallet.js",
+  "version": "0.1.0",
+  "description": "The bridge between web applications and Counterfactual wallets.",
+  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
+  "iife": "dist/index-iife.js",
+  "files": [
+    "dist"
+  ],
+  "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf-wallet.js",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -b && rollup -c",
+    "lint": "tslint -c tslint.json -p tsconfig.json",
+    "lint:fix": "yarn lint --fix",
+    "test": "jest --detectOpenHandles",
+    "docs": "typedoc src/ --out docs/ --ignoreCompilerErrors",
+    "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
+  },
+  "devDependencies": {
+    "jest": "24.6.0",
+    "rollup": "1.7.4",
+    "rollup-plugin-commonjs": "9.2.2",
+    "rollup-plugin-node-resolve": "4.0.1",
+    "rollup-plugin-typescript2": "0.20.1",
+    "tslint": "5.14.0",
+    "typedoc": "0.14.2",
+    "typescript": "3.4.1"
+  },
+  "dependencies": {
+    "@counterfactual/node-provider": "0.1.2",
+    "@counterfactual/types": "0.0.9",
+    "ethers": "4.0.27",
+    "eventemitter3": "^3.1.0"
+  }
+}
