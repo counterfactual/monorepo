@@ -1,9 +1,16 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import Proxy from "@counterfactual/contracts/build/Proxy.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Contract, Event, Signer } from "ethers";
-import { TransactionReceipt, TransactionResponse } from "ethers/providers";
-import { Interface } from "ethers/utils";
+import { Contract, Signer } from "ethers";
+import { TransactionResponse } from "ethers/providers";
+import {
+  getAddress,
+  Interface,
+  keccak256,
+  solidityKeccak256,
+  solidityPack
+} from "ethers/utils";
 import Queue from "p-queue";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
@@ -44,23 +51,44 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const { owners } = params;
-    const {
-      wallet,
-      networkContext,
-      blocksNeededForConfirmation
-    } = requestHandler;
+    const { wallet, networkContext } = requestHandler;
 
-    const tx = await this.sendMultisigDeployTx(owners, wallet, networkContext);
+    const multisigOwners = xkeysToSortedKthAddresses(owners, 0);
 
-    tx.wait(blocksNeededForConfirmation).then(receipt =>
-      this.handleDeployedMultisigOnChain(receipt, requestHandler, params)
+    const setupData = new Interface(
+      MinimumViableMultisig.abi
+    ).functions.setup.encode([multisigOwners]);
+
+    const multisigAddress = getAddress(
+      solidityKeccak256(
+        ["bytes1", "address", "uint256", "bytes32"],
+        [
+          "0xff",
+          networkContext.ProxyFactory,
+          solidityKeccak256(["bytes32", "uint256"], [keccak256(setupData), 0]),
+          keccak256(
+            solidityPack(
+              ["bytes", "uint256"],
+              [`0x${Proxy.bytecode}`, networkContext.MinimumViableMultisig]
+            )
+          )
+        ]
+      ).slice(-40)
     );
+
+    const tx = await this.sendMultisigDeployTx(
+      wallet,
+      setupData,
+      networkContext
+    );
+
+    this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
     return { transactionHash: tx.hash! };
   }
 
   private async handleDeployedMultisigOnChain(
-    receipt: TransactionReceipt,
+    multisigAddress: string,
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ) {
@@ -71,15 +99,6 @@ export default class CreateChannelController extends NodeController {
       messagingService,
       store
     } = requestHandler;
-
-    let multisigAddress: string;
-
-    try {
-      multisigAddress = (receipt["events"] as Event[])!.pop()!.args![0];
-    } catch (e) {
-      console.error(`Invalid multisig deploy tx receipt: ${receipt}`);
-      throw e;
-    }
 
     const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
 
@@ -107,30 +126,25 @@ export default class CreateChannelController extends NodeController {
   }
 
   private async sendMultisigDeployTx(
-    xpubs: string[],
     signer: Signer,
+    setupData: string,
     networkContext: NetworkContext
   ): Promise<TransactionResponse> {
-    const multisigOwners = xkeysToSortedKthAddresses(xpubs, 0);
-
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
       ProxyFactory.abi,
       signer
     );
 
-    const setupData = new Interface(
-      MinimumViableMultisig.abi
-    ).functions.setup.encode([multisigOwners]);
-
     let error;
     const retryCount = 3;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
-        const tx: TransactionResponse = await proxyFactory.functions.createProxy(
+        const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
           setupData,
+          0, // TODO: Increment nonce as needed
           {
             gasLimit: CREATE_PROXY_AND_SETUP_GAS + extraGasLimit,
             gasPrice: await signer.provider!.getGasPrice()
@@ -150,6 +164,7 @@ export default class CreateChannelController extends NodeController {
                       Retrying ${retryCount - tryCount} more times`);
       }
     }
+
     return Promise.reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${error}`);
   }
 }
