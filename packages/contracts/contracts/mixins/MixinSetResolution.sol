@@ -24,8 +24,12 @@ contract MixinSetResolution is
     bytes memory terms
   )
     public
-    doTermsCheck(terms, appIdentity.termsHash)
   {
+    require(
+      keccak256(terms) == appIdentity.termsHash,
+      "Call to AppRegistry included mismatched terms and termsHash"
+    );
+
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
     AppChallenge storage app = appChallenges[identityHash];
