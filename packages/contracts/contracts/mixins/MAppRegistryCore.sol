@@ -17,17 +17,6 @@ contract MAppRegistryCore {
   // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 
-  modifier doTermsCheck(
-    bytes memory terms,
-    bytes32 termsHash
-  ) {
-    require(
-      keccak256(terms) == termsHash,
-      "Call to AppRegistry included mismatched terms and termsHash"
-    );
-    _;
-  }
-
   /// @notice Compute a unique hash for a single instance of an App
   /// @param appIdentity An `AppIdentity` struct that encodes all unique info for an App
   /// @return A bytes32 hash of the AppIdentity
