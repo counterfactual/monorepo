@@ -18,7 +18,7 @@
     "typescript": "3.4.1"
   },
   "dependencies": {
-    "@types/node": "11.13.0",
+    "@types/node": "11.13.4",
     "truffle-contract": "4.0.11"
   }
 }
