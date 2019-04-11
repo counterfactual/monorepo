@@ -383,6 +383,11 @@ export class AppHome {
           {content}
           {/* <apps-list apps={this.runningApps} name="Running Apps" /> */}
         </section>
+        <a
+          id="discordbutton"
+          href="https://discord.gg/7SMbDz"
+          target="_blank"
+        />
       </node-listener>
     ) : (
       <div>
