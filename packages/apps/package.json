@@ -21,18 +21,18 @@
   "devDependencies": {
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/types": "0.0.9",
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
-    "chai": "^4.2.0",
+    "@types/chai": "4.1.7",
+    "@types/mocha": "5.2.6",
+    "chai": "4.2.0",
     "ethereum-waffle": "2.0.9",
     "solc": "0.5.7",
     "ethers": "4.0.27",
-    "ethlint": "^1.2.4",
-    "mocha": "^6.0.0",
+    "ethlint": "1.2.4",
+    "mocha": "6.0.2",
     "truffle": "5.0.12",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.6",
-    "ts-mocha": "^6.0.0",
-    "tslint": "^5.14.0"
+    "ts-mocha": "6.0.0",
+    "tslint": "5.14.0"
   }
 }

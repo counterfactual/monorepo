@@ -16,9 +16,9 @@
     "@counterfactual/node": "0.1.15",
     "@counterfactual/types": "0.0.9",
     "@stencil/core": "0.18.1-0",
-    "@stencil/router": "^0.3.0",
-    "@stencil/sass": "^0.1.1",
-    "eventemitter3": "^3.1.0"
+    "@stencil/router": "0.3.3",
+    "@stencil/sass": "0.1.1",
+    "eventemitter3": "3.1.0"
   },
   "repository": {
     "type": "git",
@@ -33,11 +33,11 @@
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.3",
-    "env-cmd": "^8.0.2",
+    "env-cmd": "8.0.2",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
     "puppeteer": "1.14.0",
-    "rollup-plugin-replace": "^2.1.1",
+    "rollup-plugin-replace": "2.1.1",
     "workbox-build": "4.1.1"
   }
 }

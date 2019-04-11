@@ -19,15 +19,15 @@
   "devDependencies": {
     "@counterfactual/types": "0.0.9",
     "@types/jest": "24.0.11",
-    "@types/node": "^11.13.0",
+    "@types/node": "11.13.0",
     "jest": "24.6.0",
-    "rollup": "^1.7.4",
-    "rollup-plugin-commonjs": "^9.2.2",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-typescript2": "^0.20.1",
+    "rollup": "1.7.4",
+    "rollup-plugin-commonjs": "9.2.2",
+    "rollup-plugin-node-resolve": "4.0.1",
+    "rollup-plugin-typescript2": "0.20.1",
     "ts-jest": "24.0.2",
-    "tslint": "^5.14.0",
-    "typescript": "^3.4.1"
+    "tslint": "5.14.0",
+    "typescript": "3.4.1"
   },
   "dependencies": {
     "eventemitter3": "^3.1.0"

@@ -34,12 +34,12 @@
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
-    "env-cmd": "^8.0.2",
+    "env-cmd": "8.0.2",
     "ethers": "4.0.27",
-    "jest": "^24.6.0",
-    "ts-node": "^8.0.3",
-    "tslint": "^5.14.0",
-    "typescript": "^3.4.1",
-    "uuid": "^3.3.2"
+    "jest": "24.6.0",
+    "ts-node": "8.0.3",
+    "tslint": "5.14.0",
+    "typescript": "3.4.1",
+    "uuid": "3.3.2"
   }
 }
