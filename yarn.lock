@@ -7015,28 +7015,6 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.7:
-  version "2.0.7"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.7.tgz#1b8dbe3bb101c343d3577da600011ebda8ff5791"
-  integrity sha512-/wuagm5jAdL1S34P0brYMed/wmzPgIXeyfM7EGWeW6Yoo/Z/+af48z8DUi2250tyLE7TUESf7XfsRgrIBagVug==
-  dependencies:
-    "@resolver-engine/imports" "^0.3.2"
-    "@resolver-engine/imports-fs" "^0.3.2"
-    ethers "^4.0.0"
-    ganache-core "2.4.0"
-    solc "^0.5.1"
-
-ethereum-waffle@2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.8.tgz#266e0ae8b14ca71e8d4840e61274efac69f81480"
-  integrity sha512-ar8Cs2/DTdIO8LgGYb+YFdirSZ3Md9pp2NFpXT1/40NtBsNu80yRFQFSqM12sLmWR3LjzVXeyAJhmBkYAvf5xQ==
-  dependencies:
-    "@resolver-engine/imports" "^0.3.2"
-    "@resolver-engine/imports-fs" "^0.3.2"
-    ethers "^4.0.0"
-    ganache-core "2.4.0"
-    solc "^0.5.1"
-
 ethereum-waffle@2.0.9:
   version "2.0.9"
   resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.9.tgz#cda1bd6ceea3eb868cb0e0f00b0a2a51747ad6d7"
