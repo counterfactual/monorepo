@@ -1,0 +1,24 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "ignorePaths": [
+    "@stencil/core",
+    "@stencil/router",
+    "@types/jest",
+    "jest-cli",
+    "jest",
+    "workbox-build",
+    "@counterfactual/apps",
+    "@counterfactual/cf.js",
+    "@counterfactual/contracts",
+    "@counterfactual/dapp-high-roller",
+    "@counterfactual/dapp-tic-tac-toe",
+    "@counterfactual/node-provider",
+    "@counterfactual/node",
+    "@counterfactual/playground",
+    "@counterfactual/specs",
+    "@counterfactual/types",
+    "@counterfactual/typescript-typings"
+  ]
+}
