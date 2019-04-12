@@ -40,7 +40,7 @@
     "ts-jest": "24.0.2",
     "ts-mockito": "2.3.1",
     "tslint": "5.15.0",
-    "typescript": "3.4.1"
+    "typescript": "3.4.3"
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
