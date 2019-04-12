@@ -19647,10 +19647,10 @@ yn@^3.0.0:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.0.0.tgz#0073c6b56e92aed652fbdfd62431f2d6b9a7a091"
   integrity sha512-+Wo/p5VRfxUgBUGy2j/6KX2mj9AYJWOHuhMjMcbBFc3y54o9/4buK1ksBvuiK01C3kby8DH9lSmJdSxw+4G/2Q==
 
-zos-lib@2.2.2:
-  version "2.2.2"
-  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.2.tgz#cdb1f1013590f3b3255d984c9e0c86bfb6d90ca0"
-  integrity sha512-x0gsRec9MVgSveMD5hInH77C+X/RSyFRPmhy4bWxsC41OWZr1lCRJ5c+zuKK7x8W2ZyZSvgzLRmJ+dxnVIwyCg==
+zos-lib@2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.3.tgz#2af35a2264a4f3eea7e4bbabfa98ee774f3935bf"
+  integrity sha512-1JFcyZPrfj7CGJ13q8QOsXIH4roz7Pt7HRgJAPv61FaOyque9niM0g4oNrYDGmxrw4hbl5Xey9ohdw7d6+7E9w==
   dependencies:
     "@types/web3" "^1.0.14"
     axios "^0.18.0"
