@@ -58,7 +58,7 @@ export class Node {
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
 
-  public app: NodeApplication;
+  public app: NodeApplication = {} as NodeApplication;
 
   static async create(
     messagingService: IMessagingService,
