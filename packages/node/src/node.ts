@@ -7,6 +7,7 @@ import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
+import NodeApplication from "./jsonapi-app";
 import {
   InstructionExecutor,
   Opcode,
@@ -56,6 +57,8 @@ export class Node {
   // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
+
+  public app: NodeApplication;
 
   static async create(
     messagingService: IMessagingService,
@@ -125,6 +128,7 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
+    this.app = new NodeApplication(this.requestHandler);
     return this;
   }
 
