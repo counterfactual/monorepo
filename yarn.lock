@@ -15630,15 +15630,15 @@ rlp@^2.0.0:
     bn.js "^4.11.1"
     safe-buffer "^5.1.1"
 
-rollup-plugin-commonjs@9.2.2:
-  version "9.2.2"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-9.2.2.tgz#4959f3ff0d9706c132e5247b47ab385f11d9aae6"
-  integrity sha512-FXBgY+IvZIV2AZVT/0CPMsP+b1dKkxE+F6SHI9wddqKDV9KCGDA2cV5e/VsJLwXKFgrtliqMr7Rq3QBfPiJ8Xg==
+rollup-plugin-commonjs@9.3.4:
+  version "9.3.4"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-commonjs/-/rollup-plugin-commonjs-9.3.4.tgz#2b3dddbbbded83d45c36ff101cdd29e924fd23bc"
+  integrity sha512-DTZOvRoiVIHHLFBCL4pFxOaJt8pagxsVldEXBOn6wl3/V21wVaj17HFfyzTsQUuou3sZL3lEJZVWKPFblJfI6w==
   dependencies:
     estree-walker "^0.6.0"
     magic-string "^0.25.2"
     resolve "^1.10.0"
-    rollup-pluginutils "^2.5.0"
+    rollup-pluginutils "^2.6.0"
 
 rollup-plugin-json@4.0.0:
   version "4.0.0"
