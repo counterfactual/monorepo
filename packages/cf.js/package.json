@@ -24,7 +24,7 @@
     "rollup-plugin-commonjs": "9.2.2",
     "rollup-plugin-node-resolve": "4.0.1",
     "rollup-plugin-typescript2": "0.20.1",
-    "tslint": "5.14.0",
+    "tslint": "5.15.0",
     "typedoc": "0.14.2",
     "typescript": "3.4.1"
   },
