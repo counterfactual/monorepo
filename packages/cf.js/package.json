@@ -19,7 +19,7 @@
     "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
   },
   "devDependencies": {
-    "jest": "24.6.0",
+    "jest": "24.7.1",
     "rollup": "1.10.0",
     "rollup-plugin-commonjs": "9.3.4",
     "rollup-plugin-node-resolve": "4.2.3",
