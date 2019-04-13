@@ -28,8 +28,8 @@
     "@stencil/sass": "0.1.1",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.3",
-    "jest": "23.6.0",
-    "jest-cli": "23.6.0",
+    "jest": "24.7.1",
+    "jest-cli": "24.7.1",
     "puppeteer": "1.14.0",
     "typescript": "3.4.3",
     "workbox-build": "3.4.1"
