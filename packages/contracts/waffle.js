@@ -20,6 +20,7 @@ var selectSolc = () => {
     'v'+/([0-9a-z\.\+]+)\.Emscripten\.clang/g.exec(require("solc").version()).splice(1)[0];
     waffleConfig.solcVersion = solcjsVersion;
   }
+
   return waffleConfig;
 }
 
