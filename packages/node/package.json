@@ -27,7 +27,7 @@
     "ethereum-waffle": "2.0.9",
     "firebase-server": "1.0.1",
     "ganache-cli": "6.4.2",
-    "ganache-core": "2.5.4",
+    "ganache-core": "2.5.5",
     "jest-cli": "24.7.1",
     "jest-dot-reporter": "1.0.7",
     "jest": "24.7.1",
