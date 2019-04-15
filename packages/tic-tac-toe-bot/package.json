@@ -40,7 +40,7 @@
     "ethers": "4.0.27",
     "jest": "24.7.1",
     "jest-cli": "24.7.1",
-    "ts-node": "8.0.3",
+    "ts-node": "8.1.0",
     "tslint": "5.15.0",
     "typescript": "3.4.3",
     "uuid": "3.3.2"
