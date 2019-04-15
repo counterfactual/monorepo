@@ -2,7 +2,7 @@
   "extends": [
     "config:base"
   ],
-  "ignorePaths": [
+  "ignoreDeps": [
     "@stencil/core",
     "@stencil/router",
     "@types/jest",
