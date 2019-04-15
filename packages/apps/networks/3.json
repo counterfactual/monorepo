@@ -15,11 +15,6 @@
     "transactionHash": "0xb267ff382776c0b28e037d8a4b8fc6c489314fc571e00c6ac472bdf15e1de8ba"
   },
   {
-    "contractName": "PaymentApp",
-    "address": "0x92220404E666701848432D5A4E8Dd29204572DC9",
-    "transactionHash": "0xcb94c8c9855f715d93e298441fea56951cf7149dd2276a31c3a271b1e56fcec5"
-  },
-  {
     "contractName": "TicTacToeApp",
     "address": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
     "transactionHash": "0x4d735dc50a6194065a6af00ecf8e91569aec02e147ac9adb3847aa5b967b7559"

@@ -3,14 +3,12 @@ const tdr = require("truffle-deploy-registry");
 const CommitReveal = artifacts.require("CommitRevealApp");
 const HighRollerApp = artifacts.require("HighRollerApp");
 const NimApp = artifacts.require("NimApp");
-const PaymentApp = artifacts.require("PaymentApp");
 const TicTacToeApp = artifacts.require("TicTacToeApp");
 
 const ARTIFACTS = [
   CommitReveal,
   HighRollerApp,
   NimApp,
-  PaymentApp,
   TicTacToeApp
 ];
 
