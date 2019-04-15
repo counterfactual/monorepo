@@ -114,6 +114,8 @@ export const methodNameToImplementation = controllers.reduce(
     const handler = new controller();
 
     acc[controller.methodName] = handler.executeMethod.bind(handler);
+    acc[controller.name] = handler.executeMethod.bind(handler);
+
     return acc;
   },
   {}
