@@ -68,10 +68,10 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 
 The commitments that these two messages rely on have the following parameters:
 
-|       Parameter        |   Type    |                           Description                            |
-| ---------------------- | --------- | ---------------------------------------------------------------- |
+|       Parameter        |   Type    |                           Description                           |
+| ---------------------- | --------- | --------------------------------------------------------------- |
 | **`rootNonceTimeout`** | `uint256` | Relative timeout in blocks after which the root nonce finalizes |
-| **`rootNonceSalt`**    | `bytes32` | Arbitrary value to facilitate uniqueness of the root nonce       |
+| **`rootNonceSalt`**    | `bytes32` | Arbitrary value to facilitate uniqueness of the root nonce      |
 
 The commitment can be visually represented like:
 
@@ -89,10 +89,10 @@ The commitments that these two messages rely on have the following explicit para
 
 Additionally, the following parameters are implicitly computed:
 
-|         Parameter          |   Type    |                                                              Description                                                               |
-| -------------------------- | --------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **`terms`**                | `Terms`   | Set to the default value                                                                                                               |
-| **`freeBalanceCfAddress`** | `bytes32` | Set to the computed value for a counterfactual address of a `PaymentApp` with the initial signing keys of both users and default terms |
+|       Parameter       |   Type    |                                 Description                                 |
+| --------------------- | --------- | --------------------------------------------------------------------------- |
+| **`terms`**           | `Terms`   | ETH with a limit of `2^256-1`                                               |
+| **`appIdentityHash`** | `bytes32` | Identity hash of an `ETHBucket` with the initial signing keys of both users |
 
 The commitment can be visually represented like:
 
