@@ -37,8 +37,8 @@ describe("cf-wallet.js Provider", () => {
   it("throws generic errors coming from Node", async () => {
     expect.assertions(2);
 
-    nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
-      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
+    nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
+      expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
 
       nodeProvider.simulateMessageFromNode({
         requestId: request.requestId,
@@ -48,7 +48,7 @@ describe("cf-wallet.js Provider", () => {
     });
 
     try {
-      await provider.getAppInstances();
+      await provider.rejectInstall("foo");
     } catch (e) {
       expect(e.data.message).toBe("Music too loud");
     }
@@ -57,8 +57,8 @@ describe("cf-wallet.js Provider", () => {
   it("throws an error on message type mismatch", async () => {
     expect.assertions(2);
 
-    nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
-      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
+    nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
+      expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
 
       nodeProvider.simulateMessageFromNode({
         requestId: request.requestId,
@@ -68,7 +68,7 @@ describe("cf-wallet.js Provider", () => {
     });
 
     try {
-      await provider.getAppInstances();
+      await provider.rejectInstall("foo");
     } catch (e) {
       expect(e.data.errorName).toBe("unexpected_message_type");
     }
@@ -93,7 +93,7 @@ describe("cf-wallet.js Provider", () => {
     "throws an error on timeout",
     async () => {
       try {
-        await provider.getAppInstances();
+        await provider.rejectInstall("foo");
       } catch (err) {
         expect(err.type).toBe(EventType.ERROR);
         expect(err.data.errorName).toBe("request_timeout");
@@ -128,28 +128,6 @@ describe("cf-wallet.js Provider", () => {
   });
 
   describe("Node methods", () => {
-    it("can query app instances and return them", async () => {
-      expect.assertions(3);
-      nodeProvider.onMethodRequest(
-        Node.MethodName.GET_APP_INSTANCES,
-        request => {
-          expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
-
-          nodeProvider.simulateMessageFromNode({
-            type: Node.MethodName.GET_APP_INSTANCES,
-            requestId: request.requestId,
-            result: {
-              appInstances: [TEST_APP_INSTANCE_INFO]
-            }
-          });
-        }
-      );
-
-      const instances = await provider.getAppInstances();
-      expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.id);
-    });
-
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
@@ -172,22 +150,20 @@ describe("cf-wallet.js Provider", () => {
 
     it("can install an app instance virtually", async () => {
       expect.assertions(7);
-      const expectedIntermediaries = [
-        "0x6001600160016001600160016001600160016001"
-      ];
+      const expectedIntermediary = "0x6001600160016001600160016001600160016001";
 
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
         expect(request.type).toBe(Node.MethodName.INSTALL_VIRTUAL);
         const params = request.params as Node.InstallVirtualParams;
         expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
-        expect(params.intermediaries).toBe(expectedIntermediaries);
+        expect(params.intermediaries).toBe(expectedIntermediary);
 
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.INSTALL_VIRTUAL,
           requestId: request.requestId,
           result: {
             appInstance: {
-              intermediaries: expectedIntermediaries,
+              intermediaries: expectedIntermediary,
               ...TEST_APP_INSTANCE_INFO
             }
           }
@@ -195,12 +171,12 @@ describe("cf-wallet.js Provider", () => {
       });
       const appInstance = await provider.installVirtual(
         TEST_APP_INSTANCE_INFO.id,
-        expectedIntermediaries
+        expectedIntermediary
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
       expect(appInstance.isVirtual).toBeTruthy();
-      expect(appInstance.intermediaries).toBe(expectedIntermediaries);
+      expect(appInstance.intermediaries).toBe(expectedIntermediary);
     });
 
     it("can reject installation proposals", async () => {
