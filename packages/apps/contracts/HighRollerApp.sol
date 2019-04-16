@@ -56,7 +56,9 @@ contract HighRollerApp is CounterfactualApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(bytes calldata encodedState, address[] calldata signingKeys)
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
     external
     pure
     returns (address)
@@ -68,7 +70,9 @@ contract HighRollerApp is CounterfactualApp {
       signingKeys[uint8(Player.FIRST)];
   }
 
-  function applyAction(bytes calldata encodedState, bytes calldata encodedAction)
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
     external
     pure
     returns (bytes memory)

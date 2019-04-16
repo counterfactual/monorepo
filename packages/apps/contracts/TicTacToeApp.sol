@@ -59,7 +59,9 @@ contract TicTacToeApp is CounterfactualApp {
     return state.winner != GAME_IN_PROGRESS;
   }
 
-  function getTurnTaker(bytes calldata encodedState, address[] calldata signingKeys)
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
     external
     pure
     returns (address)
@@ -68,7 +70,9 @@ contract TicTacToeApp is CounterfactualApp {
     return signingKeys[state.turnNum % 2];
   }
 
-  function applyAction(bytes calldata encodedState, bytes calldata encodedAction)
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
     external
     pure
     returns (bytes memory)
