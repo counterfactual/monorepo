@@ -2070,10 +2070,10 @@
     debug "^3.1.0"
     hosted-git-info "^2.6.0"
 
-"@stencil/core@0.18.1":
-  version "0.18.1"
-  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.18.1.tgz#edd7ff29751c4d37714e5e3b0ce3236d483743a0"
-  integrity sha512-Q5f4TB5OfBL8AYSxtrp9qXdc0vjLGEHGeQlS+afztwobWGvQMvVzpb5Dv+s/dRaIYBaj965by209TveU9ccDuQ==
+"@stencil/core@0.18.1-0":
+  version "0.18.1-0"
+  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.18.1-0.tgz#75f3a6afc19bb161bd6845043ff17410a2288304"
+  integrity sha512-Mcwf9tqSeNuA7MdAFwD+Au4hSteqsLPtn9yBGBWGMbIBGwggtKgUiCsPobqzwwIm8rCCSI5QvcsbaeeehUsGIA==
   dependencies:
     chokidar "2.0.3"
     jsdom "11.11.0"

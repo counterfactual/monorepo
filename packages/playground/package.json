@@ -15,7 +15,7 @@
   "dependencies": {
     "@counterfactual/node": "0.1.15",
     "@counterfactual/types": "0.0.9",
-    "@stencil/core": "0.18.1",
+    "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",
     "@stencil/sass": "0.1.1",
     "eventemitter3": "3.1.0"
