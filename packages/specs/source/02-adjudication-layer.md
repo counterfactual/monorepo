@@ -38,7 +38,9 @@ Here is a plain-english description of why each field exists in this data struct
   - `DISPUTE`: Was opened and the timeout expired (the challenge was finalized)
   - `OFF`: Was finalized explicitly
 
-  Thus, this parameter simply records which state the challenge is in.
+![statechannel statuses](img/statechannel-statuses.svg)
+
+Thus, this parameter simply records which state the challenge is in.
 
 - **`finalizesAt`**: This is the block number at which a challenge is considered to be finalized if there is no reponse from anyone that is able to respond to the challenge.
 
