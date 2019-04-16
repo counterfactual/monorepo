@@ -117,6 +117,13 @@ struct Transaction {
 ## FAQ
 
 ### On-chain Progressions of Off-chain State
+It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In the case of a state machine progression then there is a uniquely non-fault-attributable scenario that can occur:
+
+- Honest party A initiates a challenge on-chain with B after B is unresponsive at nonce `k`
+- B comes back online and tries to update the state of the application by signing a unilateral action (thereby incrementing the nonce to `k + 1`) and sending it to A
+- B _also_ goes to chain and makes an on-chain challenge progression with a _different_ action, thereby incrementing the `disputeNonce` to `1`
+
+A is now in a bizarre spot where he can _either_ respond to the challenge on-chain again (making the `disputeNonce` equal to `2`) or he could sign the state with nonce `k + 1`. In the latter case, the newly doubly-signed (`k + 1`)-versioned state would be able to be submitted on-chain and **overwrite** whatever state was on-chain with `disputeNonce` at `1`.
 
 ### Provably Malicious Challenges
 A challenge for an `n`-party off-chain application is considered to be provably malicious if the `nonce` of the challenge was `k` and someone was able to respond with a state signed by the `latestSubmitter` where the `nonce` of _that challenge response_ was at least `k + 2`.
