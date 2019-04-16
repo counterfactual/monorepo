@@ -1,42 +1,4 @@
-# State Machine Based Applications
-
-The following is a loose description of the concepts we use for an off-chain application. Most importantly, the `AppRegistry` is the actual contract that is responsible for adjudicating a challenge on-chain and it uses an `App` (defined using an `AppDefinition`) to handle cases where adjudication requires on-chain logic to determine state validity.
-
-## AppRegistry
-
-We refer to the contract that adjudicates a dispute in a state channel application as the [`AppRegistry`](#appregistry). This is the most fundamental contract for providing the security guarantees that off-chain state updates of the latest nonce and valid update status can be considered "final". It does this by implementing the challenge-response mechanism.
-
-An app challenge exists in three main states or "statuses", namely `ON`, `OFF` and `DISPUTE`. The `ON` state represents the state where a dispute has not started, while the `OFF` state represents one where a dispute has finished (typically through moving to a terminal app state). In the Solidity code this is implemented as an `enum`:
-
-```solidity
-enum AppStatus {
-  ON,
-  DISPUTE,
-  OFF
-}
-```
-
-The `AppChallenge` struct (which is written to storage in `AppRegistry`) is the encapsulation of all the information needed to know what is the "latest" state pertaining to an application. The fields include `status` a hash of the application's state and a nonce.
-
-```solidity
-struct AppChallenge {
-  AppStatus status;
-  bytes32 appStateHash;
-  uint256 finalizesAt;
-  uint256 nonce;
-  ...
-}
-```
-
-In addition, an app in a `DISPUTE` state has a `finalizesAt` field representing the block height after which the conditional transfer succeeds. Hence, the functions in `AppRegistry.sol` distinguish between four logical states: `ON`, `DISPUTE`, `DISPUTE-TIMED-OUT` and `OFF`.
-
-The first two logical statuses (`ON`, `DISPUTE`) are also called “channel on”, and the other two (`DISPUTE-TIMED-OUT`, `OFF`) are called “channel off”.
-
-![statechannel statuses](img/statechannel-statuses.svg)
-
-> TODO: enumerate methods defined on AppRegistry.sol that can change status
-
-## AppDefinitions
+# `AppDefinition`
 
 Counterfactual is opinionated in terms of which types of applications it supports being installed by supporting stateless contracts that implement the interface for an `App` as defined in the [`AppRegistry`](#appregistry) contract. To understand why these limitations exist, please refer to the [Limitations of State Channels](#limitations) section.
 
