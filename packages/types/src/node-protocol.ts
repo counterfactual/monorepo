@@ -22,6 +22,31 @@ export namespace Node {
     ERROR = "error"
   }
 
+  export enum OpName {
+    ADD = "add",
+    DEPOSIT = "deposit",
+    GET = "get",
+    GET_STATE = "getState",
+    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_FREE_BALANCE_FOR_STATE = "getFreeBalanceForState",
+    INSTALL = "install",
+    INSTALL_VIRTUAL = "installVirtual",
+    REJECT = "reject",
+    REMOVE = "remove",
+    TAKE_ACTION = "takeAction",
+    UNINSTALL = "uninstall",
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
+    UPDATE = "update",
+    UPDATE_STATE = "updateState",
+    WITHDRAW = "withdraw"
+  }
+
+  export enum TypeName {
+    APP = "app",
+    CHANNEL = "channel",
+    PROPOSAL = "proposal"
+  }
+
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",
@@ -299,8 +324,21 @@ export namespace Node {
     requestId: string;
   };
 
-  export type MethodRequest = MethodMessage & {
-    params: MethodParams;
+  export type MethodRef = {
+    type: TypeName;
+    id?: string;
+  };
+
+  export type MethodData = {
+    attributes: any;
+  }
+
+  export type MethodRequest = {
+    requestId: string;
+    op: OpName;
+    ref: MethodRef;
+    data?: MethodData;
+    params?: MethodParams;
   };
 
   export type MethodResponse = MethodMessage & {

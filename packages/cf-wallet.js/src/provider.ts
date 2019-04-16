@@ -53,10 +53,12 @@ export class Provider {
    * @return Array of currently installed app instances
    */
   async getAppInstances(): Promise<AppInstance[]> {
-    const response = await this.callRawNodeMethod(
-      Node.MethodName.GET_APP_INSTANCES,
-      {}
-    );
+    const response = await this.callRawNodeMethod({
+      op: Node.OpName.GET,
+      ref: {
+        type: Node.TypeName.APP
+      }
+    });
     const result = response.result as Node.GetAppInstancesResult;
     return Promise.all(
       result.appInstances.map(info =>
@@ -78,8 +80,12 @@ export class Provider {
    * @return Installed AppInstance
    */
   async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
-      appInstanceId
+    const response = await this.callRawNodeMethod({
+      op: Node.OpName.INSTALL,
+      ref: {
+        type: Node.TypeName.APP,
+        id: appInstanceId
+      }
     });
     const { appInstance } = response.result as Node.InstallResult;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
@@ -95,20 +101,25 @@ export class Provider {
    * @async
    *
    * @param appInstanceId ID of the app instance to be installed, generated with [[AppFactory.proposeInstallVirtual]].
-   * @param intermediaries Array of addresses of intermediary peers to route installation through
+   * @param intermediaryIdentifier address of intermediary peer to route installation through
    * @return Installed AppInstance
    */
   async installVirtual(
     appInstanceId: AppInstanceID,
-    intermediaries: Address[]
+    intermediaryIdentifier: Address
   ): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(
-      Node.MethodName.INSTALL_VIRTUAL,
-      {
-        appInstanceId,
-        intermediaries
+    const response = await this.callRawNodeMethod({
+      op: Node.OpName.INSTALL,
+      ref: {
+        type: Node.TypeName.APP,
+        id: appInstanceId
+      },
+      data: {
+        attributes: {
+          intermediaryIdentifier
+        }
       }
-    );
+    });
     const { appInstance } = response.result as Node.InstallVirtualResult;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
@@ -121,8 +132,16 @@ export class Provider {
    * @param appInstanceId ID of the app instance to reject
    */
   async rejectInstall(appInstanceId: AppInstanceID) {
-    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
-      appInstanceId
+    await this.callRawNodeMethod({
+      op: Node.OpName.REJECT,
+      ref: {
+        type: Node.TypeName.PROPOSAL
+      },
+      data: {
+        attributes: {
+          appInstanceId
+        }
+      }
     });
   }
 
@@ -168,16 +187,13 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    methodName: Node.MethodName,
-    params: Node.MethodParams
+    request: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf().toString();
+
+    request.requestId = requestId;
+
     return new Promise<Node.MethodResponse>((resolve, reject) => {
-      const request: Node.MethodRequest = {
-        requestId,
-        params,
-        type: methodName
-      };
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
           return reject({
@@ -185,12 +201,12 @@ export class Provider {
             data: response.data
           });
         }
-        if (response.type !== methodName) {
+        if (response.type !== type) {
           return reject({
             type: EventType.ERROR,
             data: {
               errorName: "unexpected_message_type",
-              message: `Unexpected response type. Expected ${methodName}, got ${
+              message: `Unexpected response type. Expected ${type}, got ${
                 response.type
               }`
             }
@@ -231,10 +247,13 @@ export class Provider {
       if (info) {
         newInfo = info;
       } else {
-        const { result } = await this.callRawNodeMethod(
-          Node.MethodName.GET_APP_INSTANCE_DETAILS,
-          { appInstanceId: id }
-        );
+        const { result } = await this.callRawNodeMethod({
+          op: Node.OpName.GET_STATE,
+          ref: {
+            type: Node.TypeName.APP,
+            id: appInstanceId
+          }
+        });
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
       }
       this.appInstances[id] = new AppInstance(newInfo, this);
