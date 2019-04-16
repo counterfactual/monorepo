@@ -10,7 +10,7 @@ contract MAppRegistryCore {
   using Transfer for Transfer.Transaction;
 
   // A mapping of appIdentityHash to AppChallenge structs which represents
-  // the current on-chain status of some particular applications state.
+  // the current on-chain status of some particular application's state.
   mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
 
   // A mapping of appIdentityHash to Transaction structs which represents
