@@ -79,7 +79,7 @@ Here is a diagram that shows how a resolution looks presently for a game of Tic-
 
 ## AppDefinition
 
-To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. To be specific, the `AppDefinition` interface is one which can be implemented by a developer that is interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./02-adjudication-layer.md)).
+To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. The `AppDefinition` interface is implemented by a developer interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./02-adjudication-layer.md)).
 
 ### Resolution Function
 
