@@ -53,7 +53,7 @@ struct ETHPaymentChannelState {
 
 As it has been mentioned before, some kinds of applications require there be a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that is described via logical states and allowed actions which act as edges between logical states; a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
 
-In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be legally taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
+In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
 
 The ultimate purpose of these functions is to ensure the following:
 
