@@ -37,7 +37,7 @@
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
     "axios": "^0.18.0",
-    "escape-string-regexp": "^1.0.5",
+    "escape-string-regexp": "^2.0.0",
     "firebase-server": "^1.0.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.16.3",
