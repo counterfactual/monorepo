@@ -34,7 +34,7 @@ For Tic-Tac-Toe then these can be simply expressed as:
 - `playerX` may place an X if it is X's turn based on the `board` state (and vice versa)
 - The state is "terminal" if there are 3 in a row of X's or O's on the board or the board is full
 
-In the next few sections, we define how in Counterfactual we define, resolve, and progress state in general.
+In the next sections, we define how in Counterfactual we define, resolve, and progress state.
 
 ## Defining State
 
