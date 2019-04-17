@@ -33,6 +33,6 @@
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.6",
     "ts-mocha": "6.0.0",
-    "tslint": "5.15.0"
+    "tslint": "5.16.0"
   }
 }
