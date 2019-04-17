@@ -128,7 +128,7 @@ In Tic-Tac-Toe, the state is terminal if the game has been won or the board is f
 
 ### Action Application Function
 
-Finally, the most critical function for progressing state is the `applyAction` function which as described above takes some encoded state and an encoded action and is expected to return a new encoded state object. The [encoding and decoding](#abiencoderv2) functionality provided in Solidity are helpful here.
+Finally, the most critical function for progressing state is the `applyAction` function which as described above takes some encoded state and an encoded action and returns a new encoded state object. The [encoding and decoding](#abiencoderv2) functionality provided in Solidity are helpful here.
 
 ```solidity
 function applyAction(bytes memory, bytes memory) public pure returns (bytes memory);
