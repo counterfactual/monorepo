@@ -1,10 +1,5 @@
 [
   {
-    "contractName": "CommitRevealApp",
-    "address": "0xE75443A1074054b7AD6f880028C76F63CA32E4EE",
-    "transactionHash": "0xb08dab55918a4f78e9f745866f32d1cbf7e3e57c1d5c9b4d9d9f069ea5da8e65"
-  },
-  {
     "contractName": "HighRollerApp",
     "address": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
     "transactionHash": "0xc0ca508261cdb2401542a8cacf58e3430cbe0ec669887cee1fe98023ac7894a1"
