@@ -83,7 +83,7 @@ To address all of the above requirements of state channel applications, we intro
 
 ### Resolution Function
 
-There is a single function which _must_ be implemented in the interface. This function is essentially providing the resolution functionality discussed above. The function signature looks like this:
+There is a single function which _must_ be implemented in the interface. This function provides the resolution functionality discussed above. The function signature is:
 
 ```solidity
 function resolve(bytes memory, Transfer.Terms memory) public view returns (Transfer.Transaction);
