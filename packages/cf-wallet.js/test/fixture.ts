@@ -8,7 +8,7 @@ export const TEST_XPUBS = [
 ];
 
 export class TestNodeProvider implements INodeProvider {
-  public postedMessages: Node.Message[] = [];
+  public postedMessages: (Node.Message | Node.JsonApiMethodRequest)[] = [];
   readonly callbacks: ((message: Node.Message) => void)[] = [];
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
@@ -27,8 +27,8 @@ export class TestNodeProvider implements INodeProvider {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message: Node.JsonApiMethodRequest) {
     this.postedMessages.push(message);
-    this.messageEmitter.emit(message.type, message);
+    this.messageEmitter.emit(message.ref.type, message);
   }
 }

@@ -2,6 +2,7 @@ import {
   Address,
   AppInstanceID,
   AppInstanceInfo,
+  BlockchainAsset,
   INodeProvider,
   Node
 } from "@counterfactual/types";
@@ -121,6 +122,98 @@ export class Provider {
   }
 
   /**
+   * Creates a channel by deploying a multisignature wallet contract.
+   *
+   * @async
+   *
+   * @param owners the addresses who should be the owners of the multisig
+   */
+  async createChannel(owners: Address[]) {
+    await this.callRawNodeMethod({
+      op: Node.OpName.ADD,
+      ref: {
+        type: Node.TypeName.CHANNEL
+      },
+      data: {
+        attributes: {
+          owners
+        }
+      }
+    });
+  }
+
+  /**
+   * Deposits the specified amount of funds into the channel
+   * with the specified multisig address.
+   *
+   * @async
+   *
+   * @param multisigAddress Address of the state channel multisig
+   * @param amount BigNumber representing the deposit's value
+   */
+  async deposit(multisigAddress: Address, amount: BigNumber) {
+    await this.callRawNodeMethod({
+      op: Node.OpName.DEPOSIT,
+      ref: {
+        type: Node.TypeName.CHANNEL
+      },
+      data: {
+        attributes: {
+          multisigAddress,
+          amount,
+          notifyCounterparty: true
+        }
+      }
+    });
+  }
+
+  /**
+   * Withdraws the specified amount of funds into the channel
+   * with the specified multisig address.
+   *
+   * @async
+   *
+   * @param multisigAddress Address of the state channel multisig
+   * @param amount BigNumber representing the deposit's value
+   */
+  async withdraw(multisigAddress: Address, amount: BigNumber) {
+    await this.callRawNodeMethod({
+      op: Node.OpName.WITHDRAW,
+      ref: {
+        type: Node.TypeName.CHANNEL
+      },
+      data: {
+        attributes: {
+          multisigAddress,
+          amount
+        }
+      }
+    });
+  }
+
+  /**
+   * Queries for the current free balance state of the channel
+   * with the specified multisig address.
+   *
+   * @async
+   *
+   * @param multisigAddress Address of the state channel multisig
+   */
+  async getFreeBalanceState(multisigAddress: Address) {
+    await this.callRawNodeMethod({
+      op: Node.OpName.GET_FREE_BALANCE_STATE,
+      ref: {
+        type: Node.TypeName.CHANNEL
+      },
+      data: {
+        attributes: {
+          multisigAddress
+        }
+      }
+    });
+  }
+
+  /**
    * Subscribe to event.
    *
    * @async
@@ -162,7 +255,7 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    request: Node.MethodRequest
+    request: Node.JsonApiMethodRequest
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf().toString();
 
@@ -174,17 +267,6 @@ export class Provider {
           return reject({
             type: EventType.ERROR,
             data: response.data
-          });
-        }
-        if (response.type !== type) {
-          return reject({
-            type: EventType.ERROR,
-            data: {
-              errorName: "unexpected_message_type",
-              message: `Unexpected response type. Expected ${type}, got ${
-                response.type
-              }`
-            }
           });
         }
         resolve(response as Node.MethodResponse);
@@ -226,7 +308,7 @@ export class Provider {
           op: Node.OpName.GET_STATE,
           ref: {
             type: Node.TypeName.APP,
-            id: appInstanceId
+            id
           }
         });
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;

@@ -14,7 +14,7 @@ import {
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
-  sendMessage(message: Node.Message);
+  sendMessage(message: Node.Message | Node.JsonApiMethodRequest);
 }
 
 export namespace Node {
@@ -324,6 +324,14 @@ export namespace Node {
     requestId: string;
   };
 
+  export type MethodRequest = MethodMessage & {
+    params: MethodParams;
+  };
+
+  export type MethodResponse = MethodMessage & {
+    result: MethodResult;
+  };
+
   export type MethodRef = {
     type: TypeName;
     id?: string;
@@ -333,16 +341,12 @@ export namespace Node {
     attributes: any;
   }
 
-  export type MethodRequest = {
-    requestId: string;
+  export type JsonApiMethodRequest = {
+    requestId?: string;
     op: OpName;
     ref: MethodRef;
     data?: MethodData;
     params?: MethodParams;
-  };
-
-  export type MethodResponse = MethodMessage & {
-    result: MethodResult;
   };
 
   export type Event = {
