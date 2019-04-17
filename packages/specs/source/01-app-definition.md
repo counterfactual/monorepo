@@ -89,7 +89,7 @@ There is a single function which _must_ be implemented in the interface. This fu
 function resolve(bytes memory, Transfer.Terms memory) public view returns (Transfer.Transaction);
 ```
 
-The first argument which is of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will likely want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
+The first argument of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will likely want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
 
 ```solidity
 function resolve(bytes memory encodedState, Transfer.Terms memory terms)
