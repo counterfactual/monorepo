@@ -4,17 +4,17 @@ Counterfactual's adjudication layer uses a singleton contract called the [`AppRe
 
 The implementation that is inside of this repository has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface. Although this is the case, the core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
 
-The two core concepts of the adjudication layer are **challenges** and **resolutions**. As one would surmise from the names, challenges are to do with challenging _the latest state_ of some off-chain application and resolutions are about finalizing _the distribution_ of some state deposits that depend on the state of an off-chain application. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe and a resolution might be about who is rewarded with the 2 ETH allocated to the off-chain application.
+The two core concepts of the adjudication layer are **challenges** and **resolutions**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application and resolutions _distribute state deposits_ based on the resolution. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe and a resolution might be about who is rewarded with the 2 ETH allocated to the off-chain application.
 
-In some other frameworks, these two concepts can be implicitly grouped together in such a way that the resolution might be _a part of the state itself_. From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
+> In some other frameworks, these two concepts can be implicitly grouped together in such a way that the resolution might be _a part of the state itself_. From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
 
 ## Challenges
 
-Simply put, a challenge that is put on-chain indicates a failure of some state channel users to follow the protocol. In most cases, it represents a failure of responsiveness.
+A challenge that is put on-chain must result from a failure of some state channel users to follow the protocol. In most cases, it represents a failure of responsiveness.
 
 ### Data Structure
 
-In the `AppRegistry`, it is represented by the following data structure:
+In the `AppRegistry`, a challenge is represented by the following data structure:
 
 ```solidity
 struct AppChallenge {
@@ -30,7 +30,7 @@ struct AppChallenge {
 
 Where `AppStatus` is one of `ON`, `OFF`, or `DISPUTE`.
 
-Here is a plain-english description of why each field exists in this data structure:
+Here is a description of why each field exists in this data structure:
 
 - **`status`**: A challenge exists in one of four logical states.
   - `ON`: Has never been opened (the "null" challenge and default for all off-chain apps)
@@ -68,13 +68,13 @@ struct AppIdentity {
 }
 ```
 
-Here is a plain-english description of why each field exists in this data structure:
+Here is a description of why each field exists in this data structure:
 
-- **`owner`**: As has already been mentioned, the on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field is simply a reference to the address of that multisig. It is used in the implementation to authorize any function call where `msg.sender == owner`; considering these calls as having achived unanimous consent.
+- **`owner`**: As has already been mentioned, the on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. It is used to treat any function call where `msg.sender == owner` as having achived unanimous consent.
 
-- **`signingKeys`**: In addition to using `owner` to authorize a function call (whereby the signature verification is done inside the multisignature wallet contract), it is also possible to pass in signatures directly into the `AppRegistry` itself. In these cases, this property is used to validate signatures against to consider a function call as "authorized".
+- **`signingKeys`**: In addition to using `owner` to authorize a function call (whereby the signature verification is done inside the multisignature wallet contract), it is also possible to pass in signatures directly into the `AppRegistry` itself. In these cases, this field is used to validate signatures against to consider a function call as "authorized".
 
-- **`appDefinitionAddress`**: This is a pointer to a contract that is either already deployed or counterfactually instantiated using `CREATE2` pertaining to an `AppDefinition`. Essentially, this is the single field which links an application's that could be challenged to the logic that describes its state machine (i.e., the `AppDefinition`).
+- **`appDefinitionAddress`**: This is the address ofthe app definition contract.
 
 - **`termsHash`**: An application must adhere to some terms which describe what the _resolution_ of the application (should it ever be challenged on-chain) would need to adhere to. The danger that requires this strict adherence is that _any developer_ can write a `resolve` function for an application and this resolution will be executed in the scope of a `DELEGATECALL` on the multisignature wallet. Therefore, this property acts as a commitment by all parties to adhere to some `Terms` (which `termHash` is the hash of) to be verified against.
 
