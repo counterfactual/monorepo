@@ -108,7 +108,7 @@ In addition to the `resolve` method, the `AppDefinition` interface also allows f
 
 ### Turn Taking Function
 
-To be able to identify who is uniquely allowed to progress from one state to the next, a turn taking function can be implemented which returns the specific address that is expected to have signed a particular state update. It accepts two arguments: the state of the application and the array of all signing keys that have been allocated to the application. Therefore, the function must return the key in the array of signing keys that it expects to sign an update.
+To identify who is uniquely allowed to progress from one state to the next, a turn taking function can be implemented which returns the specific address that is expected to have signed a particular state update. It accepts two arguments: the state of the application and the array of all signing keys that have been allocated to the application. Therefore, the function must return the key in the array of signing keys that it expects to sign an update.
 
 ```solidity
 function getTurnTaker(bytes memory, address[] memory) public pure returns (address);
