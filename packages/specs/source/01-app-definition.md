@@ -26,17 +26,17 @@ To express this important difference we introduce some additional functionality 
 - A function to define whether an action can be legally taken by a participant
 - A function to determine is a state is indeed one that could be considered "terminal"
 
-For Tic-Tac-Toe then these can be simply expressed as:
+For Tic-Tac-Toe then these can be expressed as:
 
 - Allowed actions are to place an X on the board or place an O on the board
 - `playerX` may place an X if it is X's turn based on the `board` state (and vice versa)
 - The state is "terminal" if there are 3 in a row of X's or O's on the board or the board is full
 
-In the next few sections, we define how in Counterfactual we define, resolve, and progress state in general.
+In the next sections, we define how in Counterfactual we define, resolve, and progress state.
 
 ## Defining State
 
-A state channel is fundamentally about progressing a single state object. Therefore, in the Counterfactual framework, we center everything around a single `bytes` object. For the sake of performing computation on this object (e.g., evalutating if there is a row of X's on a Tic-Tac-Toe board) then we encode it using the ABI specification that the Solidity programming language offers full support for. In Solidity particular, we use the built-in `ABIEncoderV2` language feature which allows for developers to define their state structures using a `struct` definition and encode and decode these objects as needed. For example, in our payment channel from above we might have the following object:
+A state channel is fundamentally about progressing a single state object. Therefore, in the Counterfactual framework, we center everything around a single `bytes` object. For the sake of performing computation on this object (e.g., evaluating if there is a row of X's on a Tic-Tac-Toe board) we interpret it as an ABI-encoded value of a specific type using the built-in `ABIEncoderV2` language feature. THIS allows developers to define their state structures using a `struct` definition and encode and decode these objects as needed. For example, in our payment channel from above we might have the following object:
 
 ```solidity
 struct ETHPaymentChannelState {
@@ -49,15 +49,15 @@ struct ETHPaymentChannelState {
 
 ## Progressing State
 
-As it has been mentioned before, some kinds of applications require there be a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that is described via logical states and allowed actions which act as edges between logical states; a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
+As has been mentioned before, some kinds of applications require a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that consists of logical states and allowed actions (transitions between states); a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
 
-In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be legally taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
+In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
 
 The ultimate purpose of these functions is to ensure the following:
 
 - It should always be extremely explicit what the exact rules of the state channel application that all parties are abiding by are
 - There should always be a single logical turn taker for any given state ([concurrent state updates](#concurrent-state-updates) are disallowed)
-- It should be possible, in the strictly least number of on-chain transactions, use the adjudication layer to fairly resolve a state channel application (without unnecessary gas expenditure)
+- It should be possible, in the least number of on-chain transactions, use the adjudication layer to fairly resolve a state channel application (without unnecessary gas expenditure)
 
 Here is a helpful diagram for visualizing the nature of such an `applyAction` function:
 
@@ -65,7 +65,7 @@ Here is a helpful diagram for visualizing the nature of such an `applyAction` fu
 
 ## Resolving State
 
-For any given state channel application is the notion of a resolution. This is a critical concept usually because the resolution can be tied to interesting economic parameters that create the incentives for the behaviour of users in the application to begin with. For example, users will remain online and play a game of Tic-Tac-Toe because they know the rules of the game are deciding who will take home some financial reward. In the Counterfactual framework, this reward is defined in terms of an internal transaction that is executed by the multisignature wallet that is the holder of the state deposits.
+A state channel application defines a resolution. This is a critical concept usually because the resolution can be tied to interesting economic parameters that create the incentives for the behaviour of users in the application to begin with. For example, users will remain online and play a game of Tic-Tac-Toe because they know the rules of the game are deciding who will take home some financial reward. In the Counterfactual framework, this reward is defined in terms of an internal transaction that is executed by the multisignature wallet that is the holder of the state deposits.
 
 When writing a state channel application presently, we require that the resolution of an application be directly tied one-to-one to some particular state that is being progressed. For example, when defining a game of Tic-Tac-Toe, we ask that the resolution function which checks for the winner specifically return a data structure that can be interpretted for sending ETH to the user that won.
 
@@ -77,17 +77,17 @@ Here is a diagram that shows how a resolution looks presently for a game of Tic-
 
 ## AppDefinition
 
-To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. To be specific, the `AppDefinition` interface is one which can be implemented by a developer that is interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./02-adjudication-layer.md)).
+To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. The `AppDefinition` interface is implemented by a developer interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./02-adjudication-layer.md)).
 
 ### Resolution Function
 
-There is a single function which _must_ be implemented in the interface. This function is essentially providing the resolution functionality discussed above. The function signature looks like this:
+There is a single function which _must_ be implemented in the interface. This function provides the resolution functionality discussed above. The function signature is:
 
 ```solidity
 function resolve(bytes memory, Transfer.Terms memory) public view returns (Transfer.Transaction);
 ```
 
-The first argument which is of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will likely want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
+The first argument of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will likely want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
 
 ```solidity
 function resolve(bytes memory encodedState, Transfer.Terms memory terms)
@@ -106,7 +106,7 @@ In addition to the `resolve` method, the `AppDefinition` interface also allows f
 
 ### Turn Taking Function
 
-To be able to identify who is uniquely allowed to progress from one state to the next, a turn taking function can be implemented which returns the specific address that is expected to have signed a particular state update. It accepts two arguments: the state of the application and the array of all signing keys that have been allocated to the application. Therefore, the function must return the key in the array of signing keys that it expects to sign an update.
+To identify who is uniquely allowed to progress from one state to the next, a turn taking function can be implemented which returns the specific address that is expected to have signed a particular state update. It accepts two arguments: the state of the application and the array of all signing keys that have been allocated to the application. Therefore, the function must return the key in the array of signing keys that it expects to sign an update.
 
 ```solidity
 function getTurnTaker(bytes memory, address[] memory) public pure returns (address);
@@ -126,7 +126,7 @@ In Tic-Tac-Toe, the state is terminal if the game has been won or the board is f
 
 ### Action Application Function
 
-Finally, the most critical function for progressing state is the `applyAction` function which as described above takes some encoded state and an encoded action and is expected to return a new encoded state object. The [encoding and decoding](#abiencoderv2) functionality provided in Solidity are helpful here.
+Finally, the most critical function for progressing state is the `applyAction` function which as described above takes some encoded state and an encoded action and returns a new encoded state object. The [encoding and decoding](#abiencoderv2) functionality provided in Solidity are helpful here.
 
 ```solidity
 function applyAction(bytes memory, bytes memory) public pure returns (bytes memory);
