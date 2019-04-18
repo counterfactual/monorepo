@@ -185,10 +185,10 @@ export async function connectNode(
       },
       requestId: generateUUID()
     };
-console.log("received request")
+    console.log("received request");
     try {
       await node.call(request.type, request);
-      console.log("install complete")
+      console.log("install complete");
       node.on(NodeTypes.EventName.UPDATE_STATE, async updateEventData => {
         if (updateEventData.data.appInstanceId === appInstanceId) {
           respond(node, botPublicIdentifier, updateEventData);

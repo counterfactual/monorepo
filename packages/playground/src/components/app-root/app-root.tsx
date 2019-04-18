@@ -519,7 +519,7 @@ export class AppRoot {
       window.postMessage(
         {
           type: "PLUGIN_MESSAGE",
-          data: { message: "metamask:request:balances", multisigAddress }
+          data: { multisigAddress, message: "metamask:request:balances" }
         },
         "*"
       );
@@ -544,7 +544,6 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
-    let didSendSigner = false;
     let didRequestTransaction = false;
     return new Promise<string>((resolve, reject) => {
       const cb = async event => {
@@ -559,25 +558,22 @@ export class AppRoot {
           } else if (
             event.data.data.message === "metamask:request:signer:address"
           ) {
-            if (!didSendSigner) {
-              // didSendSigner = true;
-              console.log("Request for provider signer address");
-              const { signer } = this.walletState;
-              if (!signer) {
-                throw new Error("No signer in getSigner listener");
-              }
-              const address = await signer.getAddress();
-              window.postMessage(
-                {
-                  type: "PLUGIN_MESSAGE",
-                  data: {
-                    data: address,
-                    message: "metamask:response:signer:address"
-                  }
-                },
-                "*"
-              );
+            console.log("Request for provider signer address");
+            const { signer } = this.walletState;
+            if (!signer) {
+              throw new Error("No signer in getSigner listener");
             }
+            const address = await signer.getAddress();
+            window.postMessage(
+              {
+                type: "PLUGIN_MESSAGE",
+                data: {
+                  data: address,
+                  message: "metamask:response:signer:address"
+                }
+              },
+              "*"
+            );
           } else if (
             event.data.data.message ===
             "metamask:request:signer:sendTransaction"
