@@ -1,8 +1,6 @@
 # State Channel Applications
 
-When we discuss building off-chain applications in general, we usually reference easy-to-understand examples such as payment channels, turn-based games like Tic-Tac-Toe, or well understood blockchain use cases like mixers. For each of these examples, we attempt to isolate their core functionality inside of a single logical container inside the Counterfactual framework. We label these containers as **Apps** inside the framework.
-
-An App is, quite simply, a well-defined blockchain-native application that can be used within the contexts of a state channel. It has the following properties at a minimum:
+When we discuss building off-chain applications in general, we usually reference easy-to-understand examples such as payment channels, turn-based games like Tic-Tac-Toe, or well understood blockchain use cases like mixers. For each of these examples, we attempt to isolate their core functionality inside of a single logical container inside the Counterfactual framework. We label these containers as **Apps** inside the framework. APps have the following properties at a minimum:
 
 - A fixed set of participants / users
 - An encoding type for its state
