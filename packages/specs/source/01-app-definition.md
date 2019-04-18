@@ -38,7 +38,7 @@ In the next sections, we define how in Counterfactual we define, resolve, and pr
 
 ## Defining State
 
-A state channel is fundamentally about progressing a single state object. Therefore, in the Counterfactual framework, we center everything around a single `bytes` object. For the sake of performing computation on this object (e.g., evalutating if there is a row of X's on a Tic-Tac-Toe board) then we encode it using the ABI specification that the Solidity programming language offers full support for. In Solidity particular, we use the built-in `ABIEncoderV2` language feature which allows for developers to define their state structures using a `struct` definition and encode and decode these objects as needed. For example, in our payment channel from above we might have the following object:
+A state channel is fundamentally about progressing a single state object. Therefore, in the Counterfactual framework, we center everything around a single `bytes` object. For the sake of performing computation on this object (e.g., evaluating if there is a row of X's on a Tic-Tac-Toe board) we interpret it as an ABI-encoded value of a specific type using the built-in `ABIEncoderV2` language feature. THIS allows developers to define their state structures using a `struct` definition and encode and decode these objects as needed. For example, in our payment channel from above we might have the following object:
 
 ```solidity
 struct ETHPaymentChannelState {
@@ -51,7 +51,7 @@ struct ETHPaymentChannelState {
 
 ## Progressing State
 
-As it has been mentioned before, some kinds of applications require there be a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that is described via logical states and allowed actions which act as edges between logical states; a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
+As has been mentioned before, some kinds of applications require a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that consists of logical states and allowed actions (transitions between states); a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
 
 In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
 
@@ -59,7 +59,7 @@ The ultimate purpose of these functions is to ensure the following:
 
 - It should always be extremely explicit what the exact rules of the state channel application that all parties are abiding by are
 - There should always be a single logical turn taker for any given state ([concurrent state updates](#concurrent-state-updates) are disallowed)
-- It should be possible, in the strictly least number of on-chain transactions, use the adjudication layer to fairly resolve a state channel application (without unnecessary gas expenditure)
+- It should be possible, in the least number of on-chain transactions, use the adjudication layer to fairly resolve a state channel application (without unnecessary gas expenditure)
 
 Here is a helpful diagram for visualizing the nature of such an `applyAction` function:
 
@@ -67,7 +67,7 @@ Here is a helpful diagram for visualizing the nature of such an `applyAction` fu
 
 ## Resolving State
 
-For any given state channel application is the notion of a resolution. This is a critical concept usually because the resolution can be tied to interesting economic parameters that create the incentives for the behaviour of users in the application to begin with. For example, users will remain online and play a game of Tic-Tac-Toe because they know the rules of the game are deciding who will take home some financial reward. In the Counterfactual framework, this reward is defined in terms of an internal transaction that is executed by the multisignature wallet that is the holder of the state deposits.
+A state channel application defines a resolution. This is a critical concept usually because the resolution can be tied to interesting economic parameters that create the incentives for the behaviour of users in the application to begin with. For example, users will remain online and play a game of Tic-Tac-Toe because they know the rules of the game are deciding who will take home some financial reward. In the Counterfactual framework, this reward is defined in terms of an internal transaction that is executed by the multisignature wallet that is the holder of the state deposits.
 
 When writing a state channel application presently, we require that the resolution of an application be directly tied one-to-one to some particular state that is being progressed. For example, when defining a game of Tic-Tac-Toe, we ask that the resolution function which checks for the winner specifically return a data structure that can be interpretted for sending ETH to the user that won.
 
