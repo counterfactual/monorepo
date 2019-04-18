@@ -9,8 +9,8 @@ When we discuss building off-chain applications in general, we usually reference
 The most basic type of App is a 2-person ETH payment channel. In that case we have:
 
 - Alice and Bob as the users
-- An encoding type of `tuple(address alice, address bob, uint256 aBal, uint256 bBal)`[†](#faq)
-- The resolution function sends `aBal` Wei to `alice` and sends `bBal` Wei to `bob` `bBal`
+- An encoding type of `tuple(address aliceAddr, address bobAddr, uint256 aBal, uint256 bBal)`[†](#faq)
+- The resolution function sends `aBal` Wei to `aliceAddr` and sends `bBal` Wei to `bobAddr`
 
 A slightly more complicated example would be a Tic-Tac-Toe game:
 
