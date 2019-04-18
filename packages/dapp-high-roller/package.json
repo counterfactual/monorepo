@@ -31,7 +31,7 @@
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
     "puppeteer": "1.14.0",
-    "typescript": "3.4.3",
+    "typescript": "3.4.4",
     "workbox-build": "3.4.1"
   }
 }
