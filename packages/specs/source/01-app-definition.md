@@ -28,7 +28,7 @@ To express this important difference we introduce some additional properties tha
 - A function to define whether an action can be legally taken by a participant
 - A function to determine is a state is indeed one that could be considered "terminal"
 
-For Tic-Tac-Toe then these can be simply expressed as:
+For Tic-Tac-Toe then these can be expressed as:
 
 - Allowed actions are to place an X on the board or place an O on the board
 - `playerX` may place an X if it is X's turn based on the `board` state (and vice versa)
