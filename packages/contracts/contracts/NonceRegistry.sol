@@ -1,4 +1,4 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 pragma experimental "ABIEncoderV2";
 
 
@@ -45,6 +45,7 @@ contract NonceRegistry {
 
   /// @notice Set a nonce in the mapping.
   /// Trigger the timeout period to begin if the nonce is set for the first time.
+  /// @param timeout The number of blocks before the nonce finalizes
   /// @param salt A salt used to generate the nonce key
   /// @param nonceValue A nonce at which to set the computed key's value in the mapping
   function setNonce(uint256 timeout, bytes32 salt, uint256 nonceValue)
@@ -66,6 +67,8 @@ contract NonceRegistry {
   }
 
   /// @notice Computes a unique key for the particular salt and msg.sender
+  /// @param sender The message sender that set the nonce
+  /// @param timeout The number of blocks before the nonce finalizes
   /// @param salt A salt used to generate the nonce key
   /// @return A unique nonce key derived from the salt and msg.sender
   function computeKey(address sender, uint256 timeout, bytes32 salt)

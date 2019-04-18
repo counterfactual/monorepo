@@ -84,8 +84,7 @@ export namespace Node {
     NonceRegistry: Address;
     AppRegistry: Address;
     // App-specific
-    PaymentApp: Address;
-    ETHBalanceRefund: Address;
+    ETHBalanceRefundApp: Address;
   };
 
   export enum ErrorType {

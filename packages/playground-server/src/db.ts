@@ -20,6 +20,48 @@ const DATABASE_CONFIGURATION: knex.Config = {
   useNullAsDefault: process.env.DB_FILE ? true : false
 };
 
+async function runMigration() {
+  const db = getDatabase();
+  await db.schema.createTable("users", table => {
+    table.uuid("id");
+    table.string("username");
+    table.string("email");
+    table.string("eth_address");
+    table.string("multisig_address");
+    table.string("node_address");
+    table.string("transaction_hash");
+    table.unique(["username"], "uk_users__username");
+  });
+}
+
+export async function detectDBAndSchema() {
+  const relation = "users";
+  const db = getDatabase();
+
+  try {
+    if (!(await db.schema.hasTable(relation))) {
+      await runMigration();
+    }
+  } catch (e) {
+    if (e.code === "ECONNREFUSED") {
+      Log.error("Failed to connect to database", {
+        tags: {
+          connection: DATABASE_CONFIGURATION.connection
+        }
+      });
+      Log.error(
+        "Spin up a database at the connection string or specify an existing database via exporting the DB_CONNECTION_STRING environment variable",
+        {}
+      );
+    } else {
+      Log.error("Failed to determine if schema is correct", {
+        tags: { error: e }
+      });
+    }
+    process.exit(1);
+  }
+}
+
 export function getDatabase() {
   Log.debug("Connected to database", {});
   return knex(DATABASE_CONFIGURATION);
@@ -418,6 +460,54 @@ export async function bindTransactionHashToUser(
     });
 
     return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
+export async function storePlaygroundSnapshot(snapshot: any): Promise<boolean> {
+  const db = getDatabase();
+
+  const query = db("playground_snapshot")
+    .delete()
+    .insert({ snapshot: Buffer.from(JSON.stringify(snapshot)) });
+
+  try {
+    await query;
+
+    Log.debug("Executed storePlaygroundSnapshot query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    return true;
+  } catch (e) {
+    throw e;
+  } finally {
+    await db.destroy();
+  }
+}
+
+export async function getPlaygroundSnapshot(): Promise<any> {
+  const db = getDatabase();
+
+  const query = db("playground_snapshot").select("snapshot");
+
+  try {
+    const snapshot = await query;
+
+    Log.debug("Executed getPlaygroundSnapshot query", {
+      tags: { query: query.toSQL().sql }
+    });
+
+    if (!snapshot[0]) {
+      return null;
+    }
+
+    const rawJSON = snapshot[0].snapshot.toString();
+
+    return JSON.parse(rawJSON);
   } catch (e) {
     throw e;
   } finally {

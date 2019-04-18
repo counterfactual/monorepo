@@ -1,30 +1,52 @@
 version: 2.1
 
 orbs:
-  heroku: circleci/heroku@0.0.5
+  heroku: circleci/heroku@0.0.6
 
 defaults: &defaults
   working_directory: /home/circleci/project
   docker:
     - image: circleci/node:10
 
+save_code: &save_code
+  save_cache:
+    key: code-{{ .Revision }}
+    paths:
+      - .git
+
+save_dep: &save_dep
+  save_cache:
+    key: dependency-cache-{{ checksum "yarn.lock" }}
+    paths:
+      - node_modules
+
+restore_code: &restore_code
+  restore_cache:
+    key: code-{{ .Revision }}
+
+restore_dep: &restore_dep
+  restore_cache:
+    key: dependency-cache-{{ checksum "yarn.lock" }}
+
 jobs:
   build:
-    <<: *defaults
+    working_directory: /home/circleci/project
+    # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
+    docker:
+      - image: web3docker/counterfactual:0.0.1
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
+      - <<: *save_code
 
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
+      - run:
+          name: "yarn --frozen-lockfile"
+          command: yarn --frozen-lockfile
 
-      - run: yarn --frozen-lockfile
       - run: yarn build
 
-      - save_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-          paths:
-            - node_modules
+      - <<: *save_dep
 
       - persist_to_workspace:
           root: /home/circleci/project
@@ -32,15 +54,13 @@ jobs:
             - packages/*/dist
             - packages/*/build
 
-  run-tests:
+  run-non-playground-tests:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -55,12 +75,10 @@ jobs:
     docker:
       - image: circleci/node:10-browsers
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -82,11 +100,10 @@ jobs:
   run-tslint:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
+      - <<: *restore_dep
 
       - attach_workspace:
           at: /home/circleci/project
@@ -96,12 +113,10 @@ jobs:
   publish-to-npm:
     <<: *defaults
     steps:
+      - <<: *restore_code
       - checkout
-      - run: cat packages/*/package.json yarn.lock | shasum > .dependencies_checksum
 
-      - restore_cache:
-          key: dependency-cache-{{ checksum ".dependencies_checksum" }}
-
+      - <<: *restore_dep
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -124,7 +139,7 @@ workflows:
           requires:
             - build
 
-      - run-tests:
+      - run-non-playground-tests:
           requires:
             - build
 
@@ -135,7 +150,7 @@ workflows:
       - publish-to-npm:
           requires:
             - build
-            - run-tests
+            - run-non-playground-tests
             - run-playground-tests
             - run-tslint
           filters:

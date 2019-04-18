@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { ReactComponent as Logo } from "./assets/images/logo.svg";
 import { Link } from "react-router-dom";
-import Redirect from "react-router-dom/Redirect";
+import { Redirect } from "react-router-dom";
 
 class Welcome extends Component {
   render() {

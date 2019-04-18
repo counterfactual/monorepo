@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import withRouter from "react-router-dom/withRouter";
+import { withRouter } from "react-router-dom";
 
 class RouterListener extends Component {
   componentWillMount() {

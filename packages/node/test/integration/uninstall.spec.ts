@@ -1,10 +1,10 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { xkeyKthAddress } from "../../src/machine";
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import {
@@ -14,6 +14,7 @@ import {
   UninstallMessage
 } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
+import { A_MNEMONIC } from "../test-constants.jest";
 
 import {
   confirmProposedAppInstanceOnNode,
@@ -57,7 +58,7 @@ describe("Node method follows spec - uninstall", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,

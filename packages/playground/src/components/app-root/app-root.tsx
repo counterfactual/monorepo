@@ -154,6 +154,20 @@ export class AppRoot {
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
+    this.setSentryUser(this.accountState);
+  }
+
+  setSentryUser(accountState: AccountState) {
+    window["Sentry"].configureScope(scope => {
+      scope.setUser({
+        email: accountState.user.email,
+        username: accountState.user.username,
+        id: accountState.user.id
+      });
+      scope.setExtra("ethAddress", accountState.user.ethAddress);
+      scope.setExtra("multisigAddress", accountState.user.multisigAddress);
+      scope.setExtra("nodeAddress", accountState.user.nodeAddress);
+    });
   }
 
   async updateWalletConnection(newProps: WalletState) {
@@ -185,6 +199,9 @@ export class AppRoot {
   }
 
   async setup() {
+    this.loadEnv();
+    this.loadSentry();
+
     const toSetup: Promise<any>[] = [this.heartbeat(), this.loadApps()];
     if (window.parent === window && false) {
       // TODO remove FALSE
@@ -194,6 +211,7 @@ export class AppRoot {
       toSetup.push(this.setupMM());
       toSetup.push(this.getNodeAddress());
     }
+
     if (typeof window["web3"] !== "undefined") {
       await Promise.all(toSetup);
     }
@@ -282,6 +300,30 @@ export class AppRoot {
       // TODO: handle changes on the UI
       network: "kovan"
     });
+  }
+
+  loadEnv() {
+    if (TIER === "dev") {
+      window["globalConfig"] = {
+        TIER: "dev"
+      };
+    } else {
+      window["globalConfig"] = {
+        TIER
+      };
+    }
+  }
+
+  loadSentry() {
+    if (TIER === "dev") {
+      // Do nothing
+    } else {
+      window["Sentry"].init({
+        dsn: "https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439",
+        release: `playground@${Date.now()}`,
+        environment: TIER
+      });
+    }
   }
 
   async loadApps() {

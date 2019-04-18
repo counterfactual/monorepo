@@ -1,4 +1,3 @@
-import { StateChannel, xkeyKthAddress } from "@counterfactual/machine";
 import {
   AssetType,
   Node,
@@ -8,6 +7,7 @@ import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
+import { StateChannel, xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -67,7 +67,7 @@ export async function installBalanceRefundApp(
         token: AddressZero
       },
       appInterface: {
-        addr: networkContext.ETHBalanceRefund,
+        addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:
           "tuple(address recipient, address multisig,  uint256 threshold)",
         actionEncoding: undefined
@@ -123,10 +123,7 @@ export async function makeDeposit(
     txHash: txResponse!.hash
   });
 
-  await provider.waitForTransaction(
-    txResponse!.hash as string,
-    blocksNeededForConfirmation
-  );
+  await txResponse!.wait(blocksNeededForConfirmation);
 
   return true;
 }
@@ -142,7 +139,7 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
-  const { ETHBalanceRefund } = networkContext;
+  const { ETHBalanceRefundApp } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -152,7 +149,7 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefund);
+  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefundApp);
 
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747

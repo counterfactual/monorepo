@@ -1,4 +1,4 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -10,26 +10,15 @@ contract MAppRegistryCore {
   using Transfer for Transfer.Transaction;
 
   // A mapping of appIdentityHash to AppChallenge structs which represents
-  // the current on-chain status of some particular applications state.
+  // the current on-chain status of some particular application's state.
   mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
 
   // A mapping of appIdentityHash to Transaction structs which represents
   // the *final* resolution of a particular application
   mapping (bytes32 => Transfer.Transaction) public appResolutions;
 
-  modifier doTermsCheck(
-    bytes memory terms,
-    bytes32 termsHash
-  ) {
-    require(
-      keccak256(terms) == termsHash,
-      "Call to AppRegistry included mismatched terms and termsHash"
-    );
-    _;
-  }
-
   /// @notice Compute a unique hash for a single instance of an App
-  /// @param appIdentity An `AppIdentity` struct that encodes all unqiue info for an App
+  /// @param appIdentity An `AppIdentity` struct that encodes all unique info for an App
   /// @return A bytes32 hash of the AppIdentity
   function appIdentityToHash(
     LibStateChannelApp.AppIdentity memory appIdentity

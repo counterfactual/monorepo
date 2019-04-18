@@ -23,7 +23,7 @@ import {
 
 export interface NetworkContext {
   AppRegistry: string;
-  ETHBalanceRefund: string;
+  ETHBalanceRefundApp: string;
   ETHBucket: string;
   MultiSend: string;
   NonceRegistry: string;
@@ -32,6 +32,19 @@ export interface NetworkContext {
   MinimumViableMultisig: string;
   ProxyFactory: string;
 }
+
+// Keep in sync with above
+export const networkContextProps = [
+  "AppRegistry",
+  "ETHBalanceRefundApp",
+  "ETHBucket",
+  "MultiSend",
+  "NonceRegistry",
+  "StateChannelTransaction",
+  "ETHVirtualAppAgreement",
+  "MinimumViableMultisig",
+  "ProxyFactory"
+];
 
 export {
   ABIEncoding,

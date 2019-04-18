@@ -1,4 +1,4 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -58,7 +58,7 @@ contract MixinVirtualAppSetState is
 
     require(
       req.nonce < req.nonceExpiry,
-      "Tried to call setState with nonce greater than intemediary nonce expiry");
+      "Tried to call setState with nonce greater than intermediary nonce expiry");
 
     challenge.status = req.timeout > 0 ? AppStatus.DISPUTE : AppStatus.OFF;
     challenge.appStateHash = req.appStateHash;

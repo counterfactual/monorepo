@@ -1,7 +1,6 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/libs/Transfer.sol";
 import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
 
 
@@ -48,8 +47,8 @@ contract HighRollerApp is CounterfactualApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(bytes memory encodedState)
-    public
+  function isStateTerminal(bytes calldata encodedState)
+    external
     pure
     returns (bool)
   {
@@ -57,8 +56,10 @@ contract HighRollerApp is CounterfactualApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
-    public
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
+    external
     pure
     returns (address)
   {
@@ -69,8 +70,10 @@ contract HighRollerApp is CounterfactualApp {
       signingKeys[uint8(Player.FIRST)];
   }
 
-  function applyAction(bytes memory encodedState, bytes memory encodedAction)
-    public
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
+    external
     pure
     returns (bytes memory)
   {
@@ -82,13 +85,13 @@ contract HighRollerApp is CounterfactualApp {
     if (action.actionType == ActionType.START_GAME) {
       require(
         state.stage == Stage.PRE_GAME,
-        "Cannot apply START_GAME on PRE_GAME"
+        "Must apply START_GAME to PRE_GAME"
       );
       nextState.stage = Stage.COMMITTING_HASH;
     } else if (action.actionType == ActionType.COMMIT_TO_HASH) {
       require(
         state.stage == Stage.COMMITTING_HASH,
-        "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH"
+        "Must apply COMMIT_TO_HASH to COMMITTING_HASH"
       );
       nextState.stage = Stage.COMMITTING_NUM;
 
@@ -96,7 +99,7 @@ contract HighRollerApp is CounterfactualApp {
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(
         state.stage == Stage.COMMITTING_NUM,
-        "Cannot apply COMMIT_TO_NUM on COMMITTING_NUM"
+        "Must apply COMMIT_TO_NUM to COMMITTING_NUM"
       );
       nextState.stage = Stage.REVEALING;
 
@@ -104,7 +107,7 @@ contract HighRollerApp is CounterfactualApp {
     } else if (action.actionType == ActionType.REVEAL) {
       require(
         state.stage == Stage.REVEALING,
-        "Cannot apply REVEAL on REVEALING"
+        "Must apply REVEAL to REVEALING"
       );
       nextState.stage = Stage.DONE;
 
@@ -117,8 +120,8 @@ contract HighRollerApp is CounterfactualApp {
     return abi.encode(nextState);
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+    external
     pure
     returns (Transfer.Transaction memory)
   {

@@ -1,8 +1,8 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 
+import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
@@ -29,7 +29,7 @@ export default class WithdrawController extends NodeController {
 
     const channel = await store.getStateChannel(multisigAddress);
 
-    if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefund)) {
+    if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefundApp)) {
       return Promise.reject(ERRORS.CANNOT_WITHDRAW);
     }
   }

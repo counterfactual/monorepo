@@ -18,16 +18,16 @@
   },
   "devDependencies": {
     "@counterfactual/types": "0.0.9",
-    "@types/jest": "24.0.10",
-    "@types/node": "^11.9.0",
-    "jest": "23.6.0",
-    "rollup": "^1.0.1",
-    "rollup-plugin-commonjs": "^9.2.0",
-    "rollup-plugin-node-resolve": "^4.0.0",
-    "rollup-plugin-typescript2": "^0.19.0",
-    "ts-jest": "24.0.0",
-    "tslint": "^5.11.0",
-    "typescript": "^3.3.3333"
+    "@types/jest": "24.0.11",
+    "@types/node": "11.13.5",
+    "jest": "24.7.1",
+    "rollup": "1.10.0",
+    "rollup-plugin-commonjs": "9.3.4",
+    "rollup-plugin-node-resolve": "4.2.3",
+    "rollup-plugin-typescript2": "0.20.1",
+    "ts-jest": "24.0.2",
+    "tslint": "5.16.0",
+    "typescript": "3.4.3"
   },
   "dependencies": {
     "eventemitter3": "^3.1.0"

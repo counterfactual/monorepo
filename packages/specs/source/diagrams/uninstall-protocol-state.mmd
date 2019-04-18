@@ -1,0 +1,11 @@
+graph LR
+    ms-->fb
+    subgraph stale-invalid state
+      ttt["<b>TicTacToe App</b> <br> Local Nonce: 5 <br> Winner gets 2 ETH <br><center><b><tt>| X | O | &nbsp; |<br>| O | X | &nbsp; |<br>| &nbsp; | &nbsp; | X |</tt></b></center>"]
+    end
+    subgraph off-chain state
+      fb["<b>Free Balance</b> (ETH) <br> Local Nonce: <tt>k + 1</tt> <br> Alice has 11 ETH <br> Bob has 9 ETH"]
+    end
+    subgraph on-chain state
+      ms["<b>AB Multisignature Wallet</b> <br> Balance: 20 ETH"]
+    end

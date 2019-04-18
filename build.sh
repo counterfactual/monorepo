@@ -14,7 +14,6 @@ then
     contracts \
     node-provider \
     cf.js \
-    machine \
     node \
     playground-server \
   "
@@ -25,7 +24,6 @@ else
     contracts \
     node-provider \
     cf.js \
-    machine \
     node \
     playground-server \
     playground \

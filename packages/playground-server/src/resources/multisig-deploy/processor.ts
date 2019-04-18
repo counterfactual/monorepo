@@ -1,7 +1,7 @@
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
 
 import { getUser } from "../../db";
-import NodeWrapper from "../../node";
+import { NodeWrapper } from "../../node";
 import informSlack from "../../utils";
 import User from "../user/resource";
 
@@ -17,8 +17,9 @@ export default class MultisigDeployProcessor extends OperationProcessor<
       User
     >);
 
+    const { nodeAddress } = user.attributes;
     const { transactionHash } = await NodeWrapper.createStateChannelFor(
-      user.attributes.nodeAddress
+      nodeAddress as string
     );
 
     informSlack(

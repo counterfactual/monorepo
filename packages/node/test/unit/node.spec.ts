@@ -4,24 +4,20 @@ import { Node } from "../../src/node";
 import memoryStoreService from "../services/memory-store-service";
 import mockMessagingService from "../services/mock-messaging-service";
 
-describe("Primitive Node operations", () => {
-  it("exists", () => {
+describe("Node", () => {
+  it("is defined", () => {
     expect(Node).toBeDefined();
   });
 
-  it("can be instantiated", async () => {
-    const provider = new JsonRpcProvider(global["ganacheURL"]);
-
-    const nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
-    };
+  it("can be created", async () => {
     const node = await Node.create(
       mockMessagingService,
       memoryStoreService,
-      nodeConfig,
-      provider,
+      { STORE_KEY_PREFIX: "./node.spec.ts-test-file" },
+      new JsonRpcProvider(global["ganacheURL"]),
       global["networkContext"]
     );
+
     expect(node).toBeDefined();
   });
 });

@@ -1,10 +1,10 @@
-import { xkeyKthAddress } from "@counterfactual/machine";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { xkeyKthAddress } from "../../src/machine";
 import { MNEMONIC_PATH } from "../../src/signer";
 import {
   InstallVirtualMessage,
@@ -13,6 +13,7 @@ import {
   UninstallMessage
 } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
+import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 import {
   confirmProposedVirtualAppInstanceOnNode,
@@ -55,7 +56,7 @@ describe("Node method follows spec - uninstall virtual", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: process.env.A_MNEMONIC }]);
+    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
       storeServiceA,
@@ -67,7 +68,7 @@ describe("Node method follows spec - uninstall virtual", () => {
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: process.env.B_MNEMONIC }]);
+    storeServiceB.set([{ key: MNEMONIC_PATH, value: B_MNEMONIC }]);
     nodeB = await Node.create(
       messagingService,
       storeServiceB,

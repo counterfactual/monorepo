@@ -1,4 +1,4 @@
-pragma solidity 0.5.6;
+pragma solidity 0.5.7;
 
 
 /// @title LibStateChannelApp
@@ -22,9 +22,9 @@ contract LibStateChannelApp {
     uint256 defaultTimeout;
   }
 
-  // A structure representing the state of an AppInstance from POV of the blockchain
-  // NOTE: AppChallenge is the overall state of an channelized app instance,
-  // AppState refers to the states specific to the AppDefinition(e.g. chess position)
+  // A structure representing the state of a CounterfactualApp instance from the POV of the blockchain
+  // NOTE: AppChallenge is the overall state of a channelized app instance,
+  // appStateHash is the hash of a state specific to the CounterfactualApp (e.g. chess position)
   struct AppChallenge {
     AppStatus status;
     address latestSubmitter;
