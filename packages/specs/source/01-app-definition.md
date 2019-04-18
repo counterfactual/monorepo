@@ -20,7 +20,7 @@ A slightly more complicated example would be a Tic-Tac-Toe game:
 
 There is, of course, an important difference in the example of a Tic-Tac-Toe game though. That difference is that in the Tic-Tac-Toe game, the final resolution of the state of the application is not always defined based on the current state of the application. In the payment channel example, if one user were to become unresponsive it is is easy to see how the resolution would play out; Alice would receive `aBal` and Bob would receive `bBal`. In Tic-Tac-Toe, however, if the game is not finished yet, there are some moves left to be made to reach a "terminal" state which can then be resolved: X having won, O having won, or a draw to be specific.
 
-To express this important difference we introduce some additional properties that can be implemented for a state channels based application:
+To express this important difference we introduce some additional functionality that can be implemented for a state channels based application:
 
 - A function which defines how state can "progress" given an action
 - A function to define whether an action can be legally taken by a participant
