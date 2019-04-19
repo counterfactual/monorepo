@@ -6,9 +6,9 @@ import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 import { Signature, SigningKey } from "ethers/utils";
 
+import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
-import { VirtualAppSetStateCommitment } from "../../../src/machine/ethereum/virtual-app-set-state-commitment";
-import { AppInstance, StateChannel } from "../../../src/machine/models";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";

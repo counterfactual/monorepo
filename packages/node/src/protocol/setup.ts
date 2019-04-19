@@ -1,11 +1,11 @@
 import { AssetType, NetworkContext } from "@counterfactual/types";
 
-import { ProtocolExecutionFlow } from "..";
-import { Opcode, Protocol } from "../enums";
 import { SetupCommitment } from "../ethereum";
+import { ProtocolExecutionFlow } from "../machine";
+import { Opcode, Protocol } from "../machine/enums";
+import { Context, ProtocolParameters, SetupParams } from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
-import { Context, ProtocolParameters, SetupParams } from "../types";
-import { xkeyKthAddress } from "../xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";

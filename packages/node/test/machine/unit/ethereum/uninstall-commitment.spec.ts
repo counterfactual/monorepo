@@ -15,10 +15,10 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { UninstallCommitment } from "../../../../src/machine/ethereum";
-import { MultisigTransaction } from "../../../../src/machine/ethereum/types";
-import { decodeMultisendCalldata } from "../../../../src/machine/ethereum/utils/multisend-decoder";
-import { StateChannel } from "../../../../src/machine/models";
+import { UninstallCommitment } from "../../../../src/ethereum";
+import { MultisigTransaction } from "../../../../src/ethereum/types";
+import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
+import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**

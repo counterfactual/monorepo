@@ -1,7 +1,7 @@
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
-import { WithdrawETHCommitment } from "../../../../src/machine/ethereum";
-import { Transaction } from "../../../../src/machine/ethereum/types";
+import { WithdrawETHCommitment } from "../../../../src/ethereum";
+import { Transaction } from "../../../../src/ethereum/types";
 
 /**
  * This test suite decodes a constructed WithdrawETHCommitment transaction object

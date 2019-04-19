@@ -5,17 +5,17 @@ import {
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
-import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
-import { StateChannel } from "../models";
+import { ProtocolExecutionFlow } from "../machine";
+import { Opcode } from "../machine/enums";
 import {
   Context,
   ProtocolParameters,
   UninstallVirtualAppParams
-} from "../types";
-import { virtualChannelKey } from "../virtual-app-key";
-import { xkeyKthAddress } from "../xkeys";
+} from "../machine/types";
+import { virtualChannelKey } from "../machine/virtual-app-key";
+import { xkeyKthAddress } from "../machine/xkeys";
+import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";

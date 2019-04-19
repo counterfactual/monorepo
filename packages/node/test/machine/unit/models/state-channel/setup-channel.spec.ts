@@ -3,7 +3,7 @@ import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { AppInstance, StateChannel } from "../../../../../src/machine/models";
+import { AppInstance, StateChannel } from "../../../../../src/models";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {

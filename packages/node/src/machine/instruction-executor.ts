@@ -1,10 +1,11 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
+import { StateChannel } from "../models";
+import { getProtocolFromName } from "../protocol";
+
 import { Opcode, Protocol } from "./enums";
 import { MiddlewareContainer } from "./middleware";
-import { StateChannel } from "./models";
-import { getProtocolFromName } from "./protocol";
 import {
   Context,
   InstallParams,
