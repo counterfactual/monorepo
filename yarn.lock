@@ -922,11 +922,6 @@
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.7.tgz#9b00609ca7a992de77a62254296111ae05ee0128"
   integrity sha512-rY/dw4GeCMhCv9qs0yX8dqL+DL4siQYNkUXAKujte3jVlEy0wNW+AYIkjgFB6jxO39lWDC2hFbYeFXbsFlwtUg==
 
-"@firebase/app-types@0.3.8":
-  version "0.3.8"
-  resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.8.tgz#e6279f3e015b830e762bb4f97c2ce845c8b47b3d"
-  integrity sha512-ZQpVHH/PEX3QB1aUZRzY1KlzAH51dOeJOTPHtAnq9iEHUj+OfxZWwHNPIKL8p2cg2qQ0Wu1JJaZVdhXdfeU7RQ==
-
 "@firebase/app-types@0.3.9":
   version "0.3.9"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.9.tgz#357dfe45e32626cef6113c80671033d47ae995f0"
@@ -1158,13 +1153,6 @@
   version "0.2.11"
   resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.11.tgz#f29235a89a6fb52b273cb9151210461853b7e2b1"
   integrity sha512-sYIxzZcAeK1k0fLa1gWSnIrBFtPLFN+mgTTlQ29Pe9MBppSBluKguh43ejQioDgcGwPGhrbQx8urmSiI55SrCQ==
-  dependencies:
-    tslib "1.9.3"
-
-"@firebase/util@0.2.12":
-  version "0.2.12"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.12.tgz#198c9a11f890abd5792fe5dc1c5fd5e10305192a"
-  integrity sha512-ijt2QFdU7RFrBjlnbl9Dn/YHe1Ukfw2mycl6+LXNVcEJaI78IWsorMCfM3kyoSEEsZxGiK3g3NaWZ8IIuB0A5Q==
   dependencies:
     tslib "1.9.3"
 
@@ -17464,10 +17452,10 @@ truffle-interface-adapter@^0.1.2:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.12:
-  version "5.0.12"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.12.tgz#05ab7d2561a3ee4fd5e026dcc4b91b8f3c6e3795"
-  integrity sha512-dqnDmtTGNcnL29PHQwPE/CVmFFeGLuTFeb4TS3VY/vbASefu118IKXcadOWzkCPPwktv/njwylHSPhwoS00F2A==
+truffle@5.0.13:
+  version "5.0.13"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.13.tgz#bd0c6c142889140ab9db57d9a8738d5f5afaed68"
+  integrity sha512-TF8X95780TqfxkWtITG8n3dyBI23ifLmOpsrQp6TugmB150nLZrZ1ncW63wgF9jwj/B0UXGE04bE72SYhbgcvg==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
