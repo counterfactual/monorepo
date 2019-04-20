@@ -3,7 +3,10 @@ import {
   ETHVirtualAppAgreementInstance,
   ETHVirtualAppAgreementJson
 } from "./eth-virtual-app-agreement-instance";
-import { ProposedAppInstanceInfo } from "./proposed-app-instance-info";
+import {
+  ProposedAppInstanceInfo,
+  ProposedAppInstanceInfoJSON
+} from "./proposed-app-instance-info";
 import { StateChannel, StateChannelJSON } from "./state-channel";
 
 export {
@@ -12,6 +15,7 @@ export {
   ETHVirtualAppAgreementInstance,
   ETHVirtualAppAgreementJson,
   ProposedAppInstanceInfo,
+  ProposedAppInstanceInfoJSON,
   StateChannel,
   StateChannelJSON
 };
