@@ -370,6 +370,17 @@ Error:
 
 - "Insufficient funds"
 
+### Method: `getFreeBalance`
+
+Gets the free balance AppInstance of the specified channel.
+
+Params:
+
+- `multisigAddress: string`
+
+Result:
+
+- [`FreeBalance`](#data-type-ethbucket)
 
 
 
@@ -498,3 +509,9 @@ An instance of an installed app.
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
+### Data Type: `ETHBucket`
+
+- `alice: string`
+- `bob: string`
+- `aliceBalance: BigNumber`
+- `bobBalance: BigNumber`
