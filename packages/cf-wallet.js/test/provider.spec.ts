@@ -192,6 +192,65 @@ describe("cf-wallet.js Provider", () => {
       });
       await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
     });
+
+    it("can create a channel between two parties", async () => {
+      nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
+        expect(request.type).toBe(Node.MethodName.CREATE_CHANNEL);
+        expect(request.data.attributes.owners).toEqual(TEST_XPUBS);
+        nodeProvider.simulateMessageFromNode({
+          type: Node.MethodName.CREATE_CHANNEL,
+          requestId: request.requestId,
+          result: {}
+        });
+      });
+      await provider.createChannel(TEST_XPUBS);
+    });
+
+    it("can deposit eth to a channel", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      const amount = ethers.utils.bigNumberify(".01");
+      nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
+        expect(request.type).toBe(Node.MethodName.DEPOSIT);
+        expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
+        expect(request.data.attributes.amount).toEqual(amount);
+        nodeProvider.simulateMessageFromNode({
+          type: Node.MethodName.DEPOSIT,
+          requestId: request.requestId,
+          result: {}
+        });
+      });
+      await provider.deposit(channel.multisigAddress, amount);
+    });
+
+    it("can withdraw eth from a channel", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      const amount = ethers.utils.bigNumberify(".01");
+      nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
+        expect(request.type).toBe(Node.MethodName.WITHDRAW);
+        expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
+        expect(request.data.attributes.amount).toEqual(amount);
+        nodeProvider.simulateMessageFromNode({
+          type: Node.MethodName.WITHDRAW,
+          requestId: request.requestId,
+          result: {}
+        });
+      });
+      await provider.withdraw(channel.multisigAddress, amount);
+    });
+
+    it("can query for a channel's freeBalance", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      nodeProvider.onMethodRequest(Node.MethodName.GET_FREE_BALANCE_STATE, request => {
+        expect(request.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
+        expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
+        nodeProvider.simulateMessageFromNode({
+          type: Node.MethodName.GET_FREE_BALANCE_STATE,
+          requestId: request.requestId,
+          result: {}
+        });
+      });
+      await provider.getFreeBalanceState(channel.multisigAddress);
+    });
   });
 
   describe("Node events", () => {
