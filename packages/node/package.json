@@ -46,7 +46,7 @@
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/types": "0.0.9",
-    "@ebryn/jsonapi-ts": "0.1.20-complex-types-2",
+    "@ebryn/jsonapi-ts": "0.1.20-complex-types-3",
     "@firebase/util": "0.2.11",
     "ethers": "4.0.27",
     "eventemitter3": "^3.1.0",

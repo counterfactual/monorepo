@@ -129,6 +129,7 @@ export class Node {
     );
     this.registerMessagingConnection();
     this.app = new NodeApplication(this.requestHandler);
+    this.requestHandler.app = this.app;
     return this;
   }
 

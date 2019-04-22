@@ -5,7 +5,7 @@ import {
   OperationProcessor,
   Resource,
   ResourceAttributes,
-  authorizeMiddleware,
+  // authorizeMiddleware,
   HasId,
   JsonApiErrors
 } from "@ebryn/jsonapi-ts";
@@ -41,7 +41,8 @@ export default class NodeApplication extends Application {
         }
 
         public async login(op: Operation): Promise<HasId> {
-          if (op.data.attributes.token === "baz") {
+          const data = op.data as Resource;
+          if (data.attributes.token === "baz") {
             return this.identify(op);
           }
 
@@ -67,35 +68,32 @@ export default class NodeApplication extends Application {
 
       this.processorFor(type)
         .then(processor => {
-          console.log(`Implementing ${type}:${op} for processor`, processor);
-          processor!.constructor.prototype[op] = authorizeMiddleware(
-            async (
-              operation: Operation
-            ): Promise<Resource | Resource[] | void> => {
-              const result = (await implementation(
-                this.requestHandler,
-                operation.data.attributes
-              )) as ResourceAttributes;
+          processor!.constructor.prototype[op] = async (
+            operation: Operation
+          ): Promise<Resource | Resource[] | void> => {
+            const data = operation.data as Resource;
+            const result = (await implementation(
+              this.requestHandler,
+              data.attributes
+            )) as ResourceAttributes;
 
-              return Array.isArray(result)
-                ? result.map(
-                    record =>
-                      ({
-                        id: operation.data.id,
-                        type: operation.ref.type,
-                        attributes: record,
-                        relationships: {}
-                      } as Resource)
-                  )
-                : {
-                    id: operation.data.id,
-                    type: operation.ref.type,
-                    attributes: result,
-                    relationships: {}
-                  };
-            },
-            []
-          ).bind(processor);
+            return Array.isArray(result)
+              ? result.map(
+                  record =>
+                    ({
+                      id: data.id,
+                      type: operation.ref.type,
+                      attributes: record,
+                      relationships: {}
+                    } as Resource)
+                )
+              : {
+                  id: data.id,
+                  type: operation.ref.type,
+                  attributes: result,
+                  relationships: {}
+                };
+          };
         })
         .catch(error => console.error(error));
     });

@@ -12,6 +12,8 @@ import { InstructionExecutor } from "./machine";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
+import { Operation, OperationResponse } from "@ebryn/jsonapi-ts";
+import NodeApplication from "./jsonapi-app";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -23,6 +25,7 @@ export class RequestHandler {
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
+  app: NodeApplication;
 
   constructor(
     readonly publicIdentifier: string,
@@ -48,15 +51,19 @@ export class RequestHandler {
    * @param method
    * @param req
    */
-  public async callMethod(
-    method: Node.MethodName,
-    req: Node.MethodRequest
-  ): Promise<Node.MethodResponse> {
-    return {
-      type: req.type,
-      requestId: req.requestId,
-      result: await this.methods.get(method)(this, req.params)
-    };
+  // public async callMethod(
+  //   method: Node.MethodName,
+  //   req: Node.MethodRequest
+  // ): Promise<Node.MethodResponse> {
+  //   return {
+  //     type: req.type,
+  //     requestId: req.requestId,
+  //     result: await this.methods.get(method)(this, req.params)
+  //   };
+  // }
+
+  public async callMethod(operation: Operation): Promise<OperationResponse[]> {
+    return this.app.executeOperations([operation]);
   }
 
   /**
@@ -67,13 +74,14 @@ export class RequestHandler {
     for (const methodName in methodNameToImplementation) {
       this.methods.set(methodName, methodNameToImplementation[methodName]);
 
-      this.incoming.on(methodName, async (req: Node.MethodRequest) => {
-        const res: Node.MethodResponse = {
-          type: req.type,
-          requestId: req.requestId,
-          result: await this.methods.get(methodName)(this, req.params)
-        };
-        this.outgoing.emit(req.type, res);
+      this.incoming.on(methodName, async (op: Operation) => {
+        // const res: Node.MethodResponse = {
+        //   type: req.type,
+        //   requestId: req.requestId,
+        //   result: await this.methods.get(methodName)(this, req.params)
+        // };
+        const res = await this.callMethod(op);
+        this.outgoing.emit(op.op, res);
       });
     }
   }
@@ -96,7 +104,7 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: NodeEvents, msg: NodeMessage) {
+  public async callEvent(event: NodeEvents, msg: Operation) {
     const controllerExecutionMethod = this.events.get(event);
 
     if (!controllerExecutionMethod) {

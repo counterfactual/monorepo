@@ -898,10 +898,10 @@
     koa-compose "^4.1.0"
     pluralize "^7.0.0"
 
-"@ebryn/jsonapi-ts@0.1.20-complex-types-2":
-  version "0.1.20-complex-types-2"
-  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.20-complex-types-2.tgz#cbada75bf7e65e4e6d9b1d44b82420dfd6f16345"
-  integrity sha512-QwLLTz3MHLfo8JypKrLiXOqLOonUGiAeL2oUu/CWjaH1guumHgRRavwWyshDd3act7QBtylu3u0KGz+WjwS1dg==
+"@ebryn/jsonapi-ts@0.1.20-complex-types-3":
+  version "0.1.20-complex-types-3"
+  resolved "https://registry.yarnpkg.com/@ebryn/jsonapi-ts/-/jsonapi-ts-0.1.20-complex-types-3.tgz#6d575f1e289eeac9688862db7fd6196bafbbe126"
+  integrity sha512-Z/WgJ1Ji3YD3l+BqpN63tUxxsdVpaJWrpBH06aZ1x4pzsRlnKlovS2DCfpGJBG5l+G/0LqOn+Ycg8fONrdEnDA==
   dependencies:
     ember-cli-string-utils "^1.1.0"
     escape-string-regexp "^1.0.5"
