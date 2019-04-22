@@ -24,17 +24,14 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
- * having been opened via the creation of the multisig.
- * In "creating a channel", this also creates a multisig while sending details
- * about this multisig to the peer with whom the multisig is owned.
+ * having been opened via the deterministical calculation of the multisig contract's
+ * address. This also deploys the multisig contract to chain though it's not
+ * strictly needed to deploy it here as per
+ * https://github.com/counterfactual/monorepo/issues/1183.
  *
- * Details: This returns the hash of the multisig deployment transaction so the
- * caller can async listen to the on chain confirmation of the transaction being
- * mined. Once the actual multisig is deployed, its _address_ is sent as an event
- * to the caller via the `NODE_EVENTS.CREATE_CHANNEL` event. This is because
- * the address of the multisig is not retrievable from the transaction hash
- * since the multisig is deployed through an internal transaction of a proxy
- * factory contract.
+ * This then sends the details of this multisig to the peer with whom the multisig
+ * is owned and the multisig's _address_ is sent as an event
+ * to whoever subscribed to the `NODE_EVENTS.CREATE_CHANNEL` event on the Node.
  */
 export default class CreateChannelController extends NodeController {
   public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
