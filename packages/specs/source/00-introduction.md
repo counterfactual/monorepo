@@ -1,10 +1,8 @@
 # Introduction
 
-Counterfactual is a state channels based protocol for off-chain blockchain-based applications.
+The Counterfactual Protocol is a state channels based protocol for off-chain blockchain-based applications. The protocol has been designed for general purpose state channels: an important technique for reducing fees for blockchain users. State channels allow users to interact with each other without paying blockchain transaction fees and with instant finality. Channelization is the only technique that securely realises the latter property.
 
-Counterfactual implements a general purpose protocol for using state channels, an important technique for reducing fees for blockchain users. State channels allow users to interact with each other without paying blockchain transaction fees and with instant finality. Channelization is the only technique that securely realises the latter property.
-
-A state channel framework consists of contracts as well as protocols that users run. In the protocols, participants exchange cryptographically signed messages through an arbitrary communication channel. These messages are pre-signed transactions that distribute the blockchain state or perform other tasks necessary to the channel's correct resolution. Next, participants deposit blockchain state into an n-of-n multisignature wallet referenced by the transactions. New cryptographically signed state updates having a special relationship to the original commitments can now be used to change the state and/or assets controlled by the multisignature wallet.
+In the protocol, participants exchange cryptographically signed messages through an arbitrary communication channel. These messages are pre-signed transactions that distribute the blockchain state or perform other tasks necessary to the channel's correct resolution. Next, participants deposit blockchain state into an n-of-n multisignature wallet referenced by the transactions. New cryptographically signed state updates having a special relationship to the original commitments can now be used to change the state and / or assets controlled by the multisignature wallet.
 
 Through a challenge-response mechanism, on-chain contracts implement methods for participants to ensure that the latest signed valid state update that pertains to their commitment can be submitted to the blockchain, guaranteeing correct resolution of the state for all users adhering to the protocol.
 

@@ -13,11 +13,11 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { InstallCommitment } from "../../../../src/machine/ethereum";
-import { MultisigTransaction } from "../../../../src/machine/ethereum/types";
-import { appIdentityToHash } from "../../../../src/machine/ethereum/utils/app-identity";
-import { decodeMultisendCalldata } from "../../../../src/machine/ethereum/utils/multisend-decoder";
-import { AppInstance, StateChannel } from "../../../../src/machine/models";
+import { InstallCommitment } from "../../../../src/ethereum";
+import { MultisigTransaction } from "../../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
+import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
+import { AppInstance, StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**

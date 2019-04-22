@@ -1,11 +1,11 @@
 import { BaseProvider } from "ethers/providers";
 
-import { ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
 import { SetStateCommitment } from "../ethereum";
+import { ProtocolExecutionFlow } from "../machine";
+import { Opcode } from "../machine/enums";
+import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
-import { Context, ProtocolMessage, TakeActionParams } from "../types";
-import { xkeyKthAddress } from "../xkeys";
 
 import { validateSignature } from "./utils/signature-validator";
 

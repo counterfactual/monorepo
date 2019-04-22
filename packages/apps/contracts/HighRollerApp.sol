@@ -47,8 +47,8 @@ contract HighRollerApp is CounterfactualApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(bytes memory encodedState)
-    public
+  function isStateTerminal(bytes calldata encodedState)
+    external
     pure
     returns (bool)
   {
@@ -56,8 +56,10 @@ contract HighRollerApp is CounterfactualApp {
     return state.stage == Stage.DONE;
   }
 
-  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
-    public
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
+    external
     pure
     returns (address)
   {
@@ -68,8 +70,10 @@ contract HighRollerApp is CounterfactualApp {
       signingKeys[uint8(Player.FIRST)];
   }
 
-  function applyAction(bytes memory encodedState, bytes memory encodedAction)
-    public
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
+    external
     pure
     returns (bytes memory)
   {
@@ -116,8 +120,8 @@ contract HighRollerApp is CounterfactualApp {
     return abi.encode(nextState);
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+    external
     pure
     returns (Transfer.Transaction memory)
   {

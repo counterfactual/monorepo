@@ -11,8 +11,8 @@ Welcome to Counterfactual's documentation!
    :caption: Contents:
 
    00-introduction.md
-   01-contracts.md
-   02-state-machines.md
+   01-app-definition.md
+   02-adjudication-layer.md
    03-peer-protocol.md
    04-setup-protocol.md
    05-install-protocol.md

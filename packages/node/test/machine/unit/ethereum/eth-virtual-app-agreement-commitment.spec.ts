@@ -12,10 +12,10 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
+import { ETHVirtualAppAgreementCommitment } from "../../../../src/ethereum/eth-virtual-app-agreement-commitment";
+import { Transaction } from "../../../../src/ethereum/types";
+import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
 import { StateChannel } from "../../../../src/machine";
-import { ETHVirtualAppAgreementCommitment } from "../../../../src/machine/ethereum/eth-virtual-app-agreement-commitment";
-import { Transaction } from "../../../../src/machine/ethereum/types";
-import { decodeMultisendCalldata } from "../../../../src/machine/ethereum/utils/multisend-decoder";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**

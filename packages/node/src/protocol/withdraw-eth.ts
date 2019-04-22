@@ -5,21 +5,21 @@ import {
 } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 
-import { ProtocolExecutionFlow } from "..";
-import { Opcode, Protocol } from "../enums";
 import {
   InstallCommitment,
   UninstallCommitment,
   WithdrawETHCommitment
 } from "../ethereum";
-import { AppInstance, StateChannel } from "../models";
+import { ProtocolExecutionFlow } from "../machine";
+import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
   ProtocolMessage,
   ProtocolParameters,
   WithdrawParams
-} from "../types";
-import { xkeyKthAddress } from "../xkeys";
+} from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
+import { AppInstance, StateChannel } from "../models";
 
 import { validateSignature } from "./utils/signature-validator";
 
