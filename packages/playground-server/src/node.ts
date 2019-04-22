@@ -242,6 +242,23 @@ export class NodeWrapper {
       networkOrNetworkContext
     );
 
+    node.app.executeOperations([
+      {
+        op: "add",
+        ref: {
+          type: "channel"
+        },
+        data: {
+          attributes: {
+            owners: [
+              "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
+              "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
+            ]
+          }
+        }
+      }
+    ]);
+
     return node;
   }
 
