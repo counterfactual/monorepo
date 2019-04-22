@@ -11,7 +11,7 @@ import {
   getETHBucketAppInterface,
   unlimitedETH
 } from "../ethereum/utils/eth-bucket";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {

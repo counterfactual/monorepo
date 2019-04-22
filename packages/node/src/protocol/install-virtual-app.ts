@@ -7,22 +7,22 @@ import {
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, BigNumberish } from "ethers/utils";
 
-import { Opcode } from "../enums";
 import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
 import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
-import {
-  AppInstance,
-  ETHVirtualAppAgreementInstance,
-  StateChannel
-} from "../models";
+import { Opcode } from "../machine/enums";
 import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
   ProtocolParameters
-} from "../types";
-import { virtualChannelKey } from "../virtual-app-key";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../xkeys";
+} from "../machine/types";
+import { virtualChannelKey } from "../machine/virtual-app-key";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
+import {
+  AppInstance,
+  ETHVirtualAppAgreementInstance,
+  StateChannel
+} from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { validateSignature } from "./utils/signature-validator";

@@ -12,10 +12,10 @@ import {
   TransactionDescription
 } from "ethers/utils";
 
-import { SetStateCommitment } from "../../../../src/machine/ethereum";
-import { Transaction } from "../../../../src/machine/ethereum/types";
-import { appIdentityToHash } from "../../../../src/machine/ethereum/utils/app-identity";
-import { AppInstance } from "../../../../src/machine/models";
+import { SetStateCommitment } from "../../../../src/ethereum";
+import { Transaction } from "../../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
+import { AppInstance } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**

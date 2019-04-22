@@ -7,9 +7,10 @@ import {
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
 
+import { Transaction } from "../ethereum/types";
+import { StateChannel } from "../models";
+
 import { Opcode, Protocol } from "./enums";
-import { Transaction } from "./ethereum/types";
-import { StateChannel } from "./models";
 
 export type ProtocolExecutionFlow = {
   [x: number]: (context: Context) => AsyncIterableIterator<any[]>;

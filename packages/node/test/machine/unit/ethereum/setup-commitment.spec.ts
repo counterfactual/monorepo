@@ -10,10 +10,10 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { SetupCommitment } from "../../../../src/machine/ethereum";
-import { MultisigTransaction } from "../../../../src/machine/ethereum/types";
-import { appIdentityToHash } from "../../../../src/machine/ethereum/utils/app-identity";
-import { StateChannel } from "../../../../src/machine/models";
+import { SetupCommitment } from "../../../../src/ethereum";
+import { MultisigTransaction } from "../../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
+import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
