@@ -316,7 +316,13 @@ Errors: (TODO)
 
 ### Method: `proposeState`
 
-TODO
+Proposes a state update for the AppInstance with the specified ID.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance the state proposal is being made for
+- `state:`[`AppState`](#data-type-appstate)
+    - The state to propose
 
 ### Method: `acceptState`
 

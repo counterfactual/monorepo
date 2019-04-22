@@ -16,6 +16,8 @@ export const ERRORS = {
     "A proposed AppInstance cannot have an empty initial state",
   NO_APP_INSTANCE_FOR_TAKE_ACTION:
     "No AppInstanceId specified to takeAction on",
+  NO_APP_INSTANCE_FOR_STATE_PROPOSAL:
+    "No AppInstanceId specified to propose state for",
   NO_APP_CONTRACT_ADDR: "The App Contract address is empty",
   INVALID_ACTION: "Invalid action taken",
   INSUFFICIENT_FUNDS:
