@@ -61,11 +61,10 @@ export function createAppInstance() {
       token: AddressZero
     },
     false,
-    // TODO: this should be thread-safe
-    1,
+    /* appSeqNo */ Math.ceil(1000 * Math.random()),
     0,
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
-    0
+    /* latestTimeout */ Math.ceil(1000 * Math.random()),
   );
 }

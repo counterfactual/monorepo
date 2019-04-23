@@ -17,6 +17,7 @@ import { Transaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { AppInstance } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
+import { createAppInstance } from "../../../unit/utils";
 
 /**
  * This test suite decodes a constructed SetState Commitment transaction object
@@ -27,33 +28,9 @@ describe("Set State Commitment", () => {
   let commitment: SetStateCommitment;
   let tx: Transaction;
 
-  // Dummy network context
   const networkContext = generateRandomNetworkContext();
 
-  const appInstance = new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    Math.ceil(1000 * Math.random()),
-    {
-      addr: getAddress(hexlify(randomBytes(20))),
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    Math.ceil(1000 * Math.random()),
-    0,
-    { foo: AddressZero, bar: 0 },
-    0,
-    Math.ceil(1000 * Math.random())
-  );
+  const appInstance = createAppInstance();
 
   beforeAll(() => {
     commitment = new SetStateCommitment(

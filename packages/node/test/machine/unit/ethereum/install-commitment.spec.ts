@@ -19,6 +19,7 @@ import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
 import { AppInstance, StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
+import { createAppInstance } from "../../../unit/utils";
 
 /**
  * This test suite decodes a constructed OpInstall transaction object according
@@ -57,30 +58,7 @@ describe("InstallCommitment", () => {
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const appInstance = new AppInstance(
-    stateChannel.multisigAddress,
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    Math.ceil(1000 * Math.random()),
-    {
-      addr: getAddress(hexlify(randomBytes(20))),
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    stateChannel.numInstalledApps + 1,
-    0,
-    { foo: AddressZero, bar: 0 },
-    0,
-    Math.ceil(1000 * Math.random())
-  );
+  const appInstance = createAppInstance();
 
   beforeAll(() => {
     tx = new InstallCommitment(
