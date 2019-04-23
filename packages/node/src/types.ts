@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { Meta, Operation, OperationResponse } from "@ebryn/jsonapi-ts";
 
 import { ProtocolMessage } from "./machine";
 /**
@@ -7,6 +8,21 @@ import { ProtocolMessage } from "./machine";
 export interface NodeMessage {
   from: string;
   type: NodeEvents;
+}
+
+interface HasMetadata {
+  meta: Meta & {
+    requestId: string;
+    from: string;
+  };
+}
+
+export interface NodeOperation extends HasMetadata {
+  operations: Operation[];
+}
+
+export interface NodeOperationResponse extends HasMetadata {
+  operations: OperationResponse[];
 }
 
 enum Events {

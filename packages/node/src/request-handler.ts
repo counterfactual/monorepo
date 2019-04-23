@@ -1,4 +1,4 @@
-import { NetworkContext, Node } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
@@ -8,12 +8,17 @@ import {
   eventNameToImplementation,
   methodNameToImplementation
 } from "./api-router";
+import NodeApplication from "./jsonapi-app";
 import { InstructionExecutor } from "./machine";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
-import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
-import { Operation, OperationResponse } from "@ebryn/jsonapi-ts";
-import NodeApplication from "./jsonapi-app";
+import {
+  NODE_EVENTS,
+  NodeEvents,
+  // NodeMessage,
+  NodeOperation,
+  NodeOperationResponse
+} from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -25,7 +30,7 @@ export class RequestHandler {
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
-  app: NodeApplication;
+  app: NodeApplication = {} as NodeApplication;
 
   constructor(
     readonly publicIdentifier: string,
@@ -62,8 +67,14 @@ export class RequestHandler {
   //   };
   // }
 
-  public async callMethod(operation: Operation): Promise<OperationResponse[]> {
-    return this.app.executeOperations([operation]);
+  public async callMethod({
+    meta,
+    operations
+  }: NodeOperation): Promise<NodeOperationResponse> {
+    return {
+      meta,
+      operations: await this.app.executeOperations(operations)
+    };
   }
 
   /**
@@ -74,15 +85,15 @@ export class RequestHandler {
     for (const methodName in methodNameToImplementation) {
       this.methods.set(methodName, methodNameToImplementation[methodName]);
 
-      this.incoming.on(methodName, async (op: Operation) => {
-        // const res: Node.MethodResponse = {
-        //   type: req.type,
-        //   requestId: req.requestId,
-        //   result: await this.methods.get(methodName)(this, req.params)
-        // };
-        const res = await this.callMethod(op);
-        this.outgoing.emit(op.op, res);
-      });
+      this.incoming.on(
+        methodName,
+        async ({ meta, operations }: NodeOperation) => {
+          const res = await this.callMethod({ meta, operations });
+
+          // This feels dangerous...
+          this.outgoing.emit(operations[0].op, res);
+        }
+      );
     }
   }
 
@@ -104,7 +115,7 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: NodeEvents, msg: Operation) {
+  public async callEvent(event: NodeEvents, msg: NodeOperation) {
     const controllerExecutionMethod = this.events.get(event);
 
     if (!controllerExecutionMethod) {

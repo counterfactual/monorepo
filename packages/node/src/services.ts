@@ -2,12 +2,11 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 
-import { NodeMessage } from "./types";
-import { Operation } from "@ebryn/jsonapi-ts";
+import { NodeOperation } from "./types";
 
 export interface IMessagingService {
-  send(to: string, msg: NodeMessage): Promise<void>;
-  onReceive(address: string, callback: (msg: NodeMessage) => void);
+  send(to: string, msg: NodeOperation): Promise<void>;
+  onReceive(address: string, callback: (msg: NodeOperation) => void);
 }
 
 export interface IStoreService {
@@ -94,13 +93,13 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  async send(to: string, msg: Operation) {
+  async send(to: string, msg: NodeOperation) {
     await this.firebase
-      .ref(`${this.messagingServerKey}/${to}/${msg.meta!.from}`)
+      .ref(`${this.messagingServerKey}/${to}/${msg.meta.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  onReceive(address: string, callback: (msg: Operation) => void) {
+  onReceive(address: string, callback: (msg: NodeOperation) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -118,7 +117,7 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      const msg: Operation = snapshot.val();
+      const msg: NodeOperation = snapshot.val();
 
       if (msg === null) {
         // We check for `msg` being not null because when the Firebase listener

@@ -11,6 +11,7 @@ import {
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { Meta, OperationResponse } from "@ebryn/jsonapi-ts";
 import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
@@ -242,22 +243,41 @@ export class NodeWrapper {
       networkOrNetworkContext
     );
 
-    node.app.executeOperations([
-      {
-        op: "add",
-        ref: {
-          type: "channel"
-        },
-        data: {
-          attributes: {
-            owners: [
-              "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
-              "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
-            ]
+    node.on(
+      Node.MethodName.CREATE_CHANNEL,
+      ({
+        meta,
+        operations
+      }: {
+        meta: Meta;
+        operations: OperationResponse[];
+      }) => {
+        console.log(meta);
+        console.log(operations);
+      }
+    );
+
+    node.emit(Node.MethodName.CREATE_CHANNEL, {
+      meta: {
+        requestId: new Date().valueOf().toString()
+      },
+      operations: [
+        {
+          op: "add",
+          ref: {
+            type: "channel"
+          },
+          data: {
+            attributes: {
+              owners: [
+                "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
+                "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
+              ]
+            }
           }
         }
-      }
-    ]);
+      ]
+    });
 
     return node;
   }
