@@ -57,7 +57,7 @@ export class AppFactory {
    */
   async proposeInstall(params: {
     /** Xpub of peer being proposed to install instance with */
-    proposedToIdentifier: Address;
+    proposedToIdentifier: string;
     /** Asset to use for deposit */
     asset: BlockchainAsset;
     /** Amount to be deposited by you */
@@ -99,7 +99,7 @@ export class AppFactory {
    */
   async proposeInstallVirtual(params: {
     /** Xpub of peer being proposed to install instance with */
-    proposedToIdentifier: Address;
+    proposedToIdentifier: string;
     /** Asset to use for deposit */
     asset: BlockchainAsset;
     /** Amount to be deposited by you */
@@ -111,7 +111,7 @@ export class AppFactory {
     /** Initial state of app instance */
     initialState: SolidityABIEncoderV2Struct;
     /** List of intermediary peers to route installation through */
-    intermediaries: Address[];
+    intermediaries: string[];
   }): Promise<AppInstanceID> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
