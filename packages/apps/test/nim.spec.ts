@@ -17,9 +17,7 @@ type NimAppState = {
   pileHeights: BigNumber[];
 };
 
-function decodeBytesToAppState(
-  encodedAppState: string
-): NimAppState {
+function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
     ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
