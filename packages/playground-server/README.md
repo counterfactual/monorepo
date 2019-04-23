@@ -71,7 +71,7 @@ $ node
 'camera enter drive paper elegant camp above attend board thought inch crash'
 ```
 
-And save it in `.env`.
+And save it in `.env` in the format specified in `.env.schema`.
 
 **Option 1** Compute the address:
 
