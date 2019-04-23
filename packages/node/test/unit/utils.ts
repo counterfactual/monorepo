@@ -65,6 +65,6 @@ export function createAppInstance() {
     0,
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
-    /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* latestTimeout */ Math.ceil(1000 * Math.random())
   );
 }
