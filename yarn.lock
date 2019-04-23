@@ -7108,10 +7108,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.9:
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.9.tgz#cda1bd6ceea3eb868cb0e0f00b0a2a51747ad6d7"
-  integrity sha512-oHAb/3IQ539JA/BiGv+BYF2nCJ2dH9QFuBdELOp7JaqplnNtmSeqgnfbWpQ4jDIqiIFKJwI5/VeNbQCVX8ndHQ==
+ethereum-waffle@2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.10.tgz#52ef78d88c4cc09fd67dfe7681dcb7f4819e98fc"
+  integrity sha512-EbO+aoeoNL0Hm81t549bLP7xFtmm/Pqk1xYfgcs/R3w+bbR0QaaANNY8ntwjaueLR0jS1Tiz3WYpQn7jkquo7A==
   dependencies:
     "@resolver-engine/imports" "^0.3.2"
     "@resolver-engine/imports-fs" "^0.3.2"
