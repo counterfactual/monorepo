@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";

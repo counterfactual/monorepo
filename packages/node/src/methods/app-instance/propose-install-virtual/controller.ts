@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
+import { NodeOperation } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -74,14 +74,38 @@ export default class ProposeInstallVirtualController extends NodeController {
       params
     );
 
-    const proposalMsg: ProposeVirtualMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      data: {
-        params,
-        appInstanceId,
-        proposedByIdentifier: publicIdentifier
-      }
+    // const proposalMsg: ProposeVirtualMessage = {
+    //   from: publicIdentifier,
+    //   type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    //   data: {
+    //     params,
+    //     appInstanceId,
+    //     proposedByIdentifier: publicIdentifier
+    //   }
+    // };
+
+    const proposalMsg: NodeOperation = {
+      meta: {
+        requestId: "",
+        from: publicIdentifier
+      },
+      operations: [
+        {
+          op: "installVirtual",
+          ref: {
+            type: "proposal"
+          },
+          data: {
+            type: "proposal",
+            attributes: {
+              ...params,
+              appInstanceId,
+              proposedByIdentifier: publicIdentifier
+            },
+            relationships: {}
+          }
+        }
+      ]
     };
 
     const nextNodeAddress = getNextNodeAddress(

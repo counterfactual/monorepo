@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
+import { NodeOperation } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -57,14 +57,34 @@ export default class InstallVirtualController extends NodeController {
       params
     );
 
-    const installVirtualApprovalMsg: InstallVirtualMessage = {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.INSTALL_VIRTUAL,
-      data: {
-        params: {
-          appInstanceId
+    // const installVirtualApprovalMsg: InstallVirtualMessage = {
+    //   from: requestHandler.publicIdentifier,
+    //   type: NODE_EVENTS.INSTALL_VIRTUAL,
+    //   data: {
+    //     params: {
+    //       appInstanceId
+    //     }
+    //   }
+    // };
+
+    const installVirtualApprovalMsg: NodeOperation = {
+      meta: {
+        from: requestHandler.publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "installVirtual",
+          ref: {
+            type: "proposal"
+          },
+          data: {
+            type: "proposal",
+            attributes: { appInstanceId },
+            relationships: {}
+          }
         }
-      }
+      ]
     };
 
     await requestHandler.messagingService.send(

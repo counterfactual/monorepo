@@ -8,7 +8,7 @@ import Queue from "p-queue";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
-import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
+import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
 
@@ -91,19 +91,33 @@ export default class CreateChannelController extends NodeController {
       })).get(multisigAddress)!
     );
 
-    const msg: CreateChannelMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.CREATE_CHANNEL,
-      data: {
-        multisigAddress,
-        owners,
-        counterpartyXpub: respondingXpub
-      } as Node.CreateChannelResult
+    const msg = {
+      meta: {
+        from: publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "add",
+          ref: {
+            type: "channel"
+          },
+          data: {
+            type: "channel",
+            attributes: {
+              multisigAddress,
+              owners,
+              counterpartyXpub: respondingXpub
+            },
+            relationships: {}
+          }
+        }
+      ]
     };
 
     await messagingService.send(respondingXpub, msg);
 
-    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
+    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.operations[0]);
   }
 
   private async sendMultisigDeployTx(
