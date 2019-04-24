@@ -11,15 +11,13 @@ chai.use(waffle.solidity);
 
 const { expect } = chai;
 
-type NimSolidityABIEncoderV2Struct = {
+type NimAppState = {
   players: string[];
   turnNum: BigNumber;
   pileHeights: BigNumber[];
 };
 
-function decodeBytesToAppState(
-  encodedAppState: string
-): NimSolidityABIEncoderV2Struct {
+function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
     ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState

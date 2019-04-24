@@ -2627,10 +2627,10 @@
   resolved "https://registry.yarnpkg.com/@types/node/-/node-11.12.0.tgz#ec5594728811dc2797e42396cfcdf786f2052c12"
   integrity sha512-Lg00egj78gM+4aE0Erw05cuDbvX9sLJbaaPwwRtdCdAMnIudqrQZ0oZX98Ek0yiSK/A2nubHgJfvII/rTT2Dwg==
 
-"@types/node@11.13.6":
-  version "11.13.6"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.6.tgz#37ec75690830acb0d74ce3c6c43caab787081e85"
-  integrity sha512-Xoo/EBzEe8HxTSwaZNLZjaW6M6tA/+GmD3/DZ6uo8qSaolE/9Oarko0oV1fVfrLqOz0tx0nXJB4rdD5c+vixLw==
+"@types/node@11.13.7":
+  version "11.13.7"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-11.13.7.tgz#85dbb71c510442d00c0631f99dae957ce44fd104"
+  integrity sha512-suFHr6hcA9mp8vFrZTgrmqW2ZU3mbWsryQtQlY/QvwTISCw7nw/j+bCQPPohqmskhmqa5wLNuMHTTsc+xf1MQg==
 
 "@types/node@^10.0.3", "@types/node@^10.3.2":
   version "10.14.4"
@@ -7266,10 +7266,10 @@ ethereum-common@^0.0.18:
   resolved "https://registry.yarnpkg.com/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.9:
-  version "2.0.9"
-  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.9.tgz#cda1bd6ceea3eb868cb0e0f00b0a2a51747ad6d7"
-  integrity sha512-oHAb/3IQ539JA/BiGv+BYF2nCJ2dH9QFuBdELOp7JaqplnNtmSeqgnfbWpQ4jDIqiIFKJwI5/VeNbQCVX8ndHQ==
+ethereum-waffle@2.0.10:
+  version "2.0.10"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.10.tgz#52ef78d88c4cc09fd67dfe7681dcb7f4819e98fc"
+  integrity sha512-EbO+aoeoNL0Hm81t549bLP7xFtmm/Pqk1xYfgcs/R3w+bbR0QaaANNY8ntwjaueLR0jS1Tiz3WYpQn7jkquo7A==
   dependencies:
     "@resolver-engine/imports" "^0.3.2"
     "@resolver-engine/imports-fs" "^0.3.2"
@@ -15886,10 +15886,10 @@ rollup-plugin-replace@2.2.0:
     magic-string "^0.25.2"
     rollup-pluginutils "^2.6.0"
 
-rollup-plugin-typescript2@0.20.1:
-  version "0.20.1"
-  resolved "https://registry.yarnpkg.com/rollup-plugin-typescript2/-/rollup-plugin-typescript2-0.20.1.tgz#fb1d411975cd875d24882ea66f5f4fd11d2f2240"
-  integrity sha512-uxA5JQNOfmJ9rsO0yJKTObb1t4nNYUexCg9zxhEKF+NzZwljYWdfgrA06UzA24cOk8fQjGEe7Q5+Vge2vFlnnw==
+rollup-plugin-typescript2@0.21.0:
+  version "0.21.0"
+  resolved "https://registry.yarnpkg.com/rollup-plugin-typescript2/-/rollup-plugin-typescript2-0.21.0.tgz#cc61ed756ac6e68cb3c03f7ee78001346243ed54"
+  integrity sha512-fbUAc2bvWxRrg1GGMYCFVf6aSxq3zvWn0sY2ubzFW9shJNT95ztFbM6GHO4/2rDSCjier7IswQnbr1ySqoLNPw==
   dependencies:
     fs-extra "7.0.1"
     resolve "1.10.0"
@@ -17950,10 +17950,10 @@ typescript@3.3.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.3.3.tgz#f1657fc7daa27e1a8930758ace9ae8da31403221"
   integrity sha512-Y21Xqe54TBVp+VDSNbuDYdGw0BpoR/Q6wo/+35M8PAU0vipahnyduJWirxxdxjsAkS7hue53x2zp8gz7F05u0A==
 
-typescript@3.4.4:
-  version "3.4.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.4.tgz#aac4a08abecab8091a75f10842ffa0631818f785"
-  integrity sha512-xt5RsIRCEaf6+j9AyOBgvVuAec0i92rgCaS3S+UVf5Z/vF2Hvtsw08wtUTJqp4djwznoAgjSxeCcU4r+CcDBJA==
+typescript@3.4.5:
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-3.4.5.tgz#2d2618d10bb566572b8d7aad5180d84257d70a99"
+  integrity sha512-YycBxUb49UUhdNMU5aJ7z5Ej2XGmaIBL0x34vZ82fn3hGvD+bgrMrVDpatgz2f7YxUMJxMkbWxJZeAvDxVe7Vw==
 
 typewise-core@^1.2, typewise-core@^1.2.0:
   version "1.2.0"

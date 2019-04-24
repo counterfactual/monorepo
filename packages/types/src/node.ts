@@ -1,10 +1,4 @@
-import { BigNumber } from "ethers/utils";
-
-import {
-  AppABIEncodings,
-  AppInstanceInfo,
-  BlockchainAsset
-} from "./data-types";
+import { AppInstanceInfo } from "./data-types";
 import {
   Address,
   AppInstanceID,
@@ -69,17 +63,6 @@ export namespace Node {
 
   export type GetProposedAppInstancesResult = {
     appInstances: AppInstanceInfo[];
-  };
-
-  export type ProposeInstallParams = {
-    respondingAddress: Address;
-    appId: Address;
-    abiEncodings: AppABIEncodings;
-    asset: BlockchainAsset;
-    myDeposit: BigNumber;
-    peerDeposit: BigNumber;
-    timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
   };
 
   export type ProposeInstallResult = {
@@ -148,7 +131,6 @@ export namespace Node {
   export type MethodParams =
     | GetAppInstancesParams
     | GetProposedAppInstancesParams
-    | ProposeInstallParams
     | RejectInstallParams
     | InstallParams
     | GetStateParams

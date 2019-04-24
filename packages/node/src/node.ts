@@ -111,6 +111,7 @@ export class Node {
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
     console.log(`Node signer address: ${this.signer.address}`);
+    console.log(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,

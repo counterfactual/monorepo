@@ -46,7 +46,7 @@
         - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
         - `async proposeInstall({
-                respondingAddress: Address,
+                proposedToIdentifier: string,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
@@ -54,12 +54,12 @@
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
         - `async proposeInstallVirtual({
-                respondingAddress: Address,
+                proposedToIdentifier: string,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
                 initialState: AppState,
-                intermediaries: Address[]
+                intermediaries: string[]
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstallvirtual)
 - `AppInstance`
@@ -148,10 +148,8 @@ Result:
 Requests that a peer start the install protocol for an app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `respondingAddress: string`
+- `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `initiatingAddress: string`
-    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -179,10 +177,8 @@ Errors: (TODO)
 Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `respondingAddress: string`
+- `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `initiatingAddress: string`
-    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -197,8 +193,8 @@ Params:
     - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
     - Initial state of app instance
-- `intermediaries: Address[]`
-    - List of addresses of intermediaries to route the virtual app installation through
+- `intermediaries: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstanceId: string`
@@ -245,8 +241,8 @@ Params:
 - `appInstanceId: string`
     - ID of the app instance to install
     - Counterparty must have called `proposedInstall` and generated this ID
-- `intermediaries: Address[]`
-    - List of addresses of intermediaries to route the virtual app installation through
+- `intermediaries: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -481,8 +477,8 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
+- `intermediaries?: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
