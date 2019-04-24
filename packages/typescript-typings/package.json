@@ -19,6 +19,6 @@
   },
   "dependencies": {
     "@types/node": "11.13.7",
-    "truffle-contract": "4.0.12"
+    "truffle-contract": "4.0.13"
   }
 }
