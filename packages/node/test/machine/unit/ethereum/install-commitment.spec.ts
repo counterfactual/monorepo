@@ -58,7 +58,7 @@ describe("InstallCommitment", () => {
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const appInstance = createAppInstance();
+  const appInstance = createAppInstance(stateChannel);
 
   beforeAll(() => {
     tx = new InstallCommitment(
@@ -72,7 +72,7 @@ describe("InstallCommitment", () => {
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
-      stateChannel.numInstalledApps + 1,
+      appInstance.appSeqNo,
       stateChannel.rootNonceValue
     ).getTransactionDetails();
   });
