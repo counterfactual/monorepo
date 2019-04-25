@@ -1,7 +1,4 @@
-import {
-  AssetType,
-  Node
-} from "@counterfactual/types";
+import { AssetType, Node } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";

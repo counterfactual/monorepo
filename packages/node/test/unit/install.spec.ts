@@ -96,7 +96,8 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state as ETHBucketAppState;
+    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState;
 
     expect(fbState.alice === signingKeys[0]);
     expect(fbState.bob === signingKeys[1]);
