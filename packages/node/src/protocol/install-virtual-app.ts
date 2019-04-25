@@ -2,7 +2,7 @@ import {
   AppInterface,
   AssetType,
   NetworkContext,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, BigNumberish } from "ethers/utils";
@@ -194,7 +194,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 function createAndAddTarget(
   defaultTimeout: number,
   appInterface: AppInterface,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   initiatingBalanceDecrement: BigNumberish, // FIXME: serialize
   respondingBalanceDecrement: BigNumberish,
   context: Context,

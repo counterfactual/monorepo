@@ -9,7 +9,7 @@ import {
 import {
   Address,
   AppInstanceID,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface INodeProvider {
@@ -67,10 +67,10 @@ export namespace Node {
     WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent",
     WITHDRAWAL_FAILED = "withdrawalFailed",
     WITHDRAWAL_STARTED = "withdrawalStartedEvent",
-    PROPOSE_INSTALL = "proposeInstallEvent",	
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",	
-    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",	
-    WITHDRAW_EVENT = "withdrawEvent",	
+    PROPOSE_INSTALL = "proposeInstallEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+    WITHDRAW_EVENT = "withdrawEvent",
     REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
   }
 
@@ -130,7 +130,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
+    initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
   };
 
@@ -169,7 +169,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Struct;
+    state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -182,20 +182,20 @@ export namespace Node {
 
   export type UpdateStateParams = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UpdateStateResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: SolidityABIEncoderV2Struct;
+    action: SolidityABIEncoderV2Type;
   };
 
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UninstallParams = {
@@ -270,8 +270,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
-    action?: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
+    action?: SolidityABIEncoderV2Type;
   };
 
   export type UninstallEventData = {

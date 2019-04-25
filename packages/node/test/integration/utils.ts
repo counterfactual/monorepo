@@ -9,7 +9,7 @@ import {
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
@@ -200,7 +200,7 @@ export function makeInstallProposalRequest(
     initialState = {
       foo: AddressZero,
       bar: Zero
-    } as SolidityABIEncoderV2Struct;
+    } as SolidityABIEncoderV2Type;
   }
 
   const params: NodeTypes.ProposeInstallParams = {
@@ -228,7 +228,7 @@ export function makeInstallProposalRequest(
 export function makeTTTProposalReq(
   proposedToIdentifier: string,
   appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   abiEncodings: AppABIEncodings
 ): NodeTypes.MethodRequest {
   return {
@@ -381,7 +381,7 @@ export function generateUninstallVirtualRequest(
 export function makeTTTVirtualAppInstanceProposalReq(
   proposedToIdentifier: string,
   appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   abiEncodings: AppABIEncodings,
   intermediaries: string[]
 ): NodeTypes.MethodRequest {

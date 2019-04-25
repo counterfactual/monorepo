@@ -1,7 +1,6 @@
 import {
   AssetType,
-  Node,
-  SolidityABIEncoderV2Struct
+  Node
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
@@ -13,7 +12,7 @@ import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
-export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
+export interface ETHBalanceRefundAppState {
   recipient: string;
   multisig: string;
   threshold: BigNumber;
@@ -39,7 +38,7 @@ export async function installBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const initialState: ETHBalanceRefundAppState = {
+  const initialState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
     threshold: await provider.getBalance(params.multisigAddress)
