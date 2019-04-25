@@ -15,7 +15,7 @@ import {
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf, HighRollerUIMutableState } from "../../data/types";
-import { computeCommitHash, getProp, generateSalt } from "../../utils/utils";
+import { computeCommitHash, generateSalt, getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
 const { bigNumberify } = ethers.utils;
