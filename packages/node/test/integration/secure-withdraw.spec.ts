@@ -83,12 +83,22 @@ describe("Node method follows spec - withdraw", () => {
 
         expect(multisigAddress).toBeDefined();
 
+        // Because the tests re-use the same ganache instance (and therefore
+        // deterministically computed multisig address is re-used)
+        const startingMultisigBalance = await provider.getBalance(
+          multisigAddress
+        );
+
         const depositReq = makeDepositRequest(multisigAddress, One);
 
         await nodeA.call(depositReq.type, depositReq);
 
-        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          1
+        const postDepositMultisigBalance = await provider.getBalance(
+          multisigAddress
+        );
+
+        expect(postDepositMultisigBalance.toNumber()).toEqual(
+          startingMultisigBalance.toNumber() + 1
         );
 
         const withdrawReq = makeWithdrawRequest(multisigAddress, One);
@@ -96,7 +106,7 @@ describe("Node method follows spec - withdraw", () => {
         await nodeA.call(withdrawReq.type, withdrawReq);
 
         expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          0
+          startingMultisigBalance.toNumber()
         );
 
         done();
