@@ -9,6 +9,7 @@
     "jest-cli",
     "jest",
     "workbox-build",
+    "@ebryn/jsonapi-ts",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
     "@counterfactual/contracts",
