@@ -7,9 +7,9 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p . && rollup -c",
-    "test": "yarn run test:no-ganache && yarn run test:with-ganache",
-    "test:with-ganache": "./scripts/test.sh",
-    "test:no-ganache": "jest --testPathIgnorePatterns=test/machine/integration --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test": "yarn run test:machine && yarn run test:node",
+    "test:machine": "./scripts/test.sh",
+    "test:node": "jest --testPathIgnorePatterns=test/machine/integration --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
