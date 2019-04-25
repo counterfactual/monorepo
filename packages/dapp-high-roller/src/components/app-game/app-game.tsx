@@ -15,7 +15,7 @@ import {
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import { cf, HighRollerUIMutableState } from "../../data/types";
-import { computeCommitHash, getProp } from "../../utils/utils";
+import { computeCommitHash, generateSalt, getProp } from "../../utils/utils";
 
 const { AddressZero, HashZero } = ethers.constants;
 const { bigNumberify } = ethers.utils;
@@ -148,9 +148,7 @@ export class AppGame {
         startGameAction
       )) as HighRollerAppState;
 
-      // TODO randomize this and save it in proposingPlayer state
-      const numberSalt =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+      const numberSalt = generateSalt();
       const playerFirstNumber =
         1 + Math.floor(Math.random() * Math.floor(1000));
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
@@ -165,7 +163,8 @@ export class AppGame {
         ...((await this.appInstance.takeAction(
           commitHashAction
         )) as HighRollerAppState),
-        playerFirstNumber: bigNumberify(playerFirstNumber)
+        playerFirstNumber: bigNumberify(playerFirstNumber),
+        salt: numberSalt
       } as HighRollerAppState;
 
       this.updateUIState({
