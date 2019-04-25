@@ -122,7 +122,7 @@ export class AppProvider {
     if (state.stage === HighRollerStage.REVEALING) {
       return await this.appInstance.takeAction({
         actionType: ActionType.REVEAL,
-        actionHash: state.salt,
+        actionHash: this.highRollerState.salt,
         number: state.playerFirstNumber.toString()
       });
     }
