@@ -13,7 +13,7 @@ import {
   expect,
   Terms
 } from "./utils";
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 
 import { utils } from "@counterfactual/cf.js";
 const { signaturesToBytes } = utils;
@@ -50,7 +50,7 @@ const POST_STATE = {
   counter: bigNumberify(5)
 }
 
-function encodeState(state: SolidityABIEncoderV2Struct) {
+function encodeState(state: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
     [
       `
@@ -65,7 +65,7 @@ function encodeState(state: SolidityABIEncoderV2Struct) {
   );
 }
 
-function encodeAction(state: SolidityABIEncoderV2Struct) {
+function encodeAction(state: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
     [
       `

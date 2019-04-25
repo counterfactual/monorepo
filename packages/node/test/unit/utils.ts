@@ -2,7 +2,7 @@ import {
   AppABIEncodings,
   AssetType,
   BlockchainAsset,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -35,7 +35,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Struct
+      } as SolidityABIEncoderV2Type
     },
     undefined,
     appInstanceId

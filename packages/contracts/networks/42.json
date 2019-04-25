@@ -51,8 +51,8 @@
   },
   {
     "contractName": "ProxyFactory",
-    "address": "0xF8ABB72e48B0E0F0fDf9A892109F24ffAE14705c",
-    "transactionHash": "0x697f63adff2c1725737cc5de33ff7e0281583989ab628d3415b19353eec3a2ca"
+    "address": "0xa597600118dbd039ca8dc43a9af710a316de974d",
+    "transactionHash": "0x600c57dc6ef58c20793ceb671caf83dd6dcad09239f60ed01c07cdb48a8adbae"
   },
   {
     "contractName": "StateChannelTransaction",

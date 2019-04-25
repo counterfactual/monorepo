@@ -1,4 +1,4 @@
-import { AssetType } from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -96,7 +96,8 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;
+    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState;
 
     expect(fbState.alice === signingKeys[0]);
     expect(fbState.bob === signingKeys[1]);
