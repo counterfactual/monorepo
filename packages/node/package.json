@@ -8,8 +8,10 @@
   "scripts": {
     "build": "tsc -p . && rollup -c",
     "test": "yarn run test:machine && yarn run test:node",
-    "test:machine": "./scripts/test.sh",
-    "test:node": "jest --testPathIgnorePatterns=test/machine/integration --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test:machine": "yarn run test:machine:integration && yarn run test:machine:unit",
+    "test:machine:integration": "./scripts/test.sh",
+    "test:machine:unit": "jest --testPathPattern=test/machine/unit --bail --forceExit",
+    "test:node": "jest --testPathIgnorePatterns=test/machine --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
