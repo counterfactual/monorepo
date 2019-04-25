@@ -46,7 +46,9 @@ export class InstallCommitment extends MultiSendCommitment {
         [
           /* sender */ this.multisig,
           /* timeout */ 0,
-          /* salt */ keccak256(solidityPack(["uint256"], [this.dependencyNonce]))
+          /* salt */ keccak256(
+            solidityPack(["uint256"], [this.dependencyNonce])
+          )
         ]
       )
     );

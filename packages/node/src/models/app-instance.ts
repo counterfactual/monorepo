@@ -172,7 +172,6 @@ export class AppInstance {
 
   @Memoize()
   public get uninstallKey() {
-
     // The unique "key" in the NonceRegistry is computed to be:
     // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
     const ret = keccak256(

@@ -44,7 +44,9 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
 
 export function createAppInstance(stateChannel?: StateChannel) {
   return new AppInstance(
-    /* multisigAddress */ stateChannel ? stateChannel.multisigAddress : getAddress(hexlify(randomBytes(20))),
+    /* multisigAddress */ stateChannel
+      ? stateChannel.multisigAddress
+      : getAddress(hexlify(randomBytes(20))),
     /* signingKeys */ [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
@@ -61,7 +63,9 @@ export function createAppInstance(stateChannel?: StateChannel) {
       token: AddressZero
     },
     /* isVirtualApp */ false,
-    /* appSeqNo */ stateChannel ? stateChannel.numInstalledApps + 1 : Math.ceil(1000 * Math.random()),
+    /* appSeqNo */ stateChannel
+      ? stateChannel.numInstalledApps + 1
+      : Math.ceil(1000 * Math.random()),
     /* rootNonceValue */ 0,
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestNonce */ 0,
