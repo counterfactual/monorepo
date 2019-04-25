@@ -8,6 +8,7 @@
     "@types/jest",
     "jest-cli",
     "jest",
+    "react-scripts",
     "workbox-build",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
