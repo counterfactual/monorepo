@@ -1,13 +1,8 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import { AssetType } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import {
   bigNumberify,
-  getAddress,
-  hexlify,
   Interface,
   keccak256,
-  randomBytes,
   solidityPack,
   TransactionDescription
 } from "ethers/utils";
@@ -15,7 +10,7 @@ import {
 import { SetStateCommitment } from "../../../../src/ethereum";
 import { Transaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
-import { AppInstance } from "../../../../src/models";
+import { createAppInstance } from "../../../unit/utils";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -27,33 +22,9 @@ describe("Set State Commitment", () => {
   let commitment: SetStateCommitment;
   let tx: Transaction;
 
-  // Dummy network context
   const networkContext = generateRandomNetworkContext();
 
-  const appInstance = new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    Math.ceil(1000 * Math.random()),
-    {
-      addr: getAddress(hexlify(randomBytes(20))),
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    Math.ceil(1000 * Math.random()),
-    0,
-    { foo: AddressZero, bar: 0 },
-    0,
-    Math.ceil(1000 * Math.random())
-  );
+  const appInstance = createAppInstance();
 
   beforeAll(() => {
     commitment = new SetStateCommitment(

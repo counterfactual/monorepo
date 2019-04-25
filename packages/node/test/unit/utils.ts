@@ -10,7 +10,7 @@ import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
 import { AppInstance } from "../../src/machine";
-import { ProposedAppInstanceInfo } from "../../src/models";
+import { ProposedAppInstanceInfo, StateChannel } from "../../src/models";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
@@ -42,30 +42,33 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
   );
 }
 
-export function createAppInstance() {
+export function createAppInstance(stateChannel?: StateChannel) {
   return new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
+    /* multisigAddress */ stateChannel
+      ? stateChannel.multisigAddress
+      : getAddress(hexlify(randomBytes(20))),
+    /* signingKeys */ [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ],
-    0,
-    {
+    /* defaultTimeout */ 0,
+    /* appInterface */ {
       addr: getAddress(hexlify(randomBytes(20))),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    {
+    /* terms */ {
       assetType: AssetType.ETH,
       limit: bigNumberify(2),
       token: AddressZero
     },
-    false,
-    // TODO: this should be thread-safe
-    1,
-    0,
-    { foo: AddressZero, bar: bigNumberify(0) },
-    0,
-    0
+    /* isVirtualApp */ false,
+    /* appSeqNo */ stateChannel
+      ? stateChannel.numInstalledApps + 1
+      : Math.ceil(1000 * Math.random()),
+    /* rootNonceValue */ 0,
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestNonce */ 0,
+    /* latestTimeout */ Math.ceil(1000 * Math.random())
   );
 }

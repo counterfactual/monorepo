@@ -174,7 +174,7 @@ export class AppInstance {
   public get uninstallKey() {
     // The unique "key" in the NonceRegistry is computed to be:
     // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
-    return keccak256(
+    const ret = keccak256(
       solidityPack(
         ["address", "uint256", "bytes32"],
         [
@@ -184,6 +184,16 @@ export class AppInstance {
         ]
       )
     );
+
+    console.log(`
+    app-instance: computed
+      uninstallKey = ${ret} using
+      sender = ${this.json.multisigAddress},
+      timeout = 0,
+      salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
+  `);
+
+    return ret;
   }
 
   // TODO: All these getters seems a bit silly, would be nice to improve
