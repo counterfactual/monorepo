@@ -317,6 +317,7 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeOperation) {
+    console.log("Emitting", event, req);
     this.incoming.emit(event, req);
   }
 

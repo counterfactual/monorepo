@@ -3,6 +3,7 @@ import {
   Application,
   Operation,
   OperationProcessor,
+  OperationResponse,
   Resource,
   ResourceAttributes
 } from "@ebryn/jsonapi-ts";
@@ -24,6 +25,25 @@ export default class NodeApplication extends Application {
     this.buildOperationMethods();
   }
 
+  async executeOperation(
+    op: Operation,
+    processor: OperationProcessor<Resource>
+  ): Promise<OperationResponse> {
+    console.log(
+      "Executing operation: ",
+      op,
+      " with processor ",
+      processor.constructor.name,
+      processor.resourceClass.name
+    );
+    const result = await processor.execute(op);
+
+    return {
+      data: result || null,
+      included: []
+    };
+  }
+
   // tslint:disable-next-line: prefer-array-literal
   buildOperationMethods(): void {
     Object.keys(controllersToOperations).forEach(controllerName => {
@@ -43,9 +63,21 @@ export default class NodeApplication extends Application {
 
       this.processorFor(type)
         .then(processor => {
-          processor!.constructor.prototype[op] = async (
+          if (!processor) {
+            console.log(
+              "Attempted to bind ",
+              type,
+              op,
+              "to an undefined processor"
+            );
+            return;
+          }
+
+          processor.constructor.prototype[op] = async (
             operation: Operation
           ): Promise<Resource | Resource[] | void> => {
+            console.log("Executing", operation);
+
             const data = operation.data as Resource;
             const result = (await implementation(
               this.requestHandler,
@@ -69,6 +101,8 @@ export default class NodeApplication extends Application {
                   relationships: {}
                 };
           };
+
+          console.log("Implemented: ", type, op);
         })
         .catch(error => console.error(error));
     });
