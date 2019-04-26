@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
@@ -18,6 +19,7 @@ import {
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
+  makeDepositRequest,
   makeInstallVirtualProposalRequest,
   makeInstallVirtualRequest
 } from "./utils";
@@ -97,13 +99,26 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
+            await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
+
             nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
-              async (data: NodeTypes.CreateChannelResult) => {
+              async (res: NodeTypes.CreateChannelResult) => {
+                await collateralizeChannel(
+                  nodeB,
+                  nodeC,
+                  // FIXME: why is this typing corrupt at runtime?
+                  // @ts-ignore
+                  res.data.multisigAddress
+                );
+
                 const intermediaries = [nodeB.publicIdentifier];
                 const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
                   nodeC.publicIdentifier,
-                  intermediaries
+                  intermediaries,
+                  false,
+                  One,
+                  Zero
                 );
 
                 nodeA.once(
@@ -122,6 +137,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     expect(virtualAppInstanceNodeA).toEqual(
                       virtualAppInstanceNodeC
                     );
+                    expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
+                    expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
                     done();
                   }
                 );
@@ -142,7 +161,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     );
                     confirmProposedVirtualAppInstanceOnNode(
                       installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
+                      proposedAppInstanceC,
+                      true
                     );
 
                     expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
@@ -183,3 +203,13 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     }
   );
 });
+
+async function collateralizeChannel(
+  node1: Node,
+  node2: Node,
+  multisigAddress: string
+): Promise<void> {
+  const depositReq = makeDepositRequest(multisigAddress, One);
+  await node1.call(depositReq.type, depositReq);
+  await node2.call(depositReq.type, depositReq);
+}

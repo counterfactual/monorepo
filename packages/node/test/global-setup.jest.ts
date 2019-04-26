@@ -15,7 +15,7 @@ dotenvExtended.load();
 
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
-const CF_PATH = "m/44'/60'/0'/25446";
+export const CF_PATH = "m/44'/60'/0'/25446";
 
 export default async function globalSetup() {
   mkdirp.sync(DIR);
