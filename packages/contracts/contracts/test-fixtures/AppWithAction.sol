@@ -19,8 +19,8 @@ contract AppWithAction is CounterfactualApp{
     uint256 increment;
   }
 
-  function getTurnTaker(bytes memory encodedState, address[] memory)
-    public
+  function getTurnTaker(bytes calldata encodedState, address[] calldata)
+    external
     pure
     returns (address)
   {
@@ -28,8 +28,8 @@ contract AppWithAction is CounterfactualApp{
     return state.player2;
   }
 
-  function resolve(bytes memory, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata, Transfer.Terms calldata terms)
+    external
     pure
     returns (Transfer.Transaction memory)
   {
@@ -48,8 +48,11 @@ contract AppWithAction is CounterfactualApp{
     );
   }
 
-  function applyAction(bytes memory encodedState, bytes memory encodedAction)
-    public
+  function applyAction(
+    bytes calldata encodedState,
+    bytes calldata encodedAction
+  )
+    external
     pure
     returns (bytes memory ret)
   {
@@ -61,8 +64,8 @@ contract AppWithAction is CounterfactualApp{
     return abi.encode(state);
   }
 
-  function isStateTerminal(bytes memory)
-    public
+  function isStateTerminal(bytes calldata)
+    external
     pure
     returns (bool)
   {
