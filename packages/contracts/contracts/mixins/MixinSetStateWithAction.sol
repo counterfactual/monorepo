@@ -125,7 +125,7 @@ contract MixinSetStateWithAction is
     SignedAction memory action
   )
     private
-    view
+    pure
     returns (bool)
   {
     address turnTaker = MAppCaller.getTurnTaker(
