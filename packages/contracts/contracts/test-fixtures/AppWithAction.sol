@@ -7,7 +7,7 @@ import "../CounterfactualApp.sol";
 // there is a counter; player2 can unanimously increment it
 
 
-contract AppWithAction {
+contract AppWithAction is CounterfactualApp{
 
   struct State {
     address player1;
@@ -61,5 +61,13 @@ contract AppWithAction {
     state.counter += action.increment;
 
     return abi.encode(state);
+  }
+
+  function isStateTerminal(bytes memory encodedState)
+    public
+    pure
+    returns (bool)
+  {
+    return false;
   }
 }
