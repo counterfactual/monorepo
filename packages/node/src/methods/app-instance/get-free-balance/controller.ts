@@ -25,9 +25,16 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
+    const {
+      alice,
+      bob,
+      aliceBalance,
+      bobBalance
+    } = stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState;
     return {
-      state: stateChannel.getFreeBalanceFor(AssetType.ETH)
-        .state as ETHBucketAppState
+      [alice]: aliceBalance,
+      [bob]: bobBalance
     };
   }
 }

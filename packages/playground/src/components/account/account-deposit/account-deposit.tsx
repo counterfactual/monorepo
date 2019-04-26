@@ -15,7 +15,7 @@ import { UserSession } from "../../../types";
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
 
-  @Prop() ethWeb3WalletBalance: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethWeb3WalletBalance: BigNumber | number = 0;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;
@@ -85,7 +85,7 @@ export class AccountDeposit {
           autofocus={true}
           provideFaucetLink={true}
           button={buttonTexts[this.stage]}
-          available={this.ethWeb3WalletBalance}
+          available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
           min={0.1}
           max={1}
           error={this.error}

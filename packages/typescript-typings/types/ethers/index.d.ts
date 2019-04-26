@@ -1,7 +1,6 @@
 // This file should be removed in favour of the real "ethers" package typings.
 
-type BigNumber = {
-  private readonly _hex;
+declare class BigNumber {
   constructor(value: BigNumberish);
   fromTwos(value: number): BigNumber;
   toTwos(value: number): BigNumber;
@@ -23,7 +22,6 @@ type BigNumber = {
   toString(): string;
   toHexString(): string;
   static isBigNumber(value: any): value is BigNumber;
-  isBigNumber(value: any): value is BigNumber;
 };
 
 type Signer = {
@@ -50,19 +48,19 @@ declare class HDNode {
   derivePath(path: string): { publicKey: string };
 }
 
-declare var ethers = {
+declare var ethers: {
   utils: {
-    formatEther: (value: BigNumber) => string,
+    formatEther: (value: BigNumber | Number) => string,
     parseEther: (value: string) => BigNumber,
     bigNumberify: (value: any) => BigNumber,
     solidityKeccak256: (type: string[], data: any[]) => string,
     computeAddress: (value: any) => string,
-    HDNode: HDNode
+    HDNode: typeof HDNode
   },
   constants: {
     Zero: BigNumber
   },
   providers: {
-    Web3Provider: Web3Provider
+    Web3Provider: typeof Web3Provider
   }
 };

@@ -5,7 +5,6 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
-  ETHBucketAppState,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
@@ -98,7 +97,7 @@ export async function getProposedAppInstanceInfo(
 export async function getFreeBalanceState(
   node: Node,
   multisigAddress: string
-): Promise<ETHBucketAppState> {
+): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
@@ -107,8 +106,7 @@ export async function getFreeBalanceState(
     }
   };
   const response = await node.call(req.type, req);
-  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
-  return result.state;
+  return response.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
 export async function getApps(

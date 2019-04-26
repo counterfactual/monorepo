@@ -44,13 +44,6 @@ export interface SignedStateHashUpdate {
   signatures: string;
 }
 
-export interface ETHBucketAppState {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
-}
-
 export type AppInstanceInfo = {
   id: AppInstanceID;
   appId: Address;

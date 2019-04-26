@@ -1,6 +1,5 @@
 import { BigNumber } from "ethers/utils";
 
-import { ETHBucketAppState } from ".";
 import {
   AppABIEncodings,
   AppInstanceInfo,
@@ -99,7 +98,7 @@ export namespace Node {
   };
 
   export type GetFreeBalanceStateResult = {
-    state: ETHBucketAppState;
+    [ s: string ]: BigNumber
   };
 
   export type GetAppInstancesParams = {};
