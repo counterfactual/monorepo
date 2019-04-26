@@ -31,7 +31,6 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
-    GET_MY_FREE_BALANCE_FOR_STATE = "getMyFreeBalanceForState",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
     INSTALL = "install",
@@ -101,14 +100,6 @@ export namespace Node {
 
   export type GetFreeBalanceStateResult = {
     state: ETHBucketAppState;
-  };
-
-  export type GetMyFreeBalanceForStateParams = {
-    multisigAddress: string;
-  };
-
-  export type GetMyFreeBalanceForStateResult = {
-    balance: BigNumber;
   };
 
   export type GetAppInstancesParams = {};
