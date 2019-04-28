@@ -4,7 +4,6 @@ import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import * as log from "loglevel";
-import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
