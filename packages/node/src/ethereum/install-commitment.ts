@@ -1,6 +1,7 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
+import * as log from "loglevel";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -53,7 +54,7 @@ export class InstallCommitment extends MultiSendCommitment {
       )
     );
 
-    console.log(`
+    log.debug(`
       install-commitment: computed
         uninstallKey = ${uninstallKey} using
         sender = ${this.multisig},

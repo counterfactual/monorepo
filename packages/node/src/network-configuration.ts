@@ -2,13 +2,14 @@ import RopstenContracts from "@counterfactual/contracts/networks/3.json";
 import RinkebyContracts from "@counterfactual/contracts/networks/4.json";
 import KovanContracts from "@counterfactual/contracts/networks/42.json";
 import { NetworkContext } from "@counterfactual/types";
+import * as log from "loglevel";
 
 import { ERRORS } from "./methods/errors";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
 export function configureNetworkContext(network: string): NetworkContext {
-  console.log(`Configuring Node to use contracts on network: ${network}`);
+  log.info(`Configuring Node to use contracts on network: ${network}`);
 
   switch (network.toLocaleLowerCase()) {
     case "ropsten": {

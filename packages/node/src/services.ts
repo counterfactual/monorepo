@@ -1,6 +1,7 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
+import * as log from "loglevel";
 
 import { NodeMessage } from "./types";
 
@@ -65,12 +66,10 @@ export class FirebaseServiceFactory {
 
   async auth(email: string, password: string) {
     try {
-      console.log(`Authenticating with email: ${email}`);
+      log.info(`Authenticating with email: ${email}`);
       await this.app.auth().signInWithEmailAndPassword(email, password);
     } catch (e) {
-      console.error(
-        `Error authenticating against Firebase with email: ${email}`
-      );
+      log.error(`Error authenticating against Firebase with email: ${email}`);
       console.error(e);
     }
   }
