@@ -38,40 +38,39 @@ const API_TIMEOUT = 5 * 60 * 1000;
     process.env.NODE_MNEMONIC
   );
 
-  const node = NodeWrapper.getInstance();
+  // const node = NodeWrapper.getInstance();
 
-  node.on(
-    NodeTypes.MethodName.CREATE_CHANNEL,
-    ({ meta, operations }: { meta: Meta; operations: OperationResponse[] }) => {
-      console.log(meta);
-      console.log(operations);
-    }
-  );
+  // node.on(
+  //   NodeTypes.MethodName.CREATE_CHANNEL,
+  //   ({ meta, operations }: { meta: Meta; operations: OperationResponse[] }) => {
+  //     console.log(meta);
+  //     console.log(operations);
+  //   }
+  // );
 
-  node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
-    meta: {
-      requestId: new Date().valueOf().toString()
-    },
-    operations: [
-      {
-        op: "add",
-        ref: {
-          type: "channel"
-        },
-        data: {
-          type: "channel",
-          attributes: {
-            owners: [
-              "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
-              "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
-            ]
-          },
-          relationships: {}
-        }
-      }
-    ]
-  });
-  console.log("Emitted createChannel");
+  // node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
+  //   meta: {
+  //     requestId: new Date().valueOf().toString()
+  //   },
+  //   operations: [
+  //     {
+  //       op: "add",
+  //       ref: {
+  //         type: "channel"
+  //       },
+  //       data: {
+  //         type: "channel",
+  //         attributes: {
+  //           owners: [
+  //             "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
+  //             "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
+  //           ]
+  //         },
+  //         relationships: {}
+  //       }
+  //     }
+  //   ]
+  // });
 
   const api = mountApi();
   const port = process.env.PORT || 9000;
