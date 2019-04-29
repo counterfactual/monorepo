@@ -1,6 +1,13 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import {
+  JsonRpcProvider,
+  TransactionRequest,
+  Provider
+} from "ethers/providers";
+import { parseEther } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -11,8 +18,8 @@ import {
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
+import { CF_PATH } from "../global-setup.jest";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 import {
   confirmProposedVirtualAppInstanceOnNode,
@@ -56,6 +63,14 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
+    // generate new mnemonics so owner addresses are different for creating
+    // a channel in this suite
+    const { A_MNEMONIC, B_MNEMONIC } = await generateNewFundedMnemonics(
+      global["fundedPrivateKey"],
+      provider
+    );
+
     storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
@@ -252,4 +267,36 @@ async function collateralizeChannel(
   const depositReq = makeDepositRequest(multisigAddress, One);
   await node1.call(depositReq.type, depositReq);
   await node2.call(depositReq.type, depositReq);
+}
+
+async function generateNewFundedMnemonics(
+  fundedPrivateKey: string,
+  provider: Provider
+) {
+  const fundedWallet = new Wallet(fundedPrivateKey, provider);
+  const A_MNEMONIC = Wallet.createRandom().mnemonic;
+  const B_MNEMONIC = Wallet.createRandom().mnemonic;
+
+  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+
+  const signerAAddress = new Wallet(signerAPrivateKey).address;
+  const signerBAddress = new Wallet(signerBPrivateKey).address;
+
+  const transactionToA: TransactionRequest = {
+    to: signerAAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  const transactionToB: TransactionRequest = {
+    to: signerBAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  await fundedWallet.sendTransaction(transactionToA);
+  await fundedWallet.sendTransaction(transactionToB);
+  return {
+    A_MNEMONIC,
+    B_MNEMONIC
+  };
 }
