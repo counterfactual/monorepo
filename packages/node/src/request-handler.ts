@@ -71,7 +71,6 @@ export class RequestHandler {
     meta,
     operations
   }: NodeOperation): Promise<NodeOperationResponse> {
-    console.log("Delegating execution: ", operations);
     return {
       meta,
       operations: await this.app.executeOperations(operations)
@@ -89,10 +88,8 @@ export class RequestHandler {
       this.incoming.on(
         methodName,
         async ({ meta, operations }: NodeOperation) => {
-          console.log("Received emit request", meta, operations);
           try {
             const res = await this.callMethod({ meta, operations });
-            console.log("Response", res);
 
             // This feels dangerous...
             this.outgoing.emit(operations[0].op, res);
@@ -104,6 +101,7 @@ export class RequestHandler {
               "failed",
               e
             );
+            throw e;
           }
         }
       );

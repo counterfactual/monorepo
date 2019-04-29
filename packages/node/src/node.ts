@@ -131,7 +131,11 @@ export class Node {
     );
     this.registerMessagingConnection();
     this.app = new NodeApplication(this.requestHandler);
+
+    await this.app.bootstrap();
+
     this.requestHandler.app = this.app;
+
     return this;
   }
 
@@ -317,7 +321,6 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeOperation) {
-    console.log("Emitting", event, req);
     this.incoming.emit(event, req);
   }
 

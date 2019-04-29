@@ -15,27 +15,38 @@ import {
 import { RequestHandler } from "./request-handler";
 import { App, Channel, Proposal } from "./resources";
 
+class AppProcessor<T extends Resource = App> extends OperationProcessor<T> {
+  static resourceClass = App;
+}
+
+class ChannelProcessor<T extends Resource = Channel> extends OperationProcessor<
+  T
+> {
+  static resourceClass = Channel;
+}
+
+class ProposalProcessor<
+  T extends Resource = Proposal
+> extends OperationProcessor<T> {
+  static resourceClass = Proposal;
+}
+
 export default class NodeApplication extends Application {
   constructor(private requestHandler: RequestHandler) {
     super({
       types: [App, Channel, Proposal],
-      defaultProcessor: OperationProcessor
+      processors: [AppProcessor, ChannelProcessor, ProposalProcessor]
     });
+  }
 
-    this.buildOperationMethods();
+  async bootstrap() {
+    await this.buildOperationMethods();
   }
 
   async executeOperation(
     op: Operation,
     processor: OperationProcessor<Resource>
   ): Promise<OperationResponse> {
-    console.log(
-      "Executing operation: ",
-      op,
-      " with processor ",
-      processor.constructor.name,
-      processor.resourceClass.name
-    );
     const result = await processor.execute(op);
 
     return {
@@ -44,67 +55,62 @@ export default class NodeApplication extends Application {
     };
   }
 
-  // tslint:disable-next-line: prefer-array-literal
-  buildOperationMethods(): void {
-    Object.keys(controllersToOperations).forEach(controllerName => {
-      const implementation: (
-        requestHandler: RequestHandler,
-        params: Node.MethodParams
-      ) => Promise<Node.MethodResult> =
-        methodNameToImplementation[controllerName];
+  async buildOperationMethods(): Promise<void> {
+    await Promise.all(
+      Object.keys(controllersToOperations).map(async controllerName => {
+        const implementation: (
+          requestHandler: RequestHandler,
+          params: Node.MethodParams
+        ) => Promise<Node.MethodResult> =
+          methodNameToImplementation[controllerName];
 
-      const {
-        type,
-        op
-      }: {
-        type: "app" | "channel" | "proposal";
-        op: string;
-      } = controllersToOperations[controllerName];
+        const {
+          type,
+          op
+        }: {
+          type: "app" | "channel" | "proposal";
+          op: string;
+        } = controllersToOperations[controllerName];
 
-      this.processorFor(type)
-        .then(processor => {
-          if (!processor) {
-            console.log(
-              "Attempted to bind ",
-              type,
-              op,
-              "to an undefined processor"
-            );
-            return;
-          }
+        const processor = await this.processorFor(type);
 
-          processor.constructor.prototype[op] = async (
-            operation: Operation
-          ): Promise<Resource | Resource[] | void> => {
-            console.log("Executing", operation);
+        if (!processor) {
+          console.error(
+            "Attempted to bind ",
+            type,
+            op,
+            "to an undefined processor"
+          );
+          return;
+        }
 
-            const data = operation.data as Resource;
-            const result = (await implementation(
-              this.requestHandler,
-              data.attributes
-            )) as ResourceAttributes;
+        processor.constructor.prototype[op] = async (
+          operation: Operation
+        ): Promise<Resource | Resource[] | void> => {
+          const data = operation.data as Resource;
+          const result = (await implementation(
+            this.requestHandler,
+            data.attributes
+          )) as ResourceAttributes;
 
-            return Array.isArray(result)
-              ? result.map(
-                  record =>
-                    ({
-                      id: data.id,
-                      type: operation.ref.type,
-                      attributes: record,
-                      relationships: {}
-                    } as Resource)
-                )
-              : {
-                  id: data.id,
-                  type: operation.ref.type,
-                  attributes: result,
-                  relationships: {}
-                };
-          };
-
-          console.log("Implemented: ", type, op);
-        })
-        .catch(error => console.error(error));
-    });
+          return Array.isArray(result)
+            ? result.map(
+                record =>
+                  ({
+                    id: data.id,
+                    type: operation.ref.type,
+                    attributes: record,
+                    relationships: {}
+                  } as Resource)
+              )
+            : {
+                id: data.id,
+                type: operation.ref.type,
+                attributes: result,
+                relationships: {}
+              };
+        };
+      })
+    );
   }
 }
