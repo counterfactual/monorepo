@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { GameState, HighRollerAppState } from "./game-types";
@@ -44,13 +44,6 @@ export interface SignedStateHashUpdate {
   signatures: string;
 }
 
-export interface ETHBucketAppState {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
-}
-
 export type AppInstanceInfo = {
   id: AppInstanceID;
   appId: Address;
@@ -84,7 +77,6 @@ export namespace Node {
     NonceRegistry: Address;
     AppRegistry: Address;
     // App-specific
-    PaymentApp: Address;
     ETHBalanceRefundApp: Address;
   };
 
@@ -144,7 +136,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
+    initialState: SolidityABIEncoderV2Type;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
@@ -176,7 +168,7 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Struct;
+    state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -188,10 +180,10 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: SolidityABIEncoderV2Struct;
+    action: SolidityABIEncoderV2Type;
   };
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UninstallParams = {
@@ -248,8 +240,8 @@ export namespace Node {
   };
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
-    action?: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
+    action?: SolidityABIEncoderV2Type;
   };
   export type UninstallEventData = {
     appInstance: AppInstanceInfo;
@@ -310,14 +302,14 @@ export namespace cf {
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Struct;
+      initialState: SolidityABIEncoderV2Type;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Struct;
+      initialState: SolidityABIEncoderV2Type;
       intermediaries: Address[];
       timeout: number;
     }): Promise<AppInstanceID>;

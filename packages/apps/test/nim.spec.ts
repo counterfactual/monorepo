@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -11,15 +11,13 @@ chai.use(waffle.solidity);
 
 const { expect } = chai;
 
-type NimSolidityABIEncoderV2Struct = {
+type NimAppState = {
   players: string[];
   turnNum: BigNumber;
   pileHeights: BigNumber[];
 };
 
-function decodeBytesToAppState(
-  encodedAppState: string
-): NimSolidityABIEncoderV2Struct {
+function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
     ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
@@ -29,7 +27,7 @@ function decodeBytesToAppState(
 describe("Nim", () => {
   let nim: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Struct) {
+  function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
@@ -44,7 +42,7 @@ describe("Nim", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Struct) {
+  function encodeAction(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
@@ -59,8 +57,8 @@ describe("Nim", () => {
   }
 
   async function applyAction(
-    state: SolidityABIEncoderV2Struct,
-    action: SolidityABIEncoderV2Struct
+    state: SolidityABIEncoderV2Type,
+    action: SolidityABIEncoderV2Type
   ) {
     return await nim.functions.applyAction(
       encodeState(state),
@@ -68,7 +66,7 @@ describe("Nim", () => {
     );
   }
 
-  async function isStateTerminal(state: SolidityABIEncoderV2Struct) {
+  async function isStateTerminal(state: SolidityABIEncoderV2Type) {
     return await nim.functions.isStateTerminal(encodeState(state));
   }
 

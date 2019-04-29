@@ -17,9 +17,15 @@ export async function setAppInstanceIDForProposeInstall(
     store
   );
 
+  const fixedDepositsParams = {
+    ...params,
+    myDeposit: params.peerDeposit,
+    peerDeposit: params.myDeposit
+  };
+
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
-      ...params,
+      ...fixedDepositsParams,
       proposedByIdentifier
     },
     channel

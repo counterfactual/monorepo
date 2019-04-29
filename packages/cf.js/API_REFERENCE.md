@@ -25,7 +25,7 @@
                 - Callback Params: `(appInstance: AppInstance)`
             - `updateState`
                 - [Node event](#event-updatestateevent)
-                - Callback Params: `(appInstance: AppInstance, newState: AppState, action?: SolidityABIEncoderV2Struct)`
+                - Callback Params: `(appInstance: AppInstance, newState: AppState, action?: SolidityABIEncoderV2Type)`
             - `proposeState`
                 - [Node event](#event-proposestateevent)
                 - Callback Params: `(appInstance: AppInstance, newState: AppState)`
@@ -46,7 +46,7 @@
         - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
         - `async proposeInstall({
-                respondingAddress: Address,
+                proposedToIdentifier: string,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
@@ -54,12 +54,12 @@
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstall)
         - `async proposeInstallVirtual({
-                respondingAddress: Address,
+                proposedToIdentifier: string,
                 asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
                 initialState: AppState,
-                intermediaries: Address[]
+                intermediaries: string[]
            }): Promise<AppInstanceID>`
            - [Node method](#method-proposeinstallvirtual)
 - `AppInstance`
@@ -68,7 +68,7 @@
         - `manifestUri: string`
             - TODO
     - Instance methods
-        - `async takeAction(action: SolidityABIEncoderV2Struct): Promise<AppState>`
+        - `async takeAction(action: SolidityABIEncoderV2Type): Promise<AppState>`
             - [Node method](#method-takeaction)
             - Returns ABI decoded representation of the latest signed state of the app.
             - Throws error if app definition "appActionEncoding" is not defined
@@ -148,10 +148,8 @@ Result:
 Requests that a peer start the install protocol for an app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `respondingAddress: string`
+- `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `initiatingAddress: string`
-    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -179,10 +177,8 @@ Errors: (TODO)
 Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
-- `respondingAddress: string`
+- `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `initiatingAddress: string`
-    - Address of the peer initiating the installation proposal request
 - `appId: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -197,8 +193,8 @@ Params:
     - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
     - Initial state of app instance
-- `intermediaries: Address[]`
-    - List of addresses of intermediaries to route the virtual app installation through
+- `intermediaries: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstanceId: string`
@@ -245,8 +241,8 @@ Params:
 - `appInstanceId: string`
     - ID of the app instance to install
     - Counterparty must have called `proposedInstall` and generated this ID
-- `intermediaries: Address[]`
-    - List of addresses of intermediaries to route the virtual app installation through
+- `intermediaries: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
@@ -291,7 +287,7 @@ Take action on current app state to advance it to a new state.
 Params:
 - `appInstanceId: string`
     - ID of the app instance for which to take action
-- `action:`[`SolidityABIEncoderV2Struct`](#data-type-appaction)
+- `action:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
     - Action to take on the current state
 
 Result:
@@ -370,8 +366,23 @@ Error:
 
 - "Insufficient funds"
 
+### Method: `getFreeBalance`
 
+Gets the free balance AppInstance of the specified channel.
 
+Params:
+
+- `multisigAddress: string`
+
+Result:
+
+```
+{
+    [s: string]: BigNumber;
+};
+```
+
+Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
 Events
 ------
@@ -412,7 +423,7 @@ Data:
 - `appInstanceId: string`
     - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
-- `action?:`[`SolidityABIEncoderV2Struct`](#data-type-appaction)
+- `action?:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
     - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstallEvent`
@@ -470,8 +481,8 @@ An instance of an installed app.
     - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
     - Number of blocks until a submitted state for this app is considered finalized
-- `intermediaries?: Address[]`
-    - List of addresses of intermediaries for this virtual app instance. Undefined if app instance is not virtual
+- `intermediaries?: string[]`
+    - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
 
 ### Data Type: `BlockchainAsset`
 - `assetType: number`
@@ -493,8 +504,7 @@ An instance of an installed app.
 - Plain Old Javascript Object representation of the state of an app instance.
 - ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
-### Data Type: `SolidityABIEncoderV2Struct`
+### Data Type: `SolidityABIEncoderV2Type`
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
-

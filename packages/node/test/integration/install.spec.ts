@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
@@ -10,8 +11,8 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC } from "../test-constants.jest";
 
 import {
+  collateralizeChannel,
   confirmProposedAppInstanceOnNode,
-  getInstalledAppInstanceInfo,
   getInstalledAppInstances,
   getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
@@ -74,7 +75,7 @@ describe("Node method follows spec - proposeInstall", () => {
   });
 
   describe(
-    "Node A gets app install proposal, sends to node B, B approves it, installs it," +
+    "Node A gets app install proposal, sends to node B, B approves it, installs it, " +
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
       it("sends proposal with non-null initial state", async done => {
@@ -83,11 +84,15 @@ describe("Node method follows spec - proposeInstall", () => {
           async (data: NodeTypes.CreateChannelResult) => {
             expect(await getInstalledAppInstances(nodeA)).toEqual([]);
             expect(await getInstalledAppInstances(nodeB)).toEqual([]);
+            await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
             let appInstanceId;
 
             // second, an app instance must be proposed to be installed into that channel
             const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-              nodeB.publicIdentifier
+              nodeB.publicIdentifier,
+              false,
+              One,
+              Zero
             );
 
             // node B then decides to approve the proposal
@@ -109,14 +114,23 @@ describe("Node method follows spec - proposeInstall", () => {
             );
 
             nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-              const appInstanceNodeA = await getInstalledAppInstanceInfo(
-                nodeA,
-                appInstanceId
-              );
-              const appInstanceNodeB = await getInstalledAppInstanceInfo(
-                nodeB,
-                appInstanceId
-              );
+              const appInstanceNodeA = (await getInstalledAppInstances(
+                nodeA
+              ))[0];
+              const appInstanceNodeB = (await getInstalledAppInstances(
+                nodeB
+              ))[0];
+
+              expect(appInstanceNodeA.myDeposit).toEqual(One);
+              expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
+              expect(appInstanceNodeB.myDeposit).toEqual(Zero);
+              expect(appInstanceNodeB.peerDeposit).toEqual(One);
+
+              delete appInstanceNodeA.myDeposit;
+              delete appInstanceNodeA.peerDeposit;
+              delete appInstanceNodeB.myDeposit;
+              delete appInstanceNodeB.peerDeposit;
+
               expect(appInstanceNodeA).toEqual(appInstanceNodeB);
               done();
             });

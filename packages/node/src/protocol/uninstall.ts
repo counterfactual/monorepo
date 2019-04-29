@@ -1,12 +1,12 @@
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
-import { Protocol, ProtocolExecutionFlow } from "..";
-import { Opcode } from "../enums";
 import { UninstallCommitment } from "../ethereum";
+import { Protocol, ProtocolExecutionFlow } from "../machine";
+import { Opcode } from "../machine/enums";
+import { Context, ProtocolParameters, UninstallParams } from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
-import { Context, ProtocolParameters, UninstallParams } from "../types";
-import { xkeyKthAddress } from "../xkeys";
 
 import {
   computeFreeBalanceIncrements,

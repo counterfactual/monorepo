@@ -5,7 +5,7 @@ import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { getFreeBalance, renderFreeBalanceInEth } from "./utils";
+import { getFreeBalance, logEthFreeBalance } from "./utils";
 
 function checkDraw(board: Board) {
   return board.every((row: BoardRow) =>
@@ -206,7 +206,7 @@ export async function connectNode(
       async (uninstallMsg: UninstallVirtualMessage) => {
         console.info(`Uninstalled app`);
         console.info(uninstallMsg);
-        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+        logEthFreeBalance(await getFreeBalance(node, multisigAddress));
       }
     );
   }

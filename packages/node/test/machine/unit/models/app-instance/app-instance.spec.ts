@@ -2,7 +2,7 @@ import { AssetType } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
-import { AppInstance } from "../../../../../src/machine/models";
+import { AppInstance } from "../../../../../src/models";
 
 describe("AppInstance", () => {
   it("should be able to instantiate", () => {

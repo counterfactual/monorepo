@@ -1,6 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
+import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
@@ -15,7 +16,7 @@ dotenvExtended.load();
 
 const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
-const CF_PATH = "m/44'/60'/0'/25446";
+export const CF_PATH = "m/44'/60'/0'/25446";
 
 export default async function globalSetup() {
   mkdirp.sync(DIR);
@@ -23,12 +24,14 @@ export default async function globalSetup() {
   const privateKeyA = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH).privateKey;
   const privateKeyB = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH).privateKey;
   const privateKeyC = fromMnemonic(C_MNEMONIC).derivePath(CF_PATH).privateKey;
+  const fundedPrivateKey = Wallet.createRandom().privateKey;
 
   const server = ganache.server({
     accounts: [
-      { balance: "120000000000000000", secretKey: privateKeyA },
-      { balance: "120000000000000000", secretKey: privateKeyB },
-      { balance: "120000000000000000", secretKey: privateKeyC }
+      { balance: parseEther("1").toString(), secretKey: privateKeyA },
+      { balance: parseEther("1").toString(), secretKey: privateKeyB },
+      { balance: parseEther("1").toString(), secretKey: privateKeyC },
+      { balance: parseEther("1").toString(), secretKey: fundedPrivateKey }
     ]
   });
 
@@ -41,7 +44,10 @@ export default async function globalSetup() {
   const wallet = new Wallet(privateKeyA, provider);
 
   fs.writeFileSync(
-    path.join(DIR, "addresses"),
-    JSON.stringify(await configureNetworkContext(wallet))
+    path.join(DIR, "accounts"),
+    JSON.stringify({
+      fundedPrivateKey,
+      contractAddresses: await configureNetworkContext(wallet)
+    })
   );
 }

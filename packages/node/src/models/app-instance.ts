@@ -2,7 +2,7 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
-  SolidityABIEncoderV2Struct,
+  SolidityABIEncoderV2Type,
   Terms
 } from "@counterfactual/types";
 import { Contract } from "ethers";
@@ -36,7 +36,7 @@ export type AppInstanceJson = {
   isVirtualApp: boolean;
   appSeqNo: number;
   rootNonceValue: number;
-  latestState: SolidityABIEncoderV2Struct;
+  latestState: SolidityABIEncoderV2Type;
   latestNonce: number;
   latestTimeout: number;
   hasBeenUninstalled: boolean;
@@ -174,7 +174,7 @@ export class AppInstance {
   public get uninstallKey() {
     // The unique "key" in the NonceRegistry is computed to be:
     // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
-    return keccak256(
+    const ret = keccak256(
       solidityPack(
         ["address", "uint256", "bytes32"],
         [
@@ -184,6 +184,16 @@ export class AppInstance {
         ]
       )
     );
+
+    console.log(`
+    app-instance: computed
+      uninstallKey = ${ret} using
+      sender = ${this.json.multisigAddress},
+      timeout = 0,
+      salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
+  `);
+
+    return ret;
   }
 
   // TODO: All these getters seems a bit silly, would be nice to improve
@@ -242,7 +252,7 @@ export class AppInstance {
   }
 
   public setState(
-    newState: SolidityABIEncoderV2Struct,
+    newState: SolidityABIEncoderV2Type,
     timeout: number = this.json.defaultTimeout
   ) {
     try {
@@ -267,10 +277,10 @@ export class AppInstance {
   }
 
   public async computeStateTransition(
-    action: SolidityABIEncoderV2Struct,
+    action: SolidityABIEncoderV2Type,
     provider: BaseProvider
-  ): Promise<SolidityABIEncoderV2Struct> {
-    const ret: SolidityABIEncoderV2Struct = {};
+  ): Promise<SolidityABIEncoderV2Type> {
+    const ret: SolidityABIEncoderV2Type = {};
 
     const computedNextState = this.decodeAppState(
       await this.toEthersContract(provider).functions.applyAction(
@@ -288,14 +298,14 @@ export class AppInstance {
     return ret;
   }
 
-  public encodeAction(action: SolidityABIEncoderV2Struct) {
+  public encodeAction(action: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [this.json.appInterface.actionEncoding!],
       [action]
     );
   }
 
-  public encodeState(state: SolidityABIEncoderV2Struct) {
+  public encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [this.json.appInterface.stateEncoding],
       [state]
@@ -303,11 +313,11 @@ export class AppInstance {
   }
 
   public decodeAppState(
-    encodedSolidityABIEncoderV2Struct: string
-  ): SolidityABIEncoderV2Struct {
+    encodedSolidityABIEncoderV2Type: string
+  ): SolidityABIEncoderV2Type {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
-      encodedSolidityABIEncoderV2Struct
+      encodedSolidityABIEncoderV2Type
     )[0];
   }
 

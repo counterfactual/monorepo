@@ -19,4 +19,8 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
   );
 }
 
-export { getProp, computeCommitHash };
+function generateSalt() {
+  return ethers.utils.bigNumberify(ethers.utils.randomBytes(32)).toHexString();
+}
+
+export { getProp, computeCommitHash, generateSalt };

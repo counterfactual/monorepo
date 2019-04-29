@@ -14,8 +14,8 @@ contract ETHBucket is CounterfactualApp {
     uint256 bobBalance;
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+    external
     pure
     returns (Transfer.Transaction memory)
   {

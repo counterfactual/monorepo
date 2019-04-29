@@ -8,10 +8,10 @@ import { AddressZero, HashZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
-import { SetStateCommitment } from "../../../src/machine/ethereum";
-import { ETHVirtualAppAgreementCommitment } from "../../../src/machine/ethereum/eth-virtual-app-agreement-commitment";
-import { AppInstance, StateChannel } from "../../../src/machine/models";
+import { SetStateCommitment } from "../../../src/ethereum";
+import { ETHVirtualAppAgreementCommitment } from "../../../src/ethereum/eth-virtual-app-agreement-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";

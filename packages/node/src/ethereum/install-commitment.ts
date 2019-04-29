@@ -44,12 +44,22 @@ export class InstallCommitment extends MultiSendCommitment {
       solidityPack(
         ["address", "uint256", "bytes32"],
         [
-          this.multisig,
-          0,
-          keccak256(solidityPack(["uint256"], [this.dependencyNonce]))
+          /* sender */ this.multisig,
+          /* timeout */ 0,
+          /* salt */ keccak256(
+            solidityPack(["uint256"], [this.dependencyNonce])
+          )
         ]
       )
     );
+
+    console.log(`
+      install-commitment: computed
+        uninstallKey = ${uninstallKey} using
+        sender = ${this.multisig},
+        timeout = 0,
+        salt = ${keccak256(solidityPack(["uint256"], [this.dependencyNonce]))}
+    `);
 
     const appIdentityHash = appIdentityToHash(this.appIdentity);
 

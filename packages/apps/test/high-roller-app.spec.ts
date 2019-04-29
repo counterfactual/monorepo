@@ -1,6 +1,6 @@
 import {
   AssetType,
-  SolidityABIEncoderV2Struct,
+  SolidityABIEncoderV2Type,
   Terms,
   Transaction
 } from "@counterfactual/types";
@@ -71,7 +71,7 @@ function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Struct) {
+  function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
@@ -89,7 +89,7 @@ describe("HighRollerApp", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Struct) {
+  function encodeAction(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
@@ -105,8 +105,8 @@ describe("HighRollerApp", () => {
   }
 
   async function applyAction(
-    state: SolidityABIEncoderV2Struct,
-    action: SolidityABIEncoderV2Struct
+    state: SolidityABIEncoderV2Type,
+    action: SolidityABIEncoderV2Type
   ) {
     return await highRollerApp.functions.applyAction(
       encodeState(state),
@@ -114,7 +114,7 @@ describe("HighRollerApp", () => {
     );
   }
 
-  async function resolve(state: SolidityABIEncoderV2Struct, terms: Terms) {
+  async function resolve(state: SolidityABIEncoderV2Type, terms: Terms) {
     return await highRollerApp.functions.resolve(encodeState(state), terms);
   }
 

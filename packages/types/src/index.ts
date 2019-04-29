@@ -18,7 +18,7 @@ import {
   Address,
   AppInstanceID,
   Bytes32,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface NetworkContext {
@@ -54,7 +54,7 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
-  SolidityABIEncoderV2Struct,
+  SolidityABIEncoderV2Type,
   AssetType,
   BlockchainAsset,
   Bytes32,

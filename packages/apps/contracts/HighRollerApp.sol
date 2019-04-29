@@ -47,63 +47,67 @@ contract HighRollerApp is CounterfactualApp {
     bytes32 actionHash;
   }
 
-  function isStateTerminal(bytes memory encodedState)
-    public
+  function isStateTerminal(bytes calldata encodedState)
+    external
     pure
     returns (bool)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
-    return state.stage == Stage.DONE;
+    AppState memory appState = abi.decode(encodedState, (AppState));
+    return appState.stage == Stage.DONE;
   }
 
-  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
-    public
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
+    external
     pure
     returns (address)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
+    AppState memory appState = abi.decode(encodedState, (AppState));
 
-    return state.stage == Stage.COMMITTING_NUM ?
+    return appState.stage == Stage.COMMITTING_NUM ?
       signingKeys[uint8(Player.SECOND)] :
       signingKeys[uint8(Player.FIRST)];
   }
 
-  function applyAction(bytes memory encodedState, bytes memory encodedAction)
-    public
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
+    external
     pure
     returns (bytes memory)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
+    AppState memory appState = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
 
-    AppState memory nextState = state;
+    AppState memory nextState = appState;
 
     if (action.actionType == ActionType.START_GAME) {
       require(
-        state.stage == Stage.PRE_GAME,
-        "Cannot apply START_GAME on PRE_GAME"
+        appState.stage == Stage.PRE_GAME,
+        "Must apply START_GAME to PRE_GAME"
       );
       nextState.stage = Stage.COMMITTING_HASH;
     } else if (action.actionType == ActionType.COMMIT_TO_HASH) {
       require(
-        state.stage == Stage.COMMITTING_HASH,
-        "Cannot apply COMMIT_TO_HASH on COMMITTING_HASH"
+        appState.stage == Stage.COMMITTING_HASH,
+        "Must apply COMMIT_TO_HASH to COMMITTING_HASH"
       );
       nextState.stage = Stage.COMMITTING_NUM;
 
       nextState.commitHash = action.actionHash;
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
       require(
-        state.stage == Stage.COMMITTING_NUM,
-        "Cannot apply COMMIT_TO_NUM on COMMITTING_NUM"
+        appState.stage == Stage.COMMITTING_NUM,
+        "Must apply COMMIT_TO_NUM to COMMITTING_NUM"
       );
       nextState.stage = Stage.REVEALING;
 
       nextState.playerSecondNumber = action.number;
     } else if (action.actionType == ActionType.REVEAL) {
       require(
-        state.stage == Stage.REVEALING,
-        "Cannot apply REVEAL on REVEALING"
+        appState.stage == Stage.REVEALING,
+        "Must apply REVEAL to REVEALING"
       );
       nextState.stage = Stage.DONE;
 
@@ -116,23 +120,23 @@ contract HighRollerApp is CounterfactualApp {
     return abi.encode(nextState);
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+    external
     pure
     returns (Transfer.Transaction memory)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
+    AppState memory appState = abi.decode(encodedState, (AppState));
 
     uint256[] memory amounts = new uint256[](2);
     address[] memory to = new address[](2);
-    to[0] = state.playerAddrs[0];
-    to[1] = state.playerAddrs[1];
+    to[0] = appState.playerAddrs[0];
+    to[1] = appState.playerAddrs[1];
     bytes32 expectedCommitHash = keccak256(
-      abi.encodePacked(state.salt, state.playerFirstNumber)
+      abi.encodePacked(appState.salt, appState.playerFirstNumber)
     );
-    if (expectedCommitHash == state.commitHash) {
+    if (expectedCommitHash == appState.commitHash) {
       amounts = getWinningAmounts(
-        state.playerFirstNumber, state.playerSecondNumber, terms.limit
+        appState.playerFirstNumber, appState.playerSecondNumber, terms.limit
       );
     } else {
       amounts[0] = 0;

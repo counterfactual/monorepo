@@ -36,28 +36,4 @@ contract ETHBalanceRefundApp {
       data
     );
   }
-
-  function isStateTerminal(bytes memory)
-    public
-    pure
-    returns (bool)
-  {
-    revert("Not implemented");
-  }
-
-  function getTurnTaker(bytes memory, address[] memory)
-    public
-    pure
-    returns (address)
-  {
-    revert("Not implemented");
-  }
-
-  function applyAction(bytes memory, bytes memory)
-    public
-    pure
-    returns (bytes memory)
-  {
-    revert("Not implemented");
-  }
 }

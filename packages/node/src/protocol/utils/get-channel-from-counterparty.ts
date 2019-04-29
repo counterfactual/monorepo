@@ -1,4 +1,4 @@
-import { StateChannel } from "../..";
+import { StateChannel } from "../../machine";
 
 /**
  * Gets a StateChannel from a map of them based on the counterparties

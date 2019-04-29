@@ -66,7 +66,7 @@ contract ContractRegistry {
     require(to != address(0), "Resolved to a 0x0 address");
     require(to.isContract(), "Tried to call function on a non-contract");
     // solium-disable-next-line no-unused-vars
-    (bool success, bytes memory _) = to.call(data);
+    (bool success, ) = to.call(data);
     require(success, "Registry.proxyCall failed.");
   }
 }

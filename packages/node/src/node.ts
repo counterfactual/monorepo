@@ -1,7 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -116,6 +116,7 @@ export class Node {
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
     console.log(`Node signer address: ${this.signer.address}`);
+    console.log(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -142,6 +143,12 @@ export class Node {
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  /// Address used for ETH free balance and maybe some other things
+  @Memoize()
+  get zeroethAddress(): string {
+    return fromExtendedKey(this.publicIdentifier).derivePath("0").address;
   }
 
   /**

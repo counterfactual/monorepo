@@ -120,13 +120,9 @@ export class AppProvider {
     );
 
     if (state.stage === HighRollerStage.REVEALING) {
-      // TODO randomize this and save it in proposingPlayer state
-      const numberSalt =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-
       return await this.appInstance.takeAction({
         actionType: ActionType.REVEAL,
-        actionHash: numberSalt,
+        actionHash: this.highRollerState.salt,
         number: state.playerFirstNumber.toString()
       });
     }

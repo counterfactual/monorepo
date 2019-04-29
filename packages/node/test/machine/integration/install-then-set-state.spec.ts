@@ -7,12 +7,9 @@ import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256, parseEther } from "ethers/utils";
 
-import {
-  InstallCommitment,
-  SetStateCommitment
-} from "../../../src/machine/ethereum";
-import { AppInstance, StateChannel } from "../../../src/machine/models";
+import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";

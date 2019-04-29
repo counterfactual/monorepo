@@ -28,13 +28,13 @@ export async function getFreeBalance(
   return result as NodeTypes.GetFreeBalanceStateResult;
 }
 
-export function renderFreeBalanceInEth(
+export function logEthFreeBalance(
   freeBalance: NodeTypes.GetFreeBalanceStateResult
 ) {
-  const { alice, aliceBalance, bob, bobBalance } = freeBalance.state;
   console.info(`Channel's free balance`);
-  console.info(`Alice: ${formatEther(aliceBalance)}  - (${alice})`);
-  console.info(`Bob: ${formatEther(bobBalance)}  - (${bob})`);
+  for (const key in freeBalance) {
+    console.info(key, formatEther(freeBalance[key]));
+  }
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
@@ -49,22 +49,27 @@ export async function fetchMultisig(baseURL: string, token: string) {
   return (await getUser(baseURL, token)).multisigAddress;
 }
 
-// FIXME: cross-reference addresses to named-users so we can avoid using
-// Alice and Bob, especially when looking at logs
+/// Deposit and wait for counterparty deposit
 export async function deposit(
   node: Node,
   amount: string,
-  multisigAddress: string,
-  skip: boolean = false
+  multisigAddress: string
 ) {
-  if (skip) {
-    return;
+  const myFreeBalanceAddress = node.zeroethAddress;
+
+  const preDepositBalances = await getFreeBalance(node, multisigAddress);
+
+  if (Object.keys(preDepositBalances).length !== 2) {
+    throw new Error("Unexpected number of entries");
   }
 
-  const { aliceBalance, bobBalance } = (await getFreeBalance(
-    node,
-    multisigAddress
-  )).state;
+  if (!preDepositBalances[myFreeBalanceAddress]) {
+    throw new Error("My address not found");
+  }
+
+  const [counterpartyFreeBalanceAddress] = Object.keys(
+    preDepositBalances
+  ).filter(addr => addr !== myFreeBalanceAddress);
 
   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
   try {
@@ -78,42 +83,32 @@ export async function deposit(
       } as NodeTypes.DepositParams
     });
 
-    const updatedFreeBalance = await getFreeBalance(node, multisigAddress);
-    const updatedAliceBalance = updatedFreeBalance.state.aliceBalance;
-    const updatedBobBalance = updatedFreeBalance.state.bobBalance;
+    const postDepositBalances = await getFreeBalance(node, multisigAddress);
 
-    if (updatedAliceBalance.gt(aliceBalance)) {
-      console.info("Waiting for counter party to deposit same amount");
-      while (
-        !(await getFreeBalance(node, multisigAddress)).state.bobBalance.gt(
-          updatedBobBalance
-        )
-      ) {
-        console.info(
-          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
-        );
-        await delay(DELAY_SECONDS * 1000);
-      }
-    } else if (updatedFreeBalance.state.bobBalance.gt(bobBalance)) {
-      console.info("Waiting for counter party to deposit same amount");
-      while (
-        !(await getFreeBalance(node, multisigAddress)).state.aliceBalance.gt(
-          updatedAliceBalance
-        )
-      ) {
-        console.info(
-          `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
-        );
-        await delay(DELAY_SECONDS * 1000);
-      }
-    } else {
-      throw Error(`Neither balance was updated.\n
-        Original Free Balance: alice: ${aliceBalance}, bob: ${bobBalance}\n
-        Updated Free Balance: alice: ${updatedAliceBalance}, bob: ${updatedBobBalance}
-      `);
+    if (
+      !postDepositBalances[myFreeBalanceAddress].gt(
+        preDepositBalances[myFreeBalanceAddress]
+      )
+    ) {
+      throw Error("My balance was not increased.");
     }
 
-    renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+    console.info("Waiting for counter party to deposit same amount");
+
+    const freeBalanceNotUpdated = async () => {
+      return !(await getFreeBalance(node, multisigAddress))[
+        counterpartyFreeBalanceAddress
+      ].gt(preDepositBalances[counterpartyFreeBalanceAddress]);
+    };
+
+    while (await freeBalanceNotUpdated()) {
+      console.info(
+        `Waiting ${DELAY_SECONDS} more seconds for counter party deposit`
+      );
+      await delay(DELAY_SECONDS * 1000);
+    }
+
+    logEthFreeBalance(await getFreeBalance(node, multisigAddress));
   } catch (e) {
     console.error(`Failed to deposit... ${e}`);
     throw e;
