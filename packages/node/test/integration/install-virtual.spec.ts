@@ -1,5 +1,13 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { Wallet } from "ethers";
+import { One, Zero } from "ethers/constants";
+import {
+  JsonRpcProvider,
+  Provider,
+  TransactionRequest
+} from "ethers/providers";
+import { parseEther } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
@@ -10,16 +18,18 @@ import {
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
+import { CF_PATH } from "../global-setup.jest";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 import {
+  collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode,
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualProposalRequest,
-  makeInstallVirtualRequest
+  makeInstallVirtualRequest,
+  sleep
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -53,6 +63,14 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
+    // generate new mnemonics so owner addresses are different for creating
+    // a channel in this suite
+    const { A_MNEMONIC, B_MNEMONIC } = await generateNewFundedMnemonics(
+      global["fundedPrivateKey"],
+      provider
+    );
+
     storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
@@ -94,16 +112,62 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
+        let abChannelMultisigAddress;
+        let bcChannelMultisigAddress;
+
+        nodeB.once(
+          NODE_EVENTS.CREATE_CHANNEL,
+          async (res: NodeTypes.CreateChannelResult) => {
+            // FIXME:(nima) node event emitters don't use consistent interface
+            // @ts-ignore
+            abChannelMultisigAddress = res.data.multisigAddress;
+          }
+        );
+
         nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
+            while (!abChannelMultisigAddress) {
+              console.log("Waiting for Node A and B to sync on new channel");
+              await sleep(500);
+            }
+
+            await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
+
+            nodeB.once(
+              NODE_EVENTS.CREATE_CHANNEL,
+              async (res: NodeTypes.CreateChannelResult) => {
+                // FIXME:(nima) node event emitters don't use consistent interface
+                // @ts-ignore
+                bcChannelMultisigAddress = res.multisigAddress;
+              }
+            );
+
             nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
-              async (data: NodeTypes.CreateChannelResult) => {
+              async (res: NodeTypes.CreateChannelResult) => {
+                while (!bcChannelMultisigAddress) {
+                  console.log(
+                    "Waiting for Node B and C to sync on new channel"
+                  );
+                  await sleep(500);
+                }
+
+                await collateralizeChannel(
+                  nodeB,
+                  nodeC,
+                  // FIXME:(nima) node event emitters don't use consistent interface
+                  // @ts-ignore
+                  res.data.multisigAddress
+                );
+
                 const intermediaries = [nodeB.publicIdentifier];
                 const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
                   nodeC.publicIdentifier,
-                  intermediaries
+                  intermediaries,
+                  false,
+                  One,
+                  Zero
                 );
 
                 nodeA.once(
@@ -118,6 +182,16 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                       nodeC,
                       APP_INSTANCE_STATUS.INSTALLED
                     ))[0];
+
+                    expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
+                    expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
+
+                    delete virtualAppInstanceNodeA.myDeposit;
+                    delete virtualAppInstanceNodeA.peerDeposit;
+                    delete virtualAppInstanceNodeC.myDeposit;
+                    delete virtualAppInstanceNodeC.peerDeposit;
 
                     expect(virtualAppInstanceNodeA).toEqual(
                       virtualAppInstanceNodeC
@@ -142,7 +216,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     );
                     confirmProposedVirtualAppInstanceOnNode(
                       installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
+                      proposedAppInstanceC,
+                      true
                     );
 
                     expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
@@ -183,3 +258,35 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     }
   );
 });
+
+async function generateNewFundedMnemonics(
+  fundedPrivateKey: string,
+  provider: Provider
+) {
+  const fundedWallet = new Wallet(fundedPrivateKey, provider);
+  const A_MNEMONIC = Wallet.createRandom().mnemonic;
+  const B_MNEMONIC = Wallet.createRandom().mnemonic;
+
+  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+
+  const signerAAddress = new Wallet(signerAPrivateKey).address;
+  const signerBAddress = new Wallet(signerBPrivateKey).address;
+
+  const transactionToA: TransactionRequest = {
+    to: signerAAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  const transactionToB: TransactionRequest = {
+    to: signerBAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  await fundedWallet.sendTransaction(transactionToA);
+  await fundedWallet.sendTransaction(transactionToB);
+  return {
+    A_MNEMONIC,
+    B_MNEMONIC
+  };
+}

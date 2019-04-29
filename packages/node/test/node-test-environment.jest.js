@@ -17,26 +17,27 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    let addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
-    if (!addresses) {
-      throw new Error("Contract addresses not found");
+    let accounts = readFileSync(path.join(DIR, "accounts"), "utf8");
+    if (!accounts) {
+      throw new Error("Accounts information not found");
     }
-    addresses = JSON.parse(addresses);
+    accounts = JSON.parse(accounts);
 
     const networkContext = {
       AppRegistry: AddressZero,
-      ETHBalanceRefundApp: addresses.ETHBalanceRefundApp,
+      ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
       ETHBucket: AddressZero,
       MultiSend: AddressZero,
       NonceRegistry: AddressZero,
       StateChannelTransaction: AddressZero,
       ETHVirtualAppAgreement: AddressZero,
-      MinimumViableMultisig: addresses.MinimumViableMultisig,
-      ProxyFactory: addresses.ProxyFactory,
-      TicTacToe: addresses.TicTacToe
+      MinimumViableMultisig: accounts.contractAddresses.MinimumViableMultisig,
+      ProxyFactory: accounts.contractAddresses.ProxyFactory,
+      TicTacToe: accounts.contractAddresses.TicTacToe
     };
 
     this.global.networkContext = networkContext;
+    this.global.fundedPrivateKey = accounts.fundedPrivateKey;
     this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 

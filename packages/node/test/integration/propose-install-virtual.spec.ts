@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
@@ -97,7 +98,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                 const intermediaries = [nodeB.publicIdentifier];
                 const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
                   nodeC.publicIdentifier,
-                  intermediaries
+                  intermediaries,
+                  false,
+                  One,
+                  Zero
                 );
 
                 nodeC.on(
@@ -119,11 +123,13 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     );
                     confirmProposedVirtualAppInstanceOnNode(
                       installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceB
+                      proposedAppInstanceB,
+                      true
                     );
                     confirmProposedVirtualAppInstanceOnNode(
                       installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
+                      proposedAppInstanceC,
+                      true
                     );
 
                     expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
@@ -135,6 +141,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     expect(proposedAppInstanceB.id).toEqual(
                       proposedAppInstanceC.id
                     );
+                    expect(proposedAppInstanceA.myDeposit).toEqual(One);
+                    expect(proposedAppInstanceA.peerDeposit).toEqual(Zero);
+                    expect(proposedAppInstanceC.myDeposit).toEqual(Zero);
+                    expect(proposedAppInstanceC.peerDeposit).toEqual(One);
                     done();
                   }
                 );
