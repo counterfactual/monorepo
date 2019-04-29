@@ -14,7 +14,7 @@ export class AccountEthForm {
   @Prop() provideFaucetLink: boolean = false;
   @Prop() min: number = 0.01;
   @Prop() max: number = 1;
-  @Prop() available: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() available: BigNumber | number = 0;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
   @Prop() loading: boolean = false;

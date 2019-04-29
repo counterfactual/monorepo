@@ -1,7 +1,7 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -132,6 +132,12 @@ export class Node {
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  /// Address used for ETH free balance and maybe some other things
+  @Memoize()
+  get zeroethAddress(): string {
+    return fromExtendedKey(this.publicIdentifier).derivePath("0").address;
   }
 
   /**
