@@ -21,7 +21,8 @@ import {
   getProposedAppInstances,
   makeDepositRequest,
   makeInstallVirtualProposalRequest,
-  makeInstallVirtualRequest
+  makeInstallVirtualRequest,
+  sleep
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -96,18 +97,51 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
+        let abChannelMultisigAddress;
+        let bcChannelMultisigAddress;
+
+        nodeB.once(
+          NODE_EVENTS.CREATE_CHANNEL,
+          async (res: NodeTypes.CreateChannelResult) => {
+            // FIXME:(nima) node event emitters don't use consistent interface
+            // @ts-ignore
+            abChannelMultisigAddress = res.data.multisigAddress;
+          }
+        );
+
         nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
           async (data: NodeTypes.CreateChannelResult) => {
+            while (!abChannelMultisigAddress) {
+              console.log("Waiting for Node A and B to sync on new channel");
+              await sleep(500);
+            }
+
             await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
+
+            nodeB.once(
+              NODE_EVENTS.CREATE_CHANNEL,
+              async (res: NodeTypes.CreateChannelResult) => {
+                // FIXME:(nima) node event emitters don't use consistent interface
+                // @ts-ignore
+                bcChannelMultisigAddress = res.multisigAddress;
+              }
+            );
 
             nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
               async (res: NodeTypes.CreateChannelResult) => {
+                while (!bcChannelMultisigAddress) {
+                  console.log(
+                    "Waiting for Node B and C to sync on new channel"
+                  );
+                  await sleep(500);
+                }
+
                 await collateralizeChannel(
                   nodeB,
                   nodeC,
-                  // FIXME: why is this typing corrupt at runtime?
+                  // FIXME:(nima) node event emitters don't use consistent interface
                   // @ts-ignore
                   res.data.multisigAddress
                 );
@@ -134,13 +168,19 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                       APP_INSTANCE_STATUS.INSTALLED
                     ))[0];
 
-                    expect(virtualAppInstanceNodeA).toEqual(
-                      virtualAppInstanceNodeC
-                    );
                     expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
                     expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
                     expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
                     expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
+
+                    delete virtualAppInstanceNodeA.myDeposit;
+                    delete virtualAppInstanceNodeA.peerDeposit;
+                    delete virtualAppInstanceNodeC.myDeposit;
+                    delete virtualAppInstanceNodeC.peerDeposit;
+
+                    expect(virtualAppInstanceNodeA).toEqual(
+                      virtualAppInstanceNodeC
+                    );
                     done();
                   }
                 );
