@@ -428,3 +428,13 @@ export function makeTTTVirtualAppInstanceProposalReq(
 export function sleep(timeInMilliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
+
+export async function collateralizeChannel(
+  node1: Node,
+  node2: Node,
+  multisigAddress: string
+): Promise<void> {
+  const depositReq = makeDepositRequest(multisigAddress, One);
+  await node1.call(depositReq.type, depositReq);
+  await node2.call(depositReq.type, depositReq);
+}

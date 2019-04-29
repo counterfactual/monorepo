@@ -3,8 +3,8 @@ import { Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import {
   JsonRpcProvider,
-  TransactionRequest,
-  Provider
+  Provider,
+  TransactionRequest
 } from "ethers/providers";
 import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -22,11 +22,11 @@ import { CF_PATH } from "../global-setup.jest";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import {
+  collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode,
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeDepositRequest,
   makeInstallVirtualProposalRequest,
   makeInstallVirtualRequest,
   sleep
@@ -258,16 +258,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     }
   );
 });
-
-async function collateralizeChannel(
-  node1: Node,
-  node2: Node,
-  multisigAddress: string
-): Promise<void> {
-  const depositReq = makeDepositRequest(multisigAddress, One);
-  await node1.call(depositReq.type, depositReq);
-  await node2.call(depositReq.type, depositReq);
-}
 
 async function generateNewFundedMnemonics(
   fundedPrivateKey: string,
