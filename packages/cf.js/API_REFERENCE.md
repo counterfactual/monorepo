@@ -376,9 +376,13 @@ Params:
 
 Result:
 
-- [`FreeBalance`](#data-type-ethbucket)
+```
+{
+    [s: string]: BigNumber;
+};
+```
 
-
+Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
 Events
 ------
@@ -504,10 +508,3 @@ An instance of an installed app.
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
-
-### Data Type: `ETHBucket`
-
-- `alice: string`
-- `bob: string`
-- `aliceBalance: BigNumber`
-- `bobBalance: BigNumber`
