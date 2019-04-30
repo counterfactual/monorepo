@@ -25,7 +25,7 @@
     "@types/mocha": "5.2.6",
     "chai": "4.2.0",
     "ethereum-waffle": "2.0.11",
-    "solc": "0.5.7",
+    "solc": "0.5.8",
     "ethers": "4.0.27",
     "ethlint": "1.2.4",
     "mocha": "6.1.4",
