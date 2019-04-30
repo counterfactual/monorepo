@@ -102,11 +102,11 @@ describe("Node method follows spec - getAppInstances", () => {
           expect(getAppInstancesRequest.type).toEqual(res.type);
           expect(res.requestId).toEqual(getAppInstancesRequestId);
 
-          const getAppInstancesResult: NodeTypes.GetAppInstancesResult =
-            res.result;
-          expect(getAppInstancesResult.appInstances).toEqual([
-            installedAppInstance
-          ]);
+          const getAppInstancesResult = res.result as NodeTypes.GetAppInstancesResult;
+          expect(getAppInstancesResult.appInstances.length).toBe(1);
+          const [returnedAppInstance] = getAppInstancesResult.appInstances;
+          expect(returnedAppInstance).toEqual(installedAppInstance);
+
           done();
         });
 
