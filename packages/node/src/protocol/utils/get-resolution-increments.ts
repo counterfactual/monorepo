@@ -4,6 +4,7 @@ import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
+import * as log from "loglevel";
 
 import { StateChannel } from "../../models";
 
@@ -43,7 +44,7 @@ export async function computeFreeBalanceIncrements(
     resolution.value.every(v => v.eq(Zero)) &&
     attempts < 10
   ) {
-    console.log(`Empty resolution. Querying chain again. Attempt #${attempts}`);
+    log.info(`Empty resolution. Querying chain again. Attempt #${attempts}`);
 
     resolution = await appContract.functions.resolve(
       appInstance.encodedLatestState,

@@ -14,6 +14,7 @@ import {
   keccak256,
   solidityPack
 } from "ethers/utils";
+import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -185,13 +186,13 @@ export class AppInstance {
       )
     );
 
-    console.log(`
-    app-instance: computed
-      uninstallKey = ${ret} using
-      sender = ${this.json.multisigAddress},
-      timeout = 0,
-      salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
-  `);
+    log.debug(`
+      app-instance: computed
+        uninstallKey = ${ret} using
+        sender = ${this.json.multisigAddress},
+        timeout = 0,
+        salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
+    `);
 
     return ret;
   }
