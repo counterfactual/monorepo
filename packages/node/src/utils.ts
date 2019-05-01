@@ -83,3 +83,7 @@ export function getBalanceIncrement(
 ): BigNumber {
   return afterDeposit.sub(beforeDeposit);
 }
+
+export function timeout(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
