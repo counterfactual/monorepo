@@ -1,6 +1,8 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
+import { Client } from "pg";
+import SQL from "sql-template-strings";
 
 import { NodeMessage } from "./types";
 
@@ -201,5 +203,101 @@ export function confirmLocalFirebaseConfigurationEnvVars() {
     throw Error(
       "Firebase server hostname and port number must be set via FIREBASE_SERVER_HOST and FIREBASE_SERVER_PORT env vars"
     );
+  }
+}
+
+export interface PostgresConfiguration {
+  user: string;
+  host: string;
+  database: string;
+  password: string;
+  port: number;
+}
+
+export const POSTGRES_CONFIGURATION_ENV_KEYS = {
+  user: "POSTGRES_USER",
+  host: "POSTGRES_HOST",
+  database: "POSTGRES_DATABASE",
+  password: "POSTGRES_PASSWORD",
+  port: "POSTGRES_PORT"
+};
+
+export const EMPTY_POSTGRES_CONFIG: PostgresConfiguration = {
+  user: "",
+  host: "",
+  database: "",
+  password: "",
+  port: 0
+};
+
+export class PostgresServiceFactory {
+  private client: Client;
+
+  constructor(configuration: PostgresConfiguration) {
+    this.client = new Client(configuration);
+  }
+
+  static async connect(host: string, port: number) {
+    new PostgresServiceFactory({
+      ...EMPTY_POSTGRES_CONFIG,
+      host,
+      port
+    });
+  }
+
+  async createStoreService(storeServiceKey: string): Promise<IStoreService> {
+    await this.client.connect();
+    console.log("Connected to Postgres");
+    return new PostgresStoreService(this.client, storeServiceKey);
+  }
+}
+
+class PostgresStoreService implements IStoreService {
+  constructor(
+    private readonly pgClient: Client,
+    private readonly storeServiceKey: string
+  ) {}
+
+  async get(key: string): Promise<any> {
+    const result = await this.pgClient.query(
+      SQL`SELECT * FROM "`
+        .append(this.storeServiceKey)
+        .append(SQL`" WHERE "key" = ${key}`)
+    );
+    return result.rows[0] && result.rows[0].value[key];
+  }
+
+  async set(pairs: { key: string; value: any }[]): Promise<any> {
+    await this.pgClient.query("BEGIN");
+    for (const pair of pairs) {
+      console.log(`Setting pair: ${JSON.stringify(pair)}`);
+      await this.pgClient.query(
+        SQL`INSERT INTO "`.append(this.storeServiceKey)
+          .append(SQL`" (key, value) 
+          VALUES (${pair.key}, ${{
+          [pair.key]: JSON.parse(JSON.stringify(pair.value))
+        }})
+        ON CONFLICT (key)
+        DO
+          UPDATE
+            SET "value" = ${{
+              [pair.key]: JSON.parse(JSON.stringify(pair.value))
+            }}
+      `)
+      );
+    }
+    await this.pgClient.query("COMMIT");
+  }
+}
+
+export function confirmPostgresConfigurationEnvVars() {
+  for (const [key, value] of Object.entries(POSTGRES_CONFIGURATION_ENV_KEYS)) {
+    if (!process.env[value]) {
+      throw Error(
+        `Postgres ${key} is not set via env var ${
+          POSTGRES_CONFIGURATION_ENV_KEYS[key]
+        }`
+      );
+    }
   }
 }
