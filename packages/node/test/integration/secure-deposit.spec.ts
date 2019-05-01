@@ -1,9 +1,9 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
+  CreateChannelMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -76,32 +76,29 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it("has the right balance for both parties after deposits", async done => {
-    nodeA.on(
-      NODE_EVENTS.CREATE_CHANNEL,
-      async (data: NodeTypes.CreateChannelResult) => {
-        const { multisigAddress } = data;
-        const depositReq = makeDepositRequest(multisigAddress, One);
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
+      const { multisigAddress } = msg.data;
+      const depositReq = makeDepositRequest(multisigAddress, One);
 
-        await nodeA.call(depositReq.type, depositReq);
+      await nodeA.call(depositReq.type, depositReq);
 
-        await nodeB.call(depositReq.type, depositReq);
+      await nodeB.call(depositReq.type, depositReq);
 
-        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          2
-        );
+      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+        2
+      );
 
-        const freeBalanceState = await getFreeBalanceState(
-          nodeA,
-          multisigAddress
-        );
+      const freeBalanceState = await getFreeBalanceState(
+        nodeA,
+        multisigAddress
+      );
 
-        for (const key in freeBalanceState) {
-          expect(freeBalanceState[key]).toEqual(One);
-        }
-
-        done();
+      for (const key in freeBalanceState) {
+        expect(freeBalanceState[key]).toEqual(One);
       }
-    );
+
+      done();
+    });
     await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier

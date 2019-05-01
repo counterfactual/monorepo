@@ -3,6 +3,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
+  CreateChannelMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -97,8 +98,8 @@ describe("Node can create multisig, other owners get notified", () => {
 
       nodeA.on(
         NODE_EVENTS.CREATE_CHANNEL,
-        async (data: NodeTypes.CreateChannelResult) => {
-          if (data.owners === ownersABPublicIdentifiers) {
+        async (msg: CreateChannelMessage) => {
+          if (msg.data.owners === ownersABPublicIdentifiers) {
             const openChannelsNodeA = await getChannelAddresses(nodeA);
             const openChannelsNodeB = await getChannelAddresses(nodeB);
             expect(openChannelsNodeA.size).toEqual(1);
@@ -108,7 +109,7 @@ describe("Node can create multisig, other owners get notified", () => {
               nodeA,
               nodeB,
               ownersABPublicIdentifiers,
-              data
+              msg.data
             );
           } else {
             const openChannelsNodeA = await getChannelAddresses(nodeA);
@@ -121,7 +122,7 @@ describe("Node can create multisig, other owners get notified", () => {
               nodeA,
               nodeC,
               ownersACPublicIdentifiers,
-              data
+              msg.data
             );
 
             done();

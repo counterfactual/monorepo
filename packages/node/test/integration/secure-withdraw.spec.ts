@@ -1,9 +1,9 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
 import {
+  CreateChannelMessage,
   IMessagingService,
   IStoreService,
   Node,
@@ -76,42 +76,39 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal", async done => {
-    nodeA.on(
-      NODE_EVENTS.CREATE_CHANNEL,
-      async (data: NodeTypes.CreateChannelResult) => {
-        const { multisigAddress } = data;
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
+      const { multisigAddress } = msg.data;
 
-        expect(multisigAddress).toBeDefined();
+      expect(multisigAddress).toBeDefined();
 
-        // Because the tests re-use the same ganache instance (and therefore
-        // deterministically computed multisig address is re-used)
-        const startingMultisigBalance = await provider.getBalance(
-          multisigAddress
-        );
+      // Because the tests re-use the same ganache instance (and therefore
+      // deterministically computed multisig address is re-used)
+      const startingMultisigBalance = await provider.getBalance(
+        multisigAddress
+      );
 
-        const depositReq = makeDepositRequest(multisigAddress, One);
+      const depositReq = makeDepositRequest(multisigAddress, One);
 
-        await nodeA.call(depositReq.type, depositReq);
+      await nodeA.call(depositReq.type, depositReq);
 
-        const postDepositMultisigBalance = await provider.getBalance(
-          multisigAddress
-        );
+      const postDepositMultisigBalance = await provider.getBalance(
+        multisigAddress
+      );
 
-        expect(postDepositMultisigBalance.toNumber()).toEqual(
-          startingMultisigBalance.toNumber() + 1
-        );
+      expect(postDepositMultisigBalance.toNumber()).toEqual(
+        startingMultisigBalance.toNumber() + 1
+      );
 
-        const withdrawReq = makeWithdrawRequest(multisigAddress, One);
+      const withdrawReq = makeWithdrawRequest(multisigAddress, One);
 
-        await nodeA.call(withdrawReq.type, withdrawReq);
+      await nodeA.call(withdrawReq.type, withdrawReq);
 
-        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          startingMultisigBalance.toNumber()
-        );
+      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+        startingMultisigBalance.toNumber()
+      );
 
-        done();
-      }
-    );
+      done();
+    });
     await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier

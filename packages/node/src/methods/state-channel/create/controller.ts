@@ -119,7 +119,7 @@ export default class CreateChannelController extends NodeController {
 
     await messagingService.send(respondingXpub, msg);
 
-    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg.data);
+    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg);
   }
 
   private async sendMultisigDeployTx(

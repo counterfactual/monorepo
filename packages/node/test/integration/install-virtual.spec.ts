@@ -14,6 +14,7 @@ import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { MNEMONIC_PATH } from "../../src/signer";
 import {
+  CreateChannelMessage,
   InstallVirtualMessage,
   NODE_EVENTS,
   ProposeVirtualMessage
@@ -117,35 +118,31 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
 
         nodeB.once(
           NODE_EVENTS.CREATE_CHANNEL,
-          async (res: NodeTypes.CreateChannelResult) => {
-            // FIXME:(nima) node event emitters don't use consistent interface
-            // @ts-ignore
-            abChannelMultisigAddress = res.data.multisigAddress;
+          async (msg: CreateChannelMessage) => {
+            abChannelMultisigAddress = msg.data.multisigAddress;
           }
         );
 
         nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
+          async (msg: CreateChannelMessage) => {
             while (!abChannelMultisigAddress) {
               console.log("Waiting for Node A and B to sync on new channel");
               await sleep(500);
             }
 
-            await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
+            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
 
             nodeB.once(
               NODE_EVENTS.CREATE_CHANNEL,
-              async (res: NodeTypes.CreateChannelResult) => {
-                // FIXME:(nima) node event emitters don't use consistent interface
-                // @ts-ignore
-                bcChannelMultisigAddress = res.multisigAddress;
+              async (msg: CreateChannelMessage) => {
+                bcChannelMultisigAddress = msg.data.multisigAddress;
               }
             );
 
             nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
-              async (res: NodeTypes.CreateChannelResult) => {
+              async (msg: CreateChannelMessage) => {
                 while (!bcChannelMultisigAddress) {
                   console.log(
                     "Waiting for Node B and C to sync on new channel"
@@ -156,9 +153,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                 await collateralizeChannel(
                   nodeB,
                   nodeC,
-                  // FIXME:(nima) node event emitters don't use consistent interface
-                  // @ts-ignore
-                  res.data.multisigAddress
+                  msg.data.multisigAddress
                 );
 
                 const intermediaries = [nodeB.publicIdentifier];

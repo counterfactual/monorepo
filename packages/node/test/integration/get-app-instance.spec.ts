@@ -73,61 +73,58 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   });
 
   it("can accept a valid call to get the desired AppInstance details", async done => {
-    nodeA.on(
-      NODE_EVENTS.CREATE_CHANNEL,
-      async (data: NodeTypes.CreateChannelResult) => {
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-          nodeB.publicIdentifier
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
+      const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+        nodeB.publicIdentifier
+      );
+
+      const installAppInstanceRequestId = generateUUID();
+      let installedAppInstance: AppInstanceInfo;
+
+      nodeA.on(NodeTypes.MethodName.INSTALL, async res => {
+        const installResult: NodeTypes.InstallResult = res.result;
+
+        installedAppInstance = installResult.appInstance;
+
+        const getAppInstancesRequest: NodeTypes.MethodRequest = {
+          requestId: generateUUID(),
+          type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+          params: {
+            appInstanceId: installedAppInstance.id
+          } as NodeTypes.GetAppInstanceDetailsParams
+        };
+
+        const response: NodeTypes.MethodResponse = await nodeA.call(
+          getAppInstancesRequest.type,
+          getAppInstancesRequest
         );
+        const appInstanceInfo = (response.result as NodeTypes.GetAppInstanceDetailsResult)
+          .appInstance;
 
-        const installAppInstanceRequestId = generateUUID();
-        let installedAppInstance: AppInstanceInfo;
+        expect(installedAppInstance).toEqual(appInstanceInfo);
+        done();
+      });
 
-        nodeA.on(NodeTypes.MethodName.INSTALL, async res => {
-          const installResult: NodeTypes.InstallResult = res.result;
+      nodeA.on(appInstanceInstallationProposalRequest.type, res => {
+        const installProposalResult: NodeTypes.ProposeInstallResult =
+          res.result;
+        const appInstanceId = installProposalResult.appInstanceId;
+        const installAppInstanceRequest: NodeTypes.MethodRequest = {
+          requestId: installAppInstanceRequestId,
+          type: NodeTypes.MethodName.INSTALL,
+          params: {
+            appInstanceId
+          } as NodeTypes.InstallParams
+        };
 
-          installedAppInstance = installResult.appInstance;
+        nodeA.emit(installAppInstanceRequest.type, installAppInstanceRequest);
+      });
 
-          const getAppInstancesRequest: NodeTypes.MethodRequest = {
-            requestId: generateUUID(),
-            type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
-            params: {
-              appInstanceId: installedAppInstance.id
-            } as NodeTypes.GetAppInstanceDetailsParams
-          };
-
-          const response: NodeTypes.MethodResponse = await nodeA.call(
-            getAppInstancesRequest.type,
-            getAppInstancesRequest
-          );
-          const appInstanceInfo = (response.result as NodeTypes.GetAppInstanceDetailsResult)
-            .appInstance;
-
-          expect(installedAppInstance).toEqual(appInstanceInfo);
-          done();
-        });
-
-        nodeA.on(appInstanceInstallationProposalRequest.type, res => {
-          const installProposalResult: NodeTypes.ProposeInstallResult =
-            res.result;
-          const appInstanceId = installProposalResult.appInstanceId;
-          const installAppInstanceRequest: NodeTypes.MethodRequest = {
-            requestId: installAppInstanceRequestId,
-            type: NodeTypes.MethodName.INSTALL,
-            params: {
-              appInstanceId
-            } as NodeTypes.InstallParams
-          };
-
-          nodeA.emit(installAppInstanceRequest.type, installAppInstanceRequest);
-        });
-
-        nodeA.emit(
-          appInstanceInstallationProposalRequest.type,
-          appInstanceInstallationProposalRequest
-        );
-      }
-    );
+      nodeA.emit(
+        appInstanceInstallationProposalRequest.type,
+        appInstanceInstallationProposalRequest
+      );
+    });
     await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier

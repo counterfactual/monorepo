@@ -112,109 +112,103 @@ describe("Node method follows spec - uninstall virtual", () => {
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         };
 
-        nodeA.once(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (data: NodeTypes.CreateChannelResult) => {
-                const installVirtualAppInstanceProposalRequest = makeTTTVirtualAppInstanceProposalReq(
-                  nodeC.publicIdentifier,
-                  global["networkContext"].TicTacToe,
-                  initialState,
-                  {
-                    stateEncoding,
-                    actionEncoding
-                  },
-                  [nodeB.publicIdentifier]
-                );
+        nodeA.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
+          nodeC.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
+            const installVirtualAppInstanceProposalRequest = makeTTTVirtualAppInstanceProposalReq(
+              nodeC.publicIdentifier,
+              global["networkContext"].TicTacToe,
+              initialState,
+              {
+                stateEncoding,
+                actionEncoding
+              },
+              [nodeB.publicIdentifier]
+            );
 
-                nodeC.on(
-                  NODE_EVENTS.UNINSTALL_VIRTUAL,
-                  async (msg: UninstallMessage) => {
-                    expect(
-                      await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
-                    ).toEqual([]);
-                    expect(
-                      await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)
-                    ).toEqual([]);
-                    done();
-                  }
-                );
-
-                nodeA.on(
-                  NODE_EVENTS.INSTALL_VIRTUAL,
-                  async (msg: InstallVirtualMessage) => {
-                    const virtualAppInstanceNodeA = (await getApps(
-                      nodeA,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-                    const virtualAppInstanceNodeC = (await getApps(
-                      nodeC,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    expect(virtualAppInstanceNodeA).toEqual(
-                      virtualAppInstanceNodeC
-                    );
-
-                    const uninstallReq = generateUninstallVirtualRequest(
-                      msg.data.params.appInstanceId,
-                      nodeB.publicIdentifier
-                    );
-                    nodeA.emit(uninstallReq.type, uninstallReq);
-                  }
-                );
-
-                nodeC.on(
-                  NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-                  async (msg: ProposeVirtualMessage) => {
-                    const proposedAppInstanceA = (await getProposedAppInstances(
-                      nodeA
-                    ))[0];
-                    const proposedAppInstanceC = (await getProposedAppInstances(
-                      nodeC
-                    ))[0];
-
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceA
-                    );
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
-                    );
-
-                    expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
-                      nodeA.publicIdentifier
-                    );
-                    expect(proposedAppInstanceA.id).toEqual(
-                      proposedAppInstanceC.id
-                    );
-
-                    const installVirtualReq = makeInstallVirtualRequest(
-                      msg.data.appInstanceId,
-                      msg.data.params.intermediaries
-                    );
-                    nodeC.emit(installVirtualReq.type, installVirtualReq);
-                  }
-                );
-
-                const response = await nodeA.call(
-                  installVirtualAppInstanceProposalRequest.type,
-                  installVirtualAppInstanceProposalRequest
-                );
-                const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-                  .appInstanceId;
-                expect(appInstanceId).toBeDefined();
+            nodeC.on(
+              NODE_EVENTS.UNINSTALL_VIRTUAL,
+              async (msg: UninstallMessage) => {
+                expect(
+                  await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
+                ).toEqual([]);
+                expect(
+                  await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)
+                ).toEqual([]);
+                done();
               }
             );
-            await getMultisigCreationTransactionHash(nodeB, [
-              nodeB.publicIdentifier,
-              nodeC.publicIdentifier
-            ]);
-          }
-        );
+
+            nodeA.on(
+              NODE_EVENTS.INSTALL_VIRTUAL,
+              async (msg: InstallVirtualMessage) => {
+                const virtualAppInstanceNodeA = (await getApps(
+                  nodeA,
+                  APP_INSTANCE_STATUS.INSTALLED
+                ))[0];
+                const virtualAppInstanceNodeC = (await getApps(
+                  nodeC,
+                  APP_INSTANCE_STATUS.INSTALLED
+                ))[0];
+
+                expect(virtualAppInstanceNodeA).toEqual(
+                  virtualAppInstanceNodeC
+                );
+
+                const uninstallReq = generateUninstallVirtualRequest(
+                  msg.data.params.appInstanceId,
+                  nodeB.publicIdentifier
+                );
+                nodeA.emit(uninstallReq.type, uninstallReq);
+              }
+            );
+
+            nodeC.on(
+              NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+              async (msg: ProposeVirtualMessage) => {
+                const proposedAppInstanceA = (await getProposedAppInstances(
+                  nodeA
+                ))[0];
+                const proposedAppInstanceC = (await getProposedAppInstances(
+                  nodeC
+                ))[0];
+
+                confirmProposedVirtualAppInstanceOnNode(
+                  installVirtualAppInstanceProposalRequest.params,
+                  proposedAppInstanceA
+                );
+                confirmProposedVirtualAppInstanceOnNode(
+                  installVirtualAppInstanceProposalRequest.params,
+                  proposedAppInstanceC
+                );
+
+                expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
+                  nodeA.publicIdentifier
+                );
+                expect(proposedAppInstanceA.id).toEqual(
+                  proposedAppInstanceC.id
+                );
+
+                const installVirtualReq = makeInstallVirtualRequest(
+                  msg.data.appInstanceId,
+                  msg.data.params.intermediaries
+                );
+                nodeC.emit(installVirtualReq.type, installVirtualReq);
+              }
+            );
+
+            const response = await nodeA.call(
+              installVirtualAppInstanceProposalRequest.type,
+              installVirtualAppInstanceProposalRequest
+            );
+            const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
+              .appInstanceId;
+            expect(appInstanceId).toBeDefined();
+          });
+          await getMultisigCreationTransactionHash(nodeB, [
+            nodeB.publicIdentifier,
+            nodeC.publicIdentifier
+          ]);
+        });
         await getMultisigCreationTransactionHash(nodeA, [
           nodeA.publicIdentifier,
           nodeB.publicIdentifier

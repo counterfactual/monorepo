@@ -103,81 +103,73 @@ describe("Node method follows spec - uninstall", () => {
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         };
 
-        nodeA.on(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
-            expect(await getInstalledAppInstances(nodeA)).toEqual([]);
-            expect(await getInstalledAppInstances(nodeB)).toEqual([]);
+        nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
+          expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+          expect(await getInstalledAppInstances(nodeB)).toEqual([]);
 
-            let appInstanceId;
+          let appInstanceId;
 
-            // second, an app instance must be proposed to be installed into that channel
-            const appInstanceInstallationProposalRequest = makeTTTProposalReq(
-              nodeB.publicIdentifier,
-              global["networkContext"].TicTacToe,
-              initialState,
-              {
-                stateEncoding,
-                actionEncoding
-              }
+          // second, an app instance must be proposed to be installed into that channel
+          const appInstanceInstallationProposalRequest = makeTTTProposalReq(
+            nodeB.publicIdentifier,
+            global["networkContext"].TicTacToe,
+            initialState,
+            {
+              stateEncoding,
+              actionEncoding
+            }
+          );
+
+          // node B then decides to approve the proposal
+          nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+            confirmProposedAppInstanceOnNode(
+              appInstanceInstallationProposalRequest.params,
+              await getProposedAppInstanceInfo(nodeA, appInstanceId)
             );
 
-            // node B then decides to approve the proposal
-            nodeB.on(
-              NODE_EVENTS.PROPOSE_INSTALL,
-              async (msg: ProposeMessage) => {
-                confirmProposedAppInstanceOnNode(
-                  appInstanceInstallationProposalRequest.params,
-                  await getProposedAppInstanceInfo(nodeA, appInstanceId)
-                );
+            // some approval logic happens in this callback, we proceed
+            // to approve the proposal, and install the app instance
+            const installRequest = makeInstallRequest(msg.data.appInstanceId);
+            nodeB.emit(installRequest.type, installRequest);
+          });
 
-                // some approval logic happens in this callback, we proceed
-                // to approve the proposal, and install the app instance
-                const installRequest = makeInstallRequest(
-                  msg.data.appInstanceId
-                );
-                nodeB.emit(installRequest.type, installRequest);
-              }
+          nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+            const appInstanceNodeA = await getInstalledAppInstanceInfo(
+              nodeA,
+              appInstanceId
+            );
+            const appInstanceNodeB = await getInstalledAppInstanceInfo(
+              nodeB,
+              appInstanceId
+            );
+            expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+
+            const uninstallReq = generateUninstallRequest(
+              msg.data.params.appInstanceId
             );
 
-            nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-              const appInstanceNodeA = await getInstalledAppInstanceInfo(
-                nodeA,
-                appInstanceId
-              );
-              const appInstanceNodeB = await getInstalledAppInstanceInfo(
-                nodeB,
-                appInstanceId
-              );
-              expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+            nodeA.emit(uninstallReq.type, uninstallReq);
+          });
 
-              const uninstallReq = generateUninstallRequest(
-                msg.data.params.appInstanceId
-              );
-
-              nodeA.emit(uninstallReq.type, uninstallReq);
-            });
-
-            nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
-              expect(
-                await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)
-              ).toEqual([]);
-
-              expect(
-                await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)
-              ).toEqual([]);
-
-              done();
-            });
-
-            const response = await nodeA.call(
-              appInstanceInstallationProposalRequest.type,
-              appInstanceInstallationProposalRequest
+          nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
+            expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
+              []
             );
-            appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
-              .appInstanceId;
-          }
-        );
+
+            expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
+              []
+            );
+
+            done();
+          });
+
+          const response = await nodeA.call(
+            appInstanceInstallationProposalRequest.type,
+            appInstanceInstallationProposalRequest
+          );
+          appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
+            .appInstanceId;
+        });
 
         await getMultisigCreationTransactionHash(nodeA, [
           nodeA.publicIdentifier,

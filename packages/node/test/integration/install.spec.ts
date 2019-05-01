@@ -6,7 +6,12 @@ import { v4 as generateUUID } from "uuid";
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
-import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import {
+  CreateChannelMessage,
+  InstallMessage,
+  NODE_EVENTS,
+  ProposeMessage
+} from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC } from "../test-constants.jest";
 
@@ -81,10 +86,10 @@ describe("Node method follows spec - proposeInstall", () => {
       it("sends proposal with non-null initial state", async done => {
         nodeA.on(
           NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
+          async (msg: CreateChannelMessage) => {
             expect(await getInstalledAppInstances(nodeA)).toEqual([]);
             expect(await getInstalledAppInstances(nodeB)).toEqual([]);
-            await collateralizeChannel(nodeA, nodeB, data.multisigAddress);
+            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
             let appInstanceId;
 
             // second, an app instance must be proposed to be installed into that channel
