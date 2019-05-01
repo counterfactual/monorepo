@@ -2,7 +2,6 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -56,13 +55,34 @@ export default class ProposeInstallController extends NodeController {
       params
     );
 
-    const proposalMsg: ProposeMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.PROPOSE_INSTALL,
-      data: { params, appInstanceId }
-    };
+    // const proposalMsg: ProposeMessage = {
+    //   from: publicIdentifier,
+    //   type: NODE_EVENTS.PROPOSE_INSTALL,
+    //   data: { params, appInstanceId }
+    // };
 
-    await messagingService.send(params.proposedToIdentifier, proposalMsg);
+    await messagingService.send(params.proposedToIdentifier, {
+      meta: {
+        from: requestHandler.publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "install",
+          ref: {
+            type: "proposal"
+          },
+          data: {
+            type: "proposal",
+            attributes: {
+              appInstanceId,
+              ...params
+            },
+            relationships: {}
+          }
+        }
+      ]
+    });
 
     return {
       appInstanceId

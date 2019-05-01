@@ -3,8 +3,8 @@ import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { AppInstance, StateChannel } from "../../../../../src/machine/models";
 import { xkeyKthAddress } from "../../../../../src/machine/xkeys";
+import { AppInstance, StateChannel } from "../../../../../src/models";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {

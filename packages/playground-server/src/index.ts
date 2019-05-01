@@ -1,3 +1,5 @@
+import { Node as NodeTypes } from "@counterfactual/types";
+import { Meta, OperationResponse } from "@ebryn/jsonapi-ts";
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
@@ -9,6 +11,11 @@ const BANNED_MNEMONICS = new Set([
   "impulse exile artwork when toss canal entire electric protect custom adult erupt"
 ]);
 
+const NO_MNEMONIC_MESSAGE =
+  'Error: No mnemonic specified in the NODE_MNEMONIC env var.\n\
+Please set one by following the instructions in the README, \
+section "Funding the Hub Account for Playground Testing".\n';
+
 Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 const API_TIMEOUT = 5 * 60 * 1000;
@@ -16,9 +23,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
 (async () => {
   const nodeMnemonic = process.env.NODE_MNEMONIC;
   if (!nodeMnemonic) {
-    console.error(
-      "\nError: No mnemonic specified in the NODE_MNEMONIC env var. Please set one.\n"
-    );
+    console.error(NO_MNEMONIC_MESSAGE);
     process.exit(1);
   }
 
@@ -36,6 +41,40 @@ const API_TIMEOUT = 5 * 60 * 1000;
     process.env.NODE_MNEMONIC
   );
 
+  // const node = NodeWrapper.getInstance();
+
+  // node.on(
+  //   NodeTypes.MethodName.CREATE_CHANNEL,
+  //   ({ meta, operations }: { meta: Meta; operations: OperationResponse[] }) => {
+  //     console.log(meta);
+  //     console.log(operations);
+  //   }
+  // );
+
+  // node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
+  //   meta: {
+  //     requestId: new Date().valueOf().toString()
+  //   },
+  //   operations: [
+  //     {
+  //       op: "add",
+  //       ref: {
+  //         type: "channel"
+  //       },
+  //       data: {
+  //         type: "channel",
+  //         attributes: {
+  //           owners: [
+  //             "xpub6BjsJbb2RFzCva36ZHFVF5qBtWLAxzfADBzzrrryj4PBYm2Je2inWKQXqyBenhf1vJU5owmuoqqgwyuekbtxrsaonQrZpiyXJXff9gYXJHU",
+  //             "xpub6CXbcJ9zRBosLeKTmcKWyqynwV8xmXpEP4Dh3UGq4M6b32ykwp5gtpsLtBNwk7ptBEmKARfGXWrNQAaT66ARRZ3wLmaDPC5VjtKWhYKZk3A"
+  //           ]
+  //         },
+  //         relationships: {}
+  //       }
+  //     }
+  //   ]
+  // });
+
   const api = mountApi();
   const port = process.env.PORT || 9000;
 
@@ -49,6 +88,7 @@ process.on("SIGINT", async () => {
   console.log("Shutting down playground-server...");
   const serviceFactory = await serviceFactoryPromise;
   await serviceFactory.closeServiceConnections();
+  process.exit(0);
 });
 
 export * from "./types";

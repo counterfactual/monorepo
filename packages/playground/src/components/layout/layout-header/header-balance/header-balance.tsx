@@ -10,7 +10,7 @@ import { UserSession } from "../../../../types";
 })
 export class HeaderBalance {
   @Element() el!: HTMLStencilElement;
-  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethFreeBalanceWei: BigNumber | number = 0;
   @Prop() ethPendingDepositAmountWei?: number;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
 

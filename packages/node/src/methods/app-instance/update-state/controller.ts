@@ -1,11 +1,11 @@
-import { Node, SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
 import { InstructionExecutor, StateChannel } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
+// import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -91,10 +91,27 @@ export default class UpdateStateController extends NodeController {
     ]);
 
     await messagingService.send(to, {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.UPDATE_STATE,
-      data: { appInstanceId, newState }
-    } as UpdateStateMessage);
+      meta: {
+        from: requestHandler.publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "updateState",
+          ref: {
+            type: "app"
+          },
+          data: {
+            type: "app",
+            attributes: {
+              appInstanceId,
+              newState
+            },
+            relationships: {}
+          }
+        }
+      ]
+    });
   }
 }
 
@@ -104,7 +121,7 @@ async function runUpdateStateProtocol(
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
   respondingXpub: string,
-  newState: SolidityABIEncoderV2Struct
+  newState: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

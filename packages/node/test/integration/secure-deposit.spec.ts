@@ -95,8 +95,9 @@ describe("Node method follows spec - deposit", () => {
           multisigAddress
         );
 
-        expect(freeBalanceState.aliceBalance).toEqual(One);
-        expect(freeBalanceState.bobBalance).toEqual(One);
+        for (const key in freeBalanceState) {
+          expect(freeBalanceState[key]).toEqual(One);
+        }
 
         done();
       }

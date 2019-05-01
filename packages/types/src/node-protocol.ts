@@ -1,6 +1,5 @@
 import { BigNumber } from "ethers/utils";
 
-import { ETHBucketAppState } from ".";
 import {
   AppABIEncodings,
   AppInstanceInfo,
@@ -9,7 +8,7 @@ import {
 import {
   Address,
   AppInstanceID,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface INodeProvider {
@@ -56,7 +55,6 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
-    GET_MY_FREE_BALANCE_FOR_STATE = "getMyFreeBalanceForState",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
     INSTALL = "install",
@@ -92,10 +90,10 @@ export namespace Node {
     WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent",
     WITHDRAWAL_FAILED = "withdrawalFailed",
     WITHDRAWAL_STARTED = "withdrawalStartedEvent",
-    PROPOSE_INSTALL = "proposeInstallEvent",	
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",	
-    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",	
-    WITHDRAW_EVENT = "withdrawEvent",	
+    PROPOSE_INSTALL = "proposeInstallEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+    WITHDRAW_EVENT = "withdrawEvent",
     REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
   }
 
@@ -125,15 +123,7 @@ export namespace Node {
   };
 
   export type GetFreeBalanceStateResult = {
-    state: ETHBucketAppState;
-  };
-
-  export type GetMyFreeBalanceForStateParams = {
-    multisigAddress: string;
-  };
-
-  export type GetMyFreeBalanceForStateResult = {
-    balance: BigNumber;
+    [ s: string ]: BigNumber
   };
 
   export type GetAppInstancesParams = {};
@@ -155,7 +145,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
+    initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
   };
 
@@ -194,7 +184,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Struct;
+    state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -207,20 +197,20 @@ export namespace Node {
 
   export type UpdateStateParams = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UpdateStateResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: SolidityABIEncoderV2Struct;
+    action: SolidityABIEncoderV2Type;
   };
 
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UninstallParams = {
@@ -295,8 +285,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
-    action?: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
+    action?: SolidityABIEncoderV2Type;
   };
 
   export type UninstallEventData = {

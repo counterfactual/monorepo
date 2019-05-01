@@ -11,5 +11,5 @@
     ],
     "types": ["jest"]
   },
-  "include": ["src", "test"]
+  "include": ["src"]
 }

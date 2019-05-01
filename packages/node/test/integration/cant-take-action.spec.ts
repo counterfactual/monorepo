@@ -3,7 +3,7 @@ import {
   AppABIEncodings,
   AssetType,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -156,7 +156,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
 function makeTTTAppInstanceProposalReq(
   proposedToIdentifier: string,
   appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   abiEncodings: AppABIEncodings
 ): NodeTypes.MethodRequest {
   return {

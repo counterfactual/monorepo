@@ -1,12 +1,13 @@
-import { Opcode, Protocol } from "./enums";
-import { appIdentityToHash } from "./ethereum/utils/app-identity";
-import { InstructionExecutor } from "./instruction-executor";
+import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import {
   AppInstance,
   AppInstanceJson,
   StateChannel,
   StateChannelJSON
-} from "./models";
+} from "../models";
+
+import { Opcode, Protocol } from "./enums";
+import { InstructionExecutor } from "./instruction-executor";
 import {
   Context,
   InstallParams,

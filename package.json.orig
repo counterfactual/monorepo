@@ -31,6 +31,17 @@
     "state channels"
   ],
   "devDependencies": {
+<<<<<<< HEAD
+    "lerna": "3.13.2",
+    "patch-package": "6.1.2",
+    "postinstall-postinstall": "2.0.0",
+    "prettier": "1.17.0",
+    "tslint": "5.15.0",
+    "tslint-config-airbnb": "5.11.1",
+    "tslint-config-prettier": "1.18.0",
+    "tslint-plugin-prettier": "2.0.1",
+    "typescript": "3.4.3"
+=======
     "lerna": "3.13.4",
     "patch-package": "6.1.2",
     "postinstall-postinstall": "2.0.0",
@@ -40,10 +51,11 @@
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
     "typescript": "3.4.5"
+>>>>>>> joel/node-jsonapi-ops
   },
   "resolutions": {
     "**/tslint-microsoft-contrib": "^6.0.0",
     "**/ethers": "^4.0.27",
-    "**/solc": "0.5.7"
+    "**/solc": "^0.5.7"
   }
 }

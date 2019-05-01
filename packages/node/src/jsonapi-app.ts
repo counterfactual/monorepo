@@ -3,11 +3,9 @@ import {
   Application,
   Operation,
   OperationProcessor,
+  OperationResponse,
   Resource,
-  ResourceAttributes,
-  authorizeMiddleware,
-  HasId,
-  JsonApiErrors
+  ResourceAttributes
 } from "@ebryn/jsonapi-ts";
 
 import {
@@ -16,90 +14,103 @@ import {
 } from "./api-router";
 import { RequestHandler } from "./request-handler";
 import { App, Channel, Proposal } from "./resources";
-import User from "./resources/user";
+
+class AppProcessor<T extends Resource = App> extends OperationProcessor<T> {
+  static resourceClass = App;
+}
+
+class ChannelProcessor<T extends Resource = Channel> extends OperationProcessor<
+  T
+> {
+  static resourceClass = Channel;
+}
+
+class ProposalProcessor<
+  T extends Resource = Proposal
+> extends OperationProcessor<T> {
+  static resourceClass = Proposal;
+}
 
 export default class NodeApplication extends Application {
   constructor(private requestHandler: RequestHandler) {
     super({
       types: [App, Channel, Proposal],
-      defaultProcessor: OperationProcessor
+      processors: [AppProcessor, ChannelProcessor, ProposalProcessor]
     });
-
-    this.processors = this.buildMetaprocessors();
   }
 
-  // tslint:disable-next-line: prefer-array-literal
-  buildMetaprocessors(): (typeof OperationProcessor)[] {
-    const metaprocessors = {
-      user: class extends OperationProcessor<User> {
-        public static resourceClass = User;
+  async bootstrap() {
+    await this.buildOperationMethods();
+  }
 
-        public async identify(op: Operation): Promise<HasId> {
-          return {
-            id: "foo"
-          };
-        }
+  async executeOperation(
+    op: Operation,
+    processor: OperationProcessor<Resource>
+  ): Promise<OperationResponse> {
+    const result = await processor.execute(op);
 
-        public async login(op: Operation): Promise<HasId> {
-          if (op.data.attributes.token === "baz") {
-            return this.identify(op);
-          }
-
-          throw JsonApiErrors.Unauthorized();
-        }
-      }
+    return {
+      data: result || null,
+      included: []
     };
+  }
 
-    Object.keys(controllersToOperations).forEach(controllerName => {
-      const implementation: (
-        requestHandler: RequestHandler,
-        params: Node.MethodParams
-      ) => Promise<Node.MethodResult> =
-        methodNameToImplementation[controllerName];
+  async buildOperationMethods(): Promise<void> {
+    await Promise.all(
+      Object.keys(controllersToOperations).map(async controllerName => {
+        const implementation: (
+          requestHandler: RequestHandler,
+          params: Node.MethodParams
+        ) => Promise<Node.MethodResult> =
+          methodNameToImplementation[controllerName];
 
-      const {
-        type,
-        op
-      }: {
-        type: "app" | "channel" | "proposal";
-        op: string;
-      } = controllersToOperations[controllerName];
+        const {
+          type,
+          op
+        }: {
+          type: "app" | "channel" | "proposal";
+          op: string;
+        } = controllersToOperations[controllerName];
 
-      this.processorFor(type)
-        .then(processor => {
-          console.log(`Implementing ${type}:${op} for processor`, processor);
-          processor!.constructor.prototype[op] = authorizeMiddleware(
-            async (
-              operation: Operation
-            ): Promise<Resource | Resource[] | void> => {
-              const result = (await implementation(
-                this.requestHandler,
-                operation.data.attributes
-              )) as ResourceAttributes;
+        const processor = await this.processorFor(type);
 
-              return Array.isArray(result)
-                ? result.map(
-                    record =>
-                      ({
-                        id: operation.data.id,
-                        type: operation.ref.type,
-                        attributes: record,
-                        relationships: {}
-                      } as Resource)
-                  )
-                : {
-                    id: operation.data.id,
+        if (!processor) {
+          console.error(
+            "Attempted to bind ",
+            type,
+            op,
+            "to an undefined processor"
+          );
+          return;
+        }
+
+        processor.constructor.prototype[op] = async (
+          operation: Operation
+        ): Promise<Resource | Resource[] | void> => {
+          const data = operation.data as Resource;
+          const result = (await implementation(
+            this.requestHandler,
+            data.attributes
+          )) as ResourceAttributes;
+
+          return Array.isArray(result)
+            ? result.map(
+                record =>
+                  ({
+                    id: data.id,
                     type: operation.ref.type,
-                    attributes: result,
+                    attributes: record,
                     relationships: {}
-                  };
-            },
-            []
-          ).bind(processor);
-        })
-        .catch(error => console.error(error));
-    });
-
-    return Object.values(metaprocessors) as (typeof OperationProcessor)[];
+                  } as Resource)
+              )
+            : {
+                id: data.id,
+                type: operation.ref.type,
+                attributes: result,
+                relationships: {}
+              };
+        };
+      })
+    );
   }
 }

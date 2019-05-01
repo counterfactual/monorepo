@@ -1,7 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
@@ -142,7 +142,7 @@ export class Store {
    */
   public async saveAppInstanceState(
     appInstanceId: string,
-    newState: SolidityABIEncoderV2Struct
+    newState: SolidityABIEncoderV2Type
   ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(appInstanceId, newState);

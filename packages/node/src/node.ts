@@ -1,7 +1,7 @@
-import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -21,7 +21,9 @@ import { getHDNode } from "./signer";
 import {
   NODE_EVENTS,
   NodeMessage,
-  NodeMessageWrappedProtocolMessage
+  NodeMessageWrappedProtocolMessage,
+  NodeOperation,
+  NodeOperationResponse
 } from "./types";
 
 function timeout(ms) {
@@ -114,6 +116,7 @@ export class Node {
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
     console.log(`Node signer address: ${this.signer.address}`);
+    console.log(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -129,12 +132,23 @@ export class Node {
     );
     this.registerMessagingConnection();
     this.app = new NodeApplication(this.requestHandler);
+
+    await this.app.bootstrap();
+
+    this.requestHandler.app = this.app;
+
     return this;
   }
 
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  /// Address used for ETH free balance and maybe some other things
+  @Memoize()
+  get zeroethAddress(): string {
+    return fromExtendedKey(this.publicIdentifier).derivePath("0").address;
   }
 
   /**
@@ -178,10 +192,24 @@ export class Node {
       const to = data.toXpub;
 
       await this.messagingService.send(to, {
-        data,
-        from: fromXpub,
-        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-      } as NodeMessageWrappedProtocolMessage);
+        meta: {
+          requestId: "",
+          from: fromXpub
+        },
+        operations: [
+          {
+            op: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+            ref: {
+              type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+            },
+            data: {
+              type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+              attributes: data,
+              relationships: {}
+            }
+          }
+        ]
+      });
     });
 
     instructionExecutor.register(
@@ -199,10 +227,24 @@ export class Node {
         const counterpartyResponse = deferral.promise;
 
         await this.messagingService.send(to, {
-          data,
-          from: fromXpub,
-          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-        } as NodeMessageWrappedProtocolMessage);
+          meta: {
+            requestId: "",
+            from: fromXpub
+          },
+          operations: [
+            {
+              op: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+              ref: {
+                type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+              },
+              data: {
+                type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
+                attributes: data,
+                relationships: {}
+              }
+            }
+          ]
+        });
 
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
@@ -285,7 +327,7 @@ export class Node {
    * @param event
    * @param req
    */
-  emit(event: string, req: NodeTypes.MethodRequest) {
+  emit(event: string, req: NodeOperation) {
     this.incoming.emit(event, req);
   }
 
@@ -294,11 +336,8 @@ export class Node {
    * @param method
    * @param req
    */
-  async call(
-    method: NodeTypes.MethodName,
-    req: NodeTypes.MethodRequest
-  ): Promise<NodeTypes.MethodResponse> {
-    return this.requestHandler.callMethod(method, req);
+  async call(req: NodeOperation): Promise<NodeOperationResponse> {
+    return this.requestHandler.callMethod(req);
   }
 
   /**
@@ -310,9 +349,13 @@ export class Node {
   private registerMessagingConnection() {
     this.messagingService.onReceive(
       this.publicIdentifier,
-      async (msg: NodeMessage) => {
-        await this.handleReceivedMessage(msg);
-        this.outgoing.emit(msg.type, msg);
+      async (msg: NodeOperation) => {
+        await this.handleReceivedMessage({
+          type: msg.operations[0].ref.type,
+          from: msg.meta.from,
+          data: msg
+        } as NodeMessage);
+        this.outgoing.emit(msg.operations[0].ref.type, msg);
       }
     );
   }
@@ -350,7 +393,7 @@ export class Node {
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      await this.requestHandler.callEvent(msg.type, msg);
+      await this.requestHandler.callEvent(msg.type, msg["data"]);
     }
   }
 

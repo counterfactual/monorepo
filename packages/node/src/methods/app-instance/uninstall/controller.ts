@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, UninstallMessage } from "../../../types";
+// import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -77,15 +77,27 @@ export default class UninstallController extends NodeController {
       appInstanceId
     );
 
-    const uninstallMsg: UninstallMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.UNINSTALL,
-      data: {
-        appInstanceId
-      }
-    };
-
-    await messagingService.send(to, uninstallMsg);
+    await messagingService.send(to, {
+      meta: {
+        requestId: "",
+        from: publicIdentifier
+      },
+      operations: [
+        {
+          op: "uninstall",
+          ref: {
+            type: "app"
+          },
+          data: {
+            type: "app",
+            attributes: {
+              appInstanceId
+            },
+            relationships: {}
+          }
+        }
+      ]
+    });
 
     return {};
   }

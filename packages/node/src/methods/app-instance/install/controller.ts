@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { InstallMessage, NODE_EVENTS } from "../../../types";
+import { NodeOperation } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
 
@@ -57,10 +57,30 @@ export default class InstallController extends NodeController {
       params
     );
 
-    const installApprovalMsg: InstallMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.INSTALL,
-      data: { params }
+    // const installApprovalMsg: InstallMessage = {
+    //   from: publicIdentifier,
+    //   type: NODE_EVENTS.INSTALL,
+    //   data: { params }
+    // };
+
+    const installApprovalMsg: NodeOperation = {
+      meta: {
+        from: publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "install",
+          ref: {
+            type: "proposal"
+          },
+          data: {
+            type: "proposal",
+            attributes: params,
+            relationships: {}
+          }
+        }
+      ]
     };
 
     await messagingService.send(respondingAddress, installApprovalMsg);

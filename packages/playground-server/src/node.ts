@@ -254,20 +254,51 @@ export class NodeWrapper {
       );
     }
 
-    const { node } = NodeWrapper;
+    const node = NodeWrapper.getInstance();
 
-    const multisigResponse = await node.call(
-      NodeTypes.MethodName.CREATE_CHANNEL,
-      {
-        params: {
-          owners: [node.publicIdentifier, nodeAddress]
-        } as NodeTypes.CreateChannelParams,
-        type: NodeTypes.MethodName.CREATE_CHANNEL,
-        requestId: generateUUID()
+    // const multisigResponse = await node.call(
+    //   NodeTypes.MethodName.CREATE_CHANNEL,
+    //   {
+    //     params: {
+    //       owners: [node.publicIdentifier, nodeAddress]
+    //     } as NodeTypes.CreateChannelParams,
+    //     type: NodeTypes.MethodName.CREATE_CHANNEL,
+    //     requestId: generateUUID()
+    //   }
+    // );
+
+    // return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
+
+    return new Promise((resolve, reject) => {
+      try {
+        node.on(NodeTypes.MethodName.CREATE_CHANNEL, res => {
+          resolve(res.operations[0].data.attributes.result);
+        });
+
+        node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
+          meta: {
+            requestId: generateUUID()
+          },
+          operations: [
+            {
+              op: "add",
+              ref: {
+                type: "channel"
+              },
+              data: {
+                type: "channel",
+                attributes: {
+                  owners: [node.publicIdentifier, nodeAddress]
+                },
+                relationships: {}
+              }
+            }
+          ]
+        });
+      } catch (e) {
+        reject(e);
       }
-    );
-
-    return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
+    });
   }
 }
 
@@ -288,25 +319,61 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     }|_(view on etherscan)_>.`
   );
 
-  try {
-    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-      requestId: generateUUID(),
-      type: NodeTypes.MethodName.DEPOSIT,
-      params: response.data as NodeTypes.DepositParams
-    });
-  } catch (e) {
-    Log.error("Failed to deposit on the server", {
-      tags: { error: e }
-    });
-  }
+  // try {
+  //   await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+  //     requestId: generateUUID(),
+  //     type: NodeTypes.MethodName.DEPOSIT,
+  //     params: response.data as NodeTypes.DepositParams
+  //   });
+  // } catch (e) {
+  //   Log.error("Failed to deposit on the server", {
+  //     tags: { error: e }
+  //   });
+  // }
 
-  informSlack(
-    `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
-      response.data.amount
-    )} ETH <http://kovan.etherscan.io/address/${
-      response.data.multisigAddress
-    }|_(view on etherscan)_>.`
-  );
+  // informSlack(
+  //   `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
+  //     response.data.amount
+  //   )} ETH <http://kovan.etherscan.io/address/${
+  //     response.data.multisigAddress
+  //   }|_(view on etherscan)_>.`
+  // );
+
+  const node = NodeWrapper.getInstance();
+
+  node.on(NodeTypes.MethodName.DEPOSIT, res => {
+    const response = res.operations[0].data.attributes;
+    informSlack(
+      `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
+        response.amount
+      )} ETH <http://kovan.etherscan.io/address/${
+        response.multisigAddress
+      }|_(view on etherscan)_>.`
+    );
+  });
+
+  node.emit(NodeTypes.MethodName.DEPOSIT, {
+    meta: {
+      requestId: generateUUID()
+    },
+    operations: [
+      {
+        op: "deposit",
+        ref: {
+          type: "channel"
+        },
+        data: {
+          type: "channel",
+          attributes: {
+            multisigAddress: response.data.multisigAddress,
+            amount: response.data.amount,
+            notifyCounterparty: !!response.data.notifyCounterparty
+          },
+          relationships: {}
+        }
+      }
+    ]
+  });
 }
 
 export async function onMultisigDeployed(

@@ -1,11 +1,11 @@
-import { Node, SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
 import { InstructionExecutor, StateChannel } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
+import { NodeOperation } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -99,15 +99,39 @@ export default class TakeActionController extends NodeController {
 
     const appInstance = await store.getAppInstance(appInstanceId);
 
-    const msg = {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.UPDATE_STATE,
-      data: { appInstanceId, action, newState: appInstance.state }
-    } as UpdateStateMessage;
+    // const msg = {
+    //   from: requestHandler.publicIdentifier,
+    //   type: NODE_EVENTS.UPDATE_STATE,
+    //   data: { appInstanceId, action, newState: appInstance.state }
+    // } as UpdateStateMessage;
+
+    const msg: NodeOperation = {
+      meta: {
+        from: requestHandler.publicIdentifier,
+        requestId: ""
+      },
+      operations: [
+        {
+          op: "updateState",
+          ref: {
+            type: "app"
+          },
+          data: {
+            type: "app",
+            attributes: {
+              appInstanceId,
+              action,
+              newState: appInstance.state
+            },
+            relationships: {}
+          }
+        }
+      ]
+    };
 
     await messagingService.send(to, msg);
 
-    outgoing.emit(msg.type, msg);
+    outgoing.emit(msg.operations[0].ref.type, msg);
   }
 }
 
@@ -117,7 +141,7 @@ async function runTakeActionProtocol(
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
   respondingXpub: string,
-  action: SolidityABIEncoderV2Struct
+  action: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

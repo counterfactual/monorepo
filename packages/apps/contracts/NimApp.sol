@@ -21,8 +21,8 @@ contract NimApp is CounterfactualApp {
     uint256[3] pileHeights;
   }
 
-  function isStateTerminal(bytes memory encodedState)
-    public
+  function isStateTerminal(bytes calldata encodedState)
+    external
     pure
     returns (bool)
   {
@@ -30,8 +30,10 @@ contract NimApp is CounterfactualApp {
     return isWin(state);
   }
 
-  function getTurnTaker(bytes memory encodedState, address[] memory signingKeys)
-    public
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata signingKeys
+  )
+    external
     pure
     returns (address)
   {
@@ -39,8 +41,10 @@ contract NimApp is CounterfactualApp {
     return signingKeys[state.turnNum % 2];
   }
 
-  function applyAction(bytes memory encodedState, bytes memory encodedAction)
-    public
+  function applyAction(
+    bytes calldata encodedState, bytes calldata encodedAction
+  )
+    external
     pure
     returns (bytes memory)
   {
@@ -60,8 +64,10 @@ contract NimApp is CounterfactualApp {
     return abi.encode(ret);
   }
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(
+    bytes calldata encodedState, Transfer.Terms calldata terms
+  )
+    external
     pure
     returns (Transfer.Transaction memory)
   {

@@ -5,7 +5,7 @@ import {
   AppInstanceInfo,
   BlockchainAsset,
   Node,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -64,7 +64,7 @@ export class AppInstance {
    * @async
    * @return JSON representation of latest state
    */
-  async getState(): Promise<SolidityABIEncoderV2Struct> {
+  async getState(): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
@@ -85,8 +85,8 @@ export class AppInstance {
    * @return JSON representation of latest state after applying the action
    */
   async takeAction(
-    action: SolidityABIEncoderV2Struct
-  ): Promise<SolidityABIEncoderV2Struct> {
+    action: SolidityABIEncoderV2Type
+  ): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
       {

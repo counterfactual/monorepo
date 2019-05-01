@@ -3,7 +3,7 @@ import {
   isNodeIntermediary as nodeIsIntermediary
 } from "../../methods/app-instance/propose-install-virtual/operation";
 import { RequestHandler } from "../../request-handler";
-import { NODE_EVENTS, ProposeVirtualMessage } from "../../types";
+import { NodeOperation, ProposeVirtualMessage } from "../../types";
 
 import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
 
@@ -34,10 +34,24 @@ export default async function proposeInstallVirtualEventController(
     return;
   }
 
-  const relayedProposalMsg: ProposeVirtualMessage = {
-    from: requestHandler.publicIdentifier,
-    type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-    data: nodeMsg.data
+  const relayedProposalMsg: NodeOperation = {
+    meta: {
+      from: requestHandler.publicIdentifier,
+      requestId: ""
+    },
+    operations: [
+      {
+        op: "installVirtual",
+        ref: {
+          type: "proposal"
+        },
+        data: {
+          type: "proposal",
+          attributes: nodeMsg.data,
+          relationships: {}
+        }
+      }
+    ]
   };
 
   const nextNodeAddress = getNextNodeAddress(

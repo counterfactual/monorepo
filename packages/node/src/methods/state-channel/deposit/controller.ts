@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
-import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -77,14 +77,27 @@ export default class DepositController extends NodeController {
         );
 
         await messagingService.send(peerAddress, {
-          from: publicIdentifier,
-          type: NODE_EVENTS.DEPOSIT_CONFIRMED,
-          data: {
-            ...params,
-            // This party shouldn't get notified by the peer node
-            notifyCounterparty: false
-          }
-        } as DepositConfirmationMessage);
+          meta: {
+            from: publicIdentifier,
+            requestId: ""
+          },
+          operations: [
+            {
+              op: NODE_EVENTS.DEPOSIT_CONFIRMED,
+              ref: {
+                type: NODE_EVENTS.DEPOSIT_CONFIRMED
+              },
+              data: {
+                type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+                attributes: {
+                  ...params,
+                  notifyCounterparty: false
+                },
+                relationships: {}
+              }
+            }
+          ]
+        });
       }
 
       outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);

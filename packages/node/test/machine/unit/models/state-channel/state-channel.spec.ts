@@ -1,7 +1,7 @@
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { StateChannel } from "../../../../../src/machine/models";
+import { StateChannel } from "../../../../../src/models";
 
 describe("StateChannel", () => {
   it("should be able to instantiate", () => {

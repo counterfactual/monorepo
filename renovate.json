@@ -2,13 +2,15 @@
   "extends": [
     "config:base"
   ],
-  "ignorePaths": [
+  "ignoreDeps": [
     "@stencil/core",
     "@stencil/router",
     "@types/jest",
     "jest-cli",
     "jest",
+    "react-scripts",
     "workbox-build",
+    "@ebryn/jsonapi-ts",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
     "@counterfactual/contracts",

@@ -16,15 +16,13 @@ const HUB_IS_DEPOSITING_ALERT =
 export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() ethFreeBalanceWei: BigNumber = { _hex: "0x00" } as BigNumber;
-  @Prop() ethMultisigBalance: BigNumber = { _hex: "0x00" } as BigNumber;
-  @Prop() ethWeb3WalletBalance: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethFreeBalanceWei: BigNumber | number = 0;
+  @Prop() ethMultisigBalance: BigNumber | number = 0;
+  @Prop() ethWeb3WalletBalance: BigNumber | number = 0;
   @Prop() ethPendingDepositTxHash: string = "";
-  @Prop() ethPendingDepositAmountWei: BigNumber = { _hex: "0x00" } as BigNumber;
+  @Prop() ethPendingDepositAmountWei: BigNumber | number = 0;
   @Prop() ethPendingWithdrawalTxHash: string = "";
-  @Prop() ethPendingWithdrawalAmountWei: BigNumber = {
-    _hex: "0x00"
-  } as BigNumber;
+  @Prop() ethPendingWithdrawalAmountWei: BigNumber | number = 0;
   @Prop() network: string = "";
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() deposit: (value: string) => Promise<any> = async () => ({});
@@ -96,7 +94,7 @@ export class AccountExchange {
 
   async onDepositClicked(e) {
     try {
-      await this.deposit(ethers.utils.parseEther(e.target.value));
+      await this.deposit(ethers.utils.parseEther(e.target.value).toHexString());
     } catch (e) {
       if (e.toString().includes("Cannot deposit while another deposit")) {
         window.alert(HUB_IS_DEPOSITING_ALERT);
@@ -108,7 +106,9 @@ export class AccountExchange {
 
   async onWithdrawClicked(e) {
     try {
-      await this.withdraw(ethers.utils.parseEther(e.target.value));
+      await this.withdraw(
+        ethers.utils.parseEther(e.target.value).toHexString()
+      );
     } catch (e) {
       if (e.toString().includes("Cannot withdraw while another deposit")) {
         window.alert(HUB_IS_DEPOSITING_ALERT);
@@ -184,7 +184,7 @@ export class AccountExchange {
             loading={this.isDepositPending ? true : false}
             provideFaucetLink={true}
             error={this.depositError}
-            available={this.ethWeb3WalletBalance}
+            available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
             min={0.1}
             max={1}
           />
@@ -200,7 +200,7 @@ export class AccountExchange {
             disabled={this.isWithdrawalPending ? true : false}
             loading={this.isWithdrawalPending ? true : false}
             error={this.withdrawalError}
-            available={this.ethFreeBalanceWei}
+            available={ethers.utils.bigNumberify(this.ethFreeBalanceWei)}
             min={0}
             max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
           />

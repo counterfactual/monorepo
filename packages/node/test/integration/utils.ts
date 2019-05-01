@@ -5,11 +5,10 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
-  ETHBucketAppState,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
@@ -98,7 +97,7 @@ export async function getProposedAppInstanceInfo(
 export async function getFreeBalanceState(
   node: Node,
   multisigAddress: string
-): Promise<ETHBucketAppState> {
+): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
@@ -107,8 +106,7 @@ export async function getFreeBalanceState(
     }
   };
   const response = await node.call(req.type, req);
-  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
-  return result.state;
+  return response.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
 export async function getApps(
@@ -192,7 +190,9 @@ export function makeRejectInstallRequest(
 
 export function makeInstallProposalRequest(
   proposedToIdentifier: string,
-  nullInitialState: boolean = false
+  nullInitialState: boolean = false,
+  myDeposit: BigNumber = Zero,
+  peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
   let initialState;
 
@@ -200,12 +200,14 @@ export function makeInstallProposalRequest(
     initialState = {
       foo: AddressZero,
       bar: Zero
-    } as SolidityABIEncoderV2Struct;
+    } as SolidityABIEncoderV2Type;
   }
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
     initialState,
+    myDeposit,
+    peerDeposit,
     appId: AddressZero,
     abiEncodings: {
       stateEncoding: "tuple(address foo, uint256 bar)",
@@ -214,8 +216,6 @@ export function makeInstallProposalRequest(
     asset: {
       assetType: AssetType.ETH
     } as BlockchainAsset,
-    myDeposit: Zero,
-    peerDeposit: Zero,
     timeout: One
   };
   return {
@@ -228,7 +228,7 @@ export function makeInstallProposalRequest(
 export function makeTTTProposalReq(
   proposedToIdentifier: string,
   appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   abiEncodings: AppABIEncodings
 ): NodeTypes.MethodRequest {
   return {
@@ -266,11 +266,15 @@ export function makeInstallVirtualRequest(
 export function makeInstallVirtualProposalRequest(
   proposedToIdentifier: string,
   intermediaries: string[],
-  nullInitialState: boolean = false
+  nullInitialState: boolean = false,
+  myDeposit: BigNumber = Zero,
+  peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeInstallProposalRequest(
     proposedToIdentifier,
-    nullInitialState
+    nullInitialState,
+    myDeposit,
+    peerDeposit
   ).params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
@@ -290,7 +294,8 @@ export function makeInstallVirtualProposalRequest(
  */
 export function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstanceInfo: AppInstanceInfo
+  proposedAppInstanceInfo: AppInstanceInfo,
+  nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
   expect(proposalParams.abiEncodings).toEqual(
@@ -298,10 +303,19 @@ export function confirmProposedAppInstanceOnNode(
   );
   expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
   expect(proposalParams.asset).toEqual(proposedAppInstanceInfo.asset);
-  expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
-  expect(proposalParams.peerDeposit).toEqual(
-    proposedAppInstanceInfo.peerDeposit
-  );
+  if (nonInitiatingNode) {
+    expect(proposalParams.myDeposit).toEqual(
+      proposedAppInstanceInfo.peerDeposit
+    );
+    expect(proposalParams.peerDeposit).toEqual(
+      proposedAppInstanceInfo.myDeposit
+    );
+  } else {
+    expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
+    expect(proposalParams.peerDeposit).toEqual(
+      proposedAppInstanceInfo.peerDeposit
+    );
+  }
   expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
@@ -309,9 +323,14 @@ export function confirmProposedAppInstanceOnNode(
 
 export function confirmProposedVirtualAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo
+  proposedAppInstance: AppInstanceInfo,
+  nonInitiatingNode: boolean = false
 ) {
-  confirmProposedAppInstanceOnNode(methodParams, proposedAppInstance);
+  confirmProposedAppInstanceOnNode(
+    methodParams,
+    proposedAppInstance,
+    nonInitiatingNode
+  );
   const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
   expect(proposalParams.intermediaries).toEqual(
     proposedAppInstance.intermediaries
@@ -381,7 +400,7 @@ export function generateUninstallVirtualRequest(
 export function makeTTTVirtualAppInstanceProposalReq(
   proposedToIdentifier: string,
   appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
+  initialState: SolidityABIEncoderV2Type,
   abiEncodings: AppABIEncodings,
   intermediaries: string[]
 ): NodeTypes.MethodRequest {
@@ -402,4 +421,18 @@ export function makeTTTVirtualAppInstanceProposalReq(
     requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
   } as NodeTypes.MethodRequest;
+}
+
+export function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
+}
+
+export async function collateralizeChannel(
+  node1: Node,
+  node2: Node,
+  multisigAddress: string
+): Promise<void> {
+  const depositReq = makeDepositRequest(multisigAddress, One);
+  await node1.call(depositReq.type, depositReq);
+  await node2.call(depositReq.type, depositReq);
 }

@@ -11,8 +11,8 @@ import "../CounterfactualApp.sol";
 /// `Transfer.Transaction` object when the channel is closed.
 contract ResolveToPay5WeiApp is CounterfactualApp {
 
-  function resolve(bytes memory encodedState, Transfer.Terms memory terms)
-    public
+  function resolve(bytes calldata, Transfer.Terms calldata)
+    external
     pure
     returns (Transfer.Transaction memory)
   {
