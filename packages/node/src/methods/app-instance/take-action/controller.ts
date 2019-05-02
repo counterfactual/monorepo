@@ -1,4 +1,4 @@
-import { Node, SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
@@ -117,7 +117,7 @@ async function runTakeActionProtocol(
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
   respondingXpub: string,
-  action: SolidityABIEncoderV2Struct
+  action: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

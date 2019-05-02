@@ -30,7 +30,7 @@
     "state channels"
   ],
   "devDependencies": {
-    "lerna": "3.13.3",
+    "lerna": "3.13.4",
     "patch-package": "6.1.2",
     "postinstall-postinstall": "2.0.0",
     "prettier": "1.17.0",

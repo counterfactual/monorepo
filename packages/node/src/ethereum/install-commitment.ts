@@ -1,6 +1,7 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AppIdentity, NetworkContext, Terms } from "@counterfactual/types";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
+import * as log from "loglevel";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -44,12 +45,22 @@ export class InstallCommitment extends MultiSendCommitment {
       solidityPack(
         ["address", "uint256", "bytes32"],
         [
-          this.multisig,
-          0,
-          keccak256(solidityPack(["uint256"], [this.dependencyNonce]))
+          /* sender */ this.multisig,
+          /* timeout */ 0,
+          /* salt */ keccak256(
+            solidityPack(["uint256"], [this.dependencyNonce])
+          )
         ]
       )
     );
+
+    log.debug(`
+      install-commitment: computed
+        uninstallKey = ${uninstallKey} using
+        sender = ${this.multisig},
+        timeout = 0,
+        salt = ${keccak256(solidityPack(["uint256"], [this.dependencyNonce]))}
+    `);
 
     const appIdentityHash = appIdentityToHash(this.appIdentity);
 

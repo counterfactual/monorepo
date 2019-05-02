@@ -1,25 +1,36 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
+import { Wallet } from "ethers";
+import { One, Zero } from "ethers/constants";
+import {
+  JsonRpcProvider,
+  Provider,
+  TransactionRequest
+} from "ethers/providers";
+import { parseEther } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { MNEMONIC_PATH } from "../../src/signer";
 import {
+  CreateChannelMessage,
   InstallVirtualMessage,
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
+import { CF_PATH } from "../global-setup.jest";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 import {
+  collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode,
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualProposalRequest,
-  makeInstallVirtualRequest
+  makeInstallVirtualRequest,
+  sleep
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -53,6 +64,14 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
+    // generate new mnemonics so owner addresses are different for creating
+    // a channel in this suite
+    const { A_MNEMONIC, B_MNEMONIC } = await generateNewFundedMnemonics(
+      global["fundedPrivateKey"],
+      provider
+    );
+
     storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
     nodeA = await Node.create(
       messagingService,
@@ -94,110 +113,56 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.once(
+        let abChannelMultisigAddress;
+        let bcChannelMultisigAddress;
+
+        nodeB.once(
           NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
-            nodeC.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (data: NodeTypes.CreateChannelResult) => {
-                const intermediaries = [nodeB.publicIdentifier];
-                const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-                  nodeC.publicIdentifier,
-                  intermediaries
-                );
-
-                nodeA.once(
-                  NODE_EVENTS.INSTALL_VIRTUAL,
-                  async (msg: InstallVirtualMessage) => {
-                    const virtualAppInstanceNodeA = (await getApps(
-                      nodeA,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    const virtualAppInstanceNodeC = (await getApps(
-                      nodeC,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    expect(virtualAppInstanceNodeA).toEqual(
-                      virtualAppInstanceNodeC
-                    );
-                    done();
-                  }
-                );
-
-                nodeC.once(
-                  NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-                  async (msg: ProposeVirtualMessage) => {
-                    const proposedAppInstanceA = (await getProposedAppInstances(
-                      nodeA
-                    ))[0];
-                    const proposedAppInstanceC = (await getProposedAppInstances(
-                      nodeC
-                    ))[0];
-
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceA
-                    );
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
-                    );
-
-                    expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
-                      nodeA.publicIdentifier
-                    );
-                    expect(proposedAppInstanceA.id).toEqual(
-                      proposedAppInstanceC.id
-                    );
-
-                    const installVirtualReq = makeInstallVirtualRequest(
-                      msg.data.appInstanceId,
-                      msg.data.params.intermediaries
-                    );
-                    nodeC.emit(installVirtualReq.type, installVirtualReq);
-                  }
-                );
-
-                const response = await nodeA.call(
-                  installVirtualAppInstanceProposalRequest.type,
-                  installVirtualAppInstanceProposalRequest
-                );
-                const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-                  .appInstanceId;
-                expect(appInstanceId).toBeDefined();
-              }
-            );
-            await getMultisigCreationTransactionHash(nodeB, [
-              nodeB.publicIdentifier,
-              nodeC.publicIdentifier
-            ]);
+          async (msg: CreateChannelMessage) => {
+            abChannelMultisigAddress = msg.data.multisigAddress;
           }
         );
-        await getMultisigCreationTransactionHash(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
-      });
-    }
-  );
 
-  describe(
-    "Node A makes a second proposal through an intermediary Node B to install a " +
-      "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
-    () => {
-      it("sends proposal with non-null initial state", async done => {
         nodeA.once(
           NODE_EVENTS.CREATE_CHANNEL,
-          async (data: NodeTypes.CreateChannelResult) => {
+          async (msg: CreateChannelMessage) => {
+            while (!abChannelMultisigAddress) {
+              console.log("Waiting for Node A and B to sync on new channel");
+              await sleep(500);
+            }
+
+            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
+
+            nodeB.once(
+              NODE_EVENTS.CREATE_CHANNEL,
+              async (msg: CreateChannelMessage) => {
+                bcChannelMultisigAddress = msg.data.multisigAddress;
+              }
+            );
+
             nodeC.once(
               NODE_EVENTS.CREATE_CHANNEL,
-              async (data: NodeTypes.CreateChannelResult) => {
+              async (msg: CreateChannelMessage) => {
+                while (!bcChannelMultisigAddress) {
+                  console.log(
+                    "Waiting for Node B and C to sync on new channel"
+                  );
+                  await sleep(500);
+                }
+
+                await collateralizeChannel(
+                  nodeB,
+                  nodeC,
+                  msg.data.multisigAddress
+                );
+
                 const intermediaries = [nodeB.publicIdentifier];
                 const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
                   nodeC.publicIdentifier,
-                  intermediaries
+                  intermediaries,
+                  false,
+                  One,
+                  Zero
                 );
 
                 nodeA.once(
@@ -212,6 +177,16 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                       nodeC,
                       APP_INSTANCE_STATUS.INSTALLED
                     ))[0];
+
+                    expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
+                    expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
+                    expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
+
+                    delete virtualAppInstanceNodeA.myDeposit;
+                    delete virtualAppInstanceNodeA.peerDeposit;
+                    delete virtualAppInstanceNodeC.myDeposit;
+                    delete virtualAppInstanceNodeC.peerDeposit;
 
                     expect(virtualAppInstanceNodeA).toEqual(
                       virtualAppInstanceNodeC
@@ -236,7 +211,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     );
                     confirmProposedVirtualAppInstanceOnNode(
                       installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC
+                      proposedAppInstanceC,
+                      true
                     );
 
                     expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
@@ -277,3 +253,35 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     }
   );
 });
+
+async function generateNewFundedMnemonics(
+  fundedPrivateKey: string,
+  provider: Provider
+) {
+  const fundedWallet = new Wallet(fundedPrivateKey, provider);
+  const A_MNEMONIC = Wallet.createRandom().mnemonic;
+  const B_MNEMONIC = Wallet.createRandom().mnemonic;
+
+  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
+    .privateKey;
+
+  const signerAAddress = new Wallet(signerAPrivateKey).address;
+  const signerBAddress = new Wallet(signerBPrivateKey).address;
+
+  const transactionToA: TransactionRequest = {
+    to: signerAAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  const transactionToB: TransactionRequest = {
+    to: signerBAddress,
+    value: parseEther("0.1").toHexString()
+  };
+  await fundedWallet.sendTransaction(transactionToA);
+  await fundedWallet.sendTransaction(transactionToB);
+  return {
+    A_MNEMONIC,
+    B_MNEMONIC
+  };
+}

@@ -1,4 +1,5 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
+import * as log from "loglevel";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -49,7 +50,7 @@ export default class GetAppInstancesController extends NodeController {
           })
         );
       } else {
-        console.log(
+        log.error(
           `No app instances exist for channel with multisig address: ${
             channel.multisigAddress
           }`

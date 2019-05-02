@@ -5,7 +5,7 @@ import {
   AppInterface,
   BlockchainAsset,
   Bytes32,
-  SolidityABIEncoderV2Struct,
+  SolidityABIEncoderV2Type,
   Terms
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
@@ -25,7 +25,7 @@ export interface IProposedAppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -39,7 +39,7 @@ export interface ProposedAppInstanceInfoJSON {
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -63,7 +63,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];

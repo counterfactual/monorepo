@@ -1,6 +1,7 @@
 import {
   confirmFirebaseConfigurationEnvVars,
   confirmLocalFirebaseConfigurationEnvVars,
+  CreateChannelMessage,
   DepositConfirmationMessage,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
@@ -309,11 +310,9 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 }
 
-export async function onMultisigDeployed(
-  result: NodeTypes.CreateChannelResult
-) {
+export async function onMultisigDeployed(result: CreateChannelMessage) {
   await bindMultisigToUser(
-    result.counterpartyXpub, // FIXME: Not standard data flow
-    result.multisigAddress
+    result.data.counterpartyXpub, // FIXME: Not standard data flow
+    result.data.multisigAddress
   );
 }

@@ -1,7 +1,7 @@
 import {
   AssetType,
   ETHBucketAppState,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { INSUFFICIENT_FUNDS } from "ethers/errors";
@@ -283,7 +283,7 @@ export class StateChannel {
     newState: { [s: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
-    const freeBalanceState = freeBalance.state;
+    const freeBalanceState = freeBalance.state as ETHBucketAppState;
     for (const beneficiary in newState) {
       if (beneficiary === freeBalanceState.alice) {
         freeBalanceState.aliceBalance = newState[beneficiary];
@@ -367,7 +367,7 @@ export class StateChannel {
 
   public setState(
     appInstanceIdentityHash: string,
-    state: SolidityABIEncoderV2Struct
+    state: SolidityABIEncoderV2Type
   ) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 

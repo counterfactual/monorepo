@@ -1,8 +1,9 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
+import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
@@ -103,15 +104,15 @@ export class Node {
     }
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    console.log(
+    log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    console.log(`Node signer address: ${this.signer.address}`);
-    console.log(`Node public identifier: ${this.publicIdentifier}`);
+    log.info(`Node signer address: ${this.signer.address}`);
+    log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -132,6 +133,12 @@ export class Node {
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  /// Address used for ETH free balance and maybe some other things
+  @Memoize()
+  get zeroethAddress(): string {
+    return fromExtendedKey(this.publicIdentifier).derivePath("0").address;
   }
 
   /**
@@ -391,17 +398,17 @@ export function debugLog(...messages: any[]) {
     if (isBrowser) {
       if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
         // for some reason `debug` doesn't actually log in the browser
-        console.info(logPrefix, messages);
-        console.trace();
+        log.info(logPrefix, messages);
+        log.trace();
       }
       // node.js side
     } else if (
       process.env.LOG_LEVEL !== undefined &&
       process.env.LOG_LEVEL === "DEBUG"
     ) {
-      console.debug(logPrefix, JSON.stringify(messages, null, 4));
-      console.trace();
-      console.log("\n");
+      log.debug(logPrefix, JSON.stringify(messages, null, 4));
+      log.trace();
+      log.debug("\n");
     }
   } catch (e) {
     console.error("Failed to log: ", e);

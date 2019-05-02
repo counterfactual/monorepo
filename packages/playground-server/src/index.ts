@@ -52,6 +52,7 @@ process.on("SIGINT", async () => {
   console.log("Shutting down playground-server...");
   const serviceFactory = await serviceFactoryPromise;
   await serviceFactory.closeServiceConnections();
+  process.exit(0);
 });
 
 export * from "./types";
