@@ -16210,9 +16210,9 @@ sol-explore@^1.6.2:
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.5.0, solc@0.5.8, solc@^0.5.1, solc@^0.5.7:
+solc@0.5.0, solc@0.5.8, solc@^0.5.1, solc@^0.5.8:
   version "0.5.8"
-  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.8.tgz#a0aa2714082fc406926f5cb384376d7408080611"
+  resolved "https://registry.npmjs.org/solc/-/solc-0.5.8.tgz#a0aa2714082fc406926f5cb384376d7408080611"
   integrity sha512-RQ2SlwPBOBSV7ktNQJkvbiQks3t+3V9dsqD014EdstxnJzSxBuOvbt3P5QXpNPYW1DsEmF7dhOaT3JL7yEae/A==
   dependencies:
     command-exists "^1.2.8"
