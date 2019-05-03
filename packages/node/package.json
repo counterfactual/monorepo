@@ -7,6 +7,7 @@
   "license": "MIT",
   "scripts": {
     "build": "tsc -p . && rollup -c",
+    "build:watch": "tsc -p . && rollup -c -w",
     "test": "yarn run test:node && yarn run test:machine",
     "test:machine": "yarn run test:machine:integration && yarn run test:machine:unit",
     "test:machine:integration": "./scripts/test.sh",
