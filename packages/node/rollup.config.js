@@ -8,12 +8,17 @@ import pkg from "./package.json";
 const globals = {
   "@counterfactual/cf.js": "cfjs",
   eventemitter3: "EventEmitter",
+  "ethers": "ethers",
   "ethers/constants": "ethers.constants",
   "ethers/errors": "ethers.errors",
+  "ethers/providers": "ethers.providers",
   "ethers/utils": "ethers.utils",
+  "ethers/utils/hdnode": "ethers.utils.HDNode",
   "ethers/wallet": "ethers.wallet",
   firebase: "firebase",
+  "firebase/app": "firebase.app",
   events: "EventEmitter",
+  loglevel: "log",
   uuid: "uuid"
 };
 
