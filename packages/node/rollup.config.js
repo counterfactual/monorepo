@@ -14,6 +14,7 @@ const globals = {
   "ethers/wallet": "ethers.wallet",
   firebase: "firebase",
   events: "EventEmitter",
+  loglevel: "log",
   uuid: "uuid"
 };
 
