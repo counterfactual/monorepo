@@ -83,10 +83,6 @@ jobs:
 
       - attach_workspace:
           at: /home/circleci/project
-
-      - run:
-          name: Run Playground tests
-          command: cd packages/playground && yarn test
       - run:
           name: Run Playground Server tests
           command: cd packages/playground-server && yarn test:ci
@@ -96,6 +92,10 @@ jobs:
       - run:
           name: Run Tic-Tac-Toe tests
           command: cd packages/dapp-tic-tac-toe && yarn test
+      - run:
+          name: Run Playground tests
+          command: cd packages/playground && yarn test
+          no_output_timeout: 1m
 
   run-tslint:
     <<: *defaults

@@ -23,10 +23,7 @@ import {
   NodeMessage,
   NodeMessageWrappedProtocolMessage
 } from "./types";
-
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+import { timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -135,10 +132,9 @@ export class Node {
     return this.signer.neuter().extendedKey;
   }
 
-  /// Address used for ETH free balance and maybe some other things
   @Memoize()
-  get zeroethAddress(): string {
-    return fromExtendedKey(this.publicIdentifier).derivePath("0").address;
+  get ethFreeBalanceAddress(): string {
+    return getETHFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -386,6 +382,13 @@ export class Node {
       params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
     });
   }
+}
+
+/**
+ * Address used for ETH free balance
+ */
+export function getETHFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
 
 const isBrowser =
