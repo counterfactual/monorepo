@@ -14,6 +14,8 @@ const globals = {
   "ethers/wallet": "ethers.wallet",
   firebase: "firebase",
   events: "EventEmitter",
+  "pg": null,
+  "sql-template-strings": null,
   uuid: "uuid"
 };
 

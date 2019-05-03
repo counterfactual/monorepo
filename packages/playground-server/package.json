@@ -45,7 +45,7 @@
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
-    "pg": "^7.9.0",
+    "pg": "7.9.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
