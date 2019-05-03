@@ -87,6 +87,7 @@ jobs:
       - run:
           name: Run Playground tests
           command: cd packages/playground && yarn test
+          no_output_timeout: 30s
       - run:
           name: Run Playground Server tests
           command: cd packages/playground-server && yarn test:ci
