@@ -27,7 +27,7 @@
   "devDependencies": {
     "@stencil/sass": "0.2.1",
     "@types/jest": "23.3.14",
-    "@types/puppeteer": "1.12.3",
+    "@types/puppeteer": "1.12.4",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
     "puppeteer": "1.15.0",
