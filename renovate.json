@@ -13,6 +13,7 @@
     "@ebryn/jsonapi-ts",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
+    "@counterfactual/cf-wallet.js",
     "@counterfactual/contracts",
     "@counterfactual/dapp-high-roller",
     "@counterfactual/dapp-tic-tac-toe",

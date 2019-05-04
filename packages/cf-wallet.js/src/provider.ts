@@ -3,7 +3,7 @@ import {
   AppInstanceID,
   AppInstanceInfo,
   BlockchainAsset,
-  INodeProvider,
+  JsonApiINodeProvider,
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
@@ -39,7 +39,7 @@ export class Provider {
    * Construct a new instance
    * @param nodeProvider NodeProvider instance that enables communication with the Counterfactual node
    */
-  constructor(readonly nodeProvider: INodeProvider) {
+  constructor(readonly nodeProvider: JsonApiINodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
   }
 
@@ -255,11 +255,15 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    request: Node.JsonApiMethodRequest
+    operation: Node.JsonApiOperation
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf().toString();
-
-    request.requestId = requestId;
+    const document = {
+      meta: {
+        requestId
+      },
+      operations: [operation]
+    }
 
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       this.requestListeners[requestId] = response => {
@@ -277,13 +281,13 @@ export class Provider {
             type: EventType.ERROR,
             data: {
               errorName: "request_timeout",
-              message: `Request timed out: ${JSON.stringify(request)}`
+              message: `Request timed out: ${JSON.stringify(document)}`
             }
           });
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
-      this.nodeProvider.sendMessage(request);
+      this.nodeProvider.sendMessage(document);
     });
   }
 

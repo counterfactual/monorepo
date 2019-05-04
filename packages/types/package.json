@@ -11,6 +11,7 @@
     "build": "tsc -p . && rollup -c"
   },
   "devDependencies": {
+    "@ebryn/jsonapi-ts": "0.1.22",
     "ethers": "4.0.27",
     "rollup": "1.10.1",
     "rollup-plugin-typescript2": "0.21.0",

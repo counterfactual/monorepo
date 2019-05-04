@@ -1,4 +1,9 @@
 import { BigNumber } from "ethers/utils";
+import {
+  JsonApiDocument as Document,
+  Operation,
+  Resource
+} from "@ebryn/jsonapi-ts";
 
 import {
   AppABIEncodings,
@@ -13,7 +18,12 @@ import {
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
-  sendMessage(message: Node.Message | Node.JsonApiMethodRequest);
+  sendMessage(message: Node.Message);
+}
+
+export interface JsonApiINodeProvider {
+  onMessage(callback: (message: Node.JsonApiDocument) => void);
+  sendMessage(message: Node.JsonApiDocument);
 }
 
 export namespace Node {
@@ -322,22 +332,9 @@ export namespace Node {
     result: MethodResult;
   };
 
-  export type MethodRef = {
-    type: TypeName;
-    id?: string;
-  };
-
-  export type MethodData = {
-    attributes: any;
-  }
-
-  export type JsonApiMethodRequest = {
-    requestId?: string;
-    op: OpName;
-    ref: MethodRef;
-    data?: MethodData;
-    params?: MethodParams;
-  };
+  export type JsonApiDocument = Document;
+  export type JsonApiOperation = Operation;
+  export type JsonApiResource = Resource;
 
   export type Event = {
     type: EventName;

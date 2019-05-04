@@ -14,6 +14,7 @@ then
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
     playground-server \
   "

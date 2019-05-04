@@ -1,4 +1,4 @@
-import { INodeProvider, Node } from "@counterfactual/types";
+import { JsonApiINodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 // Randomly generated
@@ -7,27 +7,27 @@ export const TEST_XPUBS = [
   "xpub6E7Ww5YRUry7BRUNAqyNGqR1A3AyaRP1dKy8adD5N5nniqkDJpibhspkiLzyhKe9o5TFnHpEhdtautQLqxahWQFCDCeQdBFmRwUiChfUXP4"
 ];
 
-export class TestNodeProvider implements INodeProvider {
-  public postedMessages: (Node.Message | Node.JsonApiMethodRequest)[] = [];
-  readonly callbacks: ((message: Node.Message) => void)[] = [];
+export class TestNodeProvider implements JsonApiINodeProvider {
+  public postedMessages: (Node.JsonApiDocument)[] = [];
+  readonly callbacks: ((message: Node.JsonApiDocument) => void)[] = [];
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
   public onMethodRequest(
     methodName: Node.MethodName,
-    callback: (message: Node.MethodRequest) => void
+    callback: (message: Node.JsonApiDocument) => void
   ) {
     this.messageEmitter.on(methodName, callback);
   }
 
-  public simulateMessageFromNode(message: Node.Message) {
+  public simulateMessageFromNode(message: Node.JsonApiDocument) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: Node.Message) => void) {
+  public onMessage(callback: (message: Node.JsonApiDocument) => void) {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: Node.JsonApiMethodRequest) {
+  public sendMessage(message: Node.JsonApiDocument) {
     this.postedMessages.push(message);
     this.messageEmitter.emit(message.ref.type, message);
   }
