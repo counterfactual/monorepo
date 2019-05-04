@@ -33,7 +33,7 @@
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.4",
-    "env-cmd": "8.0.2",
+    "env-cmd": "9.0.0",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
     "puppeteer": "1.15.0",

@@ -36,7 +36,7 @@
     "eventemitter3": "^3.1.0"
   },
   "devDependencies": {
-    "env-cmd": "8.0.2",
+    "env-cmd": "9.0.0",
     "ethers": "4.0.27",
     "jest": "24.7.1",
     "jest-cli": "24.7.1",
