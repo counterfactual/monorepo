@@ -1,4 +1,4 @@
-import { AssetType, Node } from "@counterfactual/types";
+import { AssetType, Node, JsonApi } from "@counterfactual/types";
 import ethers from "ethers";
 import { Zero } from "ethers/constants";
 
@@ -18,7 +18,8 @@ describe("cf-wallet.js Provider", () => {
   let nodeProvider: TestNodeProvider;
   let provider: Provider;
 
-  const TEST_APP_INSTANCE_INFO: Node.JsonApiResource = {
+  const expectedIntermediary = "0x6001600160016001600160016001600160016001";
+  const TEST_APP_INSTANCE_INFO: JsonApi.Resource = {
     id: "TEST_ID",
     type: "appInstance",
     attributes: {
@@ -29,8 +30,10 @@ describe("cf-wallet.js Provider", () => {
       peerDeposit: Zero,
       timeout: Zero,
       proposedByIdentifier: TEST_XPUBS[0],
-      proposedToIdentifier: TEST_XPUBS[1]
-    }
+      proposedToIdentifier: TEST_XPUBS[1],
+      intermediaries: expectedIntermediary
+    },
+    relationships: {}
   };
 
   beforeEach(() => {
@@ -38,36 +41,30 @@ describe("cf-wallet.js Provider", () => {
     provider = new Provider(nodeProvider);
   });
 
-  it("throws generic errors coming from Node", async () => {
-    expect.assertions(2);
-
-    nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
-      expect(request.operations[0].ref.type).toBe(Node.MethodName.REJECT_INSTALL);
-
-      nodeProvider.simulateMessageFromNode({
-        requestId: request.meta.requestId,
-        type: Node.ErrorType.ERROR,
-        data: { errorName: "music_too_loud", message: "Music too loud" }
-      });
-    });
-
-    try {
-      await provider.rejectInstall("foo");
-    } catch (e) {
-      expect(e.data.message).toBe("Music too loud");
-    }
-  });
-
   it("throws an error on message type mismatch", async () => {
     expect.assertions(2);
 
     nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
+      if (!request.operations || !request.meta || Array.isArray(request.data)) return;
       expect(request.operations[0].ref.type).toBe(Node.MethodName.REJECT_INSTALL);
 
       nodeProvider.simulateMessageFromNode({
-        requestId: request.meta.requestId,
-        type: Node.MethodName.PROPOSE_INSTALL,
-        result: { appInstanceId: "" }
+        meta: {
+          requestId: request.meta.requestId
+        },
+        operations: [{
+          op: Node.OpName.INSTALL,
+          ref: {
+            type: Node.TypeName.PROPOSAL
+          }
+        }],
+        data: {
+          type: Node.TypeName.PROPOSAL,
+          relationships: {},
+          attributes: {
+            appInstanceId: ""
+          }
+        }
       });
     });
 
@@ -85,11 +82,16 @@ describe("cf-wallet.js Provider", () => {
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
     });
     nodeProvider.simulateMessageFromNode({
-      type: Node.MethodName.INSTALL,
-      requestId: "test",
-      result: {
-        appInstanceId: ""
-      }
+      meta: {
+        requestId: "test"
+      },
+      operations: [{
+        op: Node.OpName.INSTALL,
+        ref: {
+          type: Node.TypeName.APP
+        }
+      }],
+      data: TEST_APP_INSTANCE_INFO
     });
   });
 
@@ -106,21 +108,6 @@ describe("cf-wallet.js Provider", () => {
     NODE_REQUEST_TIMEOUT + 1000 // This could be done with fake timers.
   );
 
-  it("throws an error for unexpected event types", async () => {
-    expect.assertions(2);
-
-    provider.on(EventType.ERROR, e => {
-      expect(e.type).toBe(EventType.ERROR);
-      expect((e.data as ErrorEventData).errorName).toBe(
-        "unexpected_event_type"
-      );
-    });
-
-    nodeProvider.simulateMessageFromNode(({
-      type: "notARealEventType"
-    } as unknown) as Node.Event);
-  });
-
   it("throws an error when subscribing to an unknown event", async () => {
     expect.assertions(3);
 
@@ -135,126 +122,176 @@ describe("cf-wallet.js Provider", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
         expect(request.operations[0].ref.type).toBe(Node.MethodName.INSTALL);
         expect((request.operations[0].params as Node.InstallParams).appInstanceId).toBe(
           TEST_APP_INSTANCE_INFO.id
         );
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.INSTALL,
-          requestId: request.meta.requestId,
-          result: {
-            appInstance: TEST_APP_INSTANCE_INFO
-          }
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.INSTALL,
+            ref: {
+              type: Node.TypeName.APP
+            }
+          }],
+          data: TEST_APP_INSTANCE_INFO
         });
       });
-      const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
+      const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id || "");
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.attributes.appId);
     });
 
     it("can install an app instance virtually", async () => {
       expect.assertions(7);
-      const expectedIntermediary = "0x6001600160016001600160016001600160016001";
 
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
         expect(request.operations[0].ref.type).toBe(Node.MethodName.INSTALL_VIRTUAL);
         const params = request.operations[0].params as Node.InstallVirtualParams;
         expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         expect(params.intermediaries).toBe(expectedIntermediary);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.INSTALL_VIRTUAL,
-          requestId: request.meta.requestId,
-          result: {
-            appInstance: {
-              intermediaries: expectedIntermediary,
-              ...TEST_APP_INSTANCE_INFO
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.INSTALL_VIRTUAL,
+            ref: {
+              type: Node.TypeName.APP
             }
-          }
+          }],
+          data: TEST_APP_INSTANCE_INFO
         });
       });
       const appInstance = await provider.installVirtual(
-        TEST_APP_INSTANCE_INFO.id,
+        TEST_APP_INSTANCE_INFO.id || "",
         expectedIntermediary
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.attributes.appId);
       expect(appInstance.isVirtual).toBeTruthy();
       expect(appInstance.intermediaries).toBe(expectedIntermediary);
     });
 
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
         expect(request.operations[0].ref.type).toBe(Node.MethodName.REJECT_INSTALL);
         const { appInstanceId } = request.operations[0].params as Node.RejectInstallParams;
         expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.REJECT_INSTALL,
-          requestId: request.meta.requestId,
-          result: {}
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.REJECT,
+            ref: {
+              type: Node.TypeName.PROPOSAL
+            }
+          }],
+          data: {
+            type: Node.TypeName.PROPOSAL,
+            relationships: {},
+            attributes: {
+              appInstanceId
+            }
+          }
         });
       });
-      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
+      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id || "");
     });
 
     it("can create a channel between two parties", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
         expect(request.operations[0].ref.type).toBe(Node.MethodName.CREATE_CHANNEL);
         expect(request.data.attributes.owners).toEqual(TEST_XPUBS);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.CREATE_CHANNEL,
-          requestId: request.meta.requestId,
-          result: {}
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.ADD,
+            ref: {
+              type: Node.TypeName.CHANNEL
+            }
+          }],
+          data: []
         });
       });
       await provider.createChannel(TEST_XPUBS);
     });
 
-  //   it("can deposit eth to a channel", async () => {
-  //     const channel = await provider.createChannel(TEST_XPUBS);
-  //     const amount = ethers.utils.bigNumberify(".01");
-  //     nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
-  //       expect(request.operations[0].ref.type).toBe(Node.MethodName.DEPOSIT);
-  //       expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
-  //       expect(request.data.attributes.amount).toEqual(amount);
-  //       nodeProvider.simulateMessageFromNode({
-  //         type: Node.MethodName.DEPOSIT,
-  //         requestId: request.meta.requestId,
-  //         result: {}
-  //       });
-  //     });
-  //     await provider.deposit(channel.multisigAddress, amount);
-  //   });
+    it("can deposit eth to a channel", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      const amount = ethers.utils.bigNumberify(".01");
+      nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
+        expect(request.operations[0].ref.type).toBe(Node.MethodName.DEPOSIT);
+        expect(request.data.attributes.multisigAddress).toEqual(channel.multisigAddress);
+        expect(request.data.attributes.amount).toEqual(amount);
+        nodeProvider.simulateMessageFromNode({
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.DEPOSIT,
+            ref: {
+              type: Node.TypeName.CHANNEL
+            }
+          }],
+          data: []
+        });
+      });
+      await provider.deposit(channel.multisigAddress, amount);
+    });
 
-  //   it("can withdraw eth from a channel", async () => {
-  //     const channel = await provider.createChannel(TEST_XPUBS);
-  //     const amount = ethers.utils.bigNumberify(".01");
-  //     nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
-  //       expect(request.operations[0].ref.type).toBe(Node.MethodName.WITHDRAW);
-  //       expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
-  //       expect(request.data.attributes.amount).toEqual(amount);
-  //       nodeProvider.simulateMessageFromNode({
-  //         type: Node.MethodName.WITHDRAW,
-  //         requestId: request.meta.requestId,
-  //         result: {}
-  //       });
-  //     });
-  //     await provider.withdraw(channel.multisigAddress, amount);
-  //   });
+    it("can withdraw eth from a channel", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      const amount = ethers.utils.bigNumberify(".01");
+      nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
+        if (!request.operations || !request.meta || Array.isArray(request.data)) return;
+        expect(request.operations[0].ref.type).toBe(Node.MethodName.WITHDRAW);
+        expect(request.data.attributes.multisigAddress).toEqual(channel.multisigAddress);
+        expect(request.data.attributes.amount).toEqual(amount);
+        nodeProvider.simulateMessageFromNode({
+          meta: {
+            requestId: request.meta.requestId
+          },
+          operations: [{
+            op: Node.OpName.WITHDRAW,
+            ref: {
+              type: Node.TypeName.CHANNEL
+            }
+          }],
+          data: []
+        });
+      });
+      await provider.withdraw(channel.multisigAddress, amount);
+    });
 
-  //   it("can query for a channel's freeBalance", async () => {
-  //     const channel = await provider.createChannel(TEST_XPUBS);
-  //     nodeProvider.onMethodRequest(Node.MethodName.GET_FREE_BALANCE_STATE, request => {
-  //       expect(request.operations[0].ref.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
-  //       expect(request.data.attributes.multisigAddress).toEqual(channel.multisig);
-  //       nodeProvider.simulateMessageFromNode({
-  //         type: Node.MethodName.GET_FREE_BALANCE_STATE,
-  //         requestId: request.meta.requestId,
-  //         result: {}
-  //       });
-  //     });
-  //     await provider.getFreeBalanceState(channel.multisigAddress);
-  //   });
+    it("can query for a channel's freeBalance", async () => {
+      const channel = await provider.createChannel(TEST_XPUBS);
+      nodeProvider.onMethodRequest(Node.MethodName.GET_FREE_BALANCE_STATE, request => {
+        if (!request.operations || !request.meta) return;
+        expect(request.operations[0].ref.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
+        nodeProvider.simulateMessageFromNode({
+          operations: [{
+            op: Node.OpName.GET_FREE_BALANCE_STATE,
+            ref: {
+              type: Node.TypeName.CHANNEL
+            }
+          }],
+          data: TEST_APP_INSTANCE_INFO
+        });
+      });
+      await provider.getFreeBalanceState(channel.multisigAddress);
+    });
   });
 
   describe("Node events", () => {
@@ -265,11 +302,13 @@ describe("cf-wallet.js Provider", () => {
       provider.on(EventType.REJECT_INSTALL, callback);
       provider.off(EventType.REJECT_INSTALL, callback);
       nodeProvider.simulateMessageFromNode({
-        type: Node.MethodName.REJECT_INSTALL,
-        requestId: "1",
-        result: {
-          appInstanceId: "TEST"
-        }
+        operations: [{
+          op: Node.OpName.REJECT,
+          ref: {
+            type: Node.TypeName.PROPOSAL
+          }
+        }],
+        data: TEST_APP_INSTANCE_INFO
       });
       setTimeout(done, 100);
     });
@@ -283,10 +322,13 @@ describe("cf-wallet.js Provider", () => {
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
       });
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.REJECT_INSTALL,
-        data: {
-          appInstance: TEST_APP_INSTANCE_INFO
-        }
+        operations: [{
+          op: Node.OpName.REJECT,
+          ref: {
+            type: Node.TypeName.PROPOSAL
+          }
+        }],
+        data: TEST_APP_INSTANCE_INFO
       });
     });
 
@@ -300,17 +342,17 @@ describe("cf-wallet.js Provider", () => {
       });
 
       await provider.getOrCreateAppInstance(
-        TEST_APP_INSTANCE_INFO.id,
-        TEST_APP_INSTANCE_INFO
+        TEST_APP_INSTANCE_INFO.id || ''
       );
 
       nodeProvider.simulateMessageFromNode({
         operations: [{
-          op: Node.EventName.INSTALL
+          op: Node.OpName.INSTALL,
+          ref: {
+            type: Node.TypeName.APP
+          }
         }],
-        data: {
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
-        }
+        data: TEST_APP_INSTANCE_INFO
       });
     });
   });
@@ -329,11 +371,12 @@ describe("cf-wallet.js Provider", () => {
       });
       const msg = {
         operations: [{
-          op: Node.EventName.REJECT_INSTALL
+          op: Node.OpName.REJECT,
+          ref: {
+            type: Node.TypeName.PROPOSAL
+          }
         }],
-        data: {
-          appInstance: TEST_APP_INSTANCE_INFO
-        }
+        data: TEST_APP_INSTANCE_INFO
       };
       nodeProvider.simulateMessageFromNode(msg);
       nodeProvider.simulateMessageFromNode(msg);
@@ -350,18 +393,24 @@ describe("cf-wallet.js Provider", () => {
 
       nodeProvider.simulateMessageFromNode({
         operations: [{
-          op: Node.EventName.UPDATE_STATE
+          op: Node.OpName.UPDATE_STATE,
+          ref: {
+            type: Node.TypeName.APP
+          }
         }],
         data: {
           id: TEST_APP_INSTANCE_INFO.id,
+          type: Node.TypeName.APP,
           attributes: {
             newState: "3"
-          }
+          },
+          relationships: {}
         }
       });
       expect(nodeProvider.postedMessages).toHaveLength(1);
       const detailsRequest = nodeProvider
         .postedMessages[0];
+      if (!detailsRequest.operations || !detailsRequest.meta) return;
       expect(detailsRequest.operations[0].ref.type).toBe(
         Node.MethodName.GET_APP_INSTANCE_DETAILS
       );
@@ -371,13 +420,17 @@ describe("cf-wallet.js Provider", () => {
       ).toBe(TEST_APP_INSTANCE_INFO.id);
       nodeProvider.simulateMessageFromNode({
         meta: {
-          requestId: detailsRequest.meta ? detailsRequest.meta.requestId : null
+          requestId: detailsRequest.meta.requestId
         },
         operations: [{
-          op: Node.MethodName.GET_APP_INSTANCE_DETAILS
+          op: Node.OpName.GET_STATE,
+          ref: {
+            type: Node.TypeName.APP,
+            id: TEST_APP_INSTANCE_INFO.id
+          }
         }],
         data: TEST_APP_INSTANCE_INFO
-      } as Node.JsonApiDocument);
+      });
       // NOTE: For some reason the event won't fire unless we wait for a bit
       await new Promise(r => setTimeout(r, 50));
     });

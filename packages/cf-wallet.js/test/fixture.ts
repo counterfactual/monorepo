@@ -1,4 +1,4 @@
-import { JsonApiINodeProvider, Node } from "@counterfactual/types";
+import { JsonApiINodeProvider, Node, JsonApi } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 // Randomly generated
@@ -8,27 +8,29 @@ export const TEST_XPUBS = [
 ];
 
 export class TestNodeProvider implements JsonApiINodeProvider {
-  public postedMessages: (Node.JsonApiDocument)[] = [];
-  readonly callbacks: ((message: Node.JsonApiDocument) => void)[] = [];
+  public postedMessages: (JsonApi.Document)[] = [];
+  readonly callbacks: ((message: JsonApi.Document) => void)[] = [];
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
   public onMethodRequest(
     methodName: Node.MethodName,
-    callback: (message: Node.JsonApiDocument) => void
+    callback: (message: JsonApi.Document) => void
   ) {
     this.messageEmitter.on(methodName, callback);
   }
 
-  public simulateMessageFromNode(message: Node.JsonApiDocument) {
+  public simulateMessageFromNode(message: JsonApi.Document) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: Node.JsonApiDocument) => void) {
+  public onMessage(callback: (message: JsonApi.Document) => void) {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: Node.JsonApiDocument) {
+  public sendMessage(message: JsonApi.Document) {
+    if (!message.operations) return;
+    
     this.postedMessages.push(message);
-    this.messageEmitter.emit(message.ref.type, message);
+    this.messageEmitter.emit(message.operations[0].ref.type, message);
   }
 }

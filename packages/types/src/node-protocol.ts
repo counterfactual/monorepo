@@ -1,8 +1,9 @@
 import { BigNumber } from "ethers/utils";
 import {
-  JsonApiDocument as Document,
-  Operation,
-  Resource
+  JsonApiDocument,
+  JsonApiErrorsDocument,
+  Operation as JsonApiOperation,
+  Resource as JsonApiResource
 } from "@ebryn/jsonapi-ts";
 
 import {
@@ -22,8 +23,18 @@ export interface INodeProvider {
 }
 
 export interface JsonApiINodeProvider {
-  onMessage(callback: (message: Node.JsonApiDocument) => void);
-  sendMessage(message: Node.JsonApiDocument);
+  onMessage(callback: (message: JsonApi.Document) => void);
+  sendMessage(message: JsonApi.Document);
+}
+
+export namespace JsonApi {
+  // todo: remove operations attr once jsonapi includes it
+  export type Document = JsonApiDocument & {
+    operations?: JsonApiOperation[];
+  };
+  export type ErrorsDocument = JsonApiErrorsDocument;
+  export type Operation = JsonApiOperation;
+  export type Resource = JsonApiResource;
 }
 
 export namespace Node {
@@ -331,10 +342,6 @@ export namespace Node {
   export type MethodResponse = MethodMessage & {
     result: MethodResult;
   };
-
-  export type JsonApiDocument = Document;
-  export type JsonApiOperation = Operation;
-  export type JsonApiResource = Resource;
 
   export type Event = {
     type: EventName;

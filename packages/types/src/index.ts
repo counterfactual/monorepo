@@ -12,7 +12,7 @@ import {
   AppInstanceInfo,
   BlockchainAsset
 } from "./data-types";
-import { INodeProvider, Node } from "./node-protocol";
+import { INodeProvider, JsonApiINodeProvider, JsonApi, Node } from "./node-protocol";
 import {
   ABIEncoding,
   Address,
@@ -60,6 +60,8 @@ export {
   Bytes32,
   ETHBucketAppState,
   INodeProvider,
+  JsonApiINodeProvider,
+  JsonApi,
   Node,
   SignedStateHashUpdate,
   Terms,
