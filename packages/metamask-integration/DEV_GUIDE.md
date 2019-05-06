@@ -4,9 +4,7 @@
 
 The extension can be downloaded from the current integration branch on [Github](https://github.com/prototypal/metamask-extension/blob/alon/cfnode-background/cf_builds/chrome.zip)
 
-![Download Extension](http://prntscr.com/nl5gem)
-
-After downloading, the zip file needs to be unzipped into a folder.
+After [downloading](http://prntscr.com/nl5gem), the zip file needs to be unzipped into a folder.
 
 ## Creating a new Chrome profile
 
