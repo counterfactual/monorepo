@@ -1,42 +1,51 @@
-# Setting up Counterfactual Metamask extension running in Chrome
+# 🦊 Custom Metamask Chrome Extension
 
-## Downloading the extension
+As part of our integration work with the broader dapp ecosystem, we have developed a custom fork of MetaMask that injects the [@counterfactual/node](../packages/node) package into the Chrome extension. With this injection it is possible to navigate to a URL in the Chrome browser that uses the [@counterfactual/cf.js](../packages/cf.js) library and have it function as-intended. This functionality is the first step in making state channels more accessible technique for dapp developers to use.
 
-The extension can be downloaded from the current integration branch on [Github](https://github.com/prototypal/metamask-extension/blob/alon/cfnode-background/cf_builds/chrome.zip)
+In the future, we hope to bring this functionality into the production build of MetaMask for all users to benefit from. In the meantime, however, it can be a very useful tool in developing Counterfactual-enabled dapps in the browsr.
 
-After [downloading](http://prntscr.com/nl5gem), the zip file needs to be unzipped into a folder.
+## Installation
 
-## Creating a new Chrome profile
+### Download the extension
 
-It is recommended to test this extension in separate profile in Chrome so that it doesn't override your actual MM extension that you use in your day to day.
+The extension can be downloaded from the current integration branch on [prototypal/metamask-extension](https://github.com/prototypal/metamask-extension/blob/alon/cfnode-background/cf_builds/chrome.zip) (click to download the zipped extension).
 
-1. Click on your profile icon and then on manage people.
-2. Click [Add person](http://prntscr.com/nl5hxf) and choose a name for this account.
+### Add a developer Chrome profile
 
-## Loading the extension into Chrome
+It is recommended to test this extension in separate profile in Chrome so that it doesn't override your actual MetaMask extension that you use in your day to day browser usage. If you're already running a custom Chrome build you can ignore this step.
 
-1. To start [open up](http://prntscr.com/nl5lri) the extensions page in your new Chrome profile:
-2. On this screen [toggle](http://prntscr.com/nl5miy) `Developer Mode` to **on**.
-3. [Click](http://prntscr.com/nl5njh) `Load unpacked` button and choose the folder that you unzipped the extension earlier.
+1. On your computer, open Chrome.
+2. At the top right, click **Profile**.
+3. Click **Manage people**.
+4. Click [**Add person**](http://prntscr.com/nl5hxf).
+5. Choose a name and a photo.
 
-The Metamask Counterfactual extension is now loaded.
+### Load the extension into Chrome
 
-## Create Metamask account
+1. [Open](http://prntscr.com/nl5lri) the [**Extensions**](chrome://extensions/) page.
+2. Toggle **Developer Mode** to **on** ([screenshot](http://prntscr.com/nl5miy)).
+3. Select **Load unpacked** choose the folder that you unzipped the extension earlier ([screenshot](http://prntscr.com/nl5njh)).
 
-1. Click on the orange fox and create a Metamask account.
-2. Once you create an account make sure that you are on the Kovan testnet.
-3. Make sure that you are using Metamask inside of the [browser tab](http://prntscr.com/nl5svq) and not in the extension popup.
+The MetaMask Counterfactual extension is now loaded.
 
-## Add Counterfactual as a plugin inside of Metamask
+## Setup
 
-1. Click `[AddPlugins]`: [AddPlugins](http://prntscr.com/nl5u3g)
-2. Click `Add Plugin`: [Add Plugin](http://prntscr.com/nl5udl)
-3. Click CF Plugin. Text should say `"dummy balance" ETH`: [CF Plugin](http://prntscr.com/nl5ve7)
+### Set up MetaMask for development
 
-## Create Playground Account
+1. Click on the extension in your toolbar and create a Metamask account as you would normally.
+2. Switch to the Kovan testnet.
+3. Click on the ••• menu and select **Expand View**
 
-The playground should now be running in an iframe inside of Metamask in place of the transaction screen.
+### Add Counterfactual as a plugin inside of Metamask
 
-Now register a new playground account inside of this iframe.
+1. Click the `[ADDPLUGINS]` button ([screenshot](http://prntscr.com/nl5u3g)).
+2. Click `ADD PLUGIN` ([screenshot](http://prntscr.com/nl5udl).
+3. Click CF Plugin. You should see the CF logo and `"dummyBalance" ETH` ([screenshot](http://prntscr.com/nl5ve7)).
 
-An existing playground account cannot be used as the Node that it was created with is different than this Node.
+## Usage
+
+### Playground
+
+Presently, the custom build is loading the [@counterfactual/playground](../packages/playground) project as the main UI inside of the extension. It will appear inside of an `iframe` inside the MetaMask chrome extension's extended view itself in place of the transactions screen that you would see normally.
+
+From here, you can use the playground environment as you would normally (e.g., as is currently on [playground.counterfactual.com](https://playground.counterfactual.com)). Note however that existing accounts that may exist on the playground demo site because you have instantiated a new `Node` object inside of the extension.
