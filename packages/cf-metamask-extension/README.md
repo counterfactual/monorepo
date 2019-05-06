@@ -17,12 +17,12 @@ It is recommended to test this extension in separate profile in Chrome so that i
 1. On your computer, open Chrome.
 2. At the top right, click **Profile**.
 3. Click **Manage people**.
-4. Click [**Add person**](http://prntscr.com/nl5hxf).
+4. Click **Add person** ([screenshot](http://prntscr.com/nl5hxf)).
 5. Choose a name and a photo.
 
 ### Load the extension into Chrome
 
-1. [Open](http://prntscr.com/nl5lri) the [**Extensions**](chrome://extensions/) page.
+1. Open the [**Extensions**](chrome://extensions/) page ([screenshot](http://prntscr.com/nl5lri)).
 2. Toggle **Developer Mode** to **on** ([screenshot](http://prntscr.com/nl5miy)).
 3. Select **Load unpacked** choose the folder that you unzipped the extension earlier ([screenshot](http://prntscr.com/nl5njh)).
 
@@ -33,13 +33,13 @@ The MetaMask Counterfactual extension is now loaded.
 ### Set up MetaMask for development
 
 1. Click on the extension in your toolbar and create a Metamask account as you would normally.
-2. Switch to the Kovan testnet.
+2. Switch to the Kovan testnet (presently the playground only supports Kovan).
 3. Click on the ••• menu and select **Expand View**
 
 ### Add Counterfactual as a plugin inside of Metamask
 
 1. Click the `[ADDPLUGINS]` button ([screenshot](http://prntscr.com/nl5u3g)).
-2. Click `ADD PLUGIN` ([screenshot](http://prntscr.com/nl5udl).
+2. Click `ADD PLUGIN` ([screenshot](http://prntscr.com/nl5udl)).
 3. Click CF Plugin. You should see the CF logo and `"dummyBalance" ETH` ([screenshot](http://prntscr.com/nl5ve7)).
 
 ## Usage
