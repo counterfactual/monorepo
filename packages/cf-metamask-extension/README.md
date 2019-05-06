@@ -1,6 +1,6 @@
 # 🦊 Custom Metamask Chrome Extension
 
-As part of our integration work with the broader dapp ecosystem, we have developed a custom fork of MetaMask that injects the [@counterfactual/node](../packages/node) package into the Chrome extension. With this injection it is possible to navigate to a URL in the Chrome browser that uses the [@counterfactual/cf.js](../packages/cf.js) library and have it function as-intended. This functionality is the first step in making state channels more accessible technique for dapp developers to use.
+As part of our integration work with the broader dapp ecosystem, we have developed a custom fork of MetaMask that injects the [@counterfactual/node](../packages/node) package into the Chrome extension. With this injection it is possible to navigate to a URL in the Chrome browser that uses the [@counterfactual/cf.js](../packages/cf.js) library and have it function as-intended. This functionality is the first step in making state channels a more accessible technique for dapp developers to use.
 
 In the future, we hope to bring this functionality into the production build of MetaMask for all users to benefit from. In the meantime, however, it can be a very useful tool in developing Counterfactual-enabled dapps in the browsr.
 
