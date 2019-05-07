@@ -24,7 +24,7 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   const tttContract = await new ContractFactory(
-    TicTacToeApp.interface,
+    TicTacToeApp.abi,
     TicTacToeApp.bytecode,
     wallet
   ).deploy();
