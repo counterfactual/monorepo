@@ -6,7 +6,7 @@ export function generateRandomNetworkContext(): NetworkContext {
   const ret = {} as any;
 
   for (const contractName of networkContextProps) {
-    ret[contractName] = getAddress(hexlify(randomBytes(20)))
+    ret[contractName] = getAddress(hexlify(randomBytes(20)));
   }
 
   return ret;
