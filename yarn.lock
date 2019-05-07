@@ -2831,7 +2831,7 @@ abbrev@1.0.x:
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.0.9.tgz#91b4792588a7738c25f35dd6f63752a2f8776135"
   integrity sha1-kbR5JYinc4wl813W9jdSovh3YTU=
 
-abi-decoder@^1.0.8:
+abi-decoder@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/abi-decoder/-/abi-decoder-1.2.0.tgz#c42882dbb91b444805f0cd203a87a5cc3c22f4a8"
   integrity sha512-y2OKSEW4gf2838Eavc56vQY9V46zaXkf3Jl1WpTfUBbzAVrXSr4JRZAAWv55Tv9s5WNz1rVgBgz5d2aJIL1QCg==
@@ -7014,22 +7014,22 @@ eth-ens-namehash@2.0.8:
     idna-uts46-hx "^2.3.1"
     js-sha3 "^0.5.7"
 
-eth-gas-reporter@0.1.12:
-  version "0.1.12"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.1.12.tgz#6b761e05c33ae85be47840dd07468ab51d473dd8"
-  integrity sha512-Ao5uiXSA5Ep5fi/YvGCsFJMelMKj0fMJkAvWYzPVe1h3Mg9Z7X3Rs51ovG9izFZH7wSqnqydiC6SKDhZWpxK2g==
+eth-gas-reporter@0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.0.tgz#3f4093a007495d959683590275c995d4c6394b63"
+  integrity sha512-uQzHz+omKTktYe9ZvwF+nVfLGvYJAtz5bGfLW7DzU2J44o2cocxiEZIf6quobxQ0cyY4MEqp0uyuL8x75QRoIQ==
   dependencies:
-    abi-decoder "^1.0.8"
+    abi-decoder "^1.2.0"
     cli-table3 "^0.5.0"
     colors "^1.1.2"
-    lodash "^4.17.4"
+    lodash "^4.17.11"
     mocha "^4.1.0"
     req-cwd "^2.0.0"
-    request "^2.83.0"
+    request "^2.88.0"
     request-promise-native "^1.0.5"
     sha1 "^1.1.1"
     shelljs "^0.7.8"
-    solidity-parser-antlr "^0.2.10"
+    solidity-parser-antlr "^0.4.2"
     sync-request "^6.0.0"
 
 eth-json-rpc-infura@^3.1.0:
@@ -15377,7 +15377,7 @@ request-promise-native@^1.0.3, request-promise-native@^1.0.5:
     stealthy-require "^1.1.1"
     tough-cookie "^2.3.3"
 
-request@^2.79.0, request@^2.83.0, request@^2.85.0, request@^2.87.0:
+request@^2.79.0, request@^2.83.0, request@^2.85.0, request@^2.87.0, request@^2.88.0:
   version "2.88.0"
   resolved "https://registry.yarnpkg.com/request/-/request-2.88.0.tgz#9c2fca4f7d35b592efe57c7f0a55e81052124fef"
   integrity sha512-NAqBSrijGLZdM0WZNsInLJpkJokL72XYjUpnB0iwsRgxh7dB6COrHnTBNwN0E+lHDAJzu7kLAkDeY08z2/A0hg==
@@ -16241,12 +16241,7 @@ solidity-coverage@0.5.11:
     tree-kill "^1.2.0"
     web3 "^0.18.4"
 
-solidity-parser-antlr@^0.2.10:
-  version "0.2.15"
-  resolved "https://registry.yarnpkg.com/solidity-parser-antlr/-/solidity-parser-antlr-0.2.15.tgz#4be687a0a53da268c6a07398e0cfb3168896d610"
-  integrity sha512-EzRI8/TR/ljTXkZAyAjb0w4G20wH2XM7pcNf87ifdV825AbUv7DkY7HmiZCTj6NeKtIx8Y1s0NZWPbj+JTp8Zw==
-
-solidity-parser-antlr@^0.4.0:
+solidity-parser-antlr@^0.4.0, solidity-parser-antlr@^0.4.2:
   version "0.4.2"
   resolved "https://registry.yarnpkg.com/solidity-parser-antlr/-/solidity-parser-antlr-0.4.2.tgz#b862eba5936e7a90b4f5f1c8eb1d33fe86650f78"
   integrity sha512-0OKT2YKZAqPe14HN7Nbo24hjmnyUYh92UjyZG0Zz2rpQhl/w8asX8qHb+ASSXfayQaiW8g9zGIupXEE355tOQQ==
