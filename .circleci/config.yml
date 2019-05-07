@@ -92,6 +92,9 @@ jobs:
       - run:
           name: Run Tic-Tac-Toe tests
           command: cd packages/dapp-tic-tac-toe && yarn test
+      - run:
+          name: Run Playground tests
+          command: cd packages/playground && yarn test
 
   run-tslint:
     <<: *defaults
