@@ -105,9 +105,6 @@ export class AppRoot {
 
           this.updateOpponent({
             attributes: {
-              // username: this.state.appInstance.initialState.playerNames.find(
-              //   username => username !== this.state.account.user.username
-              // ),
               nodeAddress: this.state.appInstance.initialState.initiatingAddress
             }
           });
