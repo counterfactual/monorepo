@@ -917,11 +917,6 @@
     reflect-metadata "^0.1.12"
     tslib "^1.8.1"
 
-"@firebase/app-types@0.3.10":
-  version "0.3.10"
-  resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.10.tgz#8f6d24d80bf833622b53ed26eaa04cfa9dd0f2f3"
-  integrity sha512-l+5BJtSQopalBXiY/YuSaB9KF9PnDj37FLV0Sx3qJjh5B3IthCuZbPc1Vpbbbee/QZgudl0G212BBsUMGHP+fQ==
-
 "@firebase/app-types@0.3.7":
   version "0.3.7"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.3.7.tgz#9b00609ca7a992de77a62254296111ae05ee0128"
@@ -7968,7 +7963,22 @@ firebase-json@^0.1.0:
   dependencies:
     pegjs "^0.10.0"
 
-firebase-server@1.0.1, firebase-server@^1.0.1:
+firebase-server@1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/firebase-server/-/firebase-server-1.0.2.tgz#7d3cce8f16e2116b098ee5e90a14eddcc1007de0"
+  integrity sha512-3RmCQnJbLUX+Wy9vZ4IHvWpmgiN1EcJsmB+kz2yVdFSbeVAPxynt/V40sPkIEibzDtL1lxBXi5/KB+Y65xpL6A==
+  dependencies:
+    "@types/node" "^9.3.0"
+    cli "^1.0.1"
+    daemon "^1.1.0"
+    debug "^3.1.0"
+    firebase ">= 5.0.0"
+    jwt-simple "0.5.6"
+    lodash "^4.17.5"
+    targaryen "3.0.1"
+    ws "^5.0.0"
+
+firebase-server@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/firebase-server/-/firebase-server-1.0.1.tgz#f68951a54ac8a24ebcbe9111a6812d51cbfbb400"
   integrity sha512-UBM4LcckmP7ummNdkcrt+WKkRSkFvRrLKCMO85LzVHx31NOm9NtlySKGIoeZzcibfHh0+MRs2V+iAr9AGq3eSA==
@@ -11109,6 +11119,11 @@ jwt-simple@0.3.1:
   version "0.3.1"
   resolved "https://registry.yarnpkg.com/jwt-simple/-/jwt-simple-0.3.1.tgz#86e0b121d149534423dbd8044a727e3cf1eb939e"
   integrity sha1-huCxIdFJU0Qj29gESnJ+PPHrk54=
+
+jwt-simple@0.5.6:
+  version "0.5.6"
+  resolved "https://registry.yarnpkg.com/jwt-simple/-/jwt-simple-0.5.6.tgz#3357adec55b26547114157be66748995b75b333a"
+  integrity sha512-40aUybvhH9t2h71ncA1/1SbtTNCVZHgsTsTgqPUxGWDmUDrXyDf2wMNQKEbdBjbf4AI+fQhbECNTV6lWxQKUzg==
 
 keccak@^1.0.2:
   version "1.4.0"
