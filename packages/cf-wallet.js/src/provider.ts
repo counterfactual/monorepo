@@ -14,6 +14,7 @@ import {
   CounterfactualEvent,
   EventType,
 } from "./types";
+import { deriveMethodName } from "./utils";
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -278,6 +279,7 @@ export class Provider {
     operation: JsonApi.Operation
   ): Promise<JsonApi.Document> {
     const requestId = new Date().valueOf().toString();
+    const methodName = deriveMethodName(operation);
     const document = {
       meta: {
         requestId
@@ -294,16 +296,33 @@ export class Provider {
             data: response
           });
         }
+
+        response = response as JsonApi.Document;
+        if (response.operations) {
+          const responseType = deriveMethodName(response.operations[0])
+          if (responseType !== methodName) {
+            return reject({
+              errors: [{
+                status: EventType.ERROR,
+                code: "unexpected_message_type",
+                detail: `Unexpected response type. Expected ${methodName}, got ${
+                  responseType
+                }`
+              }]
+            });
+          }
+        }
+
         resolve(response as JsonApi.Document);
       };
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
           reject({
-            type: EventType.ERROR,
-            data: {
-              errorName: "request_timeout",
-              message: `Request timed out: ${JSON.stringify(document)}`
-            }
+            errors: [{
+              status: EventType.ERROR,
+              code: "request_timeout",
+              detail: `Request timed out: ${JSON.stringify(document)}`
+            }]
           });
           delete this.requestListeners[requestId];
         }
@@ -359,7 +378,7 @@ export class Provider {
   private onNodeMessage(message: JsonApi.Document | JsonApi.ErrorsDocument) {
     if (message.hasOwnProperty("errors")) {
       this.handleNodeError(message as JsonApi.ErrorsDocument);
-    } else if (message.meta && this.requestListeners[message.meta.requestId as string]) {
+    } else if (message.meta && message.meta.requestId) {
       this.handleNodeMethodResponse(message as JsonApi.Document);
     } else {
       this.handleNodeEvent(message as JsonApi.Document);
@@ -394,16 +413,16 @@ export class Provider {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {
-      const error = {
-        type: EventType.ERROR,
-        data: {
-          errorName: "orphaned_response",
-          message: `Response has no corresponding inflight request: ${JSON.stringify(
+      const message = {
+        errors: [{
+          status: EventType.ERROR,
+          code: "orphaned_response",
+          detail: `Response has no corresponding inflight request: ${JSON.stringify(
             response
           )}`
-        }
-      };
-      this.eventEmitter.emit(error.type, error);
+        }]
+      }
+      this.eventEmitter.emit(EventType.ERROR, message);
     }
   }
 

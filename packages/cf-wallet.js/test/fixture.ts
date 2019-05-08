@@ -1,5 +1,6 @@
 import { JsonApiINodeProvider, Node, JsonApi } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { deriveMethodName } from '../src/utils/method-name';
 
 // Randomly generated
 export const TEST_XPUBS = [
@@ -31,6 +32,6 @@ export class TestNodeProvider implements JsonApiINodeProvider {
     if (!message.operations) return;
     
     this.postedMessages.push(message);
-    this.messageEmitter.emit(message.operations[0].ref.type, message);
+    this.messageEmitter.emit(deriveMethodName(message.operations[0]), message);
   }
 }
