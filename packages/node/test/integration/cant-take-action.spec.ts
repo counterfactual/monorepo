@@ -5,7 +5,7 @@ import {
   Node as NodeTypes,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { One, Zero, AddressZero } from "ethers/constants";
+import { AddressZero, One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
