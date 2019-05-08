@@ -54,13 +54,13 @@ describe("cf-wallet.js Provider", () => {
     nodeProvider.onMethodRequest(
       Node.JsonApiMethodName.REJECT_INSTALL,
       request => {
-        if (!request.operations || !request.meta) return;
-        expect(request.operations[0].op).toBe(Node.OpName.REJECT);
-        expect(request.operations[0].ref.type).toBe(Node.TypeName.PROPOSAL);
+        const operations = request.operations as JsonApi.Operation[];
+        expect(operations[0].op).toBe(Node.OpName.REJECT);
+        expect(operations[0].ref.type).toBe(Node.TypeName.PROPOSAL);
 
         nodeProvider.simulateMessageFromNode({
           meta: {
-            requestId: request.meta.requestId
+            requestId: (request.meta as JsonApi.Meta).requestId
           },
           operations: [
             {
@@ -140,18 +140,18 @@ describe("cf-wallet.js Provider", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.JsonApiMethodName.INSTALL, request => {
-        if (!request.operations || !request.meta) return;
-        expect(deriveMethodName(request.operations[0])).toBe(
+        const operations = request.operations as JsonApi.Operation[];
+        expect(deriveMethodName(operations[0])).toBe(
           Node.JsonApiMethodName.INSTALL
         );
-        expect(request.operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
         const response = Object.assign(request, {
           data: TEST_APP_INSTANCE_INFO
         });
         nodeProvider.simulateMessageFromNode(response);
       });
       const appInstance = await provider.install(
-        TEST_APP_INSTANCE_INFO.id || ""
+        TEST_APP_INSTANCE_INFO.id as string
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.attributes.appId);
@@ -163,19 +163,14 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.JsonApiMethodName.INSTALL_VIRTUAL,
         request => {
-          if (
-            !request.operations ||
-            !request.meta ||
-            !request.operations[0].data
-          ) {
-            return;
-          }
-          expect(deriveMethodName(request.operations[0])).toBe(
+          const operations = request.operations as JsonApi.Operation[];
+          expect(deriveMethodName(operations[0])).toBe(
             Node.JsonApiMethodName.INSTALL_VIRTUAL
           );
-          expect(request.operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
+          expect(operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
           expect(
-            request.operations[0].data.attributes.intermediaryIdentifier
+            (operations[0].data as JsonApi.Resource).attributes
+              .intermediaryIdentifier
           ).toBe(expectedIntermediary);
 
           const response = Object.assign(request, {
@@ -185,7 +180,7 @@ describe("cf-wallet.js Provider", () => {
         }
       );
       const appInstance = await provider.installVirtual(
-        TEST_APP_INSTANCE_INFO.id || "",
+        TEST_APP_INSTANCE_INFO.id as string,
         expectedIntermediary
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
@@ -200,19 +195,13 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.JsonApiMethodName.REJECT_INSTALL,
         request => {
-          if (
-            !request.operations ||
-            !request.meta ||
-            !request.operations[0].data
-          ) {
-            return;
-          }
-          expect(deriveMethodName(request.operations[0])).toBe(
+          const operations = request.operations as JsonApi.Operation[];
+          expect(deriveMethodName(operations[0])).toBe(
             Node.JsonApiMethodName.REJECT_INSTALL
           );
-          expect(request.operations[0].data.attributes.appInstanceId).toBe(
-            TEST_APP_INSTANCE_INFO.id
-          );
+          expect(
+            (operations[0].data as JsonApi.Resource).attributes.appInstanceId
+          ).toBe(TEST_APP_INSTANCE_INFO.id);
 
           const response = Object.assign(request, {
             data: TEST_APP_INSTANCE_INFO
@@ -220,7 +209,7 @@ describe("cf-wallet.js Provider", () => {
           nodeProvider.simulateMessageFromNode(response);
         }
       );
-      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id || "");
+      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id as string);
     });
 
     it("can create a channel between two parties", async () => {
@@ -229,22 +218,15 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.JsonApiMethodName.CREATE_CHANNEL,
         request => {
-          if (
-            !request.operations ||
-            !request.meta ||
-            !request.operations[0].data
-          ) {
-            return;
-          }
-          expect(deriveMethodName(request.operations[0])).toBe(
+          const operations = request.operations as JsonApi.Operation[];
+          const data = operations[0].data as JsonApi.Resource;
+          expect(deriveMethodName(operations[0])).toBe(
             Node.JsonApiMethodName.CREATE_CHANNEL
           );
-          expect(request.operations[0].data.attributes.owners).toEqual(
-            TEST_XPUBS
-          );
+          expect(data.attributes.owners).toEqual(TEST_XPUBS);
 
           const response = Object.assign(request, {
-            data: request.operations[0].data
+            data
           });
           nodeProvider.simulateMessageFromNode(response);
         }
@@ -261,20 +243,14 @@ describe("cf-wallet.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.JsonApiMethodName.DEPOSIT, request => {
-        if (
-          !request.operations ||
-          !request.meta ||
-          !request.operations[0].data
-        ) {
-          return;
-        }
-        expect(deriveMethodName(request.operations[0])).toBe(
+        const operations = request.operations as JsonApi.Operation[];
+        const data = operations[0].data as JsonApi.Resource;
+
+        expect(deriveMethodName(operations[0])).toBe(
           Node.JsonApiMethodName.DEPOSIT
         );
-        expect(request.operations[0].data.attributes.multisigAddress).toEqual(
-          multisigAddress
-        );
-        expect(request.operations[0].data.attributes.amount).toEqual(amount);
+        expect(data.attributes.multisigAddress).toEqual(multisigAddress);
+        expect(data.attributes.amount).toEqual(amount);
 
         nodeProvider.simulateMessageFromNode(request);
       });
@@ -289,20 +265,14 @@ describe("cf-wallet.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.JsonApiMethodName.WITHDRAW, request => {
-        if (
-          !request.operations ||
-          !request.meta ||
-          !request.operations[0].data
-        ) {
-          return;
-        }
-        expect(deriveMethodName(request.operations[0])).toBe(
+        const operations = request.operations as JsonApi.Operation[];
+        const data = operations[0].data as JsonApi.Resource;
+
+        expect(deriveMethodName(operations[0])).toBe(
           Node.JsonApiMethodName.WITHDRAW
         );
-        expect(request.operations[0].data.attributes.multisigAddress).toEqual(
-          multisigAddress
-        );
-        expect(request.operations[0].data.attributes.amount).toEqual(amount);
+        expect(data.attributes.multisigAddress).toEqual(multisigAddress);
+        expect(data.attributes.amount).toEqual(amount);
 
         nodeProvider.simulateMessageFromNode(request);
       });
@@ -319,19 +289,13 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.JsonApiMethodName.GET_FREE_BALANCE_STATE,
         request => {
-          if (
-            !request.operations ||
-            !request.meta ||
-            !request.operations[0].data
-          ) {
-            return;
-          }
-          expect(deriveMethodName(request.operations[0])).toBe(
+          const operations = request.operations as JsonApi.Operation[];
+          const data = operations[0].data as JsonApi.Resource;
+
+          expect(deriveMethodName(operations[0])).toBe(
             Node.JsonApiMethodName.GET_FREE_BALANCE_STATE
           );
-          expect(request.operations[0].data.attributes.multisigAddress).toEqual(
-            multisigAddress
-          );
+          expect(data.attributes.multisigAddress).toEqual(multisigAddress);
 
           const response = Object.assign(request, {
             data: {
@@ -404,7 +368,7 @@ describe("cf-wallet.js Provider", () => {
       });
 
       await provider.getOrCreateAppInstance(
-        TEST_APP_INSTANCE_INFO.id || "",
+        TEST_APP_INSTANCE_INFO.id as string,
         TEST_APP_INSTANCE_INFO.attributes as AppInstanceInfo
       );
 

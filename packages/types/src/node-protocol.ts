@@ -2,6 +2,7 @@ import { BigNumber } from "ethers/utils";
 import {
   JsonApiDocument,
   JsonApiErrorsDocument,
+  Meta as JsonApiMeta,
   Operation as JsonApiOperation,
   Resource as JsonApiResource
 } from "@ebryn/jsonapi-ts";
@@ -35,6 +36,7 @@ export namespace JsonApi {
   export type ErrorsDocument = JsonApiErrorsDocument;
   export type Operation = JsonApiOperation;
   export type Resource = JsonApiResource;
+  export type Meta = JsonApiMeta;
 }
 
 export namespace Node {

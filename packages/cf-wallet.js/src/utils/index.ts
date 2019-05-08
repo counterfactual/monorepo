@@ -4,4 +4,4 @@ export { abi };
 
 export * from "./signature";
 
-export * from "./method-name";
+export * from "./jsonapi";

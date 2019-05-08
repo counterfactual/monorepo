@@ -64,11 +64,9 @@ export class Provider {
         id: appInstanceId
       }
     });
-    const resource = Array.isArray(response.data)
-      ? response.data[0]
-      : response.data;
+    const resource = response.data as JsonApi.Resource;
     const appInstance = resource.attributes as AppInstanceInfo;
-    appInstance.id = resource.id || "";
+    appInstance.id = resource.id as string;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 
@@ -103,11 +101,9 @@ export class Provider {
         }
       }
     });
-    const resource = Array.isArray(response.data)
-      ? response.data[0]
-      : response.data;
+    const resource = response.data as JsonApi.Resource;
     const appInstance = resource.attributes as AppInstanceInfo;
-    appInstance.id = resource.id || "";
+    appInstance.id = resource.id as string;
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
   }
 
@@ -156,9 +152,7 @@ export class Provider {
       }
     });
 
-    const resource = Array.isArray(response.data)
-      ? response.data[0]
-      : response.data;
+    const resource = response.data as JsonApi.Resource;
     return resource.attributes as Node.CreateChannelResult;
   }
 
@@ -237,9 +231,7 @@ export class Provider {
         }
       }
     });
-    const resource = Array.isArray(response.data)
-      ? response.data[0]
-      : response.data;
+    const resource = response.data as JsonApi.Resource;
     return resource.attributes as Node.GetFreeBalanceStateResult;
   }
 
@@ -357,14 +349,14 @@ export class Provider {
       if (info) {
         newInfo = info;
       } else {
-        const { data } = await this.callRawNodeMethod({
+        const response = await this.callRawNodeMethod({
           op: Node.OpName.GET_STATE,
           ref: {
             id,
             type: Node.TypeName.APP
           }
         });
-        const resource = Array.isArray(data) ? data[0] : data;
+        const resource = response.data as JsonApi.Resource;
         newInfo = (resource.attributes as Node.GetAppInstanceDetailsResult)
           .appInstance;
       }
@@ -403,8 +395,7 @@ export class Provider {
    * @ignore
    */
   private handleNodeError(errorsDocument: JsonApi.ErrorsDocument) {
-    const requestId =
-      errorsDocument.meta && (errorsDocument.meta.requestId as string);
+    const requestId = (errorsDocument.meta as JsonApi.Meta).requestId as string;
     if (requestId) {
       if (requestId && this.requestListeners[requestId]) {
         this.requestListeners[requestId](errorsDocument);
@@ -412,7 +403,6 @@ export class Provider {
       }
     }
     errorsDocument.errors.forEach(error => {
-      // todo: should we use the equivalent of request.operation.op?
       this.eventEmitter.emit(EventType.ERROR, error);
     });
   }
@@ -421,9 +411,7 @@ export class Provider {
    * @ignore
    */
   private handleNodeMethodResponse(response: JsonApi.Document) {
-    if (!response.meta) return;
-
-    const requestId = response.meta.requestId as string;
+    const requestId = (response.meta as JsonApi.Meta).requestId as string;
     if (requestId in this.requestListeners) {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
@@ -445,9 +433,7 @@ export class Provider {
    * @ignore
    */
   private async handleNodeEvent(nodeEvent: JsonApi.Document) {
-    if (!nodeEvent.operations) return;
-
-    nodeEvent.operations.forEach(operation => {
+    (nodeEvent.operations as JsonApi.Operation[]).forEach(operation => {
       if (
         this.isEventType(operation, Node.OpName.REJECT, Node.TypeName.PROPOSAL)
       ) {
@@ -500,10 +486,8 @@ export class Provider {
    * @ignore
    */
   private async handleInstallEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data)
-      ? nodeEvent.data[0]
-      : nodeEvent.data;
-    const appInstanceId = data.id || "";
+    const data = nodeEvent.data as JsonApi.Resource;
+    const appInstanceId = data.id as string;
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.INSTALL,
@@ -518,10 +502,8 @@ export class Provider {
    * @ignore
    */
   private async handleInstallVirtualEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data)
-      ? nodeEvent.data[0]
-      : nodeEvent.data;
-    const appInstanceId = data.id || "";
+    const data = nodeEvent.data as JsonApi.Resource;
+    const appInstanceId = data.id as string;
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
       type: EventType.INSTALL_VIRTUAL,
@@ -536,11 +518,9 @@ export class Provider {
    * @ignore
    */
   private async handleRejectInstallEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data)
-      ? nodeEvent.data[0]
-      : nodeEvent.data;
+    const data = nodeEvent.data as JsonApi.Resource;
     const info = data.attributes as AppInstanceInfo;
-    info.id = data.id || "";
+    info.id = data.id as string;
     const appInstance = await this.getOrCreateAppInstance(info.id, info);
     const event = {
       type: EventType.REJECT_INSTALL,
