@@ -519,3 +519,27 @@ export async function installTTTApp(
       .appInstanceId;
   });
 }
+
+export function makeTTTAppInstanceProposalReq(
+  proposedToIdentifier: string,
+  appId: Address,
+  initialState: SolidityABIEncoderV2Type,
+  abiEncodings: AppABIEncodings
+): NodeTypes.MethodRequest {
+  return {
+    params: {
+      proposedToIdentifier,
+      appId,
+      initialState,
+      abiEncodings,
+      asset: {
+        assetType: AssetType.ETH
+      },
+      myDeposit: Zero,
+      peerDeposit: Zero,
+      timeout: One
+    },
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.PROPOSE_INSTALL
+  } as NodeTypes.MethodRequest;
+}
