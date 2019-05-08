@@ -5,7 +5,7 @@ import {
   Node as NodeTypes,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { One, Zero, AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { v4 as generateUUID } from "uuid";
 
@@ -104,7 +104,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
           nodeB.publicIdentifier,
           global["networkContext"].TicTacToe,
-          initialEmptyTTTState(),
+          initialEmptyTTTState([AddressZero, AddressZero]),
           {
             stateEncoding: tttStateEncoding,
             actionEncoding: tttActionEncoding
