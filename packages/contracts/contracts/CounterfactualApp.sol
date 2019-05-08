@@ -11,7 +11,7 @@ contract CounterfactualApp {
     pure
     returns (bool)
   {
-    revert("not implemented");
+    revert("The isStateTerminal method has no implementation for this App");
   }
 
   function getTurnTaker(bytes calldata, address[] calldata)
@@ -19,7 +19,7 @@ contract CounterfactualApp {
     pure
     returns (address)
   {
-    revert("not implemented");
+    revert("The getTurnTaker method has no implementation for this App");
   }
 
   function applyAction(bytes calldata, bytes calldata)
@@ -27,7 +27,7 @@ contract CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    revert("not implemented");
+    revert("The applyAction method has no implementation for this App");
   }
 
   function resolve(bytes calldata, Transfer.Terms calldata)
@@ -35,7 +35,7 @@ contract CounterfactualApp {
     pure
     returns (Transfer.Transaction memory)
   {
-    revert("not implemented");
+    revert("The resolve method has no implementation for this App");
   }
 
 }
