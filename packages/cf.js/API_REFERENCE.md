@@ -494,10 +494,12 @@ An instance of an installed app.
 ### Data Type: `AppABIEncodings`
 - `stateEncoding: string`
     - ABI encoding of the app state
+        - For example, for the Tic Tac Toe App (https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol), the state encoding string is `"tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"`.
 - `actionEncoding?: string`
     - Optional ABI encoding of the app action
     - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)
     - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction)
+        - Again, for the Tic Tac Toe App, the action encoding string is `"tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)"`.
 
 ### Data Type: `AppState`
 
