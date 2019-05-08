@@ -26,6 +26,11 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC } from "../test-constants.jest";
 
 import {
+  initialEmptyTTTState,
+  tttActionEncoding,
+  tttStateEncoding
+} from "./tic-tac-toe";
+import {
   generateGetStateRequest,
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
@@ -90,17 +95,7 @@ describe("Node method follows spec - takeAction", () => {
     "Node A and B install an AppInstance, Node A takes action, " +
       "Node B confirms receipt of state update",
     () => {
-      const stateEncoding =
-        "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
-      const actionEncoding =
-        "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
-
-      const initialState = {
-        players: [AddressZero, AddressZero],
-        turnNum: 0,
-        winner: 0,
-        board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-      };
+      const initialState = initialEmptyTTTState([AddressZero, AddressZero]);
 
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", {
@@ -128,8 +123,8 @@ describe("Node method follows spec - takeAction", () => {
           global["networkContext"].TicTacToe,
           initialState,
           {
-            stateEncoding,
-            actionEncoding
+            stateEncoding: tttStateEncoding,
+            actionEncoding: tttActionEncoding
           }
         );
 
