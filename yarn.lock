@@ -959,10 +959,10 @@
   resolved "https://registry.yarnpkg.com/@firebase/auth-types/-/auth-types-0.7.0.tgz#8aac4b9c04aff61362827c35b5ad36db16a837ba"
   integrity sha512-QEG9azYwssGWcb4NaKFHe3Piez0SG46nRlu76HM4/ob0sjjNpNTY1Z5C3IoeJYknp2kMzuQi0TTW8tjEgkUAUA==
 
-"@firebase/auth@0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@firebase/auth/-/auth-0.11.0.tgz#e697e570137e45ba2f0037b5a162197df78bd33d"
-  integrity sha512-+KQfSyP6k4a/fLod+fb6FyUrh5qH6cyIonG8ymiK/h4Lz9xH2WnbnZbcr3Fq/tJ3Gn6AX57h+pcog7iv7aI06g==
+"@firebase/auth@0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@firebase/auth/-/auth-0.11.1.tgz#842cfd97b2c9d5c48e46fd9936f8fa9622717c29"
+  integrity sha512-TxFeWqrtdELyzUYBDWF/J49JAxF3W0O77PvT42RoZm8C7nrls0LUAQoPjdFNjaQ+5o/MjHDnd9YMqwDAD01Oqw==
   dependencies:
     "@firebase/auth-types" "0.7.0"
 
@@ -7983,13 +7983,13 @@ firebase-token-generator@^2.0.0:
   resolved "https://registry.yarnpkg.com/firebase-token-generator/-/firebase-token-generator-2.0.0.tgz#9767d759ec13abdc99ba115fd5ea99d8b93d1206"
   integrity sha1-l2fXWewTq9yZuhFf1eqZ2Lk9EgY=
 
-firebase@6.0.0:
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/firebase/-/firebase-6.0.0.tgz#af7a70c6668104f1f0af0eaad2d62b5584be729f"
-  integrity sha512-G08oFNyH4VlX5/gZoQWrSxeEiHCZINJnTD6nXbzkburR0VQeU3f0HAxo/OaUp3rPMwy0jZVHLM/Dm0gywPzhvg==
+firebase@6.0.1:
+  version "6.0.1"
+  resolved "https://registry.yarnpkg.com/firebase/-/firebase-6.0.1.tgz#14edc0e169b3d413b419359320ea2ecd0ec38cbd"
+  integrity sha512-Vi9VpGlUmVsEQ4nwcSjv2Rlo+G4umneZScEyKr6qiErfS5+J+fDsOp8UAzEexhZ1cnuKIZXmTF1KqQsXNiSlog==
   dependencies:
     "@firebase/app" "0.4.0"
-    "@firebase/auth" "0.11.0"
+    "@firebase/auth" "0.11.1"
     "@firebase/database" "0.4.0"
     "@firebase/firestore" "1.3.0"
     "@firebase/functions" "0.4.6"
