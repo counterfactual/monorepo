@@ -14,8 +14,15 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { Node } from "../../src";
+import { InstallMessage, Node, NODE_EVENTS, ProposeMessage } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { xkeyKthAddress } from "../../src/machine";
+
+import {
+  initialEmptyTTTState,
+  tttActionEncoding,
+  tttStateEncoding
+} from "./tic-tac-toe";
 
 /**
  * Even though this function returns a transaction hash, the calling Node
@@ -198,8 +205,10 @@ export function makeInstallProposalRequest(
 
   if (!nullInitialState) {
     initialState = {
-      foo: AddressZero,
-      bar: Zero
+      players: [AddressZero, AddressZero],
+      turnNum: 0,
+      winner: 0,
+      board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
     } as SolidityABIEncoderV2Type;
   }
 
@@ -210,8 +219,10 @@ export function makeInstallProposalRequest(
     peerDeposit,
     appId: AddressZero,
     abiEncodings: {
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
+      stateEncoding:
+        "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)",
+      actionEncoding:
+        "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)"
     } as AppABIEncodings,
     asset: {
       assetType: AssetType.ETH
@@ -435,4 +446,76 @@ export async function collateralizeChannel(
   const depositReq = makeDepositRequest(multisigAddress, One);
   await node1.call(depositReq.type, depositReq);
   await node2.call(depositReq.type, depositReq);
+}
+
+export async function createChannel(nodeA: Node, nodeB: Node) {
+  return new Promise(async (resolve, reject) => {
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
+      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+      expect(await getInstalledAppInstances(nodeB)).toEqual([]);
+      resolve();
+    });
+
+    await getMultisigCreationTransactionHash(nodeA, [
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
+    ]);
+  });
+}
+
+export async function installTTTApp(
+  nodeA: Node,
+  nodeB: Node,
+  initialState?: SolidityABIEncoderV2Type
+): Promise<string> {
+  const initialTTTState: SolidityABIEncoderV2Type = initialState
+    ? initialState
+    : initialEmptyTTTState([
+        xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
+        xkeyKthAddress(nodeB.publicIdentifier, 0)
+      ]);
+
+  return new Promise(async (resolve, reject) => {
+    const appInstanceInstallationProposalRequest = makeTTTProposalReq(
+      nodeB.publicIdentifier,
+      global["networkContext"].TicTacToe,
+      initialTTTState,
+      {
+        stateEncoding: tttStateEncoding,
+        actionEncoding: tttActionEncoding
+      }
+    );
+
+    let appInstanceId: string;
+
+    nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+      confirmProposedAppInstanceOnNode(
+        appInstanceInstallationProposalRequest.params,
+        await getProposedAppInstanceInfo(nodeA, appInstanceId)
+      );
+
+      const installRequest = makeInstallRequest(msg.data.appInstanceId);
+      nodeB.emit(installRequest.type, installRequest);
+    });
+
+    nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+      const appInstanceNodeA = await getInstalledAppInstanceInfo(
+        nodeA,
+        appInstanceId
+      );
+      const appInstanceNodeB = await getInstalledAppInstanceInfo(
+        nodeB,
+        appInstanceId
+      );
+      expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+      resolve(appInstanceId);
+    });
+
+    const response = await nodeA.call(
+      appInstanceInstallationProposalRequest.type,
+      appInstanceInstallationProposalRequest
+    );
+    appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
+      .appInstanceId;
+  });
 }
