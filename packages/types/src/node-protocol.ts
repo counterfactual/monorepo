@@ -67,6 +67,27 @@ export namespace Node {
     PROPOSAL = "proposal"
   }
 
+  export enum JsonApiMethodName {
+    CREATE_CHANNEL = "channel:add",
+    DEPOSIT = "channel:deposit",
+    GET_APP_INSTANCE_DETAILS = "app:get:instance",
+    GET_APP_INSTANCES = "app:get",
+    GET_CHANNEL_ADDRESSES = "channel:get",
+    GET_FREE_BALANCE_STATE = "channel:getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCES = "proposal:get",
+    INSTALL = "app:install",
+    INSTALL_VIRTUAL = "app:installVirtual",
+    PROPOSE_INSTALL = "proposal:install",
+    PROPOSE_INSTALL_VIRTUAL = "proposal:installVirtual",
+    REJECT_INSTALL = "proposal:reject",
+    UPDATE_STATE = "app:updateState",
+    GET_STATE = "app:getState",
+    TAKE_ACTION = "app:takeAction",
+    UNINSTALL = "app:uninstall",
+    UNINSTALL_VIRTUAL = "app:uninstallVirtual",
+    WITHDRAW = "channel:withdraw"
+  }
+
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",

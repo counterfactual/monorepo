@@ -2,18 +2,15 @@ import {
   Address,
   AppInstanceID,
   AppInstanceInfo,
-  JsonApiINodeProvider,
   JsonApi,
+  JsonApiINodeProvider,
   Node
 } from "@counterfactual/types";
-import EventEmitter from "eventemitter3";
 import { BigNumber } from "ethers/utils";
+import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
-import {
-  CounterfactualEvent,
-  EventType,
-} from "./types";
+import { CounterfactualEvent, EventType } from "./types";
 import { deriveMethodName } from "./utils";
 
 /**
@@ -27,7 +24,9 @@ export const NODE_REQUEST_TIMEOUT = 20000;
 export class Provider {
   /** @ignore */
   private readonly requestListeners: {
-    [requestId: string]: (msg: JsonApi.Document | JsonApi.ErrorsDocument) => void;
+    [requestId: string]: (
+      msg: JsonApi.Document | JsonApi.ErrorsDocument
+    ) => void;
   } = {};
   /** @ignore */
   private readonly eventEmitter = new EventEmitter();
@@ -65,7 +64,9 @@ export class Provider {
         id: appInstanceId
       }
     });
-    const resource = Array.isArray(response.data) ? response.data[0] : response.data;
+    const resource = Array.isArray(response.data)
+      ? response.data[0]
+      : response.data;
     const appInstance = resource.attributes as AppInstanceInfo;
     appInstance.id = resource.id || "";
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
@@ -89,7 +90,7 @@ export class Provider {
     intermediaryIdentifier: Address
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod({
-      op: Node.OpName.INSTALL,
+      op: Node.OpName.INSTALL_VIRTUAL,
       ref: {
         type: Node.TypeName.APP,
         id: appInstanceId
@@ -102,7 +103,9 @@ export class Provider {
         }
       }
     });
-    const resource = Array.isArray(response.data) ? response.data[0] : response.data;
+    const resource = Array.isArray(response.data)
+      ? response.data[0]
+      : response.data;
     const appInstance = resource.attributes as AppInstanceInfo;
     appInstance.id = resource.id || "";
     return this.getOrCreateAppInstance(appInstanceId, appInstance);
@@ -153,7 +156,9 @@ export class Provider {
       }
     });
 
-    const resource = Array.isArray(response.data) ? response.data[0] : response.data;
+    const resource = Array.isArray(response.data)
+      ? response.data[0]
+      : response.data;
     return resource.attributes as Node.CreateChannelResult;
   }
 
@@ -219,7 +224,7 @@ export class Provider {
    * @param multisigAddress Address of the state channel multisig
    */
   async getFreeBalanceState(multisigAddress: Address) {
-    await this.callRawNodeMethod({
+    const response = await this.callRawNodeMethod({
       op: Node.OpName.GET_FREE_BALANCE_STATE,
       ref: {
         type: Node.TypeName.CHANNEL
@@ -232,6 +237,10 @@ export class Provider {
         }
       }
     });
+    const resource = Array.isArray(response.data)
+      ? response.data[0]
+      : response.data;
+    return resource.attributes as Node.GetFreeBalanceStateResult;
   }
 
   /**
@@ -286,7 +295,7 @@ export class Provider {
       },
       operations: [operation],
       data: []
-    }
+    };
 
     return new Promise<JsonApi.Document>((resolve, reject) => {
       this.requestListeners[requestId] = response => {
@@ -296,19 +305,17 @@ export class Provider {
             data: response
           });
         }
-
-        response = response as JsonApi.Document;
-        if (response.operations) {
-          const responseType = deriveMethodName(response.operations[0])
+        if ("operations" in response && response.operations) {
+          const responseType = deriveMethodName(response.operations[0]);
           if (responseType !== methodName) {
             return reject({
-              errors: [{
-                status: EventType.ERROR,
-                code: "unexpected_message_type",
-                detail: `Unexpected response type. Expected ${methodName}, got ${
-                  responseType
-                }`
-              }]
+              errors: [
+                {
+                  status: EventType.ERROR,
+                  code: "unexpected_message_type",
+                  detail: `Unexpected response type. Expected ${methodName}, got ${responseType}`
+                }
+              ]
             });
           }
         }
@@ -318,11 +325,13 @@ export class Provider {
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
           reject({
-            errors: [{
-              status: EventType.ERROR,
-              code: "request_timeout",
-              detail: `Request timed out: ${JSON.stringify(document)}`
-            }]
+            errors: [
+              {
+                status: EventType.ERROR,
+                code: "request_timeout",
+                detail: `Request timed out: ${JSON.stringify(document)}`
+              }
+            ]
           });
           delete this.requestListeners[requestId];
         }
@@ -351,12 +360,13 @@ export class Provider {
         const { data } = await this.callRawNodeMethod({
           op: Node.OpName.GET_STATE,
           ref: {
-            type: Node.TypeName.APP,
-            id
+            id,
+            type: Node.TypeName.APP
           }
         });
         const resource = Array.isArray(data) ? data[0] : data;
-        newInfo = (resource.attributes as Node.GetAppInstanceDetailsResult).appInstance;
+        newInfo = (resource.attributes as Node.GetAppInstanceDetailsResult)
+          .appInstance;
       }
       this.appInstances[id] = new AppInstance(newInfo, this);
     }
@@ -378,7 +388,11 @@ export class Provider {
   private onNodeMessage(message: JsonApi.Document | JsonApi.ErrorsDocument) {
     if (message.hasOwnProperty("errors")) {
       this.handleNodeError(message as JsonApi.ErrorsDocument);
-    } else if (message.meta && message.meta.requestId) {
+    } else if (
+      message.meta &&
+      message.meta.requestId &&
+      message.meta.requestId !== ""
+    ) {
       this.handleNodeMethodResponse(message as JsonApi.Document);
     } else {
       this.handleNodeEvent(message as JsonApi.Document);
@@ -389,16 +403,17 @@ export class Provider {
    * @ignore
    */
   private handleNodeError(errorsDocument: JsonApi.ErrorsDocument) {
-    const requestId = errorsDocument.meta && errorsDocument.meta.requestId as string;
+    const requestId =
+      errorsDocument.meta && (errorsDocument.meta.requestId as string);
     if (requestId) {
       if (requestId && this.requestListeners[requestId]) {
         this.requestListeners[requestId](errorsDocument);
         delete this.requestListeners[requestId];
       }
     }
-    errorsDocument.errors.forEach((error) => {
+    errorsDocument.errors.forEach(error => {
       // todo: should we use the equivalent of request.operation.op?
-      // this.eventEmitter.emit(error.status, error);
+      this.eventEmitter.emit(EventType.ERROR, error);
     });
   }
 
@@ -413,16 +428,16 @@ export class Provider {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {
-      const message = {
-        errors: [{
-          status: EventType.ERROR,
-          code: "orphaned_response",
-          detail: `Response has no corresponding inflight request: ${JSON.stringify(
+      const error = {
+        type: EventType.ERROR,
+        data: {
+          errorName: "orphaned_response",
+          message: `Response has no corresponding inflight request: ${JSON.stringify(
             response
           )}`
-        }]
-      }
-      this.eventEmitter.emit(EventType.ERROR, message);
+        }
+      };
+      this.eventEmitter.emit(error.type, error);
     }
   }
 
@@ -432,23 +447,37 @@ export class Provider {
   private async handleNodeEvent(nodeEvent: JsonApi.Document) {
     if (!nodeEvent.operations) return;
 
-    nodeEvent.operations.forEach((operation) => {
-      if (this.isEventType(operation, Node.OpName.REJECT, Node.TypeName.PROPOSAL)) {
+    nodeEvent.operations.forEach(operation => {
+      if (
+        this.isEventType(operation, Node.OpName.REJECT, Node.TypeName.PROPOSAL)
+      ) {
         this.handleRejectInstallEvent(nodeEvent);
-      } else if (this.isEventType(operation, Node.OpName.INSTALL, Node.TypeName.APP)) {
+      } else if (
+        this.isEventType(operation, Node.OpName.INSTALL, Node.TypeName.APP)
+      ) {
         this.handleInstallEvent(nodeEvent);
-      } else if (this.isEventType(operation, Node.OpName.INSTALL_VIRTUAL, Node.TypeName.APP)) {
+      } else if (
+        this.isEventType(
+          operation,
+          Node.OpName.INSTALL_VIRTUAL,
+          Node.TypeName.APP
+        )
+      ) {
         this.handleInstallVirtualEvent(nodeEvent);
       } else {
         this.handleUnexpectedEvent(nodeEvent);
       }
-    })
+    });
   }
 
   /**
    * @ignore
    */
-  private isEventType(operation: JsonApi.Operation, opName: Node.OpName, typeName: Node.TypeName) {
+  private isEventType(
+    operation: JsonApi.Operation,
+    opName: Node.OpName,
+    typeName: Node.TypeName
+  ) {
     return operation.ref.type === typeName && operation.op === opName;
   }
 
@@ -461,9 +490,7 @@ export class Provider {
       type: EventType.ERROR,
       data: {
         errorName: "unexpected_event_type",
-        message: `Unexpected event type: ${type}: ${JSON.stringify(
-          nodeEvent
-        )}`
+        message: `Unexpected event type: ${type}: ${JSON.stringify(nodeEvent)}`
       }
     };
     return this.eventEmitter.emit(event.type, event);
@@ -473,7 +500,9 @@ export class Provider {
    * @ignore
    */
   private async handleInstallEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data) ? nodeEvent.data[0] : nodeEvent.data;
+    const data = Array.isArray(nodeEvent.data)
+      ? nodeEvent.data[0]
+      : nodeEvent.data;
     const appInstanceId = data.id || "";
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
@@ -489,7 +518,9 @@ export class Provider {
    * @ignore
    */
   private async handleInstallVirtualEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data) ? nodeEvent.data[0] : nodeEvent.data;
+    const data = Array.isArray(nodeEvent.data)
+      ? nodeEvent.data[0]
+      : nodeEvent.data;
     const appInstanceId = data.id || "";
     const appInstance = await this.getOrCreateAppInstance(appInstanceId);
     const event = {
@@ -505,7 +536,9 @@ export class Provider {
    * @ignore
    */
   private async handleRejectInstallEvent(nodeEvent: JsonApi.Document) {
-    const data = Array.isArray(nodeEvent.data) ? nodeEvent.data[0] : nodeEvent.data;
+    const data = Array.isArray(nodeEvent.data)
+      ? nodeEvent.data[0]
+      : nodeEvent.data;
     const info = data.attributes as AppInstanceInfo;
     info.id = data.id || "";
     const appInstance = await this.getOrCreateAppInstance(info.id, info);

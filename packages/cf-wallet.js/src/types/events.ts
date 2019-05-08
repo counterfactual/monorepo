@@ -1,4 +1,3 @@
-import { JsonApi} from "@counterfactual/types";
 import { Address, SolidityABIEncoderV2Type } from "@counterfactual/types";
 
 import { AppInstance } from "../app-instance";
@@ -48,4 +47,7 @@ export type EventData =
   | ErrorEventData
   | CreateMultisigEventData;
 
-export type CounterfactualEvent = JsonApi.Document | JsonApi.ErrorsDocument;
+export type CounterfactualEvent = {
+  readonly type: EventType;
+  readonly data: EventData;
+};
