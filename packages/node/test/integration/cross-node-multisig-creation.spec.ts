@@ -1,20 +1,9 @@
-import { Node as NodeTypes } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
-import { v4 as generateUUID } from "uuid";
-
-import {
-  CreateChannelMessage,
-  IMessagingService,
-  IStoreService,
-  Node,
-  NODE_EVENTS,
-  NodeConfig
-} from "../../src";
-import { MNEMONIC_PATH } from "../../src/signer";
+import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC } from "../test-constants.jest";
 
+import { setup } from "./setup";
 import {
+  confirmChannelCreation,
   getChannelAddresses,
   getMultisigCreationTransactionHash
 } from "./utils";
@@ -22,62 +11,16 @@ import {
 describe("Node can create multisig, other owners get notified", () => {
   jest.setTimeout(30000);
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
   let nodeA: Node;
-  let storeServiceA: IStoreService;
   let nodeB: Node;
-  let storeServiceB: IStoreService;
   let nodeC: Node;
-  let storeServiceC: IStoreService;
-  let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new LocalFirebaseServiceFactory(
-      process.env.FIREBASE_DEV_SERVER_HOST!,
-      process.env.FIREBASE_DEV_SERVER_PORT!
-    );
-    messagingService = firebaseServiceFactory.createMessagingService(
-      process.env.FIREBASE_MESSAGING_SERVER_KEY!
-    );
-    nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_MULTISIG_PREFIX_KEY!
-    };
-
-    provider = new JsonRpcProvider(global["ganacheURL"]);
-
-    storeServiceA = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
-    nodeA = await Node.create(
-      messagingService,
-      storeServiceA,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceB = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    nodeB = await Node.create(
-      messagingService,
-      storeServiceB,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-    storeServiceC = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    nodeC = await Node.create(
-      messagingService,
-      storeServiceC,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
+    const result = await setup(global, true);
+    nodeA = result.nodeA;
+    nodeB = result.nodeB;
+    nodeC = result.nodeC!;
+    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
   afterAll(() => {
@@ -145,17 +88,3 @@ describe("Node can create multisig, other owners get notified", () => {
     });
   });
 });
-
-async function confirmChannelCreation(
-  nodeA: Node,
-  nodeB: Node,
-  ownersPublicIdentifiers: string[],
-  data: NodeTypes.CreateChannelResult
-) {
-  const openChannelsNodeA = await getChannelAddresses(nodeA);
-  const openChannelsNodeB = await getChannelAddresses(nodeB);
-
-  expect(openChannelsNodeA.has(data.multisigAddress)).toBeTruthy();
-  expect(openChannelsNodeB.has(data.multisigAddress)).toBeTruthy();
-  expect(data.owners).toEqual(ownersPublicIdentifiers);
-}

@@ -543,3 +543,17 @@ export function makeTTTAppInstanceProposalReq(
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
 }
+
+export async function confirmChannelCreation(
+  nodeA: Node,
+  nodeB: Node,
+  ownersPublicIdentifiers: string[],
+  data: NodeTypes.CreateChannelResult
+) {
+  const openChannelsNodeA = await getChannelAddresses(nodeA);
+  const openChannelsNodeB = await getChannelAddresses(nodeB);
+
+  expect(openChannelsNodeA.has(data.multisigAddress)).toBeTruthy();
+  expect(openChannelsNodeB.has(data.multisigAddress)).toBeTruthy();
+  expect(data.owners).toEqual(ownersPublicIdentifiers);
+}

@@ -5,7 +5,7 @@ import { MNEMONIC_PATH, Node } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC } from "../test-constants.jest";
 
-export async function setup(global: any) {
+export async function setup(global: any, nodeCPresent: boolean = false) {
   const firebaseServiceFactory = new LocalFirebaseServiceFactory(
     process.env.FIREBASE_DEV_SERVER_HOST!,
     process.env.FIREBASE_DEV_SERVER_PORT!
@@ -42,6 +42,22 @@ export async function setup(global: any) {
     provider,
     global["networkContext"]
   );
+
+  let nodeC: Node;
+  if (nodeCPresent) {
+    const storeServiceB = firebaseServiceFactory.createStoreService(
+      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    );
+    nodeC = await Node.create(
+      messagingService,
+      storeServiceB,
+      nodeConfig,
+      provider,
+      global["networkContext"]
+    );
+
+    return { nodeA, nodeB, nodeC, firebaseServiceFactory };
+  }
 
   return { nodeA, nodeB, firebaseServiceFactory };
 }
