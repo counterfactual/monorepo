@@ -4,26 +4,38 @@ pragma experimental "ABIEncoderV2";
 import "./libs/Transfer.sol";
 
 
-interface CounterfactualApp {
+contract CounterfactualApp {
 
   function isStateTerminal(bytes calldata)
     external
     pure
-    returns (bool);
+    returns (bool)
+  {
+    revert("not implemented");
+  }
 
   function getTurnTaker(bytes calldata, address[] calldata)
     external
     pure
-    returns (address);
+    returns (address)
+  {
+    revert("not implemented");
+  }
 
   function applyAction(bytes calldata, bytes calldata)
     external
     pure
-    returns (bytes memory);
+    returns (bytes memory)
+  {
+    revert("not implemented");
+  }
 
   function resolve(bytes calldata, Transfer.Terms calldata)
     external
     pure
-    returns (Transfer.Transaction memory);
+    returns (Transfer.Transaction memory)
+  {
+    revert("not implemented");
+  }
 
 }
