@@ -15,9 +15,9 @@ import {
 describe("Node method follows spec - uninstall", () => {
   jest.setTimeout(50000);
 
+  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
     const result = await setup(global);

@@ -3,7 +3,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { MNEMONIC_PATH, Node } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC } from "../test-constants.jest";
+import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 export async function setup(global: any, nodeCPresent: boolean = false) {
   const firebaseServiceFactory = new LocalFirebaseServiceFactory(
@@ -35,6 +35,7 @@ export async function setup(global: any, nodeCPresent: boolean = false) {
   const storeServiceB = firebaseServiceFactory.createStoreService(
     process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
   );
+  storeServiceB.set([{ key: MNEMONIC_PATH, value: B_MNEMONIC }]);
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
