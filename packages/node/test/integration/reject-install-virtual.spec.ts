@@ -1,17 +1,14 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { JsonRpcProvider } from "ethers/providers";
-import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
-import { MNEMONIC_PATH } from "../../src/signer";
+import { Node } from "../../src";
 import {
   NODE_EVENTS,
   ProposeVirtualMessage,
   RejectProposalMessage
 } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
+import { setup } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   getMultisigCreationTransactionHash,
@@ -24,64 +21,16 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   jest.setTimeout(20000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
   let nodeA: Node;
-  let storeServiceA: IStoreService;
   let nodeB: Node;
-  let storeServiceB: IStoreService;
   let nodeC: Node;
-  let storeServiceC: IStoreService;
-  let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new LocalFirebaseServiceFactory(
-      process.env.FIREBASE_DEV_SERVER_HOST!,
-      process.env.FIREBASE_DEV_SERVER_PORT!
-    );
-    messagingService = firebaseServiceFactory.createMessagingService(
-      process.env.FIREBASE_MESSAGING_SERVER_KEY!
-    );
-    nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
-    };
-
-    provider = new JsonRpcProvider(global["ganacheURL"]);
-
-    storeServiceA = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
-    nodeA = await Node.create(
-      messagingService,
-      storeServiceA,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceB = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: B_MNEMONIC }]);
-    nodeB = await Node.create(
-      messagingService,
-      storeServiceB,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceC = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    nodeC = await Node.create(
-      messagingService,
-      storeServiceC,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
+    const result = await setup(global, true);
+    nodeA = result.nodeA;
+    nodeB = result.nodeB;
+    nodeC = result.nodeC!;
+    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
   afterAll(() => {
