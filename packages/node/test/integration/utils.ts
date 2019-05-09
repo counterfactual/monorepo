@@ -15,11 +15,11 @@ import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import {
+  CreateChannelMessage,
   InstallMessage,
   Node,
   NODE_EVENTS,
-  ProposeMessage,
-  CreateChannelMessage
+  ProposeMessage
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
