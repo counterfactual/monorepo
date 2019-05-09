@@ -20,7 +20,7 @@ Log.setOutputLevel(LogLevel.ERROR);
 
 const NETWORK_CONTEXT = global["networkContext"];
 
-describe("playground-server", () => {
+describe("ttt-bot", () => {
   let playgroundNode: Node;
   let nodeAlice: Node;
   let nodeBot: Node;

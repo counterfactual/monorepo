@@ -14,8 +14,6 @@ import { makeNetworkContext } from "./make-network-context";
 import { MessageRouter } from "./message-router";
 import { MiniNode } from "./mininode";
 
-const JEST_TEST_WAIT_TIME = 50000;
-
 let networkId: number;
 let network: NetworkContext;
 let provider: JsonRpcProvider;
@@ -37,8 +35,6 @@ beforeAll(async () => {
 });
 
 describe("Three mininodes", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("Can run all the protocols", async () => {
     const mininodeA = new MiniNode(network, provider);
     const mininodeB = new MiniNode(network, provider);

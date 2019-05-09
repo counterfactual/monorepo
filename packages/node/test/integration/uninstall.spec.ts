@@ -13,8 +13,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  jest.setTimeout(50000);
-
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
