@@ -16255,7 +16255,7 @@ sol-explore@^1.6.2:
   resolved "https://registry.yarnpkg.com/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.5.0, solc@0.5.8, solc@^0.5.1, solc@^0.5.8:
+solc@0.5.8, solc@^0.5.1, solc@^0.5.8:
   version "0.5.8"
   resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.8.tgz#a0aa2714082fc406926f5cb384376d7408080611"
   integrity sha512-RQ2SlwPBOBSV7ktNQJkvbiQks3t+3V9dsqD014EdstxnJzSxBuOvbt3P5QXpNPYW1DsEmF7dhOaT3JL7yEae/A==
@@ -17336,15 +17336,14 @@ truffle-interface-adapter@^0.1.4:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.12:
-  version "5.0.12"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.12.tgz#05ab7d2561a3ee4fd5e026dcc4b91b8f3c6e3795"
-  integrity sha512-dqnDmtTGNcnL29PHQwPE/CVmFFeGLuTFeb4TS3VY/vbASefu118IKXcadOWzkCPPwktv/njwylHSPhwoS00F2A==
+truffle@5.0.16:
+  version "5.0.16"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.16.tgz#d5f38c1e40dc4a9da36a0c6dd021d81029374ff8"
+  integrity sha512-SMo/CwO6ce1TR07/n5/LKI7VIoMMu8NEdBHr1DFCBqwerHDrZqULcpPapd3Udv4btCD5wNOwgK/5lD6a3epzTw==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
     original-require "1.0.1"
-    solc "0.5.0"
 
 ts-jest@24.0.2:
   version "24.0.2"
