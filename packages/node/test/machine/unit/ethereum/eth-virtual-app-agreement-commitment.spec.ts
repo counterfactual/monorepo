@@ -15,7 +15,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 import { ETHVirtualAppAgreementCommitment } from "../../../../src/ethereum/eth-virtual-app-agreement-commitment";
 import { Transaction } from "../../../../src/ethereum/types";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
-import { StateChannel } from "../../../../src/machine";
+import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**

@@ -1,8 +1,8 @@
 import { Node } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 
-import { InstructionExecutor, StateChannel } from "../../../machine";
-import { ProposedAppInstanceInfo } from "../../../models";
+import { InstructionExecutor } from "../../../machine";
+import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
 

@@ -11,12 +11,8 @@ import {
 import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import {
-  AppInstance,
-  StateChannel,
-  xkeyKthAddress,
-  xkeysToSortedKthAddresses
-} from "../machine";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
+import { AppInstance, StateChannel } from "../models";
 
 export interface IProposedAppInstanceInfo {
   appId: Address;

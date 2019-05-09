@@ -1,8 +1,8 @@
 import { Address } from "@counterfactual/types";
 import { BigNumber, hashMessage } from "ethers/utils";
 
-import { StateChannel } from "./machine";
 import { ERRORS } from "./methods/errors";
+import { StateChannel } from "./models";
 import { Store } from "./store";
 
 export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {

@@ -9,8 +9,11 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
-import { AppInstance } from "../../src/machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../src/models";
+import {
+  AppInstance,
+  ProposedAppInstanceInfo,
+  StateChannel
+} from "../../src/models";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;

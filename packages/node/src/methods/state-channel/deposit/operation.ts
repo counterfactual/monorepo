@@ -3,7 +3,8 @@ import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { StateChannel, xkeyKthAddress } from "../../../machine";
+import { xkeyKthAddress } from "../../../machine";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
