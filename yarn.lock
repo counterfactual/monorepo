@@ -17336,10 +17336,10 @@ truffle-interface-adapter@^0.1.4:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.12:
-  version "5.0.12"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.12.tgz#05ab7d2561a3ee4fd5e026dcc4b91b8f3c6e3795"
-  integrity sha512-dqnDmtTGNcnL29PHQwPE/CVmFFeGLuTFeb4TS3VY/vbASefu118IKXcadOWzkCPPwktv/njwylHSPhwoS00F2A==
+truffle@5.0.17:
+  version "5.0.17"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.17.tgz#5a404b63e8d3da6a431cbcdac7df6e2e02d1262e"
+  integrity sha512-SroP2oUwwLjr7g3niD0gRgNzuS0MmMYZDdaNxnwGo5AfhUCnjTp7xSgqFSnTKjvVIhRcZ2lO+b3kVaC+y0R94Q==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
