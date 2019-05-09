@@ -17,7 +17,7 @@ describe("Node method follows spec - deposit", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
-  let provider;
+  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
     const result = await setup(global);
