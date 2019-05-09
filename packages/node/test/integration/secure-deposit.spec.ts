@@ -36,12 +36,14 @@ describe("Node method follows spec - deposit", () => {
       const { multisigAddress } = msg.data;
       const depositReq = makeDepositRequest(multisigAddress, One);
 
+      const preDepositBalance = await provider.getBalance(multisigAddress);
+
       await nodeA.call(depositReq.type, depositReq);
 
       await nodeB.call(depositReq.type, depositReq);
 
       expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-        2
+        preDepositBalance.add(2).toNumber()
       );
 
       const freeBalanceState = await getFreeBalanceState(
