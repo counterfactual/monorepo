@@ -23,9 +23,9 @@
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
-    "start": "env-cmd development ts-node -r dotenv-extended/config src/",
-    "test": "env-cmd test --fallback jest --forceExit",
-    "test:ci": "env-cmd test --fallback jest --forceExit"
+    "start": "env-cmd -e development ts-node -r dotenv-extended/config src/",
+    "test": "env-cmd -e test --fallback jest --forceExit",
+    "test:ci": "env-cmd -e test --fallback jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
@@ -38,18 +38,18 @@
     "@koa/cors": "^3.0.0",
     "axios": "^0.18.0",
     "escape-string-regexp": "^2.0.0",
-    "firebase-server": "^1.0.1",
+    "firebase-server": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.16.3",
+    "knex": "^0.16.5",
     "koa": "^2.6.2",
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
-    "pg": "^7.9.0",
+    "pg": "^7.10.0",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@types/jest": "24.0.11",
+    "@types/jest": "24.0.12",
     "@types/jsonwebtoken": "8.3.2",
     "@types/knex": "0.16.1",
     "@types/koa": "2.0.48",
@@ -57,8 +57,8 @@
     "@types/uuid": "3.4.4",
     "dotenv-extended": "2.4.0",
     "env-cmd": "9.0.1",
-    "jest": "24.7.1",
-    "jest-cli": "24.7.1",
+    "jest": "24.8.0",
+    "jest-cli": "24.8.0",
     "sqlite3": "4.0.7",
     "ts-jest": "24.0.2",
     "ts-node": "8.1.0",
