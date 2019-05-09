@@ -19,8 +19,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
-  jest.setTimeout(20000);
-
   let nodeA: Node;
   let nodeB: Node;
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
