@@ -41,7 +41,7 @@ contract MixinProgressChallenge is
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "cancelChallenge called on app not in DISPUTE state"
+      "progressChallenge called on app not in DISPUTE state"
     );
 
     require(
