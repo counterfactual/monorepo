@@ -42,6 +42,11 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
       try {
         await nodeA.call(fbUninstallReq.type, fbUninstallReq);
       } catch (e) {
+        // Because uninstall looks up a mapping of AppInstanceId to multisig
+        // address to identify which channel an AppInstance is in, and because
+        // this mapping does not exist for FreeBalances (because it's a default app)
+        // even if given a correct FreeBalance AppInstanceId, the lookup fails
+        // and it cannot be uninstalled
         expect(e.toString()).toMatch(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
       }
     });
