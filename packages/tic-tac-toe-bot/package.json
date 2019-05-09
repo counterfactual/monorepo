@@ -23,8 +23,8 @@
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
-    "start": "env-cmd development ts-node src/",
-    "test": "env-cmd test jest --forceExit"
+    "start": "env-cmd -e development ts-node src/",
+    "test": "env-cmd -e test jest --forceExit"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"
@@ -33,13 +33,13 @@
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
     "@counterfactual/node": "0.1.16",
     "@counterfactual/types": "^0.0.9",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.2"
   },
   "devDependencies": {
     "env-cmd": "9.0.1",
     "ethers": "4.0.27",
-    "jest": "24.7.1",
-    "jest-cli": "24.7.1",
+    "jest": "24.8.0",
+    "jest-cli": "24.8.0",
     "ts-node": "8.1.0",
     "tslint": "5.16.0",
     "typescript": "3.4.5",
