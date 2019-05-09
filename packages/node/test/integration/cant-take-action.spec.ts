@@ -24,6 +24,11 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC } from "../test-constants.jest";
 
 import {
+  initialEmptyTTTState,
+  tttActionEncoding,
+  tttStateEncoding
+} from "./tic-tac-toe";
+import {
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
   makeInstallRequest
@@ -84,18 +89,6 @@ describe("Node method follows spec - fails with improper action taken", () => {
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {
-    const stateEncoding =
-      "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
-    const actionEncoding =
-      "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
-
-    const initialState = {
-      players: [AddressZero, AddressZero],
-      turnNum: 0,
-      winner: 0,
-      board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    };
-
     it("can't take invalid action", async done => {
       const validAction = {
         actionType: 1,
@@ -111,10 +104,10 @@ describe("Node method follows spec - fails with improper action taken", () => {
         const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
           nodeB.publicIdentifier,
           global["networkContext"].TicTacToe,
-          initialState,
+          initialEmptyTTTState([AddressZero, AddressZero]),
           {
-            stateEncoding,
-            actionEncoding
+            stateEncoding: tttStateEncoding,
+            actionEncoding: tttActionEncoding
           }
         );
 
