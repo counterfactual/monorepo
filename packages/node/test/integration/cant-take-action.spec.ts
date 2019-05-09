@@ -19,7 +19,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
-
   let nodeA: Node;
   let nodeB: Node;
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
