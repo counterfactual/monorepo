@@ -37,12 +37,6 @@ export namespace JsonApi {
   export type Operation = JsonApiOperation;
   export type Resource = JsonApiResource;
   export type Meta = JsonApiMeta;
-}
-
-export namespace Node {
-  export enum ErrorType {
-    ERROR = "error"
-  }
 
   export enum OpName {
     ADD = "add",
@@ -63,13 +57,13 @@ export namespace Node {
     WITHDRAW = "withdraw"
   }
 
-  export enum TypeName {
+  export enum RefType {
     APP = "app",
     CHANNEL = "channel",
     PROPOSAL = "proposal"
   }
 
-  export enum JsonApiMethodName {
+  export enum MethodName {
     CREATE_CHANNEL = "channel:add",
     DEPOSIT = "channel:deposit",
     GET_APP_INSTANCE_DETAILS = "app:get:instance",
@@ -88,6 +82,12 @@ export namespace Node {
     UNINSTALL = "app:uninstall",
     UNINSTALL_VIRTUAL = "app:uninstallVirtual",
     WITHDRAW = "channel:withdraw"
+  }
+}
+
+export namespace Node {
+  export enum ErrorType {
+    ERROR = "error"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods

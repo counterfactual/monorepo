@@ -58,9 +58,9 @@ export class Provider {
    */
   async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
     const response = await this.callRawNodeMethod({
-      op: Node.OpName.INSTALL,
+      op: JsonApi.OpName.INSTALL,
       ref: {
-        type: Node.TypeName.APP,
+        type: JsonApi.RefType.APP,
         id: appInstanceId
       }
     });
@@ -88,13 +88,13 @@ export class Provider {
     intermediaryIdentifier: Address
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod({
-      op: Node.OpName.INSTALL_VIRTUAL,
+      op: JsonApi.OpName.INSTALL_VIRTUAL,
       ref: {
-        type: Node.TypeName.APP,
+        type: JsonApi.RefType.APP,
         id: appInstanceId
       },
       data: {
-        type: Node.TypeName.APP,
+        type: JsonApi.RefType.APP,
         relationships: {},
         attributes: {
           intermediaryIdentifier
@@ -116,12 +116,12 @@ export class Provider {
    */
   async rejectInstall(appInstanceId: AppInstanceID) {
     await this.callRawNodeMethod({
-      op: Node.OpName.REJECT,
+      op: JsonApi.OpName.REJECT,
       ref: {
-        type: Node.TypeName.PROPOSAL
+        type: JsonApi.RefType.PROPOSAL
       },
       data: {
-        type: Node.TypeName.PROPOSAL,
+        type: JsonApi.RefType.PROPOSAL,
         relationships: {},
         attributes: {
           appInstanceId
@@ -139,12 +139,12 @@ export class Provider {
    */
   async createChannel(owners: Address[]) {
     const response = await this.callRawNodeMethod({
-      op: Node.OpName.ADD,
+      op: JsonApi.OpName.ADD,
       ref: {
-        type: Node.TypeName.CHANNEL
+        type: JsonApi.RefType.CHANNEL
       },
       data: {
-        type: Node.TypeName.CHANNEL,
+        type: JsonApi.RefType.CHANNEL,
         relationships: {},
         attributes: {
           owners
@@ -167,12 +167,12 @@ export class Provider {
    */
   async deposit(multisigAddress: Address, amount: BigNumber) {
     await this.callRawNodeMethod({
-      op: Node.OpName.DEPOSIT,
+      op: JsonApi.OpName.DEPOSIT,
       ref: {
-        type: Node.TypeName.CHANNEL
+        type: JsonApi.RefType.CHANNEL
       },
       data: {
-        type: Node.TypeName.CHANNEL,
+        type: JsonApi.RefType.CHANNEL,
         relationships: {},
         attributes: {
           multisigAddress,
@@ -194,12 +194,12 @@ export class Provider {
    */
   async withdraw(multisigAddress: Address, amount: BigNumber) {
     await this.callRawNodeMethod({
-      op: Node.OpName.WITHDRAW,
+      op: JsonApi.OpName.WITHDRAW,
       ref: {
-        type: Node.TypeName.CHANNEL
+        type: JsonApi.RefType.CHANNEL
       },
       data: {
-        type: Node.TypeName.CHANNEL,
+        type: JsonApi.RefType.CHANNEL,
         relationships: {},
         attributes: {
           multisigAddress,
@@ -219,12 +219,12 @@ export class Provider {
    */
   async getFreeBalanceState(multisigAddress: Address) {
     const response = await this.callRawNodeMethod({
-      op: Node.OpName.GET_FREE_BALANCE_STATE,
+      op: JsonApi.OpName.GET_FREE_BALANCE_STATE,
       ref: {
-        type: Node.TypeName.CHANNEL
+        type: JsonApi.RefType.CHANNEL
       },
       data: {
-        type: Node.TypeName.CHANNEL,
+        type: JsonApi.RefType.CHANNEL,
         relationships: {},
         attributes: {
           multisigAddress
@@ -350,10 +350,10 @@ export class Provider {
         newInfo = info;
       } else {
         const response = await this.callRawNodeMethod({
-          op: Node.OpName.GET_STATE,
+          op: JsonApi.OpName.GET_STATE,
           ref: {
             id,
-            type: Node.TypeName.APP
+            type: JsonApi.RefType.APP
           }
         });
         const resource = response.data as JsonApi.Resource;
@@ -435,18 +435,22 @@ export class Provider {
   private async handleNodeEvent(nodeEvent: JsonApi.Document) {
     (nodeEvent.operations as JsonApi.Operation[]).forEach(operation => {
       if (
-        this.isEventType(operation, Node.OpName.REJECT, Node.TypeName.PROPOSAL)
+        this.isEventType(
+          operation,
+          JsonApi.OpName.REJECT,
+          JsonApi.RefType.PROPOSAL
+        )
       ) {
         this.handleRejectInstallEvent(nodeEvent);
       } else if (
-        this.isEventType(operation, Node.OpName.INSTALL, Node.TypeName.APP)
+        this.isEventType(operation, JsonApi.OpName.INSTALL, JsonApi.RefType.APP)
       ) {
         this.handleInstallEvent(nodeEvent);
       } else if (
         this.isEventType(
           operation,
-          Node.OpName.INSTALL_VIRTUAL,
-          Node.TypeName.APP
+          JsonApi.OpName.INSTALL_VIRTUAL,
+          JsonApi.RefType.APP
         )
       ) {
         this.handleInstallVirtualEvent(nodeEvent);
@@ -461,8 +465,8 @@ export class Provider {
    */
   private isEventType(
     operation: JsonApi.Operation,
-    opName: Node.OpName,
-    typeName: Node.TypeName
+    opName: JsonApi.OpName,
+    typeName: JsonApi.RefType
   ) {
     return operation.ref.type === typeName && operation.op === opName;
   }

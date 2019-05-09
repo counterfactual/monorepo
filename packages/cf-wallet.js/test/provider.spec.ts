@@ -1,9 +1,4 @@
-import {
-  AppInstanceInfo,
-  AssetType,
-  JsonApi,
-  Node
-} from "@counterfactual/types";
+import { AppInstanceInfo, AssetType, JsonApi } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
@@ -51,35 +46,32 @@ describe("cf-wallet.js Provider", () => {
     expect.assertions(3);
 
     // @ts-ignore
-    nodeProvider.onMethodRequest(
-      Node.JsonApiMethodName.REJECT_INSTALL,
-      request => {
-        const operations = request.operations as JsonApi.Operation[];
-        expect(operations[0].op).toBe(Node.OpName.REJECT);
-        expect(operations[0].ref.type).toBe(Node.TypeName.PROPOSAL);
+    nodeProvider.onMethodRequest(JsonApi.MethodName.REJECT_INSTALL, request => {
+      const operations = request.operations as JsonApi.Operation[];
+      expect(operations[0].op).toBe(JsonApi.OpName.REJECT);
+      expect(operations[0].ref.type).toBe(JsonApi.RefType.PROPOSAL);
 
-        nodeProvider.simulateMessageFromNode({
-          meta: {
-            requestId: (request.meta as JsonApi.Meta).requestId
-          },
-          operations: [
-            {
-              op: Node.OpName.INSTALL,
-              ref: {
-                type: Node.TypeName.PROPOSAL
-              }
-            }
-          ],
-          data: {
-            type: Node.TypeName.PROPOSAL,
-            relationships: {},
-            attributes: {
-              appInstanceId: ""
+      nodeProvider.simulateMessageFromNode({
+        meta: {
+          requestId: (request.meta as JsonApi.Meta).requestId
+        },
+        operations: [
+          {
+            op: JsonApi.OpName.INSTALL,
+            ref: {
+              type: JsonApi.RefType.PROPOSAL
             }
           }
-        });
-      }
-    );
+        ],
+        data: {
+          type: JsonApi.RefType.PROPOSAL,
+          relationships: {},
+          attributes: {
+            appInstanceId: ""
+          }
+        }
+      });
+    });
 
     try {
       await provider.rejectInstall("foo");
@@ -101,9 +93,9 @@ describe("cf-wallet.js Provider", () => {
       },
       operations: [
         {
-          op: Node.OpName.INSTALL,
+          op: JsonApi.OpName.INSTALL,
           ref: {
-            type: Node.TypeName.APP
+            type: JsonApi.RefType.APP
           }
         }
       ],
@@ -139,10 +131,10 @@ describe("cf-wallet.js Provider", () => {
   describe("Node methods", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
-      nodeProvider.onMethodRequest(Node.JsonApiMethodName.INSTALL, request => {
+      nodeProvider.onMethodRequest(JsonApi.MethodName.INSTALL, request => {
         const operations = request.operations as JsonApi.Operation[];
         expect(deriveMethodName(operations[0])).toBe(
-          Node.JsonApiMethodName.INSTALL
+          JsonApi.MethodName.INSTALL
         );
         expect(operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
         const response = Object.assign(request, {
@@ -161,11 +153,11 @@ describe("cf-wallet.js Provider", () => {
       expect.assertions(7);
 
       nodeProvider.onMethodRequest(
-        Node.JsonApiMethodName.INSTALL_VIRTUAL,
+        JsonApi.MethodName.INSTALL_VIRTUAL,
         request => {
           const operations = request.operations as JsonApi.Operation[];
           expect(deriveMethodName(operations[0])).toBe(
-            Node.JsonApiMethodName.INSTALL_VIRTUAL
+            JsonApi.MethodName.INSTALL_VIRTUAL
           );
           expect(operations[0].ref.id).toBe(TEST_APP_INSTANCE_INFO.id);
           expect(
@@ -193,11 +185,11 @@ describe("cf-wallet.js Provider", () => {
       expect.assertions(2);
 
       nodeProvider.onMethodRequest(
-        Node.JsonApiMethodName.REJECT_INSTALL,
+        JsonApi.MethodName.REJECT_INSTALL,
         request => {
           const operations = request.operations as JsonApi.Operation[];
           expect(deriveMethodName(operations[0])).toBe(
-            Node.JsonApiMethodName.REJECT_INSTALL
+            JsonApi.MethodName.REJECT_INSTALL
           );
           expect(
             (operations[0].data as JsonApi.Resource).attributes.appInstanceId
@@ -216,12 +208,12 @@ describe("cf-wallet.js Provider", () => {
       expect.assertions(3);
 
       nodeProvider.onMethodRequest(
-        Node.JsonApiMethodName.CREATE_CHANNEL,
+        JsonApi.MethodName.CREATE_CHANNEL,
         request => {
           const operations = request.operations as JsonApi.Operation[];
           const data = operations[0].data as JsonApi.Resource;
           expect(deriveMethodName(operations[0])).toBe(
-            Node.JsonApiMethodName.CREATE_CHANNEL
+            JsonApi.MethodName.CREATE_CHANNEL
           );
           expect(data.attributes.owners).toEqual(TEST_XPUBS);
 
@@ -242,12 +234,12 @@ describe("cf-wallet.js Provider", () => {
       const multisigAddress = "multisig_address";
       const amount = bigNumberify(1);
 
-      nodeProvider.onMethodRequest(Node.JsonApiMethodName.DEPOSIT, request => {
+      nodeProvider.onMethodRequest(JsonApi.MethodName.DEPOSIT, request => {
         const operations = request.operations as JsonApi.Operation[];
         const data = operations[0].data as JsonApi.Resource;
 
         expect(deriveMethodName(operations[0])).toBe(
-          Node.JsonApiMethodName.DEPOSIT
+          JsonApi.MethodName.DEPOSIT
         );
         expect(data.attributes.multisigAddress).toEqual(multisigAddress);
         expect(data.attributes.amount).toEqual(amount);
@@ -264,12 +256,12 @@ describe("cf-wallet.js Provider", () => {
       const multisigAddress = "multisig_address";
       const amount = bigNumberify(1);
 
-      nodeProvider.onMethodRequest(Node.JsonApiMethodName.WITHDRAW, request => {
+      nodeProvider.onMethodRequest(JsonApi.MethodName.WITHDRAW, request => {
         const operations = request.operations as JsonApi.Operation[];
         const data = operations[0].data as JsonApi.Resource;
 
         expect(deriveMethodName(operations[0])).toBe(
-          Node.JsonApiMethodName.WITHDRAW
+          JsonApi.MethodName.WITHDRAW
         );
         expect(data.attributes.multisigAddress).toEqual(multisigAddress);
         expect(data.attributes.amount).toEqual(amount);
@@ -287,20 +279,20 @@ describe("cf-wallet.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(
-        Node.JsonApiMethodName.GET_FREE_BALANCE_STATE,
+        JsonApi.MethodName.GET_FREE_BALANCE_STATE,
         request => {
           const operations = request.operations as JsonApi.Operation[];
           const data = operations[0].data as JsonApi.Resource;
 
           expect(deriveMethodName(operations[0])).toBe(
-            Node.JsonApiMethodName.GET_FREE_BALANCE_STATE
+            JsonApi.MethodName.GET_FREE_BALANCE_STATE
           );
           expect(data.attributes.multisigAddress).toEqual(multisigAddress);
 
           const response = Object.assign(request, {
             data: {
               id: "foo",
-              type: Node.TypeName.CHANNEL,
+              type: JsonApi.RefType.CHANNEL,
               attributes: {
                 address: amount
               },
@@ -326,9 +318,9 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.simulateMessageFromNode({
         operations: [
           {
-            op: Node.OpName.REJECT,
+            op: JsonApi.OpName.REJECT,
             ref: {
-              type: Node.TypeName.PROPOSAL
+              type: JsonApi.RefType.PROPOSAL
             }
           }
         ],
@@ -348,9 +340,9 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.simulateMessageFromNode({
         operations: [
           {
-            op: Node.OpName.REJECT,
+            op: JsonApi.OpName.REJECT,
             ref: {
-              type: Node.TypeName.PROPOSAL
+              type: JsonApi.RefType.PROPOSAL
             }
           }
         ],
@@ -375,9 +367,9 @@ describe("cf-wallet.js Provider", () => {
       nodeProvider.simulateMessageFromNode({
         operations: [
           {
-            op: Node.OpName.INSTALL,
+            op: JsonApi.OpName.INSTALL,
             ref: {
-              type: Node.TypeName.APP
+              type: JsonApi.RefType.APP
             }
           }
         ],
@@ -401,9 +393,9 @@ describe("cf-wallet.js Provider", () => {
       const msg = {
         operations: [
           {
-            op: Node.OpName.REJECT,
+            op: JsonApi.OpName.REJECT,
             ref: {
-              type: Node.TypeName.PROPOSAL
+              type: JsonApi.RefType.PROPOSAL
             }
           }
         ],

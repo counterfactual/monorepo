@@ -1,4 +1,4 @@
-import { JsonApi, JsonApiINodeProvider, Node } from "@counterfactual/types";
+import { JsonApi, JsonApiINodeProvider } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 import { deriveMethodName } from "../src/utils/jsonapi";
@@ -15,7 +15,7 @@ export class TestNodeProvider implements JsonApiINodeProvider {
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
   public onMethodRequest(
-    methodName: Node.JsonApiMethodName,
+    methodName: JsonApi.MethodName,
     callback: (message: JsonApi.Document) => void
   ) {
     this.messageEmitter.on(methodName, callback);
