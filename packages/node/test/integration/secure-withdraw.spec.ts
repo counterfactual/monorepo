@@ -12,8 +12,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - withdraw", () => {
-  jest.setTimeout(30000);
-
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;

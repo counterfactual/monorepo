@@ -13,8 +13,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
-  jest.setTimeout(15000);
-
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;

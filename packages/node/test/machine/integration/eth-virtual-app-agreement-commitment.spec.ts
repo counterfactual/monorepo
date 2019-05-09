@@ -18,8 +18,6 @@ import { connectToGanache } from "./connect-ganache";
 import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
 
-const JEST_TEST_WAIT_TIME = 10000;
-
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e9;
@@ -45,8 +43,6 @@ beforeAll(async () => {
 });
 
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
