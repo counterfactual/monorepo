@@ -14,7 +14,13 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { InstallMessage, Node, NODE_EVENTS, ProposeMessage } from "../../src";
+import {
+  CreateChannelMessage,
+  InstallMessage,
+  Node,
+  NODE_EVENTS,
+  ProposeMessage
+} from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
 
@@ -448,12 +454,12 @@ export async function collateralizeChannel(
   await node2.call(depositReq.type, depositReq);
 }
 
-export async function createChannel(nodeA: Node, nodeB: Node) {
+export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   return new Promise(async (resolve, reject) => {
-    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
-      resolve();
+      resolve(msg.data.multisigAddress);
     });
 
     await getMultisigCreationTransactionHash(nodeA, [

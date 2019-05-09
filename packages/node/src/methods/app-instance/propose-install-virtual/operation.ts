@@ -1,7 +1,7 @@
 import { Address, Node } from "@counterfactual/types";
 
-import { StateChannel, virtualChannelKey } from "../../../machine";
-import { ProposedAppInstanceInfo } from "../../../models";
+import { virtualChannelKey } from "../../../machine";
+import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
 import { ERRORS } from "../../errors";
