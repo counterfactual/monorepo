@@ -8,7 +8,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { setup } from "./setup";
 import { createChannel, generateUninstallRequest } from "./utils";
 
-describe("Node method follows spec - fails with improper action taken", () => {
+describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;
   let nodeB: Node;
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
