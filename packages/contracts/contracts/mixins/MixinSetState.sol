@@ -41,8 +41,9 @@ contract MixinSetState is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.ON,
-      "setState was called on an app that is either in DISPUTE or OFF"
+      challenge.status == AppStatus.ON ||
+      (challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number),
+      "setState was called on an app that has already been finalized"
     );
 
     if (msg.sender != appIdentity.owner) {
