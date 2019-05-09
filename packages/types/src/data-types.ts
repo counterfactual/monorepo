@@ -12,8 +12,8 @@ export type AppInstanceInfo = {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  proposedByIdentifier: Address;
-  proposedToIdentifier: Address;
+  proposedByIdentifier: string; // xpub
+  proposedToIdentifier: string; // xpub
   intermediaries?: Address[];
 };
 
