@@ -54,8 +54,9 @@ contract MixinSetStateWithAction is
     );
 
     require(
-      challenge.status == AppStatus.ON,
-      "setStateWithAction was called on an app that is either in DISPUTE or OFF"
+      challenge.status == AppStatus.ON ||
+      (challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number),
+      "setStateWithAction was called on an app that has already been finalized"
     );
 
     require(
