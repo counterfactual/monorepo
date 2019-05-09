@@ -155,7 +155,7 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   function getWinningAmounts(uint256 num1, uint256 num2, uint256 termsLimit)
-    public
+    internal
     pure
     returns (uint256[] memory)
   {
@@ -176,7 +176,7 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   function highRoller(bytes32 randomness)
-    public
+    internal
     pure
     returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
   {
@@ -187,7 +187,7 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   function calculateRandomSalt(uint256 num1, uint256 num2)
-    public
+    internal
     pure
     returns (bytes32)
   {
@@ -204,7 +204,7 @@ contract HighRollerApp is CounterfactualApp {
   ///      variable when being read by `mload`. We point to the start of each
   ///      string (e.g., 0x08, 0x10) by incrementing by 8 bytes each time.
   function cutBytes32(bytes32 h)
-    public
+    internal
     pure
     returns (bytes8 q1, bytes8 q2, bytes8 q3, bytes8 q4)
   {
@@ -222,7 +222,7 @@ contract HighRollerApp is CounterfactualApp {
   /// @param q The bytes8 to convert
   /// @dev Splits this by using modulo 6 to get the uint
   function bytes8toDiceRoll(bytes8 q)
-    public
+    internal
     pure
     returns (uint8)
   {
