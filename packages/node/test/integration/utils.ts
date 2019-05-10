@@ -554,6 +554,31 @@ export function makeInstallCall(node: Node, appInstanceId: string) {
   node.emit(installRequest.type, installRequest);
 }
 
+export async function makeVirtualProposeCall(
+  nodeA: Node,
+  nodeC: Node,
+  nodeB: Node
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallVirtualParams;
+}> {
+  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
+    nodeA.publicIdentifier,
+    nodeC.publicIdentifier,
+    [nodeB.publicIdentifier],
+    global["networkContext"].TicTacToe
+  );
+  const response = await nodeA.call(
+    virtualAppInstanceProposalRequest.type,
+    virtualAppInstanceProposalRequest
+  );
+  return {
+    appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
+      .appInstanceId,
+    params: virtualAppInstanceProposalRequest.params as NodeTypes.ProposeInstallVirtualParams
+  };
+}
+
 export async function makeProposeCall(
   nodeA: Node,
   nodeB: Node
