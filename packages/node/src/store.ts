@@ -14,14 +14,15 @@ import {
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
+import { Transaction } from "./machine";
+import { ERRORS } from "./methods/errors";
 import {
   AppInstance,
+  ProposedAppInstanceInfo,
+  ProposedAppInstanceInfoJSON,
   StateChannel,
-  StateChannelJSON,
-  Transaction
-} from "./machine";
-import { ERRORS } from "./methods/errors";
-import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
+  StateChannelJSON
+} from "./models";
 import { debugLog } from "./node";
 import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";

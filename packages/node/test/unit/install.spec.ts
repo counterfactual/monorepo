@@ -8,11 +8,11 @@ import { anything, instance, mock, when } from "ts-mockito";
 
 import {
   InstructionExecutor,
-  StateChannel,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
+import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";

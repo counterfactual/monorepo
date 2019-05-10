@@ -1,11 +1,11 @@
 import {
   Protocol,
   SetupParams,
-  StateChannel,
   TakeActionParams,
   UninstallVirtualAppParams,
   WithdrawParams
 } from "../../machine";
+import { StateChannel } from "../../models";
 import { RequestHandler } from "../../request-handler";
 import {
   CreateChannelMessage,

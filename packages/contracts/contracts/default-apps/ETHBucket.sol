@@ -39,16 +39,16 @@ contract ETHBucket is CounterfactualApp {
     );
   }
 
-  function isStateTerminal(bytes memory)
-    public
+  function isStateTerminal(bytes calldata)
+    external
     pure
     returns (bool)
   {
     revert("Not implemented");
   }
 
-  function getTurnTaker(bytes memory, address[] memory)
-    public
+  function getTurnTaker(bytes calldata, address[] calldata)
+    external
     pure
     returns (address)
   {

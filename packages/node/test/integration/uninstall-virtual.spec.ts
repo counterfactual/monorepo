@@ -23,7 +23,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
-  jest.setTimeout(80000);
+  jest.setTimeout(10000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;

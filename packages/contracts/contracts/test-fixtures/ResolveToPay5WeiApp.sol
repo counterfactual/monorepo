@@ -33,24 +33,8 @@ contract ResolveToPay5WeiApp is CounterfactualApp {
     );
   }
 
-  function isStateTerminal(bytes memory)
-    public
-    pure
-    returns (bool)
-  {
-    revert("Not implemented");
-  }
-
-  function getTurnTaker(bytes memory, address[] memory)
-    public
-    pure
-    returns (address)
-  {
-    revert("Not implemented");
-  }
-
-  function applyAction(bytes memory encodedState, bytes memory)
-    public
+  function applyAction(bytes calldata encodedState, bytes calldata)
+    external
     pure
     returns (bytes memory)
   {

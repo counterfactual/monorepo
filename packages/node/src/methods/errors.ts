@@ -44,5 +44,7 @@ export const ERRORS = {
   WITHDRAWAL_FAILED: "Failed to withdraw funds out of the multisig contract",
   NO_CHANNEL_BETWEEN_NODES: (nodeA: string, nodeB: string) =>
     `No channel exists between the current user ${nodeA} and the peer ${nodeB}`,
-  VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance"
+  VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance",
+  CANNOT_UNINSTALL_FREE_BALANCE: (multisigAddress: string) =>
+    `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`
 };

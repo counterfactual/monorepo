@@ -9,7 +9,6 @@ import {
 } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
-  jest.setTimeout(30000);
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
