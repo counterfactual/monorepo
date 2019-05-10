@@ -18,7 +18,9 @@ import {
   CreateChannelMessage,
   Node,
   NODE_EVENTS,
-  ProposeMessage
+  ProposeMessage,
+  InstallVirtualMessage,
+  ProposeVirtualMessage
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
@@ -473,6 +475,35 @@ export async function installTTTApp(
   });
 }
 
+export async function installTTTAppVirtual(
+  nodeA: Node,
+  nodeB: Node,
+  nodeC: Node,
+  initialState?: SolidityABIEncoderV2Type
+): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    nodeA.on(
+      NODE_EVENTS.INSTALL_VIRTUAL,
+      async (msg: InstallVirtualMessage) => {
+        resolve(msg.data.params.appInstanceId);
+      }
+    );
+
+    nodeC.on(
+      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+      (msg: ProposeVirtualMessage) => {
+        const installReq = makeInstallVirtualRequest(
+          msg.data.appInstanceId,
+          msg.data.params.intermediaries
+        );
+        nodeC.emit(installReq.type, installReq);
+      }
+    );
+
+    await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+  });
+}
+
 export async function confirmChannelCreation(
   nodeA: Node,
   nodeB: Node,
@@ -516,7 +547,10 @@ export async function makeTTTVirtualProposal(
   nodeA: Node,
   nodeC: Node,
   nodeB: Node
-) {
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallVirtualParams;
+}> {
   const virtualAppInstanceProposalRequest: NodeTypes.MethodRequest = makeTTTVirtualProposalRequest(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
@@ -526,7 +560,7 @@ export async function makeTTTVirtualProposal(
     One,
     Zero
   );
-  const params = virtualAppInstanceProposalRequest.params;
+  const params = virtualAppInstanceProposalRequest.params as NodeTypes.ProposeInstallVirtualParams;
   const response = await nodeA.call(
     virtualAppInstanceProposalRequest.type,
     virtualAppInstanceProposalRequest
