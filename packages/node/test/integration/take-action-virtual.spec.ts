@@ -9,6 +9,7 @@ import { ERRORS } from "../../src/methods/errors";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
+import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
   createChannel,
@@ -39,16 +40,6 @@ describe("Node method follows spec - takeAction virtual", () => {
     "Node A and C install an AppInstance via Node B, Node A takes action, " +
       "Node C confirms receipt of state update",
     () => {
-      const validAction = {
-        actionType: 0,
-        playX: 0,
-        playY: 0,
-        winClaim: {
-          winClaimType: 0,
-          idx: 0
-        }
-      };
-
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 

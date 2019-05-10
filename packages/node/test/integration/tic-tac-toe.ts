@@ -6,6 +6,16 @@ export const tttStateEncoding =
 export const tttActionEncoding =
   "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
 
+export const validAction = {
+  actionType: 0,
+  playX: 0,
+  playY: 0,
+  winClaim: {
+    winClaimType: 0,
+    idx: 0
+  }
+};
+
 export function initialEmptyTTTState(
   playerAddresses: string[]
 ): SolidityABIEncoderV2Type {
