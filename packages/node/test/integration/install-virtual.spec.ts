@@ -18,7 +18,7 @@ import {
   getApps,
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest,
+  makeTTTVirtualProposalRequest,
   makeInstallVirtualRequest,
   sleep
 } from "./utils";
@@ -88,7 +88,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   msg.data.multisigAddress
                 );
 
-                const virtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+                const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
                   nodeA.publicIdentifier,
                   nodeC.publicIdentifier,
                   [nodeB.publicIdentifier],

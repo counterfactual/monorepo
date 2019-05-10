@@ -19,7 +19,7 @@ import {
   getMultisigCreationTransactionHash,
   getProposedAppInstances,
   makeInstallVirtualRequest,
-  makeTTTVirtualAppInstanceProposalReq
+  makeTTTVirtualProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
@@ -46,11 +46,6 @@ describe("Node method follows spec - uninstall virtual", () => {
       "then Node A uninstalls the installed AppInstance",
     () => {
       it("sends uninstall ", async done => {
-        const stateEncoding =
-          "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
-        const actionEncoding =
-          "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
-
         const initialState = {
           players: [
             xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
@@ -63,15 +58,12 @@ describe("Node method follows spec - uninstall virtual", () => {
 
         nodeA.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
           nodeC.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
-            const installVirtualAppInstanceProposalRequest = makeTTTVirtualAppInstanceProposalReq(
+            const installVirtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
+              nodeA.publicIdentifier,
               nodeC.publicIdentifier,
+              [nodeB.publicIdentifier],
               global["networkContext"].TicTacToe,
-              initialState,
-              {
-                stateEncoding,
-                actionEncoding
-              },
-              [nodeB.publicIdentifier]
+              initialState
             );
 
             nodeC.on(

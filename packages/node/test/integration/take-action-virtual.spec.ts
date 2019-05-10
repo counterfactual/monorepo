@@ -18,7 +18,7 @@ import {
   generateTakeActionRequest,
   getMultisigCreationTransactionHash,
   makeInstallVirtualRequest,
-  makeTTTVirtualAppInstanceProposalReq
+  makeTTTVirtualProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
@@ -40,14 +40,9 @@ describe("Node method follows spec - takeAction virtual", () => {
   });
 
   describe(
-    "Node A and C install an AppInstance through Node B, Node A takes action, " +
+    "Node A and C install an AppInstance via Node B, Node A takes action, " +
       "Node C confirms receipt of state update",
     () => {
-      const stateEncoding =
-        "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)";
-      const actionEncoding =
-        "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
-
       const initialState = {
         players: [AddressZero, AddressZero],
         turnNum: 0,
@@ -78,15 +73,12 @@ describe("Node method follows spec - takeAction virtual", () => {
 
         nodeA.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
           nodeC.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
-            const tttAppInstanceProposalReq = makeTTTVirtualAppInstanceProposalReq(
+            const tttAppInstanceProposalReq = makeTTTVirtualProposalRequest(
+              nodeA.publicIdentifier,
               nodeC.publicIdentifier,
+              [nodeB.publicIdentifier],
               global["networkContext"].TicTacToe,
-              initialState,
-              {
-                stateEncoding,
-                actionEncoding
-              },
-              [nodeB.publicIdentifier]
+              initialState
             );
 
             let newState;
