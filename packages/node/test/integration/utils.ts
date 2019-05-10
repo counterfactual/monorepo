@@ -580,3 +580,10 @@ export async function makeProposeCall(
     params: appInstanceProposalReq.params as NodeTypes.ProposeInstallParams
   };
 }
+
+export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
+  appInstances.forEach((appInstance: AppInstanceInfo) => {
+    delete appInstance.myDeposit;
+    delete appInstance.peerDeposit;
+  });
+}

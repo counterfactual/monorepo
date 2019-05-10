@@ -15,7 +15,8 @@ import {
   getProposedAppInstanceInfo,
   makeInstallCall,
   makeProposeCall,
-  makeTTTProposalRequest
+  makeTTTProposalRequest,
+  sanitizeAppInstances
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -53,19 +54,15 @@ describe("Node method follows spec - proposeInstall", () => {
         });
 
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const appInstanceNodeA = (await getInstalledAppInstances(nodeA))[0];
-          const appInstanceNodeB = (await getInstalledAppInstances(nodeB))[0];
+          const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
+          const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
 
           expect(appInstanceNodeA.myDeposit).toEqual(One);
           expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
           expect(appInstanceNodeB.myDeposit).toEqual(Zero);
           expect(appInstanceNodeB.peerDeposit).toEqual(One);
 
-          delete appInstanceNodeA.myDeposit;
-          delete appInstanceNodeA.peerDeposit;
-          delete appInstanceNodeB.myDeposit;
-          delete appInstanceNodeB.peerDeposit;
-
+          sanitizeAppInstances([appInstanceNodeA, appInstanceNodeB]);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
           done();
         });
