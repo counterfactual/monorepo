@@ -511,3 +511,28 @@ export function playerAddresses(nodes: Node[]): string[] {
     return xkeyKthAddress(node.publicIdentifier, 0);
   });
 }
+
+export async function makeTTTVirtualProposal(
+  nodeA: Node,
+  nodeC: Node,
+  nodeB: Node
+) {
+  const virtualAppInstanceProposalRequest: NodeTypes.MethodRequest = makeTTTVirtualProposalRequest(
+    nodeA.publicIdentifier,
+    nodeC.publicIdentifier,
+    [nodeB.publicIdentifier],
+    global["networkContext"].TicTacToe,
+    {},
+    One,
+    Zero
+  );
+  const params = virtualAppInstanceProposalRequest.params;
+  const response = await nodeA.call(
+    virtualAppInstanceProposalRequest.type,
+    virtualAppInstanceProposalRequest
+  );
+  const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
+    .appInstanceId;
+  expect(appInstanceId).toBeDefined();
+  return { appInstanceId, params };
+}

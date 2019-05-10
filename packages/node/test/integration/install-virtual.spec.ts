@@ -4,7 +4,6 @@ import { One, Zero } from "ethers/constants";
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import {
-  CreateChannelMessage,
   InstallVirtualMessage,
   NODE_EVENTS,
   ProposeVirtualMessage
@@ -15,12 +14,11 @@ import { setup } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode,
+  createChannel,
   getApps,
-  getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeTTTVirtualProposalRequest,
   makeInstallVirtualRequest,
-  sleep
+  makeTTTVirtualProposal
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -45,143 +43,76 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        let abChannelMultisigAddress;
-        let bcChannelMultisigAddress;
+        const multisigAddressAB = await createChannel(nodeA, nodeB);
+        const multisigAddressBC = await createChannel(nodeB, nodeC);
 
-        nodeB.once(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (msg: CreateChannelMessage) => {
-            abChannelMultisigAddress = msg.data.multisigAddress;
-          }
-        );
+        await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
+        await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
+        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
         nodeA.once(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (msg: CreateChannelMessage) => {
-            while (!abChannelMultisigAddress) {
-              console.log("Waiting for Node A and B to sync on new channel");
-              await sleep(500);
-            }
+          NODE_EVENTS.INSTALL_VIRTUAL,
+          async (msg: InstallVirtualMessage) => {
+            const virtualAppInstanceNodeA = (await getApps(
+              nodeA,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
 
-            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
+            const virtualAppInstanceNodeC = (await getApps(
+              nodeC,
+              APP_INSTANCE_STATUS.INSTALLED
+            ))[0];
 
-            nodeB.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (msg: CreateChannelMessage) => {
-                bcChannelMultisigAddress = msg.data.multisigAddress;
-              }
-            );
+            expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
+            expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
+            expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
+            expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
 
-            nodeC.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (msg: CreateChannelMessage) => {
-                while (!bcChannelMultisigAddress) {
-                  console.log(
-                    "Waiting for Node B and C to sync on new channel"
-                  );
-                  await sleep(500);
-                }
+            delete virtualAppInstanceNodeA.myDeposit;
+            delete virtualAppInstanceNodeA.peerDeposit;
+            delete virtualAppInstanceNodeC.myDeposit;
+            delete virtualAppInstanceNodeC.peerDeposit;
 
-                await collateralizeChannel(
-                  nodeB,
-                  nodeC,
-                  msg.data.multisigAddress
-                );
-
-                const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
-                  nodeA.publicIdentifier,
-                  nodeC.publicIdentifier,
-                  [nodeB.publicIdentifier],
-                  global["networkContext"].TicTacToe,
-                  {},
-                  One,
-                  Zero
-                );
-
-                nodeA.once(
-                  NODE_EVENTS.INSTALL_VIRTUAL,
-                  async (msg: InstallVirtualMessage) => {
-                    const virtualAppInstanceNodeA = (await getApps(
-                      nodeA,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    const virtualAppInstanceNodeC = (await getApps(
-                      nodeC,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
-                    expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
-                    expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
-                    expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
-
-                    delete virtualAppInstanceNodeA.myDeposit;
-                    delete virtualAppInstanceNodeA.peerDeposit;
-                    delete virtualAppInstanceNodeC.myDeposit;
-                    delete virtualAppInstanceNodeC.peerDeposit;
-
-                    expect(virtualAppInstanceNodeA).toEqual(
-                      virtualAppInstanceNodeC
-                    );
-                    done();
-                  }
-                );
-
-                nodeC.once(
-                  NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-                  async (msg: ProposeVirtualMessage) => {
-                    const proposedAppInstanceA = (await getProposedAppInstances(
-                      nodeA
-                    ))[0];
-                    const proposedAppInstanceC = (await getProposedAppInstances(
-                      nodeC
-                    ))[0];
-
-                    confirmProposedVirtualAppInstanceOnNode(
-                      virtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceA
-                    );
-                    confirmProposedVirtualAppInstanceOnNode(
-                      virtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC,
-                      true
-                    );
-
-                    expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
-                      nodeA.publicIdentifier
-                    );
-                    expect(proposedAppInstanceA.id).toEqual(
-                      proposedAppInstanceC.id
-                    );
-
-                    const installVirtualReq = makeInstallVirtualRequest(
-                      msg.data.appInstanceId,
-                      msg.data.params.intermediaries
-                    );
-                    nodeC.emit(installVirtualReq.type, installVirtualReq);
-                  }
-                );
-
-                const response = await nodeA.call(
-                  virtualAppInstanceProposalRequest.type,
-                  virtualAppInstanceProposalRequest
-                );
-                const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-                  .appInstanceId;
-                expect(appInstanceId).toBeDefined();
-              }
-            );
-            await getMultisigCreationTransactionHash(nodeB, [
-              nodeB.publicIdentifier,
-              nodeC.publicIdentifier
-            ]);
+            expect(virtualAppInstanceNodeA).toEqual(virtualAppInstanceNodeC);
+            done();
           }
         );
-        await getMultisigCreationTransactionHash(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+
+        nodeC.once(
+          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          async (msg: ProposeVirtualMessage) => {
+            const proposedAppInstanceA = (await getProposedAppInstances(
+              nodeA
+            ))[0];
+            const proposedAppInstanceC = (await getProposedAppInstances(
+              nodeC
+            ))[0];
+
+            confirmProposedVirtualAppInstanceOnNode(
+              proposalParams,
+              proposedAppInstanceA
+            );
+            confirmProposedVirtualAppInstanceOnNode(
+              proposalParams,
+              proposedAppInstanceC,
+              true
+            );
+
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
+              nodeA.publicIdentifier
+            );
+            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
+
+            const installVirtualReq = makeInstallVirtualRequest(
+              msg.data.appInstanceId,
+              msg.data.params.intermediaries
+            );
+            nodeC.emit(installVirtualReq.type, installVirtualReq);
+          }
+        );
+
+        const result = await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+        proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
       });
     }
   );
