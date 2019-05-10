@@ -500,7 +500,7 @@ export async function installTTTAppVirtual(
       }
     );
 
-    await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+    await makeTTTVirtualProposal(nodeA, nodeC, nodeB, initialState);
   });
 }
 
@@ -546,7 +546,8 @@ export function playerAddresses(nodes: Node[]): string[] {
 export async function makeTTTVirtualProposal(
   nodeA: Node,
   nodeC: Node,
-  nodeB: Node
+  nodeB: Node,
+  initialState: SolidityABIEncoderV2Type = {}
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -556,7 +557,7 @@ export async function makeTTTVirtualProposal(
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
     global["networkContext"].TicTacToe,
-    {},
+    initialState,
     One,
     Zero
   );
