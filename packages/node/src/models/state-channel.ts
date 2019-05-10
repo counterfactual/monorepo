@@ -441,7 +441,7 @@ export class StateChannel {
     }
     if (updatedBobBalance.lt(Zero)) {
       throw Error(
-        `\n${bob} cannot install virtual app agreement instance. Its balance in channel with ${alice} is insufficient ${formatEther(
+        `\n${bob} cannot install virtual app agreement instance. Its balance in channel with ${alice} is insufficient by ${formatEther(
           bobBalance.sub(updatedBobBalance)
         )}`
       );

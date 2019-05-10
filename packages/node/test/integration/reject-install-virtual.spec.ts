@@ -11,10 +11,10 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { setup } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
-  getMultisigCreationTransactionHash,
+  createChannel,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest,
-  makeRejectInstallRequest
+  makeRejectInstallRequest,
+  makeVirtualProposeCall
 } from "./utils";
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
@@ -39,81 +39,47 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       "Virtual AppInstance with Node C. Node C rejects proposal. Node A confirms rejection",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
-          nodeC.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
-            const intermediaries = [nodeB.publicIdentifier];
-            const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-              nodeC.publicIdentifier,
-              intermediaries
+        await createChannel(nodeA, nodeB);
+        await createChannel(nodeB, nodeC);
+        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
+
+        nodeA.on(
+          NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
+          async (msg: RejectProposalMessage) => {
+            expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
+            done();
+          }
+        );
+
+        nodeC.on(
+          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          async (msg: ProposeVirtualMessage) => {
+            const { appInstanceId } = msg.data;
+            const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
+            const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
+
+            confirmProposedVirtualAppInstanceOnNode(
+              proposalParams,
+              proposedAppInstanceA
+            );
+            confirmProposedVirtualAppInstanceOnNode(
+              proposalParams,
+              proposedAppInstanceC
             );
 
-            nodeA.on(
-              NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
-              async (msg: RejectProposalMessage) => {
-                expect((await getProposedAppInstances(nodeA)).length).toEqual(
-                  0
-                );
-                done();
-              }
+            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
+              nodeA.publicIdentifier
             );
+            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
 
-            nodeC.on(
-              NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-              async (msg: ProposeVirtualMessage) => {
-                const proposedAppInstanceA = (await getProposedAppInstances(
-                  nodeA
-                ))[0];
-                const proposedAppInstanceC = (await getProposedAppInstances(
-                  nodeC
-                ))[0];
+            const rejectReq = makeRejectInstallRequest(appInstanceId);
+            await nodeC.call(rejectReq.type, rejectReq);
+            expect((await getProposedAppInstances(nodeC)).length).toEqual(0);
+          }
+        );
 
-                confirmProposedVirtualAppInstanceOnNode(
-                  installVirtualAppInstanceProposalRequest.params,
-                  proposedAppInstanceA
-                );
-                confirmProposedVirtualAppInstanceOnNode(
-                  installVirtualAppInstanceProposalRequest.params,
-                  proposedAppInstanceC
-                );
-
-                expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
-                  nodeA.publicIdentifier
-                );
-                expect(proposedAppInstanceA.id).toEqual(
-                  proposedAppInstanceC.id
-                );
-
-                const rejectReq = makeRejectInstallRequest(
-                  msg.data.appInstanceId
-                );
-
-                await nodeC.call(rejectReq.type, rejectReq);
-
-                expect((await getProposedAppInstances(nodeC)).length).toEqual(
-                  0
-                );
-              }
-            );
-
-            const response = await nodeA.call(
-              installVirtualAppInstanceProposalRequest.type,
-              installVirtualAppInstanceProposalRequest
-            );
-            const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-              .appInstanceId;
-            expect(appInstanceId).toBeDefined();
-          });
-
-          await getMultisigCreationTransactionHash(nodeB, [
-            nodeB.publicIdentifier,
-            nodeC.publicIdentifier
-          ]);
-        });
-
-        await getMultisigCreationTransactionHash(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const result = await makeVirtualProposeCall(nodeA, nodeC, nodeB);
+        proposalParams = result.params;
       });
     }
   );

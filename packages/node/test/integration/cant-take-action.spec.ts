@@ -1,21 +1,12 @@
-import { Node as NodeTypes } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
-
-import { InstallMessage, Node, NODE_EVENTS, ProposeMessage } from "../../src";
+import { Node } from "../../src";
 import { ERRORS } from "../../src/methods/errors";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
-  initialEmptyTTTState,
-  tttActionEncoding,
-  tttStateEncoding
-} from "./tic-tac-toe";
-import {
+  createChannel,
   generateTakeActionRequest,
-  getMultisigCreationTransactionHash,
-  makeInstallRequest,
-  makeTTTAppInstanceProposalReq
+  installTTTApp
 } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
@@ -45,43 +36,20 @@ describe("Node method follows spec - fails with improper action taken", () => {
           idx: 0
         }
       };
+      await createChannel(nodeA, nodeB);
+      const appInstanceId = await installTTTApp(nodeA, nodeB);
 
-      nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
-        const tttAppInstanceProposalReq = makeTTTAppInstanceProposalReq(
-          nodeB.publicIdentifier,
-          global["networkContext"].TicTacToe,
-          initialEmptyTTTState([AddressZero, AddressZero]),
-          {
-            stateEncoding: tttStateEncoding,
-            actionEncoding: tttActionEncoding
-          }
-        );
+      const takeActionReq = generateTakeActionRequest(
+        appInstanceId,
+        validAction
+      );
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-          const takeActionReq = generateTakeActionRequest(
-            msg.data.params.appInstanceId,
-            validAction
-          );
-
-          try {
-            await nodeA.call(takeActionReq.type, takeActionReq);
-          } catch (e) {
-            expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
-            done();
-          }
-        });
-
-        nodeB.on(NodeTypes.EventName.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-          const installReq = makeInstallRequest(msg.data.appInstanceId);
-          nodeB.emit(installReq.type, installReq);
-        });
-
-        nodeA.emit(tttAppInstanceProposalReq.type, tttAppInstanceProposalReq);
-      });
-      await getMultisigCreationTransactionHash(nodeA, [
-        nodeA.publicIdentifier,
-        nodeB.publicIdentifier
-      ]);
+      try {
+        await nodeA.call(takeActionReq.type, takeActionReq);
+      } catch (e) {
+        expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
+        done();
+      }
     });
   });
 });

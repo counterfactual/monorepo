@@ -1,13 +1,13 @@
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 
-import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
+import { Node } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
+  createChannel,
   getFreeBalanceState,
-  getMultisigCreationTransactionHash,
   makeDepositRequest
 } from "./utils";
 
@@ -29,35 +29,21 @@ describe("Node method follows spec - deposit", () => {
     firebaseServiceFactory.closeServiceConnections();
   });
 
-  it("has the right balance for both parties after deposits", async done => {
-    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
-      const { multisigAddress } = msg.data;
-      const depositReq = makeDepositRequest(multisigAddress, One);
+  it("has the right balance for both parties after deposits", async () => {
+    const multisigAddress = await createChannel(nodeA, nodeB);
+    const depositReq = makeDepositRequest(multisigAddress, One);
 
-      const preDepositBalance = await provider.getBalance(multisigAddress);
+    const preDepositBalance = await provider.getBalance(multisigAddress);
+    await nodeA.call(depositReq.type, depositReq);
+    await nodeB.call(depositReq.type, depositReq);
 
-      await nodeA.call(depositReq.type, depositReq);
+    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+      preDepositBalance.add(2).toNumber()
+    );
 
-      await nodeB.call(depositReq.type, depositReq);
-
-      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-        preDepositBalance.add(2).toNumber()
-      );
-
-      const freeBalanceState = await getFreeBalanceState(
-        nodeA,
-        multisigAddress
-      );
-
-      for (const key in freeBalanceState) {
-        expect(freeBalanceState[key]).toEqual(One);
-      }
-
-      done();
-    });
-    await getMultisigCreationTransactionHash(nodeA, [
-      nodeA.publicIdentifier,
-      nodeB.publicIdentifier
-    ]);
+    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+    for (const key in freeBalanceState) {
+      expect(freeBalanceState[key]).toEqual(One);
+    }
   });
 });
