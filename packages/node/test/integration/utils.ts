@@ -536,3 +536,15 @@ export async function makeTTTVirtualProposal(
   expect(appInstanceId).toBeDefined();
   return { appInstanceId, params };
 }
+
+export function installTTTVirtual(
+  node: Node,
+  appInstanceId: string,
+  intermediaries: string[]
+) {
+  const installVirtualReq = makeInstallVirtualRequest(
+    appInstanceId,
+    intermediaries
+  );
+  node.emit(installVirtualReq.type, installVirtualReq);
+}

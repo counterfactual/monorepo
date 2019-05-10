@@ -13,11 +13,11 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { setup } from "./setup";
 import {
   collateralizeChannel,
-  confirmProposedVirtualAppInstanceOnNode,
+  confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
   createChannel,
   getApps,
   getProposedAppInstances,
-  makeInstallVirtualRequest,
+  installTTTVirtual,
   makeTTTVirtualProposal
 } from "./utils";
 
@@ -53,27 +53,27 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeA.once(
           NODE_EVENTS.INSTALL_VIRTUAL,
           async (msg: InstallVirtualMessage) => {
-            const virtualAppInstanceNodeA = (await getApps(
+            const [virtualAppNodeA] = await getApps(
               nodeA,
               APP_INSTANCE_STATUS.INSTALLED
-            ))[0];
+            );
 
-            const virtualAppInstanceNodeC = (await getApps(
+            const [virtualAppNodeC] = await getApps(
               nodeC,
               APP_INSTANCE_STATUS.INSTALLED
-            ))[0];
+            );
 
-            expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
-            expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
-            expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
-            expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
+            expect(virtualAppNodeA.myDeposit).toEqual(One);
+            expect(virtualAppNodeA.peerDeposit).toEqual(Zero);
+            expect(virtualAppNodeC.myDeposit).toEqual(Zero);
+            expect(virtualAppNodeC.peerDeposit).toEqual(One);
 
-            delete virtualAppInstanceNodeA.myDeposit;
-            delete virtualAppInstanceNodeA.peerDeposit;
-            delete virtualAppInstanceNodeC.myDeposit;
-            delete virtualAppInstanceNodeC.peerDeposit;
+            delete virtualAppNodeA.myDeposit;
+            delete virtualAppNodeA.peerDeposit;
+            delete virtualAppNodeC.myDeposit;
+            delete virtualAppNodeC.peerDeposit;
 
-            expect(virtualAppInstanceNodeA).toEqual(virtualAppInstanceNodeC);
+            expect(virtualAppNodeA).toEqual(virtualAppNodeC);
             done();
           }
         );
@@ -81,33 +81,23 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeC.once(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           async (msg: ProposeVirtualMessage) => {
-            const proposedAppInstanceA = (await getProposedAppInstances(
-              nodeA
-            ))[0];
-            const proposedAppInstanceC = (await getProposedAppInstances(
-              nodeC
-            ))[0];
+            const { appInstanceId } = msg.data;
+            const { intermediaries } = msg.data.params;
+            const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
+            const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(proposalParams, proposedAppNodeA);
+            confirmProposedVirtualAppInstance(
               proposalParams,
-              proposedAppInstanceA
-            );
-            confirmProposedVirtualAppInstanceOnNode(
-              proposalParams,
-              proposedAppInstanceC,
+              proposedAppNodeC,
               true
             );
 
-            expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
+            expect(proposedAppNodeC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
-            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
-
-            const installVirtualReq = makeInstallVirtualRequest(
-              msg.data.appInstanceId,
-              msg.data.params.intermediaries
-            );
-            nodeC.emit(installVirtualReq.type, installVirtualReq);
+            expect(proposedAppNodeA.id).toEqual(proposedAppNodeC.id);
+            installTTTVirtual(nodeC, appInstanceId, intermediaries);
           }
         );
 
