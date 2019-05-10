@@ -548,3 +548,35 @@ export function installTTTVirtual(
   );
   node.emit(installVirtualReq.type, installVirtualReq);
 }
+
+export function makeInstallCall(node: Node, appInstanceId: string) {
+  const installRequest = makeInstallRequest(appInstanceId);
+  node.emit(installRequest.type, installRequest);
+}
+
+export async function makeProposeCall(
+  nodeA: Node,
+  nodeB: Node
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallParams;
+}> {
+  const appInstanceProposalReq = makeTTTProposalRequest(
+    nodeA.publicIdentifier,
+    nodeB.publicIdentifier,
+    global["networkContext"].TicTacToe,
+    {},
+    One,
+    Zero
+  );
+
+  const response = await nodeA.call(
+    appInstanceProposalReq.type,
+    appInstanceProposalReq
+  );
+  return {
+    appInstanceId: (response.result as NodeTypes.ProposeInstallResult)
+      .appInstanceId,
+    params: appInstanceProposalReq.params as NodeTypes.ProposeInstallParams
+  };
+}
