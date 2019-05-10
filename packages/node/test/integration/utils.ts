@@ -201,34 +201,31 @@ export function makeRejectInstallRequest(
   };
 }
 
-export function makeInstallProposalRequest(
+export function makeTTTProposalRequest(
+  proposedByIdentifier: string,
   proposedToIdentifier: string,
-  nullInitialState: boolean = false,
+  appId: string,
+  state: SolidityABIEncoderV2Type = {},
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
-  let initialState;
-
-  if (!nullInitialState) {
-    initialState = {
-      players: [AddressZero, AddressZero],
-      turnNum: 0,
-      winner: 0,
-      board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
-    } as SolidityABIEncoderV2Type;
-  }
+  const initialState =
+    Object.keys(state).length !== 0
+      ? state
+      : initialEmptyTTTState([
+          xkeyKthAddress(proposedByIdentifier, 0),
+          xkeyKthAddress(proposedToIdentifier, 0)
+        ]);
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
-    initialState,
     myDeposit,
     peerDeposit,
-    appId: AddressZero,
+    appId,
+    initialState,
     abiEncodings: {
-      stateEncoding:
-        "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)",
-      actionEncoding:
-        "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)"
+      stateEncoding: tttStateEncoding,
+      actionEncoding: tttActionEncoding
     } as AppABIEncodings,
     asset: {
       assetType: AssetType.ETH
@@ -237,30 +234,6 @@ export function makeInstallProposalRequest(
   };
   return {
     params,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL
-  } as NodeTypes.MethodRequest;
-}
-
-export function makeTTTProposalReq(
-  proposedToIdentifier: string,
-  appId: Address,
-  initialState: SolidityABIEncoderV2Type,
-  abiEncodings: AppABIEncodings
-): NodeTypes.MethodRequest {
-  return {
-    params: {
-      proposedToIdentifier,
-      appId,
-      initialState,
-      abiEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      },
-      myDeposit: Zero,
-      peerDeposit: Zero,
-      timeout: One
-    } as NodeTypes.ProposeInstallParams,
     requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
@@ -281,15 +254,19 @@ export function makeInstallVirtualRequest(
 }
 
 export function makeInstallVirtualProposalRequest(
+  proposedByIdentifier: string,
   proposedToIdentifier: string,
   intermediaries: string[],
-  nullInitialState: boolean = false,
+  appId: string,
+  initialState: SolidityABIEncoderV2Type = {},
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
-  const installProposalParams = makeInstallProposalRequest(
+  const installProposalParams = makeTTTProposalRequest(
+    proposedByIdentifier,
     proposedToIdentifier,
-    nullInitialState,
+    appId,
+    initialState,
     myDeposit,
     peerDeposit
   ).params as NodeTypes.ProposeInstallParams;
@@ -482,14 +459,11 @@ export async function installTTTApp(
       ]);
 
   return new Promise(async (resolve, reject) => {
-    const appInstanceInstallationProposalRequest = makeTTTProposalReq(
+    const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+      nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       global["networkContext"].TicTacToe,
-      initialTTTState,
-      {
-        stateEncoding: tttStateEncoding,
-        actionEncoding: tttActionEncoding
-      }
+      initialTTTState
     );
 
     let appInstanceId: string;

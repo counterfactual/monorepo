@@ -1,4 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
+import { One, Zero } from "ethers/constants";
 
 import { Node } from "../../src";
 import {
@@ -9,6 +10,7 @@ import {
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
+import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   getMultisigCreationTransactionHash,
@@ -41,10 +43,17 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       it("sends proposal with non-null initial state", async done => {
         nodeA.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
           nodeC.once(NODE_EVENTS.CREATE_CHANNEL, async () => {
-            const intermediaries = [nodeB.publicIdentifier];
             const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+              nodeA.publicIdentifier,
               nodeC.publicIdentifier,
-              intermediaries
+              [nodeB.publicIdentifier],
+              global["networkContext"].TicTacToe,
+              initialEmptyTTTState([
+                nodeA.publicIdentifier,
+                nodeC.publicIdentifier
+              ]),
+              One,
+              Zero
             );
 
             nodeA.on(

@@ -88,11 +88,12 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                   msg.data.multisigAddress
                 );
 
-                const intermediaries = [nodeB.publicIdentifier];
-                const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+                const virtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
+                  nodeA.publicIdentifier,
                   nodeC.publicIdentifier,
-                  intermediaries,
-                  false,
+                  [nodeB.publicIdentifier],
+                  global["networkContext"].TicTacToe,
+                  {},
                   One,
                   Zero
                 );
@@ -138,11 +139,11 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                     ))[0];
 
                     confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
+                      virtualAppInstanceProposalRequest.params,
                       proposedAppInstanceA
                     );
                     confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
+                      virtualAppInstanceProposalRequest.params,
                       proposedAppInstanceC,
                       true
                     );
@@ -163,8 +164,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
                 );
 
                 const response = await nodeA.call(
-                  installVirtualAppInstanceProposalRequest.type,
-                  installVirtualAppInstanceProposalRequest
+                  virtualAppInstanceProposalRequest.type,
+                  virtualAppInstanceProposalRequest
                 );
                 const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
                   .appInstanceId;

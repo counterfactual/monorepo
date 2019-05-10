@@ -18,8 +18,8 @@ import {
   getInstalledAppInstances,
   getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
-  makeInstallProposalRequest,
-  makeInstallRequest
+  makeInstallRequest,
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -52,9 +52,11 @@ describe("Node method follows spec - proposeInstall", () => {
             let appInstanceId;
 
             // second, an app instance must be proposed to be installed into that channel
-            const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+            const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+              nodeA.publicIdentifier,
               nodeB.publicIdentifier,
-              false,
+              global["networkContext"].TicTacToe,
+              {},
               One,
               Zero
             );
@@ -114,9 +116,10 @@ describe("Node method follows spec - proposeInstall", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+        const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+          nodeA.publicIdentifier,
           nodeB.publicIdentifier,
-          true
+          global["networkContext"].TicTacToe
         );
 
         expect(

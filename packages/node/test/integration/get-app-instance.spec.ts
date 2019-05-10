@@ -7,7 +7,7 @@ import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { setup } from "./setup";
 import {
   getMultisigCreationTransactionHash,
-  makeInstallProposalRequest
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
@@ -28,8 +28,10 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
 
   it("can accept a valid call to get the desired AppInstance details", async done => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
-      const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-        nodeB.publicIdentifier
+      const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier,
+        global["networkContext"].TicTacToe
       );
 
       const installAppInstanceRequestId = generateUUID();

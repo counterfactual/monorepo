@@ -8,7 +8,7 @@ import { setup } from "./setup";
 import {
   getInstalledAppInstances,
   getMultisigCreationTransactionHash,
-  makeInstallProposalRequest
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
@@ -36,8 +36,10 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("can accept a valid call to get non-empty list of app instances", async done => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
-      const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-        nodeB.publicIdentifier
+      const appInstanceProposalRequest = makeTTTProposalRequest(
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier,
+        global["networkContext"].TicTacToe
       );
 
       const installAppInstanceRequestId = generateUUID();
@@ -68,7 +70,7 @@ describe("Node method follows spec - getAppInstances", () => {
         nodeA.emit(getAppInstancesRequest.type, getAppInstancesRequest);
       });
 
-      nodeA.on(appInstanceInstallationProposalRequest.type, res => {
+      nodeA.on(appInstanceProposalRequest.type, res => {
         const installProposalResult: NodeTypes.ProposeInstallResult =
           res.result;
         const appInstanceId = installProposalResult.appInstanceId;
@@ -83,10 +85,7 @@ describe("Node method follows spec - getAppInstances", () => {
         nodeA.emit(installAppInstanceRequest.type, installAppInstanceRequest);
       });
 
-      nodeA.emit(
-        appInstanceInstallationProposalRequest.type,
-        appInstanceInstallationProposalRequest
-      );
+      nodeA.emit(appInstanceProposalRequest.type, appInstanceProposalRequest);
     });
 
     await getMultisigCreationTransactionHash(nodeA, [

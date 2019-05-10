@@ -9,7 +9,7 @@ import { setup } from "./setup";
 import {
   generateGetStateRequest,
   getMultisigCreationTransactionHash,
-  makeInstallProposalRequest
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
@@ -37,8 +37,10 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right state for an installed AppInstance", async done => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async () => {
-      const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-        nodeB.publicIdentifier
+      const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier,
+        global["networkContext"].TicTacToe
       );
 
       const proposalResult = await nodeA.call(

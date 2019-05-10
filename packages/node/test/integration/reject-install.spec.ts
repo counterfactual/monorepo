@@ -15,8 +15,8 @@ import {
   getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
   getProposedAppInstances,
-  makeInstallProposalRequest,
-  makeRejectInstallRequest
+  makeRejectInstallRequest,
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
@@ -47,8 +47,10 @@ describe("Node method follows spec - rejectInstall", () => {
           let appInstanceId;
 
           // second, an app instance must be proposed to be installed into that channel
-          const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-            nodeB.publicIdentifier
+          const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+            nodeA.publicIdentifier,
+            nodeB.publicIdentifier,
+            global["networkContext"].TicTacToe
           );
 
           nodeA.on(
