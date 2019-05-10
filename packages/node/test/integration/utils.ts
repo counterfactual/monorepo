@@ -496,3 +496,18 @@ export async function confirmAppInstanceInstallation(
   delete appInstanceInfo.id;
   expect(appInstanceInfo).toEqual(proposedParams);
 }
+
+export async function getState(
+  nodeA: Node,
+  appInstanceId: string
+): Promise<SolidityABIEncoderV2Type> {
+  const getStateReq = generateGetStateRequest(appInstanceId);
+  const getStateResult = await nodeA.call(getStateReq.type, getStateReq);
+  return (getStateResult.result as NodeTypes.GetStateResult).state;
+}
+
+export function playerAddresses(nodes: Node[]): string[] {
+  return nodes.map<string>((node: Node) => {
+    return xkeyKthAddress(node.publicIdentifier, 0);
+  });
+}
