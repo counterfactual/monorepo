@@ -1,10 +1,10 @@
 import { AssetType, ETHBucketAppState } from "@counterfactual/types";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
-import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
+import { WeiPerEther, Zero } from "ethers/constants";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { xkeyKthAddress } from "../../../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../../../src/models";
+import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -28,30 +28,7 @@ describe("StateChannel::uninstallApp", () => {
       userNeuteredExtendedKeys
     );
 
-    const appInstance = new AppInstance(
-      getAddress(hexlify(randomBytes(20))),
-      [
-        xkeyKthAddress(userNeuteredExtendedKeys[0], sc1.numInstalledApps),
-        xkeyKthAddress(userNeuteredExtendedKeys[1], sc1.numInstalledApps)
-      ].sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1)),
-      Math.ceil(Math.random() * 2e10),
-      {
-        addr: getAddress(hexlify(randomBytes(20))),
-        stateEncoding: "tuple(address foo, uint256 bar)",
-        actionEncoding: undefined
-      },
-      {
-        assetType: AssetType.ETH,
-        limit: bigNumberify(Math.ceil(Math.random() * 2e10)),
-        token: AddressZero
-      },
-      false,
-      sc1.numInstalledApps,
-      0,
-      { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
-      999, // <------ nonce
-      Math.ceil(1000 * Math.random())
-    );
+    const appInstance = createAppInstance(sc1);
 
     appIdentityHash = appInstance.identityHash;
 
