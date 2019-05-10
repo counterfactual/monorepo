@@ -16,7 +16,6 @@ import { v4 as generateUUID } from "uuid";
 
 import {
   CreateChannelMessage,
-  InstallMessage,
   Node,
   NODE_EVENTS,
   ProposeMessage
@@ -84,7 +83,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.id === appInstanceId;
   })[0];
 }
 
@@ -452,7 +451,7 @@ export async function installTTTApp(
       nodeB.emit(installRequest.type, installRequest);
     });
 
-    nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+    nodeA.on(NODE_EVENTS.INSTALL, async () => {
       const appInstanceNodeA = await getInstalledAppInstanceInfo(
         nodeA,
         appInstanceId
@@ -486,4 +485,14 @@ export async function confirmChannelCreation(
   expect(openChannelsNodeA.has(data.multisigAddress)).toBeTruthy();
   expect(openChannelsNodeB.has(data.multisigAddress)).toBeTruthy();
   expect(data.owners).toEqual(ownersPublicIdentifiers);
+}
+
+export async function confirmAppInstanceInstallation(
+  proposedParams: NodeTypes.ProposeInstallParams,
+  appInstanceInfo: AppInstanceInfo
+) {
+  delete appInstanceInfo.proposedByIdentifier;
+  delete appInstanceInfo.intermediaries;
+  delete appInstanceInfo.id;
+  expect(appInstanceInfo).toEqual(proposedParams);
 }
