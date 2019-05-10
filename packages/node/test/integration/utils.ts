@@ -16,10 +16,10 @@ import { v4 as generateUUID } from "uuid";
 
 import {
   CreateChannelMessage,
+  InstallVirtualMessage,
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  InstallVirtualMessage,
   ProposeVirtualMessage
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
