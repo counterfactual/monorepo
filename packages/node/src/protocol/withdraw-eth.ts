@@ -3,7 +3,8 @@ import {
   ETHBucketAppState,
   NetworkContext
 } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero, MaxUint256 } from "ethers/constants";
+import { defaultAbiCoder } from "ethers/utils";
 
 import {
   InstallCommitment,
@@ -158,16 +159,11 @@ function addInstallRefundAppCommitmentToContext(
   params: ProtocolParameters,
   context: Context
 ): [InstallCommitment, string] {
-  const {
-    recipient,
-    amount,
-    multisigAddress,
-    initiatingXpub
-  } = params as WithdrawParams;
+  const { recipient, amount, multisigAddress } = params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  const appInstance = new AppInstance(
+  const refundAppInstance = new AppInstance(
     multisigAddress,
     stateChannel.getNextSigningKeys(),
     1008,
@@ -176,11 +172,6 @@ function addInstallRefundAppCommitmentToContext(
       stateEncoding:
         "tuple(address recipient, address multisig,  uint256 threshold)",
       actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: amount,
-      token: AddressZero
     },
     false,
     stateChannel.numInstalledApps,
@@ -191,26 +182,14 @@ function addInstallRefundAppCommitmentToContext(
       threshold: amount
     },
     0,
-    1008
+    1008,
+    [AddressZero, AddressZero],
+    MaxUint256
   );
 
-  let aliceBalanceDecrement = Zero;
-  let bobBalanceDecrement = Zero;
-
-  if (
-    stateChannel.getFreeBalanceAddrOf(initiatingXpub, AssetType.ETH) ===
-    stateChannel.multisigOwners[0]
-  ) {
-    aliceBalanceDecrement = amount;
-  } else {
-    bobBalanceDecrement = amount;
-  }
-
-  const newStateChannel = stateChannel.installApp(
-    appInstance,
-    aliceBalanceDecrement,
-    bobBalanceDecrement
-  );
+  const newStateChannel = stateChannel.installApp(refundAppInstance, {
+    [recipient]: amount
+  });
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
@@ -219,10 +198,10 @@ function addInstallRefundAppCommitmentToContext(
   const installRefundCommitment = constructInstallOp(
     context.network,
     newStateChannel,
-    appInstance.identityHash
+    refundAppInstance.identityHash
   );
 
-  return [installRefundCommitment, appInstance.identityHash];
+  return [installRefundCommitment, refundAppInstance.identityHash];
 }
 
 function addUninstallRefundAppCommitmentToContext(
@@ -234,11 +213,7 @@ function addUninstallRefundAppCommitmentToContext(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  const newStateChannel = stateChannel.uninstallApp(
-    appIdentityHash,
-    Zero,
-    Zero
-  );
+  const newStateChannel = stateChannel.uninstallApp(appIdentityHash, {});
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
@@ -251,7 +226,6 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
@@ -295,13 +269,13 @@ function constructInstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     app.identity,
-    app.terms,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue
+    freeBalance.rootNonceValue,
+    network.ETHInterpreter,
+    defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );
 }

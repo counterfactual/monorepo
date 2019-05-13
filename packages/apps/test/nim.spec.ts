@@ -12,14 +12,13 @@ chai.use(waffle.solidity);
 const { expect } = chai;
 
 type NimAppState = {
-  players: string[];
   turnNum: BigNumber;
   pileHeights: BigNumber[];
 };
 
 function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
-    ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
+    ["tuple(uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
   )[0];
 }
@@ -32,7 +31,6 @@ describe("Nim", () => {
       [
         `
         tuple(
-          address[2] players,
           uint256 turnNum,
           uint256[3] pileHeights
         )
@@ -79,7 +77,6 @@ describe("Nim", () => {
   describe("applyAction", () => {
     it("can take from a pile", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -101,7 +98,6 @@ describe("Nim", () => {
 
     it("can take to produce an empty pile", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -123,7 +119,6 @@ describe("Nim", () => {
 
     it("should fail for taking too much", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -142,7 +137,6 @@ describe("Nim", () => {
   describe("isFinal", () => {
     it("empty state is final", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 49,
         pileHeights: [0, 0, 0]
       };
@@ -151,7 +145,6 @@ describe("Nim", () => {
 
     it("nonempty state is not final", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 49,
         pileHeights: [0, 1, 0]
       };

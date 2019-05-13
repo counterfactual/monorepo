@@ -1,6 +1,5 @@
-import { AssetType } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
-import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
+import { AddressZero, Zero } from "ethers/constants";
+import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { AppInstance } from "../../../../../src/models";
 
@@ -21,17 +20,14 @@ describe("AppInstance", () => {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       },
-      {
-        assetType: AssetType.ETH,
-        limit: bigNumberify(Math.ceil(Math.random() * 2e10)),
-        token: AddressZero
-      },
       false,
       Math.ceil(Math.random() * 2e10),
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
-      Math.ceil(1000 * Math.random())
+      Math.ceil(1000 * Math.random()),
+      [AddressZero, AddressZero],
+      Zero
     );
 
     expect(appInstance).not.toBe(null);

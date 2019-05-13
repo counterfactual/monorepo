@@ -3,14 +3,14 @@ import {
   AppInterface,
   AssetType,
   ETHBucketAppState,
-  SignedStateHashUpdate,
-  Terms,
-  Transaction
+  SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset
+  BlockchainAsset,
+  ResolutionType,
+  TwoPartyOutcome
 } from "./data-types";
 import { INodeProvider, Node } from "./node-protocol";
 import {
@@ -28,9 +28,11 @@ export interface NetworkContext {
   MultiSend: string;
   NonceRegistry: string;
   StateChannelTransaction: string;
-  ETHVirtualAppAgreement: string;
+  TwoPartyVirtualEthAsLump: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
+  ETHInterpreter: string;
+  TwoPartyEthAsLump: string;
 }
 
 // Keep in sync with above
@@ -41,9 +43,11 @@ export const networkContextProps = [
   "MultiSend",
   "NonceRegistry",
   "StateChannelTransaction",
-  "ETHVirtualAppAgreement",
+  "TwoPartyVirtualEthAsLump",
   "MinimumViableMultisig",
-  "ProxyFactory"
+  "ProxyFactory",
+  "ETHInterpreter",
+  "TwoPartyEthAsLump"
 ];
 
 export {
@@ -62,6 +66,6 @@ export {
   INodeProvider,
   Node,
   SignedStateHashUpdate,
-  Terms,
-  Transaction
+  ResolutionType,
+  TwoPartyOutcome
 };

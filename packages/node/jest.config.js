@@ -1,5 +1,4 @@
 module.exports = {
-  "bail": true,
   "coverageDirectory": "jest-coverage",
   "coveragePathIgnorePatterns": [
     "test"

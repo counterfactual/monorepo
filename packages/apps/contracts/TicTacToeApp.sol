@@ -1,7 +1,9 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
+import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
 
 
 contract TicTacToeApp is CounterfactualApp {
@@ -37,7 +39,6 @@ contract TicTacToeApp is CounterfactualApp {
   uint256 constant EMPTY_SQUARE = 0;
 
   struct AppState {
-    address[2] players;
     uint256 turnNum;
     uint256 winner;
     uint256[3][3] board;
@@ -102,50 +103,20 @@ contract TicTacToeApp is CounterfactualApp {
     return abi.encode(postState);
   }
 
-  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+  function resolve(bytes calldata encodedState)
     external
     pure
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
     require(state.winner != 0, "Winner was set to 0; invalid");
 
-    uint256[] memory amounts = new uint256[](2);
-    address[] memory to = new address[](2);
-    bytes[] memory data = new bytes[](2);
-
-    if (state.winner == 3) {
-      amounts[0] = terms.limit / 2;
-      amounts[1] = terms.limit / 2;
-
-      to[0] = state.players[0];
-      to[1] = state.players[1];
-
-      return Transfer.Transaction(
-        terms.assetType,
-        terms.token,
-        to,
-        amounts,
-        data
-      );
-
-    } else {
-      address winner = state.players[state.winner - 1];
-      address loser = state.players[2 - state.winner];
-
-      amounts[0] = terms.limit;
-      amounts[1] = 0;
-
-      to[0] = winner;
-      to[1] = loser;
-
-      return Transfer.Transaction(
-        terms.assetType,
-        terms.token,
-        to,
-        amounts,
-        data
-      );
+    if (state.winner == 2) {
+      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO);
+    } else if (state.winner == 1) {
+      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE);
+    } else /* state.winner == 3, or fallback */ {
+      return abi.encode(TwoPartyOutcome.Resolution.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     }
 
   }
@@ -221,6 +192,14 @@ contract TicTacToeApp is CounterfactualApp {
       require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
       require(state.board[0][2] == expectedSquareState, "Win Claim not valid");
     }
+  }
+
+  function resolveType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.ResolutionType.TWO_PARTY_OUTCOME);
   }
 
 }

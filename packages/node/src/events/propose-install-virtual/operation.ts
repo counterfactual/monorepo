@@ -10,7 +10,7 @@ import { Store } from "../../store";
  * @param store
  * @param params
  * @param appInstanceId
- * @param incomingAddress The address of the Node who is relaying the proposal.
+ * @param incomingIdentifier The address of the Node who is relaying the proposal.
  */
 export async function setAppInstanceIDForProposeInstallVirtual(
   myIdentifier: string,

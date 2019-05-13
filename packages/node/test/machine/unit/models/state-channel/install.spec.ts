@@ -3,6 +3,7 @@ import { WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
+import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
@@ -17,7 +18,7 @@ describe("StateChannel::uninstallApp", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const userNeuteredExtendedKeys = [
+    const xpubs = [
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
     ];
@@ -25,7 +26,7 @@ describe("StateChannel::uninstallApp", () => {
     sc1 = StateChannel.setupChannel(
       networkContext.ETHBucket,
       multisigAddress,
-      userNeuteredExtendedKeys
+      xpubs
     );
 
     const appInstance = createAppInstance(sc1);
@@ -33,15 +34,16 @@ describe("StateChannel::uninstallApp", () => {
     appIdentityHash = appInstance.identityHash;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
-    const fb = sc1.getFreeBalanceFor(AssetType.ETH);
 
-    sc1 = sc1.setState(fb.identityHash, {
-      ...fb.state,
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
+    sc1 = sc1.setFreeBalance(AssetType.ETH, {
+      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
+      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
     });
 
-    sc2 = sc1.installApp(appInstance, WeiPerEther, WeiPerEther);
+    sc2 = sc1.installApp(appInstance, {
+      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
+      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
+    });
   });
 
   it("should not alter any of the base properties", () => {
@@ -65,9 +67,10 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
-      expect(aliceBalance).toEqual(Zero);
-      expect(bobBalance).toEqual(Zero);
+      const fbState = fb.state as ETHBucketAppState;
+      for (const { amount } of fbState) {
+        expect(amount).toEqual(Zero);
+      }
     });
   });
 

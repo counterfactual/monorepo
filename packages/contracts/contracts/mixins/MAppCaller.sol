@@ -1,9 +1,7 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/Transfer.sol";
-
-import "../CounterfactualApp.sol";
+import "../interfaces/CounterfactualApp.sol";
 
 
 /// @title MAppCaller
@@ -64,20 +62,15 @@ contract MAppCaller {
   /// @notice Execute the application's resolve function to compute a resolution
   /// @param appDefinitionAddress An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
-  /// @param terms The ABI encoded version of the transfer terms
-  /// @return A `Transfer.Transaction` struct with all encoded information of the resolution
   function resolve(
     address appDefinitionAddress,
-    bytes memory appState,
-    bytes memory terms
+    bytes memory appState
   )
     internal
     pure
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
-    Transfer.Terms memory termsStruct = abi.decode(terms, (Transfer.Terms));
-    return CounterfactualApp(appDefinitionAddress)
-      .resolve(appState, termsStruct);
+    return CounterfactualApp(appDefinitionAddress).resolve(appState);
   }
 
 }

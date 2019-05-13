@@ -12,8 +12,7 @@ import {
   generateGetStateRequest,
   getState,
   installTTTApp,
-  makeTTTProposalRequest,
-  playerAddresses
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
@@ -49,7 +48,7 @@ describe("Node method follows spec - getAppInstances", () => {
     const appInstanceId = await installTTTApp(nodeA, nodeB);
     const state = await getState(nodeA, appInstanceId);
 
-    const initialState = initialEmptyTTTState(playerAddresses([nodeA, nodeB]));
+    const initialState = initialEmptyTTTState();
     for (const property in initialState) {
       expect(state[property]).toEqual(params.initialState[property]);
     }

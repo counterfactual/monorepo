@@ -1,9 +1,7 @@
-import { Terms } from "@counterfactual/types";
 import { BigNumber, getAddress, keccak256, solidityPack } from "ethers/utils";
 
 export type ETHVirtualAppAgreementJson = {
   multisigAddress: string;
-  terms: Terms;
   appSeqNo: number;
   rootNonceValue: number;
   expiry: number;
@@ -18,7 +16,6 @@ export class ETHVirtualAppAgreementInstance {
 
   constructor(
     public multisigAddress: string,
-    public terms: Terms,
     public appSeqNo: number,
     public rootNonceValue: number,
     public expiry: number,
@@ -29,7 +26,6 @@ export class ETHVirtualAppAgreementInstance {
   ) {
     this.json = {
       multisigAddress,
-      terms,
       appSeqNo,
       rootNonceValue,
       expiry,
@@ -48,7 +44,6 @@ export class ETHVirtualAppAgreementInstance {
   public static fromJson(json: ETHVirtualAppAgreementJson) {
     return new ETHVirtualAppAgreementInstance(
       json.multisigAddress,
-      json.terms,
       json.appSeqNo,
       json.rootNonceValue,
       json.expiry,

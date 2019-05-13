@@ -45,15 +45,10 @@ describe("ETH Virtual App Agreement Commitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
-    {
-      alice: stateChannel.multisigOwners[0],
-      bob: stateChannel.multisigOwners[1],
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
-    }
-  );
+  stateChannel = stateChannel.incrementFreeBalance(AssetType.ETH, {
+    [stateChannel.multisigOwners[0]]: WeiPerEther,
+    [stateChannel.multisigOwners[1]]: WeiPerEther
+  });
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -69,7 +64,6 @@ describe("ETH Virtual App Agreement Commitment", () => {
       stateChannel.multisigOwners,
       target,
       freeBalanceETH.identity,
-      freeBalanceETH.terms,
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
@@ -141,19 +135,12 @@ describe("ETH Virtual App Agreement Commitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [
-              owner,
-              signingKeys,
-              appDefinitionAddress,
-              termsHash,
-              defaultTimeout
-            ]
+            [owner, signingKeys, appDefinitionAddress, {}, defaultTimeout]
           ] = calldata.args;
           const expected = freeBalanceETH.identity;
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appDefinitionAddress).toBe(expected.appDefinitionAddress);
-          expect(termsHash).toBe(expected.termsHash);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });
 

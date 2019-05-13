@@ -3,13 +3,14 @@ import {
   ETHBucketAppState,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { Zero } from "ethers/constants";
-import { INSUFFICIENT_FUNDS } from "ethers/errors";
-import { BigNumber, bigNumberify, formatEther } from "ethers/utils";
+import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { BigNumber } from "ethers/utils";
 
 import {
+  flip,
+  fromAppState,
   getETHBucketAppInterface,
-  unlimitedETH
+  merge
 } from "../ethereum/utils/eth-bucket";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 
@@ -84,18 +85,23 @@ function createETHFreeBalance(
     sortedTopLevelKeys,
     freeBalanceTimeout,
     getETHBucketAppInterface(ethBucketAddress),
-    unlimitedETH,
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
-    {
-      alice: beneficiaryForPerson1,
-      bob: beneficiaryForPerson2,
-      aliceBalance: Zero,
-      bobBalance: Zero
-    },
+    [
+      {
+        to: beneficiaryForPerson1,
+        amount: Zero
+      },
+      {
+        to: beneficiaryForPerson2,
+        amount: Zero
+      }
+    ],
     0,
-    HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout
+    HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    [AddressZero, AddressZero],
+    MaxUint256
   );
 }
 
@@ -232,68 +238,35 @@ export class StateChannel {
     return topLevelKey;
   }
 
-  // TODO: This is hard-coded to ETH presently
-  public getFreeBalanceValueOf(xpub: string, assetType: AssetType) {
-    const addr = this.getFreeBalanceAddrOf(xpub, assetType);
-    const state = this.getFreeBalanceFor(assetType).state as ETHBucketAppState;
-
-    if (state.alice === addr) {
-      return state.aliceBalance;
-    }
-
-    if (state.bob === addr) {
-      return state.bobBalance;
-    }
-
-    throw new Error(
-      `getFreeBalanceValueOf could not find any value owned by ${xpub} for asset ${assetType}`
-    );
-  }
-
   public incrementFreeBalance(
     assetType: AssetType,
-    increments: { [xpub: string]: BigNumber }
+    increments: { [addr: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
     const freeBalanceState = freeBalance.state as ETHBucketAppState;
 
-    for (const beneficiaryXpub in increments) {
-      const beneficiaryAddress = this.getFreeBalanceAddrOf(
-        beneficiaryXpub,
-        AssetType.ETH
-      );
-      if (beneficiaryAddress === freeBalanceState.alice) {
-        freeBalanceState.aliceBalance = bigNumberify(
-          increments[beneficiaryXpub] || Zero
-        ).add(freeBalanceState.aliceBalance);
-      } else if (beneficiaryAddress === freeBalanceState.bob) {
-        freeBalanceState.bobBalance = bigNumberify(
-          increments[beneficiaryXpub] || Zero
-        ).add(freeBalanceState.bobBalance);
-      } else {
-        throw Error(`No such beneficiary ${beneficiaryAddress} found`);
-      }
-    }
-
-    return this.setState(freeBalance.identityHash, freeBalanceState);
+    return this.setFreeBalance(
+      AssetType.ETH,
+      merge(fromAppState(freeBalanceState), increments)
+    );
   }
 
   public setFreeBalance(
     assetType: AssetType,
-    newState: { [s: string]: BigNumber }
+    newState: { [addr: string]: BigNumber }
   ) {
     const freeBalance = this.getFreeBalanceFor(assetType);
-    const freeBalanceState = freeBalance.state as ETHBucketAppState;
-    for (const beneficiary in newState) {
-      if (beneficiary === freeBalanceState.alice) {
-        freeBalanceState.aliceBalance = newState[beneficiary];
-      } else if (beneficiary === freeBalanceState.bob) {
-        freeBalanceState.bobBalance = newState[beneficiary];
-      } else {
-        throw Error(`No such beneficiary ${beneficiary} found`);
-      }
+    const ret = [] as ETHBucketAppState;
+
+    for (const beneficiaryAddr in newState) {
+      ret.push({
+        to: beneficiaryAddr,
+        amount: {
+          _hex: newState[beneficiaryAddr].toHexString()
+        }
+      });
     }
-    return this.setState(freeBalance.identityHash, freeBalanceState);
+    return this.setState(freeBalance.identityHash, ret);
   }
 
   public static setupChannel(
@@ -416,52 +389,8 @@ export class StateChannel {
   public installETHVirtualAppAgreementInstance(
     evaaInstance: ETHVirtualAppAgreementInstance,
     targetIdentityHash: string,
-    aliceBalanceDecrement: BigNumber,
-    bobBalanceDecrement: BigNumber
+    decrements: { [s: string]: BigNumber }
   ) {
-    /// Decrement from FB
-
-    const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const {
-      alice,
-      aliceBalance,
-      bob,
-      bobBalance
-    } = fb.state as ETHBucketAppState;
-
-    const updatedAliceBalance = aliceBalance.sub(aliceBalanceDecrement);
-    const updatedBobBalance = bobBalance.sub(bobBalanceDecrement);
-
-    if (updatedAliceBalance.lt(Zero)) {
-      throw Error(
-        `${alice} cannot install virtual app agreement instance. Its balance in channel with ${bob} is insufficient by ${formatEther(
-          aliceBalance.sub(updatedAliceBalance)
-        )}`
-      );
-    }
-    if (updatedBobBalance.lt(Zero)) {
-      throw Error(
-        `\n${bob} cannot install virtual app agreement instance. Its balance in channel with ${alice} is insufficient by ${formatEther(
-          bobBalance.sub(updatedBobBalance)
-        )}`
-      );
-    }
-
-    /// Add modified FB to appInstances
-
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
-
-    appInstances.set(
-      fb.identityHash,
-      fb.setState({
-        ...fb.state,
-        aliceBalance: updatedAliceBalance,
-        bobBalance: updatedBobBalance
-      })
-    );
-
     // Add to ethVirtualAppAgreementInstances
 
     const evaaInstances = new Map<string, ETHVirtualAppAgreementInstance>(
@@ -473,18 +402,18 @@ export class StateChannel {
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
-      appInstances,
+      this.appInstances,
       evaaInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    );
+    ).incrementFreeBalance(AssetType.ETH, flip(decrements));
   }
 
   public uninstallETHVirtualAppAgreementInstance(
     targetIdentityHash: string,
-    increments: { [xpub: string]: BigNumber }
+    increments: { [addr: string]: BigNumber }
   ) {
     const ethVirtualAppAgreementInstances = new Map<
       string,
@@ -530,21 +459,8 @@ export class StateChannel {
 
   public installApp(
     appInstance: AppInstance,
-    aliceBalanceDecrement: BigNumber,
-    bobBalanceDecrement: BigNumber
+    decrements: { [s: string]: BigNumber }
   ) {
-    /// Decrement from FB
-
-    const fb = this.getFreeBalanceFor(AssetType.ETH);
-    const currentFBState = fb.state as ETHBucketAppState;
-
-    const aliceBalance = currentFBState.aliceBalance.sub(aliceBalanceDecrement);
-    const bobBalance = currentFBState.bobBalance.sub(bobBalanceDecrement);
-
-    if (aliceBalance.lt(Zero) || bobBalance.lt(Zero)) {
-      throw Error(INSUFFICIENT_FUNDS);
-    }
-
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
@@ -564,12 +480,7 @@ export class StateChannel {
       this.appInstances.entries()
     );
 
-    appInstances
-      .set(appInstance.identityHash, appInstance)
-      .set(
-        fb.identityHash,
-        fb.setState({ ...currentFBState, aliceBalance, bobBalance })
-      );
+    appInstances.set(appInstance.identityHash, appInstance);
 
     return new StateChannel(
       this.multisigAddress,
@@ -580,18 +491,13 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    );
+    ).incrementFreeBalance(AssetType.ETH, flip(decrements));
   }
 
-  /// todo(xuanji): refactor this so that the public API does not expose
-  /// {alice,bob}BalanceIncrement, since this often requires the caller to sort
-  /// addresses
   public uninstallApp(
     appInstanceIdentityHash: string,
-    aliceBalanceIncrement: BigNumber = Zero,
-    bobBalanceIncrement: BigNumber = Zero
+    increments: { [s: string]: BigNumber }
   ) {
-    const fb = this.getFreeBalanceFor(AssetType.ETH);
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
@@ -601,11 +507,6 @@ export class StateChannel {
         }`
       );
     }
-
-    const currentState = fb.state as ETHBucketAppState;
-
-    const aliceBalance = currentState.aliceBalance.add(aliceBalanceIncrement);
-    const bobBalance = currentState.bobBalance.add(bobBalanceIncrement);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
@@ -617,11 +518,6 @@ export class StateChannel {
       );
     }
 
-    appInstances.set(
-      fb.identityHash,
-      fb.setState({ ...currentState, aliceBalance, bobBalance })
-    );
-
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
@@ -631,7 +527,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    );
+    ).incrementFreeBalance(AssetType.ETH, increments);
   }
 
   public getETHVirtualAppAgreementInstanceFromTarget(

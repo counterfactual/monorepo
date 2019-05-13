@@ -46,15 +46,10 @@ describe("Uninstall Commitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
-    {
-      alice: stateChannel.multisigOwners[0],
-      bob: stateChannel.multisigOwners[1],
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
-    }
-  );
+  stateChannel = stateChannel.incrementFreeBalance(AssetType.ETH, {
+    [stateChannel.multisigOwners[0]]: WeiPerEther,
+    [stateChannel.multisigOwners[1]]: WeiPerEther
+  });
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -66,7 +61,6 @@ describe("Uninstall Commitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       freeBalanceETH.identity,
-      freeBalanceETH.terms,
       freeBalanceETH.state as ETHBucketAppState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
@@ -132,13 +126,7 @@ describe("Uninstall Commitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [
-              owner,
-              signingKeys,
-              appDefinitionAddress,
-              termsHash,
-              defaultTimeout
-            ]
+            [owner, signingKeys, appDefinitionAddress, {}, defaultTimeout]
           ] = calldata.args;
 
           const expected = freeBalanceETH.identity;
@@ -146,7 +134,6 @@ describe("Uninstall Commitment", () => {
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appDefinitionAddress).toBe(expected.appDefinitionAddress);
-          expect(termsHash).toBe(expected.termsHash);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });
 

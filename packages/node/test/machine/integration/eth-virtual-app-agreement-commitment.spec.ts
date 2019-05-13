@@ -1,10 +1,10 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
+import ResolveTo2App from "@counterfactual/contracts/build/ResolveTo2App.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero, HashZero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
@@ -43,6 +43,7 @@ beforeAll(async () => {
 });
 
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
+  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -51,9 +52,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       0
     );
 
-    const resolveToPay5WeiAppDefinition = await new ContractFactory(
-      ResolveToPay5WeiApp.abi,
-      ResolveToPay5WeiApp.bytecode,
+    const resolveTo2AppDefinition = await new ContractFactory(
+      ResolveTo2App.abi,
+      ResolveTo2App.bytecode,
       wallet
     ).deploy();
 
@@ -83,22 +84,18 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: resolveToPay5WeiAppDefinition.address,
+          addr: resolveTo2AppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
-        },
-        {
-          // target app instances do not have a useful terms
-          assetType: AssetType.ETH,
-          limit: new BigNumber(0),
-          token: AddressZero
         },
         true, // virtual
         0, // app sequence number
         0, // root nonce
         {}, // latest state
         1, // latest nonce
-        0 // latest timeout
+        0, // latest timeout
+        [AddressZero, AddressZero],
+        Zero
       );
 
       const beneficiaries = [
@@ -112,7 +109,6 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         freeBalanceETH.identity, // fb AI
-        freeBalanceETH.terms, // fb terms
         freeBalanceETH.hashOfLatestState, // fb state hash
         freeBalanceETH.nonce, // fb nonce
         freeBalanceETH.timeout, // fb timeout
@@ -145,8 +141,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
 
       await appRegistry.functions.setResolution(
         targetAppInstance.identity,
-        targetAppInstance.encodedLatestState,
-        targetAppInstance.encodedTerms
+        targetAppInstance.encodedLatestState
       );
 
       await wallet.sendTransaction({

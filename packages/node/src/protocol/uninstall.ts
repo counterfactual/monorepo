@@ -8,10 +8,7 @@ import { Context, ProtocolParameters, UninstallParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
-import {
-  computeFreeBalanceIncrements,
-  getAliceBobMap
-} from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
@@ -99,18 +96,13 @@ async function proposeStateTransition(
   const sequenceNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
   const increments = await computeFreeBalanceIncrements(
+    network,
     sc,
     appIdentityHash,
     provider
   );
 
-  const aliceBobMap = getAliceBobMap(sc);
-
-  const newStateChannel = sc.uninstallApp(
-    appIdentityHash,
-    increments[aliceBobMap.alice],
-    increments[aliceBobMap.bob]
-  );
+  const newStateChannel = sc.uninstallApp(appIdentityHash, increments);
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 
@@ -121,7 +113,6 @@ async function proposeStateTransition(
     newStateChannel.multisigAddress,
     newStateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
