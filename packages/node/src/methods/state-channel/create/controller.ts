@@ -56,6 +56,11 @@ export default class CreateChannelController extends NodeController {
       MinimumViableMultisig.abi
     ).functions.setup.encode([multisigOwners]);
 
+    let bytecode = Proxy.bytecode;
+    if (!bytecode.startsWith("0x")) {
+      bytecode = `0x${bytecode}`;
+    }
+
     const multisigAddress = getAddress(
       solidityKeccak256(
         ["bytes1", "address", "uint256", "bytes32"],
@@ -66,7 +71,7 @@ export default class CreateChannelController extends NodeController {
           keccak256(
             solidityPack(
               ["bytes", "uint256"],
-              [`0x${Proxy.bytecode}`, networkContext.MinimumViableMultisig]
+              [bytecode, networkContext.MinimumViableMultisig]
             )
           )
         ]
