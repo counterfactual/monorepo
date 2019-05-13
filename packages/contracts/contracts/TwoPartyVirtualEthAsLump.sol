@@ -11,6 +11,10 @@ import "./NonceRegistry.sol";
 /// committed in a ledger channel.
 /// The `target` contract must return via resolution the outcome of the app,
 /// and the resolve function must be TwoPartyOutcome type.
+/// We do not use the interpreter mechanism in StateChannelTransaction.sol
+/// because the delegateTarget function must be committed to in at least two
+/// places (in general, the same number of places as the channel length) with
+/// different parameters.
 contract TwoPartyVirtualEthAsLump {
 
   // todo(xuanji): is it possible to make address(registry) a constant specified
