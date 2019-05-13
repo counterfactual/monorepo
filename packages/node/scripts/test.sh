@@ -67,5 +67,4 @@ jest \
   --runInBand `#integration tests fail parallelized (tx nonce out of sync)` \
   --detectOpenHandles \
   --forceExit \
-  --verbose \
   $1
