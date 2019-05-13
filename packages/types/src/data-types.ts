@@ -26,3 +26,9 @@ export type BlockchainAsset = {
   assetType: AssetType;
   token?: Address;
 };
+
+// Interpreter.sol::ResolutionType
+export enum ResolutionType {
+  TWO_PARTY_OUTCOME = 0,
+  ETH_TRANSFER = 1
+}

@@ -6,8 +6,7 @@ contract Interpreter {
 
   enum ResolutionType {
     TWO_PARTY_OUTCOME,
-    ETH_TRANSFER,
-    UINT256
+    ETH_TRANSFER
   }
 
   function interpret(bytes calldata, bytes calldata) external;

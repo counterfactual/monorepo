@@ -8,7 +8,8 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset
+  BlockchainAsset,
+  ResolutionType
 } from "./data-types";
 import { INodeProvider, Node } from "./node-protocol";
 import {
@@ -61,5 +62,6 @@ export {
   ETHBucketAppState,
   INodeProvider,
   Node,
-  SignedStateHashUpdate
+  SignedStateHashUpdate,
+  ResolutionType
 };
