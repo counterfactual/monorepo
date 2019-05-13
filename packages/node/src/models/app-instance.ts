@@ -67,6 +67,15 @@ export type AppInstanceJson = {
  * @property latestNonce The nonce of the latest signed state update.
 
  * @property latestTimeout The timeout used in the latest signed state update.
+
+ * @property beneficiaries The free balance addresses of the two beneficiaries
+ *           of the app (the two addresses who could potentially have money
+ *           sent to them)
+
+ * @property limitOrTotal If the resolution type is TwoPartyOutcome, the total
+ *           amount of ETH in wei allocated to the app; if the resolution type
+ *           is ETHTransfer, the static upper bound on the total amount of ETH
+ *           allowed to be transfered by this app
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
