@@ -1,14 +1,12 @@
 import {
-  AssetType,
   SolidityABIEncoderV2Type,
-  Terms,
-  Transaction
+  TwoPartyOutcome
 } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
-import { defaultAbiCoder, parseEther, solidityKeccak256 } from "ethers/utils";
+import { HashZero } from "ethers/constants";
+import { defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 
 import HighRollerApp from "../build/HighRollerApp.json";
 
@@ -168,7 +166,7 @@ describe("HighRollerApp", () => {
       const ret = await applyAction(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(2);
+      expect(state.stage).to.eq(TwoPartyOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
       expect(state.commitHash).to.eq(hash);
     });
 
@@ -240,7 +238,9 @@ describe("HighRollerApp", () => {
         playerSecondNumber: 2
       };
 
-      expect(await computeResolution(preState)).to.eq(1);
+      expect(await computeResolution(preState)).to.eq(
+        TwoPartyOutcome.SEND_TO_ADDR_TWO
+      );
     });
 
     /**
@@ -279,7 +279,9 @@ describe("HighRollerApp", () => {
         playerSecondNumber: 2
       };
 
-      expect(await computeResolution(preState)).to.eq(0);
+      expect(await computeResolution(preState)).to.eq(
+        TwoPartyOutcome.SEND_TO_ADDR_ONE
+      );
     });
   });
 });
