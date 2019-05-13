@@ -7,6 +7,26 @@ import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
+function computeEthTransferIncrement(resolution): [string, BigNumber] {
+  const decoded = defaultAbiCoder.decode(
+    ["tuple(address,uint256)[]"],
+    resolution
+  );
+
+  if (
+    !(
+      decoded.length === 1 &&
+      decoded[0].length === 1 &&
+      decoded[0][0].length === 2
+    )
+  ) {
+    throw new Error("Resolve function returned unexpected shape");
+  }
+  const [[[address, to]]] = decoded;
+
+  return [address, to];
+}
+
 export async function computeFreeBalanceIncrements(
   networkContext: NetworkContext,
   stateChannel: StateChannel,
@@ -21,15 +41,9 @@ export async function computeFreeBalanceIncrements(
     provider
   );
 
-  const resolution = await appDefinition.functions.resolve(
+  let resolution = await appDefinition.functions.resolve(
     appInstance.encodedLatestState
   );
-
-  /// todo(xuanji)
-  /// there used to be a bunch of retry logic here, to handle the case where
-  /// the appDefinition contract was deployed recently (and hence the provider
-  /// sometimes returning an incorrect definition). This TODO is to handle
-  /// that situation.
 
   const resolveType = bigNumberify(
     await appDefinition.functions.resolveType()
@@ -37,23 +51,22 @@ export async function computeFreeBalanceIncrements(
 
   switch (resolveType) {
     case ResolutionType.ETH_TRANSFER: {
-      const decoded = defaultAbiCoder.decode(
-        ["tuple(address,uint256)[]"],
-        resolution
-      );
 
-      if (
-        !(
-          decoded.length === 1 &&
-          decoded[0].length === 1 &&
-          decoded[0][0].length === 2
-        )
-      ) {
-        throw new Error("Resolve function returned unexpected shape");
+      // FIXME:
+      // https://github.com/counterfactual/monorepo/issues/1371
+
+      let attempts = 1;
+
+      while (1) {
+        const [address, to] = computeEthTransferIncrement(resolution);
+        if (to.gt(Zero)) {
+          return { [address]: to };
+        }
+        attempts += 1;
+        if (attempts === 10) {
+          throw new Error("Failed to get a resolution after 10 attempts");
+        }
       }
-      const [[[address, to]]] = decoded;
-
-      return { [address]: to };
     }
     case ResolutionType.TWO_PARTY_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], resolution);
