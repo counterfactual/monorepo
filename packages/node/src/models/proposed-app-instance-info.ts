@@ -123,7 +123,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
-      // not used in app identity computation
+      // the below two arguments are not currently used in app identity
+      // computation
       [AddressZero, AddressZero],
       bigNumberify(this.myDeposit).add(this.peerDeposit)
     );
