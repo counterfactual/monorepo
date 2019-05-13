@@ -51,13 +51,15 @@ export async function computeFreeBalanceIncrements(
 
   switch (resolveType) {
     case ResolutionType.ETH_TRANSFER: {
-
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
       let attempts = 1;
 
       while (1) {
+        resolution = await appDefinition.functions.resolve(
+          appInstance.encodedLatestState
+        );
         const [address, to] = computeEthTransferIncrement(resolution);
         if (to.gt(Zero)) {
           return { [address]: to };
