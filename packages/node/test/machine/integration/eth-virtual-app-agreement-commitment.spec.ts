@@ -43,6 +43,7 @@ beforeAll(async () => {
 });
 
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
+  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 

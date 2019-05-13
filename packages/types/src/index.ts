@@ -32,6 +32,7 @@ export interface NetworkContext {
   MinimumViableMultisig: string;
   ProxyFactory: string;
   ETHInterpreter: string;
+  TwoPartyEthAsLump: string;
 }
 
 // Keep in sync with above
@@ -45,7 +46,8 @@ export const networkContextProps = [
   "TwoPartyVirtualEthAsLump",
   "MinimumViableMultisig",
   "ProxyFactory",
-  "ETHInterpreter"
+  "ETHInterpreter",
+  "TwoPartyEthAsLump"
 ];
 
 export {

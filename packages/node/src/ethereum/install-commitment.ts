@@ -1,6 +1,5 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { AddressZero, HashZero } from "ethers/constants";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
 import * as log from "loglevel";
 
@@ -22,8 +21,8 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
-    public readonly interpreterAddr?: string,
-    public readonly interpreterParams?: string
+    public readonly interpreterAddr: string,
+    public readonly interpreterParams: string
   ) {
     super(
       networkContext,
@@ -73,8 +72,8 @@ export class InstallCommitment extends MultiSendCommitment {
         /* uninstallKey */ uninstallKey,
         /* rootNonceExpectedValue */ this.rootNonceValue,
         /* appIdentityHash* */ appIdentityHash,
-        /* interpreterAddress */ this.interpreterAddr || AddressZero,
-        /* interpreterParams */ this.interpreterParams || HashZero
+        /* interpreterAddress */ this.interpreterAddr,
+        /* interpreterParams */ this.interpreterParams
       ]),
       operation: MultisigOperation.DelegateCall
     };

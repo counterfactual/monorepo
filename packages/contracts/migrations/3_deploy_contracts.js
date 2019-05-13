@@ -11,6 +11,7 @@ const ProxyFactory = artifacts.require("ProxyFactory");
 const StateChannelTransaction = artifacts.require("StateChannelTransaction");
 const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 const ETHInterpreter = artifacts.require("ETHInterpreter");
+const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
 
 const ARTIFACTS = [
   AppRegistry,
@@ -23,7 +24,8 @@ const ARTIFACTS = [
   ProxyFactory,
   StateChannelTransaction,
   TwoPartyVirtualEthAsLump,
-  ETHInterpreter
+  ETHInterpreter,
+  TwoPartyEthAsLump
 ];
 
 module.exports = (deployer, network) => {

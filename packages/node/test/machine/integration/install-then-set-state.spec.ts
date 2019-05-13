@@ -58,6 +58,7 @@ beforeAll(async () => {
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
+  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 

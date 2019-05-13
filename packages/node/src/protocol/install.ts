@@ -1,5 +1,11 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
+import {
+  AssetType,
+  NetworkContext,
+  ResolutionType
+} from "@counterfactual/types";
+import { Contract } from "ethers";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -21,7 +27,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { respondingXpub } = context.message.params;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    const [appIdentityHash, commitment] = proposeStateTransition(
+    const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
       context
     );
@@ -52,7 +58,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    const [appIdentityHash, commitment] = proposeStateTransition(
+    const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
       context
     );
@@ -82,10 +88,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   }
 };
 
-function proposeStateTransition(
+async function proposeStateTransition(
   params: ProtocolParameters,
   context: Context
-): [string, InstallCommitment] {
+): Promise<[string, InstallCommitment]> {
   const {
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
@@ -97,6 +103,30 @@ function proposeStateTransition(
     defaultTimeout,
     multisigAddress
   } = params as InstallParams;
+
+  const appDefinition = new Contract(
+    appInterface.addr,
+    CounterfactualApp.abi,
+    context.provider
+  );
+
+  const resolveType = (await appDefinition.functions.resolveType()) as BigNumber;
+
+  let interpreterAddress: string;
+
+  switch (resolveType.toNumber()) {
+    case ResolutionType.ETH_TRANSFER: {
+      interpreterAddress = context.network.ETHInterpreter;
+      break;
+    }
+    case ResolutionType.TWO_PARTY_OUTCOME: {
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      break;
+    }
+    default: {
+      throw Error("unrecognized");
+    }
+  }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -131,7 +161,8 @@ function proposeStateTransition(
   const commitment = constructInstallOp(
     context.network,
     newStateChannel,
-    appIdentityHash
+    appIdentityHash,
+    interpreterAddress
   );
 
   return [appIdentityHash, commitment];
@@ -140,7 +171,8 @@ function proposeStateTransition(
 function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  appIdentityHash: string
+  appIdentityHash: string,
+  interpreterAddress
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
@@ -156,6 +188,8 @@ function constructInstallOp(
     freeBalance.nonce,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue
+    freeBalance.rootNonceValue,
+    interpreterAddress,
+    defaultAbiCoder.encode(["uint256"], [app.limitOrTotal])
   );
 }
