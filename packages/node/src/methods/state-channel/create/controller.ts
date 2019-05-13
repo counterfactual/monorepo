@@ -47,6 +47,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
+    console.log("state channel create params", JSON.stringify(params))
     const { owners } = params;
     const { wallet, networkContext } = requestHandler;
 
@@ -80,7 +81,7 @@ export default class CreateChannelController extends NodeController {
     );
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
-
+console.log("create state channel response", JSON.stringify(tx))
     return { transactionHash: tx.hash! };
   }
 

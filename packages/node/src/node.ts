@@ -419,10 +419,13 @@ export class Node {
   }
 
   private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
+    // @ts-ignore
+    const { params, protocol, toXpub } = msg.operations ? msg.operations[0].data.attributes : msg;
+
     return JSON.stringify({
-      protocol: msg.protocol,
-      fromto: [fromXpub, msg.toXpub].sort().toString(),
-      params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
+      protocol: protocol,
+      fromto: [fromXpub, toXpub].sort().toString(),
+      params: JSON.stringify(params, Object.keys(params).sort())
     });
   }
 }

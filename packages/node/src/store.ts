@@ -119,7 +119,7 @@ export class Store {
       stateChannel.userNeuteredExtendedKeys
     );
 
-    debugLog("Saving channel: ", stateChannel);
+    // debugLog("Saving channel: ", stateChannel);
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${

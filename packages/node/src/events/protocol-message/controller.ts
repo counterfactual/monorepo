@@ -32,9 +32,9 @@ export default async function protocolMessageEventController(
     outgoing
   } = requestHandler;
 
-  const {
-    data: { protocol, seq, params }
-  } = nodeMsg;
+  // @ts-ignore
+  const attributes = nodeMsg.operations ? nodeMsg.operations[0].data.attributes : nodeMsg;
+  const { protocol, seq, params } = attributes;
 
   if (seq === -1) return;
 
@@ -42,7 +42,8 @@ export default async function protocolMessageEventController(
     .getShardedQueue("instructionExecutorCoreQueue")
     .add(async () => {
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        nodeMsg.data,
+        // @ts-ignore
+        attributes,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
         )

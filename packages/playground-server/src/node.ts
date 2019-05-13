@@ -168,6 +168,7 @@ export class NodeWrapper {
     const serviceFactory = await serviceFactoryPromise;
 
     if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
+      // @ts-ignore
       await serviceFactory.auth(
         process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authEmail]!,
         process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authPassword]!
@@ -176,6 +177,7 @@ export class NodeWrapper {
 
     const store =
       storeService ||
+      // @ts-ignore
       serviceFactory.createStoreService(
         `${process.env.STORE_PREFIX}-pg-server-store`
       );
@@ -215,10 +217,12 @@ export class NodeWrapper {
     const serviceFactoryResolved = await serviceFactoryPromise;
 
     const store =
+    // @ts-ignore
       storeService || serviceFactoryResolved.createStoreService(generateUUID());
 
     const messaging =
       messagingService ||
+      // @ts-ignore
       serviceFactoryResolved.createMessagingService("messaging");
 
     if (mnemonic) {
@@ -272,9 +276,30 @@ export class NodeWrapper {
     return new Promise((resolve, reject) => {
       try {
         node.on(NodeTypes.MethodName.CREATE_CHANNEL, res => {
+          console.log("createStateChannelFor res", JSON.stringify(res))
           resolve(res.operations[0].data.attributes.result);
         });
-
+console.log("createStateChannelFor emit", JSON.stringify({
+  meta: {
+    requestId: generateUUID()
+  },
+  operations: [
+    {
+      op: "add",
+      ref: {
+        type: "channel"
+      },
+      data: {
+        type: "channel",
+        attributes: {
+          owners: [node.publicIdentifier, nodeAddress]
+        },
+        relationships: {}
+      },
+      params: {}
+    }
+  ]
+}))
         node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
           meta: {
             requestId: generateUUID()
@@ -291,7 +316,8 @@ export class NodeWrapper {
                   owners: [node.publicIdentifier, nodeAddress]
                 },
                 relationships: {}
-              }
+              },
+              params: {}
             }
           ]
         });

@@ -93,12 +93,12 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      if (msg.from !== snapshot.key) {
+      if (msg.meta.from !== snapshot.key) {
         console.error("Incorrect message received", msg);
       }
 
       await this.firebase
-        .ref(`${this.messagingServerKey}/${address}/${msg.from}`)
+        .ref(`${this.messagingServerKey}/${address}/${msg.meta.from}`)
         .remove();
 
       try {

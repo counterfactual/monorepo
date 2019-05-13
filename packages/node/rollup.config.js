@@ -1,7 +1,10 @@
 import commonjs from "rollup-plugin-commonjs";
 import json from "rollup-plugin-json";
+import nodeBuiltins from "rollup-plugin-node-builtins";
+import nodeGlobals from "rollup-plugin-node-globals";
 import nodeResolve from "rollup-plugin-node-resolve";
 import typescript from "rollup-plugin-typescript2";
+import replace from "rollup-plugin-re";
 
 import pkg from "./package.json";
 
@@ -19,8 +22,22 @@ const globals = {
 
 const bundledDependencies = new Set([
   "@counterfactual/types",
+  "@ebryn/jsonapi-ts",
+  "jsonwebtoken",
+  "koa-body",
+  "koa-compose",
+  "safe-buffer",
+  "crypto",
+  "ecdsa-sig-formatter",
+  "path",
+  "raw-body",
+  "zlib",
+  "qs",
+  "formidable",
   "typescript-memoize",
-  "p-queue"
+  "p-queue",
+  "setprototypeof",
+  "iconv-lite"
 ]);
 
 const external = [
@@ -53,6 +70,19 @@ export default [
     ],
     external: external,
     plugins: [
+      // HACK: removes formidable's attempt to overwrite `require`
+      replace({
+        patterns: [
+          {
+            // regexp match with resolved path
+            match: /formidable(\/|\\)lib/, 
+            // string or regexp
+            test: 'if (global.GENTLY) require = GENTLY.hijack(require);', 
+            // string or function to replaced with
+            replace: '',
+          }
+        ]
+      }),
       commonjs({
         namedExports: {
           "../../node_modules/typescript-memoize/dist/memoize-decorator.js": [
@@ -60,6 +90,8 @@ export default [
           ]
         }
       }),
+      nodeGlobals(),
+      nodeBuiltins(),
       json({ compact: true }),
       nodeResolve({
         only: [...bundledDependencies]

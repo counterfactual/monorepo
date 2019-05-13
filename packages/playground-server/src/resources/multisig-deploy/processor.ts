@@ -6,6 +6,7 @@ import informSlack from "../../utils";
 import User from "../user/resource";
 
 import MultisigDeploy from "./resource";
+import { Log } from "logepi";
 
 export default class MultisigDeployProcessor extends OperationProcessor<
   MultisigDeploy
@@ -18,10 +19,12 @@ export default class MultisigDeployProcessor extends OperationProcessor<
     >);
 
     const { nodeAddress } = user.attributes;
-    const { transactionHash } = await NodeWrapper.createStateChannelFor(
+    const response = await NodeWrapper.createStateChannelFor(
       nodeAddress as string
     );
 
+    Log.info("multisig deploy response", response)
+    const transactionHash = "foo"
     informSlack(
       `📄 *MULTISIG_TX_BROADCASTED* (_${
         user.attributes.username

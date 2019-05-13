@@ -26,7 +26,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    const { signature: theirSig } = yield [
+    const response = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         ...context.message,
@@ -35,6 +35,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1
       }
     ];
+    const theirSig = response.signature ? response.signature : response.operations[0].data.attributes.signature;
     validateSignature(respondingAddress, setupCommitment, theirSig);
 
     const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
