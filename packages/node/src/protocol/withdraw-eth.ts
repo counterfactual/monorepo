@@ -4,6 +4,7 @@ import {
   NetworkContext
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256 } from "ethers/constants";
+import { defaultAbiCoder } from "ethers/utils";
 
 import {
   InstallCommitment,
@@ -273,6 +274,8 @@ function constructInstallOp(
     freeBalance.nonce,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue
+    freeBalance.rootNonceValue,
+    network.ETHInterpreter,
+    defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );
 }
