@@ -1,20 +1,7 @@
-import { BigNumber } from "ethers/utils";
-
-import { Address } from "./simple-types";
-
 export enum AssetType {
   ETH = 0,
   ERC20 = 1
 }
-
-export type Transaction = {
-  assetType: AssetType;
-  limit: BigNumber;
-  token?: Address;
-  to: Address[];
-  value: BigNumber[];
-  data: string[];
-};
 
 export type AppIdentity = {
   owner: string;
