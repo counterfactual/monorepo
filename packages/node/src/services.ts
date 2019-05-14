@@ -149,6 +149,20 @@ class FirebaseMessagingService implements IMessagingService {
   }
 }
 
+function containsNull(obj) {
+  for (const key in obj) {
+    if (typeof obj[key] === "object") {
+      if (containsNull(obj[key])) {
+        return true;
+      }
+    }
+    if (obj[key] === null || obj[key] === undefined) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class FirebaseStoreService implements IStoreService {
   constructor(
     private readonly firebase: firebase.database.Database,
@@ -172,10 +186,19 @@ class FirebaseStoreService implements IStoreService {
     return result;
   }
 
+  /**
+   * Bulk set operation. Note that while firebase specifies that null/undefined
+   * values are interpreted as a delete for the key
+   * (https://www.firebase.com/docs/web/api/firebase/set.html), we throw an
+   * error instead.
+   */
   async set(pairs: { key: string; value: any }[]): Promise<any> {
     const updates = {};
     for (const pair of pairs) {
       updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
+    }
+    if (containsNull(updates)) {
+      throw new Error("Firebase store service found null/undefined value");
     }
     return await this.firebase.ref(this.storeServiceKey).update(updates);
   }
