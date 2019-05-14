@@ -13,7 +13,7 @@ import { InstructionExecutor } from "./machine";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import {
-  NODE_EVENTS,
+  // NODE_EVENTS,
   NodeEvents,
   // NodeMessage,
   NodeOperation,
@@ -115,7 +115,8 @@ export class RequestHandler {
    * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
    */
   private mapEventHandlers() {
-    for (const eventName of Object.values(NODE_EVENTS)) {
+    for (const eventName of Object.keys(eventNameToImplementation)) {
+      console.log("Mapping", eventName);
       this.events.set(eventName, eventNameToImplementation[eventName]);
     }
   }
@@ -126,14 +127,14 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: NodeEvents, msg: NodeOperation) {
+  public async callEvent(event: NodeEvents | string, msg: NodeOperation) {
     const controllerExecutionMethod = this.events.get(event);
 
     if (!controllerExecutionMethod) {
       throw new Error(`Recent ${event} which has no event handler`);
     }
 
-    await controllerExecutionMethod(this, msg);
+    await controllerExecutionMethod(this, msg.operations[0]);
   }
 
   public getShardedQueue(shardKey: string): Queue {

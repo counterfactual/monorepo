@@ -1,6 +1,7 @@
+import { Operation, Resource } from "@ebryn/jsonapi-ts";
+
 import { StateChannel } from "../../machine";
 import { RequestHandler } from "../../request-handler";
-import { CreateChannelMessage } from "../../types";
 
 /**
  * This creates an entry for an already-created multisig sent by a peer.
@@ -8,10 +9,11 @@ import { CreateChannelMessage } from "../../types";
  */
 export default async function addMultisigController(
   requestHandler: RequestHandler,
-  nodeMsg: CreateChannelMessage
+  nodeMsg: Operation
 ) {
-  const multisigAddress = nodeMsg.data.multisigAddress;
-  const multisigOwners = nodeMsg.data.owners;
+  const data = nodeMsg.data as Resource;
+  const multisigAddress = data.attributes.multisigAddress as string;
+  const multisigOwners = data.attributes.owners as string[];
   await requestHandler.store.saveStateChannel(
     StateChannel.setupChannel(
       requestHandler.networkContext.ETHBucket,

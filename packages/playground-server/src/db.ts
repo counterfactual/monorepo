@@ -353,6 +353,8 @@ export async function userExists(user: User): Promise<boolean> {
 export async function updateUser(user: User): Promise<User> {
   const db = getDatabase();
 
+  console.log("updateUser Attempting to update", user);
+
   const query = db("users")
     .update({
       email: user.attributes.email
@@ -423,6 +425,8 @@ export async function bindMultisigToUser(
 ): Promise<boolean> {
   const db = getDatabase();
 
+  console.log("bindMultisigToUser Attempting to update", nodeAddress, multisigAddress);
+
   const query = db("users")
     .where({ node_address: nodeAddress })
     .update("multisig_address", multisigAddress);
@@ -447,6 +451,8 @@ export async function bindTransactionHashToUser(
   transactionHash: string
 ): Promise<boolean> {
   const db = getDatabase();
+
+  console.log("bindTransactionHashToUser: Attempting to update", user, transactionHash);
 
   const query = db("users")
     .where({ id: user.id })

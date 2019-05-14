@@ -350,6 +350,7 @@ export class Node {
     this.messagingService.onReceive(
       this.publicIdentifier,
       async (msg: NodeOperation) => {
+        console.log("Recceived message", msg);
         await this.handleReceivedMessage({
           type: msg.operations[0].ref.type,
           from: msg.meta.from,
@@ -377,9 +378,11 @@ export class Node {
    *     solely to the deffered promise's resolve callback.
    */
   private async handleReceivedMessage(msg: NodeMessage) {
-    if (!Object.values(NODE_EVENTS).includes(msg.type)) {
-      console.error(`Received message with unknown event type: ${msg.type}`);
-    }
+    console.log(msg);
+
+    // if (!Object.values(NODE_EVENTS).includes(msg.type)) {
+    //   console.error(`Received message with unknown event type: ${msg.type}`);
+    // }
 
     const isProtocolMessage = (msg: NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
@@ -393,7 +396,10 @@ export class Node {
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else {
-      await this.requestHandler.callEvent(msg.type, msg["data"]);
+      await this.requestHandler.callEvent(
+        `${msg.type}:${msg["data"]["operations"][0]["op"]}`,
+        msg["data"]
+      );
     }
   }
 
@@ -420,7 +426,9 @@ export class Node {
 
   private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
     // @ts-ignore
-    const { params, protocol, toXpub } = msg.operations ? msg.operations[0].data.attributes : msg;
+    const { params, protocol, toXpub } = msg["operations"]
+      ? msg["operations"][0].data.attributes
+      : msg;
 
     return JSON.stringify({
       protocol: protocol,

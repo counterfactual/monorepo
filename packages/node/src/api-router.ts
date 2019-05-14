@@ -120,15 +120,25 @@ export const methodNameToImplementation = controllers.reduce(
 );
 
 export const eventNameToImplementation = {
+  "channel:add": addChannelController,
+  "channel:deposit": depositEventController,
+  "app:install": installEventController,
+  "app:installVirtual": installVirtualEventController,
+  "proposal:install": proposeInstallEventController,
+  "proposal:installVirtual": proposeInstallVirtualEventController,
+  "proposal:reject": rejectInstallEventController,
+  "protocolMessageEvent:protocolMessageEvent": protocolMessageEventController,
+
+  // TODO: Remove legacy event references.
   [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
   [NODE_EVENTS.DEPOSIT_CONFIRMED]: depositEventController,
   [NODE_EVENTS.INSTALL]: installEventController,
   [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
   [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
-  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
+  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
   // TODO: Remove no-ops of obsolete functions
   [NODE_EVENTS.UPDATE_STATE]: () => {},
   [NODE_EVENTS.UNINSTALL]: () => {},

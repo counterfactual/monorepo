@@ -24,6 +24,7 @@ import {
   storePlaygroundSnapshot
 } from "./db";
 import informSlack from "./utils";
+import { Operation } from "@ebryn/jsonapi-ts";
 
 interface IClosableFirebaseServiceFactory extends FirebaseServiceFactory {
   closeServiceConnections(): Promise<void>;
@@ -403,10 +404,10 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
 }
 
 export async function onMultisigDeployed(
-  result: NodeTypes.CreateChannelResult
+  op: Operation
 ) {
   await bindMultisigToUser(
-    result.counterpartyXpub, // FIXME: Not standard data flow
-    result.multisigAddress
+    op.data.attributes.counterpartyXpub as string, // FIXME: Not standard data flow
+    op.data.attributes.multisigAddress as string
   );
 }

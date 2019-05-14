@@ -88,6 +88,8 @@ export default class UserProcessor extends OperationProcessor<User> {
   }
 
   public async update(op: Operation): Promise<User> {
+    console.log(op);
+
     const user = op.data as User;
 
     const { email } = user.attributes;

@@ -1,4 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
+import { Operation, Resource } from "@ebryn/jsonapi-ts";
 import { BaseProvider } from "ethers/providers";
 
 import { StateChannel } from "../models";
@@ -38,17 +39,18 @@ export class InstructionExecutor {
   /// function should not be called with messages that are waited for by
   /// `IO_SEND_AND_WAIT`
   public async runProtocolWithMessage(
-    msg: ProtocolMessage,
+    msg: Operation,
     sc: Map<string, StateChannel>
   ) {
-    const protocol = getProtocolFromName(msg.protocol);
-    const step = protocol[msg.seq];
+    const data = (msg.data as Resource).attributes;
+    const protocol = getProtocolFromName(data.protocol as Protocol);
+    const step = protocol[data.seq as number];
     if (step === undefined) {
       throw Error(
-        `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
+        `Received invalid seq ${data.seq as number} for protocol ${data.protocol as string}`
       );
     }
-    return this.runProtocol(sc, step, msg);
+    return this.runProtocol(sc, step, msg.data!.attributes as ProtocolMessage);
   }
 
   public async runUpdateProtocol(
