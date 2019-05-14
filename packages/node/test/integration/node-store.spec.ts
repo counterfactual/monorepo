@@ -1,7 +1,7 @@
 import { AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
-import uuid = require("uuid");
+import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
@@ -46,14 +46,14 @@ describe("Node can use storage service", () => {
   });
 
   it("can save and retrieve a key-value pair", async () => {
-    const key = uuid();
-    const value = uuid();
+    const key = generateUUID();
+    const value = generateUUID();
     await storeService.set([{ key, value }]);
     expect(await storeService.get(key)).toBe(value);
   });
 
   it("rejects null entries", async () => {
-    const key = uuid();
+    const key = generateUUID();
     const value = {
       a: "a",
       b: "b",
