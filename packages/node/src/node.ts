@@ -8,7 +8,12 @@ import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import { InstructionExecutor, Opcode, Protocol } from "./machine";
+import {
+  InstructionExecutor,
+  Opcode,
+  Protocol,
+  ProtocolMessage
+} from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
