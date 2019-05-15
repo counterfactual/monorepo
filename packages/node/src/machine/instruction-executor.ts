@@ -115,8 +115,8 @@ export class InstructionExecutor {
       getProtocolFromName(protocol)[0],
       {
         protocol,
-        protocolExecutionID: uuid.v1(),
         params,
+        protocolExecutionID: uuid.v1(),
         seq: 0,
         toXpub: params.respondingXpub
       }
@@ -130,8 +130,8 @@ export class InstructionExecutor {
       getProtocolFromName(protocol)[0],
       {
         protocol,
-        protocolExecutionID: uuid.v1(),
         params,
+        protocolExecutionID: uuid.v1(),
         seq: 0,
         toXpub: params.respondingXpub
       }
@@ -161,6 +161,7 @@ export class InstructionExecutor {
       params,
       protocol,
       protocolExecutionID: uuid.v1(),
+      params,
       seq: 0,
       toXpub: params.intermediaryXpub
     });
