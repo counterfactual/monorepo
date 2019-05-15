@@ -50,7 +50,11 @@ function getContractAddressesForNetwork(
 }
 
 function getContractAddress(migrations: Migration[], contract: string): string {
-  return migrations.filter(migration => {
+  const matched = migrations.filter(migration => {
     return migration.contractName === contract;
-  })[0].address;
+  });
+  if (!matched.length) {
+    throw Error(`No migrations for ${contract}`);
+  }
+  return matched[0].address;
 }
