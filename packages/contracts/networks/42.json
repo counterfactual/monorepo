@@ -60,8 +60,13 @@
     "transactionHash": "0x9c234897542c6d9687140a7431aa2e64b0be75bc87933d0e7cb88de4b315d59e"
   },
   {
-    "contractName": "ETHVirtualAppAgreement",
-    "address": "0x74FE8597D6e1547a219B69dA45e3ADADbC53a8c0",
-    "transactionHash": "0x17a88814aaebeb3e3938c1d04b4be4de102c7445b9127075a2cd4303d4f8c3a3"
+    "contractName": "TwoPartyEthAsLump",
+    "address": "0x780b6Bc1f2B887c5d70fBFf8911AE2922E1942FC",
+    "transactionHash": "0x66e37c26bbe4c6227e9952bd396c840cf3f94afd9e49ddaf79c50f22909c26d3"
+  },
+  {
+    "contractName": "TwoPartyVirtualEthAsLump",
+    "address": "0x5476b5941F6161831EEA096Ff7db9926bec5c9FB",
+    "transactionHash": "0xb13c0783d2c40686c201bec47be42015a36dc9e7c31641fa5b4f9a21031496cb"
   }
 ]
