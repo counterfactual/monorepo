@@ -46,5 +46,6 @@ export const ERRORS = {
     `No channel exists between the current user ${nodeA} and the peer ${nodeB}`,
   VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance",
   CANNOT_UNINSTALL_FREE_BALANCE: (multisigAddress: string) =>
-    `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`
+    `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`,
+  WRITE_NULL_TO_FIREBASE: `The records being set contain null/undefined values. If this is intentional, pass the allowDelete flag in set.`
 };

@@ -4,10 +4,13 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
+import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 import { A_MNEMONIC } from "../test-constants.jest";
+
+const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
@@ -63,7 +66,7 @@ describe("Node can use storage service", () => {
       }
     };
     expect(storeService.set([{ key, value }])).rejects.toEqual(
-      new Error("Firebase store service found null/undefined value")
+      new Error(WRITE_NULL_TO_FIREBASE)
     );
   });
 

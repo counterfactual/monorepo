@@ -3,7 +3,10 @@ import "firebase/auth";
 import "firebase/database";
 import * as log from "loglevel";
 
+import { ERRORS } from "./methods/errors";
 import { NodeMessage } from "./types";
+
+const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 export interface IMessagingService {
   send(to: string, msg: NodeMessage): Promise<void>;
@@ -204,7 +207,7 @@ class FirebaseStoreService implements IStoreService {
       updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
     }
     if (!allowDelete && containsNull(updates)) {
-      throw new Error("Firebase store service found null/undefined value");
+      throw new Error(WRITE_NULL_TO_FIREBASE);
     }
     return await this.firebase.ref(this.storeServiceKey).update(updates);
   }
