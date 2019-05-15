@@ -1,5 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
+import uuid = require("uuid");
 
 import { StateChannel } from "../models";
 import { getProtocolFromName } from "../protocol";
@@ -59,6 +60,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -72,6 +74,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -85,6 +88,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -98,6 +102,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -110,6 +115,7 @@ export class InstructionExecutor {
       getProtocolFromName(protocol)[0],
       {
         protocol,
+        handshakeId: uuid.v1(),
         params,
         seq: 0,
         toXpub: params.respondingXpub
@@ -124,6 +130,7 @@ export class InstructionExecutor {
       getProtocolFromName(protocol)[0],
       {
         protocol,
+        handshakeId: uuid.v1(),
         params,
         seq: 0,
         toXpub: params.respondingXpub
@@ -139,6 +146,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.intermediaryXpub
     });
@@ -152,6 +160,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      handshakeId: uuid.v1(),
       seq: 0,
       toXpub: params.intermediaryXpub
     });

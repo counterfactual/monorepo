@@ -30,6 +30,7 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
+  handshakeId: string;
   protocol: Protocol;
   params: ProtocolParameters;
   toXpub: string;

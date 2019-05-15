@@ -191,10 +191,9 @@ export class Node {
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(fromXpub, data);
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
-        this.ioSendDeferrals.set(key, deferral);
+        this.ioSendDeferrals.set(data.handshakeId, deferral);
 
         const counterpartyResponse = deferral.promise;
 
@@ -218,7 +217,7 @@ export class Node {
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        this.ioSendDeferrals.delete(key);
+        this.ioSendDeferrals.delete(data.handshakeId);
 
         return msg.data;
       }
@@ -342,7 +341,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
+      this.ioSendDeferrals.has(msg.data.handshakeId);
 
     if (
       isProtocolMessage(msg) &&
@@ -355,7 +354,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = this.encodeProtocolMessage(msg.from, msg.data);
+    const key = msg.data.handshakeId;
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
@@ -373,14 +372,6 @@ export class Node {
         { error, msg }
       );
     }
-  }
-
-  private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
-    return JSON.stringify({
-      protocol: msg.protocol,
-      fromto: [fromXpub, msg.toXpub].sort().toString(),
-      params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
-    });
   }
 }
 
