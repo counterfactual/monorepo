@@ -91,8 +91,10 @@ export class RequestHandler {
           try {
             const res = await this.callMethod({ meta, operations });
 
-            // This feels dangerous...
-            this.outgoing.emit(operations[0].op, res);
+            this.outgoing.emit(
+              `${operations[0].ref.type}:${operations[0].op}`,
+              res
+            );
           } catch (e) {
             console.error(
               "Call to ",

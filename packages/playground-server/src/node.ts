@@ -218,7 +218,7 @@ export class NodeWrapper {
     const serviceFactoryResolved = await serviceFactoryPromise;
 
     const store =
-    // @ts-ignore
+      // @ts-ignore
       storeService || serviceFactoryResolved.createStoreService(generateUUID());
 
     const messaging =
@@ -276,31 +276,36 @@ export class NodeWrapper {
 
     return new Promise((resolve, reject) => {
       try {
-        node.on(NodeTypes.MethodName.CREATE_CHANNEL, res => {
-          console.log("createStateChannelFor res", JSON.stringify(res))
+        node.on("channel:add", res => {
+          console.log("createStateChannelFor res", JSON.stringify(res));
           resolve(res.operations[0].data.attributes.result);
         });
-console.log("createStateChannelFor emit", JSON.stringify({
-  meta: {
-    requestId: generateUUID()
-  },
-  operations: [
-    {
-      op: "add",
-      ref: {
-        type: "channel"
-      },
-      data: {
-        type: "channel",
-        attributes: {
-          owners: [node.publicIdentifier, nodeAddress]
-        },
-        relationships: {}
-      },
-      params: {}
-    }
-  ]
-}))
+
+        console.log(
+          "createStateChannelFor emit",
+          JSON.stringify({
+            meta: {
+              requestId: generateUUID()
+            },
+            operations: [
+              {
+                op: "add",
+                ref: {
+                  type: "channel"
+                },
+                data: {
+                  type: "channel",
+                  attributes: {
+                    owners: [node.publicIdentifier, nodeAddress]
+                  },
+                  relationships: {}
+                },
+                params: {}
+              }
+            ]
+          })
+        );
+
         node.emit(NodeTypes.MethodName.CREATE_CHANNEL, {
           meta: {
             requestId: generateUUID()
@@ -403,9 +408,8 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   });
 }
 
-export async function onMultisigDeployed(
-  op: Operation
-) {
+export async function onMultisigDeployed(op: Operation) {
+  console.log("multisigDeployed", op);
   await bindMultisigToUser(
     op.data.attributes.counterpartyXpub as string, // FIXME: Not standard data flow
     op.data.attributes.multisigAddress as string

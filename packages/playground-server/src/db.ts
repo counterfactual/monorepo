@@ -438,6 +438,8 @@ export async function bindMultisigToUser(
       tags: { query: query.toSQL().sql }
     });
 
+    console.log("bindMultisigUser finished");
+
     return true;
   } catch (e) {
     throw e;

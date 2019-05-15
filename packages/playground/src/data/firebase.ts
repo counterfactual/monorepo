@@ -63,7 +63,7 @@ class FirebaseMessagingService implements IMessagingService {
 
   async send(to: string, msg: any) {
     await this.firebase
-      .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
+      .ref(`${this.messagingServerKey}/${to}/${msg.meta.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 

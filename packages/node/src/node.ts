@@ -215,6 +215,7 @@ export class Node {
     instructionExecutor.register(
       Opcode.IO_SEND_AND_WAIT,
       async (args: any[]) => {
+        console.log(args);
         const [data] = args;
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
@@ -226,8 +227,11 @@ export class Node {
 
         const counterpartyResponse = deferral.promise;
 
+        console.log("to", to);
+
         await this.messagingService.send(to, {
           meta: {
+            to,
             requestId: "",
             from: fromXpub
           },
@@ -296,6 +300,7 @@ export class Node {
    * @param callback
    */
   on(event: string, callback: (res: any) => void) {
+    console.log(event, callback);
     this.outgoing.on(event, callback);
   }
 
@@ -356,7 +361,10 @@ export class Node {
           from: msg.meta.from,
           data: msg
         } as NodeMessage);
-        this.outgoing.emit(msg.operations[0].ref.type, msg);
+        this.outgoing.emit(
+          `${msg.operations[0].ref.type}:${msg.operations[0].op}`,
+          msg
+        );
       }
     );
   }
@@ -388,7 +396,12 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
+      this.ioSendDeferrals.has(
+        this.encodeProtocolMessage(
+          msg.data && msg.data["meta"] ? msg.data["meta"]["from"] : msg.from,
+          msg.data
+        )
+      );
 
     if (
       isProtocolMessage(msg) &&
@@ -430,11 +443,15 @@ export class Node {
       ? msg["operations"][0].data.attributes
       : msg;
 
-    return JSON.stringify({
+    const protocolMessage = {
       protocol: protocol,
       fromto: [fromXpub, toXpub].sort().toString(),
       params: JSON.stringify(params, Object.keys(params).sort())
-    });
+    };
+
+    console.log("encoding protocol message", protocolMessage);
+
+    return JSON.stringify(protocolMessage);
   }
 }
 
