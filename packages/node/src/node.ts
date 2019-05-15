@@ -172,21 +172,24 @@ export class Node {
       makeSigner(true)
     );
 
-    instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
-      const [data] = args;
-      const fromXpub = this.publicIdentifier;
-      const to = data.toXpub;
+    instructionExecutor.register(
+      Opcode.IO_SEND,
+      async (args: [ProtocolMessage]) => {
+        const [data] = args;
+        const fromXpub = this.publicIdentifier;
+        const to = data.toXpub;
 
-      await this.messagingService.send(to, {
-        data,
-        from: fromXpub,
-        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-      } as NodeMessageWrappedProtocolMessage);
-    });
+        await this.messagingService.send(to, {
+          data,
+          from: fromXpub,
+          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+      }
+    );
 
     instructionExecutor.register(
       Opcode.IO_SEND_AND_WAIT,
-      async (args: any[]) => {
+      async (args: [ProtocolMessage]) => {
         const [data] = args;
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
