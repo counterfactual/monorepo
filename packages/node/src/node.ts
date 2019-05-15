@@ -188,7 +188,7 @@ export class Node {
 
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
-        this.ioSendDeferrals.set(data.handshakeId, deferral);
+        this.ioSendDeferrals.set(data.protocolExecutionID, deferral);
 
         const counterpartyResponse = deferral.promise;
 
@@ -212,7 +212,7 @@ export class Node {
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        this.ioSendDeferrals.delete(data.handshakeId);
+        this.ioSendDeferrals.delete(data.protocolExecutionID);
 
         return msg.data;
       }
@@ -336,7 +336,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(msg.data.handshakeId);
+      this.ioSendDeferrals.has(msg.data.protocolExecutionID);
 
     if (
       isProtocolMessage(msg) &&
@@ -349,7 +349,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = msg.data.handshakeId;
+    const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
