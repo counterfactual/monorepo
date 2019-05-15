@@ -524,14 +524,14 @@ export class AppRoot {
   waitForMultisig() {
     const node = CounterfactualNode.getInstance();
     node.once(
-      Node.EventName.CREATE_CHANNEL,
+      "channel:add",
       this.setMultisigAddress.bind(this)
     );
   }
 
   async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
     const { user } = this.accountState;
-    user.multisigAddress = createChannelMsg.data.multisigAddress;
+    user.multisigAddress = createChannelMsg.operations[0].data.attributes.multisigAddress;
     await this.updateAccount({ user });
   }
 
