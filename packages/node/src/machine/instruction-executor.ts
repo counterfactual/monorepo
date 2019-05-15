@@ -1,6 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
-import uuid = require("uuid");
+import uuid from "uuid";
 
 import { StateChannel } from "../models";
 import { getProtocolFromName } from "../protocol";
