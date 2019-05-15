@@ -161,7 +161,6 @@ export class InstructionExecutor {
       params,
       protocol,
       protocolExecutionID: uuid.v1(),
-      params,
       seq: 0,
       toXpub: params.intermediaryXpub
     });
