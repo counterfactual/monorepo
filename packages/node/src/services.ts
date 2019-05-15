@@ -14,7 +14,10 @@ export interface IStoreService {
   get(key: string): Promise<any>;
   // Multiple pairs could be written simultaneously if an atomic write
   // among multiple records is required
-  set(pairs: { key: string; value: any }[]): Promise<boolean>;
+  set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<boolean>;
 }
 
 export interface FirebaseAppConfiguration {
@@ -190,14 +193,17 @@ class FirebaseStoreService implements IStoreService {
    * Bulk set operation. Note that while firebase specifies that null/undefined
    * values are interpreted as a delete for the key
    * (https://www.firebase.com/docs/web/api/firebase/set.html), we throw an
-   * error instead.
+   * error by defautl instead.
    */
-  async set(pairs: { key: string; value: any }[]): Promise<any> {
+  async set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<any> {
     const updates = {};
     for (const pair of pairs) {
       updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
     }
-    if (containsNull(updates)) {
+    if (!allowDelete && containsNull(updates)) {
       throw new Error("Firebase store service found null/undefined value");
     }
     return await this.firebase.ref(this.storeServiceKey).update(updates);
