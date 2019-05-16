@@ -15,6 +15,7 @@ import {
   ProtocolMessage
 } from "./machine";
 import { configureNetworkContext } from "./network-configuration";
+import { Plugin } from "./plugin";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
@@ -24,7 +25,7 @@ import {
   NodeMessageWrappedProtocolMessage
 } from "./types";
 import { timeout } from "./utils";
-import { Plugin } from "./plugin";
+import { ERRORS } from "./methods/errors";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -45,6 +46,8 @@ export class Node {
 
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
+
+  readonly plugins: Map<string, Plugin>;
 
   private ioSendDeferrals = new Map<
     string,
@@ -101,6 +104,7 @@ export class Node {
       this.networkContext = networkContext;
     }
     this.instructionExecutor = this.buildInstructionExecutor();
+    this.plugins = new Map();
 
     log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
@@ -305,7 +309,18 @@ export class Node {
   /**
    * Registers a plugin for a given App
    */
-  registerPlugin(plugin: Plugin, appId: string) {}
+  registerPlugin(plugin: Plugin, appId: string) {
+    // TODO: plugins should be mapped to appInstances?
+    this.plugins.set(appId, plugin);
+  }
+
+  getPlugin(appId: string): Plugin {
+    if (!this.plugins.has(appId)) {
+      throw Error(ERRORS.NO_REGISTERED_PLUGIN_FOR_APP_ID(appId));
+    }
+
+    return this.plugins.get(appId)!;
+  }
 
   /**
    * When a Node is first instantiated, it establishes a connection

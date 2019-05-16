@@ -46,5 +46,7 @@ export const ERRORS = {
     `No channel exists between the current user ${nodeA} and the peer ${nodeB}`,
   VIRTUAL_APP_INSTALLATION_FAIL: "Failed to install the virtual App Instance",
   CANNOT_UNINSTALL_FREE_BALANCE: (multisigAddress: string) =>
-    `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`
+    `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`,
+  NO_REGISTERED_PLUGIN_FOR_APP_ID: (appId: string) =>
+    `No registered plugin for app ID: ${appId}`
 };

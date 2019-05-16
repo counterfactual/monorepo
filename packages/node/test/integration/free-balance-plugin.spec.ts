@@ -1,4 +1,4 @@
-import { Node } from "../../src";
+import { Node, Plugin } from "../../src";
 import { FreeBalancePlugin } from "../../src/default-plugins/freeBalancePlugin";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
@@ -22,10 +22,20 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
   });
 
   describe("Nodes register the plugin", () => {
+    let freeBalancePluginNodeA: Plugin;
+
+    beforeEach(() => {
+      freeBalancePluginNodeA = new FreeBalancePlugin(nodeA);
+    });
+
+    it("node can register a plugin", () => {
+      const ethBucketAddress = global["networkContext"].ETHBucket;
+      nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
+      expect(nodeA.getPlugin(ethBucketAddress)).toEqual(freeBalancePluginNodeA);
+    });
+
     it("can take valid install proposal", async () => {
       await createChannel(nodeA, nodeB);
-      const freeBalancePlugin = new FreeBalancePlugin(nodeA);
-      console.log(freeBalancePlugin);
     });
   });
 });
