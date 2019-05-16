@@ -3,12 +3,9 @@ import { JsonRpcProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 
-import {
-  InstructionExecutor,
-  Opcode,
-  StateChannel
-} from "../../../src/machine";
-import { EthereumCommitment } from "../../../src/machine/ethereum/types";
+import { EthereumCommitment } from "../../../src/ethereum/types";
+import { InstructionExecutor, Opcode } from "../../../src/machine";
+import { StateChannel } from "../../../src/models";
 
 import { getRandomHDNodes } from "./random-signing-keys";
 

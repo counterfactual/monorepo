@@ -9,6 +9,11 @@ const BANNED_MNEMONICS = new Set([
   "impulse exile artwork when toss canal entire electric protect custom adult erupt"
 ]);
 
+const NO_MNEMONIC_MESSAGE =
+  'Error: No mnemonic specified in the NODE_MNEMONIC env var.\n\
+Please set one by following the instructions in the README, \
+section "Funding the Hub Account for Playground Testing".\n';
+
 Log.setOutputLevel((process.env.API_LOG_LEVEL as LogLevel) || LogLevel.INFO);
 
 const API_TIMEOUT = 5 * 60 * 1000;
@@ -16,9 +21,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
 (async () => {
   const nodeMnemonic = process.env.NODE_MNEMONIC;
   if (!nodeMnemonic) {
-    console.error(
-      "\nError: No mnemonic specified in the NODE_MNEMONIC env var. Please set one.\n"
-    );
+    console.error(NO_MNEMONIC_MESSAGE);
     process.exit(1);
   }
 
@@ -49,6 +52,7 @@ process.on("SIGINT", async () => {
   console.log("Shutting down playground-server...");
   const serviceFactory = await serviceFactoryPromise;
   await serviceFactory.closeServiceConnections();
+  process.exit(0);
 });
 
 export * from "./types";

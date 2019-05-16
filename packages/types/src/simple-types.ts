@@ -10,22 +10,24 @@ export type Bytes32 = string;
 // around in protocol messages and include this in transaction data in disputes,
 // we impose some restrictions on the type; they must be serializable both as
 // JSON and as solidity structs.
-export type SolidityABIEncoderV2Struct = {
+export type SolidityABIEncoderV2Type = SolidityABIEncoderV2Struct | SolidityABIEncoderV2SArray;
+
+type SolidityABIEncoderV2Struct = {
   [x: string]:
     | string
     | BigNumberish
     | boolean
     | SolidityABIEncoderV2Struct
-    | SolidityABIEncoderV2StructArray;
+    | SolidityABIEncoderV2SArray;
 };
 
 // Ideally this should be a `type` not an `interface` but self-referencial
 // types is not supported: github.com/Microsoft/TypeScript/issues/6230
-export interface SolidityABIEncoderV2StructArray
+interface SolidityABIEncoderV2SArray
   extends Array<
     | string
     | number
     | boolean
     | SolidityABIEncoderV2Struct
-    | SolidityABIEncoderV2StructArray
+    | SolidityABIEncoderV2SArray
   > {}

@@ -54,6 +54,7 @@ export class AppProvider {
   nodeProvider: MockNodeProvider = {} as MockNodeProvider;
 
   @Prop({ mutable: true }) cfProvider: cf.Provider = {} as cf.Provider;
+
   @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
@@ -78,10 +79,11 @@ export class AppProvider {
     this.cfProvider.on("uninstall", this.onUninstall.bind(this));
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
-    const appId = "0x91907355C59BA005843E791c88aAB80b779446c9";
+    const highRollerAppDefinitionAddr =
+      "0x91907355C59BA005843E791c88aAB80b779446c9";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      appId,
+      highRollerAppDefinitionAddr,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
@@ -120,13 +122,9 @@ export class AppProvider {
     );
 
     if (state.stage === HighRollerStage.REVEALING) {
-      // TODO randomize this and save it in proposingPlayer state
-      const numberSalt =
-        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-
       return await this.appInstance.takeAction({
         actionType: ActionType.REVEAL,
-        actionHash: numberSalt,
+        actionHash: this.highRollerState.salt,
         number: state.playerFirstNumber.toString()
       });
     }

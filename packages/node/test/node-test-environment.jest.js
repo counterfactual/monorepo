@@ -17,26 +17,29 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
-    let addresses = readFileSync(path.join(DIR, "addresses"), "utf8");
-    if (!addresses) {
-      throw new Error("Contract addresses not found");
+    let accounts = readFileSync(path.join(DIR, "accounts"), "utf8");
+    if (!accounts) {
+      throw new Error("Accounts information not found");
     }
-    addresses = JSON.parse(addresses);
+    accounts = JSON.parse(accounts);
 
     const networkContext = {
       AppRegistry: AddressZero,
-      ETHBalanceRefundApp: addresses.ETHBalanceRefundApp,
-      ETHBucket: AddressZero,
+      ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
+      ETHBucket: accounts.contractAddresses.ETHBucket,
       MultiSend: AddressZero,
       NonceRegistry: AddressZero,
       StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero,
-      MinimumViableMultisig: addresses.MinimumViableMultisig,
-      ProxyFactory: addresses.ProxyFactory,
-      TicTacToe: addresses.TicTacToe
+      TwoPartyVirtualEthAsLump: AddressZero,
+      MinimumViableMultisig: accounts.contractAddresses.MinimumViableMultisig,
+      ProxyFactory: accounts.contractAddresses.ProxyFactory,
+      TicTacToe: accounts.contractAddresses.TicTacToe,
+      ETHInterpreter: accounts.contractAddresses.ETHInterpreter,
+      TwoPartyEthAsLump: accounts.contractAddresses.TwoPartyEthAsLump
     };
 
     this.global.networkContext = networkContext;
+    this.global.fundedPrivateKey = accounts.fundedPrivateKey;
     this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 

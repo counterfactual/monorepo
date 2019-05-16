@@ -1,7 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
@@ -14,14 +14,15 @@ import {
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
+import { Transaction } from "./machine";
+import { ERRORS } from "./methods/errors";
 import {
   AppInstance,
+  ProposedAppInstanceInfo,
+  ProposedAppInstanceInfoJSON,
   StateChannel,
-  StateChannelJSON,
-  Transaction
-} from "./machine";
-import { ERRORS } from "./methods/errors";
-import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
+  StateChannelJSON
+} from "./models";
 import { debugLog } from "./node";
 import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
@@ -142,7 +143,7 @@ export class Store {
    */
   public async saveAppInstanceState(
     appInstanceId: string,
-    newState: SolidityABIEncoderV2Struct
+    newState: SolidityABIEncoderV2Type
   ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(appInstanceId, newState);
@@ -160,24 +161,27 @@ export class Store {
   public async saveRealizedProposedAppInstance(
     appInstanceInfo: ProposedAppInstanceInfo
   ) {
-    await this.storeService.set([
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          appInstanceInfo.id
-        }`,
-        value: null
-      },
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
-          appInstanceInfo.id
-        }`,
-        value: appInstanceInfo
-      }
-    ]);
+    await this.storeService.set(
+      [
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+            appInstanceInfo.id
+          }`,
+          value: null
+        },
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
+            appInstanceInfo.id
+          }`,
+          value: appInstanceInfo
+        }
+      ],
+      true
+    );
   }
 
   /**
@@ -249,20 +253,23 @@ export class Store {
   }
 
   public async removeAppInstanceProposal(appInstanceId: string) {
-    await this.storeService.set([
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
-        value: null
-      },
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
-        value: null
-      }
-    ]);
+    await this.storeService.set(
+      [
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+          value: null
+        },
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+          value: null
+        }
+      ],
+      true
+    );
   }
 
   public async getAppInstanceInfo(

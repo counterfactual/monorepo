@@ -1,4 +1,4 @@
-pragma solidity 0.5.7;
+pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
@@ -41,7 +41,7 @@ contract MixinProgressChallenge is
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "cancelChallenge called on app not in DISPUTE state"
+      "progressChallenge called on app not in DISPUTE state"
     );
 
     require(

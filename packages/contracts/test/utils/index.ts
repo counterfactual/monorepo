@@ -1,41 +1,10 @@
 import { AppIdentity } from "@counterfactual/types";
 import * as chai from "chai";
 import { solidity } from "ethereum-waffle";
+import { HashZero } from "ethers/constants";
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
-
-export enum AssetType {
-  ETH,
-  ERC20,
-  ANY
-}
-
-export class Terms {
-  private static readonly ABI_ENCODER_V2_ENCODING =
-    "tuple(uint8 assetType, uint256 limit, address token)";
-
-  constructor(
-    readonly assetType: AssetType,
-    readonly limit: number,
-    readonly token: string
-  ) {}
-
-  public hashOfPackedEncoding(): string {
-    return keccak256(
-      defaultAbiCoder.encode(
-        [Terms.ABI_ENCODER_V2_ENCODING],
-        [
-          {
-            assetType: this.assetType,
-            limit: this.limit,
-            token: this.token
-          }
-        ]
-      )
-    );
-  }
-}
 
 // TS version of MAppRegistryCore::computeAppChallengeHash
 export const computeAppChallengeHash = (
@@ -76,7 +45,7 @@ export class AppInstance {
       owner: this.owner,
       signingKeys: this.signingKeys,
       appDefinitionAddress: this.appDefinitionAddress,
-      termsHash: this.terms.hashOfPackedEncoding(),
+      interpreterHash: HashZero,
       defaultTimeout: this.defaultTimeout
     };
   }
@@ -85,10 +54,10 @@ export class AppInstance {
     readonly owner: string,
     readonly signingKeys: string[],
     readonly appDefinitionAddress: string,
-    readonly terms: Terms,
     readonly defaultTimeout: number
   ) {}
 
+  // appIdentity
   public hashOfEncoding(): string {
     return keccak256(
       defaultAbiCoder.encode(
@@ -97,7 +66,7 @@ export class AppInstance {
             address owner,
             address[] signingKeys,
             address appDefinitionAddress,
-            bytes32 termsHash,
+            bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
         ],

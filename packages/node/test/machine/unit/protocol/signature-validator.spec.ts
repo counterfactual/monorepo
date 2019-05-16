@@ -7,8 +7,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import { EthereumCommitment } from "../../../../src/machine/ethereum/types";
-import { validateSignature } from "../../../../src/machine/protocol/utils/signature-validator";
+import { EthereumCommitment } from "../../../../src/ethereum/types";
+import { validateSignature } from "../../../../src/protocol/utils/signature-validator";
 
 describe("Signature Validator Helper", () => {
   let signer: SigningKey;

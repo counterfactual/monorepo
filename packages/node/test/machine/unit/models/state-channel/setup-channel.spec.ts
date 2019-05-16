@@ -3,7 +3,7 @@ import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { AppInstance, StateChannel } from "../../../../../src/machine/models";
+import { AppInstance, StateChannel } from "../../../../../src/models";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
@@ -79,16 +79,13 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.appSeqNo).toBe(0);
     });
 
-    it("should set the signingKeys as the userNeuteredExtendedKeys", () => {
-      const { alice, bob } = fb.state as ETHBucketAppState;
-      expect(alice).toBe(sc.multisigOwners[0]);
-      expect(bob).toBe(sc.multisigOwners[1]);
-    });
+    it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
-      expect(aliceBalance).toEqual(Zero);
-      expect(bobBalance).toEqual(Zero);
+      const fbState = fb.state as ETHBucketAppState;
+      for (const { amount } of fbState) {
+        expect(amount).toEqual(Zero);
+      }
     });
   });
 });

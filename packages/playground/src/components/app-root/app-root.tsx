@@ -30,11 +30,7 @@ const NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
   "42": "kovan"
 };
 
-const TWO_BLOCK_TIMES_ON_AVG_ON_KOVAN = 24 * 1000;
 const HEARTBEAT_INTERVAL = 30 * 1000;
-
-const delay = (timeInMilliseconds: number) =>
-  new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 
 @Component({
   tag: "app-root",
@@ -444,7 +440,7 @@ export class AppRoot {
         if (event.data.type === "plugin_message_response") {
           if (event.data.data.message === "metamask:response:balances") {
             window.removeEventListener("message", cb);
-            const state = event.data.data.data;
+            const freeBalance = event.data.data.data;
             console.log("received getBalances response", event.data);
             // Had to reimplement this on the frontend because the method can't be imported
             // due to ethers not playing nice with ES Modules in this context.
@@ -454,27 +450,23 @@ export class AppRoot {
                   .publicKey
               );
 
-            const balances = [
-              ethers.utils.bigNumberify(state.aliceBalance),
-              ethers.utils.bigNumberify(state.bobBalance)
-            ];
+            const myFreeBalanceAddress = getAddress(nodeAddress, 0);
+            const [counterpartyFreeBalanceAddress] = Object.keys(
+              freeBalance
+            ).filter(addr => addr !== myFreeBalanceAddress);
 
-            const [myBalance, counterpartyBalance] = [
-              balances[
-                [state.alice, state.bob].findIndex(
-                  address => address === getAddress(nodeAddress, 0)
-                )
-              ],
-              balances[
-                [state.alice, state.bob].findIndex(
-                  address => address !== getAddress(nodeAddress, 0)
-                )
-              ]
-            ];
+            const myBalance = (freeBalance[
+              myFreeBalanceAddress
+            ] as unknown) as BigNumber;
+            const counterpartyBalance = (freeBalance[
+              counterpartyFreeBalanceAddress
+            ] as unknown) as BigNumber;
 
             const vals = {
               ethFreeBalanceWei: myBalance,
-              ethMultisigBalance: await provider!.getBalance(multisigAddress),
+              ethMultisigBalance: (await provider!.getBalance(
+                multisigAddress
+              )) as BigNumber,
               ethCounterpartyFreeBalanceWei: counterpartyBalance
             };
 

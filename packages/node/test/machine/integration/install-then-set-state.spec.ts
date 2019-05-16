@@ -5,23 +5,21 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, keccak256, parseEther } from "ethers/utils";
-
 import {
-  InstallCommitment,
-  SetStateCommitment
-} from "../../../src/machine/ethereum";
-import { AppInstance, StateChannel } from "../../../src/machine/models";
+  defaultAbiCoder,
+  Interface,
+  keccak256,
+  parseEther
+} from "ethers/utils";
+
+import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
+import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-
-// To be honest, 30000 is an arbitrary large number that has never failed
-// to reach the done() call in the test case, not intelligently chosen
-const JEST_TEST_WAIT_TIME = 30000;
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -60,8 +58,7 @@ beforeAll(async () => {
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
+  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -96,29 +93,26 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       const state = freeBalanceETH.state;
 
       // todo(xuanji): don't reuse state
+      // todo(xuanji): use createAppInstance
       const appInstance = new AppInstance(
         stateChannel.multisigAddress,
         uniqueAppSigningKeys.map(x => x.address),
         freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
         freeBalanceETH.appInterface, // Re-use the ETHBucket App
-        {
-          assetType: AssetType.ETH,
-          limit: parseEther("2"),
-          token: AddressZero
-        },
         false,
         stateChannel.numInstalledApps,
         stateChannel.rootNonceValue,
         state,
         0,
-        freeBalanceETH.timeout // Re-use ETH FreeBalance timeout
+        freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
+        [AddressZero, AddressZero],
+        Zero
       );
 
-      stateChannel = stateChannel.installApp(
-        appInstance,
-        WeiPerEther,
-        WeiPerEther
-      );
+      stateChannel = stateChannel.installApp(appInstance, {
+        [multisigOwnerKeys[0].address]: WeiPerEther,
+        [multisigOwnerKeys[1].address]: WeiPerEther
+      });
 
       freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -144,8 +138,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await appRegistry.functions.setResolution(
         appInstance.identity,
-        appInstance.encodedLatestState,
-        appInstance.encodedTerms
+        appInstance.encodedLatestState
       );
 
       const installCommitment = new InstallCommitment(
@@ -153,14 +146,14 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
         appInstance.identity,
-        appInstance.terms,
         freeBalanceETH.identity,
-        freeBalanceETH.terms,
         freeBalanceETH.hashOfLatestState,
         freeBalanceETH.nonce,
         freeBalanceETH.timeout,
         appInstance.appSeqNo,
-        stateChannel.rootNonceValue
+        stateChannel.rootNonceValue,
+        network.ETHInterpreter,
+        defaultAbiCoder.encode(["uint256"], [freeBalanceETH.limitOrTotal])
       );
 
       const installTx = installCommitment.transaction([
@@ -170,7 +163,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         to: proxyAddress,
-        value: WeiPerEther.mul(2)
+        value: parseEther("2")
       });
 
       await wallet.sendTransaction({

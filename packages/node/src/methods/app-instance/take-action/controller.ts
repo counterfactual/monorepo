@@ -1,8 +1,9 @@
-import { Node, SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
-import { InstructionExecutor, StateChannel } from "../../../machine";
+import { InstructionExecutor } from "../../../machine";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
@@ -117,7 +118,7 @@ async function runTakeActionProtocol(
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
   respondingXpub: string,
-  action: SolidityABIEncoderV2Struct
+  action: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

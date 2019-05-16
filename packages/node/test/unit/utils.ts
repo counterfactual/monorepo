@@ -2,15 +2,18 @@ import {
   AppABIEncodings,
   AssetType,
   BlockchainAsset,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
-import { AppInstance } from "../../src/machine";
-import { ProposedAppInstanceInfo } from "../../src/models";
+import {
+  AppInstance,
+  ProposedAppInstanceInfo,
+  StateChannel
+} from "../../src/models";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
@@ -35,37 +38,39 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Struct
+      } as SolidityABIEncoderV2Type
     },
     undefined,
     appInstanceId
   );
 }
 
-export function createAppInstance() {
+export function createAppInstance(stateChannel?: StateChannel) {
   return new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    0,
-    {
+    /* multisigAddress */ stateChannel
+      ? stateChannel.multisigAddress
+      : getAddress(hexlify(randomBytes(20))),
+    /* signingKeys */ stateChannel
+      ? stateChannel.getSigningKeysFor(stateChannel.numInstalledApps)
+      : [
+          getAddress(hexlify(randomBytes(20))),
+          getAddress(hexlify(randomBytes(20)))
+        ],
+    /* defaultTimeout */ 0,
+    /* appInterface */ {
       addr: getAddress(hexlify(randomBytes(20))),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    // TODO: this should be thread-safe
-    1,
+    /* isVirtualApp */ false,
+    /* appSeqNo */ stateChannel
+      ? stateChannel.numInstalledApps
+      : Math.ceil(1000 * Math.random()),
     0,
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
-    0
+    Math.ceil(1000 * Math.random()),
+    [AddressZero, AddressZero],
+    Zero
   );
 }

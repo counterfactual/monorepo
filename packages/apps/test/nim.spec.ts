@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -11,17 +11,14 @@ chai.use(waffle.solidity);
 
 const { expect } = chai;
 
-type NimSolidityABIEncoderV2Struct = {
-  players: string[];
+type NimAppState = {
   turnNum: BigNumber;
   pileHeights: BigNumber[];
 };
 
-function decodeBytesToAppState(
-  encodedAppState: string
-): NimSolidityABIEncoderV2Struct {
+function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
-    ["tuple(address[2] players, uint256 turnNum, uint256[3] pileHeights)"],
+    ["tuple(uint256 turnNum, uint256[3] pileHeights)"],
     encodedAppState
   )[0];
 }
@@ -29,12 +26,11 @@ function decodeBytesToAppState(
 describe("Nim", () => {
   let nim: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Struct) {
+  function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
         tuple(
-          address[2] players,
           uint256 turnNum,
           uint256[3] pileHeights
         )
@@ -44,7 +40,7 @@ describe("Nim", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Struct) {
+  function encodeAction(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [
         `
@@ -59,8 +55,8 @@ describe("Nim", () => {
   }
 
   async function applyAction(
-    state: SolidityABIEncoderV2Struct,
-    action: SolidityABIEncoderV2Struct
+    state: SolidityABIEncoderV2Type,
+    action: SolidityABIEncoderV2Type
   ) {
     return await nim.functions.applyAction(
       encodeState(state),
@@ -68,7 +64,7 @@ describe("Nim", () => {
     );
   }
 
-  async function isStateTerminal(state: SolidityABIEncoderV2Struct) {
+  async function isStateTerminal(state: SolidityABIEncoderV2Type) {
     return await nim.functions.isStateTerminal(encodeState(state));
   }
 
@@ -81,7 +77,6 @@ describe("Nim", () => {
   describe("applyAction", () => {
     it("can take from a pile", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -103,7 +98,6 @@ describe("Nim", () => {
 
     it("can take to produce an empty pile", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -125,7 +119,6 @@ describe("Nim", () => {
 
     it("should fail for taking too much", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 0,
         pileHeights: [6, 5, 12]
       };
@@ -144,7 +137,6 @@ describe("Nim", () => {
   describe("isFinal", () => {
     it("empty state is final", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 49,
         pileHeights: [0, 0, 0]
       };
@@ -153,7 +145,6 @@ describe("Nim", () => {
 
     it("nonempty state is not final", async () => {
       const preState = {
-        players: [AddressZero, AddressZero],
         turnNum: 49,
         pileHeights: [0, 1, 0]
       };

@@ -1,32 +1,13 @@
-import { BigNumber } from "ethers/utils";
-
-import { Address } from "./simple-types";
-
 export enum AssetType {
   ETH = 0,
   ERC20 = 1
 }
 
-export type Terms = {
-  assetType: AssetType;
-  limit: BigNumber;
-  token: Address;
-};
-
-export type Transaction = {
-  assetType: AssetType;
-  limit: BigNumber;
-  token?: Address;
-  to: Address[];
-  value: BigNumber[];
-  data: string[];
-};
-
 export type AppIdentity = {
   owner: string;
   signingKeys: string[];
   appDefinitionAddress: string;
-  termsHash: string;
+  interpreterHash: string;
   defaultTimeout: number;
 };
 
@@ -44,8 +25,6 @@ export type SignedStateHashUpdate = {
 };
 
 export type ETHBucketAppState = {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
-};
+  amount: { _hex: string },
+  to: string
+}[];

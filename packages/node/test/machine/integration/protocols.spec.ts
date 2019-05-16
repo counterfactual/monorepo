@@ -1,7 +1,7 @@
-import ResolveToPay5WeiApp from "@counterfactual/contracts/build/ResolveToPay5WeiApp.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
@@ -13,8 +13,6 @@ import { connectToGanache } from "./connect-ganache";
 import { makeNetworkContext } from "./make-network-context";
 import { MessageRouter } from "./message-router";
 import { MiniNode } from "./mininode";
-
-const JEST_TEST_WAIT_TIME = 50000;
 
 let networkId: number;
 let network: NetworkContext;
@@ -30,15 +28,13 @@ beforeAll(async () => {
   network = makeNetworkContext(networkId);
 
   appDefinition = await new ContractFactory(
-    ResolveToPay5WeiApp.abi,
-    ResolveToPay5WeiApp.bytecode,
+    AppWithAction.abi,
+    AppWithAction.bytecode,
     wallet
   ).deploy();
 });
 
 describe("Three mininodes", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("Can run all the protocols", async () => {
     const mininodeA = new MiniNode(network, provider);
     const mininodeB = new MiniNode(network, provider);
@@ -65,23 +61,18 @@ describe("Three mininodes", () => {
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeB.xpub,
       multisigAddress: AddressZero,
-      aliceBalanceDecrement: bigNumberify(0),
-      bobBalanceDecrement: bigNumberify(0),
+      initiatingBalanceDecrement: Zero,
+      respondingBalanceDecrement: Zero,
       initialState: {
         player1: AddressZero,
         player2: AddressZero,
         counter: 0
       },
-      terms: {
-        assetType: AssetType.ETH,
-        limit: bigNumberify(100),
-        token: AddressZero
-      },
       appInterface: {
         addr: appDefinition.address,
         stateEncoding:
           "tuple(address player1, address player2, uint256 counter)",
-        actionEncoding: "tuple(uint256)"
+        actionEncoding: "tuple(uint256 increment)"
       },
       defaultTimeout: 40
     });
@@ -93,8 +84,6 @@ describe("Three mininodes", () => {
         mininodeA.scm.get(AddressZero)!.toJson().freeBalanceAppIndexes[0][1]
       );
     });
-
-    // increments comes back as 0 and free balance is not decremented
 
     await mininodeA.ie.runUninstallProtocol(mininodeA.scm, {
       appIdentityHash: key,
@@ -184,7 +173,7 @@ describe("Three mininodes", () => {
       targetAppState: {
         player1: AddressZero,
         player2: AddressZero,
-        counter: 1
+        counter: 2
       }
     });
   });

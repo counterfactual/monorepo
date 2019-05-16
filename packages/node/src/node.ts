@@ -1,8 +1,9 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
+import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
@@ -22,10 +23,7 @@ import {
   NodeMessage,
   NodeMessageWrappedProtocolMessage
 } from "./types";
-
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+import { timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -103,14 +101,15 @@ export class Node {
     }
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    console.log(
+    log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    console.log(`Node signer address: ${this.signer.address}`);
+    log.info(`Node signer address: ${this.signer.address}`);
+    log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -131,6 +130,11 @@ export class Node {
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  @Memoize()
+  get ethFreeBalanceAddress(): string {
+    return getETHFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -168,29 +172,31 @@ export class Node {
       makeSigner(true)
     );
 
-    instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
-      const [data] = args;
-      const fromXpub = this.publicIdentifier;
-      const to = data.toXpub;
-
-      await this.messagingService.send(to, {
-        data,
-        from: fromXpub,
-        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-      } as NodeMessageWrappedProtocolMessage);
-    });
-
     instructionExecutor.register(
-      Opcode.IO_SEND_AND_WAIT,
-      async (args: any[]) => {
+      Opcode.IO_SEND,
+      async (args: [ProtocolMessage]) => {
         const [data] = args;
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(fromXpub, data);
+        await this.messagingService.send(to, {
+          data,
+          from: fromXpub,
+          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+      }
+    );
+
+    instructionExecutor.register(
+      Opcode.IO_SEND_AND_WAIT,
+      async (args: [ProtocolMessage]) => {
+        const [data] = args;
+        const fromXpub = this.publicIdentifier;
+        const to = data.toXpub;
+
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
-        this.ioSendDeferrals.set(key, deferral);
+        this.ioSendDeferrals.set(data.protocolExecutionID, deferral);
 
         const counterpartyResponse = deferral.promise;
 
@@ -214,7 +220,7 @@ export class Node {
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        this.ioSendDeferrals.delete(key);
+        this.ioSendDeferrals.delete(data.protocolExecutionID);
 
         return msg.data;
       }
@@ -338,7 +344,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
+      this.ioSendDeferrals.has(msg.data.protocolExecutionID);
 
     if (
       isProtocolMessage(msg) &&
@@ -351,7 +357,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = this.encodeProtocolMessage(msg.from, msg.data);
+    const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
@@ -370,14 +376,13 @@ export class Node {
       );
     }
   }
+}
 
-  private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
-    return JSON.stringify({
-      protocol: msg.protocol,
-      fromto: [fromXpub, msg.toXpub].sort().toString(),
-      params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
-    });
-  }
+/**
+ * Address used for ETH free balance
+ */
+export function getETHFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
 
 const isBrowser =
@@ -390,17 +395,17 @@ export function debugLog(...messages: any[]) {
     if (isBrowser) {
       if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
         // for some reason `debug` doesn't actually log in the browser
-        console.info(logPrefix, messages);
-        console.trace();
+        log.info(logPrefix, messages);
+        log.trace();
       }
       // node.js side
     } else if (
       process.env.LOG_LEVEL !== undefined &&
       process.env.LOG_LEVEL === "DEBUG"
     ) {
-      console.debug(logPrefix, JSON.stringify(messages, null, 4));
-      console.trace();
-      console.log("\n");
+      log.debug(logPrefix, JSON.stringify(messages, null, 4));
+      log.trace();
+      log.debug("\n");
     }
   } catch (e) {
     console.error("Failed to log: ", e);

@@ -7,13 +7,11 @@ export enum HighRollerStage {
 }
 
 export type HighRollerAppState = {
-  playerAddrs: string[];
   stage: HighRollerStage;
   salt: string;
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
-  playerNames?: string[];
 };
 
 export enum ActionType {

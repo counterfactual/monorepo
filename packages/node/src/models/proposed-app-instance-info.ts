@@ -5,18 +5,13 @@ import {
   AppInterface,
   BlockchainAsset,
   Bytes32,
-  SolidityABIEncoderV2Struct,
-  Terms
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import {
-  AppInstance,
-  StateChannel,
-  xkeyKthAddress,
-  xkeysToSortedKthAddresses
-} from "../machine";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
+import { AppInstance, StateChannel } from "../models";
 
 export interface IProposedAppInstanceInfo {
   appId: Address;
@@ -25,7 +20,7 @@ export interface IProposedAppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -39,7 +34,7 @@ export interface ProposedAppInstanceInfoJSON {
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -63,7 +58,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -91,12 +86,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     const proposedAppInterface: AppInterface = {
       addr: this.appId,
       ...this.abiEncodings
-    };
-
-    const proposedTerms: Terms = {
-      assetType: this.asset.assetType,
-      limit: bigNumberify(this.myDeposit).add(bigNumberify(this.peerDeposit)),
-      token: this.asset.token || AddressZero
     };
 
     let signingKeys: string[];
@@ -128,13 +117,16 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       signingKeys,
       bigNumberify(this.timeout).toNumber(),
       proposedAppInterface,
-      proposedTerms,
       isVirtualApp,
       isVirtualApp ? 1337 : stateChannel.numInstalledApps,
       stateChannel.rootNonceValue,
       this.initialState,
       0,
-      bigNumberify(this.timeout).toNumber()
+      bigNumberify(this.timeout).toNumber(),
+      // the below two arguments are not currently used in app identity
+      // computation
+      [AddressZero, AddressZero],
+      bigNumberify(this.myDeposit).add(this.peerDeposit)
     );
 
     return proposedAppInstance.identityHash;

@@ -20,7 +20,7 @@ Log.setOutputLevel(LogLevel.ERROR);
 
 const NETWORK_CONTEXT = global["networkContext"];
 
-describe("playground-server", () => {
+describe("ttt-bot", () => {
   let playgroundNode: Node;
   let nodeAlice: Node;
   let nodeBot: Node;
@@ -161,14 +161,6 @@ describe("playground-server", () => {
           intermediaries: [playgroundNode.publicIdentifier],
           proposedToIdentifier: nodeBot.publicIdentifier,
           initialState: {
-            players: [
-              ethers.utils.HDNode.fromExtendedKey(
-                nodeAlice.publicIdentifier
-              ).derivePath("0").address,
-              ethers.utils.HDNode.fromExtendedKey(
-                nodeBot.publicIdentifier
-              ).derivePath("0").address
-            ],
             turnNum: 0,
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
@@ -178,7 +170,7 @@ describe("playground-server", () => {
             actionEncoding:
               "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
             stateEncoding:
-              "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
+              "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
           },
           asset: {
             assetType: 0

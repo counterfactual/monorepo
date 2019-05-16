@@ -123,7 +123,7 @@ async function validate(
 function urlData(app: Application, ctx: Context) {
   const urlRegexp = new RegExp(
     `^\/?(?<namespace>${escapeStringRegexp(
-      app.namespace
+      app.namespace || ""
     )})(\/?(?<resource>[\\w|-]+))?(\/(?<id>\\S+))?`
   );
 

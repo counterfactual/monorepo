@@ -1,14 +1,8 @@
-import { BigNumber } from "ethers/utils";
-
-import {
-  AppABIEncodings,
-  AppInstanceInfo,
-  BlockchainAsset
-} from "./data-types";
+import { AppInstanceInfo } from "./data-types";
 import {
   Address,
   AppInstanceID,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface INodeProvider {
@@ -71,17 +65,6 @@ export namespace Node {
     appInstances: AppInstanceInfo[];
   };
 
-  export type ProposeInstallParams = {
-    respondingAddress: Address;
-    appId: Address;
-    abiEncodings: AppABIEncodings;
-    asset: BlockchainAsset;
-    myDeposit: BigNumber;
-    peerDeposit: BigNumber;
-    timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
-  };
-
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
   };
@@ -105,7 +88,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Struct;
+    state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -118,11 +101,11 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: SolidityABIEncoderV2Struct;
+    action: SolidityABIEncoderV2Type;
   };
 
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UninstallParams = {
@@ -148,7 +131,6 @@ export namespace Node {
   export type MethodParams =
     | GetAppInstancesParams
     | GetProposedAppInstancesParams
-    | ProposeInstallParams
     | RejectInstallParams
     | InstallParams
     | GetStateParams
@@ -180,8 +162,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
-    action?: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
+    action?: SolidityABIEncoderV2Type;
   };
 
   export type UninstallEventData = {

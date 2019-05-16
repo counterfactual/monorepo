@@ -3,18 +3,14 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 
+import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
-import { SetStateCommitment } from "../../../src/machine/ethereum";
-import { StateChannel } from "../../../src/machine/models";
+import { StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-
-// To be honest, 30000 is an arbitrary large number that has never failed
-// to reach the done() call in the test case, not intelligently chosen
-const JEST_TEST_WAIT_TIME = 30000;
 
 // The AppRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
@@ -39,8 +35,6 @@ beforeAll(async () => {
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("set state on free balance", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("should have the correct nonce", async done => {
     const xkeys = getRandomHDNodes(2);
 

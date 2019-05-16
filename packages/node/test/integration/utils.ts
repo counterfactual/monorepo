@@ -5,19 +5,30 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
-  ETHBucketAppState,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
-  SolidityABIEncoderV2Struct
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { Node } from "../../src";
+import {
+  CreateChannelMessage,
+  InstallVirtualMessage,
+  Node,
+  NODE_EVENTS,
+  ProposeMessage,
+  ProposeVirtualMessage
+} from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
+import {
+  initialEmptyTTTState,
+  tttActionEncoding,
+  tttStateEncoding
+} from "./tic-tac-toe";
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -72,7 +83,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.id === appInstanceId;
   })[0];
 }
 
@@ -98,7 +109,7 @@ export async function getProposedAppInstanceInfo(
 export async function getFreeBalanceState(
   node: Node,
   multisigAddress: string
-): Promise<ETHBucketAppState> {
+): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
@@ -107,8 +118,7 @@ export async function getFreeBalanceState(
     }
   };
   const response = await node.call(req.type, req);
-  const result = response.result as NodeTypes.GetFreeBalanceStateResult;
-  return result.state;
+  return response.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
 export async function getApps(
@@ -190,60 +200,34 @@ export function makeRejectInstallRequest(
   };
 }
 
-export function makeInstallProposalRequest(
+export function makeTTTProposalRequest(
+  proposedByIdentifier: string,
   proposedToIdentifier: string,
-  nullInitialState: boolean = false
+  appId: string,
+  state: SolidityABIEncoderV2Type = {},
+  myDeposit: BigNumber = Zero,
+  peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
-  let initialState;
-
-  if (!nullInitialState) {
-    initialState = {
-      foo: AddressZero,
-      bar: Zero
-    } as SolidityABIEncoderV2Struct;
-  }
+  const initialState =
+    Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
+    myDeposit,
+    peerDeposit,
+    appId,
     initialState,
-    appId: AddressZero,
     abiEncodings: {
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
+      stateEncoding: tttStateEncoding,
+      actionEncoding: tttActionEncoding
     } as AppABIEncodings,
     asset: {
       assetType: AssetType.ETH
     } as BlockchainAsset,
-    myDeposit: Zero,
-    peerDeposit: Zero,
     timeout: One
   };
   return {
     params,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL
-  } as NodeTypes.MethodRequest;
-}
-
-export function makeTTTProposalReq(
-  proposedToIdentifier: string,
-  appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
-  abiEncodings: AppABIEncodings
-): NodeTypes.MethodRequest {
-  return {
-    params: {
-      proposedToIdentifier,
-      appId,
-      initialState,
-      abiEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      },
-      myDeposit: Zero,
-      peerDeposit: Zero,
-      timeout: One
-    } as NodeTypes.ProposeInstallParams,
     requestId: generateUUID(),
     type: NodeTypes.MethodName.PROPOSE_INSTALL
   } as NodeTypes.MethodRequest;
@@ -263,14 +247,22 @@ export function makeInstallVirtualRequest(
   };
 }
 
-export function makeInstallVirtualProposalRequest(
+export function makeTTTVirtualProposalRequest(
+  proposedByIdentifier: string,
   proposedToIdentifier: string,
   intermediaries: string[],
-  nullInitialState: boolean = false
+  appId: string,
+  initialState: SolidityABIEncoderV2Type = {},
+  myDeposit: BigNumber = Zero,
+  peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
-  const installProposalParams = makeInstallProposalRequest(
+  const installProposalParams = makeTTTProposalRequest(
+    proposedByIdentifier,
     proposedToIdentifier,
-    nullInitialState
+    appId,
+    initialState,
+    myDeposit,
+    peerDeposit
   ).params as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
@@ -290,7 +282,8 @@ export function makeInstallVirtualProposalRequest(
  */
 export function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstanceInfo: AppInstanceInfo
+  proposedAppInstanceInfo: AppInstanceInfo,
+  nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
   expect(proposalParams.abiEncodings).toEqual(
@@ -298,10 +291,19 @@ export function confirmProposedAppInstanceOnNode(
   );
   expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
   expect(proposalParams.asset).toEqual(proposedAppInstanceInfo.asset);
-  expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
-  expect(proposalParams.peerDeposit).toEqual(
-    proposedAppInstanceInfo.peerDeposit
-  );
+  if (nonInitiatingNode) {
+    expect(proposalParams.myDeposit).toEqual(
+      proposedAppInstanceInfo.peerDeposit
+    );
+    expect(proposalParams.peerDeposit).toEqual(
+      proposedAppInstanceInfo.myDeposit
+    );
+  } else {
+    expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
+    expect(proposalParams.peerDeposit).toEqual(
+      proposedAppInstanceInfo.peerDeposit
+    );
+  }
   expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
@@ -309,9 +311,14 @@ export function confirmProposedAppInstanceOnNode(
 
 export function confirmProposedVirtualAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo
+  proposedAppInstance: AppInstanceInfo,
+  nonInitiatingNode: boolean = false
 ) {
-  confirmProposedAppInstanceOnNode(methodParams, proposedAppInstance);
+  confirmProposedAppInstanceOnNode(
+    methodParams,
+    proposedAppInstance,
+    nonInitiatingNode
+  );
   const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
   expect(proposalParams.intermediaries).toEqual(
     proposedAppInstance.intermediaries
@@ -378,28 +385,249 @@ export function generateUninstallVirtualRequest(
   };
 }
 
-export function makeTTTVirtualAppInstanceProposalReq(
-  proposedToIdentifier: string,
-  appId: Address,
-  initialState: SolidityABIEncoderV2Struct,
-  abiEncodings: AppABIEncodings,
+export function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
+}
+
+export async function collateralizeChannel(
+  node1: Node,
+  node2: Node,
+  multisigAddress: string
+): Promise<void> {
+  const depositReq = makeDepositRequest(multisigAddress, One);
+  await node1.call(depositReq.type, depositReq);
+  await node2.call(depositReq.type, depositReq);
+}
+
+export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
+      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+      expect(await getInstalledAppInstances(nodeB)).toEqual([]);
+      resolve(msg.data.multisigAddress);
+    });
+
+    await getMultisigCreationTransactionHash(nodeA, [
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier
+    ]);
+  });
+}
+
+export async function installTTTApp(
+  nodeA: Node,
+  nodeB: Node,
+  initialState?: SolidityABIEncoderV2Type
+): Promise<string> {
+  const initialTTTState: SolidityABIEncoderV2Type = initialState
+    ? initialState
+    : initialEmptyTTTState();
+
+  return new Promise(async (resolve, reject) => {
+    const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+      nodeA.publicIdentifier,
+      nodeB.publicIdentifier,
+      global["networkContext"].TicTacToe,
+      initialTTTState
+    );
+
+    let appInstanceId: string;
+
+    nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+      confirmProposedAppInstanceOnNode(
+        appInstanceInstallationProposalRequest.params,
+        await getProposedAppInstanceInfo(nodeA, appInstanceId)
+      );
+
+      const installRequest = makeInstallRequest(msg.data.appInstanceId);
+      nodeB.emit(installRequest.type, installRequest);
+    });
+
+    nodeA.on(NODE_EVENTS.INSTALL, async () => {
+      const appInstanceNodeA = await getInstalledAppInstanceInfo(
+        nodeA,
+        appInstanceId
+      );
+      const appInstanceNodeB = await getInstalledAppInstanceInfo(
+        nodeB,
+        appInstanceId
+      );
+      expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+      resolve(appInstanceId);
+    });
+
+    const response = await nodeA.call(
+      appInstanceInstallationProposalRequest.type,
+      appInstanceInstallationProposalRequest
+    );
+    appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
+      .appInstanceId;
+  });
+}
+
+export async function installTTTAppVirtual(
+  nodeA: Node,
+  nodeB: Node,
+  nodeC: Node,
+  initialState?: SolidityABIEncoderV2Type
+): Promise<string> {
+  return new Promise(async (resolve, reject) => {
+    nodeA.on(
+      NODE_EVENTS.INSTALL_VIRTUAL,
+      async (msg: InstallVirtualMessage) => {
+        resolve(msg.data.params.appInstanceId);
+      }
+    );
+
+    nodeC.on(
+      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+      (msg: ProposeVirtualMessage) => {
+        const installReq = makeInstallVirtualRequest(
+          msg.data.appInstanceId,
+          msg.data.params.intermediaries
+        );
+        nodeC.emit(installReq.type, installReq);
+      }
+    );
+
+    await makeTTTVirtualProposal(nodeA, nodeC, nodeB, initialState);
+  });
+}
+
+export async function confirmChannelCreation(
+  nodeA: Node,
+  nodeB: Node,
+  ownersPublicIdentifiers: string[],
+  data: NodeTypes.CreateChannelResult
+) {
+  const openChannelsNodeA = await getChannelAddresses(nodeA);
+  const openChannelsNodeB = await getChannelAddresses(nodeB);
+
+  expect(openChannelsNodeA.has(data.multisigAddress)).toBeTruthy();
+  expect(openChannelsNodeB.has(data.multisigAddress)).toBeTruthy();
+  expect(data.owners).toEqual(ownersPublicIdentifiers);
+}
+
+export async function confirmAppInstanceInstallation(
+  proposedParams: NodeTypes.ProposeInstallParams,
+  appInstanceInfo: AppInstanceInfo
+) {
+  delete appInstanceInfo.proposedByIdentifier;
+  delete appInstanceInfo.intermediaries;
+  delete appInstanceInfo.id;
+  expect(appInstanceInfo).toEqual(proposedParams);
+}
+
+export async function getState(
+  nodeA: Node,
+  appInstanceId: string
+): Promise<SolidityABIEncoderV2Type> {
+  const getStateReq = generateGetStateRequest(appInstanceId);
+  const getStateResult = await nodeA.call(getStateReq.type, getStateReq);
+  return (getStateResult.result as NodeTypes.GetStateResult).state;
+}
+
+export async function makeTTTVirtualProposal(
+  nodeA: Node,
+  nodeC: Node,
+  nodeB: Node,
+  initialState: SolidityABIEncoderV2Type = {}
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallVirtualParams;
+}> {
+  const virtualAppInstanceProposalRequest: NodeTypes.MethodRequest = makeTTTVirtualProposalRequest(
+    nodeA.publicIdentifier,
+    nodeC.publicIdentifier,
+    [nodeB.publicIdentifier],
+    global["networkContext"].TicTacToe,
+    initialState,
+    One,
+    Zero
+  );
+  const params = virtualAppInstanceProposalRequest.params as NodeTypes.ProposeInstallVirtualParams;
+  const response = await nodeA.call(
+    virtualAppInstanceProposalRequest.type,
+    virtualAppInstanceProposalRequest
+  );
+  const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
+    .appInstanceId;
+  expect(appInstanceId).toBeDefined();
+  return { appInstanceId, params };
+}
+
+export function installTTTVirtual(
+  node: Node,
+  appInstanceId: string,
   intermediaries: string[]
-): NodeTypes.MethodRequest {
+) {
+  const installVirtualReq = makeInstallVirtualRequest(
+    appInstanceId,
+    intermediaries
+  );
+  node.emit(installVirtualReq.type, installVirtualReq);
+}
+
+export function makeInstallCall(node: Node, appInstanceId: string) {
+  const installRequest = makeInstallRequest(appInstanceId);
+  node.emit(installRequest.type, installRequest);
+}
+
+export async function makeVirtualProposeCall(
+  nodeA: Node,
+  nodeC: Node,
+  nodeB: Node
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallVirtualParams;
+}> {
+  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
+    nodeA.publicIdentifier,
+    nodeC.publicIdentifier,
+    [nodeB.publicIdentifier],
+    global["networkContext"].TicTacToe
+  );
+  const response = await nodeA.call(
+    virtualAppInstanceProposalRequest.type,
+    virtualAppInstanceProposalRequest
+  );
   return {
-    params: {
-      intermediaries,
-      proposedToIdentifier,
-      appId,
-      initialState,
-      abiEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      },
-      myDeposit: Zero,
-      peerDeposit: Zero,
-      timeout: One
-    } as NodeTypes.ProposeInstallVirtualParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL
-  } as NodeTypes.MethodRequest;
+    appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
+      .appInstanceId,
+    params: virtualAppInstanceProposalRequest.params as NodeTypes.ProposeInstallVirtualParams
+  };
+}
+
+export async function makeProposeCall(
+  nodeA: Node,
+  nodeB: Node
+): Promise<{
+  appInstanceId: string;
+  params: NodeTypes.ProposeInstallParams;
+}> {
+  const appInstanceProposalReq = makeTTTProposalRequest(
+    nodeA.publicIdentifier,
+    nodeB.publicIdentifier,
+    global["networkContext"].TicTacToe,
+    {},
+    One,
+    Zero
+  );
+
+  const response = await nodeA.call(
+    appInstanceProposalReq.type,
+    appInstanceProposalReq
+  );
+  return {
+    appInstanceId: (response.result as NodeTypes.ProposeInstallResult)
+      .appInstanceId,
+    params: appInstanceProposalReq.params as NodeTypes.ProposeInstallParams
+  };
+}
+
+export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
+  appInstances.forEach((appInstance: AppInstanceInfo) => {
+    delete appInstance.myDeposit;
+    delete appInstance.peerDeposit;
+  });
 }

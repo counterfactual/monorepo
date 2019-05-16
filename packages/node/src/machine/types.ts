@@ -1,15 +1,15 @@
 import {
   AppInterface,
   NetworkContext,
-  SolidityABIEncoderV2Struct,
-  Terms
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
 
+import { Transaction } from "../ethereum/types";
+import { StateChannel } from "../models";
+
 import { Opcode, Protocol } from "./enums";
-import { Transaction } from "./ethereum/types";
-import { StateChannel } from "./models";
 
 export type ProtocolExecutionFlow = {
   [x: number]: (context: Context) => AsyncIterableIterator<any[]>;
@@ -30,6 +30,7 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
+  protocolExecutionID: string;
   protocol: Protocol;
   params: ProtocolParameters;
   toXpub: string;
@@ -50,7 +51,7 @@ export type UpdateParams = {
   respondingXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  newState: SolidityABIEncoderV2Struct;
+  newState: SolidityABIEncoderV2Type;
 };
 
 export type TakeActionParams = {
@@ -58,7 +59,7 @@ export type TakeActionParams = {
   respondingXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  action: SolidityABIEncoderV2Struct;
+  action: SolidityABIEncoderV2Type;
 };
 
 export type WithdrawParams = {
@@ -73,11 +74,10 @@ export type InstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
   multisigAddress: string;
-  aliceBalanceDecrement: BigNumber;
-  bobBalanceDecrement: BigNumber;
+  initiatingBalanceDecrement: BigNumber;
+  respondingBalanceDecrement: BigNumber;
   signingKeys: string[];
-  initialState: SolidityABIEncoderV2Struct;
-  terms: Terms;
+  initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
 };
@@ -95,7 +95,7 @@ export type InstallVirtualAppParams = {
   intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
-  initialState: SolidityABIEncoderV2Struct;
+  initialState: SolidityABIEncoderV2Type;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
 };
@@ -105,7 +105,7 @@ export type UninstallVirtualAppParams = {
   respondingXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;
-  targetAppState: SolidityABIEncoderV2Struct;
+  targetAppState: SolidityABIEncoderV2Type;
 };
 
 export type ProtocolParameters =

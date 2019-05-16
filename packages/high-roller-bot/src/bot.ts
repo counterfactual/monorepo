@@ -8,7 +8,25 @@ import { Address, Node as NodeTypes } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { getFreeBalance, renderFreeBalanceInEth } from "./utils";
+import { getFreeBalance, logEthFreeBalance } from "./utils";
+
+// Keep in sync with high-roller-app.spec.ts
+enum HighRollerStage {
+  PRE_GAME,
+  COMMITTING_HASH,
+  COMMITTING_NUM,
+  REVEALING,
+  DONE
+}
+
+type HighRollerAppState = {
+  playerAddrs: string[];
+  stage: HighRollerStage;
+  salt: string;
+  commitHash: string;
+  playerFirstNumber: number;
+  playerSecondNumber: number;
+};
 
 /// Returns the commit hash that can be used to commit to chosenNumber
 /// using appSalt
@@ -18,7 +36,8 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
 
 function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
   const data: NodeTypes.UpdateStateEventData = msg.data;
-  const { appInstanceId, newState } = data;
+  const { appInstanceId } = data;
+  const newState = data.newState as HighRollerAppState;
 
   // FIXME: introduce better logging
   if (process.env.LOG_LEVEL && process.env.LOG_LEVEL === "DEBUG") {
@@ -26,8 +45,7 @@ function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
     console.log(newState);
   }
 
-  if (newState.stage === 2) {
-    // Stage.COMMITTING_NUM
+  if (newState.stage === HighRollerStage.COMMITTING_NUM) {
     const numToCommit = Math.floor(Math.random() * Math.floor(1000));
 
     const numberSalt =
@@ -98,7 +116,7 @@ export async function connectNode(
       async (uninstallMsg: UninstallVirtualMessage) => {
         console.info(`Uninstalled app`);
         console.info(uninstallMsg);
-        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+        logEthFreeBalance(await getFreeBalance(node, multisigAddress));
       }
     );
   }

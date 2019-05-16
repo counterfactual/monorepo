@@ -1,8 +1,12 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
+import * as log from "loglevel";
 
+import { ERRORS } from "./methods/errors";
 import { NodeMessage } from "./types";
+
+const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 export interface IMessagingService {
   send(to: string, msg: NodeMessage): Promise<void>;
@@ -13,7 +17,10 @@ export interface IStoreService {
   get(key: string): Promise<any>;
   // Multiple pairs could be written simultaneously if an atomic write
   // among multiple records is required
-  set(pairs: { key: string; value: any }[]): Promise<boolean>;
+  set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<boolean>;
 }
 
 export interface FirebaseAppConfiguration {
@@ -65,12 +72,10 @@ export class FirebaseServiceFactory {
 
   async auth(email: string, password: string) {
     try {
-      console.log(`Authenticating with email: ${email}`);
+      log.info(`Authenticating with email: ${email}`);
       await this.app.auth().signInWithEmailAndPassword(email, password);
     } catch (e) {
-      console.error(
-        `Error authenticating against Firebase with email: ${email}`
-      );
+      log.error(`Error authenticating against Firebase with email: ${email}`);
       console.error(e);
     }
   }
@@ -150,6 +155,20 @@ class FirebaseMessagingService implements IMessagingService {
   }
 }
 
+function containsNull(obj) {
+  for (const key in obj) {
+    if (typeof obj[key] === "object") {
+      if (containsNull(obj[key])) {
+        return true;
+      }
+    }
+    if (obj[key] === null || obj[key] === undefined) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class FirebaseStoreService implements IStoreService {
   constructor(
     private readonly firebase: firebase.database.Database,
@@ -173,10 +192,22 @@ class FirebaseStoreService implements IStoreService {
     return result;
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<any> {
+  /**
+   * Bulk set operation. Note that while firebase specifies that null/undefined
+   * values are interpreted as a delete for the key
+   * (https://www.firebase.com/docs/web/api/firebase/set.html), we throw an
+   * error by defautl instead.
+   */
+  async set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<any> {
     const updates = {};
     for (const pair of pairs) {
       updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
+    }
+    if (!allowDelete && containsNull(updates)) {
+      throw new Error(WRITE_NULL_TO_FIREBASE);
     }
     return await this.firebase.ref(this.storeServiceKey).update(updates);
   }

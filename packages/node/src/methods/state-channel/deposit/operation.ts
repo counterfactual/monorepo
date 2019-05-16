@@ -1,19 +1,16 @@
-import {
-  AssetType,
-  Node,
-  SolidityABIEncoderV2Struct
-} from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { Node } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { StateChannel, xkeyKthAddress } from "../../../machine";
+import { xkeyKthAddress } from "../../../machine";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { ERRORS } from "../../errors";
 
-export interface ETHBalanceRefundAppState extends SolidityABIEncoderV2Struct {
+export interface ETHBalanceRefundAppState {
   recipient: string;
   multisig: string;
   threshold: BigNumber;
@@ -39,7 +36,7 @@ export async function installBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const initialState: ETHBalanceRefundAppState = {
+  const initialState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
     threshold: await provider.getBalance(params.multisigAddress)
@@ -57,15 +54,9 @@ export async function installBalanceRefundApp(
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      aliceBalanceDecrement: Zero,
-      bobBalanceDecrement: Zero,
+      initiatingBalanceDecrement: Zero,
+      respondingBalanceDecrement: Zero,
       signingKeys: stateChannel.getNextSigningKeys(),
-      terms: {
-        // TODO: generalize
-        assetType: AssetType.ETH,
-        limit: MaxUint256,
-        token: AddressZero
-      },
       appInterface: {
         addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:

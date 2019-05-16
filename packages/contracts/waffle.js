@@ -11,8 +11,9 @@ var waffleConfig = {
 };
 
 var selectSolc = () => {
-  if (process.env.CI || process.env.NATIVE_SOLC == "true") {
-    // use native solc binary for fast compilation in CI
+  // TODO: which should select "native" in CI, but the solc binary in the CI
+  // environment is currently too old
+  if (process.env.NATIVE_SOLC == "true") {
     waffleConfig.compiler = "native";
   }
 

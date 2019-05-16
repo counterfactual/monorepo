@@ -33,10 +33,11 @@ class NodeEnvironment extends NodeJSEnvironment {
       MultiSend: AddressZero,
       NonceRegistry: AddressZero,
       StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero,
+      TwoPartyVirtualEthAsLump: AddressZero,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
-      TicTacToe: data.networkContext.TicTacToe
+      TicTacToe: data.networkContext.TicTacToe,
+      ETHInterpreter: data.networkContext.ETHInterpreter
     };
 
     this.global.networkContext = networkContext;

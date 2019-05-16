@@ -1,14 +1,15 @@
 import RopstenContracts from "@counterfactual/contracts/networks/3.json";
 import RinkebyContracts from "@counterfactual/contracts/networks/4.json";
 import KovanContracts from "@counterfactual/contracts/networks/42.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, networkContextProps } from "@counterfactual/types";
+import * as log from "loglevel";
 
 import { ERRORS } from "./methods/errors";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
 export function configureNetworkContext(network: string): NetworkContext {
-  console.log(`Configuring Node to use contracts on network: ${network}`);
+  log.info(`Configuring Node to use contracts on network: ${network}`);
 
   switch (network.toLocaleLowerCase()) {
     case "ropsten": {
@@ -39,30 +40,21 @@ interface Migration {
 function getContractAddressesForNetwork(
   migrations: Migration[]
 ): NetworkContext {
-  return {
-    AppRegistry: getContractAddress(migrations, "AppRegistry"),
-    ETHBalanceRefundApp: getContractAddress(migrations, "ETHBalanceRefundApp"),
-    ETHBucket: getContractAddress(migrations, "ETHBucket"),
-    MultiSend: getContractAddress(migrations, "MultiSend"),
-    NonceRegistry: getContractAddress(migrations, "NonceRegistry"),
-    StateChannelTransaction: getContractAddress(
-      migrations,
-      "StateChannelTransaction"
-    ),
-    ETHVirtualAppAgreement: getContractAddress(
-      migrations,
-      "ETHVirtualAppAgreement"
-    ),
-    MinimumViableMultisig: getContractAddress(
-      migrations,
-      "MinimumViableMultisig"
-    ),
-    ProxyFactory: getContractAddress(migrations, "ProxyFactory")
-  };
+  const ret = {} as any;
+
+  for (const contractName of networkContextProps) {
+    ret[contractName] = getContractAddress(migrations, contractName);
+  }
+
+  return ret;
 }
 
 function getContractAddress(migrations: Migration[], contract: string): string {
-  return migrations.filter(migration => {
+  const matched = migrations.filter(migration => {
     return migration.contractName === contract;
-  })[0].address;
+  });
+  if (!matched.length) {
+    throw Error(`No migrations for ${contract}`);
+  }
+  return matched[0].address;
 }

@@ -1,6 +1,6 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, HashZero } from "ethers/constants";
+import { HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { keccak256, defaultAbiCoder, bigNumberify, SigningKey } from "ethers/utils";
 
@@ -9,11 +9,9 @@ import AppWithAction from "../build/AppWithAction.json";
 
 import {
   AppInstance,
-  AssetType,
   expect,
-  Terms
 } from "./utils";
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 
 import { utils } from "@counterfactual/cf.js";
 const { signaturesToBytes } = utils;
@@ -50,7 +48,7 @@ const POST_STATE = {
   counter: bigNumberify(5)
 }
 
-function encodeState(state: SolidityABIEncoderV2Struct) {
+function encodeState(state: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
     [
       `
@@ -65,7 +63,7 @@ function encodeState(state: SolidityABIEncoderV2Struct) {
   );
 }
 
-function encodeAction(state: SolidityABIEncoderV2Struct) {
+function encodeAction(state: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
     [
       `
@@ -106,7 +104,6 @@ describe("AppRegistry Dispute", () => {
       wallet.address,
       [ALICE.address, BOB.address],
       appDefinition.address,
-      new Terms(AssetType.ETH, 0, AddressZero),
       10
     );
 

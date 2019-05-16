@@ -9,7 +9,9 @@ const MultiSend = artifacts.require("MultiSend");
 const NonceRegistry = artifacts.require("NonceRegistry");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const StateChannelTransaction = artifacts.require("StateChannelTransaction");
-const ETHVirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
+const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
+const ETHInterpreter = artifacts.require("ETHInterpreter");
+const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
 
 const ARTIFACTS = [
   AppRegistry,
@@ -21,7 +23,9 @@ const ARTIFACTS = [
   NonceRegistry,
   ProxyFactory,
   StateChannelTransaction,
-  ETHVirtualAppAgreement
+  TwoPartyVirtualEthAsLump,
+  ETHInterpreter,
+  TwoPartyEthAsLump
 ];
 
 module.exports = (deployer, network) => {

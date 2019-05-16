@@ -7,21 +7,14 @@ import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256 } from "ethers/utils";
 
+import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
-import {
-  SetStateCommitment,
-  SetupCommitment
-} from "../../../src/machine/ethereum";
-import { StateChannel } from "../../../src/machine/models";
+import { StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-
-// To be honest, 30000 is an arbitrary large number that has never failed
-// to reach the done() call in the test case, not intelligently chosen
-const JEST_TEST_WAIT_TIME = 30000;
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -54,8 +47,6 @@ beforeAll(async () => {
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("Scenario: Setup, set state on free balance, go on chain", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("should distribute funds in ETH free balance when put on chain", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -106,16 +97,14 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
       await appRegistry.functions.setResolution(
         freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState,
-        freeBalanceETH.encodedTerms
+        freeBalanceETH.encodedLatestState
       );
 
       const setupCommitment = new SetupCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).terms
+        stateChannel.getFreeBalanceFor(AssetType.ETH).identity
       );
 
       const setupTx = setupCommitment.transaction([

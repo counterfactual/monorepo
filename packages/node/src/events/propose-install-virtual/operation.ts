@@ -10,7 +10,7 @@ import { Store } from "../../store";
  * @param store
  * @param params
  * @param appInstanceId
- * @param incomingAddress The address of the Node who is relaying the proposal.
+ * @param incomingIdentifier The address of the Node who is relaying the proposal.
  */
 export async function setAppInstanceIDForProposeInstallVirtual(
   myIdentifier: string,
@@ -29,9 +29,15 @@ export async function setAppInstanceIDForProposeInstallVirtual(
     store
   );
 
+  const fixedDepositsParams = {
+    ...params,
+    myDeposit: params.peerDeposit,
+    peerDeposit: params.myDeposit
+  };
+
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
-      ...params,
+      ...fixedDepositsParams,
       proposedByIdentifier
     },
     channel

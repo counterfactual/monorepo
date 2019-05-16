@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Struct } from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { GameState, HighRollerAppState } from "./game-types";
@@ -29,26 +29,11 @@ export interface Transaction {
   data: string[];
 }
 
-export interface AppIdentity {
-  owner: string;
-  signingKeys: string[];
-  appDefinitionAddress: string;
-  termsHash: string;
-  defaultTimeout: number;
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
   nonce: number;
   timeout: number;
   signatures: string;
-}
-
-export interface ETHBucketAppState {
-  alice: string;
-  bob: string;
-  aliceBalance: BigNumber;
-  bobBalance: BigNumber;
 }
 
 export type AppInstanceInfo = {
@@ -143,7 +128,7 @@ export namespace Node {
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Struct;
+    initialState: SolidityABIEncoderV2Type;
   };
   export type ProposeInstallResult = {
     appInstanceId: AppInstanceID;
@@ -175,7 +160,7 @@ export namespace Node {
     appInstanceId: AppInstanceID;
   };
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Struct;
+    state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -187,10 +172,10 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
-    action: SolidityABIEncoderV2Struct;
+    action: SolidityABIEncoderV2Type;
   };
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
   };
 
   export type UninstallParams = {
@@ -247,8 +232,8 @@ export namespace Node {
   };
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
-    newState: SolidityABIEncoderV2Struct;
-    action?: SolidityABIEncoderV2Struct;
+    newState: SolidityABIEncoderV2Type;
+    action?: SolidityABIEncoderV2Type;
   };
   export type UninstallEventData = {
     appInstance: AppInstanceInfo;
@@ -297,6 +282,7 @@ export namespace Node {
   export type Message = MethodRequest | MethodResponse | Event | Error;
 }
 
+// keep in sync with cf.js/src/app-factory.ts
 export namespace cf {
   export type AppFactory = {
     new (
@@ -309,14 +295,14 @@ export namespace cf {
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Struct;
+      initialState: SolidityABIEncoderV2Type;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
       asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Struct;
+      initialState: SolidityABIEncoderV2Type;
       intermediaries: Address[];
       timeout: number;
     }): Promise<AppInstanceID>;

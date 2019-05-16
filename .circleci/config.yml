@@ -33,7 +33,7 @@ jobs:
     working_directory: /home/circleci/project
     # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
     docker:
-      - image: web3docker/counterfactual:0.0.1
+      - image: counterfactual/circleci-environment:latest
     steps:
       - <<: *restore_code
       - checkout
@@ -83,10 +83,6 @@ jobs:
 
       - attach_workspace:
           at: /home/circleci/project
-
-      - run:
-          name: Run Playground tests
-          command: cd packages/playground && yarn test
       - run:
           name: Run Playground Server tests
           command: cd packages/playground-server && yarn test:ci

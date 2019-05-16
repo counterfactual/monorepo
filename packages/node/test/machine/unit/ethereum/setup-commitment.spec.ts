@@ -10,10 +10,10 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { SetupCommitment } from "../../../../src/machine/ethereum";
-import { MultisigTransaction } from "../../../../src/machine/ethereum/types";
-import { appIdentityToHash } from "../../../../src/machine/ethereum/utils/app-identity";
-import { StateChannel } from "../../../../src/machine/models";
+import { SetupCommitment } from "../../../../src/ethereum";
+import { MultisigTransaction } from "../../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
+import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -51,8 +51,7 @@ describe("SetupCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalanceETH.identity,
-      freeBalanceETH.terms
+      freeBalanceETH.identity
     ).getTransactionDetails();
   });
 
@@ -86,7 +85,8 @@ describe("SetupCommitment", () => {
         uninstallKey,
         rootNonceValue,
         appIdentityHash,
-        [assetType, limit, token]
+        {},
+        {}
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
@@ -95,9 +95,6 @@ describe("SetupCommitment", () => {
         bigNumberify(freeBalanceETH.rootNonceValue)
       );
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
-      expect(assetType).toBe(freeBalanceETH.terms.assetType);
-      expect(limit).toEqual(freeBalanceETH.terms.limit);
-      expect(token).toBe(freeBalanceETH.terms.token);
     });
   });
 });

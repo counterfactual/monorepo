@@ -13,11 +13,12 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { InstallCommitment } from "../../../../src/machine/ethereum";
-import { MultisigTransaction } from "../../../../src/machine/ethereum/types";
-import { appIdentityToHash } from "../../../../src/machine/ethereum/utils/app-identity";
-import { decodeMultisendCalldata } from "../../../../src/machine/ethereum/utils/multisend-decoder";
-import { AppInstance, StateChannel } from "../../../../src/machine/models";
+import { InstallCommitment } from "../../../../src/ethereum";
+import { MultisigTransaction } from "../../../../src/ethereum/types";
+import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
+import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
+import { StateChannel } from "../../../../src/models";
+import { createAppInstance } from "../../../unit/utils";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -45,42 +46,14 @@ describe("InstallCommitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
-    {
-      alice: stateChannel.multisigOwners[0],
-      bob: stateChannel.multisigOwners[1],
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
-    }
-  );
+  stateChannel = stateChannel.incrementFreeBalance(AssetType.ETH, {
+    [stateChannel.multisigOwners[0]]: WeiPerEther,
+    [stateChannel.multisigOwners[1]]: WeiPerEther
+  });
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  const appInstance = new AppInstance(
-    stateChannel.multisigAddress,
-    [
-      getAddress(hexlify(randomBytes(20))),
-      getAddress(hexlify(randomBytes(20)))
-    ],
-    Math.ceil(1000 * Math.random()),
-    {
-      addr: getAddress(hexlify(randomBytes(20))),
-      stateEncoding: "tuple(address foo, uint256 bar)",
-      actionEncoding: undefined
-    },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
-    false,
-    stateChannel.numInstalledApps + 1,
-    0,
-    { foo: AddressZero, bar: 0 },
-    0,
-    Math.ceil(1000 * Math.random())
-  );
+  const appInstance = createAppInstance(stateChannel);
 
   beforeAll(() => {
     tx = new InstallCommitment(
@@ -88,14 +61,14 @@ describe("InstallCommitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       appInstance.identity,
-      appInstance.terms,
       freeBalanceETH.identity,
-      freeBalanceETH.terms,
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
-      stateChannel.numInstalledApps + 1,
-      stateChannel.rootNonceValue
+      appInstance.appSeqNo,
+      stateChannel.rootNonceValue,
+      AddressZero,
+      HashZero
     ).getTransactionDetails();
   });
 
@@ -157,19 +130,12 @@ describe("InstallCommitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [
-              owner,
-              signingKeys,
-              appDefinitionAddress,
-              termsHash,
-              defaultTimeout
-            ]
+            [owner, signingKeys, appDefinitionAddress, {}, defaultTimeout]
           ] = calldata.args;
           const expected = freeBalanceETH.identity;
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appDefinitionAddress).toBe(expected.appDefinitionAddress);
-          expect(termsHash).toBe(expected.termsHash);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });
 
@@ -227,7 +193,8 @@ describe("InstallCommitment", () => {
             uninstallKey,
             rootNonceValue,
             appIdentityHash,
-            terms
+            {},
+            {}
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
@@ -236,9 +203,6 @@ describe("InstallCommitment", () => {
           expect(rootNonceValue).toEqual(
             bigNumberify(appInstance.rootNonceValue)
           );
-          expect(terms[0]).toBe(appInstance.terms.assetType);
-          expect(terms[1]).toEqual(appInstance.terms.limit);
-          expect(terms[2]).toBe(appInstance.terms.token);
         });
       });
     });

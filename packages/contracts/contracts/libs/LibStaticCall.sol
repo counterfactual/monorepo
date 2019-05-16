@@ -1,8 +1,7 @@
-pragma solidity 0.5.7;
+pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/utils/Address.sol";
-import "../libs/Transfer.sol";
 
 
 /// @title LibStaticCall - A library wrapper around the STATICALL opcode
@@ -76,19 +75,6 @@ library LibStaticCall {
     public
     view
     returns (bytes memory)
-  {
-    executeStaticCall(to, data);
-    assembly { return(mload(0x40), returndatasize) }
-  }
-
-  /// @notice Execute a STATICCALL expecting a Transfer.Transaction return type
-  /// @param to The address the call is being made to
-  /// @param data The calldata being sent to the contract being static called
-  /// @return The return data of the static call encoded as a Transfer.Transaction
-  function staticcall_as_TransferDetails(address to, bytes memory data)
-    public
-    view
-    returns (Transfer.Transaction memory)
   {
     executeStaticCall(to, data);
     assembly { return(mload(0x40), returndatasize) }

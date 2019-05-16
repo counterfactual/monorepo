@@ -1,8 +1,7 @@
 import { Node } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 
-import { InstructionExecutor, StateChannel } from "../../../machine";
-import { ProposedAppInstanceInfo } from "../../../models";
+import { InstructionExecutor } from "../../../machine";
+import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { ERRORS } from "../../errors";
 
@@ -33,16 +32,11 @@ export async function install(
     {
       initiatingXpub: appInstanceInfo.proposedToIdentifier,
       respondingXpub: appInstanceInfo.proposedByIdentifier,
+      initiatingBalanceDecrement: appInstanceInfo.myDeposit,
+      respondingBalanceDecrement: appInstanceInfo.peerDeposit,
       multisigAddress: stateChannel.multisigAddress,
-      aliceBalanceDecrement: appInstanceInfo.myDeposit,
-      bobBalanceDecrement: appInstanceInfo.peerDeposit,
       signingKeys: stateChannel.getNextSigningKeys(),
       initialState: appInstanceInfo.initialState,
-      terms: {
-        assetType: appInstanceInfo.asset.assetType,
-        limit: appInstanceInfo.myDeposit.add(appInstanceInfo.peerDeposit),
-        token: appInstanceInfo.asset.token || AddressZero
-      },
       appInterface: {
         ...appInstanceInfo.abiEncodings,
         addr: appInstanceInfo.appId

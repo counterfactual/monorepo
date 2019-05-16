@@ -1,11 +1,10 @@
 import { Node, UninstallVirtualMessage } from "@counterfactual/node";
 import { Address, Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { getFreeBalance, renderFreeBalanceInEth } from "./utils";
+import { getFreeBalance, logEthFreeBalance } from "./utils";
 
 function checkDraw(board: Board) {
   return board.every((row: BoardRow) =>
@@ -91,11 +90,9 @@ function respond(
   nodeAddress: Address,
   { data: { appInstanceId, newState } }
 ) {
-  const { board, players, turnNum, winner } = newState;
-  const playerAddress = ethers.utils.HDNode.fromExtendedKey(
-    nodeAddress
-  ).derivePath("0").address;
-  const botPlayerNumber = players.indexOf(playerAddress) + 1;
+  const { board, turnNum, winner } = newState;
+  // in test and prod, bot is always the second player
+  const botPlayerNumber = 2;
   const isBotTurn =
     bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
   const noWinnerYet =
@@ -207,7 +204,7 @@ export async function connectNode(
       async (uninstallMsg: UninstallVirtualMessage) => {
         console.info(`Uninstalled app`);
         console.info(uninstallMsg);
-        renderFreeBalanceInEth(await getFreeBalance(node, multisigAddress));
+        logEthFreeBalance(await getFreeBalance(node, multisigAddress));
       }
     );
   }

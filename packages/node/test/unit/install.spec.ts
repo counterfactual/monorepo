@@ -1,4 +1,4 @@
-import { AssetType } from "@counterfactual/types";
+import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -6,13 +6,14 @@ import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 
+import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
 import {
   InstructionExecutor,
-  StateChannel,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { ERRORS } from "../../src/methods/errors";
+import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
@@ -96,12 +97,11 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH).state;
+    const fbState = fromAppState(stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState);
 
-    expect(fbState.alice === signingKeys[0]);
-    expect(fbState.bob === signingKeys[1]);
-    expect(fbState.aliceBalance).toEqual(Zero);
-    expect(fbState.bobBalance).toEqual(Zero);
+    expect(fbState[signingKeys[0]]).toEqual(Zero);
+    expect(fbState[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 
