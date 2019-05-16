@@ -17550,10 +17550,10 @@ truffle-contract-schema@^3.0.9:
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
-truffle-contract@4.0.15:
-  version "4.0.15"
-  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.15.tgz#c8a7be3a9d4223c6bf3477974cb69cbdf3bcd429"
-  integrity sha512-TEye3lotuPZqoXni/t1HomU5w760Kf0x63cZa7q2WXzqtQCnNqdG/FMRlyMim/MRK4geGdo2H+Sg1k4D1VqJDw==
+truffle-contract@4.0.16:
+  version "4.0.16"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.16.tgz#5175683a2ab20f361d19ed7caaf579b7d3912b42"
+  integrity sha512-Ooe0GR4Wbub2Dl5tsl09dWfyZEinPPijcneFHJWPDsa1bkp/6PYpX7NWd0wZrt9pI8VJ1EceDhg4rBTo4slcxA==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
