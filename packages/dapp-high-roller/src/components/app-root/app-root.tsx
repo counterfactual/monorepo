@@ -19,6 +19,7 @@ import {
 
 declare var ethers;
 declare var web3;
+declare var ethereum;
 
 const { bigNumberify, solidityKeccak256 } = ethers.utils;
 const { AddressZero, HashZero } = ethers.constants;
@@ -135,13 +136,11 @@ export class AppRoot {
   async componentDidLoad() {
     if (window === window.parent) {
       // dApp not running in iFrame
-      window.postMessage(
-        {
-          type: "PLUGIN_MESSAGE",
-          data: { message: "playground:request:user" }
-        },
-        "*"
-      );
+      ethereum.send("counterfactual:request:user").then(data => {
+        const account = data.result;
+        this.updateAccount(account);
+        this.userDataReceived = true;
+      });
     } else {
       window.parent.postMessage("playground:request:user", "*");
     }
