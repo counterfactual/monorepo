@@ -2,6 +2,8 @@
 
 A **plugin** to the `Node` is a class which defines how the `Node` will react to installation and state proposal events for a particular App (defined by its `appDefinitionAddr`). By **registering a plugin** on the `Node`, mapping is created from an App to functions `onProposedInstall` and `onProposedNewState` which the `Node` will use for that App when given new installation requests and state updates respectively. The functions simply return `boolean` values indicating whether or not the `Node` should countersign a request for either of these events.
 
+Note that because plugins can be registered and mappings are created to Apps _per Node_ instance, _one channel's participants who are operating their respective nodes can register different plugins to sign their approvals for the same App, reflective of each participant's risk profile_.
+
 ## Flow: Node's interaction with the Plugin
 
 - ### How is a plugin registered?
