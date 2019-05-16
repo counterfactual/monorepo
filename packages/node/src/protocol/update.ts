@@ -70,6 +70,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       theirSig
     );
 
+    yield [Opcode.OP_VALIDATE_STATE_PROPOSAL, context.message.params];
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);

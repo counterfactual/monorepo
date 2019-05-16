@@ -12,7 +12,8 @@ import {
   InstructionExecutor,
   Opcode,
   Protocol,
-  ProtocolMessage
+  ProtocolMessage,
+  UpdateParams
 } from "./machine";
 import { ERRORS } from "./methods/errors";
 import { configureNetworkContext } from "./network-configuration";
@@ -152,6 +153,23 @@ export class Node {
       this.provider
     );
 
+    const validateStateProposal = () => {
+      return async (params: UpdateParams): Promise<boolean> => {
+        const { appIdentityHash: appInstanceId, multisigAddress } = params;
+        const channel = await this.requestHandler.store.getStateChannel(
+          multisigAddress
+        );
+
+        const { addr: appId } = await channel.getAppInstance(appInstanceId)
+          .appInterface;
+        if (this.plugins.has(appId)) {
+          return this.plugins.get(appId)!.onProposedNewState(params);
+        }
+
+        return true;
+      };
+    };
+
     // todo(xuanji): remove special cases
     const makeSigner = (asIntermediary: boolean) => {
       return async (args: any[]) => {
@@ -171,6 +189,11 @@ export class Node {
     };
 
     instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
+
+    instructionExecutor.register(
+      Opcode.OP_VALIDATE_STATE_PROPOSAL,
+      validateStateProposal
+    );
 
     instructionExecutor.register(
       Opcode.OP_SIGN_AS_INTERMEDIARY,

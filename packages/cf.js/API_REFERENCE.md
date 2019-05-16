@@ -140,6 +140,8 @@ Params:
     - Address of the peer receiving the transfer of funds
 - `amount: BigNumber`
     - The amount to transfer from the initiating Node to the receiving Node
+- `asset?:`[`BlockchainAsset`](#data-type-blockchainasset)
+    - Optional asset class to send. Default is ETH.
 
 Note: It is the responsibility of the receiver to ensure that the state being updated is accurate (most likely through installing a relevant plugin)
 

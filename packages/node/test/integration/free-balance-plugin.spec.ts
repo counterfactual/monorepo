@@ -5,12 +5,7 @@ import { InstallParams, UpdateParams } from "../../src/machine";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
-import {
-  collateralizeChannel,
-  createChannel,
-  getFreeBalanceState,
-  sleep
-} from "./utils";
+import { collateralizeChannel, createChannel, sleep } from "./utils";
 
 describe("Node uses the freeBalancePlugin to simluate payment app functionality", () => {
   let nodeA: Node;
@@ -67,6 +62,7 @@ class FreeBalanceRejectionPlugin implements Plugin {
   }
 
   onProposedNewState(params: UpdateParams): boolean {
+    console.log("calling plugin new state validation function");
     return false;
   }
 }

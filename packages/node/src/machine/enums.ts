@@ -23,7 +23,14 @@ enum Opcode {
   /**
    * Middleware hook to both send and wait for a response from a ProtocolMessage
    */
-  IO_SEND_AND_WAIT
+  IO_SEND_AND_WAIT,
+
+  /**
+   * Middleware hook to check for valid state proposal if a relevant registered
+   * plugin is available. Otherwise the functionality of this hook is
+   * auto-signing the proposed state.
+   */
+  OP_VALIDATE_STATE_PROPOSAL
 }
 
 enum Protocol {
