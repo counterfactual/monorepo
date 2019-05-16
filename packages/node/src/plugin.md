@@ -16,10 +16,10 @@ Note that because plugins can be registered and mappings are created to Apps _pe
 
 - ### Where in the Node does a plugin's `onProposedInstall` get called?
 
-  - This is called when the counter party receives a proposal. The plugin is looked up via the mapping that the Node holds. The parameters of this proposal are relayed to the plugin, which executes its logic to determine whether the proposal should be accepted and the AppInstance be installed.
+  - This is called when the counter party receives an install proposal. The plugin is looked up via the mapping that the Node holds. The parameters of this proposal are relayed to the plugin, which executes its logic to determine whether the proposal should be accepted and the AppInstance be installed.
 
 - ### Where in the Node does a plugin's `onProposedNewState` get called?
-  - When the counter party receives a new state, the parameters can be relayed to the plugin so it can determine whether the new state can be accepted or not.
+  - When the counter party receives a new state proposal, the parameters can be relayed to the plugin so it can determine whether the new state can be accepted or not.
 
 * ### Implementation strategy
   - The first use case driving the implementation of this feature is the FreeBalance being updateable to provide the functionality of a bidirectional payment app.
