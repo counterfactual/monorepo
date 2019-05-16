@@ -6,7 +6,7 @@ import { defaultAbiCoder } from "ethers/utils";
 // export const freeBalanceStateEncoding = formatParamType(
 //   new Interface(ETHBucket.abi).functions.resolve.inputs[0]
 // );
-const ethBucketStateEncoding = `
+export const ethBucketStateEncoding = `
   tuple(
     address alice,
     address bob,

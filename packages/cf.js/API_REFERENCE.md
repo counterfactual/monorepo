@@ -131,6 +131,19 @@ Messages in the Node Protocol have the following fields:
 Public Methods
 --------------
 
+### Method: `sendFunds`
+
+Transfers the given amount of a given asset class to the counter party within the channel.
+
+Params:
+- `sendToIdentifier: string`
+    - Address of the peer receiving the transfer of funds
+- `amount: BigNumber`
+    - The amount to transfer from the initiating Node to the receiving Node
+
+Note: It is the responsibility of the receiver to ensure that the state being updated is accurate (most likely through installing a relevant plugin)
+
+
 ### Method: `getAppInstances`
 
 Returns all app instances currently installed on the Node.

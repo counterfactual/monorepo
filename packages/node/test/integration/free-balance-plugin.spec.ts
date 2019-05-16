@@ -1,9 +1,16 @@
+import { One } from "ethers/constants";
+
 import { Node, Plugin } from "../../src";
-import { FreeBalancePlugin } from "../../src/default-plugins/freeBalancePlugin";
+import { InstallParams, UpdateParams } from "../../src/machine";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
-import { createChannel } from "./utils";
+import {
+  collateralizeChannel,
+  createChannel,
+  getFreeBalanceState,
+  sleep
+} from "./utils";
 
 describe("Node uses the freeBalancePlugin to simluate payment app functionality", () => {
   let nodeA: Node;
@@ -23,12 +30,12 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
 
   describe("Nodes register the plugin", () => {
     let freeBalancePluginNodeA: Plugin;
-    // let freeBalancePluginNodeB: Plugin;
+    let freeBalancePluginNodeB: Plugin;
     const ethBucketAddress = global["networkContext"].ETHBucket;
 
     beforeAll(() => {
-      freeBalancePluginNodeA = new FreeBalancePlugin(nodeA);
-      // freeBalancePluginNodeB = new FreeBalancePlugin(nodeB);
+      freeBalancePluginNodeA = new FreeBalanceRejectionPlugin(nodeA);
+      freeBalancePluginNodeB = new FreeBalanceRejectionPlugin(nodeB);
     });
 
     it("node can register and unregister a plugin", () => {
@@ -38,8 +45,28 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
       expect(nodeA.plugins).toEqual(new Map());
     });
 
-    it("can take valid install proposal for the ethBucket app", async () => {
-      await createChannel(nodeA, nodeB);
+    it("can reject an invalid new state proposal for the FreeBalance", async () => {
+      const multisigAddress = await createChannel(nodeA, nodeB);
+      await collateralizeChannel(nodeA, nodeB, multisigAddress, One);
+      nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
+      nodeB.registerPlugin(freeBalancePluginNodeB, ethBucketAddress);
+
+      await sleep(500);
     });
   });
 });
+
+class FreeBalanceRejectionPlugin implements Plugin {
+  // register against & listen on node events
+  constructor(readonly node: Node) {
+    console.log("creating plugin for a new node: ", node.publicIdentifier);
+  }
+
+  onProposedInstall(params: InstallParams): boolean {
+    return false;
+  }
+
+  onProposedNewState(params: UpdateParams): boolean {
+    return false;
+  }
+}

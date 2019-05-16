@@ -399,9 +399,10 @@ export function sleep(timeInMilliseconds: number) {
 export async function collateralizeChannel(
   node1: Node,
   node2: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  depositAmount: BigNumber = One
 ): Promise<void> {
-  const depositReq = makeDepositRequest(multisigAddress, One);
+  const depositReq = makeDepositRequest(multisigAddress, depositAmount);
   await node1.call(depositReq.type, depositReq);
   await node2.call(depositReq.type, depositReq);
 }
