@@ -23,18 +23,22 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
 
   describe("Nodes register the plugin", () => {
     let freeBalancePluginNodeA: Plugin;
+    // let freeBalancePluginNodeB: Plugin;
+    const ethBucketAddress = global["networkContext"].ETHBucket;
 
-    beforeEach(() => {
+    beforeAll(() => {
       freeBalancePluginNodeA = new FreeBalancePlugin(nodeA);
+      // freeBalancePluginNodeB = new FreeBalancePlugin(nodeB);
     });
 
-    it("node can register a plugin", () => {
-      const ethBucketAddress = global["networkContext"].ETHBucket;
+    it("node can register and unregister a plugin", () => {
       nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
       expect(nodeA.getPlugin(ethBucketAddress)).toEqual(freeBalancePluginNodeA);
+      nodeA.unregisterPlugin(ethBucketAddress);
+      expect(nodeA.plugins).toEqual(new Map());
     });
 
-    it("can take valid install proposal", async () => {
+    it("can take valid install proposal for the ethBucket app", async () => {
       await createChannel(nodeA, nodeB);
     });
   });

@@ -14,6 +14,7 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
+import { ERRORS } from "./methods/errors";
 import { configureNetworkContext } from "./network-configuration";
 import { Plugin } from "./plugin";
 import { RequestHandler } from "./request-handler";
@@ -25,7 +26,6 @@ import {
   NodeMessageWrappedProtocolMessage
 } from "./types";
 import { timeout } from "./utils";
-import { ERRORS } from "./methods/errors";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -314,6 +314,22 @@ export class Node {
     this.plugins.set(appId, plugin);
   }
 
+  /**
+   *
+   * @param appId
+   */
+  unregisterPlugin(appId: string) {
+    if (!this.plugins.has(appId)) {
+      log.warn(`No plugins registered for the given appId: ${appId}`);
+    }
+
+    this.plugins.delete(appId);
+  }
+
+  /**
+   * Retrieves a plugin registered for the given appId
+   * @param appId
+   */
   getPlugin(appId: string): Plugin {
     if (!this.plugins.has(appId)) {
       throw Error(ERRORS.NO_REGISTERED_PLUGIN_FOR_APP_ID(appId));
