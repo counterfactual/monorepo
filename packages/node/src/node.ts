@@ -24,6 +24,7 @@ import {
   NodeMessageWrappedProtocolMessage
 } from "./types";
 import { timeout } from "./utils";
+import { Plugin } from "./plugin";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -300,6 +301,11 @@ export class Node {
   ): Promise<NodeTypes.MethodResponse> {
     return this.requestHandler.callMethod(method, req);
   }
+
+  /**
+   * Registers a plugin for a given App
+   */
+  registerPlugin(plugin: Plugin, appId: string) {}
 
   /**
    * When a Node is first instantiated, it establishes a connection

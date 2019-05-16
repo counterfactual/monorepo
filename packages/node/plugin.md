@@ -9,7 +9,7 @@ Note that because plugins can be registered and mappings are created to Apps _pe
 - ### How is a plugin registered?
 
   - The Node will have a method on it called `registerPlugin` which accepts
-    - the name of an App (possibly an AppInstanceId so the possibiliy of different plugins being registered for the same App remains open)
+    - the ID of an App (possibly an AppInstanceId so the possibiliy of different plugins being registered for the same App remains open)
     - PluginParams: TBD (parameters such as which providers to use for uninstalling?)
     - The plugin instance that executes the calls for the above described methods
   - The Node then keeps a mapping of AppInstances to pluginID so that it can execute the relevant plugin's functions per AppInstance as described above

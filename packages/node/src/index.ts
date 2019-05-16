@@ -3,3 +3,4 @@ export * from "./services";
 export * from "./signer";
 export * from "./types";
 export * from "./methods/errors";
+export * from "./plugin";
