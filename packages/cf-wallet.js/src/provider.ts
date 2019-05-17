@@ -32,8 +32,8 @@ export class Provider {
   private readonly eventEmitter = new EventEmitter();
   /** @ignore */
   private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
-  private readonly validEventTypes = Object.keys(EventType).map(
-    key => EventType[key]
+  private readonly validEventTypes = Object.keys(JsonApi.MethodName).map(
+    key => JsonApi.MethodName[key]
   );
 
   /**
@@ -243,7 +243,7 @@ export class Provider {
    * @param eventType Event type to subscribe to.
    * @param callback Function to be called when event is fired.
    */
-  on(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+  on(eventType: JsonApi.MethodName, callback: (e: CounterfactualEvent) => void) {
     this.validateEventType(eventType);
     this.eventEmitter.on(eventType, callback);
   }
@@ -254,7 +254,7 @@ export class Provider {
    * @param eventType Event type to subscribe to.
    * @param callback Function to be called when event is fired.
    */
-  once(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+  once(eventType: JsonApi.MethodName, callback: (e: CounterfactualEvent) => void) {
     this.validateEventType(eventType);
     this.eventEmitter.once(eventType, callback);
   }
@@ -265,7 +265,7 @@ export class Provider {
    * @param eventType Event type to unsubscribe from.
    * @param callback Original callback passed to subscribe call.
    */
-  off(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
+  off(eventType: JsonApi.MethodName, callback: (e: CounterfactualEvent) => void) {
     this.validateEventType(eventType);
     this.eventEmitter.off(eventType, callback);
   }
@@ -279,6 +279,8 @@ export class Provider {
   async callRawNodeMethod(
     operation: JsonApi.Operation
   ): Promise<JsonApi.Document> {
+    operation.params = operation.params || {};
+
     const requestId = new Date().valueOf().toString();
     const methodName = deriveMethodName(operation);
     const document = {
@@ -368,7 +370,7 @@ export class Provider {
   /**
    * @ignore
    */
-  private validateEventType(eventType: EventType) {
+  private validateEventType(eventType: JsonApi.MethodName) {
     if (!this.validEventTypes.includes(eventType)) {
       throw new Error(`"${eventType}" is not a valid event`);
     }

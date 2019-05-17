@@ -122,6 +122,7 @@ export const methodNameToImplementation = controllers.reduce(
 export const eventNameToImplementation = {
   "channel:add": addChannelController,
   "channel:deposit": depositEventController,
+  "depositConfirmedEvent:depositConfirmedEvent": depositEventController,
   "app:install": installEventController,
   "app:installVirtual": installVirtualEventController,
   "proposal:install": proposeInstallEventController,

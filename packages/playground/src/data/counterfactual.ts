@@ -1,5 +1,5 @@
 import { IMessagingService, IStoreService } from "@counterfactual/node";
-import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContext, Node as NodeTypes, JsonApi } from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
 // Stencil from blowing up due to "member not exported" errors.
@@ -20,8 +20,8 @@ export declare class Node {
   off(event: string, callback?: (res: any) => void): void;
   emit(event: string, req: NodeTypes.MethodRequest): void;
   call(
-    method: NodeTypes.MethodName,
-    req: NodeTypes.MethodRequest
+    method: NodeTypes.MethodName | JsonApi.MethodName,
+    req: NodeTypes.MethodRequest | JsonApi.Document
   ): Promise<NodeTypes.MethodResponse>;
 }
 
@@ -30,10 +30,19 @@ export interface NodeConfig {
 }
 
 export default class CounterfactualNode {
+  private static port: MessagePort;
   private static node: Node;
+  // @ts-ignore
+  private static nodeProvider: cfWallet.JsonApiNodeProvider;
+  // @ts-ignore
+  private static cfProvider: cfWallet.Provider;
 
   static getInstance(): Node {
     return CounterfactualNode.node;
+  }
+
+  static getCfProvider() {
+    return CounterfactualNode.cfProvider;
   }
 
   static async create(settings: {
@@ -55,6 +64,64 @@ export default class CounterfactualNode {
       settings.network
     );
 
+    await this.setupNodeProvider();
+
     return CounterfactualNode.getInstance();
+  }
+
+  static async setupNodeProvider() {
+    this.node.on(JsonApi.MethodName.DEPOSIT, this.postToPort.bind(this));
+
+    window.addEventListener("message", (event) => {
+      if (event.data === "cf-node-provider:init") {
+        const { port2 } = this.configureMessagePorts();
+        window.postMessage("cf-node-provider:port", "*", [port2]);
+      }
+    });
+
+    // @ts-ignore
+    this.nodeProvider = new cfWallet.JsonApiNodeProvider();
+    await this.nodeProvider.connect();
+    this.cfProvider = this.createCfProvider();
+  }
+  
+  private static configureMessagePorts(): MessageChannel {
+    const channel = new MessageChannel();
+
+    this.port = channel.port1;
+    this.port.addEventListener("message", this.relayMessage.bind(this));
+    this.port.start();
+
+    return channel;
+  }
+
+  /**
+   * Echoes a message received via PostMessage through
+   * the EventEmitter.
+   *
+   * @param event {MessageEvent}
+   */
+  private static relayMessage(event: MessageEvent): void {
+    console.log("got event", event)
+    const operation = event.data.operations[0];
+    const type = `${operation.op}`
+    console.log(type, event.data)
+    this.node.emit(type, event.data);
+  }
+
+  /**
+   * Attempts to relay a message through the MessagePort. If the port
+   * isn't available, we store the message in `this.messageQueue`
+   * until the port is available.
+   *
+   * @param message {any}
+   */
+  private static postToPort(message: any): void {
+    this.port.postMessage(message);
+  }
+
+  static createCfProvider() {
+    // @ts-ignore
+    return new cfWallet.Provider(this.nodeProvider);
   }
 }

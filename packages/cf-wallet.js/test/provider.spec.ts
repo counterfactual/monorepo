@@ -7,7 +7,6 @@ import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
 import {
   CounterfactualEvent,
   ErrorEventData,
-  EventType,
   InstallEventData,
   RejectInstallEventData
 } from "../src/types";
@@ -82,9 +81,9 @@ describe("cf-wallet.js Provider", () => {
 
   it("emits an error event for orphaned responses", async () => {
     expect.assertions(2);
-    provider.on(EventType.ERROR, e => {
+    provider.on(JsonApi.MethodName.ERROR, e => {
       const data = e.data as ErrorEventData;
-      expect(e.type).toBe(EventType.ERROR);
+      expect(e.type).toBe(JsonApi.MethodName.ERROR);
       expect(data.errorName).toBe("orphaned_response");
     });
     nodeProvider.simulateMessageFromNode({
@@ -111,7 +110,7 @@ describe("cf-wallet.js Provider", () => {
       } catch (e) {
         e = e as JsonApi.ErrorsDocument;
         const error = e.errors[0];
-        expect(error.status).toBe(EventType.ERROR);
+        expect(error.status).toBe(JsonApi.MethodName.ERROR);
         expect(error.code).toBe("request_timeout");
       }
     },
@@ -313,8 +312,8 @@ describe("cf-wallet.js Provider", () => {
       const callback = (e: CounterfactualEvent) => {
         done.fail("Unsubscribed event listener was fired");
       };
-      provider.on(EventType.REJECT_INSTALL, callback);
-      provider.off(EventType.REJECT_INSTALL, callback);
+      provider.on(JsonApi.MethodName.REJECT_INSTALL, callback);
+      provider.off(JsonApi.MethodName.REJECT_INSTALL, callback);
       nodeProvider.simulateMessageFromNode({
         operations: [
           {
@@ -331,8 +330,8 @@ describe("cf-wallet.js Provider", () => {
 
     it("can subscribe to rejectInstall events", async () => {
       expect.assertions(3);
-      provider.once(EventType.REJECT_INSTALL, e => {
-        expect(e.type).toBe(EventType.REJECT_INSTALL);
+      provider.once(JsonApi.MethodName.REJECT_INSTALL, e => {
+        expect(e.type).toBe(JsonApi.MethodName.REJECT_INSTALL);
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
@@ -352,8 +351,8 @@ describe("cf-wallet.js Provider", () => {
 
     it("can subscribe to install events", async () => {
       expect.assertions(3);
-      provider.once(EventType.INSTALL, e => {
-        expect(e.type).toBe(EventType.INSTALL);
+      provider.once(JsonApi.MethodName.INSTALL, e => {
+        expect(e.type).toBe(JsonApi.MethodName.INSTALL);
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
@@ -382,7 +381,7 @@ describe("cf-wallet.js Provider", () => {
     it("can expose the same AppInstance instance for a unique app instance ID", async () => {
       expect.assertions(1);
       let savedInstance: AppInstance;
-      provider.on(EventType.REJECT_INSTALL, e => {
+      provider.on(JsonApi.MethodName.REJECT_INSTALL, e => {
         const eventInstance = (e.data as RejectInstallEventData).appInstance;
         if (!savedInstance) {
           savedInstance = eventInstance;

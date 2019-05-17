@@ -64,6 +64,7 @@ export namespace JsonApi {
   }
 
   export enum MethodName {
+    ERROR = "error",
     CREATE_CHANNEL = "channel:add",
     DEPOSIT = "channel:deposit",
     GET_APP_INSTANCE_DETAILS = "app:get:instance",

@@ -9,7 +9,7 @@ import { ERRORS } from "../../errors";
  * @param this
  * @param params
  */
-export default class GetFreeBalanceController extends NodeController {
+export default class GetFreeBalanceStateController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
 
   protected async executeMethodImplementation(

@@ -20,7 +20,7 @@ export default {
     },
     {
       file: pkg.iife,
-      name: "window.cf",
+      name: "window.cfWallet",
       format: "iife",
       exports: "named",
       globals: {

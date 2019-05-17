@@ -28,7 +28,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const { signature: theirSig } = yield [
+    const response = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         ...context.message,
@@ -37,6 +37,8 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1
       }
     ];
+    const theirSig = response.signature ? response.signature : response.operations[0].data.attributes.signature;
+    
 
     validateSignature(
       xkeyKthAddress(respondingXpub, appSeqNo),

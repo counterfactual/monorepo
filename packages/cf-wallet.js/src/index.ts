@@ -1,4 +1,4 @@
-import NodeProvider from "@counterfactual/node-provider";
+import { JsonApiNodeProvider } from "@counterfactual/node-provider";
 
 import { Provider } from "./provider";
 import * as types from "./types";
@@ -12,5 +12,5 @@ const cf = {
 
 export { Provider, types, utils };
 
-export { NodeProvider };
+export { JsonApiNodeProvider };
 export default cf;

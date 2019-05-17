@@ -1,5 +1,5 @@
 import { CreateChannelMessage } from "@counterfactual/node";
-import { Node } from "@counterfactual/types";
+import { Node, JsonApi } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
@@ -340,7 +340,7 @@ export class AppRoot {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
-    const node = CounterfactualNode.getInstance();
+    const cfProvider = CounterfactualNode.getCfProvider();
 
     if (!multisigAddress || !ethAddress) {
       return {
@@ -358,7 +358,8 @@ export class AppRoot {
     let response;
 
     try {
-      response = await node.call(query.type, query);
+      response = await cfProvider.getFreeBalanceState(multisigAddress);
+      console.log("free balance response", response)
     } catch (e) {
       // TODO: Use better typed error messages with error codes
       if (e.includes("Call to getFreeBalanceState failed")) {
@@ -451,30 +452,46 @@ export class AppRoot {
   async deposit(valueInWei: BigNumber) {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
+    const provider = CounterfactualNode.getCfProvider();
 
-    const node = CounterfactualNode.getInstance();
-
-    node.once(Node.EventName.DEPOSIT_STARTED, args =>
-      this.updateAccount({
-        ethPendingDepositTxHash: args.txHash,
-        ethPendingDepositAmountWei: valueInWei
-      })
+    provider.once(JsonApi.MethodName.DEPOSIT, args =>
+      console.log("DEPOSIT CALLBACK TRiGGERED", args)
+      // this.updateAccount({
+      //   ethPendingDepositTxHash: args.txHash,
+      //   ethPendingDepositAmountWei: valueInWei
+      // })
     );
-
-    let ret;
 
     try {
       const amount = ethers.utils.bigNumberify(valueInWei);
 
-      ret = await node.call(Node.MethodName.DEPOSIT, {
-        type: Node.MethodName.DEPOSIT,
-        requestId: window["uuid"](),
-        params: {
-          amount,
-          multisigAddress,
-          notifyCounterparty: true
-        } as Node.DepositParams
-      });
+      // @ts-ignore
+      await provider.deposit(multisigAddress, amount);
+      console.log("DEPOSIT CALL COMPLETED!!")
+
+      // ret = await node.call(JsonApi.MethodName.DEPOSIT, {
+      //   data: [],
+      //   meta: {
+      //     requestId: ""
+      //   },
+      //   operations: [
+      //     {
+      //     op: JsonApi.OpName.DEPOSIT,
+      //     ref: {
+      //       type: JsonApi.RefType.CHANNEL
+      //     },
+      //     data: {
+      //       type: JsonApi.RefType.CHANNEL,
+      //       relationships: {},
+      //       attributes: {
+      //         multisigAddress,
+      //         amount,
+      //         notifyCounterparty: true
+      //       }
+      //     }
+      //   }
+      // ]
+    // });
     } catch (e) {
       console.error(e);
     }
@@ -482,7 +499,7 @@ export class AppRoot {
     await this.getBalances({ poll: true });
     await this.resetPendingDepositState();
 
-    return ret;
+    return {} as Node.MethodResponse;
   }
 
   async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
