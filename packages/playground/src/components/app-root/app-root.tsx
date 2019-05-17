@@ -467,7 +467,6 @@ export class AppRoot {
 
       // @ts-ignore
       await provider.deposit(multisigAddress, amount);
-      console.log("DEPOSIT CALL COMPLETED!!")
 
       // ret = await node.call(JsonApi.MethodName.DEPOSIT, {
       //   data: [],
@@ -507,27 +506,21 @@ export class AppRoot {
       user: { multisigAddress }
     } = this.accountState;
 
-    const node = CounterfactualNode.getInstance();
+    const provider = CounterfactualNode.getCfProvider();
 
-    node.once(Node.EventName.WITHDRAWAL_STARTED, args => {
-      this.updateAccount({
-        ethPendingWithdrawalTxHash: args.txHash,
-        ethPendingWithdrawalAmountWei: valueInWei
-      });
+    provider.once(Node.EventName.WITHDRAWAL_STARTED, args => {
+      console.log("WITHDRAW STARTED", args)
+      // this.updateAccount({
+      //   ethPendingWithdrawalTxHash: args.txHash,
+      //   ethPendingWithdrawalAmountWei: valueInWei
+      // });
     });
 
-    let ret;
-
     try {
-      ret = await node.call(Node.MethodName.WITHDRAW, {
-        type: Node.MethodName.WITHDRAW,
-        requestId: window["uuid"](),
-        params: {
-          multisigAddress,
-          recipient: this.accountState.user.ethAddress,
-          amount: ethers.utils.bigNumberify(valueInWei)
-        } as Node.WithdrawParams
-      });
+      const amount = ethers.utils.bigNumberify(valueInWei);
+
+      // @ts-ignore
+      await provider.withdraw(multisigAddress, amount);
     } catch (e) {
       console.error(e);
     }
@@ -535,7 +528,7 @@ export class AppRoot {
     await this.getBalances();
     await this.resetPendingWithdrawalState();
 
-    return ret;
+    return {} as Node.MethodResponse;
   }
 
   waitForMultisig() {

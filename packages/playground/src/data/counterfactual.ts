@@ -70,7 +70,11 @@ export default class CounterfactualNode {
   }
 
   static async setupNodeProvider() {
+    this.node.on(JsonApi.MethodName.INSTALL_VIRTUAL, this.postToPort.bind(this));
+    this.node.on(JsonApi.MethodName.REJECT_INSTALL, this.postToPort.bind(this));
     this.node.on(JsonApi.MethodName.DEPOSIT, this.postToPort.bind(this));
+    this.node.on(JsonApi.MethodName.WITHDRAW, this.postToPort.bind(this));
+    this.node.on(JsonApi.MethodName.GET_FREE_BALANCE_STATE, this.postToPort.bind(this));
 
     window.addEventListener("message", (event) => {
       if (event.data === "cf-node-provider:init") {

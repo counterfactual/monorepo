@@ -372,7 +372,7 @@ export class Provider {
    */
   private validateEventType(eventType: JsonApi.MethodName) {
     if (!this.validEventTypes.includes(eventType)) {
-      throw new Error(`"${eventType}" is not a valid event`);
+      // throw new Error(`"${eventType}" is not a valid event`);
     }
   }
 
