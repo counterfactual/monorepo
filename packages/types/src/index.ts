@@ -50,6 +50,12 @@ export const networkContextProps = [
   "TwoPartyEthAsLump"
 ];
 
+export interface ContractMigration {
+  contractName: string;
+  address: string;
+  transactionHash: string;
+}
+
 export {
   ABIEncoding,
   Address,

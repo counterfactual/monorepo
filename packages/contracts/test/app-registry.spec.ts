@@ -7,11 +7,7 @@ import { hexlify, keccak256, randomBytes, SigningKey } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
-import {
-  AppInstance,
-  computeAppChallengeHash,
-  expect,
-} from "./utils";
+import { AppInstance, computeAppChallengeHash, expect } from "./utils";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =

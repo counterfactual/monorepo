@@ -1,8 +1,12 @@
 import RopstenContracts from "@counterfactual/contracts/networks/3.json";
 import RinkebyContracts from "@counterfactual/contracts/networks/4.json";
 import KovanContracts from "@counterfactual/contracts/networks/42.json";
-import { NetworkContext, networkContextProps } from "@counterfactual/types";
-import * as log from "loglevel";
+import {
+  ContractMigration,
+  NetworkContext,
+  networkContextProps
+} from "@counterfactual/types";
+import log from "loglevel";
 
 import { ERRORS } from "./methods/errors";
 
@@ -31,14 +35,8 @@ export function configureNetworkContext(network: string): NetworkContext {
   }
 }
 
-interface Migration {
-  contractName: string;
-  address: string;
-  transactionHash: string;
-}
-
 function getContractAddressesForNetwork(
-  migrations: Migration[]
+  migrations: ContractMigration[]
 ): NetworkContext {
   const ret = {} as any;
 
@@ -49,7 +47,10 @@ function getContractAddressesForNetwork(
   return ret;
 }
 
-function getContractAddress(migrations: Migration[], contract: string): string {
+function getContractAddress(
+  migrations: ContractMigration[],
+  contract: string
+): string {
   const matched = migrations.filter(migration => {
     return migration.contractName === contract;
   });
