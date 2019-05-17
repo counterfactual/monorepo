@@ -5,13 +5,13 @@ To illustrate the install protocol, first assume that the multisignature wallet 
 In this example, the application is Tic-Tac-Toe. You can see with the visual representation below that the funds available in the free balance decrease and the funds committed to the Tic-Tac-Toe application increase by the corresponding amount.
 
 ```eval_rst
-.. mermaid:: diagrams/install-protocol-state.mmd
+.. mermaid:: ../diagrams/install-protocol-state.mmd
 ```
 
 ## Messages
 
 ```eval_rst
-.. mermaid:: diagrams/install-protocol-exchange.mmd
+.. mermaid:: ../diagrams/install-protocol-exchange.mmd
 ```
 
 ### Types
@@ -77,7 +77,7 @@ The following parameters are included in the commitment:
 The commitment can be visually represented like:
 
 ```eval_rst
-.. mermaid:: diagrams/install-protocol-commitment.mmd
+.. mermaid:: ../diagrams/install-protocol-commitment.mmd
 ```
 
 

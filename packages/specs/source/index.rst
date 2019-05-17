@@ -10,17 +10,17 @@ Welcome to Counterfactual's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   00-introduction.md
-   01-app-definition.md
-   02-adjudication-layer.md
-   03-peer-protocol.md
-   04-setup-protocol.md
-   05-install-protocol.md
-   06-update-protocol.md
-   07-uninstall-protocol.md
-   08-cleanup-protocol.md
-   09-install-virtual-app-protocol.md
-   10-uninstall-virtual-app-protocol.md
-   11-withdraw-protocol.md
+   introduction.md
+   app-definition.md
+   adjudication-layer.md
+   peer-protocol.md
+   protocols/setup.md
+   protocols/install.md
+   protocols/update.md
+   protocols/uninstall.md
+   protocols/cleanup.md
+   protocols/install-virtual-app.md
+   protocols/uninstall-virtual-app.md
+   protocols/withdraw.md
    GLOSSARY.md
    CONTRIBUTING.md

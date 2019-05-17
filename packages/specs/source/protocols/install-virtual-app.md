@@ -103,7 +103,7 @@ The signatures `s5` and `s7` are the signatures of `initiating` and `responding`
 ## Messages
 
 ```eval_rst
-.. mermaid:: diagrams/install-virtual-app-exchange.mmd
+.. mermaid:: ../diagrams/install-virtual-app-exchange.mmd
 ```
 
 ### M1

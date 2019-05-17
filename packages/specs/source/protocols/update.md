@@ -1,7 +1,7 @@
 # Update Protocol
 
 ```eval_rst
-.. mermaid:: diagrams/setstate-protocol-state.mmd
+.. mermaid:: ../diagrams/setstate-protocol-state.mmd
 ```
 
 Once an application has been installed into the state channel, the multisignature wallet has transferred control over the installed amount from the free balance to the application's `resolve` function, a mapping from application state to funds distribution. For example, in the case of Tic-Tac-Toe, a possible payout function is: if X wins, Alice gets 2 ETH, else if O wins Bob gets 2 ETH, else send 1 ETH to Alice and Bob.
@@ -17,7 +17,7 @@ Two users run the protocol. They are designated as `initiating` and `responding`
 ## Messages
 
 ```eval_rst
-.. mermaid:: diagrams/setstate-protocol-exchange.mmd
+.. mermaid:: ../diagrams/setstate-protocol-exchange.mmd
 ```
 
 For the below messages, the digest that is signed is represented as the following (reference: computeAppChallengeHash)
@@ -73,7 +73,7 @@ appIdentityHash := keccak256(
 The commitment can be visually represented like:
 
 ```eval_rst
-.. mermaid:: diagrams/setstate-protocol-commitment.mmd
+.. mermaid:: ../diagrams/setstate-protocol-commitment.mmd
 ```
 
 This transaction invoke the `setState` function with the signatures exchanged during the protocol.
