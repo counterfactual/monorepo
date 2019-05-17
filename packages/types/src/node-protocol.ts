@@ -39,6 +39,7 @@ export namespace Node {
     PROPOSE_STATE = "proposeState",
     REJECT_INSTALL = "rejectInstall",
     REJECT_STATE = "rejectState",
+    SEND_FUNDS = "sendFunds",
     UPDATE_STATE = "updateState",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
@@ -98,7 +99,7 @@ export namespace Node {
   };
 
   export type GetFreeBalanceStateResult = {
-    [ s: string ]: BigNumber
+    [s: string]: BigNumber;
   };
 
   export type GetAppInstancesParams = {};
@@ -178,6 +179,14 @@ export namespace Node {
   export type UpdateStateResult = {
     newState: SolidityABIEncoderV2Type;
   };
+
+  export type SendFundsParams = {
+    receipientIdentifier: string;
+    amount: BigNumber;
+    asset?: BlockchainAsset;
+  };
+
+  export type SendFundsResult = {};
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;

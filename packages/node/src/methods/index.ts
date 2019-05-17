@@ -8,6 +8,7 @@ import ProposeInstallVirtualAppInstanceController from "./app-instance/propose-i
 import ProposeInstallAppInstanceController from "./app-instance/propose-install/controller";
 import RejectInstallController from "./app-instance/reject-install/controller";
 import TakeActionController from "./app-instance/take-action/controller";
+import SendFundsController from "./app-instance/send-funds/controller";
 import UninstallVirtualController from "./app-instance/uninstall-virtual/controller";
 import UninstallController from "./app-instance/uninstall/controller";
 import UpdateStateController from "./app-instance/update-state/controller";
@@ -31,6 +32,7 @@ export {
   ProposeInstallAppInstanceController,
   ProposeInstallVirtualAppInstanceController,
   RejectInstallController,
+  SendFundsController,
   TakeActionController,
   UninstallController,
   UninstallVirtualController,

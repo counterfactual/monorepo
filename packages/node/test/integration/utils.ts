@@ -648,3 +648,16 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
     delete appInstance.peerDeposit;
   });
 }
+
+export async function sendFunds(nodeA: Node, nodeB: Node, amount: BigNumber) {
+  const req: NodeTypes.MethodRequest = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.SEND_FUNDS,
+    params: {
+      amount,
+      receipientIdentifier: nodeB.publicIdentifier
+    } as NodeTypes.SendFundsParams
+  };
+
+  await nodeA.call(req.type, req);
+}

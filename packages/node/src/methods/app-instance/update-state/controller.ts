@@ -99,7 +99,7 @@ export default class UpdateStateController extends NodeController {
   }
 }
 
-async function runUpdateStateProtocol(
+export async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,

@@ -5,7 +5,7 @@ import { InstallParams, UpdateParams } from "../../src/machine";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
-import { collateralizeChannel, createChannel, sleep } from "./utils";
+import { collateralizeChannel, createChannel, sendFunds } from "./utils";
 
 describe("Node uses the freeBalancePlugin to simluate payment app functionality", () => {
   let nodeA: Node;
@@ -46,13 +46,12 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
       nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
       nodeB.registerPlugin(freeBalancePluginNodeB, ethBucketAddress);
 
-      await sleep(500);
+      await sendFunds(nodeA, nodeB, One);
     });
   });
 });
 
 class FreeBalanceRejectionPlugin implements Plugin {
-  // register against & listen on node events
   constructor(readonly node: Node) {
     console.log("creating plugin for a new node: ", node.publicIdentifier);
   }

@@ -48,5 +48,12 @@ export const ERRORS = {
   CANNOT_UNINSTALL_FREE_BALANCE: (multisigAddress: string) =>
     `Cannot uninstall the FreeBalance of channel: ${multisigAddress}`,
   NO_REGISTERED_PLUGIN_FOR_APP_ID: (appId: string) =>
-    `No registered plugin for app ID: ${appId}`
+    `No registered plugin for app ID: ${appId}`,
+  INVALID_BALANCE_FOR_FUND_TRANSFER: (
+    identifier: string,
+    transferAmount: string,
+    missingAmount: string
+  ) => {
+    `${identifier} cannot transfer ${transferAmount}. Balance is too low by ${missingAmount}`;
+  }
 };
