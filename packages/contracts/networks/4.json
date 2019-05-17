@@ -68,5 +68,10 @@
     "contractName": "TwoPartyVirtualEthAsLump",
     "address": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
     "transactionHash": "0xea9799ac626b88b12855220f58e1c702b936eff09bdc0b3895ab05943648a7d2"
+  },
+  {
+    "contractName": "ETHInterpreter",
+    "address": "0xFf0febAC60BF1275e650AaDe8B09aeeAc3de8EEC",
+    "transactionHash": "0x62c0e428dc7bf165911b2435e04e95ee7c19db635296976a0db44b3f252d7fa9"
   }
 ]
