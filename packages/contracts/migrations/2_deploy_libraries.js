@@ -2,7 +2,6 @@ const tdr = require("truffle-deploy-registry");
 
 const StateChannelTransaction = artifacts.require("StateChannelTransaction");
 const LibStaticCall = artifacts.require("LibStaticCall");
-const Transfer = artifacts.require("Transfer");
 const AppRegistry = artifacts.require("AppRegistry");
 const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 
@@ -14,11 +13,6 @@ const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 /// switch back when our version of truffle contains #1489
 module.exports = (deployer, network) => {
   deployer.then(async () => {
-
-    const transfer = await deployer.deploy(Transfer);
-    await deployer.link(Transfer, StateChannelTransaction);
-    await deployer.link(Transfer, AppRegistry);
-    await deployer.link(Transfer, TwoPartyVirtualEthAsLump);
 
     const staticCall = await deployer.deploy(LibStaticCall);
     await deployer.link(LibStaticCall, AppRegistry);
