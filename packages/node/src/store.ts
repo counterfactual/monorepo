@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  AssetType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -133,6 +134,23 @@ export class Store {
           this.storeKeyPrefix
         }/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
         value: stateChannel.multisigAddress
+      }
+    ]);
+  }
+
+  public async saveFreeBalance(
+    channel: StateChannel,
+    assetType: AssetType = AssetType.ETH
+  ) {
+    const freeBalance = channel.getFreeBalanceFor(assetType);
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
+          freeBalance.identityHash
+        }`,
+        value: channel.multisigAddress
       }
     ]);
   }

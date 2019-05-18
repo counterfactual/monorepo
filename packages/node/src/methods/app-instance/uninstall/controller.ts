@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/types";
+import { AssetType, Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
@@ -20,6 +20,11 @@ export default class UninstallController extends NodeController {
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+    if (sc.getFreeBalanceFor(AssetType.ETH).identityHash === appInstanceId) {
+      return Promise.reject(
+        ERRORS.CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress)
+      );
+    }
 
     return [
       requestHandler.getShardedQueue(
