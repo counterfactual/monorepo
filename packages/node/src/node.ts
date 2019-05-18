@@ -155,20 +155,23 @@ export class Node {
 
     const validateStateProposal = () => {
       return async (params: UpdateParams): Promise<boolean> => {
-        console.log("running state validation plugin");
-        // return false;
-        // const { appIdentityHash: appInstanceId, multisigAddress } = params;
-        // const channel = await this.requestHandler.store.getStateChannel(
-        //   multisigAddress
-        // );
+        const { appIdentityHash: appInstanceId, multisigAddress } = params[0];
+        const channel = await this.requestHandler.store.getStateChannel(
+          multisigAddress
+        );
 
-        // const { addr: appId } = await channel.getAppInstance(appInstanceId)
-        //   .appInterface;
-        // if (this.plugins.has(appId)) {
-        //   return this.plugins.get(appId)!.onProposedNewState(params);
-        // }
+        const { addr: appId } = await channel.getAppInstance(appInstanceId)
+          .appInterface;
+        if (this.plugins.has(appId)) {
+          const result = this.plugins.get(appId)!.onProposedNewState(params);
+          this.outgoing.emit(
+            NODE_EVENTS.REJECT_STATE,
+            ERRORS.INVALID_STATE_TRANSITION_PROPOSAL
+          );
+          return result;
+        }
 
-        return false;
+        return true;
       };
     };
 

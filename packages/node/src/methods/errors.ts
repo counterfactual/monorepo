@@ -60,5 +60,5 @@ export const ERRORS = {
   TRANSFER_PARAM_CANNOT_BE_EMPTY: `The transfer parameter must specify at least one party to transfer funds to`,
   CANT_TRANSFER_TO_SENDER: (identifier: string) =>
     `The transfer parameter cannot specify a transfer to the sender: ${identifier}`,
-  INVALID_STATE_TRANSITION_PROPOSAL: `The proposed state transition is invalid so it's rejected`
+  INVALID_STATE_TRANSITION_PROPOSAL: `The sender's proposed state transition is invalid so it's rejected`
 };

@@ -1,11 +1,11 @@
 import { One } from "ethers/constants";
 
-import { Node, Plugin } from "../../src";
+import { ERRORS, Node, NODE_EVENTS, Plugin } from "../../src";
 import { InstallParams, UpdateParams } from "../../src/machine";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
-import { collateralizeChannel, createChannel, sendFunds, sleep } from "./utils";
+import { collateralizeChannel, createChannel, sendFunds } from "./utils";
 
 describe("Node uses the freeBalancePlugin to simluate payment app functionality", () => {
   let nodeA: Node;
@@ -40,19 +40,18 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
       expect(nodeA.plugins).toEqual(new Map());
     });
 
-    it("can reject an invalid new state proposal for the FreeBalance", async () => {
+    it("can reject an invalid new state proposal for the FreeBalance", async done => {
       const multisigAddress = await createChannel(nodeA, nodeB);
       await collateralizeChannel(nodeA, nodeB, multisigAddress, One);
       nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
       nodeB.registerPlugin(freeBalancePluginNodeB, ethBucketAddress);
 
-      try {
-        await sendFunds(nodeA, nodeB, One);
-      } catch (e) {
-        expect(e).toEqual("something");
-        console.log(e);
-      }
-      await sleep(500);
+      nodeB.on(NODE_EVENTS.REJECT_STATE, (reason: string) => {
+        expect(reason).toEqual(ERRORS.INVALID_STATE_TRANSITION_PROPOSAL);
+        done();
+      });
+
+      await sendFunds(nodeA, nodeB, One);
     });
   });
 });
@@ -67,7 +66,6 @@ class FreeBalanceRejectionPlugin implements Plugin {
   }
 
   onProposedNewState(params: UpdateParams): boolean {
-    console.log("calling plugin new state validation function");
     return false;
   }
 }

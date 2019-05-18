@@ -148,7 +148,7 @@ function updateFreeBalanceState(
     const senderBalance = balances.get(senderAddress)!;
     const receipientBalance = balances.get(to)!;
 
-    const remaningAmount = balances.get(senderAddress)!.sub(amount);
+    const remaningAmount = senderBalance.sub(amount);
     if (remaningAmount.lt(Zero)) {
       return Promise.reject(
         ERRORS.INVALID_BALANCE_FOR_FUND_TRANSFER(

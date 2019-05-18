@@ -1,4 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
+import log from "loglevel";
 
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -71,14 +72,15 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       theirSig
     );
 
-    console.log("running counter party update protocol");
     const isValid = yield [
       Opcode.OP_VALIDATE_STATE_PROPOSAL,
       context.message.params
     ];
     if (!isValid) {
-      Promise.reject(ERRORS.INVALID_STATE_TRANSITION_PROPOSAL);
+      log.error(ERRORS.INVALID_STATE_TRANSITION_PROPOSAL);
+      return;
     }
+
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);
