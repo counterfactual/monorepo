@@ -20,7 +20,6 @@ module.exports = (deployer, network) => {
     await deployer.link(LibStaticCall, StateChannelTransaction);
 
     if (!tdr.isDryRunNetworkName(network)) {
-      await tdr.appendInstance(transfer);
       await tdr.appendInstance(staticCall);
     }
 
