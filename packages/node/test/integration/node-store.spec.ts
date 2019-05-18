@@ -3,14 +3,16 @@ import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
-import { IStoreService, Node, NodeConfig } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import {
+  IStoreService,
+  Node,
+  NodeConfig,
+  WRITE_NULL_TO_FIREBASE
+} from "../../src";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 import { A_MNEMONIC } from "../test-constants.jest";
-
-const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;

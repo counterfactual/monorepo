@@ -1,4 +1,4 @@
-import { ERRORS } from "../../methods/errors";
+import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../methods/errors";
 import { RequestHandler } from "../../request-handler";
 import { InstallVirtualMessage } from "../../types";
 
@@ -11,7 +11,7 @@ export default async function installEventController(
   const { appInstanceId } = msg.data.params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    throw new Error(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);

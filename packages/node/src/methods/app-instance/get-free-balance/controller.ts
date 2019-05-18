@@ -3,7 +3,7 @@ import { bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
  * Handles the retrieval of a Channel's FreeBalance AppInstance.
@@ -21,7 +21,7 @@ export default class GetFreeBalanceController extends NodeController {
     const { multisigAddress } = params;
 
     if (!multisigAddress) {
-      Promise.reject(ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+      Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
     }
 
     const stateChannel = await store.getStateChannel(multisigAddress);

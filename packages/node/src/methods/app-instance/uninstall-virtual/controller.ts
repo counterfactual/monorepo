@@ -7,7 +7,10 @@ import {
   hashOfOrderedPublicIdentifiers
 } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import {
+  APP_ALREADY_UNINSTALLED,
+  NO_APP_INSTANCE_ID_TO_UNINSTALL
+} from "../../errors";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
 
@@ -46,7 +49,7 @@ export default class UninstallVirtualController extends NodeController {
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
   }
 
@@ -58,13 +61,13 @@ export default class UninstallVirtualController extends NodeController {
     const { appInstanceId, intermediaryIdentifier } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      return Promise.reject(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
     const to = getCounterpartyAddress(

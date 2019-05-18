@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { NO_APP_INSTANCE_ID_FOR_GET_STATE } from "../../errors";
 
 /**
  * Handles the retrieval of an AppInstance's state.
@@ -20,7 +20,7 @@ export default class GetStateController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      Promise.reject(ERRORS.NO_APP_INSTANCE_ID_FOR_GET_STATE);
+      Promise.reject(NO_APP_INSTANCE_ID_FOR_GET_STATE);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);

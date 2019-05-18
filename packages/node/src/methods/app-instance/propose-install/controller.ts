@@ -5,7 +5,7 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
 
@@ -47,7 +47,7 @@ export default class ProposeInstallController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
 
     const appInstanceId = await createProposedAppInstance(

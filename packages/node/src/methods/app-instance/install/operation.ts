@@ -3,7 +3,7 @@ import { Node } from "@counterfactual/types";
 import { InstructionExecutor } from "../../../machine";
 import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { ERRORS } from "../../errors";
+import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
 export async function install(
   store: Store,
@@ -15,7 +15,7 @@ export async function install(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);

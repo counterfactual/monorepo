@@ -1,7 +1,6 @@
 import { AssetType } from "@counterfactual/types";
 
-import { Node } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
@@ -47,7 +46,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
         // this mapping does not exist for FreeBalances (because it's a default app)
         // even if given a correct FreeBalance AppInstanceId, the lookup fails
         // and it cannot be uninstalled
-        expect(e.toString()).toMatch(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+        expect(e.toString()).toMatch(NO_MULTISIG_FOR_APP_INSTANCE_ID);
       }
     });
   });

@@ -1,7 +1,7 @@
 import { Address } from "@counterfactual/types";
 import { BigNumber, hashMessage } from "ethers/utils";
 
-import { ERRORS } from "./methods/errors";
+import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
 import { Store } from "./store";
 
@@ -32,9 +32,7 @@ export async function getChannelFromPeerAddress(
   );
 
   if (!multisigAddress) {
-    return Promise.reject(
-      ERRORS.NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress)
-    );
+    return Promise.reject(NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress));
   }
 
   return await store.getStateChannel(multisigAddress);

@@ -4,8 +4,12 @@ import {
 } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
-import { Node, NODE_EVENTS, UpdateStateMessage } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import {
+  NO_APP_INSTANCE_FOR_TAKE_ACTION,
+  Node,
+  NODE_EVENTS,
+  UpdateStateMessage
+} from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
@@ -41,7 +45,7 @@ describe("Node method follows spec - takeAction", () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
         expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
-          ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION
+          NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
 

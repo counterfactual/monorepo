@@ -8,7 +8,7 @@ import {
 } from "@counterfactual/types";
 import log from "loglevel";
 
-import { ERRORS } from "./methods/errors";
+import { INVALID_NETWORK_NAME } from "./methods/errors";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
@@ -27,7 +27,7 @@ export function configureNetworkContext(network: string): NetworkContext {
     }
     default: {
       throw Error(
-        `${ERRORS.INVALID_NETWORK_NAME}: ${network}. \n
+        `${INVALID_NETWORK_NAME}: ${network}. \n
          The following networks are supported:
          ${Array.from(SUPPORTED_NETWORKS.values())}`
       );
