@@ -7,6 +7,7 @@ import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   APP_ALREADY_UNINSTALLED,
+  CANNOT_UNINSTALL_FREE_BALANCE,
   NO_APP_INSTANCE_ID_TO_UNINSTALL
 } from "../../errors";
 
@@ -24,9 +25,7 @@ export default class UninstallController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
     if (sc.getFreeBalanceFor(AssetType.ETH).identityHash === appInstanceId) {
-      return Promise.reject(
-        ERRORS.CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress)
-      );
+      return Promise.reject(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
     return [
