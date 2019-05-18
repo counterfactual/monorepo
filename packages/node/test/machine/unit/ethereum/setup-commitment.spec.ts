@@ -51,8 +51,7 @@ describe("SetupCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalanceETH.identity,
-      freeBalanceETH.terms
+      freeBalanceETH.identity
     ).getTransactionDetails();
   });
 
@@ -86,7 +85,8 @@ describe("SetupCommitment", () => {
         uninstallKey,
         rootNonceValue,
         appIdentityHash,
-        [assetType, limit, token]
+        {},
+        {}
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.AppRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
@@ -95,9 +95,6 @@ describe("SetupCommitment", () => {
         bigNumberify(freeBalanceETH.rootNonceValue)
       );
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
-      expect(assetType).toBe(freeBalanceETH.terms.assetType);
-      expect(limit).toEqual(freeBalanceETH.terms.limit);
-      expect(token).toBe(freeBalanceETH.terms.token);
     });
   });
 });

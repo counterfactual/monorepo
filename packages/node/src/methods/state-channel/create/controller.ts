@@ -99,13 +99,14 @@ export default class CreateChannelController extends NodeController {
 
     const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
 
-    await store.saveStateChannel(
-      (await instructionExecutor.runSetupProtocol({
-        multisigAddress,
-        respondingXpub,
-        initiatingXpub: publicIdentifier
-      })).get(multisigAddress)!
-    );
+    const channel = (await instructionExecutor.runSetupProtocol({
+      multisigAddress,
+      respondingXpub,
+      initiatingXpub: publicIdentifier
+    })).get(multisigAddress)!;
+
+    await store.saveStateChannel(channel);
+    await store.saveFreeBalance(channel);
 
     const msg: CreateChannelMessage = {
       from: publicIdentifier,

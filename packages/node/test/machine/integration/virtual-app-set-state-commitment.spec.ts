@@ -3,7 +3,7 @@ import { AssetType, NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther } from "ethers/constants";
+import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { Signature, SigningKey } from "ethers/utils";
 
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
@@ -68,13 +68,14 @@ beforeEach(() => {
     stateChannel.multisigOwners,
     10,
     freeBalanceETH.appInterface,
-    freeBalanceETH.terms,
     true,
     5,
     0,
     freeBalanceETH.toJson().latestState,
     freeBalanceETH.toJson().latestNonce,
-    freeBalanceETH.timeout
+    freeBalanceETH.timeout,
+    [AddressZero, AddressZero],
+    Zero
   );
 
   intermediaryCommitment = new VirtualAppSetStateCommitment(

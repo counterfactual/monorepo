@@ -1,4 +1,5 @@
 import { AssetType, ETHBucketAppState, Node } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -25,16 +26,15 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const {
-      alice,
-      bob,
-      aliceBalance,
-      bobBalance
-    } = stateChannel.getFreeBalanceFor(AssetType.ETH)
+    const appState = stateChannel.getFreeBalanceFor(AssetType.ETH)
       .state as ETHBucketAppState;
-    return {
-      [alice]: aliceBalance,
-      [bob]: bobBalance
-    };
+
+    const ret: Node.GetFreeBalanceStateResult = {};
+
+    for (const { amount, to } of appState) {
+      ret[to] = bigNumberify(amount._hex);
+    }
+
+    return ret;
   }
 }

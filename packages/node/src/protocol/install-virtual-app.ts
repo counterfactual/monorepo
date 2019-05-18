@@ -218,24 +218,22 @@ function createAndAddTarget(
     xkeysToSortedKthAddresses([initiatingXpub, respondingXpub], appSeqNo)
   );
 
+  const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+
   const target = new AppInstance(
     AddressZero,
     signingKeys,
     defaultTimeout,
     appInterface,
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(initiatingBalanceDecrement).add(
-        bigNumberify(respondingBalanceDecrement)
-      ),
-      token: AddressZero // TODO: support tokens
-    },
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no
     0, // root nonce value: virtual app instances do not have rootNonceValue
     initialState,
     0, // app nonce
-    defaultTimeout
+    defaultTimeout,
+    [initiatingAddress, intermediaryAddress],
+    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement)
   );
 
   const newStateChannel = sc.addVirtualAppInstance(target);
@@ -286,29 +284,27 @@ function proposeStateTransition1(
     );
   }
 
+  const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+
   const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithIntermediary.multisigAddress,
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(initiatingBalanceDecrement).add(
-        respondingBalanceDecrement
-      ),
-      token: AddressZero
-    },
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
-    xkeyKthAddress(initiatingXpub, 0),
-    xkeyKthAddress(intermediaryXpub, 0)
+    initiatingAddress,
+    intermediaryAddress
   );
 
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
     leftETHVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement
+    {
+      [initiatingAddress]: initiatingBalanceDecrement,
+      [intermediaryAddress]: respondingBalanceDecrement
+    }
   );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
@@ -392,13 +388,6 @@ function proposeStateTransition2(
 
   const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithInitiating.multisigAddress,
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(initiatingBalanceDecrement).add(
-        respondingBalanceDecrement
-      ),
-      token: AddressZero
-    },
     channelWithInitiating.numInstalledApps,
     channelWithInitiating.rootNonceValue,
     100,
@@ -410,13 +399,6 @@ function proposeStateTransition2(
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithResponding.multisigAddress,
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(initiatingBalanceDecrement).add(
-        respondingBalanceDecrement
-      ),
-      token: AddressZero
-    },
     channelWithResponding.numInstalledApps,
     channelWithResponding.rootNonceValue,
     100,
@@ -426,18 +408,26 @@ function proposeStateTransition2(
     xkeyKthAddress(respondingXpub, 0)
   );
 
+  const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+  const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+
   const newChannelWithInitiating = channelWithInitiating.installETHVirtualAppAgreementInstance(
     leftEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement
+    {
+      [initiatingAddress]: initiatingBalanceDecrement,
+      [intermediaryAddress]: respondingBalanceDecrement
+    }
   );
 
   const newChannelWithResponding = channelWithResponding.installETHVirtualAppAgreementInstance(
     rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement
+    {
+      [intermediaryAddress]: initiatingBalanceDecrement,
+      [respondingAddress]: respondingBalanceDecrement
+    }
   );
 
   const leftCommitment = constructETHVirtualAppAgreementCommitment(
@@ -512,13 +502,6 @@ function proposeStateTransition3(
 
   const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
     channelWithIntermediary.multisigAddress,
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(initiatingBalanceDecrement).add(
-        respondingBalanceDecrement
-      ),
-      token: AddressZero
-    },
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
     100,
@@ -528,11 +511,16 @@ function proposeStateTransition3(
     xkeyKthAddress(respondingXpub, 0)
   );
 
+  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+  const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+
   const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
     rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement
+    {
+      [intermediaryAddress]: initiatingBalanceDecrement,
+      [respondingAddress]: respondingBalanceDecrement
+    }
   );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
@@ -571,7 +559,6 @@ function constructETHVirtualAppAgreementCommitment(
     stateChannel.multisigOwners,
     targetHash,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,

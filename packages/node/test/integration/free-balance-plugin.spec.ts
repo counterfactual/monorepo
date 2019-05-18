@@ -5,7 +5,7 @@ import { InstallParams, UpdateParams } from "../../src/machine";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
-import { collateralizeChannel, createChannel, sendFunds } from "./utils";
+import { collateralizeChannel, createChannel, sendFunds, sleep } from "./utils";
 
 describe("Node uses the freeBalancePlugin to simluate payment app functionality", () => {
   let nodeA: Node;
@@ -46,7 +46,13 @@ describe("Node uses the freeBalancePlugin to simluate payment app functionality"
       nodeA.registerPlugin(freeBalancePluginNodeA, ethBucketAddress);
       nodeB.registerPlugin(freeBalancePluginNodeB, ethBucketAddress);
 
-      await sendFunds(nodeA, nodeB, One);
+      try {
+        await sendFunds(nodeA, nodeB, One);
+      } catch (e) {
+        expect(e).toEqual("something");
+        console.log(e);
+      }
+      await sleep(500);
     });
   });
 });

@@ -2,7 +2,6 @@ pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
-import "../libs/Transfer.sol";
 
 import "./MAppRegistryCore.sol";
 
@@ -46,7 +45,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
   function getResolution(bytes32 identityHash)
     external
     view
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
     return appResolutions[identityHash];
   }

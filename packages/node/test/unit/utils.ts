@@ -62,18 +62,15 @@ export function createAppInstance(stateChannel?: StateChannel) {
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    /* terms */ {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
     /* isVirtualApp */ false,
     /* appSeqNo */ stateChannel
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
-    /* rootNonceValue */ 0,
-    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
-    /* latestNonce */ 0,
-    /* latestTimeout */ Math.ceil(1000 * Math.random())
+    0,
+    { foo: AddressZero, bar: bigNumberify(0) },
+    0,
+    Math.ceil(1000 * Math.random()),
+    [AddressZero, AddressZero],
+    Zero
   );
 }

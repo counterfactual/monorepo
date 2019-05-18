@@ -5,6 +5,7 @@ import {
   AppInstanceInfo,
   AssetType,
   BlockchainAsset,
+  ETHBucketAppState,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
@@ -23,14 +24,12 @@ import {
   ProposeVirtualMessage
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { xkeyKthAddress } from "../../src/machine";
 
 import {
   initialEmptyTTTState,
   tttActionEncoding,
   tttStateEncoding
 } from "./tic-tac-toe";
-
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -211,12 +210,7 @@ export function makeTTTProposalRequest(
   peerDeposit: BigNumber = Zero
 ): NodeTypes.MethodRequest {
   const initialState =
-    Object.keys(state).length !== 0
-      ? state
-      : initialEmptyTTTState([
-          xkeyKthAddress(proposedByIdentifier, 0),
-          xkeyKthAddress(proposedToIdentifier, 0)
-        ]);
+    Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
@@ -429,10 +423,7 @@ export async function installTTTApp(
 ): Promise<string> {
   const initialTTTState: SolidityABIEncoderV2Type = initialState
     ? initialState
-    : initialEmptyTTTState([
-        xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
-        xkeyKthAddress(nodeB.publicIdentifier, 0)
-      ]);
+    : initialEmptyTTTState();
 
   return new Promise(async (resolve, reject) => {
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
@@ -536,12 +527,6 @@ export async function getState(
   const getStateReq = generateGetStateRequest(appInstanceId);
   const getStateResult = await nodeA.call(getStateReq.type, getStateReq);
   return (getStateResult.result as NodeTypes.GetStateResult).state;
-}
-
-export function playerAddresses(nodes: Node[]): string[] {
-  return nodes.map<string>((node: Node) => {
-    return xkeyKthAddress(node.publicIdentifier, 0);
-  });
 }
 
 export async function makeTTTVirtualProposal(
@@ -650,12 +635,20 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
 }
 
 export async function sendFunds(nodeA: Node, nodeB: Node, amount: BigNumber) {
+  const transfers: ETHBucketAppState = [
+    {
+      to: nodeB.publicIdentifier,
+      amount: {
+        _hex: amount.toHexString()
+      }
+    }
+  ];
+
   const req: NodeTypes.MethodRequest = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.SEND_FUNDS,
     params: {
-      amount,
-      receipientIdentifier: nodeB.publicIdentifier
+      transfers
     } as NodeTypes.SendFundsParams
   };
 

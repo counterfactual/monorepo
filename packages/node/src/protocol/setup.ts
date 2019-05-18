@@ -124,7 +124,6 @@ export function constructSetupCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
-    freeBalance.identity,
-    freeBalance.terms
+    freeBalance.identity
   );
 }

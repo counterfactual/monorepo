@@ -54,6 +54,7 @@ export class AppProvider {
   nodeProvider: MockNodeProvider = {} as MockNodeProvider;
 
   @Prop({ mutable: true }) cfProvider: cf.Provider = {} as cf.Provider;
+
   @Prop({ mutable: true }) appFactory: cf.AppFactory = {} as cf.AppFactory;
 
   @Prop({ mutable: true }) appInstance: AppInstance = {} as AppInstance;
@@ -78,10 +79,11 @@ export class AppProvider {
     this.cfProvider.on("uninstall", this.onUninstall.bind(this));
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
-    const appId = "0x91907355C59BA005843E791c88aAB80b779446c9";
+    const highRollerAppDefinitionAddr =
+      "0x91907355C59BA005843E791c88aAB80b779446c9";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
-      appId,
+      highRollerAppDefinitionAddr,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",

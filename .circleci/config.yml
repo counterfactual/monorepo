@@ -33,7 +33,7 @@ jobs:
     working_directory: /home/circleci/project
     # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
     docker:
-      - image: web3docker/counterfactual:0.0.1
+      - image: counterfactual/circleci-environment:latest
     steps:
       - <<: *restore_code
       - checkout

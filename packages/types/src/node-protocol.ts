@@ -10,6 +10,7 @@ import {
   AppInstanceID,
   SolidityABIEncoderV2Type
 } from "./simple-types";
+import { ETHBucketAppState } from ".";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -181,8 +182,7 @@ export namespace Node {
   };
 
   export type SendFundsParams = {
-    receipientIdentifier: string;
-    amount: BigNumber;
+    transfers: ETHBucketAppState;
     asset?: BlockchainAsset;
   };
 

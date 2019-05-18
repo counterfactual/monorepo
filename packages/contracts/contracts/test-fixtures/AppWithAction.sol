@@ -1,13 +1,14 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/Transfer.sol";
-import "../CounterfactualApp.sol";
+import "../interfaces/CounterfactualApp.sol";
+import "../interfaces/Interpreter.sol";
+import "../interfaces/TwoPartyOutcome.sol";
 
 // there is a counter; player2 can unanimously increment it
 
 
-contract AppWithAction is CounterfactualApp{
+contract AppWithAction is CounterfactualApp {
 
   struct State {
     address player1;
@@ -19,7 +20,9 @@ contract AppWithAction is CounterfactualApp{
     uint256 increment;
   }
 
-  function getTurnTaker(bytes calldata encodedState, address[] calldata)
+  function getTurnTaker(
+    bytes calldata encodedState, address[] calldata /* signingKeys */
+  )
     external
     pure
     returns (address)
@@ -28,24 +31,12 @@ contract AppWithAction is CounterfactualApp{
     return state.player2;
   }
 
-  function resolve(bytes calldata, Transfer.Terms calldata terms)
+  function resolve(bytes calldata)
     external
     pure
-    returns (Transfer.Transaction memory)
+    returns (bytes memory)
   {
-    uint256[] memory amounts = new uint256[](2);
-
-    address[] memory to = new address[](2);
-
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
-    );
+    return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE);
   }
 
   function applyAction(
@@ -70,5 +61,13 @@ contract AppWithAction is CounterfactualApp{
     returns (bool)
   {
     return false;
+  }
+
+  function resolveType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.ResolutionType.TWO_PARTY_OUTCOME);
   }
 }

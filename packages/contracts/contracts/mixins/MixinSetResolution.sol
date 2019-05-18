@@ -16,20 +16,13 @@ contract MixinSetResolution is
   /// @notice Fetch and store the resolution of a state channel application
   /// @param appIdentity An AppIdentity pointing to the app having the resolution set
   /// @param finalState The ABI encoded version of the finalized application state
-  /// @param terms The ABI encoded version of the already agreed upon terms
   /// @dev Note this function is only callable when the state channel is in an OFF state
   function setResolution(
     AppIdentity memory appIdentity,
-    bytes memory finalState,
-    bytes memory terms
+    bytes memory finalState
   )
     public
   {
-    require(
-      keccak256(terms) == appIdentity.termsHash,
-      "Call to AppRegistry included mismatched terms and termsHash"
-    );
-
     bytes32 identityHash = appIdentityToHash(appIdentity);
 
     AppChallenge storage app = appChallenges[identityHash];
@@ -47,9 +40,10 @@ contract MixinSetResolution is
 
     appResolutions[identityHash] = MAppCaller.resolve(
       appIdentity.appDefinitionAddress,
-      finalState,
-      terms
+      finalState
     );
+
+    appInterpreters[identityHash] = appIdentity.interpreterHash;
   }
 
 }

@@ -2,7 +2,7 @@ import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType } from "@counterfactual/types";
-import { HashZero, WeiPerEther, Zero } from "ethers/constants";
+import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
   getAddress,
@@ -46,15 +46,10 @@ describe("InstallCommitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.setState(
-    stateChannel.getFreeBalanceFor(AssetType.ETH).identityHash,
-    {
-      alice: stateChannel.multisigOwners[0],
-      bob: stateChannel.multisigOwners[1],
-      aliceBalance: WeiPerEther,
-      bobBalance: WeiPerEther
-    }
-  );
+  stateChannel = stateChannel.incrementFreeBalance(AssetType.ETH, {
+    [stateChannel.multisigOwners[0]]: WeiPerEther,
+    [stateChannel.multisigOwners[1]]: WeiPerEther
+  });
 
   const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
@@ -66,14 +61,14 @@ describe("InstallCommitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       appInstance.identity,
-      appInstance.terms,
       freeBalanceETH.identity,
-      freeBalanceETH.terms,
       freeBalanceETH.hashOfLatestState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
       appInstance.appSeqNo,
-      stateChannel.rootNonceValue
+      stateChannel.rootNonceValue,
+      AddressZero,
+      HashZero
     ).getTransactionDetails();
   });
 
@@ -135,19 +130,12 @@ describe("InstallCommitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [
-              owner,
-              signingKeys,
-              appDefinitionAddress,
-              termsHash,
-              defaultTimeout
-            ]
+            [owner, signingKeys, appDefinitionAddress, {}, defaultTimeout]
           ] = calldata.args;
           const expected = freeBalanceETH.identity;
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appDefinitionAddress).toBe(expected.appDefinitionAddress);
-          expect(termsHash).toBe(expected.termsHash);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });
 
@@ -205,7 +193,8 @@ describe("InstallCommitment", () => {
             uninstallKey,
             rootNonceValue,
             appIdentityHash,
-            terms
+            {},
+            {}
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.AppRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
@@ -214,9 +203,6 @@ describe("InstallCommitment", () => {
           expect(rootNonceValue).toEqual(
             bigNumberify(appInstance.rootNonceValue)
           );
-          expect(terms[0]).toBe(appInstance.terms.assetType);
-          expect(terms[1]).toEqual(appInstance.terms.limit);
-          expect(terms[2]).toBe(appInstance.terms.token);
         });
       });
     });

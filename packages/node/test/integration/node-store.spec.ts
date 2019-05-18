@@ -1,12 +1,16 @@
 import { AddressZero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
+import { v4 as generateUUID } from "uuid";
 
 import { IStoreService, Node, NodeConfig } from "../../src";
+import { ERRORS } from "../../src/methods/errors";
 import { MNEMONIC_PATH } from "../../src/signer";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import mockMessagingService from "../services/mock-messaging-service";
 import { A_MNEMONIC } from "../test-constants.jest";
+
+const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 describe("Node can use storage service", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
@@ -42,6 +46,28 @@ describe("Node can use storage service", () => {
 
   afterAll(() => {
     firebaseServiceFactory.closeServiceConnections();
+  });
+
+  it("can save and retrieve a key-value pair", async () => {
+    const key = generateUUID();
+    const value = generateUUID();
+    await storeService.set([{ key, value }]);
+    expect(await storeService.get(key)).toBe(value);
+  });
+
+  it("rejects null entries", async () => {
+    const key = generateUUID();
+    const value = {
+      a: "a",
+      b: "b",
+      c: {
+        x: "x",
+        y: null
+      }
+    };
+    expect(storeService.set([{ key, value }])).rejects.toEqual(
+      new Error(WRITE_NULL_TO_FIREBASE)
+    );
   });
 
   it("can save multiple channels under respective multisig indeces and query for all channels", async () => {

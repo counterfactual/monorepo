@@ -1,5 +1,5 @@
-import { AssetType, Node } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { Node } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -54,15 +54,9 @@ export async function installBalanceRefundApp(
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      aliceBalanceDecrement: Zero,
-      bobBalanceDecrement: Zero,
+      initiatingBalanceDecrement: Zero,
+      respondingBalanceDecrement: Zero,
       signingKeys: stateChannel.getNextSigningKeys(),
-      terms: {
-        // TODO: generalize
-        assetType: AssetType.ETH,
-        limit: MaxUint256,
-        token: AddressZero
-      },
       appInterface: {
         addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:

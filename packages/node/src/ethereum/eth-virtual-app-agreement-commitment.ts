@@ -1,17 +1,12 @@
-import ETHVirtualAppAgreement from "@counterfactual/contracts/build/ETHVirtualAppAgreement.json";
-import {
-  AppIdentity,
-  AssetType,
-  NetworkContext,
-  Terms
-} from "@counterfactual/types";
+import TwoPartyVirtualEthAsLump from "@counterfactual/contracts/build/TwoPartyVirtualEthAsLump.json";
+import { AppIdentity, AssetType, NetworkContext } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
 import { BigNumber, getAddress, Interface } from "ethers/utils";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 
-const iface = new Interface(ETHVirtualAppAgreement.abi);
+const iface = new Interface(TwoPartyVirtualEthAsLump.abi);
 
 export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
   constructor(
@@ -20,7 +15,6 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
     public readonly multisigOwners: string[],
     public readonly targetAppIdentityHash: string,
     public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceTerms: Terms,
     public readonly freeBalanceStateHash: string,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
@@ -36,17 +30,16 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       multisig,
       multisigOwners,
       freeBalanceAppIdentity,
-      freeBalanceTerms,
       freeBalanceStateHash,
       freeBalanceNonce,
       freeBalanceTimeout
     );
-    if (this.networkContext.ETHVirtualAppAgreement === undefined) {
-      throw Error("undefined ETHVirtualAppAgreement");
+    if (this.networkContext.TwoPartyVirtualEthAsLump === undefined) {
+      throw Error("undefined TwoPartyVirtualEthAsLump");
     }
     if (this.beneficiaries.length !== 2) {
       throw Error(
-        `ETHVirtualAppAgreement currently only supports 2 beneficiaries but got ${
+        `TwoPartyVirtualEthAsLump currently only supports 2 beneficiaries but got ${
           this.beneficiaries.length
         }`
       );
@@ -61,7 +54,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
 
   private conditionalTransactionInput(): MultisigTransaction {
     return {
-      to: this.networkContext.ETHVirtualAppAgreement,
+      to: this.networkContext.TwoPartyVirtualEthAsLump,
       value: 0,
       data: iface.functions.delegateTarget.encode([
         {

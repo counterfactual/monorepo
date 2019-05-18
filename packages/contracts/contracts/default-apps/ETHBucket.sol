@@ -1,66 +1,31 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/Transfer.sol";
-import "../CounterfactualApp.sol";
+import "../interfaces/CounterfactualApp.sol";
+import "../interfaces/Interpreter.sol";
+import "../interpreters/ETHInterpreter.sol";
 
 
 contract ETHBucket is CounterfactualApp {
 
   struct AppState {
-    address alice;
-    address bob;
-    uint256 aliceBalance;
-    uint256 bobBalance;
+    ETHInterpreter.ETHTransfer[] transfers;
   }
 
-  function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+  function resolve(bytes calldata encodedState)
     external
-    pure
-    returns (Transfer.Transaction memory)
-  {
-    AppState memory state = abi.decode(encodedState, (AppState));
-
-    uint256[] memory amounts = new uint256[](2);
-    amounts[0] = state.aliceBalance;
-    amounts[1] = state.bobBalance;
-
-    address[] memory to = new address[](2);
-    to[0] = state.alice;
-    to[1] = state.bob;
-    bytes[] memory data = new bytes[](2);
-
-    return Transfer.Transaction(
-      terms.assetType,
-      terms.token,
-      to,
-      amounts,
-      data
-    );
-  }
-
-  function isStateTerminal(bytes calldata)
-    external
-    pure
-    returns (bool)
-  {
-    revert("Not implemented");
-  }
-
-  function getTurnTaker(bytes calldata, address[] calldata)
-    external
-    pure
-    returns (address)
-  {
-    revert("Not implemented");
-  }
-
-  function applyAction(bytes memory, bytes memory)
-    public
     pure
     returns (bytes memory)
   {
-    revert("Not implemented");
+    return encodedState;
+  }
+
+  function resolveType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.ResolutionType.ETH_TRANSFER);
   }
 
 }

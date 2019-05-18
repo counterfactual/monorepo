@@ -5,6 +5,7 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolParameters, UpdateParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
+import { ERRORS } from "../methods/errors";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -70,7 +71,14 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       theirSig
     );
 
-    yield [Opcode.OP_VALIDATE_STATE_PROPOSAL, context.message.params];
+    console.log("running counter party update protocol");
+    const isValid = yield [
+      Opcode.OP_VALIDATE_STATE_PROPOSAL,
+      context.message.params
+    ];
+    if (!isValid) {
+      Promise.reject(ERRORS.INVALID_STATE_TRANSITION_PROPOSAL);
+    }
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);

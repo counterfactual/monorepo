@@ -7,13 +7,7 @@ import { hexlify, keccak256, randomBytes, SigningKey } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 
-import {
-  AppInstance,
-  AssetType,
-  computeAppChallengeHash,
-  expect,
-  Terms
-} from "./utils";
+import { AppInstance, computeAppChallengeHash, expect } from "./utils";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const ALICE =
@@ -64,7 +58,6 @@ describe("AppRegistry", () => {
       wallet.address,
       [ALICE.address, BOB.address],
       hexlify(randomBytes(20)),
-      new Terms(AssetType.ETH, 0, AddressZero),
       10
     );
 
@@ -246,15 +239,11 @@ describe("AppRegistry", () => {
   });
 
   it("is possible to call setState to put state on-chain", async () => {
-    // Test Terms
-    const terms = new Terms(AssetType.ETH, 0, AddressZero);
-
     // Setup AppInstance
     const appInstance = new AppInstance(
       wallet.address,
       [ALICE.address, BOB.address],
       AddressZero,
-      terms,
       10
     );
 

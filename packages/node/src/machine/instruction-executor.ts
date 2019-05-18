@@ -1,5 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
+import uuid from "uuid";
 
 import { StateChannel } from "../models";
 import { getProtocolFromName } from "../protocol";
@@ -59,6 +60,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -72,6 +74,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -85,6 +88,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -98,6 +102,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.respondingXpub
     });
@@ -111,6 +116,7 @@ export class InstructionExecutor {
       {
         protocol,
         params,
+        protocolExecutionID: uuid.v1(),
         seq: 0,
         toXpub: params.respondingXpub
       }
@@ -125,6 +131,7 @@ export class InstructionExecutor {
       {
         protocol,
         params,
+        protocolExecutionID: uuid.v1(),
         seq: 0,
         toXpub: params.respondingXpub
       }
@@ -139,6 +146,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.intermediaryXpub
     });
@@ -152,6 +160,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
       params,
       protocol,
+      protocolExecutionID: uuid.v1(),
       seq: 0,
       toXpub: params.intermediaryXpub
     });

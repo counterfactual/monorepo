@@ -6,6 +6,7 @@ import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 
+import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
 import {
   InstructionExecutor,
   xkeysToSortedKthAddresses
@@ -96,13 +97,11 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH)
-      .state as ETHBucketAppState;
+    const fbState = fromAppState(stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState);
 
-    expect(fbState.alice === signingKeys[0]);
-    expect(fbState.bob === signingKeys[1]);
-    expect(fbState.aliceBalance).toEqual(Zero);
-    expect(fbState.bobBalance).toEqual(Zero);
+    expect(fbState[signingKeys[0]]).toEqual(Zero);
+    expect(fbState[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

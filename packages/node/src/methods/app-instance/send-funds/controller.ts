@@ -1,9 +1,16 @@
-import { AssetType, ETHBucketAppState, Node } from "@counterfactual/types";
+import {
+  AssetType,
+  ETHBucketAppState,
+  ETHBucketParties,
+  ETHBucketParty,
+  Node
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 
 import { AppInstance } from "../../../models";
+import { getETHFreeBalanceAddress } from "../../../node";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
@@ -18,13 +25,21 @@ export default class SendFundsController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.SendFundsParams
   ): Promise<Queue[]> {
-    const { store, publicIdentifier } = requestHandler;
-    const { receipientIdentifier } = params;
+    const { store, publicIdentifier: senderIdentifier } = requestHandler;
+    const { transfers } = params;
+    if (transfers.length === 0) {
+      return Promise.reject(ERRORS.TRANSFER_PARAM_CANNOT_BE_EMPTY);
+    }
+
+    if (transfers.map(transfer => transfer.to).includes(senderIdentifier)) {
+      return Promise.reject(ERRORS.CANT_TRANSFER_TO_SENDER(senderIdentifier));
+    }
 
     const freeBalance = await getFreeBalance(
       store,
-      publicIdentifier,
-      receipientIdentifier
+      senderIdentifier,
+      // TODO: generalize for n-party channel
+      transfers[0].to
     );
 
     return [
@@ -42,36 +57,32 @@ export default class SendFundsController extends NodeController {
   ): Promise<Node.TakeActionResult> {
     const {
       store,
-      publicIdentifier: myIdentifier,
+      publicIdentifier: senderIdentifier,
       instructionExecutor
     } = requestHandler;
-    const { amount, receipientIdentifier } = params;
+    const { transfers } = params;
 
+    // TODO: generalize for n-party channel
+    const receipientIdentifier = transfers[0].to;
     const freeBalance = await getFreeBalance(
       store,
-      myIdentifier,
+      senderIdentifier,
       receipientIdentifier
     );
 
-    const state = freeBalance.state as ETHBucketAppState;
-    if (
-      state.alice === myIdentifier &&
-      (await transferIsValid(amount, state.aliceBalance, myIdentifier))
-    ) {
-      state.aliceBalance = state.aliceBalance.sub(amount);
-      state.bobBalance = state.bobBalance.add(amount);
-    } else if (await transferIsValid(amount, state.bobBalance, myIdentifier)) {
-      state.bobBalance = state.bobBalance.sub(amount);
-      state.aliceBalance = state.aliceBalance.add(amount);
-    }
+    const newState = updateFreeBalanceState(
+      freeBalance,
+      senderIdentifier,
+      transfers
+    );
 
     await runUpdateStateProtocol(
       freeBalance.identityHash,
       store,
       instructionExecutor,
-      myIdentifier,
+      senderIdentifier,
       receipientIdentifier,
-      state
+      newState
     );
 
     const appInstance = await store.getAppInstance(freeBalance.identityHash);
@@ -93,25 +104,73 @@ async function getFreeBalance(
     await store.getMultisigAddressFromOwnersHash(ownersHash)
   );
 
-  // TODO: handle for other asset types
+  // TODO: generalize asset type
   return channel.getFreeBalanceFor(AssetType.ETH);
 }
 
-async function transferIsValid(
-  amount: BigNumber,
-  balance: BigNumber,
-  identifier: string
-): Promise<boolean> {
-  const remaningAmount = balance.sub(amount);
-  if (remaningAmount.lt(Zero)) {
-    const missingAmount = Zero.sub(remaningAmount);
-    return Promise.reject(
-      ERRORS.INVALID_BALANCE_FOR_FUND_TRANSFER(
-        identifier,
-        amount.toString(),
-        missingAmount.toString()
-      )
-    );
-  }
-  return true;
+/**
+ *
+ * @param senderIdentifier The identifier of the Node sending the funds.
+ * @param transferObj The struct defining the identifier -> amount mapping
+ *        that the sender uses to send funds to other parties of the channel.
+ * @param store
+ */
+function updateFreeBalanceState(
+  freeBalance: AppInstance,
+  senderIdentifier: string,
+  transfersObj: ETHBucketAppState
+): ETHBucketAppState {
+  // TODO: generalize asset type
+  const senderAddress = getETHFreeBalanceAddress(senderIdentifier);
+
+  const transfers: Map<string, BigNumber> = transfersObj.reduce(
+    (map, party) => {
+      if (party.to !== senderIdentifier) {
+        map.set(
+          getETHFreeBalanceAddress(party.to),
+          new BigNumber(party.amount._hex)
+        );
+      }
+      return map;
+    },
+    new Map()
+  );
+
+  const balances: ETHBucketParties = (freeBalance.state as ETHBucketAppState).reduce(
+    (map, party) => {
+      map.set(party.to, new BigNumber(party.amount._hex));
+      return map;
+    },
+    new Map()
+  );
+
+  transfers.forEach((amount, to) => {
+    const senderBalance = balances.get(senderAddress)!;
+    const receipientBalance = balances.get(to)!;
+
+    const remaningAmount = balances.get(senderAddress)!.sub(amount);
+    if (remaningAmount.lt(Zero)) {
+      return Promise.reject(
+        ERRORS.INVALID_BALANCE_FOR_FUND_TRANSFER(
+          senderIdentifier,
+          amount.toString(),
+          Zero.sub(remaningAmount).toString()
+        )
+      );
+    }
+    balances.set(senderAddress, senderBalance.sub(amount));
+    balances.set(to, receipientBalance.add(amount));
+    return balances;
+  });
+
+  return Array.from(balances.entries()).map<ETHBucketParty>(
+    (party: [string, BigNumber]): ETHBucketParty => {
+      return {
+        to: party[0],
+        amount: {
+          _hex: party[1].toHexString()
+        }
+      };
+    }
+  );
 }

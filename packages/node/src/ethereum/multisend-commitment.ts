@@ -1,6 +1,6 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import { AppIdentity, Terms } from "@counterfactual/types";
+import { AppIdentity } from "@counterfactual/types";
 import { HashZero } from "ethers/constants";
 import { Interface } from "ethers/utils";
 
@@ -20,7 +20,6 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
     readonly multisig: string,
     readonly multisigOwners: string[],
     readonly freeBalanceAppIdentity: AppIdentity,
-    readonly freeBalanceTerms: Terms,
     readonly freeBalanceStateHash: string,
     readonly freeBalanceNonce: number,
     readonly freeBalanceTimeout: number
