@@ -4,22 +4,22 @@ A **plugin** to the `Node` is a class which defines how the `Node` will react to
 
 Note that because plugins can be registered and mappings are created to Apps _per Node_ instance, _one channel's participants who are operating their respective nodes can register different plugins to sign their approvals for the same App, reflective of each participant's risk profile_.
 
-## Flow: Node's interaction with the Plugin
+## Flow: `Node`'s interaction with the Plugin
 
 - ### How is a plugin registered?
 
-  - The Node will have a method on it called `registerPlugin` which accepts
+  - The `Node` will have a method on it called `registerPlugin` which accepts
     - an `appDefinitionAddress`
     - PluginParams: TODO: parameters such as which providers to use for uninstalling?
     - The plugin instance that executes the calls for the above described methods
-  - The Node then keeps a mapping of AppInstances to pluginID so that it can execute the relevant plugin's functions per AppInstance as described above
+  - The `Node` then keeps a mapping of App to plugin so that it can execute the relevant plugin's functions per instance of the corresponding App as described above
 
-- ### Where in the Node does a plugin's `onProposedInstall` get called?
+- ### Where in the `Node` does a plugin's `onProposedInstall` get called?
 
-  - This is called when the counter party receives an install proposal. The plugin is looked up via the mapping that the Node holds. The parameters of this proposal are relayed to the plugin, which executes its logic to determine whether the proposal should be accepted and the AppInstance be installed.
+  - This is called when the counter party receives an install proposal. The plugin is looked up via the mapping that the `Node` holds. The parameters of this proposal are relayed to the plugin, which executes its logic to determine whether the proposal should be accepted and the AppInstance be installed.
 
-- ### Where in the Node does a plugin's `onProposedNewState` get called?
-  - When the counter party receives a new state proposal, the parameters can be relayed to the plugin so it can determine whether the new state can be accepted or not.
+- ### Where in the `Node` does a plugin's `onProposedNewState` get called?
+  - This function is registered to a hook called `OP_VALIDATE_STATE_PROPOSAL` which gets executed as the step before the `OP_SIGN` operation in the `UpdateState` protocol. When the counter party receives a new state proposal, the parameters are relayed to this function so it can determine whether the new state can be accepted (signed) or not.
 
 * ### Implementation strategy
   - The first use case driving the implementation of this feature is the FreeBalance being updateable to provide the functionality of a bidirectional payment app.
@@ -27,7 +27,7 @@ Note that because plugins can be registered and mappings are created to Apps _pe
 
 Open questions:
 
-- what kind of access does a plugin have to the Node?
+- what kind of access does a plugin have to the `Node`?
 - where are plugins stored? we need a plugin registry
 - Should there be an optional uninstall method on the plugin
   - This means for example that the resolution timing could be overridden by the plugin to use different providers
