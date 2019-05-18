@@ -46,7 +46,7 @@ export class MiniNode {
       Opcode.OP_SIGN_AS_INTERMEDIARY,
       makeSigner(this.hdNode, true)
     );
-    this.ie.register(Opcode.OP_VALIDATE_STATE_PROPOSAL, () => {});
+    this.ie.register(Opcode.OP_VALIDATE_STATE_PROPOSAL, () => true);
     this.ie.register(Opcode.WRITE_COMMITMENT, () => {});
   }
 
