@@ -136,10 +136,8 @@ Public Methods
 Transfers the given amount of a given asset class to the counter party within the channel.
 
 Params:
-- `recepientIdentifier: string`
-    - Address of the peer receiving the transfer of funds
-- `amount: BigNumber`
-    - The amount to transfer from the initiating Node to the receiving Node
+- `transfers: ETHBucketAppState`
+    - Mapping of counter party identifiers to amount being transferred to each
 - `asset?:`[`BlockchainAsset`](#data-type-blockchainasset)
     - Optional asset class to send. Default is ETH.
 
