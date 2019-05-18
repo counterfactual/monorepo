@@ -3,7 +3,7 @@
 > NOTE: All of the protocols below specify a 2-party interaction but can be generalized to the multi-party case in the future.
 
 ```eval_rst
-.. mermaid:: diagrams/setup-protocol-state.mmd
+.. mermaid:: ../diagrams/setup-protocol-state.mmd
 ```
 
 ## Messages
@@ -13,7 +13,7 @@ After authentication and initializing a connection, channel establishment may be
 Specifically, the Setup Protocol exchanges a commitment allowing a particular off-chain application to withdraw funds from the multisignature wallet. We call this application instance the Free Balance application, representating the available funds for any new application to be installed into the state channel. The app definition is called ETHBucket.
 
 ```eval_rst
-.. mermaid:: diagrams/setup-protocol-exchange.mmd
+.. mermaid:: ../diagrams/setup-protocol-exchange.mmd
 ```
 
 Unlike other protocols, there is no extra message data for the Setup Protocol because the commitment digests are fully determined by the addresses of the participants.
@@ -76,7 +76,7 @@ The commitments that these two messages rely on have the following parameters:
 The commitment can be visually represented like:
 
 ```eval_rst
-.. mermaid:: diagrams/set-root-nonce-commitment.mmd
+.. mermaid:: ../diagrams/set-root-nonce-commitment.mmd
 ```
 
 **Commitment for `Setup` and `SetupAck`**:
@@ -97,7 +97,7 @@ Additionally, the following parameters are implicitly computed:
 The commitment can be visually represented like:
 
 ```eval_rst
-.. mermaid:: diagrams/setup-commitment.mmd
+.. mermaid:: ../diagrams/setup-commitment.mmd
 ```
 
 > NOTE: The usage of `MultiSend` in this commitment is unnecessary and should be removed.
