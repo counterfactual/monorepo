@@ -5,7 +5,7 @@ import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { CANNOT_DEPOSIT, INSUFFICIENT_FUNDS } from "../../errors";
 
 import {
   installBalanceRefundApp,
@@ -37,7 +37,7 @@ export default class DepositController extends NodeController {
         requestHandler.networkContext.ETHBalanceRefundApp
       )
     ) {
-      return Promise.reject(ERRORS.CANNOT_DEPOSIT);
+      return Promise.reject(CANNOT_DEPOSIT);
     }
 
     const address = await requestHandler.getSignerAddress();
@@ -45,7 +45,7 @@ export default class DepositController extends NodeController {
     const balanceOfSigner = await provider.getBalance(address);
 
     if (balanceOfSigner.lt(amount)) {
-      return Promise.reject(`${ERRORS.INSUFFICIENT_FUNDS}: ${address}`);
+      return Promise.reject(`${INSUFFICIENT_FUNDS}: ${address}`);
     }
   }
 

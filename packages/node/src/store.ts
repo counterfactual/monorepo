@@ -16,7 +16,12 @@ import {
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
 import { Transaction } from "./machine";
-import { ERRORS } from "./methods/errors";
+import {
+  NO_APP_INSTANCE_FOR_GIVEN_ID,
+  NO_MULTISIG_FOR_APP_INSTANCE_ID,
+  NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID,
+  NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
+} from "./methods/errors";
 import {
   AppInstance,
   ProposedAppInstanceInfo,
@@ -74,10 +79,7 @@ export class Store {
 
     if (!stateChannelJson) {
       return Promise.reject(
-        ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(
-          stateChannelJson,
-          multisigAddress
-        )
+        NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
       );
     }
 
@@ -301,8 +303,7 @@ export class Store {
 
     if (!appInstanceInfo) {
       return Promise.reject(
-        // FIXME: Errors should be functions with parameters
-        `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
+        `${NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
       );
     }
 
@@ -357,7 +358,7 @@ export class Store {
 
     if (!proposedAppInstanceInfo) {
       return Promise.reject(
-        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
 
@@ -375,7 +376,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      return Promise.reject(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);

@@ -5,7 +5,10 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import {
+  NO_MULTISIG_FOR_APP_INSTANCE_ID,
+  NULL_INITIAL_STATE_FOR_PROPOSAL
+} from "../../errors";
 
 import {
   createProposedVirtualAppInstance,
@@ -47,7 +50,7 @@ export default class ProposeInstallVirtualController extends NodeController {
       queues.push(requestHandler.getShardedQueue(metachannelAddress));
     } catch (e) {
       // It is possible the metachannel has never been created
-      if (e !== ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
+      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
     }
 
     return queues;
@@ -61,7 +64,7 @@ export default class ProposeInstallVirtualController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      return Promise.reject(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
     // TODO: check if channel is open with the first intermediary
     // and that there are sufficient funds

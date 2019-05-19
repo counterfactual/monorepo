@@ -17,7 +17,10 @@ import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import {
+  CHANNEL_CREATION_FAILED,
+  NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
+} from "../../errors";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
@@ -151,7 +154,7 @@ export default class CreateChannelController extends NodeController {
 
         if (!tx.hash) {
           return Promise.reject(
-            `${ERRORS.NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
+            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
           );
         }
 
@@ -163,6 +166,6 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    return Promise.reject(`${ERRORS.CHANNEL_CREATION_FAILED}: ${error}`);
+    return Promise.reject(`${CHANNEL_CREATION_FAILED}: ${error}`);
   }
 }

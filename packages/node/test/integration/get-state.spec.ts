@@ -1,8 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
-import { Node } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
@@ -35,7 +34,7 @@ describe("Node method follows spec - getAppInstances", () => {
     const getStateReq = generateGetStateRequest(generateUUID());
     expect(
       nodeA.call(NodeTypes.MethodName.GET_STATE, getStateReq)
-    ).rejects.toEqual(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("returns the right state for an installed AppInstance", async () => {

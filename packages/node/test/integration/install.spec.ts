@@ -1,8 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
-import { Node } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
@@ -81,7 +80,7 @@ describe("Node method follows spec - proposeInstall", () => {
 
         expect(
           nodeA.call(appInstanceProposalReq.type, appInstanceProposalReq)
-        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

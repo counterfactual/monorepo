@@ -1,7 +1,6 @@
 import { AssetType } from "@counterfactual/types";
 
-import { Node } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
@@ -43,7 +42,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
         await nodeA.call(fbUninstallReq.type, fbUninstallReq);
       } catch (e) {
         expect(e.toString()).toMatch(
-          ERRORS.CANNOT_UNINSTALL_FREE_BALANCE(multisigAddress)
+          CANNOT_UNINSTALL_FREE_BALANCE(multisigAddress)
         );
       }
     });

@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { NO_APP_INSTANCE_ID_TO_GET_DETAILS } from "../../errors";
 
 /**
  * Handles the retrieval of an AppInstance.
@@ -20,7 +20,7 @@ export default class GetAppInstanceDetailsController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_GET_DETAILS);
+      Promise.reject(NO_APP_INSTANCE_ID_TO_GET_DETAILS);
     }
 
     return {

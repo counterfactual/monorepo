@@ -9,7 +9,12 @@ import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import {
+  IMPROPERLY_FORMATTED_STRUCT,
+  INVALID_ACTION,
+  NO_APP_INSTANCE_FOR_TAKE_ACTION,
+  STATE_OBJECT_NOT_ENCODABLE
+} from "../../errors";
 
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
@@ -36,7 +41,7 @@ export default class TakeActionController extends NodeController {
     const { appInstanceId, action } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(ERRORS.NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      return Promise.reject(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -45,9 +50,9 @@ export default class TakeActionController extends NodeController {
       appInstance.encodeAction(action);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        return Promise.reject(`${ERRORS.IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        return Promise.reject(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
       }
-      return Promise.reject(ERRORS.STATE_OBJECT_NOT_ENCODABLE);
+      return Promise.reject(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 
@@ -140,7 +145,7 @@ async function runTakeActionProtocol(
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
-      throw new Error(`${ERRORS.INVALID_ACTION}`);
+      throw new Error(`${INVALID_ACTION}`);
     }
     throw e;
   }
