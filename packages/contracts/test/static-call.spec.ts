@@ -44,24 +44,6 @@ describe("StaticCall", () => {
       expect(ret).to.eq(helloWorldString);
     });
 
-    it("retrieves true bool from external pure function", async () => {
-      const ret = await testCaller.functions.execStaticCallBool(
-        echo.address,
-        echo.interface.functions.returnArg.sighash,
-        defaultAbiCoder.encode(["bool"], [true])
-      );
-      expect(ret).to.be.true;
-    });
-
-    it("retrieves false bool from external pure function", async () => {
-      const ret = await testCaller.functions.execStaticCallBool(
-        echo.address,
-        echo.interface.functions.returnArg.sighash,
-        defaultAbiCoder.encode(["bool"], [false])
-      );
-      expect(ret).to.be.false;
-    });
-
     it("retrieves argument from external pure function", async () => {
       const ret = await testCaller.functions.execStaticCall(
         echo.address,
