@@ -6,7 +6,7 @@ import { defaultAbiCoder, keccak256 } from "ethers/utils";
 /// Note that despite the name, currently these channels simply contain virtual
 /// app target instances and do not support full functionality that might be
 /// expected of a "virtual channel" such as the ability to convert it to a
-/// ledger channel, or to install apps without the intermediary's involvement.
+/// direct channel, or to install apps without the intermediary's involvement.
 export function virtualChannelKey(users: string[], intermediary: string) {
   if (users.length !== 2) {
     throw Error("virtualChannelKey can only calculate with 2 users");

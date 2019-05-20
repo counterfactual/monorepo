@@ -4,7 +4,7 @@ This is the Install Virtual App Protocol.
 
 ## Roles
 
-Three users run the protocol. They are designated as `initiating`, `responding`, and `intermediary`. The first two parties are the users wishing to interact together in a virtual app, who do not necessarily have a ledger channel between them. It is required that `initiating` and `intermediary` have a ledger channel together, and that `responding` and `intermediary` have a ledger channel together.
+Three users run the protocol. They are designated as `initiating`, `responding`, and `intermediary`. The first two parties are the users wishing to interact together in a virtual app, who do not necessarily have a direct channel between them. It is required that `initiating` and `intermediary` have a direct channel together, and that `responding` and `intermediary` have a direct channel together.
 
 ## The `InstallVirtualAppParams` type
 
