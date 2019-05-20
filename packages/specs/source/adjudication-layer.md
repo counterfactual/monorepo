@@ -4,9 +4,11 @@ Counterfactual's adjudication layer uses a singleton contract called the [`AppRe
 
 The implementation that is inside of this repository has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface. Although this is the case, the core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
 
-The two core concepts of the adjudication layer are **challenges** and **resolutions**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application and resolutions _distribute state deposits_ based on the resolution. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe and a resolution might be about who is rewarded with the 2 ETH allocated to the off-chain application.
+Three core concepts of the adjudication layer are **challenges**, **resolutions** and **interpreters**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application. Resolutions and interpreters collectively _distribute state deposits_. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe the resolution might be about who has won the game, and the interpreter might produce the effect of sending 2 pre-committed ETH to the winner.
 
-> In some other frameworks, these two concepts can be implicitly grouped together in such a way that the resolution might be _a part of the state itself_. From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
+## AppInstance
+
+TBW
 
 ## Challenges
 
@@ -98,18 +100,6 @@ Here is a description of why each field exists in this data structure:
 
 After a challenge has been finalized, the `AppRegistry` can now be used to arrive at a resolution. In the Counterfactual protocols, it is the _resolution_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
 
-The resolution is defined in the framework as a `Transaction` structure. Note that this object is currently under consideration for a refactoring to be slightly more generalized (i.e., removing `assetType` and `token` to be specific), but as of today in the codebase it is represented by:
-
-```solidity
-struct Transaction {
-    uint8 assetType;
-    address token;
-    address[] to;
-    uint256[] value;
-    bytes[] data;
-}
-```
-
 ### Setting a Resolution
 
 **After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `resolve` function of the corresponding `AppDefinition` to the challenge. The `resolve` method will return a `Transfer.Transaction` struct and that is then stored inside the contract permanently as the resolution of the application.
@@ -117,6 +107,8 @@ struct Transaction {
 **In the same transaction as finalizing a challenge.** A minor efficiency can be added here, but has not yet been implemented, which is that if the challenge can finalized unilaterally (either in initiation or in refutation) then it is possible to instantly set the resolution. There is an [issue tracking this on GitHub](https://github.com/counterfactual/monorepo/issues/1311).
 
 ## FAQ
+
+> In some other frameworks, these two concepts can be implicitly grouped together in such a way that the resolution might be _a part of the state itself_. From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
 
 ### On-chain Progressions of Off-chain State
 It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In the case of a state machine progression then there is a uniquely non-fault-attributable scenario that can occur:
