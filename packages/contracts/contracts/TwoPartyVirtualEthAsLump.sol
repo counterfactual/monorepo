@@ -8,7 +8,7 @@ import "./NonceRegistry.sol";
 /// @title TwoPartyVirtualEthAsLump
 /// @notice Commitment target to support "virtual apps", i.e., apps which have
 /// ETH committed to them via intermediary lock-up instead of having ETH directly
-/// committed in a ledger channel.
+/// committed in a direct channel.
 /// The `target` contract must return via resolution the outcome of the app,
 /// and the resolve function must be TwoPartyOutcome type.
 /// We do not use the interpreter mechanism in StateChannelTransaction.sol
