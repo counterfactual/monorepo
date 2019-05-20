@@ -1,12 +1,36 @@
 # Adjudication Layer
 
-Counterfactual's adjudication layer uses a singleton contract called the [`AppRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppRegistry.sol).
+Counterfactual's adjudication layer uses a singleton contract called the [`AppRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppRegistry.sol). This contract has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface.
 
-The implementation that is inside of this repository has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface. Although this is the case, the core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
+The adjudication layer treats off-chain state as divided into independent app instances, which are "instantiations" of Apps governed by the app definition. A channel with two chess different chess games ongoing has two different app instances.
 
-The two core concepts of the adjudication layer are **challenges** and **resolutions**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application and resolutions _distribute state deposits_ based on the resolution. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe and a resolution might be about who is rewarded with the 2 ETH allocated to the off-chain application.
+Three core concepts of the adjudication layer are **challenges**, **resolutions** and **interpreters**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application. This final state is stored as a resolution. Interpreters use the resolution in order to _distribute state deposits_. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe, the resolution about who has won the game, and the interpreter produce the effect of sending 2 pre-committed ETH to the winner.
 
-> In some other frameworks, these two concepts can be implicitly grouped together in such a way that the resolution might be _a part of the state itself_. From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
+## AppInstance and AppIdentity
+
+An app instance is uniquely identified by its `AppIdentity`.
+
+```solidity
+struct AppIdentity {
+    address owner;
+    address[] signingKeys;
+    address appDefinitionAddress;
+    bytes32 interpreterHash;
+    uint256 defaultTimeout;
+}
+```
+
+- **`owner`**: The on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. We treat any function call where `msg.sender == owner` as authorized (all channel participants have agreed to it).
+
+- **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `AppRegistry` itself. In this case, this field is used to validate signatures against to.
+
+- **`appDefinitionAddress`**: Address ofthe app definition contract.
+
+- **`interpreterHash`**: Hash of interpreter address and params to the interpreter to be used in determining what effects the resolution has.
+
+- **`defaultTimeout`**: Should the application that this data structure is describing ever be put on-chain, this property describes how long the timeout period would be if that challenge ever gets responded to on-chain. In the case of a challenge _initially_ being put on chain, the timeout period is a required parameter regardless, so this field is not used in that case.
+
+The hash of the app identity, defined as `keccak256(abi.encode(appIdentity))`, uniquely identifies the app instance as well.
 
 ## Challenges
 
@@ -14,7 +38,13 @@ A challenge that is put on-chain must result from a failure of some state channe
 
 ### Data Structure
 
-In the `AppRegistry`, a challenge is represented by the following data structure:
+The `AppRegistry` contains a storage mapping from appIdentityHash to a struct that represents the current challenge the app instance is undergoing
+
+```solidity
+ mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
+```
+
+A challenge is represented by the following data structure:
 
 ```solidity
 struct AppChallenge {
@@ -56,30 +86,6 @@ Thus, this parameter simply records which state the challenge is in.
 
 Since the contract that Counterfactual relies on for managing challenges is a singleton and is responsible for challnges that can occur in multiple different state channels simultaneously, it implements a mapping from what is called an `AppIdentity` to the challenge data structure described above.
 
-The `AppIdentity` looks as follows:
-
-```solidity
-struct AppIdentity {
-    address owner;
-    address[] signingKeys;
-    address appDefinitionAddress;
-    bytes32 termsHash;
-    uint256 defaultTimeout;
-}
-```
-
-Here is a description of why each field exists in this data structure:
-
-- **`owner`**: As has already been mentioned, the on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. It is used to treat any function call where `msg.sender == owner` as having achived unanimous consent.
-
-- **`signingKeys`**: In addition to using `owner` to authorize a function call (whereby the signature verification is done inside the multisignature wallet contract), it is also possible to pass in signatures directly into the `AppRegistry` itself. In these cases, this field is used to validate signatures against to consider a function call as "authorized".
-
-- **`appDefinitionAddress`**: This is the address ofthe app definition contract.
-
-- **`termsHash`**: An application must adhere to some terms which describe what the _resolution_ of the application (should it ever be challenged on-chain) would need to adhere to. The danger that requires this strict adherence is that _any developer_ can write a `resolve` function for an application and this resolution will be executed in the scope of a `DELEGATECALL` on the multisignature wallet. Therefore, this property acts as a commitment by all parties to adhere to some `Terms` (which `termHash` is the hash of) to be verified against.
-
-- **`defaultTimeout`**: Should the application that this data structure is describing ever be put on-chain, this property describes how long the timeout period would be if that challenge ever gets responded to on-chain. In the case of a challenge _initially_ being put on chain, the timeout period is a required parameter regardless, so this field is not used in that case.
-
 ### Initiating a Challenge
 
 **Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `AppRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding nonce, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
@@ -98,27 +104,36 @@ Here is a description of why each field exists in this data structure:
 
 After a challenge has been finalized, the `AppRegistry` can now be used to arrive at a resolution. In the Counterfactual protocols, it is the _resolution_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
 
-The resolution is defined in the framework as a `Transaction` structure. Note that this object is currently under consideration for a refactoring to be slightly more generalized (i.e., removing `assetType` and `token` to be specific), but as of today in the codebase it is represented by:
-
-```solidity
-struct Transaction {
-    uint8 assetType;
-    address token;
-    address[] to;
-    uint256[] value;
-    bytes[] data;
-}
-```
-
 ### Setting a Resolution
 
-**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `resolve` function of the corresponding `AppDefinition` to the challenge. The `resolve` method will return a `Transfer.Transaction` struct and that is then stored inside the contract permanently as the resolution of the application.
+**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `resolve` function of the corresponding `AppDefinition` to the challenge. The `resolve` method will return a `bytes` struct and that is then stored inside the contract permanently as the resolution of the application.
 
 **In the same transaction as finalizing a challenge.** A minor efficiency can be added here, but has not yet been implemented, which is that if the challenge can finalized unilaterally (either in initiation or in refutation) then it is possible to instantly set the resolution. There is an [issue tracking this on GitHub](https://github.com/counterfactual/monorepo/issues/1311).
 
+## Interpreters
+
+Interpreters read resolutions in order to produce an effect. The interpreter must be compatible with the resolve type of the application as defined in the[app definition](./app-definition.md).
+
+Two interpreters are currently defined, although more can be added independently by add
+
+- TwoPartyEthAsLump splits a fixed amount of ETH based on a TwoPartyOutcome. The parameters consist of two beneficiary addresses and the total amount of Eth, and the params are encoded as `tuple(address[2], uint256)`.
+- ETHInterpreter sends ETH based on an ETHTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
+
+The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After a resolution is stored, the adjudication layer allows a commitment to `StateChannelTransaction.sol:executeAppConditionalTransaction` call the intepreter on the resolution.
+
+
 ## FAQ
 
-### On-chain Progressions of Off-chain State
+**Why are the contracts only compatible with the state channel framework?**
+
+The core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
+
+**Can a resolution be part of the application state itself?**
+
+From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
+
+**Can participants unanimously resolve an on-chain challenge?**
+
 It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In the case of a state machine progression then there is a uniquely non-fault-attributable scenario that can occur:
 
 - Honest party A initiates a challenge on-chain with B after B is unresponsive at nonce `k`
@@ -127,7 +142,8 @@ It is possible that an application may have a challenge initiated on-chain and t
 
 A is now in a bizarre spot where he can _either_ respond to the challenge on-chain again (making the `disputeNonce` equal to `2`) or he could sign the state with nonce `k + 1`. In the latter case, the newly doubly-signed (`k + 1`)-versioned state would be able to be submitted on-chain and **overwrite** whatever state was on-chain with `disputeNonce` at `1`.
 
-### Provably Malicious Challenges
+**Can we punish stale state attacks?**
+
 A challenge for an `n`-party off-chain application is considered to be provably malicious if the `nonce` of the challenge was `k` and someone was able to respond with a state signed by the `latestSubmitter` where the `nonce` of _that challenge response_ was at least `k + 2`.
 
 The reason why the same version of the above scenario with `nonce` equal to `k + 1` is not considered malicious is that the following situation might occur by an honest party:
@@ -136,3 +152,7 @@ The reason why the same version of the above scenario with `nonce` equal to `k +
 - Honest party A signs state with nonce `k + 1` and send it to B, Then, B is unresponsive
 
 In this situation, honest party A holds a signed copy of state with nonce `k` signed by B and can initiate a challenge on the blockchain. However, it is possible that B did in fact receive the signed state with nonce `k + 1` and can then respond to the challenge with this. Therefore, we must require that a state put on chain have at least `k + 2` to be considered an attempt at a stale state attack.
+
+**Where is the mapping from app definition to resolve type stored?**
+
+Currently, this is stored on the app definition contract. In the future, it should be stored off-chain.

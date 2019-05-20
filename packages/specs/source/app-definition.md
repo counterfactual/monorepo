@@ -2,7 +2,7 @@
 
 When we discuss building off-chain applications in general, we usually reference easy-to-understand examples such as payment channels, turn-based games like Tic-Tac-Toe, or well understood blockchain use cases like mixers. For each of these examples, we attempt to isolate their core functionality inside of a single logical container. We call these containers **Apps**. Apps have the following properties at a minimum:
 
-- A fixed set of participants / users
+- The number of participants / users supported
 - An encoding type for its state
 - A resolution function based on the state
 
@@ -67,42 +67,43 @@ Here is a helpful diagram for visualizing the nature of such an `applyAction` fu
 
 A state channel application defines a resolution. This is a critical concept usually because the resolution can be tied to interesting economic parameters that create the incentives for the behaviour of users in the application to begin with. For example, users will remain online and play a game of Tic-Tac-Toe because they know the rules of the game are deciding who will take home some financial reward. In the Counterfactual framework, this reward is defined in terms of an internal transaction that is executed by the multisignature wallet that is the holder of the state deposits.
 
-When writing a state channel application presently, we require that the resolution of an application be directly tied one-to-one to some particular state that is being progressed. For example, when defining a game of Tic-Tac-Toe, we ask that the resolution function which checks for the winner specifically return a data structure that can be interpretted for sending ETH to the user that won.
-
-Here is a diagram that shows how a resolution looks presently for a game of Tic-Tac-Toe:
-
-![](img/resolve.svg)
-
-**Note:** This is subject to an improvement that will be added soon that will de-couple an application from the exact transaction that occurs upon resolution to an interpreter pattern that will allow for multiple assets to be re-used on the same state machine logic. For example, a Tic-Tac-Toe game either returns a full-amount for one person or divides an amount in half; those are the only two options. These two options can be mapped to ETH, ERC20 tokens, or other assets which are fungible in single or half quantities.
-
 ## AppDefinition
 
 To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. The `AppDefinition` interface is implemented by a developer interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./adjudication-layer.md)).
 
 ### Resolution Function
 
-There is a single function which _must_ be implemented in the interface. This function provides the resolution functionality discussed above. The function signature is:
+  There is a single function which _must_ be implemented in the interface. This function provides the resolution functionality discussed above. The function signature is:
 
 ```solidity
-function resolve(bytes memory, Transfer.Terms memory) public view returns (Transfer.Transaction);
+function resolve(bytes memory) public view returns (bytes);
 ```
 
-The first argument of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will likely want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
+The first argument of type `bytes memory` is an internally-referencable state object for the `AppDefinition`. For example, in the case of a payment channel it must be considered as the ABI-encoded version of a structure encoding the type from above. This means that you will want to use `abi.decode` inside of the `resolve` method to decode the bytes into a usable struct object. In our payment channel example this would look like:
 
 ```solidity
-function resolve(bytes memory encodedState, Transfer.Terms memory terms)
+function resolve(bytes memory encodedState)
   public
   view
-  returns (Transfer.Transaction)
+  returns (bytes)
 {
   AppState state = abi.decode(encodedState, (ETHPaymentChannelState));
   // state.aBal, state.bBal, state.alice, state.bob
 }
 ```
 
-> **NOTE**: The `Transfer.Terms` argument and required return type `Transfer.Transaction`, although necessary at the moment, are being changed in a pull request to be merged very shortly from the time of this writing ([#1263](https://github.com/counterfactual/monorepo/pull/1263)) so the descriptions are omitted from this document for now.
+### Resolution Type
 
-In addition to the `resolve` method, the `AppDefinition` interface also allows for the optional definition of the following methods which can either all be implemented or none implemented.
+What should be returned from the resolve function depends on the **resolution type** of the app definition. A resolution type defines the possible outcomes of the app instance and what effects are compatible with it. For instance, a two-player chess game has "categorical" outcomes of win/loss/draw, whereas a two-player poker game with 2 ETH total pot has "continuous" outcomes where the first player may be allocated any amount from 0 to 2 ETH. The different nature of the applications mean that a state deposit of ERC721 non-fungible tokens can be used with chess but not with poker.
+
+In the framework, the following resolution types are currently defined.
+
+- TwoPlayerOutcome: the app resolves to a win, a loss, or a draw. This is represented as the abi encoding of a `uint256`.
+- ETHTransfer: the app resolves to a dynamically-sized mapping of address to amount in Wei. This is represenetd as the abi encoding of `tuple(address, uint)[]`.
+
+### Optional Functionality
+
+In addition to the mandatory `resolve` method, the `AppDefinition` interface optionally allows for the definition of the following methods.
 
 ### Turn Taking Function
 
