@@ -381,7 +381,7 @@ export class Node {
 /**
  * Address used for ETH free balance
  */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
+function getETHFreeBalanceAddress(publicIdentifier: string) {
   return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
 
