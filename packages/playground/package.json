@@ -13,7 +13,7 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.16",
+    "@counterfactual/node": "0.1.17",
     "@counterfactual/types": "0.0.9",
     "@stencil/core": "0.18.1",
     "@stencil/router": "0.3.3",
