@@ -92,7 +92,7 @@ export default class NodeApplication extends Application {
             this.requestHandler,
             data.attributes
           )) as ResourceAttributes;
-
+console.log("asdf operation result", result)
           return Array.isArray(result)
             ? result.map(
                 record =>

@@ -168,7 +168,10 @@ export namespace Node {
   };
 
   export type GetFreeBalanceStateResult = {
-    [ s: string ]: BigNumber
+    alice: Address;
+    bob: Address;
+    aliceBalance: BigNumber;
+    bobBalance: BigNumber;
   };
 
   export type GetAppInstancesParams = {};

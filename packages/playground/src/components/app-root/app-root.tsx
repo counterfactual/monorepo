@@ -373,7 +373,11 @@ export class AppRoot {
       throw e;
     }
 
-    const freeBalance = response.result as Node.GetFreeBalanceStateResult;
+    const freeBalanceResult = response.result as Node.GetFreeBalanceStateResult;
+    const freeBalance = {
+      [freeBalanceResult.alice]: freeBalanceResult.aliceBalance,
+      [freeBalanceResult.bob]: freeBalanceResult.bobBalance
+    }
 
     // Had to reimplement this on the frontend because the method can't be imported
     // due to ethers not playing nice with ES Modules in this context.

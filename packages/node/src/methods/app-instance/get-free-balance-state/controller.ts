@@ -32,9 +32,12 @@ export default class GetFreeBalanceStateController extends NodeController {
       bobBalance
     } = stateChannel.getFreeBalanceFor(AssetType.ETH)
       .state as ETHBucketAppState;
+      
     return {
-      [alice]: aliceBalance,
-      [bob]: bobBalance
+      alice,
+      bob,
+      aliceBalance,
+      bobBalance
     };
   }
 }

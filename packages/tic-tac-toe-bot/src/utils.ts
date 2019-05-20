@@ -16,25 +16,27 @@ const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 export async function getFreeBalance(
   node: Node,
   multisigAddress: string
-): Promise<NodeTypes.GetFreeBalanceStateResult> {
+): Promise<object> {
   const query = {
     type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
     requestId: generateUUID(),
     params: { multisigAddress } as NodeTypes.GetFreeBalanceStateParams
   };
 
-  const { result } = await node.call(query.type, query);
+  const result = (await node.call(query.type, query)).result  as NodeTypes.GetFreeBalanceStateResult;
 
-  return result as NodeTypes.GetFreeBalanceStateResult;
+  return {
+    [result.alice]: result.aliceBalance,
+    [result.bob]: result.bobBalance
+  };
 }
 
 export function logEthFreeBalance(
   freeBalance: NodeTypes.GetFreeBalanceStateResult
 ) {
   console.info(`Channel's free balance`);
-  for (const key in freeBalance) {
-    console.info(key, formatEther(freeBalance[key]));
-  }
+  console.log(freeBalance.alice, formatEther(freeBalance.aliceBalance));
+  console.log(freeBalance.bob, formatEther(freeBalance.bobBalance));
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
