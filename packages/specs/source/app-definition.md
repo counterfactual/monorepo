@@ -51,7 +51,7 @@ struct ETHPaymentChannelState {
 
 As has been mentioned before, some kinds of applications require a way of progressing some state to a "terminal" state through a series of allowed actions. In these cases, we adopt the model of a state machine that consists of logical states and allowed actions (transitions between states); a "terminal" state is simply one from which there does not exist any outgoing edge (i.e., an "allowed action").
 
-In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be taken by a particular turn taker**. As you will see in the [adjudication layer](./02-adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
+In Counterfactual, if an action wishes to allow its state to be unilaterally progressable, we require the definition of a function that **applies an action to a state to produce a new state** _in addition to_ **a function that determines if an action can be taken by a particular turn taker**. As you will see in the [adjudication layer](./adjudication-layer.md) section of these specifications, these functions are important in handling on-chain challenge scenarios.
 
 The ultimate purpose of these functions is to ensure the following:
 
@@ -77,7 +77,7 @@ Here is a diagram that shows how a resolution looks presently for a game of Tic-
 
 ## AppDefinition
 
-To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. The `AppDefinition` interface is implemented by a developer interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./02-adjudication-layer.md)).
+To address all of the above requirements of state channel applications, we introduce an interface called an `AppDefinition` which **implements the logic of an application in the EVM**. The `AppDefinition` interface is implemented by a developer interested in writing a state channels based application that the Counterfactual project supports in the rest of the framework (e.g., in the [adjudication layer](./adjudication-layer.md)).
 
 ### Resolution Function
 
