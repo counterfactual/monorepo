@@ -1,6 +1,10 @@
-# Peer Protocol for Channel Management
+# Protocols
 
-To exemplify the protocols as we define them, we will assume there exists a multisignature wallet shared between two parties, Alice and Bob. This is the only required re-usable on-chain component (with the exception of supporting libraries) to execute each of the protocols below.
+A protocol is defined as the set of instructions executed and messages exchanged between a set of parties to achieve an outcome (e.g., installing a new state channel application). Instructions executed include producing digital signatures, reading persistent state to disk, etc.
+
+Counterfactual writes client software that speak the same Counterfactual protocol, specified in the following page.
+
+Many protocols are specialized to two-party and specified as such. We plan to extend them to n-party channels in the future.
 
 ## Primitive Types
 
@@ -12,7 +16,7 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 | `uint256` | 256 bit unsigned integer      |                                                                                                                   |
 | `bytes32` | 32 bytes                      |                                                                                                                   |
 
-## Global Variables
+## Singleton Contracts
 
 |    Variable Name     |   Type    |                               Description                               |
 | -------------------- | --------- | ----------------------------------------------------------------------- |
@@ -23,20 +27,10 @@ To exemplify the protocols as we define them, we will assume there exists a mult
 
 This type specifies a modification of JSON that disallows the following primitive types: `true`, `false`, `null`. Note that when represented in javascript, large numbers which fint into `uint256` must be represented as either `BigNumber`s or as serialized `BigNumber`s (e.g., `{ _hex: '0x01'}`).
 
-**Type: `Terms`**
-
-|    Field    |   Type    |                       Description                       |
-| ----------- | --------- | ------------------------------------------------------- |
-| `assetType` | `uint8`   | A value in the enum of `{ETH, ERC20, Other}`            |
-| `limit`     | `uint256` | The exact total budget that an application can spend    |
-| `token`     | `address` | If `assetType` is `ERC20` then the address of the token |
-
 **Type: `CfAppInterface`**
 
-|     Field     |   Type    |                                             Description                                              |
-| ------------- | --------- | ---------------------------------------------------------------------------------------------------- |
-| `address`     | `address` | The on-chain address of the `AppDefinition` contract implementing the application logic              |
-| `token`       | `address` | If `assetType` is `ERC20` then the address of the token                                              |
-| `abiEncoding` | `bytes4`  | The ABIEncoderV2 representation of the application's state encoding (e.g., `"tuple(address,uint8)"`) |
-
-> TODO: The name `getTurnTaker` needs to be standardized
+|      Field       |        Type        |                                             Description                                              |
+| ---------------- | ------------------ | ---------------------------------------------------------------------------------------------------- |
+| `address`        | `address`          | The on-chain address of the `AppDefinition` contract implementing the application logic              |
+| `stateEncoding`  | `string`           | The ABIEncoderV2 representation of the application's state encoding (e.g., `"tuple(address,uint8)"`) |
+| `actionEncoding` | `Optional<string>` | The ABIEncoderV2 representation of the application's action encoding, if it exists                   |

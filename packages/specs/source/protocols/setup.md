@@ -1,7 +1,5 @@
 # Setup Protocol
 
-> NOTE: All of the protocols below specify a 2-party interaction but can be generalized to the multi-party case in the future.
-
 ```eval_rst
 .. mermaid:: ../diagrams/setup-protocol-state.mmd
 ```
