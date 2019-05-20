@@ -78,7 +78,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         seq: -1,
         signature: mySig
