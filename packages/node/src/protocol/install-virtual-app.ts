@@ -119,7 +119,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -130,7 +130,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s6,
@@ -173,7 +173,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m4 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s4,
