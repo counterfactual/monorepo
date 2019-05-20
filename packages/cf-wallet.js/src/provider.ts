@@ -415,6 +415,7 @@ export class Provider {
   private handleNodeMethodResponse(response: JsonApi.Document) {
     const requestId = (response.meta as JsonApi.Meta).requestId as string;
     if (requestId in this.requestListeners) {
+      console.log("About to resolve requestId", requestId, response);
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {

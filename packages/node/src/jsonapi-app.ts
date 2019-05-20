@@ -1,11 +1,11 @@
 import { Node } from "@counterfactual/types";
 import {
   Application,
+  HasId,
   Operation,
   OperationProcessor,
   OperationResponse,
-  Resource,
-  ResourceAttributes
+  Resource
 } from "@ebryn/jsonapi-ts";
 
 import {
@@ -86,29 +86,20 @@ export default class NodeApplication extends Application {
 
         processor.constructor.prototype[op] = async (
           operation: Operation
-        ): Promise<Resource | Resource[] | void> => {
+        ): Promise<HasId | HasId[] | {}> => {
           const data = operation.data as Resource;
-          const result = (await implementation(
+          const result = await implementation(
             this.requestHandler,
             data.attributes
-          )) as ResourceAttributes;
-console.log("asdf operation result", result)
+          );
+
           return Array.isArray(result)
-            ? result.map(
-                record =>
-                  ({
-                    id: data.id,
-                    type: operation.ref.type,
-                    attributes: record,
-                    relationships: {}
-                  } as Resource)
+            ? result.map(record =>
+                !record["id"] ? { ...result, id: "" } : record
               )
-            : {
-                id: data.id,
-                type: operation.ref.type,
-                attributes: result,
-                relationships: {}
-              };
+            : !result["id"]
+            ? { ...result, id: "" }
+            : result;
         };
       })
     );

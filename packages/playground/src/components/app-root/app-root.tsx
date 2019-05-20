@@ -543,9 +543,9 @@ export class AppRoot {
     );
   }
 
-  async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
+  async setMultisigAddress(createChannelMsg: any) {
     const { user } = this.accountState;
-    user.multisigAddress = createChannelMsg.operations[0].data.attributes.multisigAddress;
+    user.multisigAddress = createChannelMsg["operations"][0].data.attributes.multisigAddress;
     await this.updateAccount({ user });
   }
 

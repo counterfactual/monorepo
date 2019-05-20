@@ -303,7 +303,7 @@ describe("cf-wallet.js Provider", () => {
       );
 
       const response = await provider.getFreeBalanceState(multisigAddress);
-      expect(response.address).toEqual(amount);
+      expect(response["address"]).toEqual(amount);
     });
   });
 
