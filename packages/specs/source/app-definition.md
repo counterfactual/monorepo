@@ -18,7 +18,7 @@ A slightly more complicated example would be a Tic-Tac-Toe game:
 - An encoding type of `tuple(uint8[9] board, address playerX, address playerO)`
 - Sends `playerX` the maximimum amount if X won, or `playerO` if O won, or splits the amount in half if a draw
 
-There is, of course, an important difference in the example of a Tic-Tac-Toe game though. That difference is that in the Tic-Tac-Toe game, the final resolution of the state of the application is not always defined given only the current state of the application. In the payment channel example, if one user were to become unresponsive it is is easy to see how the resolution would play out; Alice would receive `aBal` and Bob would receive `bBal`. In Tic-Tac-Toe, however, if the game is not finished yet, there are some moves left to be made to reach a "terminal" state which can then be resolved. Terminal states comprise those in which X wins, O wins, or there is a draw.
+There is, of course, an important difference in the example of a Tic-Tac-Toe game though. That difference is that in the Tic-Tac-Toe game, the final resolution of the state of the application is not always defined given only the current state of the application. In the payment channel example, if one user were to become unresponsive it is easy to see how the resolution would play out; Alice would receive `aBal` and Bob would receive `bBal`. In Tic-Tac-Toe, however, if the game is not finished yet, there are some moves left to be made to reach a "terminal" state which can then be resolved. Terminal states comprise those in which X wins, O wins, or there is a draw.
 
 To express this important difference we introduce some additional functionality that can be implemented for a state channels based application:
 
