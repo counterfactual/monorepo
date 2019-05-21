@@ -1,4 +1,4 @@
-import { Address, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { Address } from "@counterfactual/types";
 
 import { AppInstance } from "../app-instance";
 
@@ -22,11 +22,6 @@ export type RejectInstallEventData = AppEventData;
 
 export type UninstallEventData = AppEventData;
 
-export type UpdateStateEventData = AppEventData & {
-  newState: SolidityABIEncoderV2Type;
-  action?: SolidityABIEncoderV2Type;
-};
-
 export type CreateMultisigEventData = {
   owners: Address[];
   multisigAddress: Address;
@@ -43,7 +38,6 @@ export type EventData =
   | InstallEventData
   | RejectInstallEventData
   | UninstallEventData
-  | UpdateStateEventData
   | ErrorEventData
   | CreateMultisigEventData;
 

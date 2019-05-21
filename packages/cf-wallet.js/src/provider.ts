@@ -11,7 +11,7 @@ import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
-import { deriveMethodName } from "./utils";
+// import { deriveMethodName } from "./utils";
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -231,7 +231,7 @@ export class Provider {
         }
       }
     });
-    const resource = response.data as JsonApi.Resource;
+    const resource = (response.operations as JsonApi.Operation[])[0].data as JsonApi.Resource;
     return resource.attributes as Node.GetFreeBalanceStateResult;
   }
 
@@ -282,7 +282,7 @@ export class Provider {
     operation.params = operation.params || {};
 
     const requestId = new Date().valueOf().toString();
-    const methodName = deriveMethodName(operation);
+    // const methodName = deriveMethodName(operation);
     const document = {
       meta: {
         requestId
@@ -299,20 +299,20 @@ export class Provider {
             data: response
           });
         }
-        if ("operations" in response && response.operations) {
-          const responseType = deriveMethodName(response.operations[0]);
-          if (responseType !== methodName) {
-            return reject({
-              errors: [
-                {
-                  status: EventType.ERROR,
-                  code: "unexpected_message_type",
-                  detail: `Unexpected response type. Expected ${methodName}, got ${responseType}`
-                }
-              ]
-            });
-          }
-        }
+        // if ("operations" in response && response.operations) {
+        //   const responseType = deriveMethodName(response.operations[0]);
+        //   if (responseType !== methodName) {
+        //     return reject({
+        //       errors: [
+        //         {
+        //           status: EventType.ERROR,
+        //           code: "unexpected_message_type",
+        //           detail: `Unexpected response type. Expected ${methodName}, got ${responseType}`
+        //         }
+        //       ]
+        //     });
+        //   }
+        // }
 
         resolve(response as JsonApi.Document);
       };

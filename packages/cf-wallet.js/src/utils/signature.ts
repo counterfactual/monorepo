@@ -6,6 +6,11 @@ import {
   Signature
 } from "ethers/utils";
 
+/**
+ * Converts an array of signatures into a single string
+ *
+ * @param signatures An array of etherium signatures
+ */
 export function signaturesToBytes(...signatures: Signature[]): string {
   return signatures
     .map(joinSignature)
@@ -13,6 +18,11 @@ export function signaturesToBytes(...signatures: Signature[]): string {
     .reduce((acc, v) => acc + v, "0x");
 }
 
+/**
+ * Sorts signatures in ascending order of signer address
+ *
+ * @param signatures An array of etherium signatures
+ */
 export function sortSignaturesBySignerAddress(
   digest: string,
   signatures: Signature[]
@@ -26,6 +36,12 @@ export function sortSignaturesBySignerAddress(
   return ret;
 }
 
+/**
+ * Sorts signatures in ascending order of signer address
+ * and converts them into bytes
+ *
+ * @param signatures An array of etherium signatures
+ */
 export function signaturesToBytesSortedBySignerAddress(
   digest: Bytes32,
   ...signatures: Signature[]

@@ -303,7 +303,11 @@ describe("cf-wallet.js Provider", () => {
       );
 
       const response = await provider.getFreeBalanceState(multisigAddress);
+<<<<<<< Updated upstream
+      expect(response["address"]).toEqual(amount);
+=======
       expect(response.aliceBalance).toEqual(amount);
+>>>>>>> Stashed changes
     });
   });
 

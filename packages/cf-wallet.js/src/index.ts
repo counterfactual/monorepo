@@ -4,7 +4,7 @@ import { Provider } from "./provider";
 import * as types from "./types";
 import * as utils from "./utils";
 
-const cf = {
+const cfWallet = {
   Provider,
   types,
   utils
@@ -13,4 +13,4 @@ const cf = {
 export { Provider, types, utils };
 
 export { JsonApiNodeProvider };
-export default cf;
+export default cfWallet;

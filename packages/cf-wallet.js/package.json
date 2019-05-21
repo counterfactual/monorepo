@@ -32,6 +32,8 @@
     "@counterfactual/node-provider": "0.1.2",
     "@counterfactual/types": "0.0.9",
     "ethers": "4.0.27",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.0",
+    "global": "^4.3.2",
+    "typedoc": "^0.14.2"
   }
 }

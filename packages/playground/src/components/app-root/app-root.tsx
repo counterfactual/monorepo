@@ -373,10 +373,10 @@ export class AppRoot {
       throw e;
     }
 
-    const freeBalanceResult = response.result as Node.GetFreeBalanceStateResult;
+    const freeBalanceResult = response as Node.GetFreeBalanceStateResult;
     const freeBalance = {
-      [freeBalanceResult.alice]: freeBalanceResult.aliceBalance,
-      [freeBalanceResult.bob]: freeBalanceResult.bobBalance
+      [freeBalanceResult.alice]: ethers.utils.bigNumberify(freeBalanceResult.aliceBalance),
+      [freeBalanceResult.bob]: ethers.utils.bigNumberify(freeBalanceResult.bobBalance)
     }
 
     // Had to reimplement this on the frontend because the method can't be imported

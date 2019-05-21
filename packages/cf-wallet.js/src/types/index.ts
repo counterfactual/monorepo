@@ -5,8 +5,7 @@ import {
   EventType,
   InstallEventData,
   RejectInstallEventData,
-  UninstallEventData,
-  UpdateStateEventData
+  UninstallEventData
 } from "./events";
 
 export {
@@ -15,7 +14,6 @@ export {
   InstallEventData,
   RejectInstallEventData,
   UninstallEventData,
-  UpdateStateEventData,
   ErrorEventData,
   EventData
 };

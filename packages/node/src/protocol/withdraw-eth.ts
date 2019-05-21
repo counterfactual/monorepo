@@ -57,7 +57,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    const { signature: s2, signature2: s4, signature3: s6 } = m2;
+    const { signature: s2, signature2: s4, signature3: s6 } = m2.operations[0].data.attributes;
 
     const uninstallRefundCommitment = addUninstallRefundAppCommitmentToContext(
       context.message,
