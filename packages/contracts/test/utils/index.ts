@@ -44,7 +44,7 @@ export class AppInstance {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
-      appDefinitionAddress: this.appDefinitionAddress,
+      appDefinition: this.appDefinition,
       interpreterHash: HashZero,
       defaultTimeout: this.defaultTimeout
     };
@@ -53,7 +53,7 @@ export class AppInstance {
   constructor(
     readonly owner: string,
     readonly signingKeys: string[],
-    readonly appDefinitionAddress: string,
+    readonly appDefinition: string,
     readonly defaultTimeout: number
   ) {}
 
@@ -65,7 +65,7 @@ export class AppInstance {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appDefinitionAddress,
+            address appDefinition,
             bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
