@@ -88,11 +88,27 @@ export async function setup(
   return { nodeA, nodeB, firebaseServiceFactory };
 }
 
-async function generateNewFundedMnemonics(
+export async function generateNewFundedWallet(
   fundedPrivateKey: string,
   provider: Provider
 ) {
   const fundedWallet = new Wallet(fundedPrivateKey, provider);
+  const wallet = Wallet.createRandom().connect(provider);
+
+  const transactionToA: TransactionRequest = {
+    to: wallet.address,
+    value: parseEther("20").toHexString()
+  };
+  await fundedWallet.sendTransaction(transactionToA);
+  return wallet;
+}
+
+export async function generateNewFundedMnemonics(
+  fundedPrivateKey: string,
+  provider: Provider
+) {
+  const fundedWallet = new Wallet(fundedPrivateKey, provider);
+  console.log("fundedwallet=", await fundedWallet.getBalance());
   const A_MNEMONIC = Wallet.createRandom().mnemonic;
   const B_MNEMONIC = Wallet.createRandom().mnemonic;
 
@@ -106,11 +122,11 @@ async function generateNewFundedMnemonics(
 
   const transactionToA: TransactionRequest = {
     to: signerAAddress,
-    value: parseEther("0.1").toHexString()
+    value: parseEther("20").toHexString()
   };
   const transactionToB: TransactionRequest = {
     to: signerBAddress,
-    value: parseEther("0.1").toHexString()
+    value: parseEther("20").toHexString()
   };
   await fundedWallet.sendTransaction(transactionToA);
   await fundedWallet.sendTransaction(transactionToB);

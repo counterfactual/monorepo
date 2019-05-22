@@ -18,7 +18,6 @@ import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
@@ -33,7 +32,6 @@ const SETSTATE_COMMITMENT_GAS = 6e9;
 // delegatecall for the conditional transaction
 const INSTALL_COMMITMENT_GAS = 6e9;
 
-let networkId: number;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
@@ -42,9 +40,9 @@ let appRegistry: Contract;
 expect.extend({ toBeEq });
 
 beforeAll(async () => {
-  [provider, wallet, networkId] = await connectToGanache();
+  [provider, wallet, {}] = await connectToGanache();
 
-  network = makeNetworkContext(networkId);
+  network = global["networkContext"];
 
   appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });
