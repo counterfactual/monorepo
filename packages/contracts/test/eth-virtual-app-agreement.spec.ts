@@ -88,15 +88,12 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
 
-    fixedResolutionApp = await waffle.deployContract(
-      wallet,
-      ResolveTo2App
-    );
+    fixedResolutionApp = await waffle.deployContract(wallet, ResolveTo2App);
 
     const appIdentity = {
       owner: await wallet.getAddress(),
       signingKeys: [],
-      appDefinitionAddress: fixedResolutionApp.address,
+      appDefinition: fixedResolutionApp.address,
       interpreterHash: HashZero,
       defaultTimeout: 10
     };
@@ -107,7 +104,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appDefinitionAddress,
+            address appDefinition,
             bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
@@ -125,10 +122,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     // Can be called immediately without waiting for blocks to be mined
     // because the timeout was set to 0 in the previous call to setState
-    await appRegistry.functions.setResolution(
-      appIdentity,
-      HashZero
-    );
+    await appRegistry.functions.setResolution(appIdentity, HashZero);
   });
 
   it("succeeds with a valid resolution and elapsed lockup period", async () => {
@@ -142,12 +136,8 @@ describe("TwoPartyVirtualEthAsLump", () => {
       HashZero
     );
 
-    expect(await provider.getBalance(beneficiaries[0])).to.eq(
-      bigNumberify(5)
-    );
-    expect(await provider.getBalance(beneficiaries[1])).to.eq(
-      bigNumberify(5)
-    );
+    expect(await provider.getBalance(beneficiaries[0])).to.eq(bigNumberify(5));
+    expect(await provider.getBalance(beneficiaries[1])).to.eq(bigNumberify(5));
   });
 
   it("fails with invalid resolution target", async () => {
@@ -179,11 +169,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
   });
 
   it("fails if cancelled", async () => {
-    const computeKey = (
-      sender: string,
-      timeout: BigNumber,
-      salt: string
-    ) =>
+    const computeKey = (sender: string, timeout: BigNumber, salt: string) =>
       solidityKeccak256(
         ["address", "uint256", "bytes32"],
         [sender, timeout, salt]

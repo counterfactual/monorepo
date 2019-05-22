@@ -29,7 +29,7 @@ appIdentityHash := keccak256(
     0x19,
     keccak256(encode(
       [address, address[], address, bytes32, uint256 ],
-      [owner, signingKeys, appDefinitionAddress, interpreterHash, defaultTimeout]
+      [owner, signingKeys, appDefinition, interpreterHash, defaultTimeout]
     )),
     0,
     TIMEOUT,
@@ -40,14 +40,14 @@ appIdentityHash := keccak256(
 
 **Type: `UpdateParams`**
 
-|      Field      |          Type          |     Description     |
+| Field           | Type                   | Description         |
 | --------------- | ---------------------- | ------------------- |
 | `appInstanceId` | `bytes32`              | Hashed App Identity |
 | `newState`      | `AppState / JSON-like` | New state to set to |
 
 ### The **`SetState`** Message
 
-|     Field     |               Description               |
+| Field         | Description                             |
 | ------------- | --------------------------------------- |
 | `protocol`    | `"update"`                              |
 | `params`      | An `UpdateParams` object                |
@@ -58,7 +58,7 @@ appIdentityHash := keccak256(
 
 ### The **`SetStateAck`** Message
 
-|     Field     |               Description               |
+| Field         | Description                             |
 | ------------- | --------------------------------------- |
 | `protocol`    | `"update"`                              |
 | `fromAddress` | The address of `responding`             |

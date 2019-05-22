@@ -157,7 +157,7 @@ export class AppInstance {
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
-      appDefinitionAddress: this.json.appInterface.addr,
+      appDefinition: this.json.appInterface.addr,
       interpreterHash: HashZero, // todo(xuanji)
       defaultTimeout: this.json.defaultTimeout
     };

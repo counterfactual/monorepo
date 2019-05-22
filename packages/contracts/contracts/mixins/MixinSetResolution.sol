@@ -39,7 +39,7 @@ contract MixinSetResolution is
     );
 
     appResolutions[identityHash] = MAppCaller.resolve(
-      appIdentity.appDefinitionAddress,
+      appIdentity.appDefinition,
       finalState
     );
 

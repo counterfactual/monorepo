@@ -14,7 +14,7 @@ An app instance is uniquely identified by its `AppIdentity`.
 struct AppIdentity {
     address owner;
     address[] signingKeys;
-    address appDefinitionAddress;
+    address appDefinition;
     bytes32 interpreterHash;
     uint256 defaultTimeout;
 }
@@ -24,7 +24,7 @@ struct AppIdentity {
 
 - **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `AppRegistry` itself. In this case, this field is used to validate signatures against to.
 
-- **`appDefinitionAddress`**: Address ofthe app definition contract.
+- **`appDefinition`**: Address ofthe app definition contract.
 
 - **`interpreterHash`**: Hash of interpreter address and params to the interpreter to be used in determining what effects the resolution has.
 
@@ -120,7 +120,6 @@ Two interpreters are currently defined, although more can be added independently
 - ETHInterpreter sends ETH based on an ETHTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
 
 The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After a resolution is stored, the adjudication layer allows a commitment to `StateChannelTransaction.sol:executeAppConditionalTransaction` call the intepreter on the resolution.
-
 
 ## FAQ
 

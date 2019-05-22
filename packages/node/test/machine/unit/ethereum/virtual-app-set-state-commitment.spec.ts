@@ -90,15 +90,13 @@ describe("Virtual App Set State Commitment", () => {
       const [
         owner,
         signingKeys,
-        appDefinitionAddress,
+        appDefinition,
         {},
         defaultTimeout
       ] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
-      expect(appDefinitionAddress).toBe(
-        appInstance.identity.appDefinitionAddress
-      );
+      expect(appDefinition).toBe(appInstance.identity.appDefinition);
       expect(defaultTimeout).toEqual(
         bigNumberify(appInstance.identity.defaultTimeout)
       );

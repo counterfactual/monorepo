@@ -55,7 +55,7 @@ contract MixinProgressChallenge is
     );
 
     address turnTaker = getTurnTaker(
-      appIdentity.appDefinitionAddress,
+      appIdentity.appDefinition,
       appIdentity.signingKeys,
       appState
     );
@@ -66,7 +66,7 @@ contract MixinProgressChallenge is
     );
 
     bytes memory newAppState = applyAction(
-      appIdentity.appDefinitionAddress,
+      appIdentity.appDefinition,
       appState,
       action
     );
@@ -77,7 +77,7 @@ contract MixinProgressChallenge is
 
     if (claimFinal) {
       require(
-        isStateTerminal(appIdentity.appDefinitionAddress, newAppState),
+        isStateTerminal(appIdentity.appDefinition, newAppState),
         "Attempted to claimFinal on a non-terminal state"
       );
       challenge.finalizesAt = block.number;
