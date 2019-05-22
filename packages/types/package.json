@@ -8,7 +8,7 @@
   "iife": "dist/index-iife.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p . && rollup -c"
+    "build": "tsc -b . && rollup -c"
   },
   "devDependencies": {
     "ethers": "4.0.27",

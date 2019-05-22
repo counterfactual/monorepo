@@ -9,5 +9,8 @@
       "../../node_modules/@counterfactual/typescript-typings/types"
     ],
     "strictPropertyInitialization": false
-  }
+  },
+  "references": [
+    { "path": "../types" }
+  ],
 }
