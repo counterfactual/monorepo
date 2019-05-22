@@ -2,9 +2,20 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 import * as log from "loglevel";
-import { Client } from "pg";
 import SQL from "sql-template-strings";
+import {
+  Connection,
+  createConnection,
+  ConnectionManager,
+  ConnectionOptions,
+  getRepository,
+  Repository,
+  Transaction,
+  TransactionRepository
+} from "typeorm";
+import util from "util";
 
+import { Node as NodeEntity } from "./entity/Node";
 import { NodeMessage } from "./types";
 
 export interface IMessagingService {
@@ -205,24 +216,17 @@ export function confirmLocalFirebaseConfigurationEnvVars() {
   }
 }
 
-export interface PostgresConfiguration {
-  user: string;
-  host: string;
-  database: string;
-  password: string;
-  port: number;
-}
-
 export const POSTGRES_CONFIGURATION_ENV_KEYS = {
-  user: "POSTGRES_USER",
+  username: "POSTGRES_USER",
   host: "POSTGRES_HOST",
   database: "POSTGRES_DATABASE",
   password: "POSTGRES_PASSWORD",
   port: "POSTGRES_PORT"
 };
 
-export const EMPTY_POSTGRES_CONFIG: PostgresConfiguration = {
-  user: "",
+export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
+  type: "postgres",
+  username: "",
   host: "",
   database: "",
   password: "",
@@ -230,63 +234,89 @@ export const EMPTY_POSTGRES_CONFIG: PostgresConfiguration = {
 };
 
 export class PostgresServiceFactory {
-  private client: Client;
+  private connection: Connection;
 
-  constructor(configuration: PostgresConfiguration) {
-    this.client = new Client(configuration);
+  constructor(configuration: ConnectionOptions) {
+    const connectionManager = new ConnectionManager();
+    this.connection = connectionManager.create(configuration);
   }
 
-  static async connect(host: string, port: number) {
+  static connect(host: string, port: number) {
     new PostgresServiceFactory({
       ...EMPTY_POSTGRES_CONFIG,
       host,
-      port
-    });
+      port,
+      entities: [NodeEntity]
+    } as ConnectionOptions);
   }
 
-  async createStoreService(storeServiceKey: string): Promise<IStoreService> {
-    await this.client.connect();
+  async connectDb() {
+    await this.connection.connect();
+  }
+
+  createStoreService(storeServiceKey: string): IStoreService {
     console.log("Connected to Postgres");
-    return new PostgresStoreService(this.client, storeServiceKey);
+    return new PostgresStoreService(this.connection, storeServiceKey);
   }
 }
 
 class PostgresStoreService implements IStoreService {
-  constructor(
-    private readonly pgClient: Client,
-    private readonly storeServiceKey: string
-  ) {}
+  private nodeRepository: Repository<NodeEntity>;
 
-  async get(key: string): Promise<any> {
-    const result = await this.pgClient.query(
-      SQL`SELECT * FROM "`
-        .append(this.storeServiceKey)
-        .append(SQL`" WHERE "key" = ${key}`)
-    );
-    return result.rows[0] && result.rows[0].value[key];
+  constructor(
+    private readonly connection: Connection,
+    private readonly storeServiceKey: string
+  ) {
+    this.nodeRepository = getRepository(NodeEntity);
   }
 
   async set(pairs: { key: string; value: any }[]): Promise<any> {
-    await this.pgClient.query("BEGIN");
-    for (const pair of pairs) {
-      console.log(`Setting pair: ${JSON.stringify(pair)}`);
-      await this.pgClient.query(
-        SQL`INSERT INTO "`.append(this.storeServiceKey)
-          .append(SQL`" (key, value) 
-          VALUES (${pair.key}, ${{
-          [pair.key]: JSON.parse(JSON.stringify(pair.value))
-        }})
-        ON CONFLICT (key)
-        DO
-          UPDATE
-            SET "value" = ${{
-              [pair.key]: JSON.parse(JSON.stringify(pair.value))
-            }}
-      `)
-      );
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const pair of pairs) {
+        const storeKey = `${this.storeServiceKey}_${pair.key}`;
+        await queryRunner.manager.save({
+          key: storeKey,
+          value: { [pair.key]: JSON.parse(JSON.stringify(pair.value)) }
+        });
+      }
+      await queryRunner.commitTransaction();
+    } catch (e) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
-    await this.pgClient.query("COMMIT");
   }
+
+  async get(key: string): Promise<any> {
+    const storeKey = `${this.storeServiceKey}_${key}`;
+    return await this.nodeRepository.findOne(storeKey);
+  }
+
+  // async _set(pairs: { key: string; value: any }[]): Promise<any> {
+  //   await this.pgClient.query("BEGIN");
+  //   for (const pair of pairs) {
+  //     console.log(`Setting pair: ${JSON.stringify(pair)}`);
+  //     await this.pgClient.query(
+  //       SQL`INSERT INTO "`.append(this.storeServiceKey)
+  //         .append(SQL`" (key, value)
+  //         VALUES (${pair.key}, ${{
+  //         [pair.key]: JSON.parse(JSON.stringify(pair.value))
+  //       }})
+  //       ON CONFLICT (key)
+  //       DO
+  //         UPDATE
+  //           SET "value" = ${{
+  //             [pair.key]: JSON.parse(JSON.stringify(pair.value))
+  //           }}
+  //     `)
+  //     );
+  //   }
+  //   await this.pgClient.query("COMMIT");
+  // }
 }
 
 export function confirmPostgresConfigurationEnvVars() {
