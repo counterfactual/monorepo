@@ -28,11 +28,13 @@ export default async function globalSetup() {
 
   const server = ganache.server({
     accounts: [
-      { balance: parseEther("1").toString(), secretKey: privateKeyA },
-      { balance: parseEther("1").toString(), secretKey: privateKeyB },
-      { balance: parseEther("1").toString(), secretKey: privateKeyC },
-      { balance: parseEther("1").toString(), secretKey: fundedPrivateKey }
-    ]
+      { balance: parseEther("1000").toString(), secretKey: privateKeyA },
+      { balance: parseEther("1000").toString(), secretKey: privateKeyB },
+      { balance: parseEther("1000").toString(), secretKey: privateKeyC },
+      { balance: parseEther("1000").toString(), secretKey: fundedPrivateKey }
+    ],
+    gasLimit: "0xfffffffffff",
+    gasPrice: "0x01"
   });
 
   global["ganacheServer"] = server;

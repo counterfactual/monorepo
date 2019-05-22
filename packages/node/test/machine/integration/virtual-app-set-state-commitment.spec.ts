@@ -12,7 +12,6 @@ import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
 
 // The AppRegistry.setState call _could_ be estimated but we haven't
@@ -22,7 +21,6 @@ const SETSTATE_COMMITMENT_GAS = 6e9;
 // The app nonce that the intermediary signs
 const EXPIRY_NONCE = 65536;
 
-let networkId: number;
 let wallet: Wallet;
 let network: NetworkContext;
 let appRegistry: Contract;
@@ -37,9 +35,9 @@ expect.extend({ toBeEq });
 const expect2 = chai.use(matchers.default).expect;
 
 beforeAll(async () => {
-  [{}, wallet, networkId] = await connectToGanache();
+  [{}, wallet, {}] = await connectToGanache();
 
-  network = makeNetworkContext(networkId);
+  network = global["networkContext"];
 
   appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });

@@ -10,11 +10,9 @@ import { sortAddresses } from "../../../src/machine/xkeys";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { makeNetworkContext } from "./make-network-context";
 import { MessageRouter } from "./message-router";
 import { MiniNode } from "./mininode";
 
-let networkId: number;
 let network: NetworkContext;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -23,9 +21,8 @@ let appDefinition: Contract;
 expect.extend({ toBeEq });
 
 beforeAll(async () => {
-  [provider, wallet, networkId] = await connectToGanache();
-
-  network = makeNetworkContext(networkId);
+  [provider, wallet, {}] = await connectToGanache();
+  network = global["networkContext"];
 
   appDefinition = await new ContractFactory(
     AppWithAction.abi,
