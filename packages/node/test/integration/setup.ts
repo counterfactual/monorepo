@@ -122,11 +122,11 @@ export async function generateNewFundedMnemonics(
 
   const transactionToA: TransactionRequest = {
     to: signerAAddress,
-    value: parseEther("20").toHexString()
+    value: parseEther("0.1").toHexString()
   };
   const transactionToB: TransactionRequest = {
     to: signerBAddress,
-    value: parseEther("20").toHexString()
+    value: parseEther("0.1").toHexString()
   };
   await fundedWallet.sendTransaction(transactionToA);
   await fundedWallet.sendTransaction(transactionToB);
