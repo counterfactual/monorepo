@@ -2,11 +2,11 @@
 import { BigNumber } from "ethers/utils";
 
 import { AssetType } from "./app-instance";
-import { ABIEncoding, Address, AppInstanceID } from "./simple-types";
+import { ABIEncoding, AppInstanceID } from "./simple-types";
 
 export type AppInstanceInfo = {
   id: AppInstanceID;
-  appId: Address;
+  appId: string;
   abiEncodings: AppABIEncodings;
   asset: BlockchainAsset;
   myDeposit: BigNumber;
@@ -14,7 +14,7 @@ export type AppInstanceInfo = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: Address[];
+  intermediaries?: string[];
 };
 
 export type AppABIEncodings = {
@@ -24,7 +24,7 @@ export type AppABIEncodings = {
 
 export type BlockchainAsset = {
   assetType: AssetType;
-  token?: Address;
+  token?: string;
 };
 
 // Interpreter.sol::ResolutionType

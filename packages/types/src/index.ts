@@ -12,7 +12,7 @@ import {
   ResolutionType,
   TwoPartyOutcome
 } from "./data-types";
-import { INodeProvider, Node } from "./node-protocol";
+import { INodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
