@@ -108,7 +108,6 @@ export async function generateNewFundedMnemonics(
   provider: Provider
 ) {
   const fundedWallet = new Wallet(fundedPrivateKey, provider);
-  console.log("fundedwallet=", await fundedWallet.getBalance());
   const A_MNEMONIC = Wallet.createRandom().mnemonic;
   const B_MNEMONIC = Wallet.createRandom().mnemonic;
 
