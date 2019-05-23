@@ -25,7 +25,7 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
-    "@stencil/sass": "0.2.1",
+    "@stencil/sass": "0.2.2",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.4",
     "jest": "23.6.0",
