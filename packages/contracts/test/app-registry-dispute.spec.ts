@@ -77,7 +77,7 @@ function encodeAction(state: SolidityABIEncoderV2Type) {
   );
 }
 
-describe("AppRegistry Dispute", () => {
+describe("AppRegistry Challenge", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
 

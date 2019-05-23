@@ -16,7 +16,7 @@ contract MixinRespondToChallenge is
   MAppCaller
 {
 
-  /// @notice Respond to a dispute with a valid action
+  /// @notice Respond to a challenge with a valid action
   /// @param appIdentity an AppIdentity object pointing to the app for which there is a challenge to progress
   /// @param appState The ABI encoded latest signed application state
   /// @param action The ABI encoded action the submitter wishes to take
@@ -24,7 +24,7 @@ contract MixinRespondToChallenge is
   /// signing key for which it is their turn to take the submitted `action`
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
-  /// @dev This function is only callable when the state channel is in a DISPUTE state
+  /// @dev This function is only callable when the state channel is in a IN_CHALLENGE state
   function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
@@ -40,8 +40,8 @@ contract MixinRespondToChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "respondToChallenge called on app not in DISPUTE state"
+      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
+      "respondToChallenge called on app not in IN_CHALLENGE state"
     );
 
     require(
@@ -72,7 +72,7 @@ contract MixinRespondToChallenge is
     );
 
     challenge.appStateHash = keccak256(newAppState);
-    challenge.disputeNonce += 1;
+    challenge.challengeNonce += 1;
     challenge.latestSubmitter = msg.sender;
 
     if (claimFinal) {
@@ -83,7 +83,7 @@ contract MixinRespondToChallenge is
       challenge.finalizesAt = block.number;
       challenge.status = AppStatus.OFF;
     } else {
-      challenge.status = AppStatus.DISPUTE;
+      challenge.status = AppStatus.IN_CHALLENGE;
       challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
     }
 

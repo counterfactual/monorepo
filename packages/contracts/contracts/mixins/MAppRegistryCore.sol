@@ -61,7 +61,7 @@ contract MAppRegistryCore {
   /// @param previousState The hash of a state this action is being taken on
   /// @param action The ABI encoded version of the action being taken
   /// @param setStateNonce The nonce of the state this action is being taken on
-  /// @param disputeNonce A nonce corresponding to how many actions have been taken on the
+  /// @param challengeNonce A nonce corresponding to how many actions have been taken on the
   ///                     state since a new state has been unanimously agreed by signing keys.
   /// @return A bytes32 hash of the arguments
   function computeActionHash(
@@ -69,7 +69,7 @@ contract MAppRegistryCore {
     bytes32 previousState,
     bytes memory action,
     uint256 setStateNonce,
-    uint256 disputeNonce
+    uint256 challengeNonce
   )
     internal
     pure
@@ -82,7 +82,7 @@ contract MAppRegistryCore {
         previousState,
         action,
         setStateNonce,
-        disputeNonce
+        challengeNonce
       )
     );
   }

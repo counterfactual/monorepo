@@ -29,8 +29,8 @@ contract MixinSetOutcome is
 
     require(
       app.status == AppStatus.OFF ||
-      (app.status == AppStatus.DISPUTE && block.number > app.finalizesAt),
-      "setOutcome called on an app either still ON or in DISPUTE"
+      (app.status == AppStatus.IN_CHALLENGE && block.number > app.finalizesAt),
+      "setOutcome called on an app either still ON or in IN_CHALLENGE"
     );
 
     require(
