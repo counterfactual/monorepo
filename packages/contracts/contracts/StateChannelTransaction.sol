@@ -61,9 +61,7 @@ contract StateChannelTransaction {
     (bool success, bytes memory returnData) = interpreterAddress
       .delegatecall(payload);
 
-    // Another PR is handling this....
-    // solium-disable-next-line error-reason
-    require(success);
+    require(success, "Execution of executeAppConditionalTransaction failed");
   }
 
 
