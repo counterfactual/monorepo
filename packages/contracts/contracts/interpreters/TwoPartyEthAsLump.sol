@@ -12,9 +12,12 @@ contract TwoPartyEthAsLump is Interpreter {
     uint256 amount;
   }
 
-  function interpret(
-    bytes calldata encodedOutcome, bytes calldata encodedParams
-  ) external {
+  function interpretOutcomeAndExecuteEffect(
+    bytes calldata encodedOutcome,
+    bytes calldata encodedParams
+  )
+    external
+  {
 
     Params memory params = abi.decode(encodedParams, (Params));
 

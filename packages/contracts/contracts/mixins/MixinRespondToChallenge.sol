@@ -9,7 +9,7 @@ import "./MAppRegistryCore.sol";
 import "./MAppCaller.sol";
 
 
-contract MixinProgressChallenge is
+contract MixinRespondToChallenge is
   LibSignature,
   LibStateChannelApp,
   MAppRegistryCore,
@@ -25,7 +25,7 @@ contract MixinProgressChallenge is
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
   /// @dev This function is only callable when the state channel is in a DISPUTE state
-  function progressChallenge(
+  function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
     bytes memory action,
@@ -41,7 +41,7 @@ contract MixinProgressChallenge is
 
     require(
       challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "progressChallenge called on app not in DISPUTE state"
+      "respondToChallenge called on app not in DISPUTE state"
     );
 
     require(

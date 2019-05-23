@@ -7,7 +7,7 @@ import "./mixins/MixinSetOutcome.sol";
 import "./mixins/MixinSetState.sol";
 import "./mixins/MixinVirtualAppSetState.sol";
 import "./mixins/MixinSetStateWithAction.sol";
-import "./mixins/MixinProgressChallenge.sol";
+import "./mixins/MixinRespondToChallenge.sol";
 
 
 /// @dev Base contract implementing all logic needed for full-featured App registry
@@ -17,7 +17,7 @@ contract AppRegistry is
   MixinVirtualAppSetState,
   MixinSetStateWithAction,
   MixinCancelChallenge,
-  MixinProgressChallenge,
+  MixinRespondToChallenge,
   MixinSetOutcome
 {
   // solium-disable-next-line no-empty-blocks
