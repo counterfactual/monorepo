@@ -31,12 +31,12 @@ contract AppWithAction is CounterfactualApp {
     return state.player2;
   }
 
-  function resolve(bytes calldata)
+  function computeOutcome(bytes calldata)
     external
     pure
     returns (bytes memory)
   {
-    return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE);
+    return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
   }
 
   function applyAction(
@@ -63,11 +63,11 @@ contract AppWithAction is CounterfactualApp {
     return false;
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.ResolutionType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
   }
 }

@@ -134,7 +134,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         await provider.send("evm_mine", []);
       }
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         appInstance.identity,
         appInstance.encodedLatestState
       );

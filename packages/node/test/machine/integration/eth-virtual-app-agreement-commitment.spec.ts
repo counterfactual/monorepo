@@ -1,7 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import ResolveTo2App from "@counterfactual/contracts/build/ResolveTo2App.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -50,9 +50,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       0
     );
 
-    const resolveTo2AppDefinition = await new ContractFactory(
-      ResolveTo2App.abi,
-      ResolveTo2App.bytecode,
+    const fixedTwoPartyOutcomeAppDefinition = await new ContractFactory(
+      FixedTwoPartyOutcomeApp.abi,
+      FixedTwoPartyOutcomeApp.bytecode,
       wallet
     ).deploy();
 
@@ -82,7 +82,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: resolveTo2AppDefinition.address,
+          addr: fixedTwoPartyOutcomeAppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
         },
@@ -137,7 +137,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         targetAppInstance.identity,
         targetAppInstance.encodedLatestState
       );

@@ -27,13 +27,13 @@ export type BlockchainAsset = {
   token?: string;
 };
 
-// Interpreter.sol::ResolutionType
-export enum ResolutionType {
+// Interpreter.sol::OutcomeType
+export enum OutcomeType {
   TWO_PARTY_OUTCOME = 0,
   ETH_TRANSFER = 1
 }
 
-// TwoPartyOutcome.sol::Resolution
+// TwoPartyOutcome.sol::Outcome
 export enum TwoPartyOutcome {
   SEND_TO_ADDR_ONE = 0,
   SEND_TO_ADDR_TWO = 1,

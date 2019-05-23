@@ -1,5 +1,5 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, ResolutionType } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -7,11 +7,8 @@ import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeEthTransferIncrement(resolution): [string, BigNumber] {
-  const decoded = defaultAbiCoder.decode(
-    ["tuple(address,uint256)[]"],
-    resolution
-  );
+function computeEthTransferIncrement(outcome): [string, BigNumber] {
+  const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
     !(
@@ -20,7 +17,7 @@ function computeEthTransferIncrement(resolution): [string, BigNumber] {
       decoded[0][0].length === 2
     )
   ) {
-    throw new Error("Resolve function returned unexpected shape");
+    throw new Error("Outcome function returned unexpected shape");
   }
   const [[[address, to]]] = decoded;
 
@@ -41,37 +38,37 @@ export async function computeFreeBalanceIncrements(
     provider
   );
 
-  let resolution = await appDefinition.functions.resolve(
+  let outcome = await appDefinition.functions.computeOutcome(
     appInstance.encodedLatestState
   );
 
-  const resolveType = bigNumberify(
-    await appDefinition.functions.resolveType()
+  const outcomeType = bigNumberify(
+    await appDefinition.functions.outcomeType()
   ).toNumber();
 
-  switch (resolveType) {
-    case ResolutionType.ETH_TRANSFER: {
+  switch (outcomeType) {
+    case OutcomeType.ETH_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
       let attempts = 1;
 
       while (1) {
-        resolution = await appDefinition.functions.resolve(
+        outcome = await appDefinition.functions.computeOutcome(
           appInstance.encodedLatestState
         );
-        const [address, to] = computeEthTransferIncrement(resolution);
+        const [address, to] = computeEthTransferIncrement(outcome);
         if (to.gt(Zero)) {
           return { [address]: to };
         }
         attempts += 1;
         if (attempts === 10) {
-          throw new Error("Failed to get a resolution after 10 attempts");
+          throw new Error("Failed to get a outcome after 10 attempts");
         }
       }
     }
-    case ResolutionType.TWO_PARTY_OUTCOME: {
-      const [decoded] = defaultAbiCoder.decode(["uint256"], resolution);
+    case OutcomeType.TWO_PARTY_OUTCOME: {
+      const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
       const total = appInstance.limitOrTotal;
       if (decoded.eq(Zero)) {

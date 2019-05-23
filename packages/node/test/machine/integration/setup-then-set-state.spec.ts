@@ -91,7 +91,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         await provider.send("evm_mine", []);
       }
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         freeBalanceETH.identity,
         freeBalanceETH.encodedLatestState
       );

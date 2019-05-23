@@ -5,22 +5,22 @@ import "../interfaces/Interpreter.sol";
 import "../interfaces/TwoPartyOutcome.sol";
 
 
-contract ResolveTo2App {
+contract FixedTwoPartyOutcomeApp {
 
-  function resolve(bytes calldata)
+  function computeOutcome(bytes calldata)
     external
     pure
     returns (bytes memory)
   {
-    return abi.encode(TwoPartyOutcome.Resolution.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+    return abi.encode(TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.ResolutionType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
   }
 
 }

@@ -109,10 +109,10 @@ describe("HighRollerApp", () => {
     );
   }
 
-  async function computeResolution(state: SolidityABIEncoderV2Type) {
+  async function computeOutcome(state: SolidityABIEncoderV2Type) {
     const [decodedResult] = defaultAbiCoder.decode(
       ["uint256"],
-      await highRollerApp.functions.resolve(encodeState(state))
+      await highRollerApp.functions.computeOutcome(encodeState(state))
     );
     return decodedResult;
   }
@@ -238,7 +238,7 @@ describe("HighRollerApp", () => {
         playerSecondNumber: 2
       };
 
-      expect(await computeResolution(preState)).to.eq(
+      expect(await computeOutcome(preState)).to.eq(
         TwoPartyOutcome.SEND_TO_ADDR_TWO
       );
     });
@@ -262,7 +262,7 @@ describe("HighRollerApp", () => {
         playerSecondNumber: 45
       };
 
-      expect(await computeResolution(preState)).to.eq(2);
+      expect(await computeOutcome(preState)).to.eq(2);
     });
 
     it("can end game - playerFirst wins", async () => {
@@ -279,7 +279,7 @@ describe("HighRollerApp", () => {
         playerSecondNumber: 2
       };
 
-      expect(await computeResolution(preState)).to.eq(
+      expect(await computeOutcome(preState)).to.eq(
         TwoPartyOutcome.SEND_TO_ADDR_ONE
       );
     });

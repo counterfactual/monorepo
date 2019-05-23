@@ -51,7 +51,7 @@ contract MixinProgressChallenge is
 
     require(
       keccak256(appState) == challenge.appStateHash,
-      "Tried to resolve dispute with non-agreed upon app"
+      "Tried to progress a challenge with non-agreed upon app"
     );
 
     address turnTaker = getTurnTaker(

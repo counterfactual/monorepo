@@ -12,22 +12,23 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     view
     returns (bytes memory)
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    ETHInterpreter.ETHTransfer[] memory ret =
-      new ETHInterpreter.ETHTransfer[](1);
+    ETHInterpreter.ETHTransfer[] memory ret = new
+      ETHInterpreter.ETHTransfer[](1);
+
     ret[0].amount = address(appState.multisig).balance - appState.threshold;
     ret[0].to = appState.recipient;
 
     return abi.encode(ret);
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)

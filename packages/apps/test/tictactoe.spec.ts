@@ -26,8 +26,8 @@ function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
 describe("TicTacToeApp", () => {
   let ticTacToe: Contract;
 
-  async function computeResolution(state: SolidityABIEncoderV2Type) {
-    return await ticTacToe.functions.resolve(encodeState(state));
+  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+    return await ticTacToe.functions.computeOutcome(encodeState(state));
   }
 
   function encodeState(state: SolidityABIEncoderV2Type) {
@@ -291,8 +291,8 @@ describe("TicTacToeApp", () => {
       );
     });
   });
-  describe("resolve", () => {
-    it("playerFirst wins should resolve correctly", async () => {
+  describe("computeOutcome", () => {
+    it("playerFirst wins should compute the outcome correctly", async () => {
       const preState = {
         turnNum: 0,
         winner: 0,
@@ -312,7 +312,7 @@ describe("TicTacToeApp", () => {
       const appliedAction = await applyAction(preState, action);
       const state = decodeBytesToAppState(appliedAction);
 
-      const ret = await computeResolution(state);
+      const ret = await computeOutcome(state);
 
       expect(ret).to.eq(defaultAbiCoder.encode(["uint256"], [0]));
     });

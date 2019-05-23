@@ -44,7 +44,7 @@ contract StateChannelTransaction {
       "App is not finalized yet"
     );
 
-    bytes memory resolution = appRegistry.getResolution(
+    bytes memory outcome = appRegistry.getOutcome(
       appIdentityHash
     );
 
@@ -54,9 +54,15 @@ contract StateChannelTransaction {
     // )));
 
     bytes memory payload = abi.encodeWithSignature(
-      "interpret(bytes,bytes)", resolution, interpreterParams);
-    (bool success, bytes memory returnData) =
-      interpreterAddress.delegatecall(payload);
+      "interpret(bytes,bytes)", outcome, interpreterParams
+    );
+
+    // solium-disable-next-line no-unused-vars
+    (bool success, bytes memory returnData) = interpreterAddress
+      .delegatecall(payload);
+
+    // Another PR is handling this....
+    // solium-disable-next-line error-reason
     require(success);
   }
 
