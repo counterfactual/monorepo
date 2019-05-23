@@ -1,3 +1,5 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { Wallet } from "ethers";
 import {
   JsonRpcProvider,
@@ -10,7 +12,6 @@ import { v4 as generateUUID } from "uuid";
 
 import { MNEMONIC_PATH, Node } from "../../src";
 import { CF_PATH } from "../global-setup.jest";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
 export async function setup(

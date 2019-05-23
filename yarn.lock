@@ -2526,6 +2526,13 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
+"@types/firebase@3.2.1":
+  version "3.2.1"
+  resolved "https://registry.npmjs.org/@types/firebase/-/firebase-3.2.1.tgz#17c1c8fee7485ab09668d2461e34540bdf44b3b1"
+  integrity sha512-G8XgHMu2jHlElfc2xVNaYP50F0qrqeTCjgeG1v5b4SRwWG4XKC4fCuEdVZuZaMRmVygcnbRZBAo9O7RsDvmkGQ==
+  dependencies:
+    firebase "*"
+
 "@types/form-data@0.0.33":
   version "0.0.33"
   resolved "https://registry.yarnpkg.com/@types/form-data/-/form-data-0.0.33.tgz#c9ac85b2a5fd18435b8c85d9ecb50e6d6c893ff8"
@@ -8071,7 +8078,7 @@ firebase-token-generator@^2.0.0:
   resolved "https://registry.yarnpkg.com/firebase-token-generator/-/firebase-token-generator-2.0.0.tgz#9767d759ec13abdc99ba115fd5ea99d8b93d1206"
   integrity sha1-l2fXWewTq9yZuhFf1eqZ2Lk9EgY=
 
-firebase@6.0.2:
+firebase@*, firebase@6.0.2:
   version "6.0.2"
   resolved "https://registry.yarnpkg.com/firebase/-/firebase-6.0.2.tgz#a2d1daa9a3f329aac2974349d521fbd923ee0f35"
   integrity sha512-KA4VviZQJCzCIkCEvt3sJEsNe/HpqQdNE+ajy3wELHCxNV8PK8eBa10qxWDQhNgEtorHHltgYw3VwS0rbSvWrQ==

@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "declarationDir": "dist/",
+    "outDir": "dist/",
+    "resolveJsonModule": true,
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../node_modules/@counterfactual/typescript-typings/types"
+    ],
+    "types": ["jest"]
+  },
+  "references": [
+    { "path": "../types" }
+  ],
+  "include": ["src", "test"]
+}

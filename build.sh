@@ -15,6 +15,8 @@ then
     node-provider \
     cf.js \
     node \
+    firebase-client \
+    firebase-server \
     playground-server \
   "
 else
@@ -25,6 +27,8 @@ else
     node-provider \
     cf.js \
     node \
+    firebase-client \
+    firebase-server \
     playground-server \
     playground \
     dapp-high-roller \
