@@ -2274,10 +2274,10 @@
   dependencies:
     "@stencil/state-tunnel" "0.0.9-1"
 
-"@stencil/sass@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@stencil/sass/-/sass-0.2.2.tgz#3bde72f49f2878a7e3e044c5928ffb62ece19378"
-  integrity sha512-i3GfmNNqGq8o7Tl6IVUgT0dFhQW85BWSBU+2DeJP2ARw7f1locXyjoNcrIsgCuZqvYjLoq9UN5OdtgZlRucefQ==
+"@stencil/sass@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@stencil/sass/-/sass-0.2.3.tgz#836d819d4c3e1182e551de12a7aac77099d9aea2"
+  integrity sha512-JmS0HQVZ+TuBdk+kvNkDJPQYLjC/sc3Ionsbo7/MccdSu7JLikdQ4JOdQClDMdaMV2m4jqHjlQMpxMtOWLf7CQ==
 
 "@stencil/state-tunnel@0.0.9-1":
   version "0.0.9-1"
