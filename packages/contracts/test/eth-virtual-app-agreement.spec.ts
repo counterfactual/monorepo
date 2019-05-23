@@ -12,8 +12,8 @@ import {
 
 import AppRegistry from "../build/AppRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
-import NonceRegistry from "../build/NonceRegistry.json";
 import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
+import NonceRegistry from "../build/NonceRegistry.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
 
 import { expect } from "./utils/index";
@@ -25,7 +25,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
   let appRegistry: Contract;
   let nonceRegistry: Contract;
   let virtualAppAgreement: Contract;
-  let fixedOutcomeAndEffectApp: Contract;
+  let fixedTwoPartyOutcome: Contract;
   let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
@@ -88,7 +88,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
 
-    fixedOutcomeAndEffectApp = await waffle.deployContract(
+    fixedTwoPartyOutcome = await waffle.deployContract(
       wallet,
       FixedTwoPartyOutcomeApp
     );
@@ -96,7 +96,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
     const appIdentity = {
       owner: await wallet.getAddress(),
       signingKeys: [],
-      appDefinition: fixedOutcomeAndEffectApp.address,
+      appDefinition: fixedTwoPartyOutcome.address,
       interpreterHash: HashZero,
       defaultTimeout: 10
     };
