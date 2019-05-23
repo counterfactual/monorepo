@@ -68,6 +68,6 @@ contract AppWithAction is CounterfactualApp {
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.EffectType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
   }
 }

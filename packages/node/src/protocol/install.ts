@@ -106,7 +106,7 @@ async function proposeStateTransition(
     context.provider
   );
 
-  const outcomeType = (await appDefinition.functions.computeOutcomeType()) as BigNumber;
+  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
 
   let interpreterAddress: string;
 

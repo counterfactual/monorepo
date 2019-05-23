@@ -27,8 +27,8 @@ export type BlockchainAsset = {
   token?: string;
 };
 
-// Interpreter.sol::EffectType
-export enum EffectType {
+// Interpreter.sol::OutcomeType
+export enum OutcomeType {
   TWO_PARTY_OUTCOME = 0,
   ETH_TRANSFER = 1
 }

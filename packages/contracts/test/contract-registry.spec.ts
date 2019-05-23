@@ -84,7 +84,7 @@ describe("ContractRegistry", function(this: Mocha) {
     await contractRegistry.functions.deploy(bytecode, 2);
 
     const test = new Contract(
-      await contractRegistry.functions.computeOutcomer(cfaddress(bytecode, 2)),
+      await contractRegistry.functions.resolver(cfaddress(bytecode, 2)),
       iface,
       wallet
     );

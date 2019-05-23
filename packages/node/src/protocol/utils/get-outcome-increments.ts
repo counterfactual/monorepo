@@ -43,7 +43,7 @@ export async function computeFreeBalanceIncrements(
   );
 
   const outcomeType = bigNumberify(
-    await appDefinition.functions.computeOutcomeType()
+    await appDefinition.functions.outcomeType()
   ).toNumber();
 
   switch (outcomeType) {

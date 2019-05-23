@@ -25,7 +25,7 @@ contract ETHBucket is CounterfactualApp {
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.EffectType.ETH_TRANSFER);
+    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
   }
 
 }

@@ -8,7 +8,7 @@ import { Context, ProtocolParameters, UninstallParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
-import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
 
