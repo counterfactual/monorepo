@@ -9,5 +9,9 @@ contract Interpreter {
     ETH_TRANSFER
   }
 
-  function interpret(bytes calldata, bytes calldata) external;
+  function interpretOutcomeAndExecuteEffect(
+    bytes calldata,
+    bytes calldata
+  )
+    external;
 }
