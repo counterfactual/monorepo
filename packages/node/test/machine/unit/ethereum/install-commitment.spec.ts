@@ -130,7 +130,7 @@ describe("InstallCommitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [owner, signingKeys, appDefinition, {}, defaultTimeout]
+            [owner, signingKeys, appDefinition, defaultTimeout]
           ] = calldata.args;
           const expected = freeBalanceETH.identity;
           expect(owner).toBe(expected.owner);
