@@ -1,19 +1,20 @@
+import { utils } from "@counterfactual/cf.js";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { keccak256, defaultAbiCoder, bigNumberify, SigningKey } from "ethers/utils";
+import {
+  bigNumberify,
+  defaultAbiCoder,
+  keccak256,
+  SigningKey
+} from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
 
-import {
-  AppInstance,
-  expect,
-} from "./utils";
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
-
-import { utils } from "@counterfactual/cf.js";
+import { AppInstance, expect } from "./utils";
 const { signaturesToBytes } = utils;
 
 const ALICE =
@@ -46,7 +47,7 @@ const POST_STATE = {
   player1: ALICE.address,
   player2: BOB.address,
   counter: bigNumberify(5)
-}
+};
 
 function encodeState(state: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
@@ -81,12 +82,16 @@ describe("AppRegistry Dispute", () => {
   let wallet: Wallet;
 
   let appRegistry: Contract;
-  let appDefinition: Contract
+  let appDefinition: Contract;
 
   let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
   let latestNonce: () => Promise<number>;
-  let progressChallenge: (state: any, action: any, actionSig: any)  => Promise<any>;
+  let respondToChallenge: (
+    state: any,
+    action: any,
+    actionSig: any
+  ) => Promise<any>;
 
   before(async () => {
     provider = waffle.createMockProvider();
@@ -123,8 +128,8 @@ describe("AppRegistry Dispute", () => {
         signatures: HashZero
       });
 
-    progressChallenge = (state: any, action: any, actionSig: any) =>
-      appRegistry.functions.progressChallenge(
+    respondToChallenge = (state: any, action: any, actionSig: any) =>
+      appRegistry.functions.respondToChallenge(
         appInstance.appIdentity,
         encodeState(state),
         encodeAction(action),
@@ -133,7 +138,7 @@ describe("AppRegistry Dispute", () => {
       );
   });
 
-  it("Can call progressChallenge", async () => {
+  it("Can call respondToChallenge", async () => {
     expect(await latestNonce()).to.eq(0);
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
     expect(await latestNonce()).to.eq(1);
@@ -144,7 +149,7 @@ describe("AppRegistry Dispute", () => {
     const bytes = signaturesToBytes(signature);
 
     expect(await latestState()).to.be.eql(keccak256(encodeState(PRE_STATE)));
-    await progressChallenge(PRE_STATE, ACTION, bytes);
+    await respondToChallenge(PRE_STATE, ACTION, bytes);
     expect(await latestState()).to.be.eql(keccak256(encodeState(POST_STATE)));
   });
 });

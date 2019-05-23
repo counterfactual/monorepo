@@ -96,7 +96,7 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 **Cancelling the challenge**. In the simplest case, you and your counterparty can always sign a piece of data that declares "we would both like to cancel this challenge and resume off-chain". In this case, simply provide the contract with this evidence and the challenge can be deleted and ignored.
 
-**Progressing the challenge on-chain**. If the counterparty that initiated the challenge is not willing to continue the application off-chain, but their challenge is indeed a valid one (perhaps you were offline temporarily), then you can progress the application on-chain if there exists an implementation for `applyAction` and `getTurnTaker`. In this case, much like is the case when initiating a challenge, you simply provide an encoded action and requisite signatures to re-issue the challenge but in the opposite direction.
+**Progressing the challenge on-chain**. If the counterparty that initiated the challenge is not willing to continue the application off-chain, but their challenge is indeed a valid one (perhaps you were offline temporarily), then you can respond to the challenge on-chain (and in doing so, issue a new challenge) if there exists an implementation for `applyAction` and `getTurnTaker`. In this case, much like is the case when initiating a challenge, you simply provide an encoded action and requisite signatures to re-issue the challenge but in the opposite direction.
 
 **Handling a malicious challenge**. If the counterparty submitted stale state that is [provably malicious](#provably-malicious-challenges), then the contract supports claiming this by submitting a provably newer state that convicts them and rewards the honest party (i.e., you in this case).
 
