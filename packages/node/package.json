@@ -46,7 +46,7 @@
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/types": "0.0.9",
-    "@firebase/util": "0.2.15",
+    "@firebase/util": "0.2.16",
     "ethers": "4.0.27",
     "eventemitter3": "^3.1.2",
     "firebase": "6.0.2",
