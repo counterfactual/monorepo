@@ -1,4 +1,3 @@
-import json from "rollup-plugin-json";
 import typescript from "rollup-plugin-typescript2";
 
 import pkg from "./package.json";
@@ -14,8 +13,7 @@ export default [
       },
     ],
     plugins: [
-      json({ compact: true }),
-      typescript(),
+      typescript()
     ]
   }
 ];
