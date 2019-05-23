@@ -11,6 +11,7 @@ import {
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
+import log from "loglevel";
 import Queue from "p-queue";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
@@ -76,11 +77,14 @@ export default class CreateChannelController extends NodeController {
       ).slice(-40)
     );
 
+    console.log("multisig address: ", multisigAddress);
+
     const tx = await this.sendMultisigDeployTx(
       wallet,
       setupData,
       networkContext
     );
+    console.log();
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
@@ -136,6 +140,9 @@ export default class CreateChannelController extends NodeController {
       ProxyFactory.abi,
       signer
     );
+
+    log.info("Got proxy factory contract");
+    log.info(proxyFactory);
 
     let error;
     const retryCount = 3;
