@@ -5,6 +5,9 @@
     "noImplicitAny": true,
     "types": ["jest", "node"]
   },
+  "references": [
+    { "path": "../types" }
+  ],
   "include": ["src", "test"],
   "exclude": ["dist"]
 }

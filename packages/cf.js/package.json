@@ -11,7 +11,7 @@
   "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b && rollup -c",
+    "build": "tsc -b . && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "jest --detectOpenHandles",

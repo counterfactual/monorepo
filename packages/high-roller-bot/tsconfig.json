@@ -6,5 +6,8 @@
       "../../node_modules/@types",
       "../../node_modules/@counterfactual/typescript-typings/types"
     ]
-  }
+  },
+  "references": [
+    { "path": "../types" }
+  ]
 }
