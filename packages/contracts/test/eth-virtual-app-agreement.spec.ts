@@ -13,7 +13,7 @@ import {
 import AppRegistry from "../build/AppRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
 import NonceRegistry from "../build/NonceRegistry.json";
-import ResolveTo2App from "../build/ResolveTo2App.json";
+import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
 
 import { expect } from "./utils/index";
@@ -90,7 +90,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     fixedOutcomeAndEffectApp = await waffle.deployContract(
       wallet,
-      ResolveTo2App
+      FixedTwoPartyOutcomeApp
     );
 
     const appIdentity = {

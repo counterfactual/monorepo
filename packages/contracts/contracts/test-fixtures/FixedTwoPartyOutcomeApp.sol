@@ -5,7 +5,7 @@ import "../interfaces/Interpreter.sol";
 import "../interfaces/TwoPartyOutcome.sol";
 
 
-contract ResolveTo2App {
+contract FixedTwoPartyOutcomeApp {
 
   function computeOutcome(bytes calldata)
     external
