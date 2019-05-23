@@ -5,7 +5,6 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { HashZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
