@@ -12,18 +12,9 @@ import {
 
 import AppRegistry from "../build/AppRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
-<<<<<<< HEAD
 import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
 import NonceRegistry from "../build/NonceRegistry.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
-||||||| merged common ancestors
-import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
-import ResolveTo2App from "../build/ResolveTo2App.json";
-=======
-import NonceRegistry from "../build/NonceRegistry.json";
-import ResolveTo2App from "../build/ResolveTo2App.json";
-import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
->>>>>>> Remove interpreterHash
 
 import { expect } from "./utils/index";
 
