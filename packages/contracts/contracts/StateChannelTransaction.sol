@@ -55,9 +55,11 @@ contract StateChannelTransaction {
 
     bytes memory payload = abi.encodeWithSignature(
       "interpret(bytes,bytes)", resolution, interpreterParams);
-    (bool success, bytes memory returnData) =
-      interpreterAddress.delegatecall(payload);
-    require(success);
+
+    (bool success, bytes memory returnData) = interpreterAddress
+      .delegatecall(payload);
+
+    require(success, "Execution of executeAppConditionalTransaction failed");
   }
 
 
