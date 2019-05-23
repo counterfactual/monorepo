@@ -14,11 +14,11 @@ contract MixinCancelChallenge is
   MAppRegistryCore
 {
 
-  /// @notice Unanimously agree to cancel a dispute
+  /// @notice Unanimously agree to cancel a challenge
   /// @param appIdentity an AppIdentity object pointing to the app being cancelled
-  /// @param signatures Signatures by all signing keys of the currently latest disputed
-  /// state; an indication of agreement of this state and valid to cancel a dispute
-  /// @dev Note this function is only callable when the state channel is in a DISPUTE state
+  /// @param signatures Signatures by all signing keys of the currently latest challenged
+  /// state; an indication of agreement of this state and valid to cancel a challenge
+  /// @dev Note this function is only callable when the state channel is in a IN_CHALLENGE state
   function cancelChallenge(
     AppIdentity memory appIdentity,
     bytes memory signatures
@@ -33,8 +33,8 @@ contract MixinCancelChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "cancelChallenge called on app not in DISPUTE state"
+      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
+      "cancelChallenge called on app not in IN_CHALLENGE state"
     );
 
     bytes32 stateHash = computeAppChallengeHash(
@@ -51,7 +51,7 @@ contract MixinCancelChallenge is
       );
     }
 
-    challenge.disputeNonce = 0;
+    challenge.challengeNonce = 0;
     challenge.finalizesAt = 0;
     challenge.status = AppStatus.ON;
     challenge.latestSubmitter = msg.sender;

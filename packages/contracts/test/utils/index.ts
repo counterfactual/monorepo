@@ -26,12 +26,12 @@ export const computeActionHash = (
   previousState: string,
   action: string,
   setStateNonce: number,
-  disputeNonce: number
+  challengeNonce: number
 ) =>
   keccak256(
     solidityPack(
       ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
-      ["0x19", turnTaker, previousState, action, setStateNonce, disputeNonce]
+      ["0x19", turnTaker, previousState, action, setStateNonce, challengeNonce]
     )
   );
 

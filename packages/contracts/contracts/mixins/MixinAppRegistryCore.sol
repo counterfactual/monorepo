@@ -33,7 +33,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     return (
       appChallenges[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
       (
-        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.DISPUTE &&
+        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.IN_CHALLENGE &&
         appChallenges[identityHash].finalizesAt <= block.number
       )
     );

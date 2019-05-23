@@ -31,7 +31,7 @@ contract MixinSetStateWithAction is
     bool checkForTerminal;
   }
 
-  /// @notice Create a dispute regarding the latest signed state and immediately after,
+  /// @notice Create a challenge regarding the latest signed state and immediately after,
   /// performs a unilateral action to update it.
   /// @param appIdentity An AppIdentity pointing to the app having its challenge progressed
   /// @param req A struct with the signed state update in it
@@ -55,7 +55,7 @@ contract MixinSetStateWithAction is
 
     require(
       challenge.status == AppStatus.ON ||
-      (challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number),
+      (challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number),
       "setStateWithAction was called on an app that has already been finalized"
     );
 
@@ -68,7 +68,7 @@ contract MixinSetStateWithAction is
       correctKeySignedTheAction(
         appIdentity.appDefinition,
         appIdentity.signingKeys,
-        challenge.disputeNonce,
+        challenge.challengeNonce,
         req,
         action
       ),
@@ -90,13 +90,13 @@ contract MixinSetStateWithAction is
       challenge.status = AppStatus.OFF;
     } else {
       challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = AppStatus.DISPUTE;
+      challenge.status = AppStatus.IN_CHALLENGE;
     }
 
     challenge.appStateHash = keccak256(newState);
     challenge.nonce = req.nonce;
-    challenge.disputeNonce = 0;
-    challenge.disputeCounter += 1;
+    challenge.challengeNonce = 0;
+    challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
 
@@ -121,7 +121,7 @@ contract MixinSetStateWithAction is
   function correctKeySignedTheAction(
     address appDefinition,
     address[] memory signingKeys,
-    uint256 disputeNonce,
+    uint256 challengeNonce,
     SignedAppChallengeUpdateWithAppState memory req,
     SignedAction memory action
   )
@@ -142,7 +142,7 @@ contract MixinSetStateWithAction is
         keccak256(req.appState),
         action.encodedAction,
         req.nonce,
-        disputeNonce
+        challengeNonce
       ),
       0
     );

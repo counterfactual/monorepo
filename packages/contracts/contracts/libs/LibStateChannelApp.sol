@@ -9,7 +9,7 @@ contract LibStateChannelApp {
   // The mode that the App is currently in from POV of the blockchain
   enum AppStatus {
     ON,
-    DISPUTE,
+    IN_CHALLENGE,
     OFF
   }
 
@@ -28,8 +28,8 @@ contract LibStateChannelApp {
     AppStatus status;
     address latestSubmitter;
     bytes32 appStateHash;
-    uint256 disputeCounter;
-    uint256 disputeNonce;
+    uint256 challengeCounter;
+    uint256 challengeNonce;
     uint256 finalizesAt;
     uint256 nonce;
   }

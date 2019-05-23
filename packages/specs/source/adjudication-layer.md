@@ -48,21 +48,21 @@ struct AppChallenge {
     AppStatus status;
     address latestSubmitter;
     bytes32 appStateHash;
-    uint256 disputeCounter;
-    uint256 disputeNonce;
+    uint256 challengeCounter;
+    uint256 challengeNonce;
     uint256 finalizesAt;
     uint256 nonce;
 }
 ```
 
-Where `AppStatus` is one of `ON`, `OFF`, or `DISPUTE`.
+Where `AppStatus` is one of `ON`, `OFF`, or `IN_CHALLENGE`.
 
 Here is a description of why each field exists in this data structure:
 
 - **`status`**: A challenge exists in one of four logical states.
   - `ON`: Has never been opened (the "null" challenge and default for all off-chain apps)
-  - `DISPUTE`: Open and its timeout parameter is in the future (can be responded to)
-  - `DISPUTE`: Was opened and the timeout expired (the challenge was finalized)
+  - `IN_CHALLENGE`: Open and its timeout parameter is in the future (can be responded to)
+  - `IN_CHALLENGE`: Was opened and the timeout expired (the challenge was finalized)
   - `OFF`: Was finalized explicitly
 
 ![statechannel statuses](img/statechannel-statuses.svg)
@@ -77,9 +77,9 @@ Thus, this parameter simply records which state the challenge is in.
 
 - **`nonce`**: This is the nonce (i.e., the monotonically increasing version number of the state) at which the `appStateHash` is versioned for a particular challenge.
 
-- **`disputeNonce`**: It is allowed for a challenge to be responded to by issuing a new challenge. This idea is isomorphic to the familar state channels concept of "continuing the game on-chain". In this event, you want to keep track of the number of times a challenge has been "re-issued" as a new sense of versioning. We cannot simply increment the `nonce` field for reasons that are described in the section below: [on-chain progressions of off-chain state](#on-chain-progressions-of-off-chain-state).
+- **`challengeNonce`**: It is allowed for a challenge to be responded to by issuing a new challenge. This idea is isomorphic to the familar state channels concept of "continuing the game on-chain". In this event, you want to keep track of the number of times a challenge has been "re-issued" as a new sense of versioning. We cannot simply increment the `nonce` field for reasons that are described in the section below: [on-chain progressions of off-chain state](#on-chain-progressions-of-off-chain-state).
 
-- **`disputeCounter`**: A challenge _can_ be unanimously cancelled by all parties. In this scenario the `disputeNonce` goes back to 0. However, the `disputeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain. Parties can pre-agree that if this counter ever reaches an excessively high number, to simply conclude the application at some pre-determined outcome. This is simply a special mechanism to conclude applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
+- **`challengeCounter`**: A challenge _can_ be unanimously cancelled by all parties. In this scenario the `challengeNonce` goes back to 0. However, the `challengeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain. Parties can pre-agree that if this counter ever reaches an excessively high number, simply conclude the application at some pre-determined outcome. This is simply a special mechanism to conclude applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
 
 Since the contract that Counterfactual relies on for managing challenges is a singleton and is responsible for challnges that can occur in multiple different state channels simultaneously, it implements a mapping from what is called an `AppIdentity` to the challenge data structure described above.
 
@@ -134,9 +134,9 @@ It is possible that an application may have a challenge initiated on-chain and t
 
 - Honest party A initiates a challenge on-chain with B after B is unresponsive at nonce `k`
 - B comes back online and tries to update the state of the application by signing a unilateral action (thereby incrementing the nonce to `k + 1`) and sending it to A
-- B _also_ goes to chain and makes an on-chain challenge progression with a _different_ action, thereby incrementing the `disputeNonce` to `1`
+- B _also_ goes to chain and makes an on-chain challenge progression with a _different_ action, thereby incrementing the `challengeNonce` to `1`
 
-A is now in a bizarre spot where he can _either_ respond to the challenge on-chain again (making the `disputeNonce` equal to `2`) or he could sign the state with nonce `k + 1`. In the latter case, the newly doubly-signed (`k + 1`)-versioned state would be able to be submitted on-chain and **overwrite** whatever state was on-chain with `disputeNonce` at `1`.
+A is now in a bizarre spot where he can _either_ respond to the challenge on-chain again (making the `challengeNonce` equal to `2`) or he could sign the state with nonce `k + 1`. In the latter case, the newly doubly-signed (`k + 1`)-versioned state would be able to be submitted on-chain and **overwrite** whatever state was on-chain with `challengeNonce` at `1`.
 
 **Can we punish stale state attacks?**
 

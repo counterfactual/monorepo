@@ -261,8 +261,8 @@ describe("AppRegistry", () => {
       status,
       latestSubmitter,
       appStateHash,
-      disputeCounter,
-      disputeNonce,
+      challengeCounter,
+      challengeNonce,
       finalizesAt,
       nonce
     } = await appRegistry.functions.appChallenges(appInstance.identityHash);
@@ -270,8 +270,8 @@ describe("AppRegistry", () => {
     expect(status).to.be.eq(1);
     expect(latestSubmitter).to.be.eq(await wallet.getAddress());
     expect(appStateHash).to.be.eq(stateHash);
-    expect(disputeCounter).to.be.eq(1);
-    expect(disputeNonce).to.be.eq(0);
+    expect(challengeCounter).to.be.eq(1);
+    expect(challengeNonce).to.be.eq(0);
     expect(finalizesAt).to.be.eq((await provider.getBlockNumber()) + 10);
     expect(nonce).to.be.eq(1);
   });
