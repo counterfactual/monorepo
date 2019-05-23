@@ -1,7 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -50,7 +50,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       0
     );
 
-    const FixedTwoPartyOutcomeAppDefinition = await new ContractFactory(
+    const fixedTwoPartyOutcomeAppDefinition = await new ContractFactory(
       FixedTwoPartyOutcomeApp.abi,
       FixedTwoPartyOutcomeApp.bytecode,
       wallet
@@ -82,7 +82,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: FixedTwoPartyOutcomeAppDefinition.address,
+          addr: fixedTwoPartyOutcomeAppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
         },

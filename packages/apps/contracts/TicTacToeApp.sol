@@ -51,6 +51,14 @@ contract TicTacToeApp is CounterfactualApp {
     WinClaim winClaim;
   }
 
+  function outcomeType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
+  }
+
   function isStateTerminal(bytes calldata encodedState)
     external
     pure
@@ -192,14 +200,6 @@ contract TicTacToeApp is CounterfactualApp {
       require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
       require(state.board[0][2] == expectedSquareState, "Win Claim not valid");
     }
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
   }
 
 }

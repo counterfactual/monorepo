@@ -19,8 +19,9 @@ contract ETHBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    ETHInterpreter.ETHTransfer[] memory ret =
-      new ETHInterpreter.ETHTransfer[](1);
+    ETHInterpreter.ETHTransfer[] memory ret = new
+      ETHInterpreter.ETHTransfer[](1);
+
     ret[0].amount = address(appState.multisig).balance - appState.threshold;
     ret[0].to = appState.recipient;
 

@@ -46,6 +46,8 @@ contract TwoPartyVirtualEthAsLump {
     );
 
     if (outcomeAsUint256 <= 1) {
+      // TODO: @xuanji document why we use send here
+      // solium-disable-next-line security/no-send
       agreement.beneficiaries[outcomeAsUint256].send(agreement.capitalProvided);
       return;
     }
