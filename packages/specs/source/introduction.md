@@ -2,9 +2,9 @@
 
 Counterfactual is a framework for building off-chain state-channel-based applications. State channels allow users to interact with each other without paying blockchain transaction fees and with instant finality. Channelization is the only technique that securely realises the latter property.
 
-In the protocol, participants exchange cryptographically signed messages which are pre-signed transactions that distribute the blockchain state or perform other tasks necessary for the channel's correct resolution. Next, participants deposit blockchain state into an n-of-n multisignature wallet referenced by the transactions. New cryptographically signed state updates related to the original commitments can now be used to change the state and / or assets controlled by the multisignature wallet.
+In the protocol, participants exchange cryptographically signed messages which are pre-signed transactions that distribute the blockchain state or perform other tasks necessary for the channel's correct outcome. Next, participants deposit blockchain state into an n-of-n multisignature wallet referenced by the transactions. New cryptographically signed state updates related to the original commitments can now be used to change the state and / or assets controlled by the multisignature wallet.
 
-Through a challenge-response mechanism, on-chain contracts implement methods for participants to ensure that the latest signed valid state update that pertains to their commitment can be submitted to the blockchain, guaranteeing correct resolution of the state for all users adhering to the protocol.
+Through a challenge-response mechanism, on-chain contracts implement methods for participants to ensure that the latest signed valid state update that pertains to their commitment can be submitted to the blockchain, guaranteeing correct outcome of the state for all users adhering to the protocol.
 
 ## Framework Design Goals
 

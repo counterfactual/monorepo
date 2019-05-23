@@ -12,7 +12,7 @@ contract ETHBucket is CounterfactualApp {
     ETHInterpreter.ETHTransfer[] transfers;
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     pure
     returns (bytes memory)
@@ -20,12 +20,12 @@ contract ETHBucket is CounterfactualApp {
     return encodedState;
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.ResolutionType.ETH_TRANSFER);
+    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
   }
 
 }

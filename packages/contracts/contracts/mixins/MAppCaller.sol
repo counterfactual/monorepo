@@ -59,10 +59,10 @@ contract MAppCaller {
       .applyAction(appState, action);
   }
 
-  /// @notice Execute the application's resolve function to compute a resolution
+  /// @notice Execute the application's computeOutcome function to compute an outcome
   /// @param appDefinition An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
-  function resolve(
+  function computeOutcome(
     address appDefinition,
     bytes memory appState
   )
@@ -70,7 +70,7 @@ contract MAppCaller {
     pure
     returns (bytes memory)
   {
-    return CounterfactualApp(appDefinition).resolve(appState);
+    return CounterfactualApp(appDefinition).computeOutcome(appState);
   }
 
 }

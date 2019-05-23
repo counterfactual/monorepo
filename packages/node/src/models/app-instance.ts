@@ -72,8 +72,8 @@ export type AppInstanceJson = {
  *           of the app (the two addresses who could potentially have money
  *           sent to them)
 
- * @property limitOrTotal If the resolution type is TwoPartyOutcome, the total
- *           amount of ETH in wei allocated to the app; if the resolution type
+ * @property limitOrTotal If the outcome type is TwoPartyOutcome, the total
+ *           amount of ETH in wei allocated to the app; if the outcome type
  *           is ETHTransfer, the static upper bound on the total amount of ETH
  *           allowed to be transfered by this app
  */

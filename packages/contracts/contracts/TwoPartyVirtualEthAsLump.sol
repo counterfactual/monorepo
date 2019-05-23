@@ -9,8 +9,8 @@ import "./NonceRegistry.sol";
 /// @notice Commitment target to support "virtual apps", i.e., apps which have
 /// ETH committed to them via intermediary lock-up instead of having ETH directly
 /// committed in a direct channel.
-/// The `target` contract must return via resolution the outcome of the app,
-/// and the resolve function must be TwoPartyOutcome type.
+/// The `target` contract must return via outcome the outcome of the app,
+/// and the computeOutcome function must be TwoPartyOutcome type.
 /// We do not use the interpreter mechanism in StateChannelTransaction.sol
 /// because the delegateTarget function must be committed to in at least two
 /// places (in general, the same number of places as the channel length) with
@@ -35,18 +35,20 @@ contract TwoPartyVirtualEthAsLump {
       "agreement lockup time has not elapsed"
     );
 
-    bytes memory resolution = agreement.registry
-      .getResolution(agreement.appIdentityHash);
+    bytes memory outcome = agreement.registry
+      .getOutcome(agreement.appIdentityHash);
 
-    uint256 resolutionAsUint = abi.decode(resolution, (uint256));
+    uint256 outcomeAsUint256 = abi.decode(outcome, (uint256));
 
     require(
       !agreement.nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(agreement.uninstallKey, 1),
       "Virtual app agreement has been uninstalled"
     );
 
-    if (resolutionAsUint <= 1) {
-      agreement.beneficiaries[resolutionAsUint].send(agreement.capitalProvided);
+    if (outcomeAsUint256 <= 1) {
+      // TODO: @xuanji document why we use send here
+      // solium-disable-next-line security/no-send
+      agreement.beneficiaries[outcomeAsUint256].send(agreement.capitalProvided);
       return;
     }
 

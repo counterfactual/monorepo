@@ -46,7 +46,7 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 There are two key operations required for a successful uninstall.
 
-- Set a new state on the Free Balance. The resolution function defined in the application must be run to compute an update to the Free Balance that is based on the outcome of the application.
+- Set a new state on the Free Balance. The outcome function defined in the application must be run to compute an update to the Free Balance that is based on the outcome of the application.
 - Set a new nonce on the Nonce Registry. As a result, the Conditional Transfer pointing at the original application will be invalidated and the application will be considered deleted.
 
 Specifically, the Conditional Transfer commitment created by the Install Protocol checks that the dependency nonce does not equal 1. _If the nonce is ever 1_, then the conditional transfer will fail. Hence setting the nonce to 1 invalidates the conditional transfer, which is desired behaviour.

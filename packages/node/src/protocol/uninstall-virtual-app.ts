@@ -19,7 +19,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { validateSignature } from "./utils/signature-validator";
 
 const zA = (xpub: string) => {

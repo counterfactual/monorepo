@@ -39,15 +39,15 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     );
   }
 
-  /// @notice A getter function for the resolution if one is set
+  /// @notice A getter function for the outcome if one is set
   /// @param identityHash The unique hash of an `AppIdentity`
-  /// @return A `Transfer.Transaction` object representing the resolution of the channel
-  function getResolution(bytes32 identityHash)
+  /// @return A `Transfer.Transaction` object representing the outcome of the channel
+  function getOutcome(bytes32 identityHash)
     external
     view
     returns (bytes memory)
   {
-    return appResolutions[identityHash];
+    return appOutcomes[identityHash];
   }
 
 }

@@ -28,21 +28,21 @@ contract CounterfactualApp {
     revert("The applyAction method has no implementation for this App");
   }
 
-  function resolve(bytes calldata)
+  function computeOutcome(bytes calldata)
     external
     pure
     returns (bytes memory)
   {
-    revert("The resolve method has no implementation for this App");
+    revert("The computeOutcome method has no implementation for this App");
   }
 
   // a hack
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    revert("The resolveType method has no implementation for this App");
+    revert("The outcomeType method has no implementation for this App");
   }
 
 }
