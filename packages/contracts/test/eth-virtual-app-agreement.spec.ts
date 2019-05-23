@@ -97,7 +97,6 @@ describe("TwoPartyVirtualEthAsLump", () => {
       owner: await wallet.getAddress(),
       signingKeys: [],
       appDefinition: fixedTwoPartyOutcome.address,
-      interpreterHash: HashZero,
       defaultTimeout: 10
     };
 
@@ -108,7 +107,6 @@ describe("TwoPartyVirtualEthAsLump", () => {
             address owner,
             address[] signingKeys,
             address appDefinition,
-            bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
         ],

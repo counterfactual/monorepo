@@ -18,7 +18,6 @@ contract LibStateChannelApp {
     address owner;
     address[] signingKeys;
     address appDefinition;
-    bytes32 interpreterHash;
     uint256 defaultTimeout;
   }
 

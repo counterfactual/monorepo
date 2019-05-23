@@ -5,7 +5,6 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { HashZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -158,7 +157,6 @@ export class AppInstance {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
       appDefinition: this.json.appInterface.addr,
-      interpreterHash: HashZero, // todo(xuanji)
       defaultTimeout: this.json.defaultTimeout
     };
   }

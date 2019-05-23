@@ -45,7 +45,6 @@ export class AppInstance {
       owner: this.owner,
       signingKeys: this.signingKeys,
       appDefinition: this.appDefinition,
-      interpreterHash: HashZero,
       defaultTimeout: this.defaultTimeout
     };
   }
@@ -66,7 +65,6 @@ export class AppInstance {
             address owner,
             address[] signingKeys,
             address appDefinition,
-            bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
         ],

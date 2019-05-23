@@ -28,8 +28,8 @@ appIdentityHash := keccak256(
   [
     0x19,
     keccak256(encode(
-      [address, address[], address, bytes32, uint256 ],
-      [owner, signingKeys, appDefinition, interpreterHash, defaultTimeout]
+      [address, address[], address, uint256 ],
+      [owner, signingKeys, appDefinition, defaultTimeout]
     )),
     0,
     TIMEOUT,
