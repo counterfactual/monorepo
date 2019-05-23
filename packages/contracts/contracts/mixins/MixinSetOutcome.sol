@@ -42,8 +42,6 @@ contract MixinSetOutcome is
       appIdentity.appDefinition,
       finalState
     );
-
-    appInterpreters[identityHash] = appIdentity.interpreterHash;
   }
 
 }

@@ -15,7 +15,6 @@ struct AppIdentity {
     address owner;
     address[] signingKeys;
     address appDefinition;
-    bytes32 interpreterHash;
     uint256 defaultTimeout;
 }
 ```
@@ -25,8 +24,6 @@ struct AppIdentity {
 - **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `AppRegistry` itself. In this case, this field is used to validate signatures against to.
 
 - **`appDefinition`**: Address ofthe app definition contract.
-
-- **`interpreterHash`**: Hash of interpreter address and params to the interpreter to be used in determining what effects the outcome has.
 
 - **`defaultTimeout`**: Should the application that this data structure is describing ever be put on-chain, this property describes how long the timeout period would be if that challenge ever gets responded to on-chain. In the case of a challenge _initially_ being put on chain, the timeout period is a required parameter regardless, so this field is not used in that case.
 

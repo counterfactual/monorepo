@@ -48,11 +48,6 @@ contract StateChannelTransaction {
       appIdentityHash
     );
 
-    // require(appRegistry.appInterpreters(appIdentityHash) == keccak256(abi.encodePacked(
-    //   interpreterAddress,
-    //   interpreterParams
-    // )));
-
     bytes memory payload = abi.encodeWithSignature(
       "interpret(bytes,bytes)", outcome, interpreterParams
     );
