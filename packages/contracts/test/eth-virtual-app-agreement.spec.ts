@@ -29,7 +29,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
   let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
-  /// FixedOutcomeAndEffectApp with random beneficiaries
+  /// FixedTwoPartyOutcomeApp with random beneficiaries
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
