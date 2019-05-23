@@ -87,13 +87,7 @@ describe("Virtual App Set State Commitment", () => {
     });
 
     it("should contain expected AppIdentity argument", () => {
-      const [
-        owner,
-        signingKeys,
-        appDefinition,
-        {},
-        defaultTimeout
-      ] = desc.args[0];
+      const [owner, signingKeys, appDefinition, defaultTimeout] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
       expect(appDefinition).toBe(appInstance.identity.appDefinition);
