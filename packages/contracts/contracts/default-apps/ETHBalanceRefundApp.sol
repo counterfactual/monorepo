@@ -12,7 +12,7 @@ contract ETHBalanceRefundApp {
     uint256 threshold;
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     view
     returns (bytes memory)
@@ -27,7 +27,7 @@ contract ETHBalanceRefundApp {
     return abi.encode(ret);
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)

@@ -103,7 +103,7 @@ contract TicTacToeApp is CounterfactualApp {
     return abi.encode(postState);
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     pure
     returns (bytes memory)
@@ -112,11 +112,11 @@ contract TicTacToeApp is CounterfactualApp {
     require(state.winner != 0, "Winner was set to 0; invalid");
 
     if (state.winner == 2) {
-      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
     } else if (state.winner == 1) {
-      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE);
+      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
     } else /* state.winner == 3, or fallback */ {
-      return abi.encode(TwoPartyOutcome.Resolution.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      return abi.encode(TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     }
 
   }
@@ -194,12 +194,12 @@ contract TicTacToeApp is CounterfactualApp {
     }
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.ResolutionType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
   }
 
 }

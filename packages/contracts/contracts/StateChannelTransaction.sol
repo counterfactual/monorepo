@@ -44,7 +44,7 @@ contract StateChannelTransaction {
       "App is not finalized yet"
     );
 
-    bytes memory resolution = appRegistry.getResolution(
+    bytes memory outcome = appRegistry.getOutcome(
       appIdentityHash
     );
 
@@ -54,7 +54,7 @@ contract StateChannelTransaction {
     // )));
 
     bytes memory payload = abi.encodeWithSignature(
-      "interpret(bytes,bytes)", resolution, interpreterParams);
+      "interpret(bytes,bytes)", outcome, interpreterParams);
     (bool success, bytes memory returnData) =
       interpreterAddress.delegatecall(payload);
     require(success);

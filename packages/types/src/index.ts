@@ -9,7 +9,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   BlockchainAsset,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 } from "./data-types";
 import { INodeProvider, Node } from "./node";
@@ -72,6 +72,6 @@ export {
   INodeProvider,
   Node,
   SignedStateHashUpdate,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 };

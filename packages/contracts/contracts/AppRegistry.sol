@@ -3,7 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "./mixins/MixinAppRegistryCore.sol";
 import "./mixins/MixinCancelChallenge.sol";
-import "./mixins/MixinSetResolution.sol";
+import "./mixins/MixinSetOutcome.sol";
 import "./mixins/MixinSetState.sol";
 import "./mixins/MixinVirtualAppSetState.sol";
 import "./mixins/MixinSetStateWithAction.sol";
@@ -18,7 +18,7 @@ contract AppRegistry is
   MixinSetStateWithAction,
   MixinCancelChallenge,
   MixinProgressChallenge,
-  MixinSetResolution
+  MixinSetOutcome
 {
   // solium-disable-next-line no-empty-blocks
   constructor () public {}

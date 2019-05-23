@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 
 contract Interpreter {
 
-  enum ResolutionType {
+  enum EffectType {
     TWO_PARTY_OUTCOME,
     ETH_TRANSFER
   }

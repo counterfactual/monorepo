@@ -137,7 +137,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         targetAppInstance.identity,
         targetAppInstance.encodedLatestState
       );

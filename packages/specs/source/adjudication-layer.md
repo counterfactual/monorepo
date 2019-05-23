@@ -4,7 +4,7 @@ Counterfactual's adjudication layer uses a singleton contract called the [`AppRe
 
 The adjudication layer treats off-chain state as divided into independent app instances, which are "instantiations" of Apps governed by the app definition. A channel with two chess different chess games ongoing has two different app instances.
 
-Three core concepts of the adjudication layer are **challenges**, **resolutions** and **interpreters**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application. This final state is stored as a resolution. Interpreters use the resolution in order to _distribute state deposits_. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe, the resolution about who has won the game, and the interpreter produce the effect of sending 2 pre-committed ETH to the winner.
+Three core concepts of the adjudication layer are **challenges**, **outcomes** and **interpreters**. Challenges are the adjudication layer's mechanism to _learn the final state_ of an off-chain application. This final state is stored as an outcome. Interpreters use the outcome in order to _distribute state deposits_. As a concrete example, a challenge might be about the state of the board in a game of Tic-Tac-Toe, the outcome about who has won the game, and the interpreter produce the effect of sending 2 pre-committed ETH to the winner.
 
 ## AppInstance and AppIdentity
 
@@ -26,7 +26,7 @@ struct AppIdentity {
 
 - **`appDefinition`**: Address ofthe app definition contract.
 
-- **`interpreterHash`**: Hash of interpreter address and params to the interpreter to be used in determining what effects the resolution has.
+- **`interpreterHash`**: Hash of interpreter address and params to the interpreter to be used in determining what effects the outcome has.
 
 - **`defaultTimeout`**: Should the application that this data structure is describing ever be put on-chain, this property describes how long the timeout period would be if that challenge ever gets responded to on-chain. In the case of a challenge _initially_ being put on chain, the timeout period is a required parameter regardless, so this field is not used in that case.
 
@@ -82,7 +82,7 @@ Thus, this parameter simply records which state the challenge is in.
 
 - **`disputeNonce`**: It is allowed for a challenge to be responded to by issuing a new challenge. This idea is isomorphic to the familar state channels concept of "continuing the game on-chain". In this event, you want to keep track of the number of times a challenge has been "re-issued" as a new sense of versioning. We cannot simply increment the `nonce` field for reasons that are described in the section below: [on-chain progressions of off-chain state](#on-chain-progressions-of-off-chain-state).
 
-- **`disputeCounter`**: A challenge _can_ be unanimously cancelled by all parties. In this scenario the `disputeNonce` goes back to 0. However, the `disputeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain. Parties can pre-agree that if this counter ever reaches an excessively high number, to simply resolve the application at some pre-determined resolution. This is simply a special mechanism to resolve applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
+- **`disputeCounter`**: A challenge _can_ be unanimously cancelled by all parties. In this scenario the `disputeNonce` goes back to 0. However, the `disputeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain. Parties can pre-agree that if this counter ever reaches an excessively high number, to simply conclude the application at some pre-determined outcome. This is simply a special mechanism to conclude applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
 
 Since the contract that Counterfactual relies on for managing challenges is a singleton and is responsible for challnges that can occur in multiple different state channels simultaneously, it implements a mapping from what is called an `AppIdentity` to the challenge data structure described above.
 
@@ -100,26 +100,26 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 **Handling a malicious challenge**. If the counterparty submitted stale state that is [provably malicious](#provably-malicious-challenges), then the contract supports claiming this by submitting a provably newer state that convicts them and rewards the honest party (i.e., you in this case).
 
-## Resolutions
+## Outcomes
 
-After a challenge has been finalized, the `AppRegistry` can now be used to arrive at a resolution. In the Counterfactual protocols, it is the _resolution_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
+After a challenge has been finalized, the `AppRegistry` can now be used to arrive at an outcome. In the Counterfactual protocols, it is the _outcome_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
 
-### Setting a Resolution
+### Setting an Outcome
 
-**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `resolve` function of the corresponding `AppDefinition` to the challenge. The `resolve` method will return a `bytes` struct and that is then stored inside the contract permanently as the resolution of the application.
+**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `computeOutcome` function of the corresponding `AppDefinition` to the challenge. The `computeOutcome` method will return a `bytes` struct and that is then stored inside the contract permanently as the outcome of the application.
 
-**In the same transaction as finalizing a challenge.** A minor efficiency can be added here, but has not yet been implemented, which is that if the challenge can finalized unilaterally (either in initiation or in refutation) then it is possible to instantly set the resolution. There is an [issue tracking this on GitHub](https://github.com/counterfactual/monorepo/issues/1311).
+**In the same transaction as finalizing a challenge.** A minor efficiency can be added here, but has not yet been implemented, which is that if the challenge can finalized unilaterally (either in initiation or in refutation) then it is possible to instantly set the outcome. There is an [issue tracking this on GitHub](https://github.com/counterfactual/monorepo/issues/1311).
 
 ## Interpreters
 
-Interpreters read resolutions in order to produce an effect. The interpreter must be compatible with the resolve type of the application as defined in the[app definition](./app-definition.md).
+Interpreters read outcomes in order to produce an effect. The interpreter must be compatible with the outcome type of the application as defined in the[app definition](./app-definition.md).
 
 Two interpreters are currently defined, although more can be added independently by add
 
 - TwoPartyEthAsLump splits a fixed amount of ETH based on a TwoPartyOutcome. The parameters consist of two beneficiary addresses and the total amount of Eth, and the params are encoded as `tuple(address[2], uint256)`.
 - ETHInterpreter sends ETH based on an ETHTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
 
-The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After a resolution is stored, the adjudication layer allows a commitment to `StateChannelTransaction.sol:executeAppConditionalTransaction` call the intepreter on the resolution.
+The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After an outcome is stored, the adjudication layer allows a commitment to `StateChannelTransaction.sol:executeAppConditionalTransaction` call the intepreter on the outcome.
 
 ## FAQ
 
@@ -127,11 +127,11 @@ The interpreter used and the params to the interpreter are fixed per app instanc
 
 The core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
 
-**Can a resolution be part of the application state itself?**
+**Can an outcome be part of the application state itself?**
 
-From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the resolution of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the resolution has a dependancy on an external contract or the block number (i.e., a `view` function) then the resolution _must_ be separately resolved.
+From a conceptual point of view, we think it is important to separate these two concepts. However, from an engineering point of view it can be more efficient to group the two together in a single state object. To be specific, if the outcome of an off-chain application is a agnostic to blockchain state (i.e., `pure`) operation on the state of the application, then it is safe to group the two together. However, if the outcome has a dependancy on an external contract or the block number (i.e., a `view` function) then the outcome _must_ be separately computed at a later time on-chain.
 
-**Can participants unanimously resolve an on-chain challenge?**
+**Can participants sign new state off-chain during an on-chain challenge?**
 
 It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In the case of a state machine progression then there is a uniquely non-fault-attributable scenario that can occur:
 
@@ -152,6 +152,6 @@ The reason why the same version of the above scenario with `nonce` equal to `k +
 
 In this situation, honest party A holds a signed copy of state with nonce `k` signed by B and can initiate a challenge on the blockchain. However, it is possible that B did in fact receive the signed state with nonce `k + 1` and can then respond to the challenge with this. Therefore, we must require that a state put on chain have at least `k + 2` to be considered an attempt at a stale state attack.
 
-**Where is the mapping from app definition to resolve type stored?**
+**Where is the mapping from app definition to outcome type stored?**
 
 Currently, this is stored on the app definition contract. In the future, it should be stored off-chain.

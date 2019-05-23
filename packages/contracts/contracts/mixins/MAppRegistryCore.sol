@@ -10,8 +10,8 @@ contract MAppRegistryCore {
   // the current on-chain status of some particular application's state.
   mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
 
-  // A mapping of appIdentityHash to resolutions
-  mapping (bytes32 => bytes) public appResolutions;
+  // A mapping of appIdentityHash to outcomes
+  mapping (bytes32 => bytes) public appOutcomes;
 
   // A mapping of appIdentityHash to appInterpreters
   mapping (bytes32 => bytes32) public appInterpreters;

@@ -27,6 +27,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
   - [Solidity Packages](#solidity-packages)
   - [Typescript/Javascript Packages](#typescriptjavascript-packages)
 - [Contributing](#contributing)
+  - [Ethereum Networks](#ethereum-networks)
   - [Installing dependencies](#installing-dependencies)
   - [Building packages](#building-packages)
   - [Clean](#clean)
@@ -40,7 +41,7 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 | Package                                            | Version                                                                                                                       | Description                                                 |
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
-| [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state resolution mechanisms |
+| [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state channel logic |
 
 ### Typescript/Javascript Packages
 
