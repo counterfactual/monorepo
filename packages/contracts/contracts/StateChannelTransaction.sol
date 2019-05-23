@@ -54,7 +54,7 @@ contract StateChannelTransaction {
     // )));
 
     bytes memory payload = abi.encodeWithSignature(
-      "interpret(bytes,bytes)", outcome, interpreterParams
+      "interpretOutcomeAndExecuteEffect(bytes,bytes)", outcome, interpreterParams
     );
 
     // solium-disable-next-line no-unused-vars

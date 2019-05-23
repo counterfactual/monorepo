@@ -18,7 +18,12 @@ contract ETHInterpreter is Interpreter {
     uint256 limit;
   }
 
-  function interpret(bytes calldata input, bytes calldata params) external {
+  function interpretOutcomeAndExecuteEffect(
+    bytes calldata input,
+    bytes calldata params
+  )
+    external
+  {
 
     ETHTransfer[] memory transfers =
       abi.decode(input, (ETHTransfer[]));
