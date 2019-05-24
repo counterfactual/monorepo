@@ -1,4 +1,4 @@
-FROM resinci/npm-x86_64-ubuntu-node10
+FROM node:10.15.3-jessie
 
 # install solc binary
 RUN add-apt-repository ppa:ethereum/ethereum
