@@ -5,7 +5,7 @@ import {
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { HashZero } from "ethers/constants";
+import { HashZero, Zero } from "ethers/constants";
 import { defaultAbiCoder, solidityKeccak256, BigNumber } from "ethers/utils";
 
 import EthPaymentApp from "../build/EthPaymentApp.json";
@@ -13,26 +13,27 @@ import EthPaymentApp from "../build/EthPaymentApp.json";
 chai.use(waffle.solidity);
 
 type EthTransfer = {
-  
-}
+  to: string;
+  amount: BigNumber;
+};
 
 type EthPaymentAppState = {
+  transfers: EthTransfer[];
+};
 
-}
+type Action = {
+  paymentAmount: BigNumber;
+};
 
 const { expect } = chai;
 
-function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
+function mkAddress(prefix: string = "0xa"): string {
+  return prefix.padEnd(42, "0");
+}
+
+function decodeBytesToAppState(encodedAppState: string): EthPaymentAppState {
   return defaultAbiCoder.decode(
-    [
-      `tuple(
-        uint8 stage,
-        bytes32 salt,
-        bytes32 commitHash,
-        uint256 playerFirstNumber,
-        uint256 playerSecondNumber
-      )`
-    ],
+    [`tuple(tuple(address to, uint256 amount)[2] transfers)`],
     encodedAppState
   )[0];
 }
@@ -60,4 +61,52 @@ describe("EthPaymentApp", () => {
       encodeAction(action)
     );
   }
+
+  before(async () => {
+    const provider = waffle.createMockProvider();
+    const wallet = (await waffle.getWallets(provider))[0];
+    ethPaymentApp = await waffle.deployContract(wallet, EthPaymentApp);
+  });
+
+  describe("applyAction", () => {
+    it("can make payments", async () => {
+      const senderAddr = mkAddress("0xa");
+      const receiverAddr = mkAddress("0xb");
+      const senderAmt = new BigNumber(10000);
+      const paymentAmt1 = new BigNumber(10);
+      const paymentAmt2 = new BigNumber(20);
+      const preState: EthPaymentAppState = {
+        transfers: [
+          {
+            to: senderAddr,
+            amount: senderAmt
+          },
+          {
+            to: receiverAddr,
+            amount: Zero
+          }
+        ]
+      };
+
+      let action: Action = {
+        paymentAmount: paymentAmt1
+      };
+      let ret = await applyAction(preState, action);
+
+      let state = decodeBytesToAppState(ret);
+      expect(state.transfers[0].amount).to.eq(senderAmt.sub(paymentAmt1));
+      expect(state.transfers[1].amount).to.eq(paymentAmt1);
+
+      action = {
+        paymentAmount: paymentAmt2
+      };
+      ret = await applyAction(state, action);
+
+      state = decodeBytesToAppState(ret);
+      expect(state.transfers[0].amount).to.eq(
+        senderAmt.sub(paymentAmt1).sub(paymentAmt2)
+      );
+      expect(state.transfers[1].amount).to.eq(paymentAmt1.add(paymentAmt2));
+    });
+  });
 });
