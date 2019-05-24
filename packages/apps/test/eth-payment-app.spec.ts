@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { OutcomeType, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
