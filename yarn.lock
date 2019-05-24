@@ -1215,10 +1215,10 @@
   dependencies:
     tslib "1.9.3"
 
-"@firebase/util@0.2.16":
-  version "0.2.16"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.16.tgz#3794f0def8b33d67f48adbe29d204b47f97d972f"
-  integrity sha512-IgmQzxIqHqyWC3RPlhm01zq0AReDzQij7qG+GtOMbSwFcplyyrW3lD+rxaobrxYzrZA/uMen5yEVGijyTCGmzA==
+"@firebase/util@0.2.17":
+  version "0.2.17"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.17.tgz#d2ba0b921ce0ff6de5dce3f155f1f957426e0929"
+  integrity sha512-RvHkhQUkihI4JafJmB7S7Q8qVDFPD+kQdSmUyVTR2sEzxkk92MsIq4dBYnSjOMmnCe7L5lmB6hJdzkHa/TAP5A==
   dependencies:
     tslib "1.9.3"
 
@@ -2264,15 +2264,6 @@
     "@resolver-engine/core" "^0.3.0"
     debug "^3.1.0"
     hosted-git-info "^2.6.0"
-
-"@stencil/core@0.18.1-0":
-  version "0.18.1-0"
-  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.18.1-0.tgz#75f3a6afc19bb161bd6845043ff17410a2288304"
-  integrity sha512-Mcwf9tqSeNuA7MdAFwD+Au4hSteqsLPtn9yBGBWGMbIBGwggtKgUiCsPobqzwwIm8rCCSI5QvcsbaeeehUsGIA==
-  dependencies:
-    chokidar "2.0.3"
-    jsdom "11.11.0"
-    typescript "3.3.3"
 
 "@stencil/core@0.18.1-0":
   version "0.18.1-0"
