@@ -31,7 +31,7 @@ contract EthPaymentApp is CounterfactualApp {
     return state.transfers[0].to;
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     pure
     returns (bytes memory)
@@ -80,11 +80,11 @@ contract EthPaymentApp is CounterfactualApp {
     return true;
   }
 
-  function resolveType()
+  function outcomeType()
     external
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
   }
 }

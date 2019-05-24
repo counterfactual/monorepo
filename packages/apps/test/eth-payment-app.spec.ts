@@ -1,12 +1,9 @@
-import {
-  SolidityABIEncoderV2Type,
-  TwoPartyOutcome
-} from "@counterfactual/types";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
-import { defaultAbiCoder, solidityKeccak256, BigNumber } from "ethers/utils";
+import { Zero } from "ethers/constants";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import EthPaymentApp from "../build/EthPaymentApp.json";
 
@@ -62,6 +59,15 @@ describe("EthPaymentApp", () => {
     );
   }
 
+  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+    const [decodedResult] = defaultAbiCoder.decode(
+      ["uint256"],
+      await ethPaymentApp.functions.computeOutcome(encodeState(state))
+    );
+    console.log("decodedResult: ", decodedResult);
+    return decodedResult;
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -107,6 +113,26 @@ describe("EthPaymentApp", () => {
         senderAmt.sub(paymentAmt1).sub(paymentAmt2)
       );
       expect(state.transfers[1].amount).to.eq(paymentAmt1.add(paymentAmt2));
+    });
+
+    it("can compute the outcome", async () => {
+      const senderAddr = mkAddress("0xa");
+      const receiverAddr = mkAddress("0xb");
+      const senderAmt = new BigNumber(10000);
+      const preState: EthPaymentAppState = {
+        transfers: [
+          {
+            to: senderAddr,
+            amount: senderAmt
+          },
+          {
+            to: receiverAddr,
+            amount: Zero
+          }
+        ]
+      };
+
+      expect(await computeOutcome(preState)).to.eq(OutcomeType.ETH_TRANSFER);
     });
   });
 });
