@@ -7,7 +7,7 @@ import {
 import { AddressZero } from "ethers/constants";
 import { bigNumberify, BigNumberish } from "ethers/utils";
 
-import { ETHVirtualAppAgreementCommitment } from "../ethereum/eth-virtual-app-agreement-commitment";
+import { TwoPartyVirtualEthAsLumpCommitment } from "../ethereum/two-party-virtual-eth-as-lump-commitment";
 import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import { Opcode } from "../machine/enums";
 import {
@@ -20,8 +20,8 @@ import { virtualChannelKey } from "../machine/virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 import {
   AppInstance,
-  ETHVirtualAppAgreementInstance,
-  StateChannel
+  StateChannel,
+  TwoPartyVirtualEthAsLumpInstance
 } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
@@ -248,7 +248,7 @@ function createAndAddTarget(
 function proposeStateTransition1(
   params: ProtocolParameters,
   context: Context
-): [ETHVirtualAppAgreementCommitment, VirtualAppSetStateCommitment] {
+): [TwoPartyVirtualEthAsLumpCommitment, VirtualAppSetStateCommitment] {
   const {
     defaultTimeout,
     appInterface,
@@ -287,7 +287,7 @@ function proposeStateTransition1(
   const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
-  const leftETHVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
+  const leftETHVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithIntermediary.multisigAddress,
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
@@ -298,7 +298,7 @@ function proposeStateTransition1(
     intermediaryAddress
   );
 
-  const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
+  const newStateChannel = channelWithIntermediary.installTwoPartyVirtualEthAsLumpInstances(
     leftETHVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -311,7 +311,7 @@ function proposeStateTransition1(
     newStateChannel
   );
 
-  const leftCommitment = constructETHVirtualAppAgreementCommitment(
+  const leftCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,
     newStateChannel,
     targetAppInstance.identityHash,
@@ -335,8 +335,8 @@ function proposeStateTransition2(
 ): [
   StateChannel,
   StateChannel,
-  ETHVirtualAppAgreementCommitment,
-  ETHVirtualAppAgreementCommitment,
+  TwoPartyVirtualEthAsLumpCommitment,
+  TwoPartyVirtualEthAsLumpCommitment,
   VirtualAppSetStateCommitment
 ] {
   const {
@@ -386,7 +386,7 @@ function proposeStateTransition2(
     );
   }
 
-  const leftEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
+  const leftEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithInitiating.multisigAddress,
     channelWithInitiating.numInstalledApps,
     channelWithInitiating.rootNonceValue,
@@ -397,7 +397,7 @@ function proposeStateTransition2(
     xkeyKthAddress(intermediaryXpub, 0)
   );
 
-  const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
+  const rightEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithResponding.multisigAddress,
     channelWithResponding.numInstalledApps,
     channelWithResponding.rootNonceValue,
@@ -412,7 +412,7 @@ function proposeStateTransition2(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
   const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-  const newChannelWithInitiating = channelWithInitiating.installETHVirtualAppAgreementInstance(
+  const newChannelWithInitiating = channelWithInitiating.installTwoPartyVirtualEthAsLumpInstances(
     leftEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -421,7 +421,7 @@ function proposeStateTransition2(
     }
   );
 
-  const newChannelWithResponding = channelWithResponding.installETHVirtualAppAgreementInstance(
+  const newChannelWithResponding = channelWithResponding.installTwoPartyVirtualEthAsLumpInstances(
     rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -430,14 +430,14 @@ function proposeStateTransition2(
     }
   );
 
-  const leftCommitment = constructETHVirtualAppAgreementCommitment(
+  const leftCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,
     newChannelWithInitiating,
     targetAppInstance.identityHash,
     leftEthVirtualAppAgreementInstance
   );
 
-  const rightCommitment = constructETHVirtualAppAgreementCommitment(
+  const rightCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,
     newChannelWithResponding,
     targetAppInstance.identityHash,
@@ -464,7 +464,7 @@ function proposeStateTransition2(
 function proposeStateTransition3(
   params: ProtocolParameters,
   context: Context
-): [ETHVirtualAppAgreementCommitment, VirtualAppSetStateCommitment] {
+): [TwoPartyVirtualEthAsLumpCommitment, VirtualAppSetStateCommitment] {
   const {
     defaultTimeout,
     appInterface,
@@ -500,7 +500,7 @@ function proposeStateTransition3(
     );
   }
 
-  const rightEthVirtualAppAgreementInstance = new ETHVirtualAppAgreementInstance(
+  const rightEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithIntermediary.multisigAddress,
     channelWithIntermediary.numInstalledApps,
     channelWithIntermediary.rootNonceValue,
@@ -514,7 +514,7 @@ function proposeStateTransition3(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
   const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-  const newStateChannel = channelWithIntermediary.installETHVirtualAppAgreementInstance(
+  const newStateChannel = channelWithIntermediary.installTwoPartyVirtualEthAsLumpInstances(
     rightEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -527,7 +527,7 @@ function proposeStateTransition3(
     newStateChannel
   );
 
-  const rightCommitment = constructETHVirtualAppAgreementCommitment(
+  const rightCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,
     newStateChannel,
     targetAppInstance.identityHash,
@@ -545,15 +545,15 @@ function proposeStateTransition3(
   return [rightCommitment, virtualAppSetStateCommitment];
 }
 
-function constructETHVirtualAppAgreementCommitment(
+function constructTwoPartyVirtualEthAsLumpCommitment(
   network: NetworkContext,
   stateChannel: StateChannel,
   targetHash: string,
-  ethVirtualAppAgreementInstance: ETHVirtualAppAgreementInstance
+  ethVirtualAppAgreementInstance: TwoPartyVirtualEthAsLumpInstance
 ) {
   const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
 
-  return new ETHVirtualAppAgreementCommitment(
+  return new TwoPartyVirtualEthAsLumpCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,

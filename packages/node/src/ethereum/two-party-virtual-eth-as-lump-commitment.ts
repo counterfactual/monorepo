@@ -8,7 +8,7 @@ import { MultisigOperation, MultisigTransaction } from "./types";
 
 const iface = new Interface(TwoPartyVirtualEthAsLump.abi);
 
-export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
+export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
   constructor(
     public readonly networkContext: NetworkContext,
     public readonly multisig: string,

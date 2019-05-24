@@ -9,7 +9,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { SetStateCommitment } from "../../../src/ethereum";
-import { ETHVirtualAppAgreementCommitment } from "../../../src/ethereum/eth-virtual-app-agreement-commitment";
+import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 
@@ -101,7 +101,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         Wallet.createRandom().address
       ];
 
-      const commitment = new ETHVirtualAppAgreementCommitment(
+      const commitment = new TwoPartyVirtualEthAsLumpCommitment(
         network, // network
         proxyAddress, // multisigAddress
         multisigOwnerKeys.map(x => x.address), // signing
