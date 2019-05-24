@@ -311,7 +311,7 @@ class PostgresStoreService implements IStoreService {
     return true;
   }
 
-  async get(key: string): Promise<StringKeyValue | string> {
+  async get(key: string): Promise<StringKeyValue | string | undefined> {
     const storeKey = `${this.storeServiceKey}_${key}`;
     const res = await this.connectionMgr
       .get()
