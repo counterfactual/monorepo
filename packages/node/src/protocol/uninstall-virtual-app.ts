@@ -340,11 +340,11 @@ async function addRightUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
@@ -391,11 +391,11 @@ async function addLeftUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(respondingXpub)],

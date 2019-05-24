@@ -16,9 +16,9 @@ import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
-  ETHVirtualAppAgreementInstance,
-  ETHVirtualAppAgreementJson
-} from "./eth-virtual-app-agreement-instance";
+  TwoPartyVirtualEthAsLumpInstance,
+  TwoPartyVirtualEthAsLumpInstanceJson
+} from "./two-party-virtual-eth-as-lump-instance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 const HARD_CODED_ASSUMPTIONS = {
@@ -54,9 +54,9 @@ export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly userNeuteredExtendedKeys: string[];
   readonly appInstances: [string, AppInstanceJson][];
-  readonly ETHVirtualAppAgreementInstances: [
+  readonly twoPartyVirtualEthAsLumpInstances: [
     string,
-    ETHVirtualAppAgreementJson
+    TwoPartyVirtualEthAsLumpInstanceJson
   ][];
   readonly freeBalanceAppIndexes: [number, string][];
   readonly monotonicNumInstalledApps: number;
@@ -113,10 +113,10 @@ export class StateChannel {
       string,
       AppInstance
     >([]),
-    readonly ethVirtualAppAgreementInstances: ReadonlyMap<
+    readonly twoPartyVirtualEthAsLumpInstances: ReadonlyMap<
       string,
-      ETHVirtualAppAgreementInstance
-    > = new Map<string, ETHVirtualAppAgreementInstance>([]),
+      TwoPartyVirtualEthAsLumpInstance
+    > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
     private readonly freeBalanceAppIndexes: ReadonlyMap<
       AssetType,
       string
@@ -292,7 +292,7 @@ export class StateChannel {
       multisigAddress,
       userNeuteredExtendedKeys,
       appInstances,
-      new Map<string, ETHVirtualAppAgreementInstance>(),
+      new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
       freeBalanceAppIndexes,
       1
     );
@@ -306,7 +306,7 @@ export class StateChannel {
       multisigAddress,
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
-      new Map<string, ETHVirtualAppAgreementInstance>(),
+      new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
       new Map<AssetType, string>(),
       1
     );
@@ -330,7 +330,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
@@ -354,7 +354,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
@@ -378,7 +378,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
@@ -386,15 +386,15 @@ export class StateChannel {
     );
   }
 
-  public installETHVirtualAppAgreementInstance(
-    evaaInstance: ETHVirtualAppAgreementInstance,
+  public installTwoPartyVirtualEthAsLumpInstances(
+    evaaInstance: TwoPartyVirtualEthAsLumpInstance,
     targetIdentityHash: string,
     decrements: { [s: string]: BigNumber }
   ) {
-    // Add to ethVirtualAppAgreementInstances
+    // Add to twoPartyVirtualEthAsLumpInstances
 
-    const evaaInstances = new Map<string, ETHVirtualAppAgreementInstance>(
-      this.ethVirtualAppAgreementInstances.entries()
+    const evaaInstances = new Map<string, TwoPartyVirtualEthAsLumpInstance>(
+      this.twoPartyVirtualEthAsLumpInstances.entries()
     );
 
     evaaInstances.set(targetIdentityHash, evaaInstance);
@@ -411,16 +411,16 @@ export class StateChannel {
     ).incrementFreeBalance(AssetType.ETH, flip(decrements));
   }
 
-  public uninstallETHVirtualAppAgreementInstance(
+  public uninstallTwoPartyVirtualEthAsLumpInstance(
     targetIdentityHash: string,
     increments: { [addr: string]: BigNumber }
   ) {
-    const ethVirtualAppAgreementInstances = new Map<
+    const twoPartyVirtualEthAsLumpInstances = new Map<
       string,
-      ETHVirtualAppAgreementInstance
-    >(this.ethVirtualAppAgreementInstances.entries());
+      TwoPartyVirtualEthAsLumpInstance
+    >(this.twoPartyVirtualEthAsLumpInstances.entries());
 
-    if (!ethVirtualAppAgreementInstances.delete(targetIdentityHash)) {
+    if (!twoPartyVirtualEthAsLumpInstances.delete(targetIdentityHash)) {
       throw Error(
         `cannot find agreement with target hash ${targetIdentityHash}`
       );
@@ -430,7 +430,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       this.appInstances,
-      ethVirtualAppAgreementInstances,
+      twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
@@ -449,7 +449,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
@@ -486,7 +486,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
@@ -522,7 +522,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.ethVirtualAppAgreementInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppIndexes,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
@@ -530,10 +530,10 @@ export class StateChannel {
     ).incrementFreeBalance(AssetType.ETH, increments);
   }
 
-  public getETHVirtualAppAgreementInstanceFromTarget(
+  public getTwoPartyVirtualEthAsLumpFromTarget(
     target: string
-  ): ETHVirtualAppAgreementInstance {
-    for (const [{}, instance] of this.ethVirtualAppAgreementInstances) {
+  ): TwoPartyVirtualEthAsLumpInstance {
+    for (const [{}, instance] of this.twoPartyVirtualEthAsLumpInstances) {
       if (instance.targetAppIdentityHash === target) {
         return instance;
       }
@@ -554,10 +554,10 @@ export class StateChannel {
       ),
       freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
       monotonicNumInstalledApps: this.monotonicNumInstalledApps,
-      ETHVirtualAppAgreementInstances: [
-        ...this.ethVirtualAppAgreementInstances.entries()
+      twoPartyVirtualEthAsLumpInstances: [
+        ...this.twoPartyVirtualEthAsLumpInstances.entries()
       ].map(
-        (appInstanceEntry): [string, ETHVirtualAppAgreementJson] => {
+        (appInstanceEntry): [string, TwoPartyVirtualEthAsLumpInstanceJson] => {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
         }
       ),
@@ -581,11 +581,11 @@ export class StateChannel {
         )
       ),
       new Map(
-        [...Object.values(json.ETHVirtualAppAgreementInstances || [])].map(
-          (appInstanceEntry): [string, ETHVirtualAppAgreementInstance] => {
+        [...Object.values(json.twoPartyVirtualEthAsLumpInstances || [])].map(
+          (appInstanceEntry): [string, TwoPartyVirtualEthAsLumpInstance] => {
             return [
               appInstanceEntry[0],
-              ETHVirtualAppAgreementInstance.fromJson(appInstanceEntry[1])
+              TwoPartyVirtualEthAsLumpInstance.fromJson(appInstanceEntry[1])
             ];
           }
         )

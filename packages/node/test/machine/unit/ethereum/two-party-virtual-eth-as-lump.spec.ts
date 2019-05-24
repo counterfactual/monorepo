@@ -12,7 +12,7 @@ import {
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { ETHVirtualAppAgreementCommitment } from "../../../../src/ethereum/eth-virtual-app-agreement-commitment";
+import { TwoPartyVirtualEthAsLumpCommitment } from "../../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { Transaction } from "../../../../src/ethereum/types";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
 import { StateChannel } from "../../../../src/models";
@@ -24,7 +24,7 @@ import { generateRandomNetworkContext } from "../../mocks";
  * https://specs.counterfactual.com/09-install-virtual-app-protocol
  */
 describe("ETH Virtual App Agreement Commitment", () => {
-  let commitment: ETHVirtualAppAgreementCommitment;
+  let commitment: TwoPartyVirtualEthAsLumpCommitment;
   let tx: Transaction;
 
   const networkContext = generateRandomNetworkContext();
@@ -58,7 +58,7 @@ describe("ETH Virtual App Agreement Commitment", () => {
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
 
   beforeAll(() => {
-    commitment = new ETHVirtualAppAgreementCommitment(
+    commitment = new TwoPartyVirtualEthAsLumpCommitment(
       networkContext,
       multisigAddress,
       stateChannel.multisigOwners,
