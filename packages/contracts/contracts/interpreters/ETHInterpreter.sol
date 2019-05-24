@@ -25,11 +25,11 @@ contract ETHInterpreter is Interpreter {
     external
   {
 
-    ETHTransfer[] memory transfers =
-      abi.decode(input, (ETHTransfer[]));
+    ETHTransfer[] memory transfers = abi.decode(input, (ETHTransfer[]));
+
     uint256 limitRemaining = abi.decode(params, (Param)).limit;
 
-    for (uint i=0; i<transfers.length; i++) {
+    for (uint256 i = 0; i < transfers.length; i++) {
       address payable to = address(uint160(transfers[i].to));
       uint256 amount = transfers[i].amount;
 

@@ -2280,6 +2280,15 @@
     jsdom "11.11.0"
     typescript "3.3.3"
 
+"@stencil/core@0.18.1-0":
+  version "0.18.1-0"
+  resolved "https://registry.npmjs.org/@stencil/core/-/core-0.18.1-0.tgz#75f3a6afc19bb161bd6845043ff17410a2288304"
+  integrity sha512-Mcwf9tqSeNuA7MdAFwD+Au4hSteqsLPtn9yBGBWGMbIBGwggtKgUiCsPobqzwwIm8rCCSI5QvcsbaeeehUsGIA==
+  dependencies:
+    chokidar "2.0.3"
+    jsdom "11.11.0"
+    typescript "3.3.3"
+
 "@stencil/router@0.3.3":
   version "0.3.3"
   resolved "https://registry.yarnpkg.com/@stencil/router/-/router-0.3.3.tgz#e4e0fe6e7ff553832e95ac50b9c2c34a98b457a8"

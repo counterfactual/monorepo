@@ -31,10 +31,9 @@ contract ETHBalanceRefundApp {
   function outcomeType()
     external
     pure
-    returns (uint256)
+    returns (Interpreter.OutcomeType)
   {
-    return 1;
+    return Interpreter.OutcomeType.ETH_TRANSFER;
   }
-
 
 }
