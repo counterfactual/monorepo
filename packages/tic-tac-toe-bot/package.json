@@ -31,13 +31,13 @@
   },
   "dependencies": {
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
-    "@counterfactual/node": "0.1.17",
+    "@counterfactual/node": "0.1.18",
     "@counterfactual/types": "^0.0.9",
     "eventemitter3": "^3.1.2"
   },
   "devDependencies": {
     "env-cmd": "9.0.1",
-    "ethers": "4.0.27",
+    "ethers": "4.0.28",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
     "ts-node": "8.1.0",
