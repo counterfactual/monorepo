@@ -287,10 +287,6 @@ class PostgresStoreService implements IStoreService {
     pairs: { key: string; value: any }[],
     allowDelete?: Boolean
   ): Promise<boolean> {
-    if (!allowDelete && containsNull(pairs)) {
-      throw new Error(WRITE_NULL_TO_FIREBASE);
-    }
-
     const connection = this.connectionMgr.get();
 
     await connection.transaction(async transactionalEntityManager => {
