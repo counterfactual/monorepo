@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground-server",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "A backend for the Playground app.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
