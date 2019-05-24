@@ -1,12 +1,12 @@
 graph LR
     subgraph ConditionalTransaction
-        executeAppConditionalTransaction
-        executeAppConditionalTransaction.->REGISTRY
-        executeAppConditionalTransaction.->NONCE_REGISTRY
-        executeAppConditionalTransaction.->uninstallKey
-        executeAppConditionalTransaction.->freeBalanceCfAddress
-        executeAppConditionalTransaction.->terms
+        executeEffectOfInterprettedAppOutcome
+        executeEffectOfInterprettedAppOutcome.->REGISTRY
+        executeEffectOfInterprettedAppOutcome.->NONCE_REGISTRY
+        executeEffectOfInterprettedAppOutcome.->uninstallKey
+        executeEffectOfInterprettedAppOutcome.->freeBalanceCfAddress
+        executeEffectOfInterprettedAppOutcome.->terms
     end
     subgraph Multisig
-        execTransaction-->executeAppConditionalTransaction
+        execTransaction-->executeEffectOfInterprettedAppOutcome
     end

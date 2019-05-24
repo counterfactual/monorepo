@@ -1,14 +1,14 @@
 graph LR
     subgraph ConditionalTransaction
-        executeAppConditionalTransaction
-        executeAppConditionalTransaction.->REGISTRY
-        executeAppConditionalTransaction.->NONCE_REGISTRY
-        executeAppConditionalTransaction.->uninstallKey
-        executeAppConditionalTransaction.->rootNonceKey
-        executeAppConditionalTransaction.->rootKey["rootNonce (r + 1)"]
-        executeAppConditionalTransaction.->appCfAddress
-        executeAppConditionalTransaction.->terms
+        executeEffectOfInterprettedAppOutcome
+        executeEffectOfInterprettedAppOutcome.->REGISTRY
+        executeEffectOfInterprettedAppOutcome.->NONCE_REGISTRY
+        executeEffectOfInterprettedAppOutcome.->uninstallKey
+        executeEffectOfInterprettedAppOutcome.->rootNonceKey
+        executeEffectOfInterprettedAppOutcome.->rootKey["rootNonce (r + 1)"]
+        executeEffectOfInterprettedAppOutcome.->appCfAddress
+        executeEffectOfInterprettedAppOutcome.->terms
     end
     subgraph Multisig
-        execTransaction-->executeAppConditionalTransaction
+        execTransaction-->executeEffectOfInterprettedAppOutcome
     end
