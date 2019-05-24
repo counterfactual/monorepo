@@ -40,7 +40,7 @@ The cleanup protocol is a protocol that is periodically run to update the depend
 
 **Commitments for `CleanupInstall` and `CleanupInstallAck`**:
 
-For each active application, a similar commitment to the one described in the [Install Protocol](#install-protocol) must be generated. The commitment calls `executeAppConditionalTransaction` with a limit of `c_1 + c_2` and a expected root nonce key of `r + 1`. Note that this is different from the install commitment in that it is not a multisend and does not set the free balance. Note that the free balance is also considered an active app. Here is an example of a commitment for a given app:
+For each active application, a similar commitment to the one described in the [Install Protocol](#install-protocol) must be generated. The commitment calls `executeEffectOfInterpretedAppOutcome` with a limit of `c_1 + c_2` and a expected root nonce key of `r + 1`. Note that this is different from the install commitment in that it is not a multisend and does not set the free balance. Note that the free balance is also considered an active app. Here is an example of a commitment for a given app:
 
 ```eval_rst
 .. mermaid:: ../diagrams/cleanup-protocol-commitment1.mmd
