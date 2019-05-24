@@ -72,9 +72,9 @@ describe("SetupCommitment", () => {
       desc = iface.parseTransaction({ data });
     });
 
-    it("should be to the executeEffectOfInterprettedAppOutcome method", () => {
+    it("should be to the executeEffectOfInterpretedAppOutcome method", () => {
       expect(desc.sighash).toBe(
-        iface.functions.executeEffectOfInterprettedAppOutcome.sighash
+        iface.functions.executeEffectOfInterpretedAppOutcome.sighash
       );
     });
 

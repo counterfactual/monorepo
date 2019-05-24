@@ -14,7 +14,7 @@ contract StateChannelTransaction {
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param uninstallKey The key in the nonce registry
   /// @param appIdentityHash AppIdentityHash to be resolved
-  function executeEffectOfInterprettedAppOutcome(
+  function executeEffectOfInterpretedAppOutcome(
     AppRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
@@ -58,7 +58,7 @@ contract StateChannelTransaction {
 
     require(
       success,
-      "Execution of executeEffectOfInterprettedAppOutcome failed"
+      "Execution of executeEffectOfInterpretedAppOutcome failed"
     );
   }
 
