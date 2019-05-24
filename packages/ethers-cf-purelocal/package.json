@@ -1,0 +1,16 @@
+{
+  "name": "ethers-cf-purelocal",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "tsc && node test.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@counterfactual/contracts": "0.0.3",
+    "ethereumjs-vm": "^3.0.0",
+    "ethers": "^4.0.27"
+  }
+}
