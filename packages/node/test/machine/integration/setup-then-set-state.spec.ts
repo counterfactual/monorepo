@@ -13,12 +13,7 @@ import { StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
-
-// To be honest, 30000 is an arbitrary large number that has never failed
-// to reach the done() call in the test case, not intelligently chosen
-const JEST_TEST_WAIT_TIME = 30000;
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -31,7 +26,6 @@ const SETUP_COMMITMENT_GAS = 6e9;
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
-let networkId: number;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
@@ -40,10 +34,8 @@ let appRegistry: Contract;
 expect.extend({ toBeEq });
 
 beforeAll(async () => {
-  [provider, wallet, networkId] = await connectToGanache();
-
-  network = makeNetworkContext(networkId);
-
+  [provider, wallet, {}] = await connectToGanache();
+  network = global["networkContext"];
   appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });
 
@@ -51,8 +43,6 @@ beforeAll(async () => {
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("Scenario: Setup, set state on free balance, go on chain", () => {
-  jest.setTimeout(JEST_TEST_WAIT_TIME);
-
   it("should distribute funds in ETH free balance when put on chain", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -101,18 +91,16 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         await provider.send("evm_mine", []);
       }
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState,
-        freeBalanceETH.encodedTerms
+        freeBalanceETH.encodedLatestState
       );
 
       const setupCommitment = new SetupCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).terms
+        stateChannel.getFreeBalanceFor(AssetType.ETH).identity
       );
 
       const setupTx = setupCommitment.transaction([

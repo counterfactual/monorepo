@@ -1,41 +1,10 @@
 import { AppIdentity } from "@counterfactual/types";
 import * as chai from "chai";
 import { solidity } from "ethereum-waffle";
+import { HashZero } from "ethers/constants";
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
-
-export enum AssetType {
-  ETH,
-  ERC20,
-  ANY
-}
-
-export class Terms {
-  private static readonly ABI_ENCODER_V2_ENCODING =
-    "tuple(uint8 assetType, uint256 limit, address token)";
-
-  constructor(
-    readonly assetType: AssetType,
-    readonly limit: number,
-    readonly token: string
-  ) {}
-
-  public hashOfPackedEncoding(): string {
-    return keccak256(
-      defaultAbiCoder.encode(
-        [Terms.ABI_ENCODER_V2_ENCODING],
-        [
-          {
-            assetType: this.assetType,
-            limit: this.limit,
-            token: this.token
-          }
-        ]
-      )
-    );
-  }
-}
 
 // TS version of MAppRegistryCore::computeAppChallengeHash
 export const computeAppChallengeHash = (
@@ -57,12 +26,12 @@ export const computeActionHash = (
   previousState: string,
   action: string,
   setStateNonce: number,
-  disputeNonce: number
+  challengeNonce: number
 ) =>
   keccak256(
     solidityPack(
       ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
-      ["0x19", turnTaker, previousState, action, setStateNonce, disputeNonce]
+      ["0x19", turnTaker, previousState, action, setStateNonce, challengeNonce]
     )
   );
 
@@ -75,8 +44,7 @@ export class AppInstance {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
-      appDefinitionAddress: this.appDefinitionAddress,
-      termsHash: this.terms.hashOfPackedEncoding(),
+      appDefinition: this.appDefinition,
       defaultTimeout: this.defaultTimeout
     };
   }
@@ -84,11 +52,11 @@ export class AppInstance {
   constructor(
     readonly owner: string,
     readonly signingKeys: string[],
-    readonly appDefinitionAddress: string,
-    readonly terms: Terms,
+    readonly appDefinition: string,
     readonly defaultTimeout: number
   ) {}
 
+  // appIdentity
   public hashOfEncoding(): string {
     return keccak256(
       defaultAbiCoder.encode(
@@ -96,8 +64,7 @@ export class AppInstance {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appDefinitionAddress,
-            bytes32 termsHash,
+            address appDefinition,
             uint256 defaultTimeout
           )`
         ],

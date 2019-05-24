@@ -41,8 +41,9 @@ contract MixinSetState is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.ON,
-      "setState was called on an app that is either in DISPUTE or OFF"
+      challenge.status == AppStatus.ON ||
+      (challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number),
+      "setState was called on an app that has already been finalized"
     );
 
     if (msg.sender != appIdentity.owner) {
@@ -61,12 +62,12 @@ contract MixinSetState is
       "Tried to call setState with an outdated nonce version"
     );
 
-    challenge.status = req.timeout > 0 ? AppStatus.DISPUTE : AppStatus.OFF;
+    challenge.status = req.timeout > 0 ? AppStatus.IN_CHALLENGE : AppStatus.OFF;
     challenge.appStateHash = req.appStateHash;
     challenge.nonce = req.nonce;
     challenge.finalizesAt = block.number + req.timeout;
-    challenge.disputeNonce = 0;
-    challenge.disputeCounter += 1;
+    challenge.challengeNonce = 0;
+    challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
 

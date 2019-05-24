@@ -3,6 +3,7 @@ import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
+import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
@@ -16,7 +17,7 @@ describe("StateChannel::uninstallApp", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const userNeuteredExtendedKeys = [
+    const xpubs = [
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
       fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
     ];
@@ -24,14 +25,20 @@ describe("StateChannel::uninstallApp", () => {
     sc1 = StateChannel.setupChannel(
       networkContext.ETHBucket,
       multisigAddress,
-      userNeuteredExtendedKeys
+      xpubs
     );
 
     testApp = createAppInstance(sc1);
 
-    sc1 = sc1.installApp(testApp, Zero, Zero);
+    sc1 = sc1.installApp(testApp, {
+      [xkeyKthAddress(xpubs[0], 0)]: Zero,
+      [xkeyKthAddress(xpubs[1], 0)]: Zero
+    });
 
-    sc2 = sc1.uninstallApp(testApp.identityHash, Zero, Zero);
+    sc2 = sc1.uninstallApp(testApp.identityHash, {
+      [xkeyKthAddress(xpubs[0], 0)]: Zero,
+      [xkeyKthAddress(xpubs[1], 0)]: Zero
+    });
   });
 
   it("should not alter any of the base properties", () => {
@@ -59,9 +66,10 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const { aliceBalance, bobBalance } = fb.state as ETHBucketAppState;
-      expect(aliceBalance).toEqual(Zero);
-      expect(bobBalance).toEqual(Zero);
+      const fbState = fb.state as ETHBucketAppState;
+      for (const { amount } of fbState) {
+        expect(amount).toEqual(Zero);
+      }
     });
   });
 });

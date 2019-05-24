@@ -4,6 +4,7 @@ import {
   NetworkContext
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -18,8 +19,12 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { validateSignature } from "./utils/signature-validator";
+
+const zA = (xpub: string) => {
+  return fromExtendedKey(xpub).derivePath("0").address;
+};
 
 export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
@@ -64,7 +69,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s6 } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s4
@@ -113,7 +118,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m4
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s3,
@@ -136,7 +141,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s5
@@ -155,7 +160,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m7
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -191,7 +196,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m3
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s3
@@ -212,7 +217,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s7
@@ -295,7 +300,6 @@ function constructUninstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.state as ETHBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
@@ -324,6 +328,7 @@ async function addRightUninstallAgreementToContext(
   const metachannel = context.stateChannelsMap.get(key) as StateChannel;
 
   const increments = await computeFreeBalanceIncrements(
+    context.network,
     metachannel,
     targetAppIdentityHash,
     provider
@@ -342,8 +347,8 @@ async function addRightUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [intermediaryXpub]: increments[xkeyKthAddress(initiatingXpub, 0)],
-      [respondingXpub]: increments[xkeyKthAddress(respondingXpub, 0)]
+      [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
+      [zA(respondingXpub)]: increments[zA(respondingXpub)]
     }
   );
 
@@ -374,6 +379,7 @@ async function addLeftUninstallAgreementToContext(
   const metachannel = context.stateChannelsMap.get(key) as StateChannel;
 
   const increments = await computeFreeBalanceIncrements(
+    context.network,
     metachannel,
     targetAppIdentityHash,
     provider
@@ -392,8 +398,8 @@ async function addLeftUninstallAgreementToContext(
   const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
     targetAppIdentityHash,
     {
-      [intermediaryXpub]: increments[xkeyKthAddress(respondingXpub, 0)],
-      [initiatingXpub]: increments[xkeyKthAddress(initiatingXpub, 0)]
+      [zA(intermediaryXpub)]: increments[zA(respondingXpub)],
+      [zA(initiatingXpub)]: increments[zA(initiatingXpub)]
     }
   );
 

@@ -173,29 +173,31 @@ export class Node {
       makeSigner(true)
     );
 
-    instructionExecutor.register(Opcode.IO_SEND, async (args: any[]) => {
-      const [data] = args;
-      const fromXpub = this.publicIdentifier;
-      const to = data.toXpub;
-
-      await this.messagingService.send(to, {
-        data,
-        from: fromXpub,
-        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-      } as NodeMessageWrappedProtocolMessage);
-    });
-
     instructionExecutor.register(
-      Opcode.IO_SEND_AND_WAIT,
-      async (args: any[]) => {
+      Opcode.IO_SEND,
+      async (args: [ProtocolMessage]) => {
         const [data] = args;
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
-        const key = this.encodeProtocolMessage(fromXpub, data);
+        await this.messagingService.send(to, {
+          data,
+          from: fromXpub,
+          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+        } as NodeMessageWrappedProtocolMessage);
+      }
+    );
+
+    instructionExecutor.register(
+      Opcode.IO_SEND_AND_WAIT,
+      async (args: [ProtocolMessage]) => {
+        const [data] = args;
+        const fromXpub = this.publicIdentifier;
+        const to = data.toXpub;
+
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
-        this.ioSendDeferrals.set(key, deferral);
+        this.ioSendDeferrals.set(data.protocolExecutionID, deferral);
 
         const counterpartyResponse = deferral.promise;
 
@@ -219,7 +221,7 @@ export class Node {
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        this.ioSendDeferrals.delete(key);
+        this.ioSendDeferrals.delete(data.protocolExecutionID);
 
         return msg.data;
       }
@@ -343,7 +345,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(this.encodeProtocolMessage(msg.from, msg.data));
+      this.ioSendDeferrals.has(msg.data.protocolExecutionID);
 
     if (
       isProtocolMessage(msg) &&
@@ -356,7 +358,7 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = this.encodeProtocolMessage(msg.from, msg.data);
+    const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
       throw Error(
@@ -374,14 +376,6 @@ export class Node {
         { error, msg }
       );
     }
-  }
-
-  private encodeProtocolMessage(fromXpub: string, msg: ProtocolMessage) {
-    return JSON.stringify({
-      protocol: msg.protocol,
-      fromto: [fromXpub, msg.toXpub].sort().toString(),
-      params: JSON.stringify(msg.params, Object.keys(msg.params).sort())
-    });
   }
 }
 

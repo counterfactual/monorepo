@@ -11,7 +11,7 @@
   "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b && rollup -c",
+    "build": "tsc -b . && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "jest --detectOpenHandles",
@@ -19,11 +19,11 @@
     "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
   },
   "devDependencies": {
-    "jest": "24.7.1",
-    "rollup": "1.10.1",
-    "rollup-plugin-commonjs": "9.3.4",
-    "rollup-plugin-node-resolve": "4.2.3",
-    "rollup-plugin-typescript2": "0.21.0",
+    "jest": "24.8.0",
+    "rollup": "1.12.3",
+    "rollup-plugin-commonjs": "10.0.0",
+    "rollup-plugin-node-resolve": "5.0.0",
+    "rollup-plugin-typescript2": "0.21.1",
     "tslint": "5.16.0",
     "typedoc": "0.14.2",
     "typescript": "3.4.5"
@@ -32,6 +32,6 @@
     "@counterfactual/node-provider": "0.1.2",
     "@counterfactual/types": "0.0.9",
     "ethers": "4.0.27",
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.2"
   }
 }

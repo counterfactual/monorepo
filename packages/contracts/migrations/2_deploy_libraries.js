@@ -2,9 +2,8 @@ const tdr = require("truffle-deploy-registry");
 
 const StateChannelTransaction = artifacts.require("StateChannelTransaction");
 const LibStaticCall = artifacts.require("LibStaticCall");
-const Transfer = artifacts.require("Transfer");
 const AppRegistry = artifacts.require("AppRegistry");
-const VirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
+const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 
 /// Deploy the libraries Transfer and StaticCall and link their dependents
 /// against them.
@@ -15,18 +14,12 @@ const VirtualAppAgreement = artifacts.require("ETHVirtualAppAgreement");
 module.exports = (deployer, network) => {
   deployer.then(async () => {
 
-    const transfer = await deployer.deploy(Transfer);
-    await deployer.link(Transfer, StateChannelTransaction);
-    await deployer.link(Transfer, AppRegistry);
-    await deployer.link(Transfer, VirtualAppAgreement);
-
     const staticCall = await deployer.deploy(LibStaticCall);
     await deployer.link(LibStaticCall, AppRegistry);
-    await deployer.link(LibStaticCall, VirtualAppAgreement);
+    await deployer.link(LibStaticCall, TwoPartyVirtualEthAsLump);
     await deployer.link(LibStaticCall, StateChannelTransaction);
 
     if (!tdr.isDryRunNetworkName(network)) {
-      await tdr.appendInstance(transfer);
       await tdr.appendInstance(staticCall);
     }
 

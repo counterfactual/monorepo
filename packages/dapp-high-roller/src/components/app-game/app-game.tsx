@@ -48,7 +48,6 @@ export class AppGame {
   @State() gameStatusLabel: string = "";
 
   defaultHighRollerState: HighRollerAppState = {
-    playerAddrs: [AddressZero, AddressZero],
     stage: HighRollerStage.PRE_GAME,
     salt: HashZero,
     commitHash: HashZero,

@@ -1,13 +1,14 @@
-import { AssetType, Node } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { Node } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { StateChannel, xkeyKthAddress } from "../../../machine";
+import { xkeyKthAddress } from "../../../machine";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
-import { ERRORS } from "../../errors";
+import { DEPOSIT_FAILED } from "../../errors";
 
 export interface ETHBalanceRefundAppState {
   recipient: string;
@@ -53,15 +54,9 @@ export async function installBalanceRefundApp(
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
-      aliceBalanceDecrement: Zero,
-      bobBalanceDecrement: Zero,
+      initiatingBalanceDecrement: Zero,
+      respondingBalanceDecrement: Zero,
       signingKeys: stateChannel.getNextSigningKeys(),
-      terms: {
-        // TODO: generalize
-        assetType: AssetType.ETH,
-        limit: MaxUint256,
-        token: AddressZero
-      },
       appInterface: {
         addr: networkContext.ETHBalanceRefundApp,
         stateEncoding:
@@ -102,14 +97,14 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+        console.error(`${DEPOSIT_FAILED}: ${e}`);
         return false;
       }
 
       retryCount -= 1;
 
       if (retryCount === 0) {
-        throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
     }
   }

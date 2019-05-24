@@ -7,12 +7,17 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 
 import {
+  NO_APP_INSTANCE_ID_TO_INSTALL,
+  NO_MULTISIG_FOR_APP_INSTANCE_ID,
+  NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
+} from "../../src";
+import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
+import {
   InstructionExecutor,
-  StateChannel,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
-import { ERRORS } from "../../src/methods/errors";
+import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import memoryStoreService from "../services/memory-store-service";
@@ -31,21 +36,19 @@ describe("Can handle correct & incorrect installs", () => {
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
       install(store, ie, "a", "b", { appInstanceId: undefined! })
-    ).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
     await expect(
       install(store, ie, "a", "b", { appInstanceId: "" })
-    ).rejects.toEqual(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
       install(store, ie, "a", "b", { appInstanceId: HashZero })
-    ).rejects.toEqual(
-      ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
-    );
+    ).rejects.toEqual(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero));
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {
@@ -63,12 +66,12 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
-      ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID
+      NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
 
     await expect(
       install(instance(mockedStore), ie, "a", "b", { appInstanceId })
-    ).rejects.toEqual(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
@@ -96,13 +99,11 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = stateChannel.getFreeBalanceFor(AssetType.ETH)
-      .state as ETHBucketAppState;
+    const fbState = fromAppState(stateChannel.getFreeBalanceFor(AssetType.ETH)
+      .state as ETHBucketAppState);
 
-    expect(fbState.alice === signingKeys[0]);
-    expect(fbState.bob === signingKeys[1]);
-    expect(fbState.aliceBalance).toEqual(Zero);
-    expect(fbState.bobBalance).toEqual(Zero);
+    expect(fbState[signingKeys[0]]).toEqual(Zero);
+    expect(fbState[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

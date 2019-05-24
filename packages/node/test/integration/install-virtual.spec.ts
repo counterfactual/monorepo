@@ -1,108 +1,40 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
-import {
-  JsonRpcProvider,
-  Provider,
-  TransactionRequest
-} from "ethers/providers";
-import { parseEther } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
-import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
+import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { MNEMONIC_PATH } from "../../src/signer";
 import {
-  CreateChannelMessage,
   InstallVirtualMessage,
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
-import { CF_PATH } from "../global-setup.jest";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
+import { setup } from "./setup";
 import {
   collateralizeChannel,
-  confirmProposedVirtualAppInstanceOnNode,
+  confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
+  createChannel,
   getApps,
-  getMultisigCreationTransactionHash,
   getProposedAppInstances,
-  makeInstallVirtualProposalRequest,
-  makeInstallVirtualRequest,
-  sleep
+  installTTTVirtual,
+  makeTTTVirtualProposal
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(35000);
+  jest.setTimeout(20000);
 
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
   let nodeA: Node;
-  let storeServiceA: IStoreService;
   let nodeB: Node;
-  let storeServiceB: IStoreService;
   let nodeC: Node;
-  let storeServiceC: IStoreService;
-  let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new LocalFirebaseServiceFactory(
-      process.env.FIREBASE_DEV_SERVER_HOST!,
-      process.env.FIREBASE_DEV_SERVER_PORT!
-    );
-    messagingService = firebaseServiceFactory.createMessagingService(
-      process.env.FIREBASE_MESSAGING_SERVER_KEY!
-    );
-    nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
-    };
-
-    provider = new JsonRpcProvider(global["ganacheURL"]);
-
-    storeServiceA = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-
-    // generate new mnemonics so owner addresses are different for creating
-    // a channel in this suite
-    const { A_MNEMONIC, B_MNEMONIC } = await generateNewFundedMnemonics(
-      global["fundedPrivateKey"],
-      provider
-    );
-
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
-    nodeA = await Node.create(
-      messagingService,
-      storeServiceA,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceB = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: B_MNEMONIC }]);
-    nodeB = await Node.create(
-      messagingService,
-      storeServiceB,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceC = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    nodeC = await Node.create(
-      messagingService,
-      storeServiceC,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
+    const result = await setup(global, true, true);
+    nodeA = result.nodeA;
+    nodeB = result.nodeB;
+    nodeC = result.nodeC!;
+    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
   afterAll(() => {
@@ -113,175 +45,67 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        let abChannelMultisigAddress;
-        let bcChannelMultisigAddress;
+        const multisigAddressAB = await createChannel(nodeA, nodeB);
+        const multisigAddressBC = await createChannel(nodeB, nodeC);
 
-        nodeB.once(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (msg: CreateChannelMessage) => {
-            abChannelMultisigAddress = msg.data.multisigAddress;
-          }
-        );
+        await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
+        await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
+        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
         nodeA.once(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (msg: CreateChannelMessage) => {
-            while (!abChannelMultisigAddress) {
-              console.log("Waiting for Node A and B to sync on new channel");
-              await sleep(500);
-            }
-
-            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
-
-            nodeB.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (msg: CreateChannelMessage) => {
-                bcChannelMultisigAddress = msg.data.multisigAddress;
-              }
+          NODE_EVENTS.INSTALL_VIRTUAL,
+          async (msg: InstallVirtualMessage) => {
+            const [virtualAppNodeA] = await getApps(
+              nodeA,
+              APP_INSTANCE_STATUS.INSTALLED
             );
 
-            nodeC.once(
-              NODE_EVENTS.CREATE_CHANNEL,
-              async (msg: CreateChannelMessage) => {
-                while (!bcChannelMultisigAddress) {
-                  console.log(
-                    "Waiting for Node B and C to sync on new channel"
-                  );
-                  await sleep(500);
-                }
-
-                await collateralizeChannel(
-                  nodeB,
-                  nodeC,
-                  msg.data.multisigAddress
-                );
-
-                const intermediaries = [nodeB.publicIdentifier];
-                const installVirtualAppInstanceProposalRequest = makeInstallVirtualProposalRequest(
-                  nodeC.publicIdentifier,
-                  intermediaries,
-                  false,
-                  One,
-                  Zero
-                );
-
-                nodeA.once(
-                  NODE_EVENTS.INSTALL_VIRTUAL,
-                  async (msg: InstallVirtualMessage) => {
-                    const virtualAppInstanceNodeA = (await getApps(
-                      nodeA,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    const virtualAppInstanceNodeC = (await getApps(
-                      nodeC,
-                      APP_INSTANCE_STATUS.INSTALLED
-                    ))[0];
-
-                    expect(virtualAppInstanceNodeA.myDeposit).toEqual(One);
-                    expect(virtualAppInstanceNodeA.peerDeposit).toEqual(Zero);
-                    expect(virtualAppInstanceNodeC.myDeposit).toEqual(Zero);
-                    expect(virtualAppInstanceNodeC.peerDeposit).toEqual(One);
-
-                    delete virtualAppInstanceNodeA.myDeposit;
-                    delete virtualAppInstanceNodeA.peerDeposit;
-                    delete virtualAppInstanceNodeC.myDeposit;
-                    delete virtualAppInstanceNodeC.peerDeposit;
-
-                    expect(virtualAppInstanceNodeA).toEqual(
-                      virtualAppInstanceNodeC
-                    );
-                    done();
-                  }
-                );
-
-                nodeC.once(
-                  NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-                  async (msg: ProposeVirtualMessage) => {
-                    const proposedAppInstanceA = (await getProposedAppInstances(
-                      nodeA
-                    ))[0];
-                    const proposedAppInstanceC = (await getProposedAppInstances(
-                      nodeC
-                    ))[0];
-
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceA
-                    );
-                    confirmProposedVirtualAppInstanceOnNode(
-                      installVirtualAppInstanceProposalRequest.params,
-                      proposedAppInstanceC,
-                      true
-                    );
-
-                    expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
-                      nodeA.publicIdentifier
-                    );
-                    expect(proposedAppInstanceA.id).toEqual(
-                      proposedAppInstanceC.id
-                    );
-
-                    const installVirtualReq = makeInstallVirtualRequest(
-                      msg.data.appInstanceId,
-                      msg.data.params.intermediaries
-                    );
-                    nodeC.emit(installVirtualReq.type, installVirtualReq);
-                  }
-                );
-
-                const response = await nodeA.call(
-                  installVirtualAppInstanceProposalRequest.type,
-                  installVirtualAppInstanceProposalRequest
-                );
-                const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-                  .appInstanceId;
-                expect(appInstanceId).toBeDefined();
-              }
+            const [virtualAppNodeC] = await getApps(
+              nodeC,
+              APP_INSTANCE_STATUS.INSTALLED
             );
-            await getMultisigCreationTransactionHash(nodeB, [
-              nodeB.publicIdentifier,
-              nodeC.publicIdentifier
-            ]);
+
+            expect(virtualAppNodeA.myDeposit).toEqual(One);
+            expect(virtualAppNodeA.peerDeposit).toEqual(Zero);
+            expect(virtualAppNodeC.myDeposit).toEqual(Zero);
+            expect(virtualAppNodeC.peerDeposit).toEqual(One);
+
+            delete virtualAppNodeA.myDeposit;
+            delete virtualAppNodeA.peerDeposit;
+            delete virtualAppNodeC.myDeposit;
+            delete virtualAppNodeC.peerDeposit;
+
+            expect(virtualAppNodeA).toEqual(virtualAppNodeC);
+            done();
           }
         );
-        await getMultisigCreationTransactionHash(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+
+        nodeC.once(
+          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          async (msg: ProposeVirtualMessage) => {
+            const { appInstanceId } = msg.data;
+            const { intermediaries } = msg.data.params;
+            const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
+            const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
+
+            confirmProposedVirtualAppInstance(proposalParams, proposedAppNodeA);
+            confirmProposedVirtualAppInstance(
+              proposalParams,
+              proposedAppNodeC,
+              true
+            );
+
+            expect(proposedAppNodeC.proposedByIdentifier).toEqual(
+              nodeA.publicIdentifier
+            );
+            expect(proposedAppNodeA.id).toEqual(proposedAppNodeC.id);
+            installTTTVirtual(nodeC, appInstanceId, intermediaries);
+          }
+        );
+
+        const result = await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+        proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
       });
     }
   );
 });
-
-async function generateNewFundedMnemonics(
-  fundedPrivateKey: string,
-  provider: Provider
-) {
-  const fundedWallet = new Wallet(fundedPrivateKey, provider);
-  const A_MNEMONIC = Wallet.createRandom().mnemonic;
-  const B_MNEMONIC = Wallet.createRandom().mnemonic;
-
-  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
-    .privateKey;
-  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
-    .privateKey;
-
-  const signerAAddress = new Wallet(signerAPrivateKey).address;
-  const signerBAddress = new Wallet(signerBPrivateKey).address;
-
-  const transactionToA: TransactionRequest = {
-    to: signerAAddress,
-    value: parseEther("0.1").toHexString()
-  };
-  const transactionToB: TransactionRequest = {
-    to: signerBAddress,
-    value: parseEther("0.1").toHexString()
-  };
-  await fundedWallet.sendTransaction(transactionToA);
-  await fundedWallet.sendTransaction(transactionToB);
-  return {
-    A_MNEMONIC,
-    B_MNEMONIC
-  };
-}

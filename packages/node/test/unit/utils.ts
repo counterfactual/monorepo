@@ -9,8 +9,11 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
-import { AppInstance } from "../../src/machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../src/models";
+import {
+  AppInstance,
+  ProposedAppInstanceInfo,
+  StateChannel
+} from "../../src/models";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
@@ -59,18 +62,15 @@ export function createAppInstance(stateChannel?: StateChannel) {
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    /* terms */ {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
     /* isVirtualApp */ false,
     /* appSeqNo */ stateChannel
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
-    /* rootNonceValue */ 0,
-    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
-    /* latestNonce */ 0,
-    /* latestTimeout */ Math.ceil(1000 * Math.random())
+    0,
+    { foo: AddressZero, bar: bigNumberify(0) },
+    0,
+    Math.ceil(1000 * Math.random()),
+    [AddressZero, AddressZero],
+    Zero
   );
 }

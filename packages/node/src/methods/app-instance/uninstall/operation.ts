@@ -1,4 +1,5 @@
-import { InstructionExecutor, StateChannel } from "../../../machine";
+import { InstructionExecutor } from "../../../machine";
+import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(

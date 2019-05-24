@@ -1,4 +1,4 @@
-import { StateChannel } from "../../machine";
+import { StateChannel } from "../../models";
 import { RequestHandler } from "../../request-handler";
 import { CreateChannelMessage } from "../../types";
 

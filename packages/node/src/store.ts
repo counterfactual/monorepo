@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  AssetType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -14,14 +15,20 @@ import {
   DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
+import { Transaction } from "./machine";
+import {
+  NO_APP_INSTANCE_FOR_GIVEN_ID,
+  NO_MULTISIG_FOR_APP_INSTANCE_ID,
+  NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID,
+  NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
+} from "./methods/errors";
 import {
   AppInstance,
+  ProposedAppInstanceInfo,
+  ProposedAppInstanceInfoJSON,
   StateChannel,
-  StateChannelJSON,
-  Transaction
-} from "./machine";
-import { ERRORS } from "./methods/errors";
-import { ProposedAppInstanceInfo, ProposedAppInstanceInfoJSON } from "./models";
+  StateChannelJSON
+} from "./models";
 import { debugLog } from "./node";
 import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
@@ -72,10 +79,7 @@ export class Store {
 
     if (!stateChannelJson) {
       return Promise.reject(
-        ERRORS.NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(
-          stateChannelJson,
-          multisigAddress
-        )
+        NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
       );
     }
 
@@ -136,6 +140,23 @@ export class Store {
     ]);
   }
 
+  public async saveFreeBalance(
+    channel: StateChannel,
+    assetType: AssetType = AssetType.ETH
+  ) {
+    const freeBalance = channel.getFreeBalanceFor(assetType);
+    await this.storeService.set([
+      {
+        key: `${
+          this.storeKeyPrefix
+        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
+          freeBalance.identityHash
+        }`,
+        value: channel.multisigAddress
+      }
+    ]);
+  }
+
   /**
    * This persists the state of the given AppInstance.
    * @param appInstance
@@ -160,24 +181,27 @@ export class Store {
   public async saveRealizedProposedAppInstance(
     appInstanceInfo: ProposedAppInstanceInfo
   ) {
-    await this.storeService.set([
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          appInstanceInfo.id
-        }`,
-        value: null
-      },
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
-          appInstanceInfo.id
-        }`,
-        value: appInstanceInfo
-      }
-    ]);
+    await this.storeService.set(
+      [
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
+            appInstanceInfo.id
+          }`,
+          value: null
+        },
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
+            appInstanceInfo.id
+          }`,
+          value: appInstanceInfo
+        }
+      ],
+      true
+    );
   }
 
   /**
@@ -249,20 +273,23 @@ export class Store {
   }
 
   public async removeAppInstanceProposal(appInstanceId: string) {
-    await this.storeService.set([
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
-        value: null
-      },
-      {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
-        value: null
-      }
-    ]);
+    await this.storeService.set(
+      [
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+          value: null
+        },
+        {
+          key: `${
+            this.storeKeyPrefix
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+          value: null
+        }
+      ],
+      true
+    );
   }
 
   public async getAppInstanceInfo(
@@ -276,8 +303,7 @@ export class Store {
 
     if (!appInstanceInfo) {
       return Promise.reject(
-        // FIXME: Errors should be functions with parameters
-        `${ERRORS.NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
+        `${NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
       );
     }
 
@@ -332,7 +358,7 @@ export class Store {
 
     if (!proposedAppInstanceInfo) {
       return Promise.reject(
-        ERRORS.NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
 
@@ -350,7 +376,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      return Promise.reject(ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      return Promise.reject(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);

@@ -1,6 +1,6 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, HashZero, One, Zero } from "ethers/constants";
+import { HashZero, One, Zero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import {
   BigNumber,
@@ -11,34 +11,32 @@ import {
 } from "ethers/utils";
 
 import AppRegistry from "../build/AppRegistry.json";
-import NonceRegistry from "../build/NonceRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
-import ETHVirtualAppAgreement from "../build/ETHVirtualAppAgreement.json";
-import ResolveToPay5WeiApp from "../build/ResolveToPay5WeiApp.json";
-import Transfer from "../build/Transfer.json";
+import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
+import NonceRegistry from "../build/NonceRegistry.json";
+import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
 
 import { expect } from "./utils/index";
 
-describe("ETHVirtualAppAgreement", () => {
+describe("TwoPartyVirtualEthAsLump", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
 
   let appRegistry: Contract;
   let nonceRegistry: Contract;
   let virtualAppAgreement: Contract;
-  let fixedResolutionApp: Contract;
+  let fixedTwoPartyOutcome: Contract;
   let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
-  /// FixedResolutionApp with random beneficiaries
+  /// FixedTwoPartyOutcomeApp with random beneficiaries
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
     nonceRegistry: Contract,
-    resolutionAddr: string,
+    appDefinition: string,
     expiry: number,
     capitalProvided: BigNumber,
-    assetType: number,
     uninstallKey: string
   ): Promise<string[]> => {
     const delegateProxy = await waffle.deployContract(wallet, DelegateProxy);
@@ -61,12 +59,7 @@ describe("ETHVirtualAppAgreement", () => {
         capitalProvided,
         registry: appRegistry.address,
         nonceRegistry: nonceRegistry.address,
-        terms: {
-          assetType,
-          limit: 0,
-          token: AddressZero
-        },
-        appIdentityHash: resolutionAddr
+        appIdentityHash: appDefinition
       }
     ]);
 
@@ -84,17 +77,9 @@ describe("ETHVirtualAppAgreement", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    const transfer = await waffle.deployContract(wallet, Transfer);
-
-    waffle.link(
-      ETHVirtualAppAgreement,
-      "contracts/libs/Transfer.sol:Transfer",
-      transfer.address
-    );
-
     virtualAppAgreement = await waffle.deployContract(
       wallet,
-      ETHVirtualAppAgreement
+      TwoPartyVirtualEthAsLump
     );
 
     appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
@@ -103,33 +88,15 @@ describe("ETHVirtualAppAgreement", () => {
 
     nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
 
-    fixedResolutionApp = await waffle.deployContract(
+    fixedTwoPartyOutcome = await waffle.deployContract(
       wallet,
-      ResolveToPay5WeiApp
-    );
-
-    const terms = {
-      assetType: 0,
-      limit: 0,
-      token: AddressZero
-    };
-
-    const encodedTerms = defaultAbiCoder.encode(
-      [
-        `tuple(
-          uint8 assetType,
-          uint256 limit,
-          address token
-        )`
-      ],
-      [terms]
+      FixedTwoPartyOutcomeApp
     );
 
     const appIdentity = {
       owner: await wallet.getAddress(),
       signingKeys: [],
-      appDefinitionAddress: fixedResolutionApp.address,
-      termsHash: keccak256(encodedTerms),
+      appDefinition: fixedTwoPartyOutcome.address,
       defaultTimeout: 10
     };
 
@@ -139,8 +106,7 @@ describe("ETHVirtualAppAgreement", () => {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appDefinitionAddress,
-            bytes32 termsHash,
+            address appDefinition,
             uint256 defaultTimeout
           )`
         ],
@@ -157,14 +123,10 @@ describe("ETHVirtualAppAgreement", () => {
 
     // Can be called immediately without waiting for blocks to be mined
     // because the timeout was set to 0 in the previous call to setState
-    await appRegistry.functions.setResolution(
-      appIdentity,
-      HashZero,
-      encodedTerms
-    );
+    await appRegistry.functions.setOutcome(appIdentity, HashZero);
   });
 
-  it("succeeds with a valid resolution and elapsed lockup period", async () => {
+  it("succeeds with a valid outcome and elapsed lockup period", async () => {
     const beneficiaries = await delegatecallVirtualAppAgreement(
       virtualAppAgreement,
       appRegistry,
@@ -172,18 +134,14 @@ describe("ETHVirtualAppAgreement", () => {
       appIdentityHash,
       0,
       bigNumberify(10),
-      0,
       HashZero
     );
-    expect(await provider.getBalance(beneficiaries[0])).to.eq(
-      bigNumberify(5)
-    );
-    expect(await provider.getBalance(beneficiaries[1])).to.eq(
-      bigNumberify(5)
-    );
+
+    expect(await provider.getBalance(beneficiaries[0])).to.eq(bigNumberify(5));
+    expect(await provider.getBalance(beneficiaries[1])).to.eq(bigNumberify(5));
   });
 
-  it("fails with invalid resolution target", async () => {
+  it("fails with invalid outcome target", async () => {
     await expect(
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
@@ -192,7 +150,6 @@ describe("ETHVirtualAppAgreement", () => {
         HashZero,
         0,
         bigNumberify(10),
-        0,
         HashZero
       )
     ).to.be.reverted;
@@ -207,48 +164,13 @@ describe("ETHVirtualAppAgreement", () => {
         appIdentityHash,
         (await provider.getBlockNumber()) + 10,
         bigNumberify(10),
-        0,
-        HashZero
-      )
-    ).to.be.revertedWith("Delegate call failed.");
-  });
-
-  it("fails if resolution value is larger than capital provided", async () => {
-    await expect(
-      delegatecallVirtualAppAgreement(
-        virtualAppAgreement,
-        appRegistry,
-        nonceRegistry,
-        appIdentityHash,
-        0,
-        bigNumberify(2),
-        0,
-        HashZero
-      )
-    ).to.be.revertedWith("Delegate call failed.");
-  });
-
-  it("fails if resolution returns different token type", async () => {
-    await expect(
-      delegatecallVirtualAppAgreement(
-        virtualAppAgreement,
-        appRegistry,
-        nonceRegistry,
-        appIdentityHash,
-        0,
-        bigNumberify(10),
-        1,
         HashZero
       )
     ).to.be.revertedWith("Delegate call failed.");
   });
 
   it("fails if cancelled", async () => {
-    const computeKey = (
-      sender: string,
-      timeout: BigNumber,
-      salt: string
-    ) =>
+    const computeKey = (sender: string, timeout: BigNumber, salt: string) =>
       solidityKeccak256(
         ["address", "uint256", "bytes32"],
         [sender, timeout, salt]
@@ -263,7 +185,6 @@ describe("ETHVirtualAppAgreement", () => {
         appIdentityHash,
         0,
         bigNumberify(10),
-        0,
         computeKey(wallet.address, Zero, HashZero)
       )
     ).to.be.revertedWith("Delegate call failed.");

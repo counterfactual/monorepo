@@ -1,8 +1,7 @@
 import {
   AppInterface,
   NetworkContext,
-  SolidityABIEncoderV2Type,
-  Terms
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
@@ -31,6 +30,7 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
+  protocolExecutionID: string;
   protocol: Protocol;
   params: ProtocolParameters;
   toXpub: string;
@@ -74,11 +74,10 @@ export type InstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
   multisigAddress: string;
-  aliceBalanceDecrement: BigNumber;
-  bobBalanceDecrement: BigNumber;
+  initiatingBalanceDecrement: BigNumber;
+  respondingBalanceDecrement: BigNumber;
   signingKeys: string[];
   initialState: SolidityABIEncoderV2Type;
-  terms: Terms;
   appInterface: AppInterface;
   defaultTimeout: number;
 };

@@ -11,5 +11,8 @@
     ],
     "types": ["jest"]
   },
+  "references": [
+    { "path": "../types" }
+  ],
   "include": ["src", "test"]
 }

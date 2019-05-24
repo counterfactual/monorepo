@@ -1,6 +1,5 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import { AssetType } from "@counterfactual/types";
-import { AddressZero, HashZero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import {
   bigNumberify,
   getAddress,
@@ -41,17 +40,14 @@ describe("Virtual App Set State Commitment", () => {
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    {
-      assetType: AssetType.ETH,
-      limit: bigNumberify(2),
-      token: AddressZero
-    },
     false,
     Math.ceil(1000 * Math.random()),
     0,
     { foo: AddressZero, bar: 0 },
     0,
-    Math.ceil(1000 * Math.random())
+    Math.ceil(1000 * Math.random()),
+    [AddressZero, AddressZero],
+    Zero
   );
 
   beforeAll(() => {
@@ -91,19 +87,10 @@ describe("Virtual App Set State Commitment", () => {
     });
 
     it("should contain expected AppIdentity argument", () => {
-      const [
-        owner,
-        signingKeys,
-        appDefinitionAddress,
-        termsHash,
-        defaultTimeout
-      ] = desc.args[0];
+      const [owner, signingKeys, appDefinition, defaultTimeout] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
-      expect(appDefinitionAddress).toBe(
-        appInstance.identity.appDefinitionAddress
-      );
-      expect(termsHash).toBe(appInstance.identity.termsHash);
+      expect(appDefinition).toBe(appInstance.identity.appDefinition);
       expect(defaultTimeout).toEqual(
         bigNumberify(appInstance.identity.defaultTimeout)
       );

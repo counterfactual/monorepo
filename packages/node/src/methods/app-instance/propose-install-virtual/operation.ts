@@ -1,10 +1,10 @@
 import { Address, Node } from "@counterfactual/types";
 
-import { StateChannel, virtualChannelKey } from "../../../machine";
-import { ProposedAppInstanceInfo } from "../../../models";
+import { virtualChannelKey } from "../../../machine";
+import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
-import { ERRORS } from "../../errors";
+import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
@@ -90,10 +90,7 @@ export async function getOrCreateVirtualChannel(
   } catch (e) {
     if (
       e.includes(
-        ERRORS.NO_CHANNEL_BETWEEN_NODES(
-          initiatorIdentifier,
-          respondingIdentifier
-        )
+        NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
       ) &&
       intermediaries !== undefined
     ) {

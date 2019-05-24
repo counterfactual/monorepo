@@ -3,10 +3,6 @@
   "workspaces": {
     "packages": [
       "packages/*"
-    ],
-    "nohoist": [
-      "**/@stencil",
-      "**/@stencil/**"
     ]
   },
   "engines": {
@@ -30,10 +26,10 @@
     "state channels"
   ],
   "devDependencies": {
-    "lerna": "3.13.4",
+    "lerna": "3.14.1",
     "patch-package": "6.1.2",
     "postinstall-postinstall": "2.0.0",
-    "prettier": "1.17.0",
+    "prettier": "1.17.1",
     "tslint": "5.16.0",
     "tslint-config-airbnb": "5.11.1",
     "tslint-config-prettier": "1.18.0",

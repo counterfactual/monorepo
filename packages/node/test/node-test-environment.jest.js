@@ -24,16 +24,18 @@ class NodeEnvironment extends NodeJSEnvironment {
     accounts = JSON.parse(accounts);
 
     const networkContext = {
-      AppRegistry: AddressZero,
+      AppRegistry: accounts.contractAddresses.AppRegistry,
       ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      NonceRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
-      ETHVirtualAppAgreement: AddressZero,
+      ETHBucket: accounts.contractAddresses.ETHBucket,
+      MultiSend: accounts.contractAddresses.MultiSend,
+      NonceRegistry: accounts.contractAddresses.NonceRegistry,
+      StateChannelTransaction: accounts.contractAddresses.StateChannelTransaction,
+      TwoPartyVirtualEthAsLump: accounts.contractAddresses.TwoPartyVirtualEthAsLump,
       MinimumViableMultisig: accounts.contractAddresses.MinimumViableMultisig,
       ProxyFactory: accounts.contractAddresses.ProxyFactory,
-      TicTacToe: accounts.contractAddresses.TicTacToe
+      TicTacToe: accounts.contractAddresses.TicTacToe,
+      ETHInterpreter: accounts.contractAddresses.ETHInterpreter,
+      TwoPartyEthAsLump: accounts.contractAddresses.TwoPartyEthAsLump
     };
 
     this.global.networkContext = networkContext;

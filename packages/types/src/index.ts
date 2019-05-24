@@ -3,16 +3,16 @@ import {
   AppInterface,
   AssetType,
   ETHBucketAppState,
-  SignedStateHashUpdate,
-  Terms,
-  Transaction
+  SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset
+  BlockchainAsset,
+  OutcomeType,
+  TwoPartyOutcome
 } from "./data-types";
-import { INodeProvider, Node } from "./node-protocol";
+import { INodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
@@ -28,9 +28,11 @@ export interface NetworkContext {
   MultiSend: string;
   NonceRegistry: string;
   StateChannelTransaction: string;
-  ETHVirtualAppAgreement: string;
+  TwoPartyVirtualEthAsLump: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
+  ETHInterpreter: string;
+  TwoPartyEthAsLump: string;
 }
 
 // Keep in sync with above
@@ -41,10 +43,18 @@ export const networkContextProps = [
   "MultiSend",
   "NonceRegistry",
   "StateChannelTransaction",
-  "ETHVirtualAppAgreement",
+  "TwoPartyVirtualEthAsLump",
   "MinimumViableMultisig",
-  "ProxyFactory"
+  "ProxyFactory",
+  "ETHInterpreter",
+  "TwoPartyEthAsLump"
 ];
+
+export interface ContractMigration {
+  contractName: string;
+  address: string;
+  transactionHash: string;
+}
 
 export {
   ABIEncoding,
@@ -62,6 +72,6 @@ export {
   INodeProvider,
   Node,
   SignedStateHashUpdate,
-  Terms,
-  Transaction
+  OutcomeType,
+  TwoPartyOutcome
 };

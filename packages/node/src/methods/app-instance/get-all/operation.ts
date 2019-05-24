@@ -1,6 +1,6 @@
 import { AppInstanceInfo } from "@counterfactual/types";
 
-import { AppInstance, StateChannel } from "../../../machine";
+import { AppInstance, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 
 export async function getAppInstanceInfoFromAppInstance(

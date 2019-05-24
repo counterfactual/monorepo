@@ -2,8 +2,7 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
-  SolidityABIEncoderV2Type,
-  Terms
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
@@ -18,14 +17,13 @@ import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
-import { TERMS } from "../ethereum/utils/encodings";
 
 /**
  * Representation of the values a dependency nonce can take on.
  */
 export enum DependencyValue {
-  NOT_UNINSTALLED = 0,
-  UNINSTALLED = 1
+  NOT_CANCELLED = 0,
+  CANCELLED = 1
 }
 
 export type AppInstanceJson = {
@@ -33,14 +31,16 @@ export type AppInstanceJson = {
   signingKeys: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
-  terms: Terms;
   isVirtualApp: boolean;
   appSeqNo: number;
   rootNonceValue: number;
   latestState: SolidityABIEncoderV2Type;
   latestNonce: number;
   latestTimeout: number;
-  hasBeenUninstalled: boolean;
+  beneficiaries: [string, string];
+  limitOrTotal: {
+    _hex: string;
+  };
 };
 
 /**
@@ -59,15 +59,22 @@ export type AppInstanceJson = {
 
  * @property isVirtualApp A flag indicating whether this AppInstance's state
  *           deposits come directly from a multisig or through a virtual app
- *           proxy agreement (ETHVirtualAppAgreement.sol)
-
- * @property terms The terms for which this AppInstance is based on.
+ *           proxy agreement (TwoPartyVirtualEthAsLump.sol)
 
  * @property latestState The unencoded representation of the latest state.
 
  * @property latestNonce The nonce of the latest signed state update.
 
  * @property latestTimeout The timeout used in the latest signed state update.
+
+ * @property beneficiaries The free balance addresses of the two beneficiaries
+ *           of the app (the two addresses who could potentially have money
+ *           sent to them)
+
+ * @property limitOrTotal If the outcome type is TwoPartyOutcome, the total
+ *           amount of ETH in wei allocated to the app; if the outcome type
+ *           is ETHTransfer, the static upper bound on the total amount of ETH
+ *           allowed to be transfered by this app
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
@@ -78,27 +85,30 @@ export class AppInstance {
     signingKeys: string[],
     defaultTimeout: number,
     appInterface: AppInterface,
-    terms: Terms,
     isVirtualApp: boolean,
     appSeqNo: number,
     rootNonceValue: number,
     latestState: any,
     latestNonce: number,
-    latestTimeout: number
+    latestTimeout: number,
+    beneficiaries: [string, string],
+    limitOrTotal: BigNumber
   ) {
     this.json = {
       multisigAddress,
       signingKeys,
       defaultTimeout,
       appInterface,
-      terms,
       isVirtualApp,
       appSeqNo,
       rootNonceValue,
       latestState,
       latestNonce,
       latestTimeout,
-      hasBeenUninstalled: false
+      beneficiaries,
+      limitOrTotal: {
+        _hex: limitOrTotal.toHexString()
+      }
     };
   }
 
@@ -117,15 +127,15 @@ export class AppInstance {
       json.signingKeys,
       json.defaultTimeout,
       json.appInterface,
-      json.terms,
       json.isVirtualApp,
       json.appSeqNo,
       json.rootNonceValue,
       latestState,
       json.latestNonce,
-      json.latestTimeout
+      json.latestTimeout,
+      json.beneficiaries,
+      bigNumberify(json.limitOrTotal._hex)
     );
-    ret.json.hasBeenUninstalled = json.hasBeenUninstalled;
     return ret;
   }
 
@@ -143,12 +153,10 @@ export class AppInstance {
 
   @Memoize()
   public get identity(): AppIdentity {
-    const encodedTerms = defaultAbiCoder.encode([TERMS], [this.json.terms]);
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
-      appDefinitionAddress: this.json.appInterface.addr,
-      termsHash: keccak256(encodedTerms),
+      appDefinition: this.json.appInterface.addr,
       defaultTimeout: this.json.defaultTimeout
     };
   }
@@ -164,11 +172,6 @@ export class AppInstance {
       [this.json.appInterface.stateEncoding],
       [this.json.latestState]
     );
-  }
-
-  @Memoize()
-  public get encodedTerms() {
-    return defaultAbiCoder.encode([TERMS], [this.json.terms]);
   }
 
   @Memoize()
@@ -200,16 +203,20 @@ export class AppInstance {
   // TODO: All these getters seems a bit silly, would be nice to improve
   //       the implementation to make it cleaner.
 
-  public get terms() {
-    return this.json.terms;
-  }
-
   public get state() {
     return this.json.latestState;
   }
 
   public get nonce() {
     return this.json.latestNonce;
+  }
+
+  public get limitOrTotal() {
+    return bigNumberify(this.json.limitOrTotal._hex);
+  }
+
+  public get beneficiaries() {
+    return this.json.beneficiaries;
   }
 
   public get timeout() {

@@ -98,7 +98,7 @@ export class AppFactory {
    * @return ID of proposed app instance
    */
   async proposeInstallVirtual(params: {
-    /** Xpub of peer being proposed to install instance with */
+    /** xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
     /** Asset to use for deposit */
     asset: BlockchainAsset;

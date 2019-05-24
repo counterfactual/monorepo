@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  heroku: circleci/heroku@0.0.6
+  heroku: circleci/heroku@0.0.8
 
 defaults: &defaults
   working_directory: /home/circleci/project
@@ -33,7 +33,7 @@ jobs:
     working_directory: /home/circleci/project
     # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
     docker:
-      - image: web3docker/counterfactual:0.0.1
+      - image: counterfactual/circleci-environment:latest
     steps:
       - <<: *restore_code
       - checkout
@@ -83,11 +83,6 @@ jobs:
 
       - attach_workspace:
           at: /home/circleci/project
-
-      - run:
-          name: Run Playground tests
-          command: cd packages/playground && yarn test
-          no_output_timeout: 1m
       - run:
           name: Run Playground Server tests
           command: cd packages/playground-server && yarn test:ci

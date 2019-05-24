@@ -1,78 +1,33 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
-import { v4 as generateUUID } from "uuid";
 
-import { IMessagingService, IStoreService, Node, NodeConfig } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
-import { MNEMONIC_PATH } from "../../src/signer";
-import {
-  CreateChannelMessage,
-  InstallMessage,
-  NODE_EVENTS,
-  ProposeMessage
-} from "../../src/types";
+import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
+import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
-import { A_MNEMONIC } from "../test-constants.jest";
 
+import { setup } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
+  createChannel,
   getInstalledAppInstances,
-  getMultisigCreationTransactionHash,
   getProposedAppInstanceInfo,
-  makeInstallProposalRequest,
-  makeInstallRequest
+  makeInstallCall,
+  makeProposeCall,
+  makeTTTProposalRequest,
+  sanitizeAppInstances
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
-  jest.setTimeout(15000);
-
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
   let nodeA: Node;
-  let storeServiceA: IStoreService;
   let nodeB: Node;
-  let storeServiceB: IStoreService;
-  let nodeConfig: NodeConfig;
-  let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    firebaseServiceFactory = new LocalFirebaseServiceFactory(
-      process.env.FIREBASE_DEV_SERVER_HOST!,
-      process.env.FIREBASE_DEV_SERVER_PORT!
-    );
-    messagingService = firebaseServiceFactory.createMessagingService(
-      process.env.FIREBASE_MESSAGING_SERVER_KEY!
-    );
-    nodeConfig = {
-      STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
-    };
-
-    provider = new JsonRpcProvider(global["ganacheURL"]);
-
-    storeServiceA = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    storeServiceA.set([{ key: MNEMONIC_PATH, value: A_MNEMONIC }]);
-    nodeA = await Node.create(
-      messagingService,
-      storeServiceA,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
-
-    storeServiceB = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
-    );
-    nodeB = await Node.create(
-      messagingService,
-      storeServiceB,
-      nodeConfig,
-      provider,
-      global["networkContext"]
-    );
+    const result = await setup(global);
+    nodeA = result.nodeA;
+    nodeB = result.nodeB;
+    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
   afterAll(() => {
@@ -84,88 +39,48 @@ describe("Node method follows spec - proposeInstall", () => {
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        nodeA.on(
-          NODE_EVENTS.CREATE_CHANNEL,
-          async (msg: CreateChannelMessage) => {
-            expect(await getInstalledAppInstances(nodeA)).toEqual([]);
-            expect(await getInstalledAppInstances(nodeB)).toEqual([]);
-            await collateralizeChannel(nodeA, nodeB, msg.data.multisigAddress);
-            let appInstanceId;
+        const multisigAddress = await createChannel(nodeA, nodeB);
+        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+        let appInstanceId: string;
+        let proposalParams: NodeTypes.ProposeInstallParams;
 
-            // second, an app instance must be proposed to be installed into that channel
-            const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
-              nodeB.publicIdentifier,
-              false,
-              One,
-              Zero
-            );
+        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+          confirmProposedAppInstanceOnNode(
+            proposalParams,
+            await getProposedAppInstanceInfo(nodeA, appInstanceId)
+          );
+          makeInstallCall(nodeB, msg.data.appInstanceId);
+        });
 
-            // node B then decides to approve the proposal
-            nodeB.on(
-              NODE_EVENTS.PROPOSE_INSTALL,
-              async (msg: ProposeMessage) => {
-                confirmProposedAppInstanceOnNode(
-                  appInstanceInstallationProposalRequest.params,
-                  await getProposedAppInstanceInfo(nodeA, appInstanceId)
-                );
+        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+          const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
+          const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
 
-                // some approval logic happens in this callback, we proceed
-                // to approve the proposal, and install the app instance
-                const installRequest = makeInstallRequest(
-                  msg.data.appInstanceId
-                );
-                nodeB.emit(installRequest.type, installRequest);
-              }
-            );
+          expect(appInstanceNodeA.myDeposit).toEqual(One);
+          expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
+          expect(appInstanceNodeB.myDeposit).toEqual(Zero);
+          expect(appInstanceNodeB.peerDeposit).toEqual(One);
 
-            nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-              const appInstanceNodeA = (await getInstalledAppInstances(
-                nodeA
-              ))[0];
-              const appInstanceNodeB = (await getInstalledAppInstances(
-                nodeB
-              ))[0];
+          sanitizeAppInstances([appInstanceNodeA, appInstanceNodeB]);
+          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+          done();
+        });
 
-              expect(appInstanceNodeA.myDeposit).toEqual(One);
-              expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
-              expect(appInstanceNodeB.myDeposit).toEqual(Zero);
-              expect(appInstanceNodeB.peerDeposit).toEqual(One);
-
-              delete appInstanceNodeA.myDeposit;
-              delete appInstanceNodeA.peerDeposit;
-              delete appInstanceNodeB.myDeposit;
-              delete appInstanceNodeB.peerDeposit;
-
-              expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-              done();
-            });
-
-            const response = await nodeA.call(
-              appInstanceInstallationProposalRequest.type,
-              appInstanceInstallationProposalRequest
-            );
-            appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
-              .appInstanceId;
-          }
-        );
-        await getMultisigCreationTransactionHash(nodeA, [
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier
-        ]);
+        const result = await makeProposeCall(nodeA, nodeB);
+        appInstanceId = result.appInstanceId;
+        proposalParams = result.params;
       });
 
       it("sends proposal with null initial state", async () => {
-        const appInstanceInstallationProposalRequest = makeInstallProposalRequest(
+        const appInstanceProposalReq = makeTTTProposalRequest(
+          nodeA.publicIdentifier,
           nodeB.publicIdentifier,
-          true
+          global["networkContext"].TicTacToe
         );
 
         expect(
-          nodeA.call(
-            appInstanceInstallationProposalRequest.type,
-            appInstanceInstallationProposalRequest
-          )
-        ).rejects.toEqual(ERRORS.NULL_INITIAL_STATE_FOR_PROPOSAL);
+          nodeA.call(appInstanceProposalReq.type, appInstanceProposalReq)
+        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

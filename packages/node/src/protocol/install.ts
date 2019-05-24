@@ -1,4 +1,7 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
+import { AssetType, NetworkContext, OutcomeType } from "@counterfactual/types";
+import { Contract } from "ethers";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -20,7 +23,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { respondingXpub } = context.message.params;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-    const [appIdentityHash, commitment] = proposeStateTransition(
+    const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
       context
     );
@@ -51,7 +54,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    const [appIdentityHash, commitment] = proposeStateTransition(
+    const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
       context
     );
@@ -81,45 +84,72 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   }
 };
 
-function proposeStateTransition(
+async function proposeStateTransition(
   params: ProtocolParameters,
   context: Context
-): [string, InstallCommitment] {
+): Promise<[string, InstallCommitment]> {
   const {
-    aliceBalanceDecrement,
-    bobBalanceDecrement,
+    initiatingBalanceDecrement,
+    respondingBalanceDecrement,
+    initiatingXpub,
+    respondingXpub,
     signingKeys,
     initialState,
-    terms,
     appInterface,
     defaultTimeout,
     multisigAddress
   } = params as InstallParams;
 
+  const appDefinition = new Contract(
+    appInterface.addr,
+    CounterfactualApp.abi,
+    context.provider
+  );
+
+  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+
+  let interpreterAddress: string;
+
+  switch (outcomeType.toNumber()) {
+    case OutcomeType.ETH_TRANSFER: {
+      interpreterAddress = context.network.ETHInterpreter;
+      break;
+    }
+    case OutcomeType.TWO_PARTY_OUTCOME: {
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      break;
+    }
+    default: {
+      throw Error("unrecognized");
+    }
+  }
+
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
+  const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
+  const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
+
   const appInstance = new AppInstance(
-    multisigAddress,
-    signingKeys,
-    defaultTimeout,
-    appInterface,
-    terms,
-    // KEY: Sets it to NOT be a virtual app
-    false,
-    // KEY: The app sequence number
-    stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
-    initialState,
-    // KEY: Set the nonce to be 0
-    0,
-    defaultTimeout
+    /* multisigAddress */ multisigAddress,
+    /* signingKeys */ signingKeys,
+    /* defaultTimeout */ defaultTimeout,
+    /* appInterface */ appInterface,
+    /* isVirtualApp */ false,
+    /* appSeqNo */ stateChannel.numInstalledApps,
+    /* rootNonceValue */ stateChannel.rootNonceValue,
+    /* latestState */ initialState,
+    /* latestNonce */ 0,
+    /* defaultTimeout */ defaultTimeout,
+    /* beneficiaries */ [initiatingFbAddress, respondingFbAddress],
+    /* limitOrTotal */ bigNumberify(initiatingBalanceDecrement).add(
+      respondingBalanceDecrement
+    )
   );
 
-  const newStateChannel = stateChannel.installApp(
-    appInstance,
-    aliceBalanceDecrement,
-    bobBalanceDecrement
-  );
+  const newStateChannel = stateChannel.installApp(appInstance, {
+    [initiatingFbAddress]: initiatingBalanceDecrement,
+    [respondingFbAddress]: respondingBalanceDecrement
+  });
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
@@ -127,7 +157,8 @@ function proposeStateTransition(
   const commitment = constructInstallOp(
     context.network,
     newStateChannel,
-    appIdentityHash
+    appIdentityHash,
+    interpreterAddress
   );
 
   return [appIdentityHash, commitment];
@@ -136,7 +167,8 @@ function proposeStateTransition(
 function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
-  appIdentityHash: string
+  appIdentityHash: string,
+  interpreterAddress
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
@@ -147,13 +179,13 @@ function constructInstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     app.identity,
-    app.terms,
     freeBalance.identity,
-    freeBalance.terms,
     freeBalance.hashOfLatestState,
     freeBalance.nonce,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue
+    freeBalance.rootNonceValue,
+    interpreterAddress,
+    defaultAbiCoder.encode(["uint256"], [app.limitOrTotal])
   );
 }

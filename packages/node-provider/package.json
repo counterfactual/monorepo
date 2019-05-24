@@ -9,8 +9,8 @@
   ],
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p tsconfig.json && rollup -c",
-    "test": "tsc -b && jest --runInBand --detectOpenHandles --bail --forceExit",
+    "build": "tsc -b . && rollup -c",
+    "test": "tsc -b . && jest --runInBand --detectOpenHandles --bail --forceExit",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p .",
@@ -18,18 +18,18 @@
   },
   "devDependencies": {
     "@counterfactual/types": "0.0.9",
-    "@types/jest": "24.0.11",
-    "@types/node": "11.13.9",
-    "jest": "24.7.1",
-    "rollup": "1.10.1",
-    "rollup-plugin-commonjs": "9.3.4",
-    "rollup-plugin-node-resolve": "4.2.3",
-    "rollup-plugin-typescript2": "0.21.0",
+    "@types/jest": "24.0.12",
+    "@types/node": "12.0.2",
+    "jest": "24.8.0",
+    "rollup": "1.12.3",
+    "rollup-plugin-commonjs": "10.0.0",
+    "rollup-plugin-node-resolve": "5.0.0",
+    "rollup-plugin-typescript2": "0.21.1",
     "ts-jest": "24.0.2",
     "tslint": "5.16.0",
     "typescript": "3.4.5"
   },
   "dependencies": {
-    "eventemitter3": "^3.1.0"
+    "eventemitter3": "^3.1.2"
   }
 }
