@@ -4,15 +4,15 @@ The framework currently contains basic support for channel networks via "virtual
 
 
 ```solidity
-  struct Agreement {
-    AppRegistry registry;
-    NonceRegistry nonceRegistry;
-    uint256 expiry;
-    bytes32 appIdentityHash;
-    uint256 capitalProvided;
-    address payable[2] beneficiaries;
-    bytes32 uninstallKey;
-  }
+struct Agreement {
+  AppRegistry registry;
+  NonceRegistry nonceRegistry;
+  uint256 expiry;
+  bytes32 appIdentityHash;
+  uint256 capitalProvided;
+  address payable[2] beneficiaries;
+  bytes32 uninstallKey;
+}
 ```
 
 - **`registry`**: The `AppRegistry` where the target app instance is stored
