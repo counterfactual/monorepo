@@ -2273,15 +2273,6 @@
 
 "@stencil/core@0.18.1-0":
   version "0.18.1-0"
-  resolved "https://registry.yarnpkg.com/@stencil/core/-/core-0.18.1-0.tgz#75f3a6afc19bb161bd6845043ff17410a2288304"
-  integrity sha512-Mcwf9tqSeNuA7MdAFwD+Au4hSteqsLPtn9yBGBWGMbIBGwggtKgUiCsPobqzwwIm8rCCSI5QvcsbaeeehUsGIA==
-  dependencies:
-    chokidar "2.0.3"
-    jsdom "11.11.0"
-    typescript "3.3.3"
-
-"@stencil/core@0.18.1-0":
-  version "0.18.1-0"
   resolved "https://registry.npmjs.org/@stencil/core/-/core-0.18.1-0.tgz#75f3a6afc19bb161bd6845043ff17410a2288304"
   integrity sha512-Mcwf9tqSeNuA7MdAFwD+Au4hSteqsLPtn9yBGBWGMbIBGwggtKgUiCsPobqzwwIm8rCCSI5QvcsbaeeehUsGIA==
   dependencies:
@@ -7502,9 +7493,9 @@ ethereumjs-wallet@0.6.2:
     uuid "^3.3.2"
 
 ethers@4.0.0-beta.1, ethers@4.0.28, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20, ethers@^4.0.27:
-  version "4.0.27"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.27.tgz#e570b0da9d805ad65c83d81919abe02b2264c6bf"
-  integrity sha512-+DXZLP/tyFnXWxqr2fXLT67KlGUfLuvDkHSOtSC9TUVG9OIj6yrG5JPeXRMYo15xkOYwnjgdMKrXp5V94rtjJA==
+  version "4.0.28"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.28.tgz#74d9acb57f4ede3337c8d60476b38d0fe646af01"
+  integrity sha512-5JTHrPoFLqf+xCAI3pKwXSOgWBSJJoAUdPtPLr1ZlKbSKiIFMkPlRNovmZS3jhIw5sHW1YoVWOaJ6ZR2gKRbwg==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -17617,6 +17608,16 @@ truffle@5.0.10:
   version "5.0.10"
   resolved "https://registry.npmjs.org/truffle/-/truffle-5.0.10.tgz#f773522becbed0f66b372c6a9a1f36d233337e1e"
   integrity sha512-wVp7ruznIm1iX7fTHZwjKZCaOkkQcTR1eWOCi2yTQ85wg1iQITpV7NLDpVandaNcz5Z0e8EdOrH9lFKLgxiAxQ==
+  dependencies:
+    app-module-path "^2.2.0"
+    mocha "^4.1.0"
+    original-require "1.0.1"
+    solc "0.5.0"
+
+truffle@5.0.19, truffle@^5.0.19:
+  version "5.0.19"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.19.tgz#3187f11168ed526ffa17cfa6a0d9735208569381"
+  integrity sha512-d4fxChHYCjccW33IO/4KLcGqjTDn+mw7vqdGvGi307CMo+KTtns+5c91+1iOKDQcSKiv8SHYgvtyF7cn/+FPAg==
   dependencies:
     app-module-path "^2.2.0"
     mocha "^4.1.0"
