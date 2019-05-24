@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -50,7 +50,7 @@
     "@firebase/util": "0.2.16",
     "ethers": "4.0.28",
     "eventemitter3": "^3.1.2",
-    "firebase": "6.0.4",
+    "firebase": "6.0.2",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
     "pg": "7.9.0",

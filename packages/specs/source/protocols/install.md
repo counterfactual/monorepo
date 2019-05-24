@@ -65,7 +65,7 @@ First we introduce a new type which we label `InstallParams`.
 Let `c1` and `c2` be the amounts that parties 1 and 2 wish to contribute towards the application respectively. Then, the commitment should:
 
 - Updates the state of the free balance application to one where the first party's balance is reduced by `c_1` and party the second party's balance should be reduced by `c_2`.
-- Makes a delegatecall to `executeAppConditionalTransaction` with a limit of `c_1 + c_2` as also included in the terms.
+- Makes a delegatecall to `executeEffectOfInterpretedAppOutcome` with a limit of `c_1 + c_2` as also included in the terms.
 
 The following parameters are included in the commitment:
 
@@ -81,4 +81,4 @@ The commitment can be visually represented like:
 ```
 
 
-> NOTE: Although not shown in the visualization, the order of transactions is important. The `multiSend` must encode the call to `proxyCall` **before** the call to `executeAppConditionalTransaction`.
+> NOTE: Although not shown in the visualization, the order of transactions is important. The `multiSend` must encode the call to `proxyCall` **before** the call to `executeEffectOfInterpretedAppOutcome`.

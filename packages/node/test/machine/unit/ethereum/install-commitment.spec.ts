@@ -180,9 +180,9 @@ describe("InstallCommitment", () => {
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the executeAppConditionalTransaction method", () => {
+        it("should be directed at the executeEffectOfInterpretedAppOutcome method", () => {
           expect(calldata.sighash).toBe(
-            iface.functions.executeAppConditionalTransaction.sighash
+            iface.functions.executeEffectOfInterpretedAppOutcome.sighash
           );
         });
 
