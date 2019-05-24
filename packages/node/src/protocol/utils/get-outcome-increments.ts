@@ -53,18 +53,25 @@ export async function computeFreeBalanceIncrements(
 
       let attempts = 1;
 
+      const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
       while (1) {
         outcome = await appDefinition.functions.computeOutcome(
           appInstance.encodedLatestState
         );
+
         const [address, to] = computeEthTransferIncrement(outcome);
+
         if (to.gt(Zero)) {
           return { [address]: to };
         }
+
         attempts += 1;
+
         if (attempts === 10) {
           throw new Error("Failed to get a outcome after 10 attempts");
         }
+
+        await wait(1000 * attempts);
       }
     }
     case OutcomeType.TWO_PARTY_OUTCOME: {
