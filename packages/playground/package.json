@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "scripts": {
     "build": "stencil build --debug && cp src/_redirects www/_redirects",
     "serve": "stencil build --dev --watch --serve",
@@ -13,7 +13,7 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.18",
+    "@counterfactual/node": "0.1.19",
     "@counterfactual/types": "0.0.9",
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",
