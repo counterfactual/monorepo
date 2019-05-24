@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/high-roller-bot",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "A bot for the High Roller Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -29,7 +29,7 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.18",
+    "@counterfactual/node": "0.1.19",
     "@counterfactual/types": "0.0.9",
     "eventemitter3": "^3.1.2"
   },
