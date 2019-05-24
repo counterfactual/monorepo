@@ -8,7 +8,7 @@ module.exports = {
     solc: {
       version: "../../node_modules/solc"
     }
-  }
+  },
   networks: {
     ganache: {
       network_id: 7777777,
