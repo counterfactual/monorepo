@@ -8,6 +8,8 @@ import { Node as NodeEntity } from "./entity/Node";
 import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
 import { NodeMessage } from "./types";
 
+type StringKeyValue = { [key: string]: StringKeyValue };
+
 export interface IMessagingService {
   send(to: string, msg: NodeMessage): Promise<void>;
   onReceive(address: string, callback: (msg: NodeMessage) => void);
@@ -281,11 +283,15 @@ class PostgresStoreService implements IStoreService {
     private readonly storeServiceKey: string
   ) {}
 
-  async set(pairs: { key: string; value: any }[]): Promise<any> {
+  async set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<boolean> {
+    if (!allowDelete && containsNull(pairs)) {
+      throw new Error(WRITE_NULL_TO_FIREBASE);
+    }
+
     const connection = this.connectionMgr.get();
-    const queryRunner = connection.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
 
     await connection.transaction(async transactionalEntityManager => {
       for (const pair of pairs) {
@@ -306,9 +312,10 @@ class PostgresStoreService implements IStoreService {
         await transactionalEntityManager.save(record);
       }
     });
+    return true;
   }
 
-  async get(key: string): Promise<any> {
+  async get(key: string): Promise<StringKeyValue | string> {
     const storeKey = `${this.storeServiceKey}_${key}`;
     const res = await this.connectionMgr
       .get()
