@@ -102,6 +102,8 @@ export class RequestHandler {
               `${operations[0].ref.type}:${operations[0].op}`,
               res
             );
+
+            this.outgoing.emit(methodName, res);
           } catch (e) {
             console.error(
               "Call to ",

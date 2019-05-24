@@ -5,7 +5,7 @@ import Queue from "p-queue";
 import { InstructionExecutor, StateChannel } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { NodeOperation } from "../../../types";
+import { NODE_EVENTS, NodeOperation } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { ERRORS } from "../../errors";
@@ -132,6 +132,7 @@ export default class TakeActionController extends NodeController {
     await messagingService.send(to, msg);
 
     outgoing.emit(msg.operations[0].ref.type, msg);
+    outgoing.emit(NODE_EVENTS.UPDATE_STATE, msg);
   }
 }
 

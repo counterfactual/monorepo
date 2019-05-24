@@ -5,6 +5,7 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
+import { operationToEventName } from "./api-router";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import NodeApplication from "./jsonapi-app";
@@ -355,16 +356,16 @@ export class Node {
     this.messagingService.onReceive(
       this.publicIdentifier,
       async (msg: NodeOperation) => {
-        console.log("Recceived message", msg);
         await this.handleReceivedMessage({
           type: msg.operations[0].ref.type,
           from: msg.meta.from,
           data: msg
         } as NodeMessage);
-        this.outgoing.emit(
-          `${msg.operations[0].ref.type}:${msg.operations[0].op}`,
-          msg
-        );
+        const messageType = `${msg.operations[0].ref.type}:${
+          msg.operations[0].op
+        }`;
+        this.outgoing.emit(messageType, msg);
+        this.outgoing.emit(operationToEventName[messageType], msg);
       }
     );
   }
