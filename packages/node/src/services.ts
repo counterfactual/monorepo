@@ -292,7 +292,9 @@ class PostgresStoreService implements IStoreService {
     await connection.transaction(async transactionalEntityManager => {
       for (const pair of pairs) {
         const storeKey = `${this.storeServiceKey}_${pair.key}`;
-        // wrap value so its always JSON
+        // Wrapping the value into an object is necessary for Postgres because the JSON column breaks
+        // if you use anything other than JSON (i.e. a raw string). In some cases, the node code is
+        // inserting strings as values instead of objects.
         const storeValue = {
           [pair.key]: JSON.parse(JSON.stringify(pair.value))
         };
