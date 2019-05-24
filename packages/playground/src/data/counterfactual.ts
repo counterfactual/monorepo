@@ -70,6 +70,7 @@ export default class CounterfactualNode {
   }
 
   static async setupNodeProvider() {
+    this.node.on(JsonApi.MethodName.PROPOSE_INSTALL_VIRTUAL, this.postToPort.bind(this));
     this.node.on(JsonApi.MethodName.INSTALL_VIRTUAL, this.postToPort.bind(this));
     this.node.on(JsonApi.MethodName.REJECT_INSTALL, this.postToPort.bind(this));
     this.node.on(JsonApi.MethodName.DEPOSIT, this.postToPort.bind(this));

@@ -95,6 +95,7 @@ export async function makeDeposit(
   let txResponse: TransactionResponse;
 
   let retryCount = 3;
+  console.log("deposit transaction", JSON.stringify(tx))
   while (retryCount > 0) {
     try {
       txResponse = await signer.sendTransaction(tx);

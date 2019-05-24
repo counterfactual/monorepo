@@ -1,7 +1,6 @@
 import {
   confirmFirebaseConfigurationEnvVars,
   confirmLocalFirebaseConfigurationEnvVars,
-  DepositConfirmationMessage,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory,
@@ -192,7 +191,7 @@ export class NodeWrapper {
     );
 
     NodeWrapper.node.on(
-      NodeTypes.EventName.DEPOSIT_CONFIRMED,
+      "depositConfirmedEvent:depositConfirmedEvent",
       onDepositConfirmed.bind(this)
     );
 
@@ -334,20 +333,22 @@ export class NodeWrapper {
   }
 }
 
-export async function onDepositConfirmed(response: DepositConfirmationMessage) {
+export async function onDepositConfirmed(response) {
   if (response === undefined) {
     return;
   }
 
+  const { attributes } = response.operations[0].data;
+
   const username = await getUsernameFromMultisigAddress(
-    response.data.multisigAddress
+    attributes.multisigAddress
   );
 
   informSlack(
     `💰 *USER_DEPOSITED* (_${username}_) | User deposited ${formatEther(
-      response.data.amount
+      attributes.amount
     )} ETH <http://kovan.etherscan.io/address/${
-      response.data.multisigAddress
+      attributes.multisigAddress
     }|_(view on etherscan)_>.`
   );
 
@@ -397,9 +398,9 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
         data: {
           type: "channel",
           attributes: {
-            multisigAddress: response.data.multisigAddress,
-            amount: response.data.amount,
-            notifyCounterparty: !!response.data.notifyCounterparty
+            multisigAddress: attributes.multisigAddress,
+            amount: attributes.amount,
+            notifyCounterparty: !!attributes.notifyCounterparty
           },
           relationships: {}
         }

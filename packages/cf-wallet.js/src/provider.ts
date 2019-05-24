@@ -236,6 +236,61 @@ export class Provider {
   }
 
   /**
+   * TODO remove this from cf wallet, it's just here for debugging purposes
+   *
+   * @async
+   * @param params Proposal parameters
+   * @return ID of proposed app instance
+   */
+  async proposeInstallVirtual(params: {
+    /** Xpub of peer being proposed to install instance with */
+    proposedToIdentifier;
+    /** Asset to use for deposit */
+    asset;
+    /** Amount to be deposited by you */
+    myDeposit;
+    /** Amount to be deposited by peer */
+    peerDeposit;
+    /** Number of blocks until an on-chain submitted state is considered final */
+    timeout;
+    /** Initial state of app instance */
+    initialState;
+    /** List of intermediary peers to route installation through */
+    appId;
+    encodings;
+    intermediaries: string[];
+  }): Promise<AppInstanceID> {
+    const timeout = new BigNumber(params.timeout);
+    const myDeposit = new BigNumber(params.myDeposit);
+    const peerDeposit = new BigNumber(params.peerDeposit);
+
+    const response = await this.callRawNodeMethod({
+      op: JsonApi.OpName.INSTALL_VIRTUAL,
+      ref: {
+        type: JsonApi.RefType.PROPOSAL
+      },
+      data: {
+        type: JsonApi.RefType.PROPOSAL,
+        relationships: {},
+        attributes: {
+          timeout,
+          peerDeposit,
+          myDeposit,
+          asset: params.asset,
+          proposedToIdentifier: params.proposedToIdentifier,
+          initialState: params.initialState,
+          intermediaries: params.intermediaries,
+          appId: params.appId,
+          abiEncodings: params.encodings
+        }
+      }
+    });
+
+    const resource = response.data as JsonApi.Resource;
+    return resource.id as string;
+  }
+
+  /**
    * Subscribe to event.
    *
    * @async
@@ -299,20 +354,6 @@ export class Provider {
             data: response
           });
         }
-        // if ("operations" in response && response.operations) {
-        //   const responseType = deriveMethodName(response.operations[0]);
-        //   if (responseType !== methodName) {
-        //     return reject({
-        //       errors: [
-        //         {
-        //           status: EventType.ERROR,
-        //           code: "unexpected_message_type",
-        //           detail: `Unexpected response type. Expected ${methodName}, got ${responseType}`
-        //         }
-        //       ]
-        //     });
-        //   }
-        // }
 
         resolve(response as JsonApi.Document);
       };

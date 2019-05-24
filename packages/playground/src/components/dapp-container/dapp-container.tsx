@@ -185,7 +185,7 @@ export class DappContainer {
   private async sendResponseForMatchmakeRequest(frameWindow: Window) {
     const json = await PlaygroundAPIClient.matchmake(
       this.token,
-      this.matchmakeWith || this.getBotName()
+      this.matchmakeWith// || this.getBotName()
     );
 
     const response = JSON.stringify(json);

@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { Node as NodeTypes, JsonApi } from "@counterfactual/types";
 import { formatEther, parseEther } from "ethers/utils";
 import fetch from "node-fetch";
 import { v4 as generateUUID } from "uuid";
@@ -17,13 +17,27 @@ export async function getFreeBalance(
   node: Node,
   multisigAddress: string
 ): Promise<object> {
-  const query = {
-    type: NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
-    requestId: generateUUID(),
-    params: { multisigAddress } as NodeTypes.GetFreeBalanceStateParams
-  };
+  const request = {
+    meta: {
+      requestId: generateUUID()
+    },
+    data: {},
+    operations: [{
+      op: JsonApi.OpName.GET_FREE_BALANCE_STATE,
+      ref: {
+        type: JsonApi.RefType.CHANNEL
+      },
+      data: {
+        type: JsonApi.RefType.CHANNEL,
+        relationships: {},
+        attributes: {
+          multisigAddress
+        }
+      }
+    }]
+  }
 
-  const result = (await node.call(query.type, query)).result  as NodeTypes.GetFreeBalanceStateResult;
+  const result = (await node.call(NodeTypes.MethodName.GET_FREE_BALANCE_STATE, request))  as NodeTypes.GetFreeBalanceStateResult;
 
   return {
     [result.alice]: result.aliceBalance,
@@ -32,11 +46,12 @@ export async function getFreeBalance(
 }
 
 export function logEthFreeBalance(
-  freeBalance: NodeTypes.GetFreeBalanceStateResult
+  freeBalance
 ) {
   console.info(`Channel's free balance`);
-  console.log(freeBalance.alice, formatEther(freeBalance.aliceBalance));
-  console.log(freeBalance.bob, formatEther(freeBalance.bobBalance));
+  for (const key in freeBalance) {
+    console.info(key, formatEther(freeBalance[key]));
+  }
 }
 
 export async function fetchMultisig(baseURL: string, token: string) {
@@ -75,15 +90,28 @@ export async function deposit(
 
   console.log(`\nDepositing ${amount} ETH into ${multisigAddress}\n`);
   try {
-    await node.call(NodeTypes.MethodName.DEPOSIT, {
-      type: NodeTypes.MethodName.DEPOSIT,
-      requestId: generateUUID(),
-      params: {
-        multisigAddress,
-        amount: parseEther(amount),
-        notifyCounterparty: true
-      } as NodeTypes.DepositParams
-    });
+    const request = {
+      meta: {
+        requestId: generateUUID()
+      },
+      data: {},
+      operations: [{
+        op: JsonApi.OpName.DEPOSIT,
+        ref: {
+          type: JsonApi.RefType.CHANNEL
+        },
+        data: {
+          type: JsonApi.RefType.CHANNEL,
+          relationships: {},
+          attributes: {
+            multisigAddress,
+            amount: parseEther(amount),
+            notifyCounterparty: true
+          }
+        }
+      }]
+    }
+    await node.call(NodeTypes.MethodName.DEPOSIT, request);
 
     const postDepositBalances = await getFreeBalance(node, multisigAddress);
 

@@ -76,6 +76,8 @@ export default class DepositController extends NodeController {
           multisigAddress
         );
 
+        console.log("counterparty deposit params", JSON.stringify(params))
+
         await messagingService.send(peerAddress, {
           meta: {
             from: publicIdentifier,

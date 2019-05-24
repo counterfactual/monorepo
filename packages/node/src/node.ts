@@ -355,7 +355,7 @@ export class Node {
     this.messagingService.onReceive(
       this.publicIdentifier,
       async (msg: NodeOperation) => {
-        console.log("Recceived message", msg);
+        console.log("Recceived message", msg, `${msg.operations[0].ref.type}:${msg.operations[0].op}`);
         await this.handleReceivedMessage({
           type: msg.operations[0].ref.type,
           from: msg.meta.from,
