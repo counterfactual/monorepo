@@ -1,5 +1,4 @@
 import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
-import { Log } from "logepi";
 
 import { getUser } from "../../db";
 import { NodeWrapper } from "../../node";
@@ -22,9 +21,6 @@ export default class MultisigDeployProcessor extends OperationProcessor<
     const { transactionHash } = await NodeWrapper.createStateChannelFor(
       nodeAddress as string
     );
-    Log.info("Transaction hash received", {
-      tags: { transactionHash }
-    });
 
     informSlack(
       `📄 *MULTISIG_TX_BROADCASTED* (_${
