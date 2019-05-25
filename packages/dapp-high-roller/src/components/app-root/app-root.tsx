@@ -83,19 +83,6 @@ export class AppRoot {
   setupPlaygroundMessageListeners() {
     window.addEventListener("message", async (event: MessageEvent) => {
       if (
-        event.data.data &&
-        typeof event.data.data.message === "string" &&
-        event.data.data.message.startsWith("playground:response:user")
-      ) {
-        console.log("Got Message From MM! ", event.data.data);
-        if (event.data.data.message.startsWith("playground:response:user")) {
-          const account = event.data.data.data;
-
-          this.updateAccount(account);
-          this.userDataReceived = true;
-        }
-      }
-      if (
         typeof event.data === "string" &&
         event.data.startsWith("playground:response:user")
       ) {
@@ -136,11 +123,10 @@ export class AppRoot {
   async componentDidLoad() {
     if (window === window.parent) {
       // dApp not running in iFrame
-      ethereum.send("counterfactual:request:user").then(data => {
-        const account = data.result;
-        this.updateAccount(account);
-        this.userDataReceived = true;
-      });
+      const data = await ethereum.send("counterfactual:request:user");
+      const account = data.result;
+      this.updateAccount(account);
+      this.userDataReceived = true;
     } else {
       window.parent.postMessage("playground:request:user", "*");
     }

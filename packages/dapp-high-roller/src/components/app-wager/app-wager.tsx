@@ -1,4 +1,5 @@
 declare var ethers;
+declare var ethereum;
 
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
@@ -181,8 +182,14 @@ export class AppWager {
       };
     }
 
-    return new Promise(resolve => {
-      let gotResponse = false; // Needed because MM sends multiple messages
+    if (window === window.parent) {
+      // dApp not running in iFrame
+      const data = await ethereum.send("counterfactual:request:matchmake");
+      const opponent = { data: data.result };
+      return opponent;
+    }
+
+    return new Promise(async resolve => {
       const onMatchmakeResponse = (event: MessageEvent) => {
         if (event.data.toString().startsWith("playground:response:matchmake")) {
           window.removeEventListener("message", onMatchmakeResponse);
@@ -190,35 +197,10 @@ export class AppWager {
           const [, data] = event.data.split("|");
           resolve(JSON.parse(data));
         }
-        if (
-          event.data.data &&
-          typeof event.data.data.message === "string" &&
-          event.data.data.message.startsWith("playground:response:matchmake")
-        ) {
-          if (gotResponse) {
-            return;
-          }
-          gotResponse = true;
-          console.log("MM Matchmake Data! ", event.data.data);
-          const opponent = { data: event.data.data.data };
-          resolve(opponent);
-        }
       };
 
       window.addEventListener("message", onMatchmakeResponse);
-
-      if (window === window.parent) {
-        // dApp not running in iFrame
-        window.postMessage(
-          {
-            type: "PLUGIN_MESSAGE",
-            data: { message: "playground:request:matchmake" }
-          },
-          "*"
-        );
-      } else {
-        window.parent.postMessage("playground:request:matchmake", "*");
-      }
+      window.parent.postMessage("playground:request:matchmake", "*");
     });
   }
 

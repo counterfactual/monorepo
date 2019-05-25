@@ -9,6 +9,8 @@ import PlaygroundAPIClient from "../../../data/playground-api-client";
 import WalletTunnel from "../../../data/wallet";
 import { UserChangeset, UserSession } from "../../../types";
 
+declare var ethereum;
+
 function buildRegistrationSignaturePayload(data: UserChangeset) {
   return [
     "PLAYGROUND ACCOUNT REGISTRATION",
@@ -76,13 +78,7 @@ export class AccountRegister {
       // Inside iFrame
       const userToken = localStorage.getItem("playground:user:token");
       if (userToken) {
-        window.postMessage(
-          {
-            type: "PLUGIN_MESSAGE",
-            data: { message: "playground:set:user", data: userToken }
-          },
-          "*"
-        );
+        ethereum.send("counterfactual:set:user", [userToken]);
       }
     }
   }

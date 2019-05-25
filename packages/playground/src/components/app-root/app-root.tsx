@@ -15,6 +15,8 @@ import PlaygroundAPIClient from "../../data/playground-api-client";
 import WalletTunnel, { WalletState } from "../../data/wallet";
 import { UserSession } from "../../types";
 
+declare var ethereum;
+
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
 const FIREBASE_SERVER_PORT: string = "ENV:FIREBASE_SERVER_PORT";
@@ -66,27 +68,11 @@ export class AppRoot {
       this.hasLocalStorage = false;
     }
 
-    // Callback for processing Playground UI messages
-    // window.addEventListener("message", event => {
-    //   if (!["contentscript", "inpage"].includes(event.data.target)) {
-    //     console.log("event: ", event.data);
-    //   }
-    //   if (typeof event.data !== "string") {
-    //     return;
-    //   }
-    // });
-
     if (window.parent !== window) {
       // Inside iFrame
       const userToken = localStorage.getItem("playground:user:token");
       if (userToken) {
-        window.postMessage(
-          {
-            type: "PLUGIN_MESSAGE",
-            data: { message: "playground:set:user", data: userToken }
-          },
-          "*"
-        );
+        ethereum.send("counterfactual:set:user", [userToken]);
       }
     }
 
@@ -99,32 +85,9 @@ export class AppRoot {
       return nodeAddress;
     }
 
-    return new Promise<string>((resolve, reject) => {
-      let receivedPort = false;
-      window.addEventListener("message", event => {
-        if (event.data.type === "plugin_message_response") {
-          if (event.data.data.message === "metamask:set:nodeAddress") {
-            if (receivedPort) {
-              return;
-            }
-            receivedPort = true;
-            localStorage.setItem(
-              "playground:node:address",
-              event.data.data.data
-            );
-            resolve(event.data.data.data);
-          }
-        }
-      });
-
-      window.postMessage(
-        {
-          type: "PLUGIN_MESSAGE",
-          data: { message: "metamask:get:nodeAddress" }
-        },
-        "*"
-      );
-    });
+    const data = await ethereum.send("counterfactual:get:nodeAddress");
+    localStorage.setItem("playground:node:address", data.result);
+    return data.result;
   }
 
   async setupMM(): Promise<null> {
@@ -432,90 +395,68 @@ export class AppRoot {
       };
     }
 
-    return new Promise<{
-      ethFreeBalanceWei: BigNumber;
-      ethMultisigBalance: BigNumber;
-    }>((resolve, reject) => {
-      const cb = async event => {
-        if (event.data.type === "plugin_message_response") {
-          if (event.data.data.message === "metamask:response:balances") {
-            window.removeEventListener("message", cb);
-            const freeBalance = event.data.data.data;
-            console.log("received getBalances response", event.data);
-            // Had to reimplement this on the frontend because the method can't be imported
-            // due to ethers not playing nice with ES Modules in this context.
-            const getAddress = (xkey: string, k: number) =>
-              ethers.utils.computeAddress(
-                ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
-                  .publicKey
-              );
-
-            const myFreeBalanceAddress = getAddress(nodeAddress, 0);
-            const [counterpartyFreeBalanceAddress] = Object.keys(
-              freeBalance
-            ).filter(addr => addr !== myFreeBalanceAddress);
-
-            const myBalance = (freeBalance[
-              myFreeBalanceAddress
-            ] as unknown) as BigNumber;
-            const counterpartyBalance = (freeBalance[
-              counterpartyFreeBalanceAddress
-            ] as unknown) as BigNumber;
-
-            const vals = {
-              ethFreeBalanceWei: myBalance,
-              ethMultisigBalance: (await provider!.getBalance(
-                multisigAddress
-              )) as BigNumber,
-              ethCounterpartyFreeBalanceWei: counterpartyBalance
-            };
-
-            const enoughCounterpartyBalance = counterpartyBalance.gte(
-              MINIMUM_EXPECTED_FREE_BALANCE
-            );
-            const enoughLocalBalance = myBalance.gte(
-              MINIMUM_EXPECTED_FREE_BALANCE
-            );
-            const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
-
-            await this.updateAppRegistry({
-              canUseApps
-            });
-
-            await this.updateAccount({
-              ...vals,
-              enoughCounterpartyBalance,
-              enoughLocalBalance
-            });
-
-            // TODO: Replace this with a more event-driven approach,
-            // based on a list of collateralized deposits.
-            if (poll) {
-              if (canUseApps) {
-                clearTimeout(this.balancePolling);
-              } else {
-                this.balancePolling = setTimeout(
-                  async () => this.getBalances({ poll }),
-                  1000
-                );
-              }
-            }
-
-            resolve(vals);
-          }
-        }
-      };
-
-      window.addEventListener("message", cb);
-
-      window.postMessage(
-        {
-          type: "PLUGIN_MESSAGE",
-          data: { multisigAddress, message: "metamask:request:balances" }
-        },
-        "*"
+    const data = await ethereum.send("counterfactual:request:balances", [
+      multisigAddress
+    ]);
+    const freeBalance = data.result;
+    console.log("received getBalances response", freeBalance);
+    // Had to reimplement this on the frontend because the method can't be imported
+    // due to ethers not playing nice with ES Modules in this context.
+    const getAddress = (xkey: string, k: number) =>
+      ethers.utils.computeAddress(
+        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
+          .publicKey
       );
+
+    const myFreeBalanceAddress = getAddress(nodeAddress, 0);
+    const [counterpartyFreeBalanceAddress] = Object.keys(freeBalance).filter(
+      addr => addr !== myFreeBalanceAddress
+    );
+
+    const myBalance = (freeBalance[
+      myFreeBalanceAddress
+    ] as unknown) as BigNumber;
+    const counterpartyBalance = (freeBalance[
+      counterpartyFreeBalanceAddress
+    ] as unknown) as BigNumber;
+
+    const vals = {
+      ethFreeBalanceWei: myBalance,
+      ethMultisigBalance: (await provider!.getBalance(
+        multisigAddress
+      )) as BigNumber,
+      ethCounterpartyFreeBalanceWei: counterpartyBalance
+    };
+
+    const enoughCounterpartyBalance = counterpartyBalance.gte(
+      MINIMUM_EXPECTED_FREE_BALANCE
+    );
+    const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+    const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
+
+    await this.updateAppRegistry({
+      canUseApps
     });
+
+    await this.updateAccount({
+      ...vals,
+      enoughCounterpartyBalance,
+      enoughLocalBalance
+    });
+
+    // TODO: Replace this with a more event-driven approach,
+    // based on a list of collateralized deposits.
+    if (poll) {
+      if (canUseApps) {
+        clearTimeout(this.balancePolling);
+      } else {
+        this.balancePolling = setTimeout(
+          async () => this.getBalances({ poll }),
+          1000
+        );
+      }
+    }
+    return vals;
   }
 
   async resetPendingDepositState() {
@@ -658,29 +599,9 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    // TODO need to make postMessage to MM Background Script
-    // MM will createChannel and send back createChannelMsg
-    // This will get forwarded to setMultigAddress
-
-    const cb = async event => {
-      if (event.data.type === "plugin_message_response") {
-        if (event.data.data.message === "metamask:emit:createChannel") {
-          window.removeEventListener("message", cb);
-
-          this.setMultisigAddress(event.data.data.data);
-        }
-      }
-    };
-    window.addEventListener("message", cb);
-    window.postMessage(
-      {
-        type: "PLUGIN_MESSAGE",
-        data: {
-          message: "metamask:listen:createChannel"
-        }
-      },
-      "*"
-    );
+    ethereum.send("counterfactual:listen:createChannel").then(data => {
+      this.setMultisigAddress(data.result);
+    });
   }
 
   async setMultisigAddress(createChannelMsg: CreateChannelMessage) {
