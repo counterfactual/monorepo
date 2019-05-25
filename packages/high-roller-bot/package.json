@@ -37,7 +37,7 @@
     "env-cmd": "9.0.1",
     "ethers": "4.0.28",
     "jest": "24.8.0",
-    "ts-node": "8.1.0",
+    "ts-node": "8.1.1",
     "tslint": "5.16.0",
     "typescript": "3.4.5",
     "uuid": "3.3.2"
