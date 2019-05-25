@@ -20,8 +20,8 @@ import {
   GetProposedAppInstancesController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
-  ProposeInstallAppInstanceController,
-  ProposeInstallVirtualAppInstanceController,
+  ProposeInstallController,
+  ProposeInstallVirtualController,
   RejectInstallController,
   TakeActionController,
   UninstallController,
@@ -46,8 +46,8 @@ export const controllersToOperations = {
   },
 
   // Proposal operations
-  ProposeInstallAppInstanceController: { type: "proposal", op: "install" },
-  ProposeInstallVirtualAppInstanceController: {
+  ProposeInstallController: { type: "proposal", op: "install" },
+  ProposeInstallVirtualController: {
     type: "proposal",
     op: "installVirtual"
   },
@@ -74,8 +74,8 @@ const controllers = [
   DepositController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
-  ProposeInstallAppInstanceController,
-  ProposeInstallVirtualAppInstanceController,
+  ProposeInstallController,
+  ProposeInstallVirtualController,
   RejectInstallController,
   TakeActionController,
   UninstallController,
@@ -118,6 +118,19 @@ export const methodNameToImplementation = controllers.reduce(
   },
   {}
 );
+
+export const operationToEventName = {
+  "channel:add": NODE_EVENTS.CREATE_CHANNEL,
+  "channel:deposit": NODE_EVENTS.DEPOSIT_CONFIRMED,
+  "depositConfirmedEvent:depositConfirmedEvent": NODE_EVENTS.DEPOSIT_CONFIRMED,
+  "app:install": NODE_EVENTS.INSTALL,
+  "app:installVirtual": NODE_EVENTS.INSTALL_VIRTUAL,
+  "proposal:install": NODE_EVENTS.PROPOSE_INSTALL,
+  "proposal:installVirtual": NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+  "proposal:reject": NODE_EVENTS.REJECT_INSTALL,
+  "protocolMessageEvent:protocolMessageEvent":
+    NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+};
 
 export const eventNameToImplementation = {
   "channel:add": addChannelController,

@@ -9,7 +9,7 @@ import { ERRORS } from "../../errors";
 
 import { installVirtual } from "./operation";
 
-export default class InstallVirtualController extends NodeController {
+export default class InstallVirtualAppInstanceController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
 
   protected async enqueueByShard(

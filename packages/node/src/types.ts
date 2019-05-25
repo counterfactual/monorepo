@@ -25,7 +25,7 @@ export interface NodeOperationResponse extends HasMetadata {
   operations: OperationResponse[];
 }
 
-enum Events {
+export enum Events {
   PROPOSE_INSTALL = "proposeInstallEvent",
   PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
   PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",

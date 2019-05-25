@@ -4,8 +4,8 @@ import GetFreeBalanceStateController from "./app-instance/get-free-balance-state
 import GetAppInstanceStateController from "./app-instance/get-state/controller";
 import InstallVirtualAppInstanceController from "./app-instance/install-virtual/controller";
 import InstallAppInstanceController from "./app-instance/install/controller";
-import ProposeInstallVirtualAppInstanceController from "./app-instance/propose-install-virtual/controller";
-import ProposeInstallAppInstanceController from "./app-instance/propose-install/controller";
+import ProposeInstallVirtualController from "./app-instance/propose-install-virtual/controller";
+import ProposeInstallController from "./app-instance/propose-install/controller";
 import RejectInstallController from "./app-instance/reject-install/controller";
 import TakeActionController from "./app-instance/take-action/controller";
 import UninstallVirtualController from "./app-instance/uninstall-virtual/controller";
@@ -28,8 +28,8 @@ export {
   GetProposedAppInstancesController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
-  ProposeInstallAppInstanceController,
-  ProposeInstallVirtualAppInstanceController,
+  ProposeInstallController,
+  ProposeInstallVirtualController,
   RejectInstallController,
   TakeActionController,
   UninstallController,

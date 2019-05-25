@@ -6,6 +6,7 @@ import Queue from "p-queue";
 
 import {
   eventNameToImplementation,
+  operationToEventName,
   methodNameToImplementation
 } from "./api-router";
 import NodeApplication from "./jsonapi-app";
@@ -87,7 +88,9 @@ export class RequestHandler {
 
       this.incoming.on(
         methodName,
-        async ({ meta, operations }: NodeOperation) => {
+        async (msg: NodeOperation) => {
+          const { meta, operations } = this.normalizeMessage(msg);
+
           try {
             const res = await this.callMethod({ meta, operations });
 
@@ -102,6 +105,8 @@ export class RequestHandler {
               `${operations[0].ref.type}:${operations[0].op}`,
               res
             );
+
+            this.outgoing.emit(methodName, res);
           } catch (e) {
             console.error(
               "Call to ",
@@ -114,6 +119,42 @@ export class RequestHandler {
           }
         }
       );
+    }
+  }
+
+  private normalizeMessage(msg): NodeOperation {
+    if (msg.operations) {
+      return msg;
+    } else {
+      const operation = Object.keys(operationToEventName).find((op) => {
+        return operationToEventName[op] === `${msg.type}Event`;
+      });
+
+      if (!operation) {
+        throw Error(`invalid message format: ${JSON.stringify(msg)}`);
+      }
+
+      const [type, op] = operation.split(":");
+
+      return {
+        meta: {
+          requestId: msg.requestId,
+          from: ""
+        },
+        operations: [{
+          op,
+          ref: {
+            type,
+            id: msg.params.appId
+          },
+          params: {},
+          data: {
+            type,
+            attributes: msg.params,
+            relationships: {}
+          }
+        }]
+      }
     }
   }
 
