@@ -1,9 +1,5 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import {
-  AssetType,
-  NetworkContext,
-  ResolutionType
-} from "@counterfactual/types";
+import { AssetType, NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -110,16 +106,16 @@ async function proposeStateTransition(
     context.provider
   );
 
-  const resolveType = (await appDefinition.functions.resolveType()) as BigNumber;
+  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
 
   let interpreterAddress: string;
 
-  switch (resolveType.toNumber()) {
-    case ResolutionType.ETH_TRANSFER: {
+  switch (outcomeType.toNumber()) {
+    case OutcomeType.ETH_TRANSFER: {
       interpreterAddress = context.network.ETHInterpreter;
       break;
     }
-    case ResolutionType.TWO_PARTY_OUTCOME: {
+    case OutcomeType.TWO_PARTY_OUTCOME: {
       interpreterAddress = context.network.TwoPartyEthAsLump;
       break;
     }

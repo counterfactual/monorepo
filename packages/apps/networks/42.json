@@ -1,17 +1,17 @@
 [
   {
     "contractName": "HighRollerApp",
-    "address": "0x91907355C59BA005843E791c88aAB80b779446c9",
-    "transactionHash": "0xa27b020a0a62186c0ca6e1d8eca3437ab43d2c574073955cf0999d68c343170d"
+    "address": "0xb98d753127f2c9C4f60FB7ED54d6cf082b29f7FD",
+    "transactionHash": "0x139919c4824dbb42848e190a9f753bfe1d878101697b8a7371921f69f0c467f5"
   },
   {
     "contractName": "NimApp",
-    "address": "0x3B076d457fD47eDe973C9386CEDf040039860251",
-    "transactionHash": "0x5fd63fd384eb7f9c447fafa32725d2a169f8e5e10c6a571d44278f6f305dd0dc"
+    "address": "0x9a846464BE1e5755FedBEc9B43DF4366Bf1b34E1",
+    "transactionHash": "0x89b3530ebc7feb5875cca0dafc639458bdfda009f340ea13f44e27099d62741c"
   },
   {
     "contractName": "TicTacToeApp",
-    "address": "0x3d9CbDd5e869638ca8A114289E42aeE8d0966B5b",
-    "transactionHash": "0x94c3713cd25f5e93069724dd897b13c6aea4f8869b700d64aa52d4cbd8db8dcb"
+    "address": "0x6E332C16fc7fCB5E83d99c110d4f5c0f6862CF2b",
+    "transactionHash": "0xfa565d524f2bd70e6fe3a07d00e5cdc78b714b8f5e4e243132b43897bea4fcee"
   }
 ]

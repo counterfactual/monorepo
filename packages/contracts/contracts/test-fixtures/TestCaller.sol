@@ -20,17 +20,4 @@ contract TestCaller {
     return to.staticcall_as_bytes(data);
   }
 
-  function execStaticCallBool(
-    address to,
-    bytes4 selector,
-    bytes memory params
-  )
-    public
-    view
-    returns (bool)
-  {
-    bytes memory data = abi.encodePacked(selector, params);
-    return to.staticcall_as_bool(data);
-  }
-
 }

@@ -26,12 +26,12 @@ export const computeActionHash = (
   previousState: string,
   action: string,
   setStateNonce: number,
-  disputeNonce: number
+  challengeNonce: number
 ) =>
   keccak256(
     solidityPack(
       ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
-      ["0x19", turnTaker, previousState, action, setStateNonce, disputeNonce]
+      ["0x19", turnTaker, previousState, action, setStateNonce, challengeNonce]
     )
   );
 
@@ -44,8 +44,7 @@ export class AppInstance {
     return {
       owner: this.owner,
       signingKeys: this.signingKeys,
-      appDefinitionAddress: this.appDefinitionAddress,
-      interpreterHash: HashZero,
+      appDefinition: this.appDefinition,
       defaultTimeout: this.defaultTimeout
     };
   }
@@ -53,7 +52,7 @@ export class AppInstance {
   constructor(
     readonly owner: string,
     readonly signingKeys: string[],
-    readonly appDefinitionAddress: string,
+    readonly appDefinition: string,
     readonly defaultTimeout: number
   ) {}
 
@@ -65,8 +64,7 @@ export class AppInstance {
           `tuple(
             address owner,
             address[] signingKeys,
-            address appDefinitionAddress,
-            bytes32 interpreterHash,
+            address appDefinition,
             uint256 defaultTimeout
           )`
         ],

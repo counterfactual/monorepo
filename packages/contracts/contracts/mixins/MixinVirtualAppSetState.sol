@@ -39,7 +39,7 @@ contract MixinVirtualAppSetState is
 
     require(
       challenge.status == AppStatus.ON,
-      "setState was called on a virtual app that is either in DISPUTE or OFF"
+      "setState was called on a virtual app that is either in IN_CHALLENGE or OFF"
     );
 
     require(
@@ -60,12 +60,12 @@ contract MixinVirtualAppSetState is
       req.nonce < req.nonceExpiry,
       "Tried to call setState with nonce greater than intermediary nonce expiry");
 
-    challenge.status = req.timeout > 0 ? AppStatus.DISPUTE : AppStatus.OFF;
+    challenge.status = req.timeout > 0 ? AppStatus.IN_CHALLENGE : AppStatus.OFF;
     challenge.appStateHash = req.appStateHash;
     challenge.nonce = req.nonce;
     challenge.finalizesAt = block.number + req.timeout;
-    challenge.disputeNonce = 0;
-    challenge.disputeCounter += 1;
+    challenge.challengeNonce = 0;
+    challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
 

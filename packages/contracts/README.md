@@ -48,6 +48,7 @@ The `networks` folder contains the migration files for the different Ethereum ne
 Not all of the networks will be used for the Counterfactual contracts, but you can find a more comprehensive list [here](https://ethereum.stackexchange.com/a/17101). To run a migration against a target network:
 
 - make sure the target network configuration exists in `truffle-config.js`
-- the right env vars are set in `.env`
+- `cp .env.example .env` and make sure the right env vars are set in `.env`
+  - note that the address of the account that needs to be funded to deploy the contracts is derived (in a node.js REPL) via: `require('ethers').Wallet.fromMnemonic('ETH_ACCOUNT_MNENOMIC')`
 - the network account you're using to send transactions from is funded (eg. for Rinkeby: https://faucet.rinkeby.io/)
 - run: `yarn migrate --network <network name>`

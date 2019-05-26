@@ -6,8 +6,7 @@ export enum AssetType {
 export type AppIdentity = {
   owner: string;
   signingKeys: string[];
-  appDefinitionAddress: string;
-  interpreterHash: string;
+  appDefinition: string;
   defaultTimeout: number;
 };
 
@@ -25,6 +24,6 @@ export type SignedStateHashUpdate = {
 };
 
 export type ETHBucketAppState = {
-  amount: { _hex: string },
-  to: string
+  amount: { _hex: string };
+  to: string;
 }[];

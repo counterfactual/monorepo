@@ -1,7 +1,7 @@
 import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import ResolveTo2App from "@counterfactual/contracts/build/ResolveTo2App.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -9,13 +9,12 @@ import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther } from "ethers/utils";
 
 import { SetStateCommitment } from "../../../src/ethereum";
-import { ETHVirtualAppAgreementCommitment } from "../../../src/ethereum/eth-virtual-app-agreement-commitment";
+import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { makeNetworkContext } from "./make-network-context";
 import { getRandomHDNodes } from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
@@ -26,7 +25,6 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
-let networkId: number;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
 let network: NetworkContext;
@@ -35,9 +33,9 @@ let appRegistry: Contract;
 expect.extend({ toBeEq });
 
 beforeAll(async () => {
-  [provider, wallet, networkId] = await connectToGanache();
+  [provider, wallet, {}] = await connectToGanache();
 
-  network = makeNetworkContext(networkId);
+  network = global["networkContext"];
 
   appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
 });
@@ -52,9 +50,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       0
     );
 
-    const resolveTo2AppDefinition = await new ContractFactory(
-      ResolveTo2App.abi,
-      ResolveTo2App.bytecode,
+    const fixedTwoPartyOutcomeAppDefinition = await new ContractFactory(
+      FixedTwoPartyOutcomeApp.abi,
+      FixedTwoPartyOutcomeApp.bytecode,
       wallet
     ).deploy();
 
@@ -84,7 +82,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: resolveTo2AppDefinition.address,
+          addr: fixedTwoPartyOutcomeAppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
         },
@@ -103,7 +101,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         Wallet.createRandom().address
       ];
 
-      const commitment = new ETHVirtualAppAgreementCommitment(
+      const commitment = new TwoPartyVirtualEthAsLumpCommitment(
         network, // network
         proxyAddress, // multisigAddress
         multisigOwnerKeys.map(x => x.address), // signing
@@ -139,7 +137,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      await appRegistry.functions.setResolution(
+      await appRegistry.functions.setOutcome(
         targetAppInstance.identity,
         targetAppInstance.encodedLatestState
       );

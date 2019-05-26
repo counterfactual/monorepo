@@ -30,7 +30,7 @@ export class SetupCommitment extends MultisigCommitment {
     return {
       to: this.networkContext.StateChannelTransaction,
       value: 0,
-      data: iface.functions.executeAppConditionalTransaction.encode([
+      data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.AppRegistry,
         this.networkContext.NonceRegistry,
         this.getUninstallKeyForNonceRegistry(),

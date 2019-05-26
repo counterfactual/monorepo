@@ -64,18 +64,10 @@ describe("Set State Commitment", () => {
     });
 
     it("should contain expected AppIdentity argument", () => {
-      const [
-        owner,
-        signingKeys,
-        appDefinitionAddress,
-        {} /* interpreterHash */,
-        defaultTimeout
-      ] = desc.args[0];
+      const [owner, signingKeys, appDefinition, defaultTimeout] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
-      expect(appDefinitionAddress).toBe(
-        appInstance.identity.appDefinitionAddress
-      );
+      expect(appDefinition).toBe(appInstance.identity.appDefinition);
       expect(defaultTimeout).toEqual(
         bigNumberify(appInstance.identity.defaultTimeout)
       );

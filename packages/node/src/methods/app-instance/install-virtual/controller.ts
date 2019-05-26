@@ -5,7 +5,7 @@ import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
 import { installVirtual } from "./operation";
 
@@ -35,7 +35,7 @@ export default class InstallVirtualController extends NodeController {
       queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));
     } catch (e) {
       // It is possible the metachannel has never been created
-      if (e !== ERRORS.NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
+      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
     }
 
     return queues;

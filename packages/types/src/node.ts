@@ -1,9 +1,11 @@
-import { AppInstanceInfo } from "./data-types";
+import { BigNumber } from "ethers/utils";
+
 import {
-  Address,
-  AppInstanceID,
-  SolidityABIEncoderV2Type
-} from "./simple-types";
+  AppABIEncodings,
+  AppInstanceInfo,
+  BlockchainAsset
+} from "./data-types";
+import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -13,11 +15,11 @@ export interface INodeProvider {
 export namespace Node {
   export type NetworkContext = {
     // Protocol
-    MultiSend: Address;
-    NonceRegistry: Address;
-    AppRegistry: Address;
+    MultiSend: string;
+    NonceRegistry: string;
+    AppRegistry: string;
     // App-specific
-    ETHBalanceRefundApp: Address;
+    ETHBalanceRefundApp: string;
   };
 
   export enum ErrorType {
@@ -26,61 +28,118 @@ export namespace Node {
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
-    GET_APP_INSTANCES = "getAppInstances",
-    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
-    PROPOSE_INSTALL = "proposeInstall",
-    REJECT_INSTALL = "rejectInstall",
-    INSTALL = "install",
-    GET_STATE = "getState",
+    ACCEPT_STATE = "acceptState",
+    CREATE_CHANNEL = "createChannel",
+    DEPOSIT = "deposit",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
+    GET_APP_INSTANCES = "getAppInstances",
+    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
+    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
+    GET_STATE = "getState",
+    INSTALL = "install",
+    INSTALL_VIRTUAL = "installVirtual",
+    PROPOSE_INSTALL = "proposeInstall",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
+    PROPOSE_STATE = "proposeState",
+    REJECT_INSTALL = "rejectInstall",
+    REJECT_STATE = "rejectState",
+    UPDATE_STATE = "updateState",
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
-    PROPOSE_STATE = "proposeState",
-    ACCEPT_STATE = "acceptState",
-    REJECT_STATE = "rejectState",
-    CREATE_MULTISIG = "createMultisig",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses"
+    UNINSTALL_VIRTUAL = "uninstallVirtual",
+    WITHDRAW = "withdraw"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
+    COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed",
+    CREATE_CHANNEL = "createChannelEvent",
+    DEPOSIT_CONFIRMED = "depositConfirmedEvent",
+    DEPOSIT_FAILED = "depositFailed",
+    DEPOSIT_STARTED = "depositStartedEvent",
     INSTALL = "installEvent",
-    REJECT_INSTALL = "rejectInstallEvent",
-    UPDATE_STATE = "updateStateEvent",
-    UNINSTALL = "uninstallEvent",
+    INSTALL_VIRTUAL = "installVirtualEvent",
     PROPOSE_STATE = "proposeStateEvent",
+    REJECT_INSTALL = "rejectInstallEvent",
     REJECT_STATE = "rejectStateEvent",
-    CREATE_MULTISIG = "createMultisigEvent"
+    UNINSTALL = "uninstallEvent",
+    UNINSTALL_VIRTUAL = "uninstallVirtualEvent",
+    UPDATE_STATE = "updateStateEvent",
+    WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent",
+    WITHDRAWAL_FAILED = "withdrawalFailed",
+    WITHDRAWAL_STARTED = "withdrawalStartedEvent",
+    PROPOSE_INSTALL = "proposeInstallEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
+    WITHDRAW_EVENT = "withdrawEvent",
+    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
   }
 
-  export type GetAppInstancesParams = {};
+  export type CreateChannelParams = {
+    owners: string[];
+  };
 
-  export type GetProposedAppInstancesParams = {};
+  export type CreateChannelResult = {
+    multisigAddress: string;
+    owners: string[];
+    counterpartyXpub: string;
+  };
+
+  export type CreateChannelTransactionResult = {
+    transactionHash: string;
+  };
+
+  export type CreateMultisigParams = {
+    owners: string[];
+  };
+
+  export type CreateMultisigResult = {
+    multisigAddress: string;
+  };
+
+  export type DepositParams = {
+    multisigAddress: string;
+    amount: BigNumber;
+    notifyCounterparty?: boolean;
+  };
+
+  export type DepositResult = {
+    multisigBalance: BigNumber;
+  };
+
+  export type GetAppInstanceDetailsParams = {
+    appInstanceId: AppInstanceID;
+  };
+
+  export type GetAppInstanceDetailsResult = {
+    appInstance: AppInstanceInfo;
+  };
+
+  export type GetAppInstancesParams = {};
 
   export type GetAppInstancesResult = {
     appInstances: AppInstanceInfo[];
   };
 
+  export type GetChannelAddressesParams = {};
+
+  export type GetChannelAddressesResult = {
+    multisigAddresses: string[];
+  };
+
+  export type GetFreeBalanceStateParams = {
+    multisigAddress: string;
+  };
+
+  export type GetFreeBalanceStateResult = {
+    [s: string]: BigNumber;
+  };
+
+  export type GetProposedAppInstancesParams = {};
+
   export type GetProposedAppInstancesResult = {
     appInstances: AppInstanceInfo[];
-  };
-
-  export type ProposeInstallResult = {
-    appInstanceId: AppInstanceID;
-  };
-
-  export type RejectInstallParams = {
-    appInstanceId: AppInstanceID;
-  };
-
-  export type RejectInstallResult = {};
-
-  export type InstallParams = {
-    appInstanceId: AppInstanceID;
-  };
-
-  export type InstallResult = {
-    appInstance: AppInstanceInfo;
   };
 
   export type GetStateParams = {
@@ -91,13 +150,46 @@ export namespace Node {
     state: SolidityABIEncoderV2Type;
   };
 
-  export type GetAppInstanceDetailsParams = {
+  export type InstallParams = {
     appInstanceId: AppInstanceID;
   };
 
-  export type GetAppInstanceDetailsResult = {
+  export type InstallResult = {
     appInstance: AppInstanceInfo;
   };
+
+  export type InstallVirtualParams = InstallParams & {
+    intermediaries: string[];
+  };
+
+  export type InstallVirtualResult = InstallResult;
+
+  export type ProposeInstallParams = {
+    appId: string;
+    abiEncodings: AppABIEncodings;
+    asset: BlockchainAsset;
+    myDeposit: BigNumber;
+    peerDeposit: BigNumber;
+    timeout: BigNumber;
+    initialState: SolidityABIEncoderV2Type;
+    proposedToIdentifier: string;
+  };
+
+  export type ProposeInstallVirtualParams = ProposeInstallParams & {
+    intermediaries: string[];
+  };
+
+  export type ProposeInstallVirtualResult = ProposeInstallResult;
+
+  export type ProposeInstallResult = {
+    appInstanceId: AppInstanceID;
+  };
+
+  export type RejectInstallParams = {
+    appInstanceId: AppInstanceID;
+  };
+
+  export type RejectInstallResult = {};
 
   export type TakeActionParams = {
     appInstanceId: AppInstanceID;
@@ -114,43 +206,65 @@ export namespace Node {
 
   export type UninstallResult = {};
 
-  export type CreateMultisigParams = {
-    owners: Address[];
+  export type UninstallVirtualParams = UninstallParams & {
+    intermediaryIdentifier: string;
   };
 
-  export type CreateMultisigResult = {
-    multisigAddress: Address;
+  export type UninstallVirtualResult = UninstallResult;
+
+  export type UpdateStateParams = {
+    appInstanceId: AppInstanceID;
+    newState: SolidityABIEncoderV2Type;
   };
 
-  export type GetChannelAddressesParams = {};
+  export type UpdateStateResult = {
+    newState: SolidityABIEncoderV2Type;
+  };
 
-  export type GetChannelAddressesResult = {
-    multisigAddresses: Address[];
+  export type WithdrawParams = {
+    multisigAddress: string;
+    recipient?: string;
+    amount: BigNumber;
+  };
+
+  export type WithdrawResult = {
+    recipient: string;
+    amount: BigNumber;
   };
 
   export type MethodParams =
     | GetAppInstancesParams
     | GetProposedAppInstancesParams
+    | ProposeInstallParams
+    | ProposeInstallVirtualParams
     | RejectInstallParams
     | InstallParams
+    | InstallVirtualParams
     | GetStateParams
     | GetAppInstanceDetailsParams
     | TakeActionParams
     | UninstallParams
-    | CreateMultisigParams
+    | CreateChannelParams
     | GetChannelAddressesParams;
   export type MethodResult =
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
     | ProposeInstallResult
+    | ProposeInstallVirtualResult
     | RejectInstallResult
     | InstallResult
+    | InstallVirtualResult
     | GetStateResult
     | GetAppInstanceDetailsResult
     | TakeActionResult
     | UninstallResult
-    | CreateMultisigResult
+    | CreateChannelResult
     | GetChannelAddressesResult;
+
+  export type CreateMultisigEventData = {
+    owners: string[];
+    multisigAddress: string;
+  };
 
   export type InstallEventData = {
     appInstanceId: AppInstanceID;
@@ -160,19 +274,18 @@ export namespace Node {
     appInstance: AppInstanceInfo;
   };
 
+  export type UninstallEventData = {
+    appInstanceId: string;
+  };
+
   export type UpdateStateEventData = {
     appInstanceId: AppInstanceID;
     newState: SolidityABIEncoderV2Type;
     action?: SolidityABIEncoderV2Type;
   };
 
-  export type UninstallEventData = {
-    appInstanceId: string;
-  };
-
-  export type CreateMultisigEventData = {
-    owners: Address[];
-    multisigAddress: Address;
+  export type WithdrawEventData = {
+    amount: BigNumber;
   };
 
   export type EventData =

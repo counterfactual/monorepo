@@ -3,7 +3,10 @@ import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { ERRORS } from "../../errors";
+import {
+  NO_APP_INSTANCE_ID_TO_INSTALL,
+  VIRTUAL_APP_INSTALLATION_FAIL
+} from "../../errors";
 
 export async function installVirtual(
   store: Store,
@@ -13,7 +16,7 @@ export async function installVirtual(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_INSTALL);
+    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
@@ -37,7 +40,7 @@ export async function installVirtual(
       }
     );
   } catch (e) {
-    return Promise.reject(`${ERRORS.VIRTUAL_APP_INSTALLATION_FAIL}: ${e}`);
+    return Promise.reject(`${VIRTUAL_APP_INSTALLATION_FAIL}: ${e}`);
   }
 
   updatedStateChannelsMap.forEach(

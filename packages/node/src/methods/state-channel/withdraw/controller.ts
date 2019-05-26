@@ -6,7 +6,7 @@ import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import { CANNOT_WITHDRAW, WITHDRAWAL_FAILED } from "../../errors";
 
 import { runWithdrawProtocol } from "./operation";
 
@@ -30,7 +30,7 @@ export default class WithdrawController extends NodeController {
     const channel = await store.getStateChannel(multisigAddress);
 
     if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefundApp)) {
-      return Promise.reject(ERRORS.CANNOT_WITHDRAW);
+      return Promise.reject(CANNOT_WITHDRAW);
     }
   }
 
@@ -84,7 +84,7 @@ export default class WithdrawController extends NodeController {
       );
     } catch (e) {
       requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
-      throw new Error(`${ERRORS.WITHDRAWAL_FAILED}: ${e}`);
+      throw new Error(`${WITHDRAWAL_FAILED}: ${e}`);
     }
 
     return {

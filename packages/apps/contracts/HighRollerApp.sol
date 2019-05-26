@@ -120,7 +120,7 @@ contract HighRollerApp is CounterfactualApp {
     return abi.encode(nextState);
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     pure
     returns (bytes memory)
@@ -135,23 +135,23 @@ contract HighRollerApp is CounterfactualApp {
         appState.playerFirstNumber, appState.playerSecondNumber
       ));
     } else {
-      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
     }
   }
 
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (TwoPartyOutcome.Resolution)
+    returns (TwoPartyOutcome.Outcome)
   {
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
     if (playerFirstTotal > playerSecondTotal) {
-      return TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE;
+      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE;
     } else if (playerFirstTotal < playerSecondTotal) {
-      return TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO;
+      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO;
     } else {
-      return TwoPartyOutcome.Resolution.SPLIT_AND_SEND_TO_BOTH_ADDRS;
+      return TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
     }
   }
 

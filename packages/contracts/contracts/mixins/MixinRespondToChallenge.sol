@@ -9,14 +9,14 @@ import "./MAppRegistryCore.sol";
 import "./MAppCaller.sol";
 
 
-contract MixinProgressChallenge is
+contract MixinRespondToChallenge is
   LibSignature,
   LibStateChannelApp,
   MAppRegistryCore,
   MAppCaller
 {
 
-  /// @notice Respond to a dispute with a valid action
+  /// @notice Respond to a challenge with a valid action
   /// @param appIdentity an AppIdentity object pointing to the app for which there is a challenge to progress
   /// @param appState The ABI encoded latest signed application state
   /// @param action The ABI encoded action the submitter wishes to take
@@ -24,8 +24,8 @@ contract MixinProgressChallenge is
   /// signing key for which it is their turn to take the submitted `action`
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
-  /// @dev This function is only callable when the state channel is in a DISPUTE state
-  function progressChallenge(
+  /// @dev This function is only callable when the state channel is in a IN_CHALLENGE state
+  function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
     bytes memory action,
@@ -40,8 +40,8 @@ contract MixinProgressChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.DISPUTE && challenge.finalizesAt >= block.number,
-      "progressChallenge called on app not in DISPUTE state"
+      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
+      "respondToChallenge called on app not in IN_CHALLENGE state"
     );
 
     require(
@@ -51,11 +51,11 @@ contract MixinProgressChallenge is
 
     require(
       keccak256(appState) == challenge.appStateHash,
-      "Tried to resolve dispute with non-agreed upon app"
+      "Tried to progress a challenge with non-agreed upon app"
     );
 
     address turnTaker = getTurnTaker(
-      appIdentity.appDefinitionAddress,
+      appIdentity.appDefinition,
       appIdentity.signingKeys,
       appState
     );
@@ -66,24 +66,24 @@ contract MixinProgressChallenge is
     );
 
     bytes memory newAppState = applyAction(
-      appIdentity.appDefinitionAddress,
+      appIdentity.appDefinition,
       appState,
       action
     );
 
     challenge.appStateHash = keccak256(newAppState);
-    challenge.disputeNonce += 1;
+    challenge.challengeNonce += 1;
     challenge.latestSubmitter = msg.sender;
 
     if (claimFinal) {
       require(
-        isStateTerminal(appIdentity.appDefinitionAddress, newAppState),
+        isStateTerminal(appIdentity.appDefinition, newAppState),
         "Attempted to claimFinal on a non-terminal state"
       );
       challenge.finalizesAt = block.number;
       challenge.status = AppStatus.OFF;
     } else {
-      challenge.status = AppStatus.DISPUTE;
+      challenge.status = AppStatus.IN_CHALLENGE;
       challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
     }
 

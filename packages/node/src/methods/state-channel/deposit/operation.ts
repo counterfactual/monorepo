@@ -8,7 +8,7 @@ import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
-import { ERRORS } from "../../errors";
+import { DEPOSIT_FAILED } from "../../errors";
 
 export interface ETHBalanceRefundAppState {
   recipient: string;
@@ -97,14 +97,14 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        console.error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+        console.error(`${DEPOSIT_FAILED}: ${e}`);
         return false;
       }
 
       retryCount -= 1;
 
       if (retryCount === 0) {
-        throw new Error(`${ERRORS.DEPOSIT_FAILED}: ${e}`);
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
     }
   }

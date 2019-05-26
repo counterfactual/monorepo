@@ -1,12 +1,10 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
-import * as log from "loglevel";
+import log from "loglevel";
 
-import { ERRORS } from "./methods/errors";
+import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
 import { NodeMessage } from "./types";
-
-const { WRITE_NULL_TO_FIREBASE } = ERRORS;
 
 export interface IMessagingService {
   send(to: string, msg: NodeMessage): Promise<void>;

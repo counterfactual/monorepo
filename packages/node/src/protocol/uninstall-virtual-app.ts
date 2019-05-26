@@ -19,7 +19,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { validateSignature } from "./utils/signature-validator";
 
 const zA = (xpub: string) => {
@@ -69,7 +69,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: s6 } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s4
@@ -118,7 +118,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m4
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s3,
@@ -141,7 +141,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s5
@@ -160,7 +160,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m7
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -196,7 +196,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m3
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s3
@@ -217,7 +217,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s7
@@ -340,11 +340,11 @@ async function addRightUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
@@ -391,11 +391,11 @@ async function addLeftUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(respondingXpub)],

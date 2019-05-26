@@ -28,45 +28,6 @@ library LibStaticCall {
     }
   }
 
-  /// @notice Execute a STATICCALL expecting a boolean return type
-  /// @param to The address the call is being made to
-  /// @param data The calldata being sent to the contract being static called
-  /// @return The return data of the static call encoded as a boolean
-  function staticcall_as_bool(address to, bytes memory data)
-    public
-    view
-    returns (bool)
-  {
-    executeStaticCall(to, data);
-    assembly { return(mload(0x40), returndatasize) }
-  }
-
-  /// @notice Execute a STATICCALL expecting a uint256 return type
-  /// @param to The address the call is being made to
-  /// @param data The calldata being sent to the contract being static called
-  /// @return The return data of the static call encoded as a uint256
-  function staticcall_as_uint256(address to, bytes memory data)
-    public
-    view
-    returns (uint256)
-  {
-    executeStaticCall(to, data);
-    assembly { return(mload(0x40), returndatasize) }
-  }
-
-  /// @notice Execute a STATICCALL expecting a address return type
-  /// @param to The address the call is being made to
-  /// @param data The calldata being sent to the contract being static called
-  /// @return The return data of the static call encoded as a address
-  function staticcall_as_address(address to, bytes memory data)
-    public
-    view
-    returns (address)
-  {
-    executeStaticCall(to, data);
-    assembly { return(mload(0x40), returndatasize) }
-  }
-
   /// @notice Execute a STATICCALL expecting a bytes return type
   /// @param to The address the call is being made to
   /// @param data The calldata being sent to the contract being static called

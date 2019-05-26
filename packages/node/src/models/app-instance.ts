@@ -5,7 +5,6 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { HashZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -72,8 +71,8 @@ export type AppInstanceJson = {
  *           of the app (the two addresses who could potentially have money
  *           sent to them)
 
- * @property limitOrTotal If the resolution type is TwoPartyOutcome, the total
- *           amount of ETH in wei allocated to the app; if the resolution type
+ * @property limitOrTotal If the outcome type is TwoPartyOutcome, the total
+ *           amount of ETH in wei allocated to the app; if the outcome type
  *           is ETHTransfer, the static upper bound on the total amount of ETH
  *           allowed to be transfered by this app
  */
@@ -157,8 +156,7 @@ export class AppInstance {
     return {
       owner: this.json.multisigAddress,
       signingKeys: this.json.signingKeys,
-      appDefinitionAddress: this.json.appInterface.addr,
-      interpreterHash: HashZero, // todo(xuanji)
+      appDefinition: this.json.appInterface.addr,
       defaultTimeout: this.json.defaultTimeout
     };
   }

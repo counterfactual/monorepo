@@ -1,11 +1,15 @@
-import { Node } from "@counterfactual/types";
+import { AssetType, Node } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
-import { ERRORS } from "../../errors";
+import {
+  APP_ALREADY_UNINSTALLED,
+  CANNOT_UNINSTALL_FREE_BALANCE,
+  NO_APP_INSTANCE_ID_TO_UNINSTALL
+} from "../../errors";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
 
@@ -20,6 +24,9 @@ export default class UninstallController extends NodeController {
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+    if (sc.getFreeBalanceFor(AssetType.ETH).identityHash === appInstanceId) {
+      return Promise.reject(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
+    }
 
     return [
       requestHandler.getShardedQueue(
@@ -38,7 +45,7 @@ export default class UninstallController extends NodeController {
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
   }
 
@@ -55,13 +62,13 @@ export default class UninstallController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(ERRORS.NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      return Promise.reject(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(ERRORS.APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
     const to = getCounterpartyAddress(

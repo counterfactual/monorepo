@@ -9,10 +9,10 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   BlockchainAsset,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 } from "./data-types";
-import { INodeProvider, Node } from "./node-protocol";
+import { INodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
@@ -50,6 +50,12 @@ export const networkContextProps = [
   "TwoPartyEthAsLump"
 ];
 
+export interface ContractMigration {
+  contractName: string;
+  address: string;
+  transactionHash: string;
+}
+
 export {
   ABIEncoding,
   Address,
@@ -66,6 +72,6 @@ export {
   INodeProvider,
   Node,
   SignedStateHashUpdate,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 };

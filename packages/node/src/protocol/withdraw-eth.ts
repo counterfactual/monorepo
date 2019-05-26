@@ -75,7 +75,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: respondingXpub,
         signature: s5,
         seq: -1
@@ -133,7 +133,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: s2,
         signature2: s4,

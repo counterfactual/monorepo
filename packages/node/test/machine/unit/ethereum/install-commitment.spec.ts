@@ -130,12 +130,12 @@ describe("InstallCommitment", () => {
 
         it("should build the expected AppIdentity argument", () => {
           const [
-            [owner, signingKeys, appDefinitionAddress, {}, defaultTimeout]
+            [owner, signingKeys, appDefinition, defaultTimeout]
           ] = calldata.args;
           const expected = freeBalanceETH.identity;
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
-          expect(appDefinitionAddress).toBe(expected.appDefinitionAddress);
+          expect(appDefinition).toBe(expected.appDefinition);
           expect(defaultTimeout).toEqual(bigNumberify(expected.defaultTimeout));
         });
 
@@ -180,9 +180,9 @@ describe("InstallCommitment", () => {
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the executeAppConditionalTransaction method", () => {
+        it("should be directed at the executeEffectOfInterpretedAppOutcome method", () => {
           expect(calldata.sighash).toBe(
-            iface.functions.executeAppConditionalTransaction.sighash
+            iface.functions.executeEffectOfInterpretedAppOutcome.sighash
           );
         });
 

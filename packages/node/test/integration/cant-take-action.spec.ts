@@ -1,5 +1,4 @@
-import { Node } from "../../src";
-import { ERRORS } from "../../src/methods/errors";
+import { INVALID_ACTION, Node } from "../../src";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
@@ -47,7 +46,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       try {
         await nodeA.call(takeActionReq.type, takeActionReq);
       } catch (e) {
-        expect(e.toString()).toMatch(ERRORS.INVALID_ACTION);
+        expect(e.toString()).toMatch(INVALID_ACTION);
         done();
       }
     });

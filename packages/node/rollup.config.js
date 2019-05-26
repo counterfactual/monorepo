@@ -23,6 +23,7 @@ const globals = {
 };
 
 const bundledDependencies = new Set([
+  "@counterfactual/contracts",
   "@counterfactual/types",
   "typescript-memoize",
   "p-queue"

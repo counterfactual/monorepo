@@ -64,19 +64,24 @@ contract NimApp is CounterfactualApp {
     return abi.encode(ret);
   }
 
-  function resolve(bytes calldata encodedState)
+  function computeOutcome(bytes calldata encodedState)
     external
     pure
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
 
-    require(isWin(state), "Resolution state was not in a winning position");
+    // TODO: Reverts should not happen, it should return an outcome where
+    //       the person whose took the most recent turn gets all funds.
+    require(
+      isWin(state),
+      "Given state to computeOutcome was not in a winning position"
+    );
 
     if (state.turnNum % 2 == 0) {
-      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_ONE);
+      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
     } else {
-      return abi.encode(TwoPartyOutcome.Resolution.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
     }
   }
 
