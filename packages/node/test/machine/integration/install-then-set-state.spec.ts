@@ -44,7 +44,11 @@ beforeAll(async () => {
 
   network = global["networkContext"];
 
-  appRegistry = new Contract(network.ChallengeRegistry, ChallengeRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**

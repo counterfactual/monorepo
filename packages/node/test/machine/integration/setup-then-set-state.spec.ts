@@ -36,7 +36,11 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
-  appRegistry = new Contract(network.ChallengeRegistry, ChallengeRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**
