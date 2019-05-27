@@ -29,7 +29,7 @@ contract MixinSetState is
   ///        it to represent which particular app is having state submitted
   /// @param req An object containing the update to be applied to the
   ///        applications state including the signatures of the users needed
-  /// @dev This function is only callable when the state channel is in an ON state.
+  /// @dev This function is only callable when the state channel is not in challenge
   function setState(
     AppIdentity memory appIdentity,
     SignedAppChallengeUpdate memory req
@@ -41,8 +41,11 @@ contract MixinSetState is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.ON ||
-      (challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number),
+      challenge.status == ChallengeStatus.NO_CHALLENGE ||
+      (
+        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN &&
+        challenge.finalizesAt >= block.number
+      ),
       "setState was called on an app that has already been finalized"
     );
 
@@ -62,7 +65,10 @@ contract MixinSetState is
       "Tried to call setState with an outdated nonce version"
     );
 
-    challenge.status = req.timeout > 0 ? AppStatus.IN_CHALLENGE : AppStatus.OFF;
+    challenge.status = req.timeout > 0 ?
+      ChallengeStatus.CHALLENGE_IS_OPEN :
+      ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+
     challenge.appStateHash = req.appStateHash;
     challenge.nonce = req.nonce;
     challenge.finalizesAt = block.number + req.timeout;

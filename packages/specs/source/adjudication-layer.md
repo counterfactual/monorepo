@@ -45,7 +45,7 @@ A challenge is represented by the following data structure:
 
 ```solidity
 struct AppChallenge {
-    AppStatus status;
+    ChallengeStatus status;
     address latestSubmitter;
     bytes32 appStateHash;
     uint256 challengeCounter;
@@ -55,15 +55,15 @@ struct AppChallenge {
 }
 ```
 
-Where `AppStatus` is one of `ON`, `OFF`, or `IN_CHALLENGE`.
+Where `ChallengeStatus` is one of `NO_CHALLENGE`, `CHALLENGE_WAS_FINALIZED`, or `CHALLENGE_IS_OPEN`.
 
 Here is a description of why each field exists in this data structure:
 
 - **`status`**: A challenge exists in one of four logical states.
-  - `ON`: Has never been opened (the "null" challenge and default for all off-chain apps)
-  - `IN_CHALLENGE`: Open and its timeout parameter is in the future (can be responded to)
-  - `IN_CHALLENGE`: Was opened and the timeout expired (the challenge was finalized)
-  - `OFF`: Was finalized explicitly
+  - `NO_CHALLENGE`: Has never been opened (the "null" challenge and default for all off-chain apps)
+  - `CHALLENGE_IS_OPEN`: Open and its timeout parameter is in the future (can be responded to)
+  - `CHALLENGE_IS_OPEN`: Was opened and the timeout expired (the challenge was finalized)
+  - `CHALLENGE_WAS_FINALIZED`: Was finalized explicitly
 
 ![statechannel statuses](img/statechannel-statuses.svg)
 

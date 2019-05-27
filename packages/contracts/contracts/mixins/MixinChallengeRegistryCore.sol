@@ -22,7 +22,7 @@ contract MixinChallengeRegistryCore is MChallengeRegistryCore {
     return appChallenges[identityHash];
   }
 
-  /// @notice Checks whether or not some application's state is OFF or timed out
+  /// @notice Checks if an application's state has been finalized by challenge
   /// @param identityHash The unique hash of an `AppIdentity`
   /// @return A boolean indicator
   function isStateFinalized(bytes32 identityHash)
@@ -31,9 +31,15 @@ contract MixinChallengeRegistryCore is MChallengeRegistryCore {
     returns (bool)
   {
     return (
-      appChallenges[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
       (
-        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.IN_CHALLENGE &&
+        appChallenges[identityHash].status ==
+        LibStateChannelApp.ChallengeStatus.CHALLENGE_WAS_FINALIZED
+      ) ||
+      (
+        (
+          appChallenges[identityHash].status ==
+          LibStateChannelApp.ChallengeStatus.CHALLENGE_IS_OPEN
+        ) &&
         appChallenges[identityHash].finalizesAt <= block.number
       )
     );

@@ -36,7 +36,7 @@ contract MixinSetStateWithAction is
   /// @param appIdentity An AppIdentity pointing to the app having its challenge progressed
   /// @param req A struct with the signed state update in it
   /// @param action A struct with the signed action being taken
-  /// @dev Note this function is only callable when the state channel is in an ON state
+  /// @dev Note this function is only callable when the state channel is not in challenge
   function setStateWithAction(
     AppIdentity memory appIdentity,
     SignedAppChallengeUpdateWithAppState memory req,
@@ -54,8 +54,8 @@ contract MixinSetStateWithAction is
     );
 
     require(
-      challenge.status == AppStatus.ON ||
-      (challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number),
+      challenge.status == ChallengeStatus.NO_CHALLENGE ||
+      (challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN && challenge.finalizesAt >= block.number),
       "setStateWithAction was called on an app that has already been finalized"
     );
 
@@ -87,10 +87,10 @@ contract MixinSetStateWithAction is
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
-      challenge.status = AppStatus.OFF;
+      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
     } else {
       challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = AppStatus.IN_CHALLENGE;
+      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
     }
 
     challenge.appStateHash = keccak256(newState);
