@@ -5,7 +5,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../data/account";
-import AppRegistryTunnel from "../../data/app-registry";
+import ChallengeRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import WalletTunnel from "../../data/wallet";
 import { AppDefinition } from "../../types";
@@ -192,6 +192,6 @@ export class NodeListener {
   }
 }
 
-AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
+ChallengeRegistryTunnel.injectProps(NodeListener, ["apps"]);
 AccountTunnel.injectProps(NodeListener, ["ethMultisigBalance"]);
 WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);

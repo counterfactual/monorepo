@@ -7,7 +7,7 @@ graph LR
         executeEffectOfInterpretedAppOutcome.->appCfAddress
         executeEffectOfInterpretedAppOutcome.->terms
     end
-    subgraph AppRegistry
+    subgraph ChallengeRegistry
         setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate

@@ -15,7 +15,7 @@
     "transactionHash": "0x89d346c76215ae7706ecf25155143834008063e772d69e7590245374085acd14"
   },
   {
-    "contractName": "AppRegistry",
+    "contractName": "ChallengeRegistry",
     "address": "0x0F1dEFF240d3757550572fcE0bE750c1F8958Be3",
     "transactionHash": "0x202b5ccd645790ffe3be7d192de5e04487594c007dabbbae43098a99622c1f27"
   },

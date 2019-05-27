@@ -67,7 +67,7 @@ export namespace Node {
     // Protocol
     MultiSend: Address;
     NonceRegistry: Address;
-    AppRegistry: Address;
+    ChallengeRegistry: Address;
     // App-specific
     ETHBalanceRefundApp: Address;
   };

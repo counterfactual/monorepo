@@ -5,7 +5,7 @@ import { AddressZero, HashZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { hexlify, keccak256, randomBytes, SigningKey } from "ethers/utils";
 
-import AppRegistry from "../build/AppRegistry.json";
+import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import { AppInstance, computeAppChallengeHash, expect } from "./utils";
 const { signaturesToBytesSortedBySignerAddress } = utils;
@@ -25,7 +25,7 @@ const BOB =
 // HELPER DATA
 const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
-describe("AppRegistry", () => {
+describe("ChallengeRegistry", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
   let wallet2: Wallet;
@@ -48,7 +48,7 @@ describe("AppRegistry", () => {
     wallet = (await waffle.getWallets(provider))[0];
     wallet2 = (await waffle.getWallets(provider))[1];
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
     });
   });
@@ -247,7 +247,7 @@ describe("AppRegistry", () => {
       10
     );
 
-    // Tell the AppRegistry to start timer
+    // Tell the ChallengeRegistry to start timer
     const stateHash = hexlify(randomBytes(32));
     await appRegistry.functions.setState(appInstance.appIdentity, {
       appStateHash: stateHash,

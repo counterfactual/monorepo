@@ -2,7 +2,7 @@ import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
-import AppRegistryTunnel from "../../../data/app-registry";
+import ChallengeRegistryTunnel from "../../../data/app-registry";
 import WalletTunnel from "../../../data/wallet";
 import { AppDefinition, UserSession } from "../../../types";
 
@@ -401,7 +401,7 @@ export class AppHome {
   }
 }
 
-AppRegistryTunnel.injectProps(AppHome, ["apps", "canUseApps"]);
+ChallengeRegistryTunnel.injectProps(AppHome, ["apps", "canUseApps"]);
 
 WalletTunnel.injectProps(AppHome, [
   "web3Detected",

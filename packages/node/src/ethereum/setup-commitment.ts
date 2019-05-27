@@ -31,7 +31,7 @@ export class SetupCommitment extends MultisigCommitment {
       to: this.networkContext.StateChannelTransaction,
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
-        this.networkContext.AppRegistry,
+        this.networkContext.ChallengeRegistry,
         this.networkContext.NonceRegistry,
         this.getUninstallKeyForNonceRegistry(),
         // NOTE: We *assume* here that the root nonce value will be 0

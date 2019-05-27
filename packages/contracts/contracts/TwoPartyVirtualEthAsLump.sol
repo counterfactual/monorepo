@@ -1,7 +1,7 @@
 pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
-import "./AppRegistry.sol";
+import "./ChallengeRegistry.sol";
 import "./NonceRegistry.sol";
 
 
@@ -20,7 +20,7 @@ contract TwoPartyVirtualEthAsLump {
   // todo(xuanji): is it possible to make address(registry) a constant specified
   // at link time?
   struct Agreement {
-    AppRegistry registry;
+    ChallengeRegistry registry;
     NonceRegistry nonceRegistry;
     uint256 expiry;
     bytes32 appIdentityHash;

@@ -3,13 +3,13 @@ pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 import "./MAppCaller.sol";
 
 
 contract MixinSetOutcome is
   LibStateChannelApp,
-  MAppRegistryCore,
+  MChallengeRegistryCore,
   MAppCaller
 {
 

@@ -4,7 +4,7 @@ import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults, RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../data/account";
-import AppRegistryTunnel from "../../data/app-registry";
+import ChallengeRegistryTunnel from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import PlaygroundAPIClient from "../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../types";
@@ -316,7 +316,7 @@ export class DappContainer {
   }
 }
 
-AppRegistryTunnel.injectProps(DappContainer, ["apps"]);
+ChallengeRegistryTunnel.injectProps(DappContainer, ["apps"]);
 AccountTunnel.injectProps(DappContainer, [
   "ethMultisigBalance",
   "getBalances",

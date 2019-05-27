@@ -5,13 +5,13 @@ import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibStaticCall.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 
 
 contract MixinCancelChallenge is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore
+  MChallengeRegistryCore
 {
 
   /// @notice Unanimously agree to cancel a challenge

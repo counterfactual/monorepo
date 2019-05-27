@@ -88,7 +88,7 @@ describe("SetupCommitment", () => {
         {},
         {}
       ] = desc.args;
-      expect(appRegistry).toBe(networkContext.AppRegistry);
+      expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(rootNonceValue).toEqual(
