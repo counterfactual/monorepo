@@ -1,6 +1,6 @@
 import { Component, Element, Prop, State } from "@stencil/core";
 
-import ChallengeRegistryTunnel from "../../../../data/app-registry";
+import AppRegistryTunnel from "../../../../data/app-registry";
 import PlaygroundAPIClient from "../../../../data/playground-api-client";
 import { AppDefinition, UserSession } from "../../../../types";
 
@@ -61,4 +61,4 @@ export class DialogProposeInstall {
   }
 }
 
-ChallengeRegistryTunnel.injectProps(DialogProposeInstall, ["apps"]);
+AppRegistryTunnel.injectProps(DialogProposeInstall, ["apps"]);

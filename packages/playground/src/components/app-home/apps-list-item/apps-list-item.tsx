@@ -1,6 +1,6 @@
 import { Component, Element, Event, EventEmitter, Prop } from "@stencil/core";
 
-import ChallengeRegistryTunnel from "../../../data/app-registry";
+import AppRegistryTunnel from "../../../data/app-registry";
 
 @Component({
   tag: "apps-list-item",
@@ -60,4 +60,4 @@ export class AppsListItem {
   }
 }
 
-ChallengeRegistryTunnel.injectProps(AppsListItem, ["canUseApps"]);
+AppRegistryTunnel.injectProps(AppsListItem, ["canUseApps"]);

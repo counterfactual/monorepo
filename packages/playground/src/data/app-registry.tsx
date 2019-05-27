@@ -2,15 +2,15 @@ import { createProviderConsumer } from "@stencil/state-tunnel";
 
 import { AppDefinition } from "../types";
 
-export interface ChallengeRegistryState {
+export interface AppRegistryState {
   apps: AppDefinition[];
   canUseApps: boolean;
-  updateChallengeRegistry?(data: Partial<ChallengeRegistryState>): Promise<void>;
+  updateAppRegistry?(data: Partial<AppRegistryState>): Promise<void>;
   schemaVersion: string;
   maintenanceMode: boolean;
 }
 
-export default createProviderConsumer<ChallengeRegistryState>(
+export default createProviderConsumer<AppRegistryState>(
   { apps: [], canUseApps: false, maintenanceMode: false, schemaVersion: "0" },
   (subscribe, child) => (
     <context-consumer subscribe={subscribe} renderer={child} />

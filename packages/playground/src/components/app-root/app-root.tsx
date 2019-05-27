@@ -6,7 +6,7 @@ import { Component, State } from "@stencil/core";
 import { MatchResults } from "@stencil/router";
 
 import AccountTunnel, { AccountState } from "../../data/account";
-import ChallengeRegistryTunnel, { ChallengeRegistryState } from "../../data/app-registry";
+import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
 import CounterfactualNode from "../../data/counterfactual";
 import FirebaseDataProvider, {
   FirebaseAppConfiguration
@@ -44,7 +44,7 @@ export class AppRoot {
     enoughLocalBalance: true
   } as AccountState;
   @State() walletState: WalletState = {};
-  @State() appRegistryState: ChallengeRegistryState = {
+  @State() appRegistryState: AppRegistryState = {
     apps: [],
     canUseApps: false,
     schemaVersion: "",
@@ -92,7 +92,7 @@ export class AppRoot {
     this.walletState = { ...this.walletState, ...newProps };
   }
 
-  async updateChallengeRegistry(newProps: Partial<ChallengeRegistryState>) {
+  async updateAppRegistry(newProps: Partial<AppRegistryState>) {
     this.appRegistryState = { ...this.appRegistryState, ...newProps };
   }
 
@@ -241,7 +241,7 @@ export class AppRoot {
   async loadApps() {
     const apps = await PlaygroundAPIClient.getApps();
 
-    await this.updateChallengeRegistry({ apps });
+    await this.updateAppRegistry({ apps });
   }
 
   async heartbeat() {
@@ -251,7 +251,7 @@ export class AppRoot {
 
   async doHeartbeat() {
     const heartbeat = await PlaygroundAPIClient.getHeartbeat();
-    this.updateChallengeRegistry({ ...heartbeat });
+    this.updateAppRegistry({ ...heartbeat });
   }
 
   bindProviderEvents() {
@@ -408,7 +408,7 @@ export class AppRoot {
     const enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
     const canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
 
-    await this.updateChallengeRegistry({
+    await this.updateAppRegistry({
       canUseApps
     });
 
@@ -624,7 +624,7 @@ export class AppRoot {
     );
     this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
 
-    this.appRegistryState.updateChallengeRegistry = this.updateChallengeRegistry.bind(this);
+    this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
 
     if (this.appRegistryState.maintenanceMode) {
       return (
@@ -673,7 +673,7 @@ export class AppRoot {
     return (
       <WalletTunnel.Provider state={this.walletState}>
         <AccountTunnel.Provider state={this.accountState}>
-          <ChallengeRegistryTunnel.Provider state={this.appRegistryState}>
+          <AppRegistryTunnel.Provider state={this.appRegistryState}>
             <div class="app-root wrapper">
               <main class="wrapper__content">
                 {this.hasLocalStorage ? (
@@ -717,7 +717,7 @@ export class AppRoot {
               {this.modal || {}}
               {this.redirect || {}}
             </div>
-          </ChallengeRegistryTunnel.Provider>
+          </AppRegistryTunnel.Provider>
         </AccountTunnel.Provider>
       </WalletTunnel.Provider>
     );

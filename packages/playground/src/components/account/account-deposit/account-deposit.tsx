@@ -2,7 +2,7 @@ import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 
 import AccountTunnel from "../../../data/account";
-import ChallengeRegistryTunnel from "../../../data/app-registry";
+import AppRegistryTunnel from "../../../data/app-registry";
 import CounterfactualNode from "../../../data/counterfactual";
 import WalletTunnel from "../../../data/wallet";
 import { UserSession } from "../../../types";
@@ -98,5 +98,5 @@ export class AccountDeposit {
 }
 
 AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user", "deposit"]);
-ChallengeRegistryTunnel.injectProps(AccountDeposit, ["canUseApps"]);
+AppRegistryTunnel.injectProps(AccountDeposit, ["canUseApps"]);
 WalletTunnel.injectProps(AccountDeposit, ["signer", "ethWeb3WalletBalance"]);
