@@ -6,6 +6,7 @@ import "../libs/LibSignature.sol";
 import "../libs/LibStaticCall.sol";
 
 import "./MChallengeRegistryCore.sol";
+import "./MChannelState.sol";
 import "./MAppCaller.sol";
 
 
@@ -13,141 +14,161 @@ contract MixinSetStateWithAction is
   LibSignature,
   LibStateChannelApp,
   MChallengeRegistryCore,
+  MChannelState,
   MAppCaller
 {
 
-  struct SignedAppChallengeUpdateWithAppState {
-    // NOTE: We include the full bytes of the state update,
-    //       not just the hash of it as in MixinSetState.
-    bytes appState;
-    uint256 nonce;
-    uint256 timeout;
-    bytes signatures;
-  }
+  // TODO: If you make memory calldata and public external you get
+  //       `UnimplementedFeatureError:` upon compilation. Wasn't this fixed?
 
-  struct SignedAction {
-    bytes encodedAction;
-    bytes signature;
-    bool checkForTerminal;
-  }
-
-  /// @notice Create a challenge regarding the latest signed state and immediately after,
-  /// performs a unilateral action to update it.
-  /// @param appIdentity An AppIdentity pointing to the app having its challenge progressed
-  /// @param req A struct with the signed state update in it
-  /// @param action A struct with the signed action being taken
-  /// @dev Note this function is only callable when the state channel is not in challenge
-  function setStateWithAction(
-    AppIdentity memory appIdentity,
-    SignedAppChallengeUpdateWithAppState memory req,
-    SignedAction memory action
+  /// @notice Challenges the logical next turn taker of an application to progress the state
+  /// @dev Note this function is only callable when the state channel is in an ON state
+  function challenge(
+    ChannelState memory prevChannelState,
+    ChannelState memory nextChannelState,
+    bytes memory signatures
   )
     public
   {
-    bytes32 identityHash = appIdentityToHash(appIdentity);
+    bytes32 prevIdentityHash = keccak256(
+      abi.encode(
+        prevChannelState.owner,         // Unique per state channel
+        prevChannelState.participants,  // Unique per app instance
+        prevChannelState.appDefinition  // Unique per app definition
+      )
+    );
 
-    AppChallenge storage challenge = appChallenges[identityHash];
-
-    require(
-      correctKeysSignedAppChallengeUpdate(identityHash, appIdentity.signingKeys, req),
-      "Call to setStateWithAction included incorrectly signed state update"
+    bytes32 nextIdentityHash = keccak256(
+      abi.encode(
+        nextChannelState.owner,
+        nextChannelState.participants,
+        nextChannelState.appDefinition
+      )
     );
 
     require(
-      challenge.status == ChallengeStatus.NO_CHALLENGE ||
-      (challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN && challenge.finalizesAt >= block.number),
-      "setStateWithAction was called on an app that has already been finalized"
+      prevIdentityHash == nextIdentityHash,
+      "Cannot challenge with non-equivalent ChannelState objects."
+    );
+
+    AppChallenge storage appChallenge = appChallenges[prevIdentityHash];
+
+    require(
+      appChallenge.status == AppStatus.ON,
+      "Cannot call challenge on an existing challenge."
     );
 
     require(
-      req.nonce > challenge.nonce,
-      "setStateWithAction was called with outdated state"
+      nextChannelState.nonce > prevChannelState.nonce,
+      "Cannot challenge a ChannelState with a ChannelState having a lower nonce."
     );
 
     require(
-      correctKeySignedTheAction(
-        appIdentity.appDefinition,
-        appIdentity.signingKeys,
-        challenge.challengeNonce,
-        req,
-        action
-      ),
-      "setStateWithAction called with action signed by incorrect turn taker"
+      nextChannelState.turnNum > prevChannelState.turnNum,
+      "Cannot challenge a ChannelState with a ChannelState having a lower turnNum."
     );
 
-    bytes memory newState = MAppCaller.applyAction(
-      appIdentity.appDefinition,
-      req.appState,
-      action.encodedAction
+    require(
+      recoverKey(
+        signatures, keccak256(abi.encode(prevChannelState)), 0
+      ) == getTurnTaker(prevChannelState),
+      "ChannelState given to challenge on was invalid; signed by wrong turn taker."
     );
 
-    if (action.checkForTerminal) {
-      require(
-        MAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
-        "Attempted to claim non-terminal state was terminal in setStateWithAction"
+    require(
+      recoverKey(
+        signatures, keccak256(abi.encode(nextChannelState)), 1
+      ) == getTurnTaker(nextChannelState),
+      "ChannelState given as challenge was invalid; signed by wrong turn taker."
+    );
+
+    // TODO: Generalize function call
+    bytes memory newState = CounterfactualApp(nextChannelState.appDefinition)
+      .applyAction(
+        prevChannelState.appState,
+        nextChannelState.transitionData
       );
-      challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
-    } else {
-      challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
-    }
 
-    challenge.appStateHash = keccak256(newState);
-    challenge.nonce = req.nonce;
-    challenge.challengeNonce = 0;
-    challenge.challengeCounter += 1;
-    challenge.latestSubmitter = msg.sender;
-  }
-
-  function correctKeysSignedAppChallengeUpdate(
-    bytes32 identityHash,
-    address[] memory signingKeys,
-    SignedAppChallengeUpdateWithAppState memory req
-  )
-    private
-    pure
-    returns (bool)
-  {
-    bytes32 digest = computeAppChallengeHash(
-      identityHash,
-      keccak256(req.appState),
-      req.nonce,
-      req.timeout
-    );
-    return verifySignatures(req.signatures, digest, signingKeys);
-  }
-
-  function correctKeySignedTheAction(
-    address appDefinition,
-    address[] memory signingKeys,
-    uint256 challengeNonce,
-    SignedAppChallengeUpdateWithAppState memory req,
-    SignedAction memory action
-  )
-    private
-    pure
-    returns (bool)
-  {
-    address turnTaker = MAppCaller.getTurnTaker(
-      appDefinition,
-      signingKeys,
-      req.appState
+    require(
+      keccak256(newState) == keccak256(nextChannelState.appState),
+      "Transition to new ChannelState must follow rules of the AppDefinition."
     );
 
-    address signer = recoverKey(
-      action.signature,
-      computeActionHash(
-        turnTaker,
-        keccak256(req.appState),
-        action.encodedAction,
-        req.nonce,
-        challengeNonce
-      ),
-      0
-    );
+    appChallenge.finalizesAt = block.number + nextChannelState.challengeTimeout;
+    appChallenge.status = AppStatus.IN_CHALLENGE;
 
-    return turnTaker == signer;
+    appChallenge.appStateHash = keccak256(newState);
+    appChallenge.nonce = nextChannelState.nonce;
+    appChallenge.challengeNonce = 0;
+    appChallenge.challengeCounter += 1;
+    appChallenge.latestSubmitter = msg.sender;
   }
 
 }
+
+// TODO: Double check we don't need these
+//
+// Not required because of identityHashCheck
+// require(
+//   prevChannelState.appDefinition == nextChannelState.appDefinition,
+//   "Cannot challenge two ChannelState objects with different appDefinition properties."
+// );
+//
+// Not required because of identityHashCheck
+// require(
+//   keccak256(prevChannelState.participants) == keccak256(nextChannelState.participants),
+//   "Cannot challenge two ChannelState objects with different participants."
+// );
+
+
+// TODO: Figure out how to do signing states with same turnNum to do unanimous signing
+//
+// uint256 turnNumDelta;
+//
+// uint256 prevTurnNum = prevChannelState.turnNum %
+//   prevChannelState.participants.length;
+//
+// uint256 nextTurnNum = nextChannelState.turnNum %
+//   nextChannelState.participants.length;
+//
+// if (prevTurnNum < nextTurnNum) {
+//   turnNumDelta = min(
+//     prevTurnNum - nextTurnNum,
+//     nextTurnNum - prevTurnNum + nextChannelState.participants.length
+//   );
+// } else if (nextTurnNum < prevTurnNum) {
+//   turnNumDelta = min(
+//     nextTurnNum - prevTurnNum,
+//     prevTurnNum - nextTurnNum + nextChannelState.participants.length
+//   );
+// } else {
+//   revert("Cannot challenge yourself (both ChannelStates have the same turnNum).");
+// }
+//
+// require(
+//   prevChannelState.signatures is of prevChannelState
+//   and done by prevChannelState.participants[prevChannelState.turnNum],
+//   "Needs to be signed by the right guy."
+// );
+//
+// for (i in length of turnNumDelta) {
+//   require(
+//     nextChannelState.signatures is of nextChannelState
+//     and done by nextChannelState.participants[i]
+//     "Needs to be signed by the right guy too."
+//   );
+// }
+
+// TODO: Figure out isTerminal stuff
+//
+// if (nextChannelState.isTerminal) {
+//   require(
+//     MAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
+//     "Attempted to claim non-terminal state was terminal in setStateWithAction"
+//   );
+//   challenge.finalizesAt = block.number;
+//   challenge.status = AppStatus.OFF;
+// } else {
+//   challenge.finalizesAt = block.number + req.timeout;
+//   challenge.status = AppStatus.IN_CHALLENGE;
+// }

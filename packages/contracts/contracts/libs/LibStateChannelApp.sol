@@ -13,6 +13,22 @@ contract LibStateChannelApp {
     CHALLENGE_WAS_FINALIZED
   }
 
+  struct FundingState {
+    bytes32 interpreterHash;
+  }
+
+  struct ChannelState {
+    address appDefinition;
+    address owner;
+    address[] participants;
+    bool isTerminal;
+    bytes appState;
+    bytes transitionData;
+    uint256 challengeTimeout;
+    uint256 nonce;
+    uint256 turnNum;
+  }
+
   // A minimal structure that uniquely identifies a single instance of an App
   struct AppIdentity {
     address owner;
