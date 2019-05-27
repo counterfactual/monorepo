@@ -13,9 +13,6 @@ contract MAppRegistryCore {
   // A mapping of appIdentityHash to outcomes
   mapping (bytes32 => bytes) public appOutcomes;
 
-  // A mapping of appIdentityHash to appInterpreters
-  mapping (bytes32 => bytes32) public appInterpreters;
-
   /// @notice Compute a unique hash for a single instance of an App
   /// @param appIdentity An `AppIdentity` struct that encodes all unique info for an App
   /// @return A bytes32 hash of the AppIdentity
