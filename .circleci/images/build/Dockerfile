@@ -1,11 +1,16 @@
-FROM node:10.15.3-jessie
+FROM resinci/npm-x86_64-ubuntu-node10
 
-# install solc binary
+# add ethereum ppa
 RUN add-apt-repository ppa:ethereum/ethereum
+
 RUN apt-get update
+
 RUN apt-get install -y solc
-RUN node -v & solc --version
+
+# install node 10.x
+RUN apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_10.x | bash -
+RUN apt-get install nodejs
 
 # update yarn
 RUN npm install -g yarn
-RUN yarn --version
