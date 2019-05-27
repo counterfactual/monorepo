@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/tic-tac-toe-bot",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "description": "A bot for the Tic Tac Toe Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -18,8 +18,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "build": "echo 'No build necessary'",
-    "postinstall": "sh ./scripts/postinstall.sh",
+    "heroku-postbuild": "sh ./scripts/heroku-postbuild.sh",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
