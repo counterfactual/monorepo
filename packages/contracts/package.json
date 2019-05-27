@@ -48,7 +48,7 @@
     "ts-mocha": "6.0.0",
     "ts-node": "8.2.0",
     "tslint": "5.16.0",
-    "zos-lib": "2.2.3"
+    "zos-lib": "2.3.0"
   },
   "resolutions": {
     "ethereum-waffle/solc": "0.5.8"

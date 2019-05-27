@@ -11901,6 +11901,11 @@ lodash.pick@^4.4.0:
   resolved "https://registry.yarnpkg.com/lodash.pick/-/lodash.pick-4.4.0.tgz#52f05610fff9ded422611441ed1fc123a03001b3"
   integrity sha1-UvBWEP/53tQiYRRB7R/BI6AwAbM=
 
+lodash.random@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/lodash.random/-/lodash.random-3.2.0.tgz#96e24e763333199130d2c9e2fd57f91703cc262d"
+  integrity sha1-luJOdjMzGZEw0sni/Vf5FwPMJi0=
+
 lodash.reverse@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/lodash.reverse/-/lodash.reverse-4.0.1.tgz#1f2afedace2e16e660f3aa7c59d3300a6f25d13c"
@@ -19829,10 +19834,10 @@ yn@^3.0.0:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.0.tgz#fcbe2db63610361afcc5eb9e0ac91e976d046114"
   integrity sha512-kKfnnYkbTfrAdd0xICNFw7Atm8nKpLcLv9AZGEt+kczL/WQVai4e2V6ZN8U/O+iI6WrNuJjNNOyu4zfhl9D3Hg==
 
-zos-lib@2.2.3:
-  version "2.2.3"
-  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.2.3.tgz#2af35a2264a4f3eea7e4bbabfa98ee774f3935bf"
-  integrity sha512-1JFcyZPrfj7CGJ13q8QOsXIH4roz7Pt7HRgJAPv61FaOyque9niM0g4oNrYDGmxrw4hbl5Xey9ohdw7d6+7E9w==
+zos-lib@2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.3.0.tgz#fb122949ff1097ef71f6d6cbaec8c6e89783ecae"
+  integrity sha512-VF5dcCghVClbJVdvjGa6BEJnXLO0imsYPtxWLjy1YqZthkfULxiCrHdrOaAU+rLMITOVNh17d9Zw9Tk42gsHRw==
   dependencies:
     "@types/web3" "^1.0.14"
     axios "^0.18.0"
@@ -19855,6 +19860,7 @@ zos-lib@2.2.3:
     lodash.map "^4.6.0"
     lodash.omit "^4.5.0"
     lodash.pick "^4.4.0"
+    lodash.random "^3.2.0"
     lodash.reverse "^4.0.1"
     lodash.some "^4.6.0"
     lodash.uniq "^4.5.0"
