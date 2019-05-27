@@ -3,7 +3,6 @@ FROM resinci/npm-x86_64-ubuntu-node10
 # add ethereum ppa
 RUN add-apt-repository ppa:ethereum/ethereum
 
-# update apt repository
 RUN apt-get update
 
 # install solc binary
