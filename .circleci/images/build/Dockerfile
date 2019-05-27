@@ -5,7 +5,6 @@ RUN add-apt-repository ppa:ethereum/ethereum
 
 RUN apt-get update
 
-# install solc binary
 RUN apt-get install -y solc
 
 # install node 10.x
