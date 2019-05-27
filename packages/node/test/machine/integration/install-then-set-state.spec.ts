@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
@@ -24,7 +24,7 @@ import { getRandomHDNodes } from "./random-signing-keys";
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 
-// The AppRegistry.setState call _could_ be estimated but we haven't
+// The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -44,7 +44,11 @@ beforeAll(async () => {
 
   network = global["networkContext"];
 
-  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**

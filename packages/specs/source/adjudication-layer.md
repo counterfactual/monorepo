@@ -1,6 +1,6 @@
 # Adjudication Layer
 
-Counterfactual's adjudication layer uses a singleton contract called the [`AppRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/AppRegistry.sol). This contract has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface.
+Counterfactual's adjudication layer uses a singleton contract called the [`ChallengeRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/ChallengeRegistry.sol). This contract has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface.
 
 The adjudication layer treats off-chain state as divided into independent app instances, which are "instantiations" of Apps governed by the app definition. A channel with two chess different chess games ongoing has two different app instances.
 
@@ -21,7 +21,7 @@ struct AppIdentity {
 
 - **`owner`**: The on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. We treat any function call where `msg.sender == owner` as authorized (all channel participants have agreed to it).
 
-- **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `AppRegistry` itself. In this case, this field is used to validate signatures against to.
+- **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
 
 - **`appDefinition`**: Address ofthe app definition contract.
 
@@ -35,7 +35,7 @@ A challenge that is put on-chain must result from a failure of some state channe
 
 ### Data Structure
 
-The `AppRegistry` contains a storage mapping from appIdentityHash to a struct that represents the current challenge the app instance is undergoing
+The `ChallengeRegistry` contains a storage mapping from appIdentityHash to a struct that represents the current challenge the app instance is undergoing
 
 ```solidity
  mapping (bytes32 => LibStateChannelApp.AppChallenge) public appChallenges;
@@ -85,9 +85,9 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 ### Initiating a Challenge
 
-**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `AppRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding nonce, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
+**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding nonce, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
 
-**Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiating a challenge. A function call to the `AppRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
+**Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiating a challenge. A function call to the `ChallengeRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
 
 ### Responding to a Challenge
 
@@ -99,11 +99,11 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 ## Outcomes
 
-After a challenge has been finalized, the `AppRegistry` can now be used to arrive at an outcome. In the Counterfactual protocols, it is the _outcome_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
+After a challenge has been finalized, the `ChallengeRegistry` can now be used to arrive at an outcome. In the Counterfactual protocols, it is the _outcome_ of an application that is important in executing the disribution of blockchain state fairly for any given off-chain application.
 
 ### Setting an Outcome
 
-**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `AppRegistry` that then initiates a call to the `computeOutcome` function of the corresponding `AppDefinition` to the challenge. The `computeOutcome` method will return a `bytes` struct and that is then stored inside the contract permanently as the outcome of the application.
+**After a challenge is finalized**. If a challenge has been finalized by the timeout expiring, then a function call can be made to the `ChallengeRegistry` that then initiates a call to the `computeOutcome` function of the corresponding `AppDefinition` to the challenge. The `computeOutcome` method will return a `bytes` struct and that is then stored inside the contract permanently as the outcome of the application.
 
 **In the same transaction as finalizing a challenge.** A minor efficiency can be added here, but has not yet been implemented, which is that if the challenge can finalized unilaterally (either in initiation or in refutation) then it is possible to instantly set the outcome. There is an [issue tracking this on GitHub](https://github.com/counterfactual/monorepo/issues/1311).
 
@@ -122,7 +122,7 @@ The interpreter used and the params to the interpreter are fixed per app instanc
 
 **Why are the contracts only compatible with the state channel framework?**
 
-The core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `AppRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
+The core concepts are agnostic to the underlying interface that a state channels application might implement. A future version of the `ChallengeRegistry` might support other types of state channel architectures such as [Force Move Games](https://github.com/magmo/force-move-games), for example.
 
 **Can an outcome be part of the application state itself?**
 

@@ -5,14 +5,14 @@ import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibStaticCall.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 import "./MAppCaller.sol";
 
 
 contract MixinRespondToChallenge is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore,
+  MChallengeRegistryCore,
   MAppCaller
 {
 

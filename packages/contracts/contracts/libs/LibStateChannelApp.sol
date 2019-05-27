@@ -3,7 +3,7 @@ pragma solidity 0.5.8;
 
 /// @title LibStateChannelApp
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Contains the structures and enums needed for the AppRegistry
+/// @notice Contains the structures and enums needed for the ChallengeRegistry
 contract LibStateChannelApp {
 
   // The mode that the App is currently in from POV of the blockchain

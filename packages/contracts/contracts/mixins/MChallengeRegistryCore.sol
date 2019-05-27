@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/LibStateChannelApp.sol";
 
 
-contract MAppRegistryCore {
+contract MChallengeRegistryCore {
 
   // A mapping of appIdentityHash to AppChallenge structs which represents
   // the current on-chain status of some particular application's state.

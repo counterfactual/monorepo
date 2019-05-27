@@ -3,13 +3,13 @@ pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 
 
-/// @title MixinAppRegistryCore
+/// @title MixinChallengeRegistryCore
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Core functionality and utilities for the AppRegistry
-contract MixinAppRegistryCore is MAppRegistryCore {
+/// @notice Core functionality and utilities for the ChallengeRegistry
+contract MixinChallengeRegistryCore is MChallengeRegistryCore {
 
   /// @notice A getter function for the current AppChallenge state
   /// @param identityHash The unique hash of an `AppIdentity`

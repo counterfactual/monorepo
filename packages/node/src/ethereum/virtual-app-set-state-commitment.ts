@@ -1,5 +1,5 @@
 import { utils } from "@counterfactual/cf.js";
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
 
@@ -10,7 +10,7 @@ const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
 // hardcoded assumption: all installed virtual apps can go through this many update operations
 const NONCE_EXPIRY = 65536;
 
-const iface = new Interface(AppRegistry.abi);
+const iface = new Interface(ChallengeRegistry.abi);
 
 export class VirtualAppSetStateCommitment extends EthereumCommitment {
   constructor(
@@ -66,7 +66,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
       throw Error("transaction must receive intermediary signature");
     }
     return {
-      to: this.networkContext.AppRegistry,
+      to: this.networkContext.ChallengeRegistry,
       value: 0,
       data: iface.functions.virtualAppSetState.encode([
         this.appIdentity,

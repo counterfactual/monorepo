@@ -2,7 +2,7 @@ pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
 import "./NonceRegistry.sol";
-import "./AppRegistry.sol";
+import "./ChallengeRegistry.sol";
 
 
 /// @title StateChannelTransaction
@@ -15,7 +15,7 @@ contract StateChannelTransaction {
   /// @param uninstallKey The key in the nonce registry
   /// @param appIdentityHash AppIdentityHash to be resolved
   function executeEffectOfInterpretedAppOutcome(
-    AppRegistry appRegistry,
+    ChallengeRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     uint256 rootNonceExpectedValue,

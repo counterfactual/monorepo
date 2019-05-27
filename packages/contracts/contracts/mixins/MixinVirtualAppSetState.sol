@@ -5,14 +5,14 @@ import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
 import "../libs/LibStaticCall.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 import "./MAppCaller.sol";
 
 
 contract MixinVirtualAppSetState is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore,
+  MChallengeRegistryCore,
   MAppCaller
 {
 

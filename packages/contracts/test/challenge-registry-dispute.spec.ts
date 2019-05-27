@@ -11,7 +11,7 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import AppRegistry from "../build/AppRegistry.json";
+import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
 
 import { AppInstance, expect } from "./utils";
@@ -77,7 +77,7 @@ function encodeAction(state: SolidityABIEncoderV2Type) {
   );
 }
 
-describe("AppRegistry Challenge", () => {
+describe("ChallengeRegistry Challenge", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
 
@@ -97,7 +97,7 @@ describe("AppRegistry Challenge", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
     });
 

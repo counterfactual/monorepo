@@ -10,7 +10,7 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import AppRegistry from "../build/AppRegistry.json";
+import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
 import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
 import NonceRegistry from "../build/NonceRegistry.json";
@@ -82,7 +82,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
       TwoPartyVirtualEthAsLump
     );
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
     });
 

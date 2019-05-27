@@ -5,13 +5,13 @@ import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
 import "../libs/LibStaticCall.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 
 
 contract MixinSetState is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore
+  MChallengeRegistryCore
 {
 
   struct SignedAppChallengeUpdate {

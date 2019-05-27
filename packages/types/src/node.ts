@@ -17,7 +17,7 @@ export namespace Node {
     // Protocol
     MultiSend: string;
     NonceRegistry: string;
-    AppRegistry: string;
+    ChallengeRegistry: string;
     // App-specific
     ETHBalanceRefundApp: string;
   };
