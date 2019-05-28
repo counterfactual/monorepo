@@ -8,8 +8,7 @@
     "typeRoots": [
       "../../node_modules/@types",
       "../../node_modules/@counterfactual/typescript-typings/types"
-    ],
-    "types": ["jest"]
+    ]
   },
-  "include": ["src", "test"]
+  "include": ["src"]
 }
