@@ -40,6 +40,10 @@
       constants = ethers.constants;
       providers = ethers.providers;
       database = firebase.database;
+      // nullify these as they're expected as globals for the node
+      // but aren't used browserside
+      pg = null;
+      SQL = null;
     </script>
 
     <script>
