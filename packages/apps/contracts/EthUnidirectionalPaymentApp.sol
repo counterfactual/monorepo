@@ -7,6 +7,9 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+/// @title ETH Unidirectional Payment App
+/// @notice This contract allows unidirectional ETH transfers using the
+///         takeAction paradigm.
 contract EthUnidirectionalPaymentApp is CounterfactualApp {
 
   using SafeMath for uint256;
@@ -19,7 +22,7 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     uint256 paymentAmount;
   }
 
-  // unidirectional channel, only sender can pay
+  /// @dev getTurnTaker always returns sender's address to enforce unidirectionality.
   function getTurnTaker(
     bytes calldata encodedState, address[] calldata /* signingKeys */
   )
