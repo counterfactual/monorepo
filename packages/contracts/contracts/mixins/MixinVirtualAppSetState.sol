@@ -38,8 +38,8 @@ contract MixinVirtualAppSetState is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.ON,
-      "setState was called on a virtual app that is either in IN_CHALLENGE or OFF"
+      challenge.status == ChallengeStatus.NO_CHALLENGE,
+      "setState can only be called on applications without any challenges on-chain"
     );
 
     require(
@@ -60,7 +60,10 @@ contract MixinVirtualAppSetState is
       req.nonce < req.nonceExpiry,
       "Tried to call setState with nonce greater than intermediary nonce expiry");
 
-    challenge.status = req.timeout > 0 ? AppStatus.IN_CHALLENGE : AppStatus.OFF;
+    challenge.status = req.timeout > 0 ?
+      ChallengeStatus.CHALLENGE_IS_OPEN :
+      ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+
     challenge.appStateHash = req.appStateHash;
     challenge.nonce = req.nonce;
     challenge.finalizesAt = block.number + req.timeout;

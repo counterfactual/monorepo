@@ -24,7 +24,7 @@ contract MixinRespondToChallenge is
   /// signing key for which it is their turn to take the submitted `action`
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
-  /// @dev This function is only callable when the state channel is in a IN_CHALLENGE state
+  /// @dev This function is only callable when the application has an open challenge
   function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
@@ -40,8 +40,10 @@ contract MixinRespondToChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
-      "respondToChallenge called on app not in IN_CHALLENGE state"
+      (
+        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN
+      ) && challenge.finalizesAt >= block.number,
+      "respondToChallenge called on app not in CHALLENGE_IS_OPEN state"
     );
 
     require(
@@ -81,9 +83,9 @@ contract MixinRespondToChallenge is
         "Attempted to claimFinal on a non-terminal state"
       );
       challenge.finalizesAt = block.number;
-      challenge.status = AppStatus.OFF;
+      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
     } else {
-      challenge.status = AppStatus.IN_CHALLENGE;
+      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
       challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
     }
 

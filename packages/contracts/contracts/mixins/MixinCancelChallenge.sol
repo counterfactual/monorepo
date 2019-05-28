@@ -18,7 +18,7 @@ contract MixinCancelChallenge is
   /// @param appIdentity an AppIdentity object pointing to the app being cancelled
   /// @param signatures Signatures by all signing keys of the currently latest challenged
   /// state; an indication of agreement of this state and valid to cancel a challenge
-  /// @dev Note this function is only callable when the state channel is in a IN_CHALLENGE state
+  /// @dev Note this function is only callable when the application has an open challenge
   function cancelChallenge(
     AppIdentity memory appIdentity,
     bytes memory signatures
@@ -33,8 +33,10 @@ contract MixinCancelChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
-      "cancelChallenge called on app not in IN_CHALLENGE state"
+      (
+        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN
+      ) && challenge.finalizesAt >= block.number,
+      "cancelChallenge called on app not in CHALLENGE_IS_OPEN state"
     );
 
     bytes32 stateHash = computeAppChallengeHash(
@@ -53,7 +55,7 @@ contract MixinCancelChallenge is
 
     challenge.challengeNonce = 0;
     challenge.finalizesAt = 0;
-    challenge.status = AppStatus.ON;
+    challenge.status = ChallengeStatus.NO_CHALLENGE;
     challenge.latestSubmitter = msg.sender;
   }
 }
