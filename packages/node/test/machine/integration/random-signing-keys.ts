@@ -3,7 +3,7 @@ import { hexlify, randomBytes, SigningKey } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 
 export function getSortedRandomSigningKeys(length: number) {
-  return Array(length)
+  return [length]
     .fill(0)
     .map(_ => new SigningKey(hexlify(randomBytes(32))))
     .sort((a, b) =>
@@ -12,7 +12,7 @@ export function getSortedRandomSigningKeys(length: number) {
 }
 
 export function getRandomHDNodes(length: number) {
-  return Array(length)
+  return [length]
     .fill(0)
     .map(_ => fromMnemonic(Wallet.createRandom().mnemonic));
 }
