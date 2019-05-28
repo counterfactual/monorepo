@@ -6,7 +6,7 @@ pragma solidity 0.5.8;
 /// @notice Contains the structures and enums needed for the ChallengeRegistry
 contract LibStateChannelApp {
 
-  // The status of any challenge in the AppRegistry
+  // The status of a challenge in the ChallengeRegistry
   enum ChallengeStatus {
     NO_CHALLENGE,
     CHALLENGE_IS_OPEN,
