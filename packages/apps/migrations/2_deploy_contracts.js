@@ -3,13 +3,13 @@ const tdr = require("truffle-deploy-registry");
 const HighRollerApp = artifacts.require("HighRollerApp");
 const NimApp = artifacts.require("NimApp");
 const TicTacToeApp = artifacts.require("TicTacToeApp");
-const EthPaymentApp = artifacts.require("EthPaymentApp");
+const EthUnidirectionalPaymentApp = artifacts.require("EthUnidirectionalPaymentApp");
 
 const ARTIFACTS = [
   HighRollerApp,
   NimApp,
   TicTacToeApp,
-  EthPaymentApp
+  EthUnidirectionalPaymentApp
 ];
 
 module.exports = (deployer, network) => {
