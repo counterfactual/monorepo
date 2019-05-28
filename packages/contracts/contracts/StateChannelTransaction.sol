@@ -2,7 +2,7 @@ pragma solidity 0.5.8;
 pragma experimental "ABIEncoderV2";
 
 import "./NonceRegistry.sol";
-import "./AppRegistry.sol";
+import "./ChallengeRegistry.sol";
 
 
 /// @title StateChannelTransaction
@@ -14,8 +14,8 @@ contract StateChannelTransaction {
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param uninstallKey The key in the nonce registry
   /// @param appIdentityHash AppIdentityHash to be resolved
-  function executeAppConditionalTransaction(
-    AppRegistry appRegistry,
+  function executeEffectOfInterpretedAppOutcome(
+    ChallengeRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     uint256 rootNonceExpectedValue,
@@ -44,20 +44,22 @@ contract StateChannelTransaction {
       "App is not finalized yet"
     );
 
-    bytes memory resolution = appRegistry.getResolution(
+    bytes memory outcome = appRegistry.getOutcome(
       appIdentityHash
     );
 
-    // require(appRegistry.appInterpreters(appIdentityHash) == keccak256(abi.encodePacked(
-    //   interpreterAddress,
-    //   interpreterParams
-    // )));
-
     bytes memory payload = abi.encodeWithSignature(
-      "interpret(bytes,bytes)", resolution, interpreterParams);
-    (bool success, bytes memory returnData) =
-      interpreterAddress.delegatecall(payload);
-    require(success);
+      "interpretOutcomeAndExecuteEffect(bytes,bytes)", outcome, interpreterParams
+    );
+
+    // solium-disable-next-line no-unused-vars
+    (bool success, bytes memory returnData) = interpreterAddress
+      .delegatecall(payload);
+
+    require(
+      success,
+      "Execution of executeEffectOfInterpretedAppOutcome failed"
+    );
   }
 
 

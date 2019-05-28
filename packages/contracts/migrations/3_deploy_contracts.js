@@ -1,6 +1,6 @@
 const tdr = require("truffle-deploy-registry");
 
-const AppRegistry = artifacts.require("AppRegistry");
+const ChallengeRegistry = artifacts.require("ChallengeRegistry");
 const ContractRegistry = artifacts.require("ContractRegistry");
 const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 const ETHBucket = artifacts.require("ETHBucket");
@@ -14,7 +14,7 @@ const ETHInterpreter = artifacts.require("ETHInterpreter");
 const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
 
 const ARTIFACTS = [
-  AppRegistry,
+  ChallengeRegistry,
   ContractRegistry,
   ETHBalanceRefundApp,
   ETHBucket,

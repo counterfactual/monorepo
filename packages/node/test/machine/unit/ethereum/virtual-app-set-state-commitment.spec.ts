@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -65,8 +65,8 @@ describe("Virtual App Set State Commitment", () => {
     });
   });
 
-  it("should be to AppRegistry", () => {
-    expect(tx.to).toBe(networkContext.AppRegistry);
+  it("should be to ChallengeRegistry", () => {
+    expect(tx.to).toBe(networkContext.ChallengeRegistry);
   });
 
   it("should have no value", () => {
@@ -74,7 +74,7 @@ describe("Virtual App Set State Commitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(AppRegistry.abi);
+    const iface = new Interface(ChallengeRegistry.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -87,13 +87,7 @@ describe("Virtual App Set State Commitment", () => {
     });
 
     it("should contain expected AppIdentity argument", () => {
-      const [
-        owner,
-        signingKeys,
-        appDefinition,
-        {},
-        defaultTimeout
-      ] = desc.args[0];
+      const [owner, signingKeys, appDefinition, defaultTimeout] = desc.args[0];
       expect(owner).toBe(appInstance.identity.owner);
       expect(signingKeys).toEqual(appInstance.identity.signingKeys);
       expect(appDefinition).toBe(appInstance.identity.appDefinition);
@@ -113,7 +107,7 @@ describe("Virtual App Set State Commitment", () => {
   it("should produce the correct hash to sign", () => {
     const hashToSign = commitment.hashToSign(false);
 
-    // Based on MAppRegistryCore::computeStateHash
+    // Based on MChallengeRegistryCore::computeStateHash
     const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],

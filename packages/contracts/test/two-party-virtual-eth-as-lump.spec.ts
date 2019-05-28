@@ -1,6 +1,6 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, HashZero, One, Zero } from "ethers/constants";
+import { HashZero, One, Zero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import {
   BigNumber,
@@ -10,11 +10,11 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import AppRegistry from "../build/AppRegistry.json";
-import NonceRegistry from "../build/NonceRegistry.json";
+import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
+import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
+import NonceRegistry from "../build/NonceRegistry.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
-import ResolveTo2App from "../build/ResolveTo2App.json";
 
 import { expect } from "./utils/index";
 
@@ -25,16 +25,16 @@ describe("TwoPartyVirtualEthAsLump", () => {
   let appRegistry: Contract;
   let nonceRegistry: Contract;
   let virtualAppAgreement: Contract;
-  let fixedResolutionApp: Contract;
+  let fixedTwoPartyOutcome: Contract;
   let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
-  /// FixedResolutionApp with random beneficiaries
+  /// FixedTwoPartyOutcomeApp with random beneficiaries
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
     nonceRegistry: Contract,
-    resolutionAddr: string,
+    appDefinition: string,
     expiry: number,
     capitalProvided: BigNumber,
     uninstallKey: string
@@ -59,7 +59,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
         capitalProvided,
         registry: appRegistry.address,
         nonceRegistry: nonceRegistry.address,
-        appIdentityHash: resolutionAddr
+        appIdentityHash: appDefinition
       }
     ]);
 
@@ -82,19 +82,21 @@ describe("TwoPartyVirtualEthAsLump", () => {
       TwoPartyVirtualEthAsLump
     );
 
-    appRegistry = await waffle.deployContract(wallet, AppRegistry, [], {
+    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
       gasLimit: 6000000 // override default of 4 million
     });
 
     nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
 
-    fixedResolutionApp = await waffle.deployContract(wallet, ResolveTo2App);
+    fixedTwoPartyOutcome = await waffle.deployContract(
+      wallet,
+      FixedTwoPartyOutcomeApp
+    );
 
     const appIdentity = {
       owner: await wallet.getAddress(),
       signingKeys: [],
-      appDefinition: fixedResolutionApp.address,
-      interpreterHash: HashZero,
+      appDefinition: fixedTwoPartyOutcome.address,
       defaultTimeout: 10
     };
 
@@ -105,7 +107,6 @@ describe("TwoPartyVirtualEthAsLump", () => {
             address owner,
             address[] signingKeys,
             address appDefinition,
-            bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
         ],
@@ -122,10 +123,10 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     // Can be called immediately without waiting for blocks to be mined
     // because the timeout was set to 0 in the previous call to setState
-    await appRegistry.functions.setResolution(appIdentity, HashZero);
+    await appRegistry.functions.setOutcome(appIdentity, HashZero);
   });
 
-  it("succeeds with a valid resolution and elapsed lockup period", async () => {
+  it("succeeds with a valid outcome and elapsed lockup period", async () => {
     const beneficiaries = await delegatecallVirtualAppAgreement(
       virtualAppAgreement,
       appRegistry,
@@ -140,7 +141,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
     expect(await provider.getBalance(beneficiaries[1])).to.eq(bigNumberify(5));
   });
 
-  it("fails with invalid resolution target", async () => {
+  it("fails with invalid outcome target", async () => {
     await expect(
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,

@@ -7,10 +7,12 @@ export type Bytes32 = string;
 
 // The application-specific state of an app instance, to be interpreted by the
 // app developer. We just treat it as an opaque blob; however since we pass this
-// around in protocol messages and include this in transaction data in disputes,
+// around in protocol messages and include this in transaction data in challenges,
 // we impose some restrictions on the type; they must be serializable both as
 // JSON and as solidity structs.
-export type SolidityABIEncoderV2Type = SolidityABIEncoderV2Struct | SolidityABIEncoderV2SArray;
+export type SolidityABIEncoderV2Type =
+  | SolidityABIEncoderV2Struct
+  | SolidityABIEncoderV2SArray;
 
 type SolidityABIEncoderV2Struct = {
   [x: string]:

@@ -6,7 +6,7 @@ import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
 
-// TS version of MAppRegistryCore::computeAppChallengeHash
+// TS version of MChallengeRegistryCore::computeAppChallengeHash
 export const computeAppChallengeHash = (
   id: string,
   appStateHash: string,
@@ -20,18 +20,18 @@ export const computeAppChallengeHash = (
     )
   );
 
-// TS version of MAppRegistryCore::computeActionHash
+// TS version of MChallengeRegistryCore::computeActionHash
 export const computeActionHash = (
   turnTaker: string,
   previousState: string,
   action: string,
   setStateNonce: number,
-  disputeNonce: number
+  challengeNonce: number
 ) =>
   keccak256(
     solidityPack(
       ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
-      ["0x19", turnTaker, previousState, action, setStateNonce, disputeNonce]
+      ["0x19", turnTaker, previousState, action, setStateNonce, challengeNonce]
     )
   );
 
@@ -45,7 +45,6 @@ export class AppInstance {
       owner: this.owner,
       signingKeys: this.signingKeys,
       appDefinition: this.appDefinition,
-      interpreterHash: HashZero,
       defaultTimeout: this.defaultTimeout
     };
   }
@@ -66,7 +65,6 @@ export class AppInstance {
             address owner,
             address[] signingKeys,
             address appDefinition,
-            bytes32 interpreterHash,
             uint256 defaultTimeout
           )`
         ],

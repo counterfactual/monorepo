@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import { AppIdentity } from "@counterfactual/types";
 import { HashZero } from "ethers/constants";
@@ -8,7 +8,7 @@ import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { encodeTransactions } from "./utils/multisend-encoder";
 
-const appRegistryIface = new Interface(AppRegistry.abi);
+const appRegistryIface = new Interface(ChallengeRegistry.abi);
 const multisendIface = new Interface(MultiSend.abi);
 
 /// A commitment to make MinimumViableMultisig perform a message call to the MultiSend contract
@@ -41,7 +41,7 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
   /// A convenience function for children to include a subcall to set the free balance state
   public freeBalanceInput(): MultisigTransaction {
     return {
-      to: this.networkContext.AppRegistry,
+      to: this.networkContext.ChallengeRegistry,
       value: 0,
       data: appRegistryIface.functions.setState.encode([
         this.freeBalanceAppIdentity,

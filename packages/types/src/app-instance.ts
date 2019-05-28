@@ -7,7 +7,6 @@ export type AppIdentity = {
   owner: string;
   signingKeys: string[];
   appDefinition: string;
-  interpreterHash: string;
   defaultTimeout: number;
 };
 

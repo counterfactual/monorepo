@@ -1,6 +1,6 @@
 import { BigNumber, getAddress, keccak256, solidityPack } from "ethers/utils";
 
-export type ETHVirtualAppAgreementJson = {
+export type TwoPartyVirtualEthAsLumpInstanceJson = {
   multisigAddress: string;
   appSeqNo: number;
   rootNonceValue: number;
@@ -11,8 +11,8 @@ export type ETHVirtualAppAgreementJson = {
   beneficiary2: string;
 };
 
-export class ETHVirtualAppAgreementInstance {
-  private readonly json: ETHVirtualAppAgreementJson;
+export class TwoPartyVirtualEthAsLumpInstance {
+  private readonly json: TwoPartyVirtualEthAsLumpInstanceJson;
 
   constructor(
     public multisigAddress: string,
@@ -37,12 +37,12 @@ export class ETHVirtualAppAgreementInstance {
     };
   }
 
-  public toJson(): ETHVirtualAppAgreementJson {
+  public toJson(): TwoPartyVirtualEthAsLumpInstanceJson {
     return JSON.parse(JSON.stringify(this.json));
   }
 
-  public static fromJson(json: ETHVirtualAppAgreementJson) {
-    return new ETHVirtualAppAgreementInstance(
+  public static fromJson(json: TwoPartyVirtualEthAsLumpInstanceJson) {
+    return new TwoPartyVirtualEthAsLumpInstance(
       json.multisigAddress,
       json.appSeqNo,
       json.rootNonceValue,

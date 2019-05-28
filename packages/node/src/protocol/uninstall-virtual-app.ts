@@ -19,7 +19,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-import { computeFreeBalanceIncrements } from "./utils/get-resolution-increments";
+import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { validateSignature } from "./utils/signature-validator";
 
 const zA = (xpub: string) => {
@@ -340,11 +340,11 @@ async function addRightUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
@@ -391,11 +391,11 @@ async function addLeftUninstallAgreementToContext(
     intermediaryXpub
   )!;
 
-  const agreementInstance = sc.getETHVirtualAppAgreementInstanceFromTarget(
+  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallETHVirtualAppAgreementInstance(
+  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(respondingXpub)],

@@ -72,9 +72,9 @@ describe("SetupCommitment", () => {
       desc = iface.parseTransaction({ data });
     });
 
-    it("should be to the executeAppConditionalTransaction method", () => {
+    it("should be to the executeEffectOfInterpretedAppOutcome method", () => {
       expect(desc.sighash).toBe(
-        iface.functions.executeAppConditionalTransaction.sighash
+        iface.functions.executeEffectOfInterpretedAppOutcome.sighash
       );
     });
 
@@ -88,7 +88,7 @@ describe("SetupCommitment", () => {
         {},
         {}
       ] = desc.args;
-      expect(appRegistry).toBe(networkContext.AppRegistry);
+      expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(rootNonceValue).toEqual(

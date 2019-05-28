@@ -5,7 +5,7 @@ graph LR
         setNonce.->salt
         setNonce.->1
     end
-    subgraph AppRegistry-Free-Balance
+    subgraph ChallengeRegistry-Free-Balance
         setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate

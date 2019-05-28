@@ -9,7 +9,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   BlockchainAsset,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 } from "./data-types";
 import { INodeProvider, Node } from "./node";
@@ -22,7 +22,7 @@ import {
 } from "./simple-types";
 
 export interface NetworkContext {
-  AppRegistry: string;
+  ChallengeRegistry: string;
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   MultiSend: string;
@@ -37,7 +37,7 @@ export interface NetworkContext {
 
 // Keep in sync with above
 export const networkContextProps = [
-  "AppRegistry",
+  "ChallengeRegistry",
   "ETHBalanceRefundApp",
   "ETHBucket",
   "MultiSend",
@@ -72,6 +72,6 @@ export {
   INodeProvider,
   Node,
   SignedStateHashUpdate,
-  ResolutionType,
+  OutcomeType,
   TwoPartyOutcome
 };

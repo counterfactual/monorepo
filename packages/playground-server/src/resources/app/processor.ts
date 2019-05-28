@@ -29,7 +29,7 @@ export default class AppProcessor extends OperationProcessor<App> {
 
       return registry.data.map((record: {}) => new App(record));
     } catch {
-      throw Errors.AppRegistryNotAvailable();
+      throw Errors.ChallengeRegistryNotAvailable();
     }
   }
 }

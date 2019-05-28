@@ -6,7 +6,7 @@ import "../interfaces/CounterfactualApp.sol";
 
 /// @title MAppCaller
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice A mixin for the AppRegistry to make staticcalls to Apps
+/// @notice A mixin for the ChallengeRegistry to make staticcalls to Apps
 contract MAppCaller {
 
   /// @notice A helper method to check if the state of an application is terminal or not
@@ -59,10 +59,10 @@ contract MAppCaller {
       .applyAction(appState, action);
   }
 
-  /// @notice Execute the application's resolve function to compute a resolution
+  /// @notice Execute the application's computeOutcome function to compute an outcome
   /// @param appDefinition An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
-  function resolve(
+  function computeOutcome(
     address appDefinition,
     bytes memory appState
   )
@@ -70,7 +70,7 @@ contract MAppCaller {
     pure
     returns (bytes memory)
   {
-    return CounterfactualApp(appDefinition).resolve(appState);
+    return CounterfactualApp(appDefinition).computeOutcome(appState);
   }
 
 }

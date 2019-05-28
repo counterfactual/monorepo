@@ -24,6 +24,7 @@ const globals = {
 
 const bundledDependencies = new Set([
   "@counterfactual/firebase-client",
+  "@counterfactual/contracts",
   "@counterfactual/types",
   "typescript-memoize",
   "p-queue"

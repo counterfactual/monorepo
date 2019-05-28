@@ -3,13 +3,13 @@ pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 
 
-/// @title MixinAppRegistryCore
+/// @title MixinChallengeRegistryCore
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Core functionality and utilities for the AppRegistry
-contract MixinAppRegistryCore is MAppRegistryCore {
+/// @notice Core functionality and utilities for the ChallengeRegistry
+contract MixinChallengeRegistryCore is MChallengeRegistryCore {
 
   /// @notice A getter function for the current AppChallenge state
   /// @param identityHash The unique hash of an `AppIdentity`
@@ -22,7 +22,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     return appChallenges[identityHash];
   }
 
-  /// @notice Checks whether or not some application's state is OFF or timed out
+  /// @notice Checks if an application's state has been finalized by challenge
   /// @param identityHash The unique hash of an `AppIdentity`
   /// @return A boolean indicator
   function isStateFinalized(bytes32 identityHash)
@@ -31,23 +31,29 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     returns (bool)
   {
     return (
-      appChallenges[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
       (
-        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.DISPUTE &&
+        appChallenges[identityHash].status ==
+        LibStateChannelApp.ChallengeStatus.CHALLENGE_WAS_FINALIZED
+      ) ||
+      (
+        (
+          appChallenges[identityHash].status ==
+          LibStateChannelApp.ChallengeStatus.CHALLENGE_IS_OPEN
+        ) &&
         appChallenges[identityHash].finalizesAt <= block.number
       )
     );
   }
 
-  /// @notice A getter function for the resolution if one is set
+  /// @notice A getter function for the outcome if one is set
   /// @param identityHash The unique hash of an `AppIdentity`
-  /// @return A `Transfer.Transaction` object representing the resolution of the channel
-  function getResolution(bytes32 identityHash)
+  /// @return A `Transfer.Transaction` object representing the outcome of the channel
+  function getOutcome(bytes32 identityHash)
     external
     view
     returns (bytes memory)
   {
-    return appResolutions[identityHash];
+    return appOutcomes[identityHash];
   }
 
 }
