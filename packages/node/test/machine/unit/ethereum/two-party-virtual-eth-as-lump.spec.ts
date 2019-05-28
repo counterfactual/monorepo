@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import { AssetType } from "@counterfactual/types";
 import { HashZero, WeiPerEther, Zero } from "ethers/constants";
@@ -108,8 +108,8 @@ describe("ETH Virtual App Agreement Commitment", () => {
         [op, to, val, data] = transactions[0];
       });
 
-      it("should be to the AppRegistry", () => {
-        expect(to).toBe(networkContext.AppRegistry);
+      it("should be to the ChallengeRegistry", () => {
+        expect(to).toBe(networkContext.ChallengeRegistry);
       });
 
       it("should be of value 0", () => {
@@ -125,7 +125,7 @@ describe("ETH Virtual App Agreement Commitment", () => {
         let calldata: TransactionDescription;
 
         beforeAll(() => {
-          iface = new Interface(AppRegistry.abi);
+          iface = new Interface(ChallengeRegistry.abi);
           calldata = iface.parseTransaction({ data });
         });
 

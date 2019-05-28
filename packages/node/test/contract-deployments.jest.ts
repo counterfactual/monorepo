@@ -1,5 +1,5 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
@@ -57,8 +57,8 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   const appRegistry = await new ContractFactory(
-    AppRegistry.abi,
-    AppRegistry.bytecode,
+    ChallengeRegistry.abi,
+    ChallengeRegistry.bytecode,
     wallet
   ).deploy();
 
@@ -94,7 +94,7 @@ export async function configureNetworkContext(wallet: Wallet) {
     TicTacToe: tttContract.address,
     ETHInterpreter: ethInterpreter.address,
     TwoPartyEthAsLump: twoPartyEthAsLump.address,
-    AppRegistry: appRegistry.address,
+    ChallengeRegistry: appRegistry.address,
     MultiSend: multiSend.address,
     NonceRegistry: nonceRegistry.address,
     StateChannelTransaction: stateChannelTransaction.address,

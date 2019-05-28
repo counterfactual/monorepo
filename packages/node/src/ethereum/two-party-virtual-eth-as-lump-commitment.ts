@@ -58,7 +58,7 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       value: 0,
       data: iface.functions.delegateTarget.encode([
         {
-          registry: this.networkContext.AppRegistry,
+          registry: this.networkContext.ChallengeRegistry,
           nonceRegistry: this.networkContext.NonceRegistry,
           terms: {
             assetType: AssetType.ETH,
