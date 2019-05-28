@@ -134,7 +134,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      for (const _ of [appInstance.timeout]) {
+      // tslint:disable-next-line:prefer-array-literal
+      for (const _ of Array(appInstance.timeout)) {
         await provider.send("evm_mine", []);
       }
 

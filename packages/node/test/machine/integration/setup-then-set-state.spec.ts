@@ -91,7 +91,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      for (const _ of [freeBalanceETH.timeout]) {
+      // tslint:disable-next-line:prefer-array-literal
+      for (const _ of Array(freeBalanceETH.timeout)) {
         await provider.send("evm_mine", []);
       }
 
