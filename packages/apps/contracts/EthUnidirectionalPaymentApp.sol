@@ -7,7 +7,7 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-contract EthPaymentApp is CounterfactualApp {
+contract EthUnidirectionalPaymentApp is CounterfactualApp {
 
   using SafeMath for uint256;
 
@@ -15,7 +15,7 @@ contract EthPaymentApp is CounterfactualApp {
     ETHInterpreter.ETHTransfer[2] transfers; // [sender, receiver]
   }
 
-  struct Action {
+  struct PaymentAction {
     uint256 paymentAmount;
   }
 
@@ -47,7 +47,7 @@ contract EthPaymentApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    Action memory action = abi.decode(encodedAction, (Action));
+    PaymentAction memory action = abi.decode(encodedAction, (PaymentAction));
 
     // apply transition based on action
     AppState memory postState = applyPayment(state, action.paymentAmount);
