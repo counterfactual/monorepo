@@ -5,7 +5,7 @@ import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import EthPaymentApp from "../build/EthPaymentApp.json";
+import EthUnidirectionalPaymentApp from "../build/EthUnidirectionalPaymentApp.json";
 
 chai.use(waffle.solidity);
 
@@ -71,7 +71,10 @@ describe("EthPaymentApp", () => {
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    ethPaymentApp = await waffle.deployContract(wallet, EthPaymentApp);
+    ethPaymentApp = await waffle.deployContract(
+      wallet,
+      EthUnidirectionalPaymentApp
+    );
   });
 
   describe("applyAction", () => {
