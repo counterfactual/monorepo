@@ -2,7 +2,7 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -71,12 +71,12 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         network.ETHBucket,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
-      ).setFreeBalance(AssetType.ETH, {
+      ).setFreeBalance({
         [multisigOwnerKeys[0].address]: parseEther("20"),
         [multisigOwnerKeys[1].address]: parseEther("20")
       });
 
-      const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+      const freeBalanceETH = stateChannel.getETHFreeBalance();
 
       // target app instance
       const targetAppInstance = new AppInstance(

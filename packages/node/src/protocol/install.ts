@@ -1,5 +1,5 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { AssetType, NetworkContext, OutcomeType } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -172,7 +172,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   return new InstallCommitment(
     network,

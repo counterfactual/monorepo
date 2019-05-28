@@ -1,4 +1,4 @@
-import { AssetType, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
@@ -49,9 +49,6 @@ describe("CF.js AppFactory", () => {
       });
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
-        asset: {
-          assetType: AssetType.ETH
-        },
         peerDeposit: expectedDeposit,
         myDeposit: expectedDeposit,
         timeout: "100",
@@ -87,9 +84,6 @@ describe("CF.js AppFactory", () => {
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
         proposedToIdentifier: TEST_XPUBS[0],
-        asset: {
-          assetType: AssetType.ETH
-        },
         peerDeposit: expectedDeposit,
         myDeposit: expectedDeposit,
         timeout: "100",
@@ -103,9 +97,6 @@ describe("CF.js AppFactory", () => {
       try {
         await appFactory.proposeInstall({
           proposedToIdentifier: TEST_XPUBS[0],
-          asset: {
-            assetType: AssetType.ETH
-          },
           peerDeposit: parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",

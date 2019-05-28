@@ -129,9 +129,6 @@ class Wager extends Component {
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
         peerDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),

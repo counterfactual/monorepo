@@ -1,5 +1,4 @@
 import {
-  AssetType,
   ETHBucketAppState,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -58,7 +57,7 @@ export type StateChannelJSON = {
     string,
     TwoPartyVirtualEthAsLumpInstanceJson
   ][];
-  readonly freeBalanceAppIndexes: [number, string][];
+  readonly freeBalanceAppIndexes: [0, string][];
   readonly monotonicNumInstalledApps: number;
   readonly rootNonceValue: number;
   readonly createdAt: number;
@@ -117,10 +116,10 @@ export class StateChannel {
       string,
       TwoPartyVirtualEthAsLumpInstance
     > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
-    private readonly freeBalanceAppIndexes: ReadonlyMap<
-      AssetType,
+    private readonly freeBalanceAppIndexes: ReadonlyMap<0, string> = new Map<
+      0,
       string
-    > = new Map<AssetType, string>([]),
+    >([]),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0,
     public readonly createdAt: number = Date.now()
@@ -194,10 +193,6 @@ export class StateChannel {
     return this.appInstances.has(appInstanceIdentityHash);
   }
 
-  public hasFreeBalanceFor(assetType: AssetType): boolean {
-    return this.freeBalanceAppIndexes.has(assetType);
-  }
-
   public getSigningKeysFor(addressIndex: number): string[] {
     return sortAddresses(
       this.userNeuteredExtendedKeys.map(xpub =>
@@ -210,12 +205,12 @@ export class StateChannel {
     return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
-  public getFreeBalanceFor(assetType: AssetType): AppInstance {
-    if (!this.freeBalanceAppIndexes.has(assetType)) {
+  public getETHFreeBalance(): AppInstance {
+    if (!this.freeBalanceAppIndexes.has(0)) {
       throw Error(ERRORS.FREE_BALANCE_MISSING);
     }
 
-    const idx = this.freeBalanceAppIndexes.get(assetType);
+    const idx = this.freeBalanceAppIndexes.get(0);
 
     if (idx === undefined || !this.appInstances.has(idx)) {
       throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
@@ -224,8 +219,8 @@ export class StateChannel {
     return this.appInstances.get(idx) as AppInstance;
   }
 
-  public getFreeBalanceAddrOf(xpub: string, assetType: AssetType): string {
-    const [alice, bob] = this.getFreeBalanceFor(assetType).signingKeys;
+  public getFreeBalanceAddrOf(xpub: string): string {
+    const [alice, bob] = this.getETHFreeBalance().signingKeys;
 
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
@@ -238,24 +233,17 @@ export class StateChannel {
     return topLevelKey;
   }
 
-  public incrementFreeBalance(
-    assetType: AssetType,
-    increments: { [addr: string]: BigNumber }
-  ) {
-    const freeBalance = this.getFreeBalanceFor(assetType);
+  public incrementETHFreeBalance(increments: { [addr: string]: BigNumber }) {
+    const freeBalance = this.getETHFreeBalance();
     const freeBalanceState = freeBalance.state as ETHBucketAppState;
 
     return this.setFreeBalance(
-      AssetType.ETH,
       merge(fromAppState(freeBalanceState), increments)
     );
   }
 
-  public setFreeBalance(
-    assetType: AssetType,
-    newState: { [addr: string]: BigNumber }
-  ) {
-    const freeBalance = this.getFreeBalanceFor(assetType);
+  public setFreeBalance(newState: { [addr: string]: BigNumber }) {
+    const freeBalance = this.getETHFreeBalance();
     const ret = [] as ETHBucketAppState;
 
     for (const beneficiaryAddr in newState) {
@@ -284,9 +272,7 @@ export class StateChannel {
 
     const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
 
-    const freeBalanceAppIndexes = new Map<AssetType, string>([
-      [AssetType.ETH, fb.identityHash]
-    ]);
+    const freeBalanceAppIndexes = new Map<0, string>([[0, fb.identityHash]]);
 
     return new StateChannel(
       multisigAddress,
@@ -307,7 +293,7 @@ export class StateChannel {
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
-      new Map<AssetType, string>(),
+      new Map<0, string>(),
       1
     );
   }
@@ -408,7 +394,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(AssetType.ETH, flip(decrements));
+    ).incrementETHFreeBalance(flip(decrements));
   }
 
   public uninstallTwoPartyVirtualEthAsLumpInstance(
@@ -435,7 +421,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(AssetType.ETH, increments);
+    ).incrementETHFreeBalance(increments);
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -491,7 +477,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(AssetType.ETH, flip(decrements));
+    ).incrementETHFreeBalance(flip(decrements));
   }
 
   public uninstallApp(
@@ -527,7 +513,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(AssetType.ETH, increments);
+    ).incrementETHFreeBalance(increments);
   }
 
   public getTwoPartyVirtualEthAsLumpFromTarget(

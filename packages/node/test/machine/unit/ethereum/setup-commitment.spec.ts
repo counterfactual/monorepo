@@ -1,5 +1,4 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { AssetType } from "@counterfactual/types";
 import {
   bigNumberify,
   getAddress,
@@ -44,7 +43,7 @@ describe("SetupCommitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalanceETH = stateChannel.getETHFreeBalance();
 
   beforeAll(() => {
     tx = new SetupCommitment(

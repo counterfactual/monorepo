@@ -1,4 +1,4 @@
-import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
+import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 
 import { AppInstance } from "../src/app-instance";
@@ -19,7 +19,6 @@ describe("CF.js Provider", () => {
 
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
     id: "TEST_ID",
-    asset: { assetType: AssetType.ETH },
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: Zero,

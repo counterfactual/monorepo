@@ -1,4 +1,4 @@
-import { AppInstanceInfo, AssetType, Node } from "@counterfactual/types";
+import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";
@@ -14,7 +14,6 @@ describe("CF.js AppInstance", () => {
 
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
     id: "TEST_ID",
-    asset: { assetType: AssetType.ETH },
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appId: "0x1515151515151515151515151515151515151515",
     myDeposit: bigNumberify(1000),

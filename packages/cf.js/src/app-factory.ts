@@ -2,7 +2,6 @@ import {
   Address,
   AppABIEncodings,
   AppInstanceID,
-  BlockchainAsset,
   Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -58,8 +57,6 @@ export class AppFactory {
   async proposeInstall(params: {
     /** Xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
-    /** Asset to use for deposit */
-    asset: BlockchainAsset;
     /** Amount to be deposited by you */
     myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
@@ -79,7 +76,6 @@ export class AppFactory {
         timeout,
         peerDeposit,
         myDeposit,
-        asset: params.asset,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         appId: this.appId,
@@ -100,8 +96,6 @@ export class AppFactory {
   async proposeInstallVirtual(params: {
     /** xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
-    /** Asset to use for deposit */
-    asset: BlockchainAsset;
     /** Amount to be deposited by you */
     myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
@@ -123,7 +117,6 @@ export class AppFactory {
         timeout,
         peerDeposit,
         myDeposit,
-        asset: params.asset,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         intermediaries: params.intermediaries,
