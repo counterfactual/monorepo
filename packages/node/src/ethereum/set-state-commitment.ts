@@ -1,5 +1,5 @@
 import { utils } from "@counterfactual/cf.js";
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import {
   AppIdentity,
   NetworkContext,
@@ -11,7 +11,7 @@ import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 const { signaturesToBytesSortedBySignerAddress } = utils;
 
-const iface = new Interface(AppRegistry.abi);
+const iface = new Interface(ChallengeRegistry.abi);
 
 export class SetStateCommitment extends EthereumCommitment {
   constructor(
@@ -41,7 +41,7 @@ export class SetStateCommitment extends EthereumCommitment {
 
   public transaction(sigs: Signature[]): Transaction {
     return {
-      to: this.networkContext.AppRegistry,
+      to: this.networkContext.ChallengeRegistry,
       value: 0,
       data: iface.functions.setState.encode([
         this.appIdentity,

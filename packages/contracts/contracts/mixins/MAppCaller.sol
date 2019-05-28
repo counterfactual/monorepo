@@ -6,7 +6,7 @@ import "../interfaces/CounterfactualApp.sol";
 
 /// @title MAppCaller
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice A mixin for the AppRegistry to make staticcalls to Apps
+/// @notice A mixin for the ChallengeRegistry to make staticcalls to Apps
 contract MAppCaller {
 
   /// @notice A helper method to check if the state of an application is terminal or not

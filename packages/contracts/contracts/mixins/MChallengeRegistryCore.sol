@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/LibStateChannelApp.sol";
 
 
-contract MAppRegistryCore {
+contract MChallengeRegistryCore {
 
   // A mapping of appIdentityHash to AppChallenge structs which represents
   // the current on-chain status of some particular application's state.
@@ -12,9 +12,6 @@ contract MAppRegistryCore {
 
   // A mapping of appIdentityHash to outcomes
   mapping (bytes32 => bytes) public appOutcomes;
-
-  // A mapping of appIdentityHash to appInterpreters
-  mapping (bytes32 => bytes32) public appInterpreters;
 
   /// @notice Compute a unique hash for a single instance of an App
   /// @param appIdentity An `AppIdentity` struct that encodes all unique info for an App

@@ -67,7 +67,7 @@ export class InstallCommitment extends MultiSendCommitment {
       to: this.networkContext.StateChannelTransaction,
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
-        /* appRegistry */ this.networkContext.AppRegistry,
+        /* appRegistry */ this.networkContext.ChallengeRegistry,
         /* nonceRegistry */ this.networkContext.NonceRegistry,
         /* uninstallKey */ uninstallKey,
         /* rootNonceExpectedValue */ this.rootNonceValue,

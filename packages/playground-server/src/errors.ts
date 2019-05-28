@@ -6,7 +6,7 @@ enum errorTypes {
   UsernameRequired = "UsernameRequired",
   EmailRequired = "EmailRequired",
   AddressAlreadyRegistered = "AddressAlreadyRegistered",
-  AppRegistryNotAvailable = "AppRegistryNotAvailable",
+  ChallengeRegistryNotAvailable = "ChallengeRegistryNotAvailable",
   UserAddressRequired = "UserAddressRequired",
   NoUsersAvailable = "NoUsersAvailable",
   UnhandledError = "UnhandledError",
@@ -46,7 +46,7 @@ const errors: {
     code: "address_already_registered"
   }),
 
-  AppRegistryNotAvailable: (): JsonApiError => ({
+  ChallengeRegistryNotAvailable: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
     code: "app_registry_not_available"
   }),
