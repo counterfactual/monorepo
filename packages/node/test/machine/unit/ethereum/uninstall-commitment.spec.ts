@@ -1,8 +1,8 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
+import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
 import { ETHBucketAppState } from "@counterfactual/types";
-import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
+import { HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
   defaultAbiCoder,
@@ -158,8 +158,8 @@ describe("Uninstall Commitment", () => {
         [op, to, val, data] = transactions[1];
       });
 
-      it("should be to the NonceRegistry", () => {
-        expect(to).toBe(networkContext.NonceRegistry);
+      it("should be to the UninstallKeyRegistry", () => {
+        expect(to).toBe(networkContext.UninstallKeyRegistry);
       });
 
       it("should be of value 0", () => {
@@ -175,24 +175,25 @@ describe("Uninstall Commitment", () => {
         let calldata: TransactionDescription;
 
         beforeAll(() => {
-          iface = new Interface(NonceRegistry.abi);
+          iface = new Interface(UninstallKeyRegistry.abi);
+          iface = new Interface(UninstallKeyRegistry.abi);
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the setNonce method", () => {
-          expect(calldata.sighash).toEqual(iface.functions.setNonce.sighash);
+        it("should be directed at the setKeyAsUninstalled method", () => {
+          expect(calldata.sighash).toEqual(
+            iface.functions.setKeyAsUninstalled.sighash
+          );
         });
 
-        it("should build set the nonce to 1 (uninstalled)", () => {
-          const [timeout, salt, nonceValue] = calldata.args;
+        it("should build set the key to uninstalled", () => {
+          const [salt] = calldata.args;
 
-          expect(timeout).toEqual(Zero);
           expect(salt).toEqual(
             keccak256(
               defaultAbiCoder.encode(["uint256"], [appBeingUninstalledSeqNo])
             )
           );
-          expect(nonceValue).toEqual(One);
         });
       });
     });

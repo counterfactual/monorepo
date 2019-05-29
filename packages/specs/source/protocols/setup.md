@@ -83,7 +83,7 @@ The commitments that these two messages rely on have the following explicit para
 
 |     Parameter      |   Type    |                                                    Description                                                     |
 | ------------------ | --------- | ------------------------------------------------------------------------------------------------------------------ |
-| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the Nonce Registry |
+| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed free balance app's conditional transaction depends on inside the UninstallKeyRegistry |
 
 Additionally, the following parameters are implicitly computed:
 

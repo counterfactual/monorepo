@@ -80,7 +80,8 @@ describe("SetupCommitment", () => {
     it("should contain expected arguments", () => {
       const [
         appRegistry,
-        nonceRegistry,
+        rootNonceRegistry,
+        uninstallKeyRegistry,
         uninstallKey,
         rootNonceValue,
         appIdentityHash,
@@ -88,7 +89,8 @@ describe("SetupCommitment", () => {
         {}
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
+      expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
+      expect(uninstallKeyRegistry).toEqual(networkContext.UninstallKeyRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(rootNonceValue).toEqual(
         bigNumberify(freeBalanceETH.rootNonceValue)

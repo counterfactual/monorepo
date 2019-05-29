@@ -188,7 +188,8 @@ describe("InstallCommitment", () => {
         it("should have correctly constructed arguments", () => {
           const [
             appRegistryAddress,
-            nonceRegistryAddress,
+            rootNonceRegistry,
+            uninstallKeyRegistry,
             uninstallKey,
             rootNonceValue,
             appIdentityHash,
@@ -196,7 +197,10 @@ describe("InstallCommitment", () => {
             {}
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.ChallengeRegistry);
-          expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
+          expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
+          expect(uninstallKeyRegistry).toEqual(
+            networkContext.UninstallKeyRegistry
+          );
           expect(uninstallKey).toBe(appInstance.uninstallKey);
           expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
           expect(rootNonceValue).toEqual(

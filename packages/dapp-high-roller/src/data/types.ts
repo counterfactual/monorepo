@@ -40,7 +40,8 @@ export namespace Node {
   export type NetworkContext = {
     // Protocol
     MultiSend: Address;
-    NonceRegistry: Address;
+    RootNonceRegistry: Address;
+    UninstallKeyRegistry: Address;
     ChallengeRegistry: Address;
     // App-specific
     ETHBalanceRefundApp: Address;

@@ -18,14 +18,6 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
-/**
- * Representation of the values a dependency nonce can take on.
- */
-export enum DependencyValue {
-  NOT_CANCELLED = 0,
-  CANCELLED = 1
-}
-
 export type AppInstanceJson = {
   multisigAddress: string;
   signingKeys: string[];
@@ -176,14 +168,13 @@ export class AppInstance {
 
   @Memoize()
   public get uninstallKey() {
-    // The unique "key" in the NonceRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
+    // The unique "key" in the UninstallKeyRegistry is computed to be:
+    // hash(<stateChannel.multisigAddress address>, hash(<app nonce>))
     const ret = keccak256(
       solidityPack(
-        ["address", "uint256", "bytes32"],
+        ["address", "bytes32"],
         [
           this.json.multisigAddress,
-          0,
           keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
         ]
       )
@@ -193,7 +184,6 @@ export class AppInstance {
       app-instance: computed
         uninstallKey = ${ret} using
         sender = ${this.json.multisigAddress},
-        timeout = 0,
         salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
     `);
 

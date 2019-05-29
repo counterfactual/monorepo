@@ -12,7 +12,8 @@ export namespace Node {
   export type NetworkContext = {
     // Protocol
     MultiSend: string;
-    NonceRegistry: string;
+    RootNonceRegistry: string;
+    UninstallKeyRegistry: string;
     ChallengeRegistry: string;
     // App-specific
     ETHBalanceRefundApp: string;

@@ -2,7 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "./ChallengeRegistry.sol";
-import "./NonceRegistry.sol";
+import "./UninstallKeyRegistry.sol";
 
 
 /// @title TwoPartyVirtualEthAsLump
@@ -21,7 +21,7 @@ contract TwoPartyVirtualEthAsLump {
   // at link time?
   struct Agreement {
     ChallengeRegistry registry;
-    NonceRegistry nonceRegistry;
+    UninstallKeyRegistry uninstallKeyRegistry;
     uint256 expiry;
     bytes32 appIdentityHash;
     uint256 capitalProvided;
@@ -41,7 +41,7 @@ contract TwoPartyVirtualEthAsLump {
     uint256 outcomeAsUint256 = abi.decode(outcome, (uint256));
 
     require(
-      !agreement.nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(agreement.uninstallKey, 1),
+      !agreement.uninstallKeyRegistry.uninstalledKeys(agreement.uninstallKey),
       "Virtual app agreement has been uninstalled"
     );
 
