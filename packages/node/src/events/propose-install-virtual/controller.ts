@@ -17,22 +17,21 @@ export default async function proposeInstallVirtualEventController(
   nodeMsg: ProposeVirtualMessage
 ) {
   console.log("nodeMessage in install virtual", JSON.stringify(nodeMsg))
+  // @ts-ignore
+  const { attributes } = nodeMsg.data;
   await setAppInstanceIDForProposeInstallVirtual(
     requestHandler.publicIdentifier,
     requestHandler.store,
-    // @ts-ignore
-    nodeMsg.data.attributes,
-    // @ts-ignore
-    nodeMsg.data.attributes.appInstanceId,
-    // @ts-ignore
-    nodeMsg.data.attributes.proposedByIdentifier,
+    attributes,
+    attributes.appInstanceId,
+    attributes.proposedByIdentifier,
     nodeMsg.from!
   );
 
   if (
     !nodeIsIntermediary(
       requestHandler.publicIdentifier,
-      nodeMsg.data.params.intermediaries
+      attributes.params.intermediaries
     )
   ) {
     return;
@@ -51,8 +50,8 @@ export default async function proposeInstallVirtualEventController(
         },
         data: {
           type: "proposal",
-          attributes: nodeMsg.data,
-          relationships: {}
+          relationships: {},
+          attributes
         }
       }
     ]
