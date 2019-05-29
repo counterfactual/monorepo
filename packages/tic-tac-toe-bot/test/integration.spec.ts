@@ -14,6 +14,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "../src/bot";
 import { Zero } from "ethers/constants";
+import { bigNumberify } from "ethers/utils";
 
 jest.setTimeout(50000);
 
@@ -175,7 +176,7 @@ describe("ttt-bot", () => {
           },
           myDeposit: Zero,
           peerDeposit: Zero,
-          timeout: 100
+          timeout: bigNumberify(100)
         }
       });
     });
