@@ -100,30 +100,6 @@ async function proposeStateTransition(
     multisigAddress
   } = params as InstallParams;
 
-  const appDefinition = new Contract(
-    appInterface.addr,
-    CounterfactualApp.abi,
-    context.provider
-  );
-
-  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
-
-  let interpreterAddress: string;
-
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      interpreterAddress = context.network.ETHInterpreter;
-      break;
-    }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
-      interpreterAddress = context.network.TwoPartyEthAsLump;
-      break;
-    }
-    default: {
-      throw Error("unrecognized");
-    }
-  }
-
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
