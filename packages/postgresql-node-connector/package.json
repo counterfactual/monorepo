@@ -2,11 +2,5 @@
   "name": "postgresql-node-connector",
   "version": "0.0.1",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
-  "main": "index.js",
-  "scripts": {
-    "build": "echo \"Error: no build specified\"",
-    "test": "echo \"Error: no test specified\""
-  },
-  "author": "",
   "license": "MIT"
 }
