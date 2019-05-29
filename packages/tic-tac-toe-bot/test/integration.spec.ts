@@ -8,13 +8,13 @@ import {
 import { LocalFirebaseServiceFactory } from "@counterfactual/node/test/services/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
+import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
+import { bigNumberify } from "ethers/utils";
 import { Log, LogLevel } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "../src/bot";
-import { Zero } from "ethers/constants";
-import { bigNumberify } from "ethers/utils";
 
 jest.setTimeout(50000);
 
