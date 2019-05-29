@@ -39,9 +39,7 @@ export class UninstallCommitment extends MultiSendCommitment {
       to: this.networkContext.UninstallKeyRegistry,
       value: 0,
       data: uninstallKeyRegistryIface.functions.setKeyAsUninstalled.encode([
-        /* salt */ keccak256(
-          defaultAbiCoder.encode(["uint256"], [this.dependencyNonce])
-        )
+        keccak256(defaultAbiCoder.encode(["uint256"], [this.dependencyNonce]))
       ]),
       operation: MultisigOperation.Call
     };

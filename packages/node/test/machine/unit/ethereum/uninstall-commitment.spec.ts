@@ -180,8 +180,10 @@ describe("Uninstall Commitment", () => {
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the setNonce method", () => {
-          expect(calldata.sighash).toEqual(iface.functions.setNonce.sighash);
+        it("should be directed at the setKeyAsUninstalled method", () => {
+          expect(calldata.sighash).toEqual(
+            iface.functions.setKeyAsUninstalled.sighash
+          );
         });
 
         it("should build set the key to uninstalled", () => {
