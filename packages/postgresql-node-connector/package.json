@@ -1,0 +1,6 @@
+{
+  "name": "postgresql-node-connector",
+  "version": "0.0.1",
+  "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
+  "license": "MIT"
+}
