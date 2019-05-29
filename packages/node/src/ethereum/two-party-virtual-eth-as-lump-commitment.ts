@@ -58,7 +58,8 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.ChallengeRegistry,
-          nonceRegistry: this.networkContext.NonceRegistry,
+          rootNonceRegistry: this.networkContext.RootNonceRegistry,
+          uninstallKeyRegistry: this.networkContext.UninstallKeyRegistry,
           expiry: this.expiryBlock,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,

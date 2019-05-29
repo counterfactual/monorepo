@@ -5,7 +5,8 @@ import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
+import RootNonceRegistry from "@counterfactual/contracts/build/RootNonceRegistry.json";
+import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import TwoPartyEthAsLump from "@counterfactual/contracts/build/TwoPartyEthAsLump.json";
@@ -68,12 +69,20 @@ export async function configureNetworkContext(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const nonceRegistry = await new ContractFactory(
-    NonceRegistry.abi,
-    NonceRegistry.bytecode,
+  const rootNonceRegistry = await new ContractFactory(
+    RootNonceRegistry.abi,
+    RootNonceRegistry.bytecode,
     wallet
   ).deploy();
 
+
+  const uninstallKeyRegistry = await new ContractFactory(
+    UninstallKeyRegistry.abi,
+    UninstallKeyRegistry.bytecode,
+    wallet
+  ).deploy();
+
+  
   const stateChannelTransaction = await new ContractFactory(
     StateChannelTransaction.abi,
     StateChannelTransaction.bytecode,
@@ -96,7 +105,8 @@ export async function configureNetworkContext(wallet: Wallet) {
     TwoPartyEthAsLump: twoPartyEthAsLump.address,
     ChallengeRegistry: appRegistry.address,
     MultiSend: multiSend.address,
-    NonceRegistry: nonceRegistry.address,
+    RootNonceRegistry: rootNonceRegistry.address,
+    UninstallKeyRegistry: uninstallKeyRegistry.address,
     StateChannelTransaction: stateChannelTransaction.address,
     TwoPartyVirtualEthAsLump: twoPartyVirtualEthAsLump.address
   } as NetworkContext;

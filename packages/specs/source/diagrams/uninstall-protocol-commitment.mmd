@@ -1,9 +1,7 @@
 graph LR
-    subgraph NonceRegistry
-        setNonce
-        setNonce.->0
-        setNonce.->salt
-        setNonce.->1
+    subgraph UninstallKeyRegistry
+        setKeyAsUninstalled
+        setKeyAsUninstalled.->salt
     end
     subgraph ChallengeRegistry-Free-Balance
         setState
@@ -13,7 +11,7 @@ graph LR
     subgraph MultiSend
         multiSend
         multiSend-->setState
-        multiSend-->setNonce
+        multiSend-->setKeyAsUninstalled
     end
     subgraph Multisig
         execTransaction-->multiSend

@@ -24,7 +24,8 @@ export interface NetworkContext {
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   MultiSend: string;
-  NonceRegistry: string;
+  RootNonceRegistry: string;
+  UninstallKeyRegistry: string;
   StateChannelTransaction: string;
   TwoPartyVirtualEthAsLump: string;
   MinimumViableMultisig: string;
@@ -39,7 +40,8 @@ export const networkContextProps = [
   "ETHBalanceRefundApp",
   "ETHBucket",
   "MultiSend",
-  "NonceRegistry",
+  "RootNonceRegistry",
+  "UninstallKeyRegistry",
   "StateChannelTransaction",
   "TwoPartyVirtualEthAsLump",
   "MinimumViableMultisig",

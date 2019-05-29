@@ -1,18 +1,18 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, ethers } from "ethers";
 
-import RootNonceRegistry from "../build/RootNonceRegistry.json";
+import UninstallKeyRegistry from "../build/UninstallKeyRegistry.json";
 
 import { expect } from "./utils";
 
 const { HashZero, Zero, One } = ethers.constants;
 const { solidityKeccak256, bigNumberify } = ethers.utils;
 
-describe("RootNonceRegistry", () => {
+describe("UninstallKeyRegistry", () => {
   let provider: ethers.providers.Web3Provider;
   let wallet: ethers.Wallet;
 
-  let rootNonceRegistry: Contract;
+  let uninstallKeyRegistry: Contract;
 
   const computeKey = (
     sender: string,
@@ -28,17 +28,19 @@ describe("RootNonceRegistry", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    rootNonceRegistry = await waffle.deployContract(wallet, RootNonceRegistry);
+    uninstallKeyRegistry = await waffle.deployContract(
+      wallet,
+      UninstallKeyRegistry
+    );
   });
 
   it("can set nonces", async () => {
     const timeout = bigNumberify(10);
     const salt = HashZero;
-    const value = One;
 
-    await rootNonceRegistry.functions.setNonce(timeout, salt, value);
+    await uninstallKeyRegistry.functions.setKeyAsUninstalled(timeout, salt);
 
-    const ret = await rootNonceRegistry.functions.table(
+    const ret = await uninstallKeyRegistry.functions.table(
       computeKey(wallet.address, timeout, salt)
     );
     const blockNumber = bigNumberify(await provider.getBlockNumber());
@@ -52,28 +54,26 @@ describe("RootNonceRegistry", () => {
     const salt = HashZero;
     const value = 0; // By default, all values are set to 0
 
-    const setNonce = rootNonceRegistry.functions.setNonce;
+    const setKeyAsUninstalled = uninstallKeyRegistry.functions.setKeyAsUninstalled;
 
     // @ts-ignore
-    await expect(setNonce(timeout, salt, value)).to.be.reverted;
+    await expect(setKeyAsUninstalled(timeout, salt, value)).to.be.reverted;
   });
 
   it("can insta-finalize nonces", async () => {
     const timeout = Zero;
     const salt = HashZero;
-    const value = One;
     const key = computeKey(wallet.address, timeout, salt);
 
-    await rootNonceRegistry.functions.setNonce(timeout, salt, value);
+    await uninstallKeyRegistry.functions.setKeyAsUninstalled(timeout, salt);
 
-    const ret = await rootNonceRegistry.functions.table(key);
-    const isFinal = await rootNonceRegistry.functions.isFinalizedOrHasNeverBeenSetBefore(
-      key,
-      value
+    const ret = await uninstallKeyRegistry.functions.table(key);
+    const isFinal = await uninstallKeyRegistry.functions.isDefinitelyUninstalledOrHasNotBeenSet(
+      key
     );
     const blockNumber = bigNumberify(await provider.getBlockNumber());
 
-    expect(ret.nonceValue).to.eq(value);
+    expect(ret.nonceValue).to.eq(true);
     expect(ret.finalizesAt).to.eq(blockNumber);
     expect(isFinal).to.be.true;
   });

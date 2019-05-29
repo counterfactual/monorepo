@@ -54,8 +54,8 @@ export class TwoPartyVirtualEthAsLumpInstance {
     );
   }
   public get uninstallKey() {
-    // The unique "key" in the NonceRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
+    // The unique "key" in the UninstallKeyRegistry is computed to be:
+    // hash(<stateChannel.multisigAddress address>, hash(<app nonce>))
     return keccak256(
       solidityPack(
         ["address", "uint256", "bytes32"],

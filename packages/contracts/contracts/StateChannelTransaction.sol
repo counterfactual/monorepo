@@ -1,7 +1,7 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "./NonceRegistry.sol";
+import "./RootNonceRegistry.sol";
 import "./ChallengeRegistry.sol";
 
 
@@ -16,7 +16,8 @@ contract StateChannelTransaction {
   /// @param appIdentityHash AppIdentityHash to be resolved
   function executeEffectOfInterpretedAppOutcome(
     ChallengeRegistry appRegistry,
-    NonceRegistry nonceRegistry,
+    RootNonceRegistry rootNonceRegistry,
+    UninstallKeyRegistry uninstallKeyRegistry,
     bytes32 uninstallKey,
     uint256 rootNonceExpectedValue,
     bytes32 appIdentityHash,
@@ -26,16 +27,16 @@ contract StateChannelTransaction {
     public
   {
     require(
-      nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(
+      rootNonceRegistry.isFinalizedOrHasNeverBeenSetBefore(
         // TODO: Allow ability to set timeout off-chain
-        nonceRegistry.computeKey(address(this), 100, 0x0),
+        rootNonceRegistry.computeKey(address(this), 100, 0x0),
         rootNonceExpectedValue
       ),
       "Root nonce not finalized or finalized at an incorrect value"
     );
 
     require(
-      !nonceRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
+      !uninstallKeyRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
       "App has been uninstalled"
     );
 
