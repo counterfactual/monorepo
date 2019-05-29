@@ -10,7 +10,7 @@ const NETWORK_NAME_TO_ID = {
   rinkeby: "4"
 };
 
-describe("Checks that all the needed contracts have been deployed on each test net", () => {
+describe.skip("Checks that all the needed contracts have been deployed on each test net", () => {
   const networks = ["kovan", "ropsten", "rinkeby"];
   networks.forEach((networkName: string) => {
     it(`checks deployments on ${networkName}`, () => {

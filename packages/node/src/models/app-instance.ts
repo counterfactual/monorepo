@@ -172,7 +172,7 @@ export class AppInstance {
     // hash(<stateChannel.multisigAddress address>, hash(<app nonce>))
     const ret = keccak256(
       solidityPack(
-        ["address", "uint256", "bytes32"],
+        ["address", "bytes32"],
         [
           this.json.multisigAddress,
           keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))

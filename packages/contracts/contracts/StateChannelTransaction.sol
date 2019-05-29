@@ -2,6 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "./RootNonceRegistry.sol";
+import "./UninstallKeyRegistry.sol";
 import "./ChallengeRegistry.sol";
 
 
@@ -36,7 +37,7 @@ contract StateChannelTransaction {
     );
 
     require(
-      !uninstallKeyRegistry.isFinalizedOrHasNeverBeenSetBefore(uninstallKey, 1),
+      !uninstallKeyRegistry.uninstalledKeys(uninstallKey),
       "App has been uninstalled"
     );
 

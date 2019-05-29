@@ -13,8 +13,8 @@ import {
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
 import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
-import UninstallKeyRegistry from "../build/UninstallKeyRegistry.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
+import UninstallKeyRegistry from "../build/UninstallKeyRegistry.json";
 
 import { expect } from "./utils/index";
 
@@ -86,7 +86,10 @@ describe("TwoPartyVirtualEthAsLump", () => {
       gasLimit: 6000000 // override default of 4 million
     });
 
-    uninstallKeyRegistry = await waffle.deployContract(wallet, UninstallKeyRegistry);
+    uninstallKeyRegistry = await waffle.deployContract(
+      wallet,
+      UninstallKeyRegistry
+    );
 
     fixedTwoPartyOutcome = await waffle.deployContract(
       wallet,
@@ -170,13 +173,10 @@ describe("TwoPartyVirtualEthAsLump", () => {
   });
 
   it("fails if cancelled", async () => {
-    const computeKey = (sender: string, timeout: BigNumber, salt: string) =>
-      solidityKeccak256(
-        ["address", "uint256", "bytes32"],
-        [sender, timeout, salt]
-      );
+    const computeKey = (sender: string, salt: string) =>
+      solidityKeccak256(["address", "bytes32"], [sender, salt]);
 
-    await uninstallKeyRegistry.functions.setKeyAsUninstalled(Zero, HashZero);
+    await uninstallKeyRegistry.functions.setKeyAsUninstalled(HashZero);
     await expect(
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
@@ -185,7 +185,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
         appIdentityHash,
         0,
         bigNumberify(10),
-        computeKey(wallet.address, Zero, HashZero)
+        computeKey(wallet.address, HashZero)
       )
     ).to.be.revertedWith("Delegate call failed.");
   });

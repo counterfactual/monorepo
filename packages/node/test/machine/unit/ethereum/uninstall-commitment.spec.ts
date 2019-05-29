@@ -1,8 +1,8 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import { ETHBucketAppState } from "@counterfactual/types";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import { HashZero, One, WeiPerEther, Zero } from "ethers/constants";
+import { ETHBucketAppState } from "@counterfactual/types";
+import { HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
   defaultAbiCoder,
@@ -184,16 +184,14 @@ describe("Uninstall Commitment", () => {
           expect(calldata.sighash).toEqual(iface.functions.setNonce.sighash);
         });
 
-        it("should build set the nonce to 1 (uninstalled)", () => {
-          const [timeout, salt, nonceValue] = calldata.args;
+        it("should build set the key to uninstalled", () => {
+          const [salt] = calldata.args;
 
-          expect(timeout).toEqual(Zero);
           expect(salt).toEqual(
             keccak256(
               defaultAbiCoder.encode(["uint256"], [appBeingUninstalledSeqNo])
             )
           );
-          expect(nonceValue).toEqual(One);
         });
       });
     });

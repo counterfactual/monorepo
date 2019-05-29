@@ -8,8 +8,6 @@ import {
   solidityPack
 } from "ethers/utils";
 
-import { DependencyValue } from "../models/app-instance";
-
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
@@ -33,6 +31,7 @@ export class SetupCommitment extends MultisigCommitment {
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.ChallengeRegistry,
         this.networkContext.RootNonceRegistry,
+        this.networkContext.UninstallKeyRegistry,
         this.getUninstallKeyForUninstallKeyRegistry(),
         // NOTE: We *assume* here that the root nonce value will be 0
         //       when creating the setup commitment
@@ -45,7 +44,7 @@ export class SetupCommitment extends MultisigCommitment {
     };
   }
 
-  private getUninstallKeyForUninstallKeyRegistry() {
+  private getUninstallKeyForUninstallKeyRegistry(): string {
     return keccak256(
       solidityPack(
         ["address", "bytes32"],
@@ -54,7 +53,8 @@ export class SetupCommitment extends MultisigCommitment {
     );
   }
 
-  private getSaltForDependencyNonce() {
-    return keccak256(defaultAbiCoder.encode(["uint256"], [1]));
+  private getSaltForDependencyNonce(): string {
+    // We use 0 here because the ETH free balance has always the 0th appSeqNo
+    return keccak256(defaultAbiCoder.encode(["uint256"], [0]));
   }
 }

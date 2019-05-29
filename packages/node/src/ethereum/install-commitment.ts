@@ -42,10 +42,9 @@ export class InstallCommitment extends MultiSendCommitment {
   private conditionalTransactionInput(): MultisigTransaction {
     const uninstallKey = keccak256(
       solidityPack(
-        ["address", "uint256", "bytes32"],
+        ["address", "bytes32"],
         [
           /* sender */ this.multisig,
-          /* timeout */ 0,
           /* salt */ keccak256(
             solidityPack(["uint256"], [this.dependencyNonce])
           )
