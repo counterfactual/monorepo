@@ -8,7 +8,7 @@ import { MultisigOperation, MultisigTransaction } from "./types";
 
 const iface = new Interface(TwoPartyVirtualEthAsLump.abi);
 
-export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
+export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
   constructor(
     public readonly networkContext: NetworkContext,
     public readonly multisig: string,
@@ -58,7 +58,7 @@ export class ETHVirtualAppAgreementCommitment extends MultiSendCommitment {
       value: 0,
       data: iface.functions.delegateTarget.encode([
         {
-          registry: this.networkContext.AppRegistry,
+          registry: this.networkContext.ChallengeRegistry,
           nonceRegistry: this.networkContext.NonceRegistry,
           terms: {
             assetType: AssetType.ETH,

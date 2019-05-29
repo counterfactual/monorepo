@@ -1,13 +1,13 @@
 graph LR
     subgraph ConditionalTransaction
-        executeAppConditionalTransaction
-        executeAppConditionalTransaction.->REGISTRY
-        executeAppConditionalTransaction.->NONCE_REGISTRY
-        executeAppConditionalTransaction.->uninstallKey
-        executeAppConditionalTransaction.->appCfAddress
-        executeAppConditionalTransaction.->terms
+        executeEffectOfInterpretedAppOutcome
+        executeEffectOfInterpretedAppOutcome.->REGISTRY
+        executeEffectOfInterpretedAppOutcome.->NONCE_REGISTRY
+        executeEffectOfInterpretedAppOutcome.->uninstallKey
+        executeEffectOfInterpretedAppOutcome.->appCfAddress
+        executeEffectOfInterpretedAppOutcome.->terms
     end
-    subgraph AppRegistry
+    subgraph ChallengeRegistry
         setState
         setState-->appIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
@@ -15,7 +15,7 @@ graph LR
     subgraph MultiSend
         multiSend
         multiSend-->setState
-        multiSend-->executeAppConditionalTransaction
+        multiSend-->executeEffectOfInterpretedAppOutcome
     end
     subgraph Multisig
         execTransaction-->multiSend

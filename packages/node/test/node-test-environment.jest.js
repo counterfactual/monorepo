@@ -24,7 +24,7 @@ class NodeEnvironment extends NodeJSEnvironment {
     accounts = JSON.parse(accounts);
 
     const networkContext = {
-      AppRegistry: accounts.contractAddresses.AppRegistry,
+      ChallengeRegistry: accounts.contractAddresses.ChallengeRegistry,
       ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
       ETHBucket: accounts.contractAddresses.ETHBucket,
       MultiSend: accounts.contractAddresses.MultiSend,

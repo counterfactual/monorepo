@@ -1,8 +1,8 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "./NonceRegistry.sol";
-import "./AppRegistry.sol";
+import "./ChallengeRegistry.sol";
 
 
 /// @title StateChannelTransaction
@@ -14,8 +14,8 @@ contract StateChannelTransaction {
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param uninstallKey The key in the nonce registry
   /// @param appIdentityHash AppIdentityHash to be resolved
-  function executeAppConditionalTransaction(
-    AppRegistry appRegistry,
+  function executeEffectOfInterpretedAppOutcome(
+    ChallengeRegistry appRegistry,
     NonceRegistry nonceRegistry,
     bytes32 uninstallKey,
     uint256 rootNonceExpectedValue,
@@ -56,7 +56,10 @@ contract StateChannelTransaction {
     (bool success, bytes memory returnData) = interpreterAddress
       .delegatecall(payload);
 
-    require(success, "Execution of executeAppConditionalTransaction failed");
+    require(
+      success,
+      "Execution of executeEffectOfInterpretedAppOutcome failed"
+    );
   }
 
 

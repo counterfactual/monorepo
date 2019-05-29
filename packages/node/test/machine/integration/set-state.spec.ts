@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { AssetType, NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
@@ -11,7 +11,7 @@ import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
 
-// The AppRegistry.setState call _could_ be estimated but we haven't
+// The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -26,7 +26,11 @@ beforeAll(async () => {
 
   network = global["networkContext"];
 
-  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**

@@ -1,15 +1,15 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 
-import "./MAppRegistryCore.sol";
+import "./MChallengeRegistryCore.sol";
 
 
-/// @title MixinAppRegistryCore
+/// @title MixinChallengeRegistryCore
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Core functionality and utilities for the AppRegistry
-contract MixinAppRegistryCore is MAppRegistryCore {
+/// @notice Core functionality and utilities for the ChallengeRegistry
+contract MixinChallengeRegistryCore is MChallengeRegistryCore {
 
   /// @notice A getter function for the current AppChallenge state
   /// @param identityHash The unique hash of an `AppIdentity`
@@ -22,7 +22,7 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     return appChallenges[identityHash];
   }
 
-  /// @notice Checks whether or not some application's state is OFF or timed out
+  /// @notice Checks if an application's state has been finalized by challenge
   /// @param identityHash The unique hash of an `AppIdentity`
   /// @return A boolean indicator
   function isStateFinalized(bytes32 identityHash)
@@ -31,9 +31,15 @@ contract MixinAppRegistryCore is MAppRegistryCore {
     returns (bool)
   {
     return (
-      appChallenges[identityHash].status == LibStateChannelApp.AppStatus.OFF ||
       (
-        appChallenges[identityHash].status == LibStateChannelApp.AppStatus.IN_CHALLENGE &&
+        appChallenges[identityHash].status ==
+        LibStateChannelApp.ChallengeStatus.CHALLENGE_WAS_FINALIZED
+      ) ||
+      (
+        (
+          appChallenges[identityHash].status ==
+          LibStateChannelApp.ChallengeStatus.CHALLENGE_IS_OPEN
+        ) &&
         appChallenges[identityHash].finalizesAt <= block.number
       )
     );

@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AssetType } from "@counterfactual/types";
@@ -103,8 +103,8 @@ describe("InstallCommitment", () => {
         [op, to, val, data] = transactions[0];
       });
 
-      it("should be to the AppRegistry", () => {
-        expect(to).toBe(networkContext.AppRegistry);
+      it("should be to the ChallengeRegistry", () => {
+        expect(to).toBe(networkContext.ChallengeRegistry);
       });
 
       it("should be of value 0", () => {
@@ -120,7 +120,7 @@ describe("InstallCommitment", () => {
         let calldata: TransactionDescription;
 
         beforeAll(() => {
-          iface = new Interface(AppRegistry.abi);
+          iface = new Interface(ChallengeRegistry.abi);
           calldata = iface.parseTransaction({ data });
         });
 
@@ -180,9 +180,9 @@ describe("InstallCommitment", () => {
           calldata = iface.parseTransaction({ data });
         });
 
-        it("should be directed at the executeAppConditionalTransaction method", () => {
+        it("should be directed at the executeEffectOfInterpretedAppOutcome method", () => {
           expect(calldata.sighash).toBe(
-            iface.functions.executeAppConditionalTransaction.sighash
+            iface.functions.executeEffectOfInterpretedAppOutcome.sighash
           );
         });
 
@@ -196,7 +196,7 @@ describe("InstallCommitment", () => {
             {},
             {}
           ] = calldata.args;
-          expect(appRegistryAddress).toBe(networkContext.AppRegistry);
+          expect(appRegistryAddress).toBe(networkContext.ChallengeRegistry);
           expect(nonceRegistryAddress).toBe(networkContext.NonceRegistry);
           expect(uninstallKey).toBe(appInstance.uninstallKey);
           expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));

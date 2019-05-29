@@ -6,7 +6,7 @@ import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
 
-// TS version of MAppRegistryCore::computeAppChallengeHash
+// TS version of MChallengeRegistryCore::computeAppChallengeHash
 export const computeAppChallengeHash = (
   id: string,
   appStateHash: string,
@@ -20,7 +20,7 @@ export const computeAppChallengeHash = (
     )
   );
 
-// TS version of MAppRegistryCore::computeActionHash
+// TS version of MChallengeRegistryCore::computeActionHash
 export const computeActionHash = (
   turnTaker: string,
   previousState: string,
