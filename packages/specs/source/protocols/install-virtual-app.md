@@ -60,15 +60,6 @@ A commitment to call `ETHVirtualAppAgreement::delegateTarget`
 | `capitalProvided` | `uint256`    | `aliceBalanceDecrement` + `bobBalanceDecrement` |
 | `beneficiaries`   | `address[2]` | `[intermediaryAddress, respondingAddress]`      |
 
-#### `terms`:
-
-|    Field    |   type    | description  |
-| ----------- | --------- | ------------ |
-| `assetType` | `uint8`   | `0`          |
-| `token`     | `address` | `address(0)` |
-| `limit`     | `uint256` | `0`          |
-
-`limit` is explicitly ignored by the contract, while `assetType, token == 0, 0` means ETH.
 
 ### targetVirtualAppSetState
 

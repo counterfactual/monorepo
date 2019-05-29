@@ -1,6 +1,5 @@
 import {
   AppInterface,
-  AssetType,
   NetworkContext,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -551,7 +550,7 @@ function constructTwoPartyVirtualEthAsLumpCommitment(
   targetHash: string,
   ethVirtualAppAgreementInstance: TwoPartyVirtualEthAsLumpInstance
 ) {
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   return new TwoPartyVirtualEthAsLumpCommitment(
     network,

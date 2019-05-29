@@ -172,9 +172,6 @@ describe("ttt-bot", () => {
             stateEncoding:
               "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
           },
-          asset: {
-            assetType: 0
-          },
           myDeposit: 0,
           peerDeposit: 0,
           timeout: 100

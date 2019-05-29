@@ -1,14 +1,12 @@
 import {
   AppIdentity,
   AppInterface,
-  AssetType,
   ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset,
   OutcomeType,
   TwoPartyOutcome
 } from "./data-types";
@@ -65,8 +63,6 @@ export {
   AppInstanceInfo,
   AppInterface,
   SolidityABIEncoderV2Type,
-  AssetType,
-  BlockchainAsset,
   Bytes32,
   ETHBucketAppState,
   INodeProvider,

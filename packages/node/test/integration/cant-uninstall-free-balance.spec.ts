@@ -1,5 +1,3 @@
-import { AssetType } from "@counterfactual/types";
-
 import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 import { LocalFirebaseServiceFactory } from "../services/firebase-server";
@@ -35,7 +33,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
       );
 
       const fbUninstallReq = generateUninstallRequest(
-        channel.getFreeBalanceFor(AssetType.ETH).identityHash
+        channel.getETHFreeBalance().identityHash
       );
 
       try {

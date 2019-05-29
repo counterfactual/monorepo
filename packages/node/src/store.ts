@@ -1,7 +1,6 @@
 import {
   Address,
   AppInstanceInfo,
-  AssetType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -140,11 +139,8 @@ export class Store {
     ]);
   }
 
-  public async saveFreeBalance(
-    channel: StateChannel,
-    assetType: AssetType = AssetType.ETH
-  ) {
-    const freeBalance = channel.getFreeBalanceFor(assetType);
+  public async saveFreeBalance(channel: StateChannel) {
+    const freeBalance = channel.getETHFreeBalance();
     await this.storeService.set([
       {
         key: `${

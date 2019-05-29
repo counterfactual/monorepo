@@ -1,4 +1,4 @@
-import { AssetType, ETHBucketAppState } from "@counterfactual/types";
+import { ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
@@ -62,7 +62,7 @@ describe("StateChannel::uninstallApp", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc2.getFreeBalanceFor(AssetType.ETH);
+      fb = sc2.getETHFreeBalance();
     });
 
     it("should have updated balances for Alice and Bob", () => {

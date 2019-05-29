@@ -3,7 +3,6 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  BlockchainAsset,
   Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -30,7 +29,6 @@ export class AppInstance {
 
   readonly appId: Address;
   readonly abiEncodings: AppABIEncodings;
-  readonly asset: BlockchainAsset;
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
   readonly timeout: BigNumber;
@@ -44,7 +42,6 @@ export class AppInstance {
     this.id = info.id;
     this.appId = info.appId;
     this.abiEncodings = info.abiEncodings;
-    this.asset = info.asset;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;

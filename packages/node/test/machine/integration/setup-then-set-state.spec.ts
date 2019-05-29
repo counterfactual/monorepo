@@ -1,7 +1,7 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -67,11 +67,11 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1
-      ).setFreeBalance(AssetType.ETH, {
+      ).setFreeBalance({
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
-      const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+      const freeBalanceETH = stateChannel.getETHFreeBalance();
 
       const setStateCommitment = new SetStateCommitment(
         network,
@@ -105,7 +105,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity
+        stateChannel.getETHFreeBalance().identity
       );
 
       const setupTx = setupCommitment.transaction([

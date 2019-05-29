@@ -9,9 +9,6 @@ import { Address, AppInstanceInfo, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;
 
-// FIXME: Figure out how to import @counterfactual-types
-// const { AssetType } = commonTypes;
-
 /**
  * User Story
  * 0.1 ETH is staked hard coded
@@ -90,9 +87,6 @@ export class AppWager {
       await this.appFactory.proposeInstallVirtual({
         initialState,
         proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 172800,
