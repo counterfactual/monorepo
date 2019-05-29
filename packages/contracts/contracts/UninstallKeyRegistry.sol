@@ -4,12 +4,8 @@ pragma experimental "ABIEncoderV2";
 
 /// @title UninstallKeyRegistry - A global boolean time-lock registry. Maps keys to bool values..
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Supports a global mapping of sender, timeout and salt based keys to boolean values.
-/// A nonce is a mapping from a nonce key to a boolean value which can be set
-/// if certain conditions (to be defined later) are satisfied. A nonce is parametrized by the sender, the salt,
-/// and the timeout. These parameters determine the nonce key. A bool val can only be set by its sender.
-/// When a bool is first set, a timer of length `timeout` starts. During this timeout period, it may
-/// only be set to higher values. When the timer expires, the nonce may no longer be set.
+/// @notice Supports a global mapping of sender and salt based keys to boolean values.
+/// Allows for setting a key from `false` to `true` one time
 contract UninstallKeyRegistry {
 
   event UninstallKeySet (bytes32 key);
