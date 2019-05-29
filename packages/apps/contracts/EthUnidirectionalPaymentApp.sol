@@ -16,10 +16,12 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
 
   struct AppState {
     ETHInterpreter.ETHTransfer[2] transfers; // [sender, receiver]
+    bool finalized;
   }
 
   struct PaymentAction {
     uint256 paymentAmount;
+    bool finalize;
   }
 
   /// @dev getTurnTaker always returns sender's address to enforce unidirectionality.
@@ -53,14 +55,15 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     PaymentAction memory action = abi.decode(encodedAction, (PaymentAction));
 
     // apply transition based on action
-    AppState memory postState = applyPayment(state, action.paymentAmount);
+    AppState memory postState = applyPayment(state, action.paymentAmount, action.finalize);
 
     return abi.encode(postState);
   }
 
   function applyPayment(
     AppState memory state,
-    uint256 paymentAmount
+    uint256 paymentAmount,
+    bool finalize
   )
     internal
     pure
@@ -71,6 +74,8 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     state.transfers[0].amount = state.transfers[0].amount.sub(paymentAmount);
     // add payment amount to receiver balance
     state.transfers[1].amount = state.transfers[1].amount.add(paymentAmount);
+    state.finalized = finalize;
+
     return state;
   }
 
@@ -79,8 +84,8 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     pure
     returns (bool)
   {
-    // always terminal
-    return true;
+    AppState memory appState = abi.decode(encodedState, (AppState));
+    return appState.finalized;
   }
 
   function outcomeType()

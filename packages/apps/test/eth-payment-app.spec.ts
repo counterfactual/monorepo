@@ -16,10 +16,12 @@ type EthTransfer = {
 
 type EthPaymentAppState = {
   transfers: EthTransfer[];
+  finalized: boolean;
 };
 
 type Action = {
   paymentAmount: BigNumber;
+  finalize: boolean;
 };
 
 const { expect } = chai;
@@ -30,7 +32,7 @@ function mkAddress(prefix: string = "0xa"): string {
 
 function decodeBytesToAppState(encodedAppState: string): EthPaymentAppState {
   return defaultAbiCoder.decode(
-    [`tuple(tuple(address to, uint256 amount)[2] transfers)`],
+    [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
     encodedAppState
   )[0];
 }
@@ -40,13 +42,16 @@ describe("EthPaymentApp", () => {
 
   function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [`tuple(tuple(address to, uint256 amount)[2] transfers)`],
+      [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
       [state]
     );
   }
 
   function encodeAction(state: SolidityABIEncoderV2Type) {
-    return defaultAbiCoder.encode([`tuple(uint256 paymentAmount)`], [state]);
+    return defaultAbiCoder.encode(
+      [`tuple(uint256 paymentAmount, bool finalize)`],
+      [state]
+    );
   }
 
   async function applyAction(
@@ -94,12 +99,15 @@ describe("EthPaymentApp", () => {
             to: receiverAddr,
             amount: Zero
           }
-        ]
+        ],
+        finalized: false
       };
 
       let action: Action = {
-        paymentAmount: paymentAmt1
+        paymentAmount: paymentAmt1,
+        finalize: false
       };
+
       let ret = await applyAction(preState, action);
 
       let state = decodeBytesToAppState(ret);
@@ -107,7 +115,8 @@ describe("EthPaymentApp", () => {
       expect(state.transfers[1].amount).to.eq(paymentAmt1);
 
       action = {
-        paymentAmount: paymentAmt2
+        paymentAmount: paymentAmt2,
+        finalize: false
       };
       ret = await applyAction(state, action);
 
@@ -132,10 +141,39 @@ describe("EthPaymentApp", () => {
             to: receiverAddr,
             amount: Zero
           }
-        ]
+        ],
+        finalized: false
       };
 
       expect(await computeOutcome(preState)).to.eq(OutcomeType.ETH_TRANSFER);
     });
+  });
+
+  it("can finalize the state with a 0 payment", async () => {
+    const senderAddr = mkAddress("0xa");
+    const receiverAddr = mkAddress("0xb");
+    const senderAmt = new BigNumber(10000);
+    const preState: EthPaymentAppState = {
+      transfers: [
+        {
+          to: senderAddr,
+          amount: senderAmt
+        },
+        {
+          to: receiverAddr,
+          amount: Zero
+        }
+      ],
+      finalized: false
+    };
+
+    const action: Action = {
+      paymentAmount: Zero,
+      finalize: true
+    };
+
+    const ret = await applyAction(preState, action);
+    const state = decodeBytesToAppState(ret);
+    expect(state.finalized).to.be.true;
   });
 });
