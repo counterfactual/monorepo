@@ -13,6 +13,7 @@ import { Log, LogLevel } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
 import { connectNode } from "../src/bot";
+import { Zero } from "ethers/constants";
 
 jest.setTimeout(50000);
 
@@ -172,8 +173,8 @@ describe("ttt-bot", () => {
             stateEncoding:
               "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
           },
-          myDeposit: 0,
-          peerDeposit: 0,
+          myDeposit: Zero,
+          peerDeposit: Zero,
           timeout: 100
         }
       });
