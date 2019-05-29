@@ -16,12 +16,16 @@ export default async function proposeInstallVirtualEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {
+  console.log("nodeMessage in install virtual", JSON.stringify(nodeMsg))
   await setAppInstanceIDForProposeInstallVirtual(
     requestHandler.publicIdentifier,
     requestHandler.store,
-    nodeMsg.data.params,
-    nodeMsg.data.appInstanceId,
-    nodeMsg.data.proposedByIdentifier,
+    // @ts-ignore
+    nodeMsg.data.attributes,
+    // @ts-ignore
+    nodeMsg.data.attributes.appInstanceId,
+    // @ts-ignore
+    nodeMsg.data.attributes.proposedByIdentifier,
     nodeMsg.from!
   );
 

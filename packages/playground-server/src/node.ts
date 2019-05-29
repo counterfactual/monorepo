@@ -374,16 +374,21 @@ export async function onDepositConfirmed(response) {
 
   const node = NodeWrapper.getInstance();
 
-  node.on(NodeTypes.MethodName.DEPOSIT, res => {
-    const response = res.operations[0].data.attributes;
+  node.on(NodeTypes.MethodName.DEPOSIT, () => {
     informSlack(
       `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
-        response.amount
+        attributes.amount
       )} ETH <http://kovan.etherscan.io/address/${
-        response.multisigAddress
+        attributes.multisigAddress
       }|_(view on etherscan)_>.`
     );
   });
+
+  console.log("pg server deposit params", {
+    multisigAddress: attributes.multisigAddress,
+    amount: attributes.amount,
+    notifyCounterparty: !!attributes.notifyCounterparty
+  })
 
   node.emit(NodeTypes.MethodName.DEPOSIT, {
     meta: {
@@ -394,6 +399,11 @@ export async function onDepositConfirmed(response) {
         op: "deposit",
         ref: {
           type: "channel"
+        },
+        params: {
+          multisigAddress: attributes.multisigAddress,
+          amount: attributes.amount,
+          notifyCounterparty: !!attributes.notifyCounterparty
         },
         data: {
           type: "channel",

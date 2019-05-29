@@ -27,7 +27,7 @@ export class AppWager {
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;
-  @State() betAmount: string = "0.01";
+  @State() betAmount: string = "0.0001";
   @State() myName: string = "";
 
   @State() opponent: {
@@ -92,7 +92,7 @@ export class AppWager {
       }
 
       if (
-        bet.gt(ethers.utils.parseEther("0.01")) ||
+        bet.gt(ethers.utils.parseEther("0.0001")) ||
         bet.lt(ethers.utils.parseEther("0"))
       ) {
         this.error = `Please, place a bet between 0 and 0.01 ETH.`;
