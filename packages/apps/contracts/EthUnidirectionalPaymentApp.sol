@@ -55,7 +55,11 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     PaymentAction memory action = abi.decode(encodedAction, (PaymentAction));
 
     // apply transition based on action
-    AppState memory postState = applyPayment(state, action.paymentAmount, action.finalize);
+    AppState memory postState = applyPayment(
+      state,
+      action.paymentAmount,
+      action.finalize
+    );
 
     return abi.encode(postState);
   }
