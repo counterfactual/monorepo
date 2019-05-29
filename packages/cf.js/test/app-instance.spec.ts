@@ -36,7 +36,7 @@ describe("CF.js AppInstance", () => {
     it("can retrieve the latest state", async () => {
       expect.assertions(3);
 
-      const expectedState = "4000";
+      const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
         expect(request.type).toBe(Node.MethodName.GET_STATE);
         const params = request.params as Node.GetStateParams;

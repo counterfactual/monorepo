@@ -209,7 +209,7 @@ export class Node {
 
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
-        if (!msg || !("data" in msg)) {
+        if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
           throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
               data.protocol
@@ -223,7 +223,7 @@ export class Node {
         // per counterparty at the moment.
         this.ioSendDeferrals.delete(data.protocolExecutionID);
 
-        return msg.data;
+        return (msg as NodeMessageWrappedProtocolMessage).data;
       }
     );
 

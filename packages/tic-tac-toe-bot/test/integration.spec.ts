@@ -8,7 +8,9 @@ import {
 import { LocalFirebaseServiceFactory } from "@counterfactual/node/test/services/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
+import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
+import { bigNumberify } from "ethers/utils";
 import { Log, LogLevel } from "logepi";
 import { v4 as generateUUID } from "uuid";
 
@@ -172,9 +174,9 @@ describe("ttt-bot", () => {
             stateEncoding:
               "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
           },
-          myDeposit: 0,
-          peerDeposit: 0,
-          timeout: 100
+          myDeposit: Zero,
+          peerDeposit: Zero,
+          timeout: bigNumberify(100)
         }
       });
     });
