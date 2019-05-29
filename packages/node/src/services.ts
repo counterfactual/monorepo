@@ -2,13 +2,9 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 import log from "loglevel";
-import { Connection, ConnectionManager, ConnectionOptions } from "typeorm";
 
-import { Node as NodeEntity } from "./entity/Node";
 import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
 import { NodeMessage } from "./types";
-
-type StringKeyValue = { [key: string]: StringKeyValue };
 
 export interface IMessagingService {
   send(to: string, msg: NodeMessage): Promise<void>;
@@ -234,102 +230,5 @@ export function confirmLocalFirebaseConfigurationEnvVars() {
     throw Error(
       "Firebase server hostname and port number must be set via FIREBASE_SERVER_HOST and FIREBASE_SERVER_PORT env vars"
     );
-  }
-}
-
-export const POSTGRES_CONFIGURATION_ENV_KEYS = {
-  username: "POSTGRES_USER",
-  host: "POSTGRES_HOST",
-  database: "POSTGRES_DATABASE",
-  password: "POSTGRES_PASSWORD",
-  port: "POSTGRES_PORT"
-};
-
-export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
-  type: "postgres",
-  username: "",
-  host: "",
-  database: "",
-  password: "",
-  port: 0
-};
-
-export class PostgresServiceFactory {
-  private connectionManager: ConnectionManager;
-  private connection: Connection;
-
-  constructor(configuration: ConnectionOptions) {
-    this.connectionManager = new ConnectionManager();
-    this.connection = this.connectionManager.create({
-      ...EMPTY_POSTGRES_CONFIG,
-      ...configuration,
-      entities: [NodeEntity]
-    } as ConnectionOptions);
-  }
-
-  async connectDb() {
-    await this.connection.connect();
-  }
-
-  createStoreService(storeServiceKey: string): IStoreService {
-    console.log("Connected to Postgres");
-    return new PostgresStoreService(this.connectionManager, storeServiceKey);
-  }
-}
-
-class PostgresStoreService implements IStoreService {
-  constructor(
-    private readonly connectionMgr: ConnectionManager,
-    private readonly storeServiceKey: string
-  ) {}
-
-  async set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<boolean> {
-    const connection = this.connectionMgr.get();
-
-    await connection.transaction(async transactionalEntityManager => {
-      for (const pair of pairs) {
-        const storeKey = `${this.storeServiceKey}_${pair.key}`;
-        // Wrapping the value into an object is necessary for Postgres because the JSON column breaks
-        // if you use anything other than JSON (i.e. a raw string). In some cases, the node code is
-        // inserting strings as values instead of objects.
-        const storeValue = {
-          [pair.key]: JSON.parse(JSON.stringify(pair.value))
-        };
-        let record = await transactionalEntityManager.findOne(
-          NodeEntity,
-          storeKey
-        );
-        if (!record) {
-          record = new NodeEntity();
-          record.key = storeKey;
-        }
-        record.value = storeValue;
-        await transactionalEntityManager.save(record);
-      }
-    });
-    return true;
-  }
-
-  async get(key: string): Promise<StringKeyValue | string | undefined> {
-    const storeKey = `${this.storeServiceKey}_${key}`;
-    const res = await this.connectionMgr
-      .get()
-      .manager.findOne(NodeEntity, storeKey);
-    return res && res.value[key];
-  }
-}
-
-export function confirmPostgresConfigurationEnvVars() {
-  for (const [key, value] of Object.entries(POSTGRES_CONFIGURATION_ENV_KEYS)) {
-    if (!process.env[value]) {
-      throw Error(
-        `Postgres ${key} is not set via env var ${
-          POSTGRES_CONFIGURATION_ENV_KEYS[key]
-        }`
-      );
-    }
   }
 }
