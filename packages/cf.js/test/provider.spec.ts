@@ -308,7 +308,7 @@ describe("CF.js Provider", () => {
         type: Node.EventName.UPDATE_STATE,
         data: {
           appInstanceId: TEST_APP_INSTANCE_INFO.id,
-          newState: "3"
+          newState: { someState: "3" }
         }
       });
       expect(nodeProvider.postedMessages).toHaveLength(1);
