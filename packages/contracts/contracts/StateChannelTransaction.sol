@@ -13,7 +13,7 @@ import "./ChallengeRegistry.sol";
 contract StateChannelTransaction {
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
-  /// @param uninstallKey The key in the nonce registry
+  /// @param uninstallKey The key in the uninstall key registry
   /// @param appIdentityHash AppIdentityHash to be resolved
   function executeEffectOfInterpretedAppOutcome(
     ChallengeRegistry appRegistry,
