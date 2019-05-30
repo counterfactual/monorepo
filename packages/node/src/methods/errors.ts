@@ -24,6 +24,9 @@ export const IMPROPERLY_FORMATTED_STRUCT =
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
 
+export const INTERPRETER_NOT_SPECIFIED =
+  "An interpreter address needs to be specified for the app";
+
 export const INVALID_ACTION = "Invalid action taken";
 
 export const INVALID_INSTALL =

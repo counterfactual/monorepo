@@ -1,19 +1,19 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, Node, OutcomeType } from "@counterfactual/types";
-import { Contract } from "ethers";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { Node } from "@counterfactual/types";
+// import { Contract } from "ethers";
+// import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import Queue from "p-queue";
 
-import { ProposedAppInstanceInfo } from "../../../models";
+// import { ProposedAppInstanceInfo } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
-import {
-  INVALID_INSTALL,
-  INVALID_INSTALL_WITH_SELF,
-  INVALID_NUMBER_OF_PARTIES_FOR_INSTALL
-} from "../../errors";
+import { INTERPRETER_NOT_SPECIFIED } from "../../errors";
+// import {
+//   INVALID_INSTALL,
+//   INVALID_INSTALL_WITH_SELF,
+//   INVALID_NUMBER_OF_PARTIES_FOR_INSTALL
+// } from "../../errors";
 
 import { install } from "./operation";
 
@@ -29,52 +29,41 @@ export default class InstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<Queue[]> {
-    const {
-      store,
-      provider,
-      networkContext,
-      publicIdentifier
-    } = requestHandler;
+    const { store, networkContext } = requestHandler;
     const { appInstanceId } = params;
     const appInstanceInfo = await store.getProposedAppInstanceInfo(
       appInstanceId
     );
 
-    const app = new Contract(
-      appInstanceInfo.id,
-      CounterfactualApp.abi,
-      provider
-    );
-
-    const outcomeType = (await app.functions.outcomeType()) as BigNumber;
-
-    let interpreterAddress: string;
-
-    switch (outcomeType.toNumber()) {
-      case OutcomeType.ETH_TRANSFER: {
-        interpreterAddress = networkContext.ETHInterpreter;
-        break;
-      }
-      case OutcomeType.TWO_PARTY_OUTCOME: {
-        interpreterAddress = networkContext.TwoPartyEthAsLump;
-        break;
-      }
-      default: {
-        return Promise.reject("Unrecognized interpreter address");
-      }
+    if (!appInstanceInfo.interpreterAddress) {
+      return Promise.reject(INTERPRETER_NOT_SPECIFIED);
     }
 
-    try {
-      validateInitialOutcome(
-        app,
-        interpreterAddress,
-        appInstanceInfo,
-        publicIdentifier,
-        networkContext
-      );
-    } catch (e) {
-      return Promise.reject(e);
+    const interpreters = new Set([
+      networkContext.ETHInterpreter,
+      networkContext.TwoPartyEthAsLump
+    ]);
+
+    console.log("app has interpreter");
+    console.log(appInstanceInfo.interpreterAddress);
+
+    console.log(interpreters);
+
+    if (!interpreters.has(appInstanceInfo.interpreterAddress)) {
+      return Promise.reject("Unrecognized interpreter address");
     }
+
+    // try {
+    //   validateInitialOutcome(
+    //     app,
+    //     interpreterAddress,
+    //     appInstanceInfo,
+    //     publicIdentifier,
+    //     networkContext
+    //   );
+    // } catch (e) {
+    //   return Promise.reject(e);
+    // }
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
@@ -125,72 +114,74 @@ export default class InstallController extends NodeController {
 }
 
 // FIXME: only handles two party validation
-function validateInitialOutcome(
-  app: Contract,
-  interpreterAddress: string,
-  appInstanceInfo: ProposedAppInstanceInfo,
-  publicIdentifier: string,
-  networkContext: NetworkContext
-) {
-  if (interpreterAddress === networkContext.ETHInterpreter) {
-    validateEthInterpreterOutcome(app, interpreterAddress, appInstanceInfo);
-  }
+// function validateInitialOutcome(
+//   app: Contract,
+//   interpreterAddress: string,
+//   appInstanceInfo: ProposedAppInstanceInfo,
+//   publicIdentifier: string,
+//   networkContext: NetworkContext
+// ) {
+//   if (interpreterAddress === networkContext.ETHInterpreter) {
+//     validateEthInterpreterOutcome(app, interpreterAddress, appInstanceInfo);
+//   }
+//
+//   // else it's the TwoPartyEthAsLump, no computeOutcome is needed
+//   // as the transfers are derived from the params argument to the interpreter
+//   // if (outcomeAtInitialState.sum() !== [aDec, bBdec].sum()) {
+//   //   throw eror ( invalid params given)
+//   // }
+// }
 
-  // else it's the TwoPartyEthAsLump, no computeOutcome is needed
-  // as the transfers are derived from the params argument to the interpreter
-  // if (outcomeAtInitialState.sum() !== [aDec, bBdec].sum()) {
-  //   throw eror ( invalid params given)
-  // }
-}
-
-function validateEthInterpreterOutcome(
-  app: Contract,
-  interpreterAddress: string,
-  appInstanceInfo: ProposedAppInstanceInfo
-) {
-  const outcomeBytes = (app.functions.computeOutcome(
-    appInstanceInfo.initialState
-  ),
-  interpreterAddress);
-
-  // FIXME: specify type for this
-  let transfers: {
-    to: string;
-    amount: BigNumber;
-  }[];
-
-  transfers = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[] transfers"],
-    outcomeBytes
-  ).transfers;
-
-  if (transfers.length !== 2) {
-    throw Error(INVALID_NUMBER_OF_PARTIES_FOR_INSTALL);
-  }
-
-  if (
-    transfers[0].to === transfers[1].to ||
-    appInstanceInfo.proposedByIdentifier ===
-      appInstanceInfo.proposedToIdentifier
-  ) {
-    throw Error(INVALID_INSTALL_WITH_SELF);
-  }
-
-  if (transfers[0].to === appInstanceInfo.proposedByIdentifier) {
-    if (
-      !transfers[0].amount.eq(appInstanceInfo.myDeposit) ||
-      !transfers[1].amount.eq(appInstanceInfo.peerDeposit)
-    ) {
-      throw Error(INVALID_INSTALL);
-    }
-  }
-
-  if (transfers[0].to === appInstanceInfo.proposedToIdentifier) {
-    if (
-      !transfers[0].amount.eq(appInstanceInfo.peerDeposit) ||
-      !transfers[1].amount.eq(appInstanceInfo.myDeposit)
-    ) {
-      throw Error(INVALID_INSTALL);
-    }
-  }
-}
+// function validateEthInterpreterOutcome(
+//   app: Contract,
+//   interpreterAddress: string,
+//   appInstanceInfo: ProposedAppInstanceInfo
+// ) {
+//   console.log("validating");
+//   const outcomeBytes = (app.functions.computeOutcome(
+//     appInstanceInfo.initialState
+//   ),
+//   interpreterAddress);
+//
+//   // FIXME: specify type for this
+//   let transfers: {
+//     to: string;
+//     amount: BigNumber;
+//   }[];
+//
+//   transfers = defaultAbiCoder.decode(
+//     ["tuple(address to, uint256 amount)[] transfers"],
+//     outcomeBytes
+//   ).transfers;
+//
+//   if (transfers.length !== 2) {
+//     throw Error(INVALID_NUMBER_OF_PARTIES_FOR_INSTALL);
+//   }
+//
+//   if (
+//     transfers[0].to === transfers[1].to ||
+//     appInstanceInfo.proposedByIdentifier ===
+//       appInstanceInfo.proposedToIdentifier
+//   ) {
+//     throw Error(INVALID_INSTALL_WITH_SELF);
+//   }
+//
+//   if (transfers[0].to === appInstanceInfo.proposedByIdentifier) {
+//     if (
+//       !transfers[0].amount.eq(appInstanceInfo.myDeposit) ||
+//       !transfers[1].amount.eq(appInstanceInfo.peerDeposit)
+//     ) {
+//       throw Error(INVALID_INSTALL);
+//     }
+//   }
+//
+//   if (transfers[0].to === appInstanceInfo.proposedToIdentifier) {
+//     if (
+//       !transfers[0].amount.eq(appInstanceInfo.peerDeposit) ||
+//       !transfers[1].amount.eq(appInstanceInfo.myDeposit)
+//     ) {
+//       throw Error(INVALID_INSTALL);
+//     }
+//   }
+// }
+//
