@@ -36,7 +36,7 @@
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
-    "axios": "^0.18.0",
+    "axios": "^0.19.0",
     "escape-string-regexp": "^2.0.0",
     "firebase-server": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
