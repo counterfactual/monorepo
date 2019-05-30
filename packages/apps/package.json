@@ -22,7 +22,7 @@
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/types": "0.0.9",
     "@types/chai": "4.1.7",
-    "@types/mocha": "5.2.6",
+    "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.0.12",
     "ethers": "4.0.28",
