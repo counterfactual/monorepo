@@ -11,6 +11,7 @@ import {
 import HighRollerUITunnel from "../../data/high-roller";
 import { AppInstance } from "../../data/mock-app-instance";
 import MockNodeProvider from "../../data/mock-node-provider";
+import NodeProviderEthereum from "../../data/node-provider-ethereum";
 import { cf, HighRollerUIMutableState, Node } from "../../data/types";
 
 declare var cf;
@@ -64,7 +65,9 @@ export class AppProvider {
     const params = new URLSearchParams(window.location.search);
 
     this.nodeProvider = !params.get("standalone")
-      ? new cf.NodeProvider()
+      ? window.parent !== window // Inside iFrame
+        ? new NodeProviderEthereum()
+        : new cf.NodeProvider()
       : new MockNodeProvider();
 
     await this.nodeProvider.connect();

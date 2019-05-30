@@ -1,3 +1,5 @@
+declare var ethereum;
+
 import { CreateChannelMessage } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import { Component, State } from "@stencil/core";
@@ -14,8 +16,6 @@ import FirebaseDataProvider, {
 import PlaygroundAPIClient from "../../data/playground-api-client";
 import WalletTunnel, { WalletState } from "../../data/wallet";
 import { UserSession } from "../../types";
-
-declare var ethereum;
 
 const TIER: string = "ENV:TIER";
 const FIREBASE_SERVER_HOST: string = "ENV:FIREBASE_SERVER_HOST";
@@ -90,26 +90,6 @@ export class AppRoot {
     return data.result;
   }
 
-  async setupMM(): Promise<null> {
-    return new Promise<null>((resolve, reject) => {
-      window.addEventListener("message", event => {
-        if (event.data.type === "plugin_message_response") {
-          if (event.data.data.message === "metamask:setup:complete") {
-            resolve();
-          }
-        }
-      });
-
-      window.postMessage(
-        {
-          type: "PLUGIN_MESSAGE",
-          data: { message: "metamask:setup:initiate" }
-        },
-        "*"
-      );
-    });
-  }
-
   async updateAccount(newProps: Partial<AccountState>) {
     this.accountState = { ...this.accountState, ...newProps };
     this.bindProviderEvents();
@@ -167,7 +147,6 @@ export class AppRoot {
       // Not Inside iFrame
       // toSetup.push(this.createNodeProvider());
     } else {
-      toSetup.push(this.setupMM());
       toSetup.push(this.getNodeAddress());
     }
 
