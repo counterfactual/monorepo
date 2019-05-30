@@ -37,6 +37,7 @@ export async function install(
       multisigAddress: stateChannel.multisigAddress,
       signingKeys: stateChannel.getNextSigningKeys(),
       initialState: appInstanceInfo.initialState,
+      interpreterAddress: appInstanceInfo.interpreterAddress,
       appInterface: {
         ...appInstanceInfo.abiEncodings,
         addr: appInstanceInfo.appId

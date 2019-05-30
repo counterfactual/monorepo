@@ -64,7 +64,9 @@ export async function installBalanceRefundApp(
         actionEncoding: undefined
       },
       // this is the block-time equivalent of 7 days
-      defaultTimeout: 1008
+      defaultTimeout: 1008,
+      // TODO: what's the interpreter for the balance refund app?
+      interpreterAddress: networkContext.ETHInterpreter
     }
   );
 

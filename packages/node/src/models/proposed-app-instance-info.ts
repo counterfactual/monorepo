@@ -19,6 +19,7 @@ export interface IProposedAppInstanceInfo {
   peerDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
+  interpreterAddress: string;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -32,6 +33,7 @@ export interface ProposedAppInstanceInfoJSON {
   peerDeposit: string;
   timeout: string;
   initialState: SolidityABIEncoderV2Type;
+  interpreterAddress: string;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -57,6 +59,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
+  interpreterAddress: string;
   intermediaries?: string[];
 
   constructor(
@@ -72,6 +75,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
+    this.interpreterAddress = proposeParams.interpreterAddress;
     this.intermediaries = proposeParams.intermediaries;
     this.id = overrideId || this.getIdentityHashFor(channel!);
   }
@@ -150,6 +154,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),
       initialState: json.initialState,
+      interpreterAddress: json.interpreterAddress,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
       intermediaries: json.intermediaries

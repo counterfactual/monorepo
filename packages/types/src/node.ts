@@ -168,6 +168,7 @@ export namespace Node {
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
+    interpreterAddress: string;
     proposedToIdentifier: string;
   };
 

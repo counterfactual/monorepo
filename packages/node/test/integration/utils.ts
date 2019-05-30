@@ -202,6 +202,7 @@ export function makeTTTProposalRequest(
   proposedByIdentifier: string,
   proposedToIdentifier: string,
   appId: string,
+  interpreterAddress: string = global["networkContext"].ETHInterpreter,
   state: SolidityABIEncoderV2Type = {},
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
@@ -215,6 +216,7 @@ export function makeTTTProposalRequest(
     peerDeposit,
     appId,
     initialState,
+    interpreterAddress,
     abiEncodings: {
       stateEncoding: tttStateEncoding,
       actionEncoding: tttActionEncoding
@@ -247,14 +249,16 @@ export function makeTTTVirtualProposalRequest(
   proposedToIdentifier: string,
   intermediaries: string[],
   appId: string,
-  initialState: SolidityABIEncoderV2Type = {},
+  interpreterAddress: string,
   myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  peerDeposit: BigNumber = Zero,
+  initialState: SolidityABIEncoderV2Type = {}
 ): NodeTypes.MethodRequest {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
     appId,
+    interpreterAddress,
     initialState,
     myDeposit,
     peerDeposit
@@ -423,6 +427,7 @@ export async function installTTTApp(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       global["networkContext"].TicTacToe,
+      global["networkContext"].ETHInterpreter,
       initialTTTState
     );
 
@@ -535,8 +540,8 @@ export async function makeTTTVirtualProposal(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
+    global["networkContext"].ETHInterpreter,
     global["networkContext"].TicTacToe,
-    initialState,
     One,
     Zero
   );
@@ -580,7 +585,8 @@ export async function makeVirtualProposeCall(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe
+    global["networkContext"].TicTacToe,
+    global["networkContext"].ETHInterpreter
   );
   const response = await nodeA.call(
     virtualAppInstanceProposalRequest.type,
@@ -604,6 +610,7 @@ export async function makeProposeCall(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
     global["networkContext"].TicTacToe,
+    global["networkContext"].ETHInterpreter,
     {},
     One,
     Zero

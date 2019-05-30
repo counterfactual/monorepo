@@ -80,6 +80,7 @@ export type InstallParams = {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
+  interpreterAddress: string;
 };
 
 export type UninstallParams = {

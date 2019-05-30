@@ -12,6 +12,7 @@ export type AppInstanceInfo = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
+  interpreterAddress: string;
   intermediaries?: string[];
 };
 

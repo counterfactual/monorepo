@@ -26,6 +26,15 @@ export const INSUFFICIENT_FUNDS =
 
 export const INVALID_ACTION = "Invalid action taken";
 
+export const INVALID_INSTALL =
+  "Initial state outcome does not correspond to amounts being deposited";
+
+export const INVALID_INSTALL_WITH_SELF =
+  "Cannot install a two party application with self";
+
+export const INVALID_NUMBER_OF_PARTIES_FOR_INSTALL =
+  "Only 2 parties can currently be specified for an installation";
+
 export const INVALID_NETWORK_NAME =
   "Invalid network name provided for initializing Node";
 

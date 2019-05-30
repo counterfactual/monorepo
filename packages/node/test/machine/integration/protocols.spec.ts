@@ -71,6 +71,7 @@ describe("Three mininodes", () => {
           "tuple(address player1, address player2, uint256 counter)",
         actionEncoding: "tuple(uint256 increment)"
       },
+      interpreterAddress: network.ETHInterpreter,
       defaultTimeout: 40
     });
 

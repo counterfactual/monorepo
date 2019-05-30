@@ -1,7 +1,5 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { Contract } from "ethers";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { NetworkContext } from "@counterfactual/types";
+import { bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -95,6 +93,7 @@ async function proposeStateTransition(
     respondingXpub,
     signingKeys,
     initialState,
+    interpreterAddress,
     appInterface,
     defaultTimeout,
     multisigAddress

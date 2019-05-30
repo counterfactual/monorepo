@@ -1,6 +1,6 @@
 import { ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -58,7 +58,8 @@ describe("Can handle correct & incorrect installs", () => {
 
     const appInstanceId = hexlify(randomBytes(32));
     const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
+      appInstanceId,
+      AddressZero
     );
 
     when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
@@ -108,7 +109,8 @@ describe("Can handle correct & incorrect installs", () => {
     await store.saveStateChannel(stateChannel);
 
     const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
+      appInstanceId,
+      AddressZero
     );
 
     when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(

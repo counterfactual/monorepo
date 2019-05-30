@@ -1,17 +1,21 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { Node, OutcomeType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext, Node, OutcomeType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import Queue from "p-queue";
 
-import { getETHFreeBalanceAddress } from "../../../node";
+import { ProposedAppInstanceInfo } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
+import {
+  INVALID_INSTALL,
+  INVALID_INSTALL_WITH_SELF,
+  INVALID_NUMBER_OF_PARTIES_FOR_INSTALL
+} from "../../errors";
 
 import { install } from "./operation";
-import { ProposedAppInstanceInfo } from "../../../models";
 
 /**
  * This converts a proposed app instance to an installed app instance while
@@ -60,13 +64,17 @@ export default class InstallController extends NodeController {
       }
     }
 
-    validateInitialOutcome(
-      app,
-      interpreterAddress,
-      appInstanceInfo,
-      publicIdentifier,
-      networkContext
-    );
+    try {
+      validateInitialOutcome(
+        app,
+        interpreterAddress,
+        appInstanceInfo,
+        publicIdentifier,
+        networkContext
+      );
+    } catch (e) {
+      return Promise.reject(e);
+    }
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
@@ -116,6 +124,7 @@ export default class InstallController extends NodeController {
   }
 }
 
+// FIXME: only handles two party validation
 function validateInitialOutcome(
   app: Contract,
   interpreterAddress: string,
@@ -123,25 +132,66 @@ function validateInitialOutcome(
   publicIdentifier: string,
   networkContext: NetworkContext
 ) {
+  if (interpreterAddress === networkContext.ETHInterpreter) {
+    validateEthInterpreterOutcome(app, interpreterAddress, appInstanceInfo);
+  }
+
+  // else it's the TwoPartyEthAsLump, no computeOutcome is needed
+  // as the transfers are derived from the params argument to the interpreter
+  // if (outcomeAtInitialState.sum() !== [aDec, bBdec].sum()) {
+  //   throw eror ( invalid params given)
+  // }
+}
+
+function validateEthInterpreterOutcome(
+  app: Contract,
+  interpreterAddress: string,
+  appInstanceInfo: ProposedAppInstanceInfo
+) {
+  console.log("validating");
   const outcomeBytes = (app.functions.computeOutcome(
     appInstanceInfo.initialState
   ),
   interpreterAddress);
 
-  let outcome;
-  if (interpreterAddress === networkContext.ETHInterpreter) {
-    outcome = defaultAbiCoder.decode(
-      ["tuple(address to, uint256 amount)[]"],
-      outcome
-    );
+  // FIXME: specify type for this
+  let transfers: {
+    to: string;
+    amount: BigNumber;
+  }[];
+
+  transfers = defaultAbiCoder.decode(
+    ["tuple(address to, uint256 amount)[] transfers"],
+    outcomeBytes
+  ).transfers;
+
+  if (transfers.length !== 2) {
+    throw Error(INVALID_NUMBER_OF_PARTIES_FOR_INSTALL);
   }
 
-  outcome = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[]"],
-    outcome
-  );
+  if (
+    transfers[0].to === transfers[1].to ||
+    appInstanceInfo.proposedByIdentifier ===
+      appInstanceInfo.proposedToIdentifier
+  ) {
+    throw Error(INVALID_INSTALL_WITH_SELF);
+  }
 
-  // if (outcomeAtInitialState.sum() !== [aDec, bBdec].sum()) {
-  //   throw eror ( invalid params given)
-  // }
+  if (transfers[0].to === appInstanceInfo.proposedByIdentifier) {
+    if (
+      !transfers[0].amount.eq(appInstanceInfo.myDeposit) ||
+      !transfers[1].amount.eq(appInstanceInfo.peerDeposit)
+    ) {
+      throw Error(INVALID_INSTALL);
+    }
+  }
+
+  if (transfers[0].to === appInstanceInfo.proposedToIdentifier) {
+    if (
+      !transfers[0].amount.eq(appInstanceInfo.peerDeposit) ||
+      !transfers[1].amount.eq(appInstanceInfo.myDeposit)
+    ) {
+      throw Error(INVALID_INSTALL);
+    }
+  }
 }

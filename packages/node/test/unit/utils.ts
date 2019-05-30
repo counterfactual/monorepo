@@ -17,9 +17,13 @@ export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
 }
 
-export function createProposedAppInstanceInfo(appInstanceId: string) {
+export function createProposedAppInstanceInfo(
+  appInstanceId: string,
+  interpreterAddress: string
+) {
   return new ProposedAppInstanceInfo(
     {
+      interpreterAddress,
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
       appId: AddressZero,
