@@ -223,9 +223,6 @@ export function makeTTTProposalRequest(
     } as AppABIEncodings,
     timeout: One
   };
-  console.log("using params");
-  console.log(params);
-  console.log(interpreterAddress);
   return {
     params,
     requestId: generateUUID(),

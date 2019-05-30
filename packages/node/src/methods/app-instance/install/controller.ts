@@ -44,11 +44,6 @@ export default class InstallController extends NodeController {
       networkContext.TwoPartyEthAsLump
     ]);
 
-    console.log("app has interpreter");
-    console.log(appInstanceInfo.interpreterAddress);
-
-    console.log(interpreters);
-
     if (!interpreters.has(appInstanceInfo.interpreterAddress)) {
       return Promise.reject("Unrecognized interpreter address");
     }

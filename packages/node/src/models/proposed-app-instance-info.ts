@@ -29,9 +29,9 @@ export interface ProposedAppInstanceInfoJSON {
   id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
-  myDeposit: string;
-  peerDeposit: string;
-  timeout: string;
+  myDeposit: BigNumber;
+  peerDeposit: BigNumber;
+  timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   interpreterAddress: string;
   proposedByIdentifier: string;
@@ -131,7 +131,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     return proposedAppInstance.identityHash;
   }
 
-  toJson() {
+  toJson(): ProposedAppInstanceInfoJSON {
     return {
       id: this.id,
       appId: this.appId,
@@ -139,6 +139,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
       initialState: this.initialState,
+      interpreterAddress: this.interpreterAddress,
       timeout: this.timeout,
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
