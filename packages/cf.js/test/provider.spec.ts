@@ -1,5 +1,5 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
-import { Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 
 import { AppInstance } from "../src/app-instance";
 import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
@@ -25,7 +25,8 @@ describe("CF.js Provider", () => {
     peerDeposit: Zero,
     timeout: Zero,
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    interpreterAddress: AddressZero
   };
 
   beforeEach(() => {

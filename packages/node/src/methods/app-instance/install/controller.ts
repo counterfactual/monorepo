@@ -148,7 +148,6 @@ function validateEthInterpreterOutcome(
   interpreterAddress: string,
   appInstanceInfo: ProposedAppInstanceInfo
 ) {
-  console.log("validating");
   const outcomeBytes = (app.functions.computeOutcome(
     appInstanceInfo.initialState
   ),
