@@ -1,8 +1,4 @@
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
@@ -293,7 +289,7 @@ function constructUninstallOp(
   stateChannel: StateChannel,
   seqNoToUninstall: number
 ) {
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   return new UninstallCommitment(
     network,

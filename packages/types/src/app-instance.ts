@@ -1,8 +1,3 @@
-export enum AssetType {
-  ETH = 0,
-  ERC20 = 1
-}
-
 export type AppIdentity = {
   owner: string;
   signingKeys: string[];

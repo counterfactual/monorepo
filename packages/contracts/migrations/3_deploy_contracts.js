@@ -6,7 +6,8 @@ const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 const ETHBucket = artifacts.require("ETHBucket");
 const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
 const MultiSend = artifacts.require("MultiSend");
-const NonceRegistry = artifacts.require("NonceRegistry");
+const RootNonceRegistry = artifacts.require("RootNonceRegistry");
+const UninstallKeyRegistry = artifacts.require("UninstallKeyRegistry");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const StateChannelTransaction = artifacts.require("StateChannelTransaction");
 const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
@@ -20,7 +21,8 @@ const ARTIFACTS = [
   ETHBucket,
   MinimumViableMultisig,
   MultiSend,
-  NonceRegistry,
+  RootNonceRegistry,
+  UninstallKeyRegistry,
   ProxyFactory,
   StateChannelTransaction,
   TwoPartyVirtualEthAsLump,

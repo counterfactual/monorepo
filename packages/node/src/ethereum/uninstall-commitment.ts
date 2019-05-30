@@ -1,4 +1,4 @@
-import NonceRegistry from "@counterfactual/contracts/build/NonceRegistry.json";
+import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
 import {
   AppIdentity,
   ETHBucketAppState,
@@ -6,13 +6,11 @@ import {
 } from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
-import { DependencyValue } from "../models/app-instance";
-
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { encodeETHBucketAppState } from "./utils/eth-bucket";
 
-const nonceRegistryIface = new Interface(NonceRegistry.abi);
+const uninstallKeyRegistryIface = new Interface(UninstallKeyRegistry.abi);
 
 export class UninstallCommitment extends MultiSendCommitment {
   constructor(
@@ -38,14 +36,10 @@ export class UninstallCommitment extends MultiSendCommitment {
 
   public dependencyNonceInput(): MultisigTransaction {
     return {
-      to: this.networkContext.NonceRegistry,
+      to: this.networkContext.UninstallKeyRegistry,
       value: 0,
-      data: nonceRegistryIface.functions.setNonce.encode([
-        /* timeout */ 0,
-        /* salt */ keccak256(
-          defaultAbiCoder.encode(["uint256"], [this.dependencyNonce])
-        ),
-        /* nonceValue */ DependencyValue.CANCELLED
+      data: uninstallKeyRegistryIface.functions.setKeyAsUninstalled.encode([
+        keccak256(defaultAbiCoder.encode(["uint256"], [this.dependencyNonce]))
       ]),
       operation: MultisigOperation.Call
     };

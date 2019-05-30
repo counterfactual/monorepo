@@ -1,5 +1,4 @@
 import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { AssetType } from "@counterfactual/types";
 import {
   bigNumberify,
   getAddress,
@@ -44,7 +43,7 @@ describe("SetupCommitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalanceETH = stateChannel.getETHFreeBalance();
 
   beforeAll(() => {
     tx = new SetupCommitment(
@@ -81,7 +80,8 @@ describe("SetupCommitment", () => {
     it("should contain expected arguments", () => {
       const [
         appRegistry,
-        nonceRegistry,
+        rootNonceRegistry,
+        uninstallKeyRegistry,
         uninstallKey,
         rootNonceValue,
         appIdentityHash,
@@ -89,7 +89,8 @@ describe("SetupCommitment", () => {
         {}
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
+      expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
+      expect(uninstallKeyRegistry).toEqual(networkContext.UninstallKeyRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(rootNonceValue).toEqual(
         bigNumberify(freeBalanceETH.rootNonceValue)

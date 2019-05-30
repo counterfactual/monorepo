@@ -1,18 +1,18 @@
 import * as waffle from "ethereum-waffle";
 import { Contract, ethers } from "ethers";
 
-import NonceRegistry from "../build/NonceRegistry.json";
+import RootNonceRegistry from "../build/RootNonceRegistry.json";
 
 import { expect } from "./utils";
 
 const { HashZero, Zero, One } = ethers.constants;
 const { solidityKeccak256, bigNumberify } = ethers.utils;
 
-describe("NonceRegistry", () => {
+describe("RootNonceRegistry", () => {
   let provider: ethers.providers.Web3Provider;
   let wallet: ethers.Wallet;
 
-  let nonceRegistry: Contract;
+  let rootNonceRegistry: Contract;
 
   const computeKey = (
     sender: string,
@@ -28,7 +28,7 @@ describe("NonceRegistry", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
+    rootNonceRegistry = await waffle.deployContract(wallet, RootNonceRegistry);
   });
 
   it("can set nonces", async () => {
@@ -36,9 +36,9 @@ describe("NonceRegistry", () => {
     const salt = HashZero;
     const value = One;
 
-    await nonceRegistry.functions.setNonce(timeout, salt, value);
+    await rootNonceRegistry.functions.setNonce(timeout, salt, value);
 
-    const ret = await nonceRegistry.functions.table(
+    const ret = await rootNonceRegistry.functions.table(
       computeKey(wallet.address, timeout, salt)
     );
     const blockNumber = bigNumberify(await provider.getBlockNumber());
@@ -52,7 +52,7 @@ describe("NonceRegistry", () => {
     const salt = HashZero;
     const value = 0; // By default, all values are set to 0
 
-    const setNonce = nonceRegistry.functions.setNonce;
+    const setNonce = rootNonceRegistry.functions.setNonce;
 
     // @ts-ignore
     await expect(setNonce(timeout, salt, value)).to.be.reverted;
@@ -64,10 +64,10 @@ describe("NonceRegistry", () => {
     const value = One;
     const key = computeKey(wallet.address, timeout, salt);
 
-    await nonceRegistry.functions.setNonce(timeout, salt, value);
+    await rootNonceRegistry.functions.setNonce(timeout, salt, value);
 
-    const ret = await nonceRegistry.functions.table(key);
-    const isFinal = await nonceRegistry.functions.isFinalizedOrHasNeverBeenSetBefore(
+    const ret = await rootNonceRegistry.functions.table(key);
+    const isFinal = await rootNonceRegistry.functions.isFinalizedOrHasNeverBeenSetBefore(
       key,
       value
     );

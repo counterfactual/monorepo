@@ -1,14 +1,12 @@
 import {
   AppIdentity,
   AppInterface,
-  AssetType,
   ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset,
   OutcomeType,
   TwoPartyOutcome
 } from "./data-types";
@@ -26,7 +24,8 @@ export interface NetworkContext {
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   MultiSend: string;
-  NonceRegistry: string;
+  RootNonceRegistry: string;
+  UninstallKeyRegistry: string;
   StateChannelTransaction: string;
   TwoPartyVirtualEthAsLump: string;
   MinimumViableMultisig: string;
@@ -41,7 +40,8 @@ export const networkContextProps = [
   "ETHBalanceRefundApp",
   "ETHBucket",
   "MultiSend",
-  "NonceRegistry",
+  "RootNonceRegistry",
+  "UninstallKeyRegistry",
   "StateChannelTransaction",
   "TwoPartyVirtualEthAsLump",
   "MinimumViableMultisig",
@@ -65,8 +65,6 @@ export {
   AppInstanceInfo,
   AppInterface,
   SolidityABIEncoderV2Type,
-  AssetType,
-  BlockchainAsset,
   Bytes32,
   ETHBucketAppState,
   INodeProvider,

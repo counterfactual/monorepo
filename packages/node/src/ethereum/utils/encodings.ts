@@ -1,13 +1,6 @@
 // NOTE: It is important that the strings end with a comma and not a semicolon,
 //       these are not struct declarations but simply multi-line tuple encodings.
 
-export const TERMS = `
-  tuple(
-    uint8 assetType,
-    uint256 limit,
-    address token
-  )`;
-
 export const APP_INTERFACE = `
   tuple(
     address addr,

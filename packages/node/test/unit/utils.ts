@@ -1,7 +1,5 @@
 import {
   AppABIEncodings,
-  AssetType,
-  BlockchainAsset,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -29,9 +27,6 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      } as BlockchainAsset,
       myDeposit: Zero,
       peerDeposit: Zero,
       timeout: One,

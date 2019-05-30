@@ -1,8 +1,4 @@
-import {
-  AssetType,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
 import { AddressZero, MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -219,7 +215,7 @@ function addUninstallRefundAppCommitmentToContext(
     newStateChannel
   );
 
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   const uninstallCommitment = new UninstallCommitment(
     context.network,
@@ -262,7 +258,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   return new InstallCommitment(
     network,

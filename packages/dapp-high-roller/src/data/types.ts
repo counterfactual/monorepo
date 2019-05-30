@@ -9,26 +9,6 @@ export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
 
-export enum AssetType {
-  ETH = 0,
-  ERC20 = 1
-}
-
-export interface Terms {
-  assetType: AssetType;
-  limit: BigNumber;
-  token: Address;
-}
-
-export interface Transaction {
-  assetType: AssetType;
-  limit: BigNumber;
-  token?: Address;
-  to: Address[];
-  value: BigNumber[];
-  data: string[];
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
   nonce: number;
@@ -40,7 +20,6 @@ export type AppInstanceInfo = {
   id: AppInstanceID;
   appId: Address;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -52,11 +31,6 @@ export type AppABIEncodings = {
   actionEncoding?: ABIEncoding;
 };
 
-export type BlockchainAsset = {
-  assetType: AssetType;
-  token?: Address;
-};
-
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
   sendMessage(message: Node.Message);
@@ -66,7 +40,8 @@ export namespace Node {
   export type NetworkContext = {
     // Protocol
     MultiSend: Address;
-    NonceRegistry: Address;
+    RootNonceRegistry: Address;
+    UninstallKeyRegistry: Address;
     ChallengeRegistry: Address;
     // App-specific
     ETHBalanceRefundApp: Address;
@@ -124,7 +99,6 @@ export namespace Node {
     respondingAddress: Address;
     appId: Address;
     abiEncodings: AppABIEncodings;
-    asset: BlockchainAsset;
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
@@ -292,14 +266,12 @@ export namespace cf {
     ): AppFactory;
     proposeInstall(parameters: {
       proposedToIdentifier: Address;
-      asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
     }): Promise<AppInstanceID>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
-      asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;

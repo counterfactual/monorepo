@@ -8,8 +8,6 @@ import {
   solidityPack
 } from "ethers/utils";
 
-import { DependencyValue } from "../models/app-instance";
-
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
@@ -32,8 +30,9 @@ export class SetupCommitment extends MultisigCommitment {
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.ChallengeRegistry,
-        this.networkContext.NonceRegistry,
-        this.getUninstallKeyForNonceRegistry(),
+        this.networkContext.RootNonceRegistry,
+        this.networkContext.UninstallKeyRegistry,
+        this.getUninstallKeyForUninstallKeyRegistry(),
         // NOTE: We *assume* here that the root nonce value will be 0
         //       when creating the setup commitment
         0,
@@ -45,23 +44,17 @@ export class SetupCommitment extends MultisigCommitment {
     };
   }
 
-  private getUninstallKeyForNonceRegistry() {
+  private getUninstallKeyForUninstallKeyRegistry(): string {
     return keccak256(
       solidityPack(
-        ["address", "uint256", "bytes32"],
-        [
-          this.multisigAddress,
-          // The timeout is hard-coded to be 0 as is defined by the protocol
-          0,
-          this.getSaltForDependencyNonce()
-        ]
+        ["address", "bytes32"],
+        [this.multisigAddress, this.getSaltForDependencyNonce()]
       )
     );
   }
 
-  private getSaltForDependencyNonce() {
-    return keccak256(
-      defaultAbiCoder.encode(["uint256"], [DependencyValue.NOT_CANCELLED])
-    );
+  private getSaltForDependencyNonce(): string {
+    // We use 0 here because the ETH free balance has always the 0th appSeqNo
+    return keccak256(defaultAbiCoder.encode(["uint256"], [0]));
   }
 }

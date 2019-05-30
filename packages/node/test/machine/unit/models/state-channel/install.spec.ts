@@ -1,4 +1,4 @@
-import { AssetType, ETHBucketAppState } from "@counterfactual/types";
+import { ETHBucketAppState } from "@counterfactual/types";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
@@ -35,7 +35,7 @@ describe("StateChannel::uninstallApp", () => {
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
 
-    sc1 = sc1.setFreeBalance(AssetType.ETH, {
+    sc1 = sc1.setFreeBalance({
       [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
       [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
     });
@@ -63,7 +63,7 @@ describe("StateChannel::uninstallApp", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc2.getFreeBalanceFor(AssetType.ETH);
+      fb = sc2.getETHFreeBalance();
     });
 
     it("should have updated balances for Alice and Bob", () => {

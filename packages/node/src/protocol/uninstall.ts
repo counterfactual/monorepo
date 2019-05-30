@@ -1,4 +1,4 @@
-import { AssetType, ETHBucketAppState } from "@counterfactual/types";
+import { ETHBucketAppState } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
 import { UninstallCommitment } from "../ethereum";
@@ -106,7 +106,7 @@ async function proposeStateTransition(
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 
-  const freeBalance = newStateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = newStateChannel.getETHFreeBalance();
 
   const uninstallCommitment = new UninstallCommitment(
     network,
