@@ -56,7 +56,7 @@
     "@types/koa__cors": "2.2.3",
     "@types/uuid": "3.4.4",
     "dotenv-extended": "2.4.0",
-    "env-cmd": "9.0.1",
+    "env-cmd": "9.0.2",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
     "sqlite3": "4.0.8",
