@@ -3,6 +3,8 @@ import "firebase/auth";
 import "firebase/database";
 import log from "loglevel";
 
+import * as nats from 'ts-nats';
+
 import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
 import { NodeMessage } from "./types";
 
@@ -30,6 +32,12 @@ export interface FirebaseAppConfiguration {
   messagingSenderId: string;
 }
 
+export interface NatsConfig {
+  servers: string[],
+  token: string,
+  clusterId: string,
+}
+
 export const FIREBASE_CONFIGURATION_ENV_KEYS = {
   apiKey: "FIREBASE_API_KEY",
   authDomain: "FIREBASE_AUTH_DOMAIN",
@@ -49,6 +57,18 @@ export const EMPTY_FIREBASE_CONFIG = {
   storageBucket: "",
   messagingSenderId: ""
 };
+
+export const NATS_CONFIGURATION_ENV = {
+  servers: "NATS_SERVERS",
+  token: "NATS_TOKEN",
+  clusterId: "NATS_CLUSTER_ID"
+}
+
+export const EMPTY_NATS_CONFIG = {
+  servers: [''],
+  token: '',
+  clusterId: ''
+}
 
 /**
  * This factory exposes default implementations of the service interfaces
@@ -87,6 +107,29 @@ export class FirebaseServiceFactory {
 
   createStoreService(storeServiceKey: string): IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
+  }
+}
+
+export class NatsServiceFactory {
+  private connection: any;
+  private connectionConfig: NatsConfig;
+
+  constructor(configuration: NatsConfig) {
+    this.connectionConfig = configuration;
+  }
+
+  async connect() {
+    this.connection = await nats.connect({
+      ...EMPTY_NATS_CONFIG,
+      ...this.connectionConfig,
+    } as NatsConfig);
+  }
+
+  createMessagingService(messagingServiceKey: string): IMessagingService {
+    return new NatsMessagingService(
+      this.connection,
+      messagingServiceKey
+    );
   }
 }
 
@@ -150,6 +193,40 @@ class FirebaseMessagingService implements IMessagingService {
     this.firebase
       .ref(`${this.messagingServerKey}/${address}`)
       .on("child_added", childAddedHandler);
+  }
+}
+
+class NatsMessagingService implements IMessagingService {
+  constructor(
+    private readonly connection: any,
+    private readonly messagingServerKey: string
+  ) {}
+
+  async send(to: string, msg: NodeMessage) {
+    await this.connection.publish(
+      `${this.messagingServerKey}/${to}/${msg.from}`,
+      JSON.parse(JSON.stringify(msg))
+    )
+  }
+
+  onReceive(address: string, callback: (msg: NodeMessage) => void) {
+    if (!this.connection) {
+      console.error(
+        "Cannot register a connection with an uninitialized nats server"
+      );
+      return;
+    }
+
+    this.connection.subscribe(`${this.messagingServerKey}/${address}`, (err, msg) => {
+      if(err) {
+        console.error(
+          "Encountered an error while handling message callback",
+          err
+        )
+      } else {
+        callback(msg); 
+      }
+    });
   }
 }
 
