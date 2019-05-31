@@ -2,6 +2,9 @@
   "extends": [
     "config:base"
   ],
+  "schedule": ["every weekend"],
+  "baseBranches": ["renovate"],
+  "automerge": true,
   "ignoreDeps": [
     "@stencil/core",
     "@stencil/router",
