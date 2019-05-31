@@ -1,3 +1,5 @@
+import { Router } from "rpc-server";
+
 import {
   addChannelController,
   depositEventController,
@@ -81,6 +83,8 @@ export const methodNameToImplementation = controllers.reduce(
   },
   {}
 );
+
+export const createRpcRouter = () => new Router({ controllers });
 
 export const eventNameToImplementation = {
   [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
