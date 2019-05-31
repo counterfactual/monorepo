@@ -12,6 +12,7 @@ import {
   solidityPack
 } from "ethers/utils";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
@@ -46,6 +47,7 @@ export default class CreateChannelController extends NodeController {
     return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
   }
 
+  @jsonRpcMethod("chan_create")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
