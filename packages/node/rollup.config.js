@@ -26,7 +26,8 @@ const bundledDependencies = new Set([
   "@counterfactual/contracts",
   "@counterfactual/types",
   "typescript-memoize",
-  "p-queue"
+  "p-queue",
+  "rpc-server"
 ]);
 
 const external = [
@@ -63,6 +64,13 @@ export default [
         namedExports: {
           "../../node_modules/typescript-memoize/dist/memoize-decorator.js": [
             "Memoize"
+          ],
+          "../../node_modules/rpc-server/dist/index.js": [
+            "jsonRpcMethod",
+            "jsonApiOperation",
+            "jsonApiType",
+            "jsonRpcDeserialize",
+            "jsonApiDeserialize"
           ]
         }
       }),
