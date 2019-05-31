@@ -3,7 +3,7 @@
     "config:base"
   ],
   "schedule": ["every weekend"],
-  "baseBranches": ["renovate"],
+  "baseBranches": ["next"],
   "automerge": true,
   "ignoreDeps": [
     "@stencil/core",
