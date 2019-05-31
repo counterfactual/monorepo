@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground-server",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "description": "A backend for the Playground app.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -18,6 +18,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
+    "heroku-postbuild": "sh ./scripts/heroku-postbuild.sh",
     "build": "echo 'No build necessary'",
     "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
