@@ -46,6 +46,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
   server.setTimeout(API_TIMEOUT);
 
   Log.info("API is now ready", { tags: { port } });
+  Log.info("Node address", { tags: { address: NodeWrapper.getNodeAddress() }});
 })();
 
 process.on("SIGINT", async () => {
