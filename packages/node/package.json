@@ -55,6 +55,7 @@
     "p-queue": "^5.0.0",
     "pg": "7.11.0",
     "reflect-metadata": "^0.1.13",
+    "rpc-server": "prototypal/rpc-server",
     "typescript-memoize": "^1.0.0-alpha.3",
     "uuid": "^3.3.2"
   }
