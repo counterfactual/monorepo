@@ -6,7 +6,8 @@
     ]
   },
   "engines": {
-    "yarn": "^1.10"
+    "yarn": "^1.10",
+    "node": "10.15.3"
   },
   "scripts": {
     "build": "sh build.sh",
