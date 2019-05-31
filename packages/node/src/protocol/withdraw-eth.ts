@@ -141,10 +141,10 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    const { signature: s5 } = m3;
+    const { signature: s5 } = m3.operations[0].data.attributes;
 
     validateSignature(initiatingAddress, uninstallRefundCommitment, s5);
-
+ 
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Withdraw,
@@ -272,6 +272,8 @@ function addMultisigSendCommitmentToContext(
   } = message.params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  console.log("addMultisigSendCommitmentToContext", amount)
 
   return new WithdrawETHCommitment(
     stateChannel.multisigAddress,

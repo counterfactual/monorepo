@@ -23,7 +23,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
       this.hashToSign(),
       ...sigs
     );
-
+console.log("multisigInput", JSON.stringify(multisigInput))
     const txData = new Interface(
       MinimumViableMultisig.abi
     ).functions.execTransaction.encode([
@@ -33,6 +33,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
       multisigInput.operation,
       signatureBytes
     ]);
+    console.log("txData", JSON.stringify(txData))
 
     // TODO: Deterministically compute `to` address
     return { to: this.multisigAddress, value: 0, data: txData };

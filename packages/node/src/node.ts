@@ -444,11 +444,19 @@ export class Node {
     const { params, protocol, toXpub } = msg["operations"]
       ? msg["operations"][0].data.attributes
       : msg;
+    
+    const paramKeys = Object.keys(params);
+
+    if (params.amount) {
+      // otherwise, BigNumber _hex values are lost by JSON.stringify's
+      // replacer array
+      paramKeys.push("_hex")
+    }
 
     const protocolMessage = {
       protocol: protocol,
       fromto: [fromXpub, toXpub].sort().toString(),
-      params: JSON.stringify(params, Object.keys(params).sort())
+      params: JSON.stringify(params, paramKeys.sort())
     };
 
     console.log("encoding protocol message", protocolMessage);

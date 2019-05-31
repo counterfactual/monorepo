@@ -45,6 +45,7 @@ export default class WithdrawController extends NodeController {
       publicIdentifier,
       blocksNeededForConfirmation
     } = requestHandler;
+    console.log("withdraw executeMethodImplementation", JSON.stringify(params))
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);

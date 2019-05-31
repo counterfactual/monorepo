@@ -10,6 +10,8 @@ export async function runWithdrawProtocol(
   const { publicIdentifier, instructionExecutor, store } = requestHandler;
   const { multisigAddress, amount } = params;
 
+  console.log("runWithdrawProtocol params", JSON.stringify(params))
+
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
     store,

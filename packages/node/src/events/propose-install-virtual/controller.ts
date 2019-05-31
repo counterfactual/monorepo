@@ -31,7 +31,7 @@ export default async function proposeInstallVirtualEventController(
   if (
     !nodeIsIntermediary(
       requestHandler.publicIdentifier,
-      attributes.params.intermediaries
+      attributes.intermediaries
     )
   ) {
     return;
@@ -59,8 +59,8 @@ export default async function proposeInstallVirtualEventController(
 
   const nextNodeAddress = getNextNodeAddress(
     requestHandler.publicIdentifier,
-    nodeMsg.data.params.intermediaries,
-    nodeMsg.data.params.proposedToIdentifier
+    attributes.intermediaries,
+    attributes.proposedToIdentifier
   );
 
   await requestHandler.messagingService.send(

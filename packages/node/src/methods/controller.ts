@@ -10,6 +10,7 @@ export abstract class NodeController {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Node.MethodResult> {
+    console.log("executeMethod", NodeController.methodName, this.constructor.name, JSON.stringify(params))
     const shardedQueues = await this.enqueueByShard(requestHandler, params);
 
     let promise;

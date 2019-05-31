@@ -120,6 +120,7 @@ export class InstructionExecutor {
   }
 
   public async runWithdrawProtocol(sc: StateChannel, params: WithdrawParams) {
+    console.log("run withdraw params", JSON.stringify(params))
     const protocol = Protocol.Withdraw;
     return this.runProtocol(
       new Map<string, StateChannel>([[sc.multisigAddress, sc]]),

@@ -33,8 +33,18 @@ export default async function protocolMessageEventController(
   } = requestHandler;
 
   // @ts-ignore
-  const attributes = nodeMsg.operations ? nodeMsg.operations[0].data.attributes : nodeMsg;
+  const attributes = nodeMsg.operations ?
+    // @ts-ignore
+    nodeMsg.operations[0].data.attributes :
+      // @ts-ignore
+      nodeMsg.data && nodeMsg.data.attributes ?
+        // @ts-ignore
+        nodeMsg.data.attributes :
+        nodeMsg;
   const { protocol, seq, params } = attributes;
+  console.log("run protocol type", protocol)
+  console.log("run protocol attributes", JSON.stringify(attributes))
+  console.log("run protocol nodeMsg", JSON.stringify(nodeMsg))
 
   if (seq === -1) return;
 
@@ -43,7 +53,7 @@ export default async function protocolMessageEventController(
     .add(async () => {
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         // @ts-ignore
-        attributes,
+        attributes.protocol ? nodeMsg : attributes,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
         )
@@ -66,6 +76,7 @@ export default async function protocolMessageEventController(
 
         outgoing.emit(uninstallMsg.type, uninstallMsg);
       } else if (protocol === Protocol.Withdraw) {
+        console.log("withdraw params", JSON.stringify(params))
         const withdrawMsg: WithdrawMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
