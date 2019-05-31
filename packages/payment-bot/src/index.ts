@@ -128,9 +128,6 @@ export function getBot() {
       nodeAddress: node.publicIdentifier,
       username: process.env.USERNAME || "PaymentBot"
     };
-    const signature = await wallet.signMessage(
-      buildRegistrationSignaturePayload(user)
-    );
 
     let token = await store.get(TOKEN_PATH);
     if (token) {
@@ -140,6 +137,9 @@ export function getBot() {
       bot = await getUser(BASE_URL, token);
       console.log(`Existing account found\n`, bot);
     } else {
+      const signature = await wallet.signMessage(
+        buildRegistrationSignaturePayload(user)
+      );
       bot = await createAccount(BASE_URL, user, signature);
       token = bot.token;
       await store.set([
