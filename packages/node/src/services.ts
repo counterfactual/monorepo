@@ -313,3 +313,11 @@ export function confirmLocalFirebaseConfigurationEnvVars() {
     );
   }
 }
+
+export function confirmNatsConfigurationEnvVars() {
+  if (!process.env.NATS_SERVERS || !process.env.NATS_TOKEN || !process.env.NATS_CLUSTER_ID) {
+    throw Error(
+      "Nats server name(s), token and cluster ID must be set via env vars"
+    )
+  }
+}
