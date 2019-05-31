@@ -19,6 +19,7 @@
   },
   "scripts": {
     "heroku-postbuild": "sh ./scripts/heroku-postbuild.sh",
+    "build": "echo 'No build necessary'",
     "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
     "lint:fix": "tslint -c tslint.json -p . --fix",
