@@ -46,6 +46,7 @@
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
     "pg": "^7.10.0",
+    "rpc-server": "prototypal/rpc-server",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
