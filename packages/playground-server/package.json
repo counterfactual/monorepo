@@ -62,7 +62,7 @@
     "sqlite3": "4.0.8",
     "ts-jest": "24.0.2",
     "ts-node": "8.2.0",
-    "tslint": "5.16.0",
+    "tslint": "5.17.0",
     "typescript": "3.5.1"
   }
 }
