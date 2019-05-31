@@ -16,6 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
+import { jsonRpcDeserialize } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -257,16 +258,29 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = await node.call(
-      NodeTypes.MethodName.CREATE_CHANNEL,
-      {
-        params: {
-          owners: [node.publicIdentifier, nodeAddress]
-        } as NodeTypes.CreateChannelParams,
-        type: NodeTypes.MethodName.CREATE_CHANNEL,
-        requestId: generateUUID()
-      }
-    );
+    // const multisigResponse = await node.call(
+    //   NodeTypes.MethodName.CREATE_CHANNEL,
+    //   {
+    //     params: {
+    //       owners: [node.publicIdentifier, nodeAddress]
+    //     } as NodeTypes.CreateChannelParams,
+    //     type: NodeTypes.MethodName.CREATE_CHANNEL,
+    //     requestId: generateUUID()
+    //   }
+    // );
+
+    const multisigResponse = {
+      result: await node.router.dispatch(
+        jsonRpcDeserialize({
+          id: Date.now(),
+          method: "chan_create",
+          params: {
+            owners: [node.publicIdentifier, nodeAddress]
+          },
+          jsonrpc: "2.0"
+        })
+      )
+    };
 
     return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
   }
