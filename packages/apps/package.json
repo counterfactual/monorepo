@@ -31,7 +31,7 @@
     "solc": "0.5.9",
     "truffle": "5.0.20",
     "truffle-deploy-registry": "0.5.1",
-    "truffle-hdwallet-provider": "1.0.9",
+    "truffle-hdwallet-provider": "1.0.10",
     "ts-mocha": "6.0.0",
     "tslint": "5.17.0"
   },
