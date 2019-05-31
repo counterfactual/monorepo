@@ -5,8 +5,10 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import * as log from "loglevel";
 import "reflect-metadata";
+import { Controller, Router, Rpc } from "rpc-server";
 import { Memoize } from "typescript-memoize";
 
+import { createRpcRouter } from "./api-router";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import {
@@ -55,6 +57,7 @@ export class Node {
   // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
+  public router: Router = {} as Router;
 
   static async create(
     messagingService: IMessagingService,
@@ -125,6 +128,23 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
+    this.router = createRpcRouter();
+
+    this.router.dispatch = async (rpc: Rpc): Promise<any> => {
+      const controller = Object.values(Controller.rpcMethods).find(
+        mapping => mapping.method === rpc.methodName
+      );
+
+      if (!controller) {
+        console.warn(`Cannot execute ${rpc.methodName}: no controller`);
+        return;
+      }
+
+      return new controller.type()[controller.callback](
+        this.requestHandler,
+        rpc.parameters
+      );
+    };
     return this;
   }
 
