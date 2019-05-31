@@ -131,6 +131,10 @@ export class NatsServiceFactory {
       messagingServiceKey
     );
   }
+
+  async disconnect() {
+    this.connection.close();
+  }
 }
 
 class FirebaseMessagingService implements IMessagingService {
