@@ -392,12 +392,12 @@ export class AppRoot {
       addr => addr !== myFreeBalanceAddress
     );
 
-    const myBalance = (freeBalance[
+    const myBalance = ethers.utils.bigNumberify((freeBalance[
       myFreeBalanceAddress
-    ] as unknown) as BigNumber;
-    const counterpartyBalance = (freeBalance[
+    ] as unknown) as BigNumber);
+    const counterpartyBalance = ethers.utils.bigNumberify((freeBalance[
       counterpartyFreeBalanceAddress
-    ] as unknown) as BigNumber;
+    ] as unknown) as BigNumber);
 
     const vals = {
       ethFreeBalanceWei: myBalance,
@@ -456,89 +456,29 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
-    let didRequestTransaction = false;
-    return new Promise<string>((resolve, reject) => {
-      const cb = async event => {
-        if (event.data.type === "plugin_message_response") {
-          if (event.data.data.message === "metamask:response:deposit") {
-            window.removeEventListener("message", cb);
-
-            await this.getBalances({ poll: true });
-            await this.resetPendingDepositState();
-            console.log("deposit response", event.data);
-            resolve(event.data.data);
-          } else if (
-            event.data.data.message === "metamask:request:signer:address"
-          ) {
-            console.log("Request for provider signer address");
-            const { signer } = this.walletState;
-            if (!signer) {
-              throw new Error("No signer in getSigner listener");
-            }
-            const address = await signer.getAddress();
-            window.postMessage(
-              {
-                type: "PLUGIN_MESSAGE",
-                data: {
-                  data: address,
-                  message: "metamask:response:signer:address"
-                }
-              },
-              "*"
-            );
-          } else if (
-            event.data.data.message ===
-            "metamask:request:signer:sendTransaction"
-          ) {
-            if (!didRequestTransaction) {
-              didRequestTransaction = true;
-              window.setTimeout(() => {
-                didRequestTransaction = false;
-              }, 500);
-              console.log("Request for provider.sendTransaction", event);
-              const { signer } = this.walletState;
-
-              if (signer) {
-                const { signedTransaction } = event.data.data.data;
-                signedTransaction.gasPrice = ethers.utils.bigNumberify(
-                  signedTransaction.gasPrice._hex
-                );
-                signedTransaction.value = ethers.utils.bigNumberify(
-                  signedTransaction.value._hex
-                );
-                const response = await signer.sendTransaction(
-                  signedTransaction
-                );
-                delete response.wait;
-                window.postMessage(
-                  {
-                    type: "PLUGIN_MESSAGE",
-                    data: {
-                      data: response,
-                      message: "metamask:response:signer:sendTransaction"
-                    }
-                  },
-                  "*"
-                );
-              }
-            }
-          }
-        }
-      };
-      window.addEventListener("message", cb);
-
-      window.postMessage(
-        {
-          type: "PLUGIN_MESSAGE",
-          data: {
-            multisigAddress,
-            valueInWei,
-            message: "metamask:request:deposit"
-          }
-        },
-        "*"
-      );
+    ethereum.send("counterfactual:request:deposit_start").then(data => {
+      this.updateAccount({
+        ethPendingDepositTxHash: data.txHash,
+        ethPendingDepositAmountWei: data.value
+      });
     });
+
+    let ret;
+
+    try {
+      const amount = ethers.utils.bigNumberify(valueInWei);
+
+      ret = (await ethereum.send("counterfactual:request:deposit", [
+        amount,
+        multisigAddress
+      ])) as Node.DepositParams;
+    } catch (e) {
+      console.error(e);
+    }
+    await this.getBalances({ poll: true });
+    await this.resetPendingDepositState();
+
+    return ret;
   }
 
   async withdraw(valueInWei: BigNumber): Promise<Node.MethodResponse> {
