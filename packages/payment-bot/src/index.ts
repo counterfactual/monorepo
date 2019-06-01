@@ -26,9 +26,10 @@ import {
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = process.env.USER_TOKEN || "TTT_USER_TOKEN";
+const NETWORK = process.env.ETHEREUM_NETWORK || "kovan";
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "https://kovan.infura.io/metamask"
+  `https://${NETWORK}.infura.io/metamask`
 );
 
 // let pgServiceFactory: PostgresServiceFactory;
@@ -110,7 +111,7 @@ export function getBot() {
       STORE_KEY_PREFIX: "store"
     },
     provider,
-    "kovan"
+    NETWORK
   );
 
   console.log("Public Identifier", node.publicIdentifier);
