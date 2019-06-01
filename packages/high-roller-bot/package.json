@@ -28,7 +28,7 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.19",
+    "@counterfactual/node": "0.1.20",
     "@counterfactual/types": "0.0.9",
     "eventemitter3": "^3.1.2"
   },
