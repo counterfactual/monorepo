@@ -28,9 +28,10 @@ import {
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = process.env.USER_TOKEN || "TTT_USER_TOKEN";
+const NETWORK = process.env.ETHEREUM_NETWORK || "kovan";
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "https://rinkeby.infura.io/metamask"
+  `https://${NETWORK}.infura.io/metamask`
 );
 
 // let pgServiceFactory: PostgresServiceFactory;
@@ -110,7 +111,7 @@ export function getBot() {
 
   console.log("Creating store");
   // const store = pgServiceFactory.createStoreService("tttBotStore1");
-  const store = fbServiceFactory.createStoreService("tttBotStore1");
+  const store = fbServiceFactory.createStoreService("paymentBotStore1");
 
   console.log("process.env.NODE_MNEMONIC: ", process.env.NODE_MNEMONIC);
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
@@ -125,7 +126,7 @@ export function getBot() {
       STORE_KEY_PREFIX: "store"
     },
     provider,
-    "rinkeby"
+    NETWORK
   );
 
   console.log("Public Identifier", node.publicIdentifier);
@@ -143,9 +144,6 @@ export function getBot() {
       nodeAddress: node.publicIdentifier,
       username: process.env.USERNAME || "PaymentBot"
     };
-    const signature = await wallet.signMessage(
-      buildRegistrationSignaturePayload(user)
-    );
 
     let token = await store.get(TOKEN_PATH);
     if (token) {
@@ -155,6 +153,9 @@ export function getBot() {
       bot = await getUser(BASE_URL, token);
       console.log(`Existing account found\n`, bot);
     } else {
+      const signature = await wallet.signMessage(
+        buildRegistrationSignaturePayload(user)
+      );
       bot = await createAccount(BASE_URL, user, signature);
       token = bot.token;
       await store.set([
