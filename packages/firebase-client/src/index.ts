@@ -1,5 +1,5 @@
-import { Node } from "@counterfactual/types";
 import { IMessagingService, IStoreService } from "@counterfactual/node";
+import { Node } from "@counterfactual/types";
 import firebase from "firebase";
 import log from "loglevel";
 
