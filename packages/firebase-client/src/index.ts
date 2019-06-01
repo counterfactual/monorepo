@@ -1,8 +1,5 @@
-import {
-  IMessagingService,
-  IStoreService,
-  NodeMessage
-} from "@counterfactual/node";
+import { Node } from "@counterfactual/types";
+import { IMessagingService, IStoreService } from "@counterfactual/node";
 import firebase from "firebase";
 import log from "loglevel";
 
@@ -83,13 +80,13 @@ class FirebaseMessagingService implements IMessagingService {
     private readonly messagingServerKey: string
   ) {}
 
-  async send(to: string, msg: NodeMessage) {
+  async send(to: string, msg: Node.NodeMessage) {
     await this.firebase
       .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  onReceive(address: string, callback: (msg: NodeMessage) => void) {
+  onReceive(address: string, callback: (msg: Node.NodeMessage) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -107,7 +104,7 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      const msg: NodeMessage = snapshot.val();
+      const msg: Node.NodeMessage = snapshot.val();
 
       if (msg === null) {
         // We check for `msg` being not null because when the Firebase listener

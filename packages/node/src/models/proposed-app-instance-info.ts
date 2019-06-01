@@ -3,7 +3,6 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
-  BlockchainAsset,
   Bytes32,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -16,7 +15,6 @@ import { AppInstance, StateChannel } from "../models";
 export interface IProposedAppInstanceInfo {
   appId: Address;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -30,7 +28,6 @@ export interface ProposedAppInstanceInfoJSON {
   id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: string;
   peerDeposit: string;
   timeout: string;
@@ -54,7 +51,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   id: Bytes32;
   appId: Address;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -70,7 +66,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   ) {
     this.appId = proposeParams.appId;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.asset = proposeParams.asset;
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
     this.timeout = proposeParams.timeout;
@@ -137,7 +132,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       id: this.id,
       appId: this.appId,
       abiEncodings: this.abiEncodings,
-      asset: this.asset,
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
       initialState: this.initialState,
@@ -152,7 +146,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
       appId: json.appId,
       abiEncodings: json.abiEncodings,
-      asset: json.asset,
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),
       timeout: bigNumberify(json.timeout),

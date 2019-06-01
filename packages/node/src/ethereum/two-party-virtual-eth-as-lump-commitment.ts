@@ -1,6 +1,5 @@
 import TwoPartyVirtualEthAsLump from "@counterfactual/contracts/build/TwoPartyVirtualEthAsLump.json";
-import { AppIdentity, AssetType, NetworkContext } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { BigNumber, getAddress, Interface } from "ethers/utils";
 
 import { MultiSendCommitment } from "./multisend-commitment";
@@ -59,12 +58,8 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.ChallengeRegistry,
-          nonceRegistry: this.networkContext.NonceRegistry,
-          terms: {
-            assetType: AssetType.ETH,
-            limit: new BigNumber(0),
-            token: AddressZero
-          },
+          rootNonceRegistry: this.networkContext.RootNonceRegistry,
+          uninstallKeyRegistry: this.networkContext.UninstallKeyRegistry,
           expiry: this.expiryBlock,
           appIdentityHash: this.targetAppIdentityHash,
           capitalProvided: this.capitalProvided,

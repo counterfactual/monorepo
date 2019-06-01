@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/Interpreter.sol";

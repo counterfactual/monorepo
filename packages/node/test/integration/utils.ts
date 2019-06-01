@@ -3,8 +3,6 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  AssetType,
-  BlockchainAsset,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
@@ -221,9 +219,6 @@ export function makeTTTProposalRequest(
       stateEncoding: tttStateEncoding,
       actionEncoding: tttActionEncoding
     } as AppABIEncodings,
-    asset: {
-      assetType: AssetType.ETH
-    } as BlockchainAsset,
     timeout: One
   };
   return {
@@ -290,7 +285,7 @@ export function confirmProposedAppInstanceOnNode(
     proposedAppInstanceInfo.abiEncodings
   );
   expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
-  expect(proposalParams.asset).toEqual(proposedAppInstanceInfo.asset);
+
   if (nonInitiatingNode) {
     expect(proposalParams.myDeposit).toEqual(
       proposedAppInstanceInfo.peerDeposit

@@ -1,4 +1,4 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -118,7 +118,7 @@ export function constructSetupCommitment(
   network: NetworkContext,
   stateChannel: StateChannel
 ) {
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.getETHFreeBalance();
 
   return new SetupCommitment(
     network,

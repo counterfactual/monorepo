@@ -13,6 +13,7 @@ Welcome to Counterfactual's documentation!
    introduction.md
    app-definition.md
    adjudication-layer.md
+   channel-networks.md
    peer-protocol.md
    protocols/setup.md
    protocols/install.md

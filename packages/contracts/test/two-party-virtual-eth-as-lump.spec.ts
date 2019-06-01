@@ -13,8 +13,8 @@ import {
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
 import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
-import NonceRegistry from "../build/NonceRegistry.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
+import UninstallKeyRegistry from "../build/UninstallKeyRegistry.json";
 
 import { expect } from "./utils/index";
 
@@ -23,7 +23,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
   let wallet: Wallet;
 
   let appRegistry: Contract;
-  let nonceRegistry: Contract;
+  let uninstallKeyRegistry: Contract;
   let virtualAppAgreement: Contract;
   let fixedTwoPartyOutcome: Contract;
   let appIdentityHash: string;
@@ -33,7 +33,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
-    nonceRegistry: Contract,
+    uninstallKeyRegistry: Contract,
     appDefinition: string,
     expiry: number,
     capitalProvided: BigNumber,
@@ -58,7 +58,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
         expiry,
         capitalProvided,
         registry: appRegistry.address,
-        nonceRegistry: nonceRegistry.address,
+        uninstallKeyRegistry: uninstallKeyRegistry.address,
         appIdentityHash: appDefinition
       }
     ]);
@@ -86,7 +86,10 @@ describe("TwoPartyVirtualEthAsLump", () => {
       gasLimit: 6000000 // override default of 4 million
     });
 
-    nonceRegistry = await waffle.deployContract(wallet, NonceRegistry);
+    uninstallKeyRegistry = await waffle.deployContract(
+      wallet,
+      UninstallKeyRegistry
+    );
 
     fixedTwoPartyOutcome = await waffle.deployContract(
       wallet,
@@ -130,7 +133,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
     const beneficiaries = await delegatecallVirtualAppAgreement(
       virtualAppAgreement,
       appRegistry,
-      nonceRegistry,
+      uninstallKeyRegistry,
       appIdentityHash,
       0,
       bigNumberify(10),
@@ -146,7 +149,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
-        nonceRegistry,
+        uninstallKeyRegistry,
         HashZero,
         0,
         bigNumberify(10),
@@ -160,7 +163,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
-        nonceRegistry,
+        uninstallKeyRegistry,
         appIdentityHash,
         (await provider.getBlockNumber()) + 10,
         bigNumberify(10),
@@ -170,22 +173,19 @@ describe("TwoPartyVirtualEthAsLump", () => {
   });
 
   it("fails if cancelled", async () => {
-    const computeKey = (sender: string, timeout: BigNumber, salt: string) =>
-      solidityKeccak256(
-        ["address", "uint256", "bytes32"],
-        [sender, timeout, salt]
-      );
+    const computeKey = (sender: string, salt: string) =>
+      solidityKeccak256(["address", "bytes32"], [sender, salt]);
 
-    await nonceRegistry.functions.setNonce(Zero, HashZero, One);
+    await uninstallKeyRegistry.functions.setKeyAsUninstalled(HashZero);
     await expect(
       delegatecallVirtualAppAgreement(
         virtualAppAgreement,
         appRegistry,
-        nonceRegistry,
+        uninstallKeyRegistry,
         appIdentityHash,
         0,
         bigNumberify(10),
-        computeKey(wallet.address, Zero, HashZero)
+        computeKey(wallet.address, HashZero)
       )
     ).to.be.revertedWith("Delegate call failed.");
   });

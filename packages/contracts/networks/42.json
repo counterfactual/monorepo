@@ -68,5 +68,80 @@
     "contractName": "TwoPartyEthAsLump",
     "address": "0x4E530FE0b7ec303e7398AFa24572B0305901F84f",
     "transactionHash": "0x20cab7a94634a42f6f29e803fc14a5b37fd4d615de6832196e111046f2b882ce"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0x8b1E3adD8F5B8847a5f9682BA1969f8c94A66073",
+    "transactionHash": "0x92a131d484ed87757c0c8c83c0e07c8c9d25c42c4880e780444c3736543fed82"
+  },
+  {
+    "contractName": "LibStaticCall",
+    "address": "0x8ed35A27ddE262BE24aA243511C9E477565e7e20",
+    "transactionHash": "0xe2ae4cbcc31c562aa995ab20614f065deff2f018e35c5623b5bfd1ca38a01d18"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0xA53De731723e6b07B4Fe14F552a6724f2F3847f2",
+    "transactionHash": "0x5bc47ec872179e2d8a9222c393e1124265cd8d1e7a9cce98601057bcca3ae2a0"
+  },
+  {
+    "contractName": "ContractRegistry",
+    "address": "0x9527c33bf112D6c82cbdd6d01FCe65e3fd685794",
+    "transactionHash": "0x1a837051fe3e22ab95c0b56d3e98937d30332d16341f171f4b281201a406663e"
+  },
+  {
+    "contractName": "ETHBalanceRefundApp",
+    "address": "0x316F3DfED556E3Dc6257F8B813bfEF08875D75Cf",
+    "transactionHash": "0xff7f0c324014bf098aea721b62fda446768956b4ff208b6178cbdb17b3a080bc"
+  },
+  {
+    "contractName": "ETHBucket",
+    "address": "0x95d07bbb0a635Be23A0D1257130141B08f552A9b",
+    "transactionHash": "0xe539e1fa45d7e8492aa29cbb375ef6cc6610bf080e3be2184672061add310d95"
+  },
+  {
+    "contractName": "MinimumViableMultisig",
+    "address": "0x0971e871D05739E7821Aedb6a9e75083F3bd4997",
+    "transactionHash": "0x7dee05ac265632ad8626bbf8d33d3ed1891e256f41243fa854dbd62571945e31"
+  },
+  {
+    "contractName": "MultiSend",
+    "address": "0xb67E0913f6F22E32cA8F30d84Cad44b71ED9F63e",
+    "transactionHash": "0xf616a3c586eb2f394badfbd36358f5b332d53ecee3f17ac4afb7105bf381134c"
+  },
+  {
+    "contractName": "RootNonceRegistry",
+    "address": "0x1bee5eF178bd39F43d1C3169B59a041860a003A3",
+    "transactionHash": "0x30ba64ce3c63d53caf3dc8d8e7165b8e2f075e2b81086859c6ee11092cb26f1a"
+  },
+  {
+    "contractName": "UninstallKeyRegistry",
+    "address": "0x22cF773ca906CBB854EB65570D6874fFb1813C7D",
+    "transactionHash": "0xda4c34511f2a02e0ed2297cf068a2ae2ff9d34a104403722ca1aa9adeb2bb620"
+  },
+  {
+    "contractName": "ProxyFactory",
+    "address": "0x34774713B3e19d92A04b6cBb153EE43450221347",
+    "transactionHash": "0xe4def782b67d0b64dee5d2e3d0dc0f1c36cfcd68bdc20c520170f99495e9f820"
+  },
+  {
+    "contractName": "StateChannelTransaction",
+    "address": "0xB31d8f59A539f7c2553D663615e362d25D21F5f0",
+    "transactionHash": "0xc6295e74b472c19a21ff687526105b23c78b9c1c7ff117f1281b32e4a3bb3b9b"
+  },
+  {
+    "contractName": "TwoPartyVirtualEthAsLump",
+    "address": "0xaf75368BE8dB0274Ab8816CDFaa1A7733c26c03d",
+    "transactionHash": "0x64a8cfdac676f784223045f73931bb108c44119a69c1e4a6fa117563e07b274c"
+  },
+  {
+    "contractName": "ETHInterpreter",
+    "address": "0x32B3F90D78Fd76eBEAE104da3663ecc6ba4e5792",
+    "transactionHash": "0x9072df65f9f8d66ac2e9b433886f92a24476f8ac27c9c10fd4ae90070e1fdf9a"
+  },
+  {
+    "contractName": "TwoPartyEthAsLump",
+    "address": "0x466108036bc4335407aBb55E5f2f0ff494411234",
+    "transactionHash": "0x6d9b37d34f3501fc1f4baebc6948d36dad634d6248d22f8c36659e328a3ecc78"
   }
 ]

@@ -4,6 +4,7 @@ import { SigningKey } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import * as log from "loglevel";
+import "reflect-metadata";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
@@ -18,11 +19,7 @@ import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
-import {
-  NODE_EVENTS,
-  NodeMessage,
-  NodeMessageWrappedProtocolMessage
-} from "./types";
+import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
 export interface NodeConfig {
@@ -208,7 +205,7 @@ export class Node {
 
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
-        if (!msg || !("data" in msg)) {
+        if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
           throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
               data.protocol
@@ -222,7 +219,7 @@ export class Node {
         // per counterparty at the moment.
         this.ioSendDeferrals.delete(data.protocolExecutionID);
 
-        return msg.data;
+        return (msg as NodeMessageWrappedProtocolMessage).data;
       }
     );
 
@@ -312,7 +309,7 @@ export class Node {
   private registerMessagingConnection() {
     this.messagingService.onReceive(
       this.publicIdentifier,
-      async (msg: NodeMessage) => {
+      async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
         this.outgoing.emit(msg.type, msg);
       }
@@ -335,12 +332,12 @@ export class Node {
    *     _does have_ an _ioSendDeferral_, in which case the message is dispatched
    *     solely to the deffered promise's resolve callback.
    */
-  private async handleReceivedMessage(msg: NodeMessage) {
+  private async handleReceivedMessage(msg: NodeTypes.NodeMessage) {
     if (!Object.values(NODE_EVENTS).includes(msg.type)) {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    const isProtocolMessage = (msg: NodeMessage) =>
+    const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>

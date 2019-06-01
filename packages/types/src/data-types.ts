@@ -1,14 +1,12 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { AssetType } from "./app-instance";
 import { ABIEncoding, AppInstanceID } from "./simple-types";
 
 export type AppInstanceInfo = {
   id: AppInstanceID;
   appId: string;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -20,11 +18,6 @@ export type AppInstanceInfo = {
 export type AppABIEncodings = {
   stateEncoding: ABIEncoding;
   actionEncoding: ABIEncoding | undefined;
-};
-
-export type BlockchainAsset = {
-  assetType: AssetType;
-  token?: string;
 };
 
 // Interpreter.sol::OutcomeType

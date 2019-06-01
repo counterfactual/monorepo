@@ -12,7 +12,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/node": "0.1.17",
+    "@counterfactual/types": "0.0.9",
+    "@counterfactual/node": "0.1.20",
     "@types/firebase": "3.2.1",
     "rollup": "1.12.3"
   },

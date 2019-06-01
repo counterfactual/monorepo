@@ -1,7 +1,6 @@
+import { Node } from "@counterfactual/types";
 import "firebase/auth";
 import "firebase/database";
-
-import { NodeMessage } from "./types";
 
 export interface ServiceFactory {
   connect(host: string, port: string): ServiceFactory;
@@ -11,8 +10,8 @@ export interface ServiceFactory {
 }
 
 export interface IMessagingService {
-  send(to: string, msg: NodeMessage): Promise<void>;
-  onReceive(address: string, callback: (msg: NodeMessage) => void);
+  send(to: string, msg: Node.NodeMessage): Promise<void>;
+  onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
 }
 
 export interface IStoreService {

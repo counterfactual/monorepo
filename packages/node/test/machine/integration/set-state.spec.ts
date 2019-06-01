@@ -1,5 +1,5 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 
@@ -49,12 +49,12 @@ describe("set state on free balance", () => {
       network.ETHBucket,
       AddressZero,
       xkeys.map(x => x.neuter().extendedKey)
-    ).setFreeBalance(AssetType.ETH, {
+    ).setFreeBalance({
       [multisigOwnerKeys[0].address]: WeiPerEther,
       [multisigOwnerKeys[1].address]: WeiPerEther
     });
 
-    const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+    const freeBalanceETH = stateChannel.getETHFreeBalance();
 
     const setStateCommitment = new SetStateCommitment(
       network,

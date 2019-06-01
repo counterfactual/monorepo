@@ -47,7 +47,6 @@
     - Instance methods
         - `async proposeInstall({
                 proposedToIdentifier: string,
-                asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
                 initialState: AppState
@@ -55,7 +54,6 @@
            - [Node method](#method-proposeinstall)
         - `async proposeInstallVirtual({
                 proposedToIdentifier: string,
-                asset: BlockchainAsset,
                 myDeposit: BigNumberish,
                 peerDeposit: BigNumberish,
                 initialState: AppState,
@@ -154,8 +152,6 @@ Params:
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
-    - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
@@ -183,8 +179,6 @@ Params:
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
-    - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
@@ -349,13 +343,12 @@ Result:
 
 ### Method: `deposit`
 
-Deposits the specified amount of funds into the channel with the specified multisig address.
+Deposits the specified amount of ETH (denominated in Wei) into the channel with the specified multisig address.
 
 Params:
 
 - `multisigAddress: string`
 - `amount: BigNumber`
-- `assetType?: BlockchainAsset`
 
 Result:
 
@@ -396,8 +389,6 @@ Data:
     - The address of the channel that the deposit was made into.
 - `amount: BigNumber`
     - The amount that was deposited by the counter party.
-- `assetType?: BlockchainAsset`
-    - The asset type that was deposited. If none is specified, it defaults to ETH.
 
 ### Event: `installEvent`
 
@@ -473,8 +464,6 @@ An instance of an installed app.
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
-- `asset:`[`BlockchainAsset`](#data-type-blockchainasset)
-    - The asset used for deposits into this app
 - `myDeposit: BigNumber`
     - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
@@ -483,13 +472,6 @@ An instance of an installed app.
     - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: string[]`
     - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
-
-### Data Type: `BlockchainAsset`
-- `assetType: number`
-    - The type of the asset.
-    - Set 0 for ETH, 1 for ERC20 token, 2 for Other.
-- `token?: string`
-    - Optional address of token contract if assetType is set to 1.
 
 ### Data Type: `AppABIEncodings`
 - `stateEncoding: string`

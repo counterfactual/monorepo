@@ -30,18 +30,18 @@
   },
   "dependencies": {
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
-    "@counterfactual/node": "0.1.19",
+    "@counterfactual/node": "0.1.20",
     "@counterfactual/types": "^0.0.9",
     "eventemitter3": "^3.1.2"
   },
   "devDependencies": {
-    "env-cmd": "9.0.1",
+    "env-cmd": "9.0.2",
     "ethers": "4.0.28",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
     "ts-node": "8.2.0",
-    "tslint": "5.16.0",
-    "typescript": "3.4.5",
+    "tslint": "5.17.0",
+    "typescript": "3.5.1",
     "uuid": "3.3.2"
   }
 }

@@ -71,7 +71,7 @@ The following parameters are included in the commitment:
 
 |     Parameter      |   Type    |                                              Description                                              |
 | ------------------ | --------- | ----------------------------------------------------------------------------------------------------- |
-| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the Nonce Registry |
+| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the UninstallKeyRegistry |
 | **`appStateHash`** | `bytes32` | The computed `keccak256` hash of the initial ABIEncoderV2 encoded state of the application            |
 
 The commitment can be visually represented like:
