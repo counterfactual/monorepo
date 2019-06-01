@@ -28,7 +28,7 @@ const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = process.env.USER_TOKEN || "TTT_USER_TOKEN";
 
 const provider = new ethers.providers.JsonRpcProvider(
-  "https://rinkeby.infura.io/metamask"
+  "https://kovan.infura.io/metamask"
 );
 
 // let pgServiceFactory: PostgresServiceFactory;
@@ -96,7 +96,7 @@ export function getBot() {
 
   console.log("Creating store");
   // const store = pgServiceFactory.createStoreService("tttBotStore1");
-  const store = fbServiceFactory.createStoreService("tttBotStore1");
+  const store = fbServiceFactory.createStoreService("paymentBotStore1");
 
   console.log("process.env.NODE_MNEMONIC: ", process.env.NODE_MNEMONIC);
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
@@ -110,7 +110,7 @@ export function getBot() {
       STORE_KEY_PREFIX: "store"
     },
     provider,
-    "rinkeby"
+    "kovan"
   );
 
   console.log("Public Identifier", node.publicIdentifier);

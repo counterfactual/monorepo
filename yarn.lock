@@ -6801,6 +6801,13 @@ entities@^1.1.1:
   resolved "https://registry.npmjs.org/entities/-/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
   integrity sha512-f2LZMYl1Fzu7YSBKg+RoROelpOaNrcGmE9AZubeDfrCEia483oW4MI4VyFd5VNHIgQ/7qm1I0wUHK1eJnn2y2w==
 
+env-cmd@8.0.2:
+  version "8.0.2"
+  resolved "https://registry.npmjs.org/env-cmd/-/env-cmd-8.0.2.tgz#e3bf53b8e4676781bdc3a0b1a2f7612cbcda4da4"
+  integrity sha512-gHX8MnQXw1iS7dc2KeJdBdxca7spIkxkNwIuORLwm8kDg6xHh5wWnv1Yv3pc64nLZR6kufQSCmwTz16sRmd/rg==
+  dependencies:
+    cross-spawn "^6.0.5"
+
 env-cmd@9.0.2:
   version "9.0.2"
   resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-9.0.2.tgz#279acd1ca2d83242f28830d6f97713721b001eb6"
@@ -6808,13 +6815,6 @@ env-cmd@9.0.2:
   dependencies:
     commander "^2.20.0"
     cross-spawn "6.0.5"
-
-env-cmd@^8.0.2:
-  version "8.0.2"
-  resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-8.0.2.tgz#e3bf53b8e4676781bdc3a0b1a2f7612cbcda4da4"
-  integrity sha512-gHX8MnQXw1iS7dc2KeJdBdxca7spIkxkNwIuORLwm8kDg6xHh5wWnv1Yv3pc64nLZR6kufQSCmwTz16sRmd/rg==
-  dependencies:
-    cross-spawn "^6.0.5"
 
 env-variable@0.0.x:
   version "0.0.5"
@@ -7479,25 +7479,9 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@4.0.0-beta.1:
-  version "4.0.0-beta.1"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.1.tgz#0648268b83e0e91a961b1af971c662cdf8cbab6d"
-  integrity sha512-SoYhktEbLxf+fiux5SfCEwdzWENMvgIbMZD90I62s4GZD9nEjgEWy8ZboI3hck193Vs0bDoTohDISx84f2H2tw==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.3"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
-
-ethers@4.0.28, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
+ethers@4.0.0-beta.1, ethers@4.0.28, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20, ethers@^4.0.27:
   version "4.0.28"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.28.tgz#74d9acb57f4ede3337c8d60476b38d0fe646af01"
+  resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.28.tgz#74d9acb57f4ede3337c8d60476b38d0fe646af01"
   integrity sha512-5JTHrPoFLqf+xCAI3pKwXSOgWBSJJoAUdPtPLr1ZlKbSKiIFMkPlRNovmZS3jhIw5sHW1YoVWOaJ6ZR2gKRbwg==
   dependencies:
     "@types/node" "^10.3.2"
@@ -16128,11 +16112,6 @@ schema-utils@^1.0.0:
     ajv-errors "^1.0.0"
     ajv-keywords "^3.1.0"
 
-scrypt-js@2.0.3:
-  version "2.0.3"
-  resolved "https://registry.yarnpkg.com/scrypt-js/-/scrypt-js-2.0.3.tgz#bb0040be03043da9a012a2cea9fc9f852cfc87d4"
-  integrity sha1-uwBAvgMEPamgEqLOqfyfhSz8h9Q=
-
 scrypt-js@2.0.4:
   version "2.0.4"
   resolved "https://registry.npmjs.org/scrypt-js/-/scrypt-js-2.0.4.tgz#32f8c5149f0797672e551c07e230f834b6af5f16"
@@ -16603,7 +16582,7 @@ sol-explore@^1.6.2:
   resolved "https://registry.npmjs.org/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.5.9, solc@^0.5.1:
+solc@0.5.9, solc@^0.5.1, solc@^0.5.8:
   version "0.5.9"
   resolved "https://registry.npmjs.org/solc/-/solc-0.5.9.tgz#ec513bbbbb8b46b4b4d1a6a2764c50f34877fffc"
   integrity sha512-IyCEXnSbpb3ii8FkgNu0QDtCtnvyGCtYNQejOaIZi6/9/CLJ2ozDHN2oNG26HfGZ8op9yDgqC+5SHziFvkRZuA==
@@ -17780,7 +17759,7 @@ ts-node@7.0.1:
     source-map-support "^0.5.6"
     yn "^2.0.0"
 
-ts-node@8.2.0, ts-node@^8.1.0:
+ts-node@8.2.0:
   version "8.2.0"
   resolved "https://registry.npmjs.org/ts-node/-/ts-node-8.2.0.tgz#4a89754b00560bb24cd54526e1685fa38c45f240"
   integrity sha512-m8XQwUurkbYqXrKqr3WHCW310utRNvV5OnRVeISeea7LoCWVcdfeB/Ntl8JYWFh+WRoUAdBgESrzKochQt7sMw==
@@ -17849,10 +17828,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.2.0"
+  resolved "https://registry.npmjs.org/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
+  integrity sha512-6tfi/2tHqV/3CL77pULBcK+foty11Rr0idRDxKnteTaKm6gWF9qmaCNU17HVssOuwlYNyOmd9Jsmjd+1t3a3qw==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 

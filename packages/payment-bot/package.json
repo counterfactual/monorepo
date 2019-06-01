@@ -5,21 +5,20 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "env-cmd development ts-node src/",
     "start:bot1": "env-cmd devbot1 ts-node src/",
     "start:bot2": "env-cmd devbot2 ts-node src/"
   },
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@counterfactual/node": "^0.1.15",
-    "ethers": "^4.0.27",
+    "@counterfactual/node": "0.1.19",
+    "ethers": "4.0.28",
     "inquirer": "^6.3.1"
   },
   "devDependencies": {
     "@types/inquirer": "^6.0.0",
-    "env-cmd": "^8.0.2",
+    "env-cmd": "8.0.2",
     "nodemon": "^1.18.11",
-    "ts-node": "^8.1.0"
+    "ts-node": "8.2.0"
   }
 }
