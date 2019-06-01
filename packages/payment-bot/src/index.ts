@@ -6,7 +6,9 @@ import {
   FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory,
   MNEMONIC_PATH,
-  Node
+  Node,
+  NatsServiceFactory,
+  NATS_CONFIGURATION_ENV,
   // POSTGRES_CONFIGURATION_ENV_KEYS
 } from "@counterfactual/node";
 import { ethers } from "ethers";
@@ -33,12 +35,19 @@ const provider = new ethers.providers.JsonRpcProvider(
 
 // let pgServiceFactory: PostgresServiceFactory;
 let fbServiceFactory: FirebaseServiceFactory;
-console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
+let natsServiceFactory: NatsServiceFactory;
+console.log(`Using Nats configuration for ${process.env.NODE_ENV}`);
+// console.log(`Using Firebase configuration for ${process.env.NODE_ENV}`);
 
 process.on("warning", e => console.warn(e.stack));
 
 if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
   confirmFirebaseConfigurationEnvVars();
+  natsServiceFactory = new NatsServiceFactory({
+    servers: process.env[NATS_CONFIGURATION_ENV.servers]!.split(','),
+    token: process.env[NATS_CONFIGURATION_ENV.token]!,
+    clusterId: process.env[NATS_CONFIGURATION_ENV.clusterId]!,
+  })
   fbServiceFactory = new FirebaseServiceFactory({
     apiKey: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.apiKey]!,
     authDomain: process.env[FIREBASE_CONFIGURATION_ENV_KEYS.authDomain]!,
@@ -61,6 +70,11 @@ if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
     storageBucket: "",
     messagingSenderId: ""
   });
+  natsServiceFactory = new NatsServiceFactory({
+    servers: process.env[NATS_CONFIGURATION_ENV.servers]!.split(','),
+    token: process.env[NATS_CONFIGURATION_ENV.token]!,
+    clusterId: process.env[NATS_CONFIGURATION_ENV.clusterId]!,
+  })
 }
 // TODO: fix this when postgres package is released
 // confirmPostgresConfigurationEnvVars();
@@ -102,7 +116,8 @@ export function getBot() {
   await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
 
   console.log("Creating Node");
-  const messService = fbServiceFactory.createMessagingService("messaging");
+  // const messService = fbServiceFactory.createMessagingService("messaging");
+  const messService = natsServiceFactory.createMessagingService("messaging");
   node = await Node.create(
     messService,
     store,
