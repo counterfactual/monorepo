@@ -2,7 +2,6 @@
 
 The framework currently contains basic support for channel networks via "virtual apps". In this design, an app instance between that set of parties can have some state deposit assigned indirectly to it, without the set of parties having a direct channel containing them. Since the app instance is not directly funded, no commitment to `StateChannelTransaction.sol:executeEffectOfInterpretedAppOutcome` is made to that app instance. Instead, a number of commitments to `TwoPartyVirtualEthAsLump` are made in different direct channels to the same app instance (i.e., passing the same `appIdentityHash`). The commitment passes the following struct as a field.
 
-
 ```solidity
 struct Agreement {
   ChallengeRegistry registry;
@@ -25,7 +24,7 @@ struct Agreement {
 
 ## FAQ
 
-**Why is the agreement thing specialized to `TwoPartyOutcome` and `ETH`?**
+**Why is the agreement thing specialized to `TwoPartyFixedOutcome` and `ETH`?**
 
 This is similar to why we have different interpreters - the app definition writer does not explicitly choose which assets their app supports, but simply implements an outcome type.
 

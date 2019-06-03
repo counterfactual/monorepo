@@ -8,7 +8,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome
 } from "./data-types";
 import { INodeProvider, Node } from "./node";
 import {
@@ -71,5 +71,5 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome
 };

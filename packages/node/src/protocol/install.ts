@@ -116,7 +116,7 @@ async function proposeStateTransition(
       break;
     }
 
-    case OutcomeType.TWO_PARTY_OUTCOME: {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       interpreterAddress = context.network.TwoPartyEthAsLump;
       break;
     }

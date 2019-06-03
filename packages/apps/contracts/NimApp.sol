@@ -2,7 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
 
 /*
@@ -79,9 +79,9 @@ contract NimApp is CounterfactualApp {
     );
 
     if (state.turnNum % 2 == 0) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
     } else {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
     }
   }
 
