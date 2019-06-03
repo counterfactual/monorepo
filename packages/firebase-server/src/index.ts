@@ -1,6 +1,8 @@
+import {
+  EMPTY_FIREBASE_CONFIG,
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
 import FirebaseServer from "firebase-server";
-
-import { EMPTY_FIREBASE_CONFIG, FirebaseServiceFactory } from "../../src";
 
 /**
  * This wraps the FirebaseServiceFactory while providing a Firebase Server

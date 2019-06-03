@@ -1,0 +1,23 @@
+{
+  "name": "@counterfactual/firebase-client",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "iife": "dist/index.iife.js",
+  "types": "dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p . && rollup -c",
+    "build:watch": "tsc -p . && rollup -c -w",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "devDependencies": {
+    "@counterfactual/types": "0.0.9",
+    "@counterfactual/node": "0.1.20",
+    "@types/firebase": "3.2.1",
+    "rollup": "1.12.3"
+  },
+  "dependencies": {
+    "firebase": "6.0.2"
+  }
+}
