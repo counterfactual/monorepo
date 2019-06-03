@@ -289,6 +289,8 @@ export class Provider {
       this.handleNodeError(message as Node.Error);
     } else if ((message as Node.MethodResponse).requestId) {
       this.handleNodeMethodResponse(message as Node.MethodResponse);
+    } else if (message["id"]) {
+      this.handleNodeMethodResponse({ requestId: message["id"], ...message });
     } else {
       this.handleNodeEvent(message as Node.Event);
     }
