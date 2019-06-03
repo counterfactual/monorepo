@@ -12,7 +12,9 @@ contract TwoPartyFixedOutcomeApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+    return abi.encode(
+      TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
+    );
   }
 
   function outcomeType()
