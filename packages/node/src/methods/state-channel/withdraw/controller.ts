@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
@@ -34,6 +35,7 @@ export default class WithdrawController extends NodeController {
     }
   }
 
+  @jsonRpcMethod("chan_withdraw")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
