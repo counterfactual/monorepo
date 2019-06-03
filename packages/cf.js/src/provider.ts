@@ -6,6 +6,7 @@ import {
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { jsonRpcDeserialize } from "rpc-server";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -15,6 +16,20 @@ import {
   UninstallEventData,
   UpdateStateEventData
 } from "./types";
+
+const jsonRpcMethodNames = {
+  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
+  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
+  [Node.MethodName.GET_STATE]: "chan_getState",
+  [Node.MethodName.INSTALL]: "chan_install",
+  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
+  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
+  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
+  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
+  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
+  [Node.MethodName.UNINSTALL]: "chan_uninstall",
+  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
+};
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -171,13 +186,25 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = new Date().valueOf().toString();
+    const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
-      const request: Node.MethodRequest = {
-        requestId,
-        params,
-        type: methodName
-      };
+      let request;
+
+      if (jsonRpcMethodNames[methodName]) {
+        request = jsonRpcDeserialize({
+          params,
+          jsonrpc: "2.0",
+          method: methodName,
+          id: requestId
+        });
+      } else {
+        request = {
+          params,
+          requestId: requestId.toString(),
+          type: methodName
+        };
+      }
+
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
           return reject({
@@ -198,6 +225,7 @@ export class Provider {
         }
         resolve(response as Node.MethodResponse);
       };
+
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
           reject({
@@ -210,6 +238,7 @@ export class Provider {
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
+
       this.nodeProvider.sendMessage(request);
     });
   }
