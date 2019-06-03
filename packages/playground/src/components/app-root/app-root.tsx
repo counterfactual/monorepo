@@ -508,15 +508,18 @@ export class AppRoot {
     let ret;
 
     try {
-      ret = await node.call(Node.MethodName.WITHDRAW, {
-        type: Node.MethodName.WITHDRAW,
-        requestId: window["uuid"](),
-        params: {
-          multisigAddress,
-          recipient: this.accountState.user.ethAddress,
-          amount: ethers.utils.bigNumberify(valueInWei)
-        } as Node.WithdrawParams
-      });
+      ret = await node.router.dispatch(
+        window["jsonRpcDeserialize"]({
+          jsonrpc: "2.0",
+          id: Date.now(),
+          method: "chan_withdraw",
+          params: {
+            multisigAddress,
+            recipient: this.accountState.user.ethAddress,
+            amount: ethers.utils.bigNumberify(valueInWei)
+          }
+        })
+      );
     } catch (e) {
       console.error(e);
     }
