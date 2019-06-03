@@ -12,6 +12,7 @@ import {
 } from "../../errors";
 
 import { uninstallAppInstanceFromChannel } from "./operation";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class UninstallController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL;
@@ -49,6 +50,7 @@ export default class UninstallController extends NodeController {
     }
   }
 
+  @jsonRpcMethod("chan_uninstall")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.UninstallParams
