@@ -14,6 +14,7 @@ import {
   createProposedVirtualAppInstance,
   getNextNodeAddress
 } from "./operation";
+import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
@@ -56,6 +57,7 @@ export default class ProposeInstallVirtualController extends NodeController {
     return queues;
   }
 
+  @jsonRpcMethod("chan_proposeInstallVirtual")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
