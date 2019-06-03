@@ -8,6 +8,7 @@ import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
 import { installVirtual } from "./operation";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class InstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
@@ -41,6 +42,7 @@ export default class InstallVirtualController extends NodeController {
     return queues;
   }
 
+  @jsonRpcMethod("chan_installVirtual")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
