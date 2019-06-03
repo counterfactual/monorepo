@@ -258,17 +258,6 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    // const multisigResponse = await node.call(
-    //   NodeTypes.MethodName.CREATE_CHANNEL,
-    //   {
-    //     params: {
-    //       owners: [node.publicIdentifier, nodeAddress]
-    //     } as NodeTypes.CreateChannelParams,
-    //     type: NodeTypes.MethodName.CREATE_CHANNEL,
-    //     requestId: generateUUID()
-    //   }
-    // );
-
     const multisigResponse = {
       result: await node.router.dispatch(
         jsonRpcDeserialize({
@@ -309,6 +298,15 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
       type: NodeTypes.MethodName.DEPOSIT,
       params: response.data as NodeTypes.DepositParams
     });
+
+    await NodeWrapper.getInstance().router.dispatch(
+      jsonRpcDeserialize({
+        id: Date.now(),
+        method: "chan_deposit",
+        params: response.data,
+        jsonrpc: "2.0"
+      })
+    );
   } catch (e) {
     Log.error("Failed to deposit on the server", {
       tags: { error: e }
