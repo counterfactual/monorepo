@@ -27,9 +27,13 @@ export default class NodeRouter extends Router {
       return;
     }
 
-    return new controller.type()[controller.callback](
-      this.requestHandler,
-      rpc.parameters
-    );
+    return {
+      jsonrpc: "2.0",
+      result: new controller.type()[controller.callback](
+        this.requestHandler,
+        rpc.parameters
+      ),
+      id: rpc.parameters["id"]
+    };
   }
 }
