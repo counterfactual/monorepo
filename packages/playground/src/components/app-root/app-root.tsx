@@ -469,15 +469,18 @@ export class AppRoot {
     try {
       const amount = ethers.utils.bigNumberify(valueInWei);
 
-      ret = await node.call(Node.MethodName.DEPOSIT, {
-        type: Node.MethodName.DEPOSIT,
-        requestId: window["uuid"](),
-        params: {
-          amount,
-          multisigAddress,
-          notifyCounterparty: true
-        } as Node.DepositParams
-      });
+      ret = await node.router.dispatch(
+        window["jsonRpcDeserialize"]({
+          jsonrpc: "2.0",
+          id: Date.now(),
+          method: "chan_deposit",
+          params: {
+            amount,
+            multisigAddress,
+            notifyCounterparty: true
+          }
+        })
+      );
     } catch (e) {
       console.error(e);
     }
