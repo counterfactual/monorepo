@@ -67,10 +67,7 @@ export default [
           ],
           "../../node_modules/rpc-server/dist/index.js": [
             "jsonRpcMethod",
-            "jsonApiOperation",
-            "jsonApiType",
-            "jsonRpcDeserialize",
-            "jsonApiDeserialize"
+            "jsonRpcDeserialize"
           ]
         }
       }),
