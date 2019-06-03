@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
@@ -8,7 +9,6 @@ import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
 import { installVirtual } from "./operation";
-import { jsonRpcMethod } from "rpc-server";
 
 export default class InstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;

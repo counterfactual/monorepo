@@ -1,8 +1,8 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { jsonRpcMethod } from "rpc-server";
 
 export default class GetProposedAppInstancesController extends NodeController {
   public static readonly methodName =

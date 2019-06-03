@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
@@ -7,7 +8,6 @@ import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
 
 import { install } from "./operation";
-import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This converts a proposed app instance to an installed app instance while

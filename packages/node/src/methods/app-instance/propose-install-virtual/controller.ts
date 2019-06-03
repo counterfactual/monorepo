@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
@@ -14,7 +15,6 @@ import {
   createProposedVirtualAppInstance,
   getNextNodeAddress
 } from "./operation";
-import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the

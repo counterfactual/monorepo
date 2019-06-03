@@ -1,9 +1,9 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { NO_APP_INSTANCE_ID_FOR_GET_STATE } from "../../errors";
-import { jsonRpcMethod } from "rpc-server";
 
 /**
  * Handles the retrieval of an AppInstance's state.

@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
@@ -8,7 +9,6 @@ import { NodeController } from "../../controller";
 import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
-import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
