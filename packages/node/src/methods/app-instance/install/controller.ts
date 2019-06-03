@@ -7,6 +7,7 @@ import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
 
 import { install } from "./operation";
+import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This converts a proposed app instance to an installed app instance while
@@ -32,6 +33,7 @@ export default class InstallController extends NodeController {
     ];
   }
 
+  @jsonRpcMethod("chan_install")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.InstallParams
