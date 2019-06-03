@@ -9,6 +9,14 @@ export interface INodeProvider {
 }
 
 export namespace Node {
+  /**
+   * The message type for Nodes to communicate with each other.
+   */
+  export type NodeMessage = {
+    from: string;
+    type: EventName;
+  };
+
   export type NetworkContext = {
     // Protocol
     MultiSend: string;

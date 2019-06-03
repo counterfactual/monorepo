@@ -33,6 +33,7 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/firebase-client": "0.0.1",
     "@counterfactual/node": "0.1.20",
     "@counterfactual/types": "0.0.9",
     "@counterfactual/typescript-typings": "0.1.0",
@@ -51,6 +52,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@counterfactual/firebase-server": "0.0.1",
     "@types/jest": "24.0.12",
     "@types/jsonwebtoken": "8.3.2",
     "@types/knex": "0.16.1",
