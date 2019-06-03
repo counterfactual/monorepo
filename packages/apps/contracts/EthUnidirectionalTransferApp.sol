@@ -10,7 +10,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /// @title ETH Unidirectional Payment App
 /// @notice This contract allows unidirectional ETH transfers using the
 ///         takeAction paradigm.
-contract EthUnidirectionalPaymentApp is CounterfactualApp {
+contract EthUnidirectionalTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;
 
@@ -19,8 +19,8 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     bool finalized;
   }
 
-  struct PaymentAction {
-    uint256 paymentAmount;
+  struct TransferAction {
+    uint256 transferAmount;
     bool finalize;
   }
 
@@ -52,21 +52,21 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    PaymentAction memory action = abi.decode(encodedAction, (PaymentAction));
+    TransferAction memory action = abi.decode(encodedAction, (TransferAction));
 
     // apply transition based on action
-    AppState memory postState = applyPayment(
+    AppState memory postState = applyTransfer(
       state,
-      action.paymentAmount,
+      action.transferAmount,
       action.finalize
     );
 
     return abi.encode(postState);
   }
 
-  function applyPayment(
+  function applyTransfer(
     AppState memory state,
-    uint256 paymentAmount,
+    uint256 transferAmount,
     bool finalize
   )
     internal
@@ -75,9 +75,9 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
   {
     // subtract payment amount from sender balance
     // SafeMath will throw if below zero
-    state.transfers[0].amount = state.transfers[0].amount.sub(paymentAmount);
+    state.transfers[0].amount = state.transfers[0].amount.sub(transferAmount);
     // add payment amount to receiver balance
-    state.transfers[1].amount = state.transfers[1].amount.add(paymentAmount);
+    state.transfers[1].amount = state.transfers[1].amount.add(transferAmount);
     state.finalized = finalize;
 
     return state;
