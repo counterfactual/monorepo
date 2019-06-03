@@ -6,7 +6,8 @@ contract Interpreter {
 
   enum OutcomeType {
     TWO_PARTY_OUTCOME,
-    ETH_TRANSFER
+    ETH_TRANSFER,
+    TOKEN_TRANSFER
   }
 
   function interpretOutcomeAndExecuteEffect(

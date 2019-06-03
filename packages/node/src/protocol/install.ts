@@ -115,6 +115,7 @@ async function proposeStateTransition(
       interpreterAddress = context.network.ETHInterpreter;
       break;
     }
+
     case OutcomeType.TWO_PARTY_OUTCOME: {
       interpreterAddress = context.network.TwoPartyEthAsLump;
       break;
