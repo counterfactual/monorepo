@@ -23,7 +23,8 @@ export type AppABIEncodings = {
 // Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  ETH_TRANSFER = 1
+  TWO_PARTY_DYNAMIC_OUTCOME = 1,
+  ETH_TRANSFER = 2
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

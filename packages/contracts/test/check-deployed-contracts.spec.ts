@@ -13,7 +13,7 @@ const NETWORK_NAME_TO_ID = {
 describe("Checks that all the needed contracts have been deployed on each test net", () => {
   const networks = ["kovan", "ropsten", "rinkeby"];
   networks.forEach((networkName: string) => {
-    it(`checks deployments on ${networkName}`, () => {
+    it.skip(`checks deployments on ${networkName}`, () => {
       const networkDeployments = extractContractNamesFromDeployments(
         networkName
       );

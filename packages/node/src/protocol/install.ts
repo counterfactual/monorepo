@@ -121,7 +121,7 @@ async function proposeStateTransition(
       break;
     }
     default: {
-      throw Error("unrecognized");
+      throw Error("Unrecognized interpreter");
     }
   }
 
