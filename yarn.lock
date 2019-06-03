@@ -15938,7 +15938,7 @@ rollup@1.13.0:
 
 rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/51f767a85a2e735e15bf36b0d3af2e35d52a812f"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/5a978137f6d009dd831b53ed3a29e445dbcf3fab"
 
 rsvp@^3.3.3:
   version "3.6.2"
