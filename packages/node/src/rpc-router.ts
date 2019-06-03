@@ -1,4 +1,9 @@
-import { Controller, Router, Rpc } from "rpc-server";
+import {
+  Controller,
+  jsonRpcSerializeAsResponse,
+  Router,
+  Rpc
+} from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
 
@@ -27,13 +32,12 @@ export default class NodeRouter extends Router {
       return;
     }
 
-    return {
-      jsonrpc: "2.0",
-      result: new controller.type()[controller.callback](
+    return jsonRpcSerializeAsResponse(
+      new controller.type()[controller.callback](
         this.requestHandler,
         rpc.parameters
       ),
-      id: rpc.parameters["id"]
-    };
+      rpc.parameters["id"]
+    );
   }
 }
