@@ -15938,7 +15938,7 @@ rollup@1.13.0:
 
 rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/925724f56de8a11cf6a7a20c6102e1ee50322236"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/51f767a85a2e735e15bf36b0d3af2e35d52a812f"
 
 rsvp@^3.3.3:
   version "3.6.2"
@@ -16549,7 +16549,7 @@ sol-explore@^1.6.2:
 
 solc@0.5.9, solc@^0.5.1:
   version "0.5.9"
-  resolved "https://registry.npmjs.org/solc/-/solc-0.5.9.tgz#ec513bbbbb8b46b4b4d1a6a2764c50f34877fffc"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.9.tgz#ec513bbbbb8b46b4b4d1a6a2764c50f34877fffc"
   integrity sha512-IyCEXnSbpb3ii8FkgNu0QDtCtnvyGCtYNQejOaIZi6/9/CLJ2ozDHN2oNG26HfGZ8op9yDgqC+5SHziFvkRZuA==
   dependencies:
     command-exists "^1.2.8"

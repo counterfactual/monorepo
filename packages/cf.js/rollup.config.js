@@ -8,6 +8,7 @@ const bundledDependencies = new Set([
   "@counterfactual/node-provider",
   "@counterfactual/types",
   "eventemitter3",
+  "rpc-server"
 ]);
 
 export default {
@@ -30,13 +31,20 @@ export default {
     }
   ],
   plugins: [
-    nodeResolve({
-      only: [...bundledDependencies]
-    }),
     commonjs({
       include: [
-        "../../node_modules/eventemitter3/index.js"
-      ]
+        "../../node_modules/eventemitter3/index.js",
+        "../../node_modules/rpc-server/dist/index.js"
+      ],
+      namedExports: {
+        "../../node_modules/rpc-server/dist/index.js": [
+          "jsonRpcMethod",
+          "jsonRpcDeserialize"
+        ]
+      }
+    }),
+    nodeResolve({
+      only: [...bundledDependencies]
     }),
     typescript(),
   ]

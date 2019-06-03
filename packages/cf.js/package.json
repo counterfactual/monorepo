@@ -32,6 +32,7 @@
     "@counterfactual/node-provider": "0.1.2",
     "@counterfactual/types": "0.0.9",
     "ethers": "4.0.28",
-    "eventemitter3": "^3.1.2"
+    "eventemitter3": "^3.1.2",
+    "rpc-server": "prototypal/rpc-server"
   }
 }
