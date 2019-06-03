@@ -2,8 +2,7 @@ import * as firebase from "firebase/app";
 import "firebase/auth";
 import "firebase/database";
 import log from "loglevel";
-
-import * as nats from 'ts-nats';
+import * as nats from "ts-nats";
 
 import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
 import { NodeMessage } from "./types";
@@ -33,9 +32,9 @@ export interface FirebaseAppConfiguration {
 }
 
 export interface NatsConfig {
-  servers: string[],
-  token: string,
-  clusterId: string,
+  servers: string[];
+  token: string;
+  clusterId: string;
 }
 
 export const FIREBASE_CONFIGURATION_ENV_KEYS = {
@@ -62,13 +61,13 @@ export const NATS_CONFIGURATION_ENV = {
   servers: "NATS_SERVERS",
   token: "NATS_TOKEN",
   clusterId: "NATS_CLUSTER_ID"
-}
+};
 
 export const EMPTY_NATS_CONFIG = {
-  servers: [''],
-  token: '',
-  clusterId: ''
-}
+  servers: [""],
+  token: "",
+  clusterId: ""
+};
 
 /**
  * This factory exposes default implementations of the service interfaces
@@ -121,15 +120,12 @@ export class NatsServiceFactory {
   async connect() {
     this.connection = await nats.connect({
       ...EMPTY_NATS_CONFIG,
-      ...this.connectionConfig,
+      ...this.connectionConfig
     } as NatsConfig);
   }
 
   createMessagingService(messagingServiceKey: string): IMessagingService {
-    return new NatsMessagingService(
-      this.connection,
-      messagingServiceKey
-    );
+    return new NatsMessagingService(this.connection, messagingServiceKey);
   }
 
   async disconnect() {
@@ -210,7 +206,7 @@ class NatsMessagingService implements IMessagingService {
     await this.connection.publish(
       `${this.messagingServerKey}/${to}/${msg.from}`,
       JSON.parse(JSON.stringify(msg))
-    )
+    );
   }
 
   onReceive(address: string, callback: (msg: NodeMessage) => void) {
@@ -221,16 +217,19 @@ class NatsMessagingService implements IMessagingService {
       return;
     }
 
-    this.connection.subscribe(`${this.messagingServerKey}/${address}`, (err, msg) => {
-      if(err) {
-        console.error(
-          "Encountered an error while handling message callback",
-          err
-        )
-      } else {
-        callback(msg); 
+    this.connection.subscribe(
+      `${this.messagingServerKey}/${address}`,
+      (err, msg) => {
+        if (err) {
+          console.error(
+            "Encountered an error while handling message callback",
+            err
+          );
+        } else {
+          callback(msg);
+        }
       }
-    });
+    );
   }
 }
 
@@ -315,9 +314,13 @@ export function confirmLocalFirebaseConfigurationEnvVars() {
 }
 
 export function confirmNatsConfigurationEnvVars() {
-  if (!process.env.NATS_SERVERS || !process.env.NATS_TOKEN || !process.env.NATS_CLUSTER_ID) {
+  if (
+    !process.env.NATS_SERVERS ||
+    !process.env.NATS_TOKEN ||
+    !process.env.NATS_CLUSTER_ID
+  ) {
     throw Error(
       "Nats server name(s), token and cluster ID must be set via env vars"
-    )
+    );
   }
 }
