@@ -10,7 +10,7 @@ import "../interfaces/Interpreter.sol";
  * This file is excluded from ethlint/solium because of this issue:
  * https://github.com/duaraghav8/Ethlint/issues/261
  */
-contract ERC20TwoPartyDynamicInterpreter is Interpreter {
+contract ERC20TwoPartyNumericInterpreter is Interpreter {
 
   struct TokenTransfer {
     uint256[2] amounts;
