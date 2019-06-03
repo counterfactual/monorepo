@@ -128,23 +128,8 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
-    this.router = createRpcRouter();
+    this.router = createRpcRouter(this.requestHandler);
 
-    this.router.dispatch = async (rpc: Rpc): Promise<any> => {
-      const controller = Object.values(Controller.rpcMethods).find(
-        mapping => mapping.method === rpc.methodName
-      );
-
-      if (!controller) {
-        console.warn(`Cannot execute ${rpc.methodName}: no controller`);
-        return;
-      }
-
-      return new controller.type()[controller.callback](
-        this.requestHandler,
-        rpc.parameters
-      );
-    };
     return this;
   }
 
