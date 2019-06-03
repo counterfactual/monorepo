@@ -1,11 +1,13 @@
 import {
   confirmFirebaseConfigurationEnvVars,
   confirmLocalFirebaseConfigurationEnvVars,
-  CreateChannelMessage,
-  DepositConfirmationMessage,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
-  FirebaseServiceFactory,
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import {
+  CreateChannelMessage,
+  DepositConfirmationMessage,
   IMessagingService,
   IStoreService,
   MNEMONIC_PATH,

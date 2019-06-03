@@ -1,48 +1,22 @@
 import { Node } from "@counterfactual/types";
 
 import { ProtocolMessage } from "./machine";
-/**
- * The message interface for Nodes to communicate with each other.
- */
-export interface NodeMessage {
-  from: string;
-  type: NodeEvents;
-}
 
-enum Events {
-  PROPOSE_INSTALL = "proposeInstallEvent",
-  PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
-  PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
-  WITHDRAW_EVENT = "withdrawEvent",
-  INSTALL_VIRTUAL = "installVirtualEvent",
-  REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent",
-  UNINSTALL_VIRTUAL = "uninstallVirtualEvent"
-}
+export type NodeEvents = Node.EventName;
+export const NODE_EVENTS = Node.EventName;
 
-// Because `extend`ing isn't a native enum feature
-// https://github.com/Microsoft/TypeScript/issues/17592
-// These are events that Nodes and Node consumers can listen on, but not
-// cf.js clients as not all Node events are directly relevant to cf.js clients
-// for eg: Node consumers are the only relevant party listening on
-// `PROPOSE_INSTALL` in order to _create_ a cf.js client (i.e. dApp)
-export type NodeEvents = Node.EventName | Events;
-export const NODE_EVENTS = {
-  ...Node.EventName,
-  ...Events
-};
-
-export interface NodeMessageWrappedProtocolMessage extends NodeMessage {
+export interface NodeMessageWrappedProtocolMessage extends Node.NodeMessage {
   data: ProtocolMessage;
 }
 
-export interface ProposeMessage extends NodeMessage {
+export interface ProposeMessage extends Node.NodeMessage {
   data: {
     params: Node.ProposeInstallParams;
     appInstanceId: string;
   };
 }
 
-export interface ProposeVirtualMessage extends NodeMessage {
+export interface ProposeVirtualMessage extends Node.NodeMessage {
   data: {
     params: Node.ProposeInstallVirtualParams;
     appInstanceId: string;
@@ -50,49 +24,49 @@ export interface ProposeVirtualMessage extends NodeMessage {
   };
 }
 
-export interface InstallMessage extends NodeMessage {
+export interface InstallMessage extends Node.NodeMessage {
   data: {
     params: Node.InstallParams;
   };
 }
 
-export interface InstallVirtualMessage extends NodeMessage {
+export interface InstallVirtualMessage extends Node.NodeMessage {
   // TODO: update this to include the intermediares
   data: {
     params: Node.InstallParams;
   };
 }
 
-export interface CreateChannelMessage extends NodeMessage {
+export interface CreateChannelMessage extends Node.NodeMessage {
   data: Node.CreateChannelResult;
 }
 
-export interface UpdateStateMessage extends NodeMessage {
+export interface UpdateStateMessage extends Node.NodeMessage {
   data: Node.UpdateStateEventData;
 }
 
-export interface UninstallMessage extends NodeMessage {
+export interface UninstallMessage extends Node.NodeMessage {
   data: Node.UninstallEventData;
 }
 
-export interface UninstallVirtualMessage extends NodeMessage {
+export interface UninstallVirtualMessage extends Node.NodeMessage {
   // TODO: update this to include the intermediares
   data: {
     params: Node.UninstallVirtualParams;
   };
 }
 
-export interface WithdrawMessage extends NodeMessage {
+export interface WithdrawMessage extends Node.NodeMessage {
   data: Node.WithdrawEventData;
 }
 
-export interface RejectProposalMessage extends NodeMessage {
+export interface RejectProposalMessage extends Node.NodeMessage {
   data: {
     appInstanceId: string;
   };
 }
 
-export interface DepositConfirmationMessage extends NodeMessage {
+export interface DepositConfirmationMessage extends Node.NodeMessage {
   data: Node.DepositParams;
 }
 

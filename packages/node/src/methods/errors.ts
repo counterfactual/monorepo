@@ -78,5 +78,3 @@ export const VIRTUAL_APP_INSTALLATION_FAIL =
 
 export const WITHDRAWAL_FAILED =
   "Failed to withdraw funds out of the multisig contract";
-
-export const WRITE_NULL_TO_FIREBASE = `The records being set contain null/undefined values. If this is intentional, pass the allowDelete flag in set.`;

@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground-server",
-  "version": "0.1.14",
+  "version": "0.1.16",
   "description": "A backend for the Playground app.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -11,13 +11,15 @@
     "test": "tests"
   },
   "files": [
-    "src"
+    "src",
+    "scripts"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
+    "heroku-postbuild": "sh ./scripts/heroku-postbuild.sh",
     "build": "echo 'No build necessary'",
     "postinstall": "sh ./scripts/postinstall.sh",
     "lint": "tslint -c tslint.json -p .",
@@ -31,7 +33,8 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/node": "0.1.19",
+    "@counterfactual/firebase-client": "0.0.1",
+    "@counterfactual/node": "0.1.20",
     "@counterfactual/types": "0.0.9",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
@@ -49,6 +52,7 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@counterfactual/firebase-server": "0.0.1",
     "@types/jest": "24.0.12",
     "@types/jsonwebtoken": "8.3.2",
     "@types/knex": "0.16.1",

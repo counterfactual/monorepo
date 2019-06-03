@@ -11,7 +11,7 @@ import {
 import { InstructionExecutor } from "./machine";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
-import { NODE_EVENTS, NodeEvents, NodeMessage } from "./types";
+import { NODE_EVENTS, NodeEvents } from "./types";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -96,7 +96,7 @@ export class RequestHandler {
    * @param event
    * @param msg
    */
-  public async callEvent(event: NodeEvents, msg: NodeMessage) {
+  public async callEvent(event: NodeEvents, msg: Node.NodeMessage) {
     const controllerExecutionMethod = this.events.get(event);
 
     if (!controllerExecutionMethod) {

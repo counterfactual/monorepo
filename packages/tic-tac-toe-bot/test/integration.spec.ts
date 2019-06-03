@@ -1,3 +1,4 @@
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import {
   IMessagingService,
   IStoreService,
@@ -5,7 +6,6 @@ import {
   Node,
   NodeConfig
 } from "@counterfactual/node";
-import { LocalFirebaseServiceFactory } from "@counterfactual/node/test/services/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { Zero } from "ethers/constants";

@@ -1,0 +1,29 @@
+{
+  "name": "@counterfactual/firebase-server",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "iife": "dist/index.iife.js",
+  "types": "dist/src/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc -p . && rollup -c",
+    "build:watch": "tsc -p . && rollup -c -w",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "devDependencies": {
+    "@counterfactual/firebase-client": "0.0.1",
+    "@firebase/app-types": "0.4.0",
+    "@types/jest": "24.0.12",
+    "firebase-server": "1.0.2",
+    "jest": "24.8.0",
+    "uuid": "^3.3.2"
+  },
+  "dependencies": {
+    "@firebase/util": "0.2.15",
+    "firebase": "6.0.2",
+    "firebase-server": "1.0.2"
+  }
+}
