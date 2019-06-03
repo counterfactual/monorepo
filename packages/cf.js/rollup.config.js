@@ -39,7 +39,8 @@ export default {
       namedExports: {
         "../../node_modules/rpc-server/dist/index.js": [
           "jsonRpcMethod",
-          "jsonRpcDeserialize"
+          "jsonRpcDeserialize",
+          "jsonRpcSerializeAsResponse"
         ]
       }
     }),
