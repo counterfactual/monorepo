@@ -3,6 +3,7 @@ import { Node } from "@counterfactual/types";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { NO_APP_INSTANCE_ID_FOR_GET_STATE } from "../../errors";
+import { jsonRpcMethod } from "rpc-server";
 
 /**
  * Handles the retrieval of an AppInstance's state.
@@ -12,6 +13,7 @@ import { NO_APP_INSTANCE_ID_FOR_GET_STATE } from "../../errors";
 export default class GetStateController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_STATE;
 
+  @jsonRpcMethod("chan_getState")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetStateParams
