@@ -349,10 +349,10 @@ export class AppRoot {
       };
     }
 
-    let response;
+    let freeBalance;
 
     try {
-      response = await cfProvider.getFreeBalanceState(multisigAddress);
+      freeBalance = await cfProvider.getFreeBalanceState(multisigAddress);
     } catch (e) {
       // TODO: Use better typed error messages with error codes
       if (e.includes("Call to getFreeBalanceState failed")) {
@@ -365,8 +365,6 @@ export class AppRoot {
 
       throw e;
     }
-
-    const freeBalance = response.result as Node.GetFreeBalanceStateResult;
 
     // Had to reimplement this on the frontend because the method can't be imported
     // due to ethers not playing nice with ES Modules in this context.

@@ -88,6 +88,10 @@ export default class CounterfactualNode {
       NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
       this.postToPort.bind(this)
     );
+    this.node.on(
+      NodeTypes.EventName.CREATE_CHANNEL,
+      this.postToPort.bind(this)
+    );
 
     window.addEventListener("message", event => {
       if (event.data === "cf-node-provider:init") {
@@ -119,11 +123,7 @@ export default class CounterfactualNode {
    * @param event {MessageEvent}
    */
   private static relayMessage(event: MessageEvent): void {
-    console.log("got event", event);
-    const operation = event.data.operations[0];
-    const type = `${operation.op}`;
-    console.log(type, event.data);
-    this.node.emit(type, event.data);
+    this.node.emit(event.data.type, event.data);
   }
 
   /**

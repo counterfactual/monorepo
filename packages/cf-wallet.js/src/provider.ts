@@ -5,7 +5,7 @@ import {
   INodeProvider,
   Node
 } from "@counterfactual/types";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
 import { AppInstance } from "./app-instance";
@@ -199,7 +199,13 @@ export class Provider {
       }
     );
 
-    return response.result as Node.GetFreeBalanceStateResult;
+    const freeBalances = Object.keys(response.result).reduce((freeBalances, key) => {
+      freeBalances[key] = bigNumberify(response.result[key]);
+
+      return freeBalances;
+    }, {});
+
+    return freeBalances as Node.GetFreeBalanceStateResult;
   }
 
   /**
@@ -323,7 +329,7 @@ export class Provider {
    */
   private validateEventType(eventType: EventType) {
     if (!this.validEventTypes.includes(eventType)) {
-      throw new Error(`"${eventType}" is not a valid event`);
+      // throw new Error(`"${eventType}" is not a valid event`);
     }
   }
 
@@ -390,24 +396,15 @@ export class Provider {
         return this.handleInstallVirtualEvent(nodeEvent);
 
       default:
-        return this.handleUnexpectedEvent(nodeEvent);
+        return this.handleGenericEvent(nodeEvent);
     }
   }
 
   /**
    * @ignore
    */
-  private handleUnexpectedEvent(nodeEvent: Node.Event) {
-    const event = {
-      type: EventType.ERROR,
-      data: {
-        errorName: "unexpected_event_type",
-        message: `Unexpected event type: ${nodeEvent.type}: ${JSON.stringify(
-          nodeEvent
-        )}`
-      }
-    };
-    return this.eventEmitter.emit(event.type, event);
+  private handleGenericEvent(nodeEvent: Node.Event) {
+    return this.eventEmitter.emit(nodeEvent.type, nodeEvent);
   }
 
   /**
