@@ -108,31 +108,6 @@ describe("CF.js Provider", () => {
     NODE_REQUEST_TIMEOUT + 1000 // This could be done with fake timers.
   );
 
-  it("throws an error for unexpected event types", async () => {
-    expect.assertions(2);
-
-    provider.on(EventType.ERROR, e => {
-      expect(e.type).toBe(EventType.ERROR);
-      expect((e.data as ErrorEventData).errorName).toBe(
-        "unexpected_event_type"
-      );
-    });
-
-    nodeProvider.simulateMessageFromNode(({
-      type: "notARealEventType"
-    } as unknown) as Node.Event);
-  });
-
-  it("throws an error when subscribing to an unknown event", async () => {
-    expect.assertions(3);
-
-    ["on", "once", "off"].forEach(methodName => {
-      expect(() => provider[methodName]("fakeEvent", () => {})).toThrowError(
-        '"fakeEvent" is not a valid event'
-      );
-    });
-  });
-
   describe("Node methods", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);

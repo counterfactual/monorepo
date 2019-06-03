@@ -28,9 +28,6 @@ export class Provider {
   private readonly eventEmitter = new EventEmitter();
   /** @ignore */
   private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
-  private readonly validEventTypes = Object.keys(EventType).map(
-    key => EventType[key]
-  );
 
   /**
    * Construct a new instance
@@ -199,11 +196,14 @@ export class Provider {
       }
     );
 
-    const freeBalances = Object.keys(response.result).reduce((freeBalances, key) => {
-      freeBalances[key] = bigNumberify(response.result[key]);
+    const freeBalances = Object.keys(response.result).reduce(
+      (freeBalances, key) => {
+        freeBalances[key] = bigNumberify(response.result[key]);
 
-      return freeBalances;
-    }, {});
+        return freeBalances;
+      },
+      {}
+    );
 
     return freeBalances as Node.GetFreeBalanceStateResult;
   }
@@ -217,7 +217,6 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   on(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
     this.eventEmitter.on(eventType, callback);
   }
 
@@ -228,7 +227,6 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   once(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
     this.eventEmitter.once(eventType, callback);
   }
 
@@ -239,7 +237,6 @@ export class Provider {
    * @param callback Original callback passed to subscribe call.
    */
   off(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
     this.eventEmitter.off(eventType, callback);
   }
 
@@ -322,15 +319,6 @@ export class Provider {
       this.appInstances[id] = new AppInstance(newInfo, this);
     }
     return this.appInstances[id];
-  }
-
-  /**
-   * @ignore
-   */
-  private validateEventType(eventType: EventType) {
-    if (!this.validEventTypes.includes(eventType)) {
-      // throw new Error(`"${eventType}" is not a valid event`);
-    }
   }
 
   /**
