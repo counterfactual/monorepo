@@ -2,11 +2,13 @@ import { Node } from "@counterfactual/types";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class GetProposedAppInstancesController extends NodeController {
   public static readonly methodName =
     Node.MethodName.GET_PROPOSED_APP_INSTANCES;
 
+  @jsonRpcMethod("chan_getAppInstances")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetProposedAppInstancesParams
