@@ -166,7 +166,9 @@ describe("HighRollerApp", () => {
       const ret = await applyAction(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      expect(state.stage).to.eq(
+        TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
+      );
       expect(state.commitHash).to.eq(hash);
     });
 

@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+// solium-disable-next-line
 import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
 
