@@ -191,7 +191,7 @@ function showSendPrompt(node: Node, appId: string) {
         params: {
           appInstanceId: appId,
           action: {
-            paymentAmount: utils.parseEther(sendInVirtualApp).toString()
+            transferAmount: utils.parseEther(sendInVirtualApp).toString()
           }
         } as NodeTypes.TakeActionParams
       };
@@ -252,11 +252,11 @@ async function openVirtualChannel(
   const request: NodeTypes.MethodRequest = {
     type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL,
     params: {
-      appId: "0xcEF2a3168f9c540141a9C1e68ec907186C4950AB", // TODO: get this from somewhere else?
+      appId: "0x74e5EC2981B39C94f37b48B3A15Bf9ff8F4185b1", // TODO: contract address of app
       abiEncodings: {
         stateEncoding:
-          "tuple(address alice, address bob, uint256 aliceBalance, uint256 bobBalance)",
-        actionEncoding: "tuple(uint256 paymentAmount)"
+          "tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)",
+        actionEncoding: "tuple(uint256 transferAmount, bool finalize)"
       },
       asset: { assetType: 0 },
       myDeposit: utils.parseEther(depositPartyA),
