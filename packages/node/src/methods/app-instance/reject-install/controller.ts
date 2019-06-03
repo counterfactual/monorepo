@@ -5,6 +5,7 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, RejectProposalMessage } from "../../../types";
 import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class RejectInstallController extends NodeController {
   public static readonly methodName = Node.MethodName.REJECT_INSTALL;
@@ -23,6 +24,7 @@ export default class RejectInstallController extends NodeController {
     ];
   }
 
+  @jsonRpcMethod("chan_rejectInstall")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
