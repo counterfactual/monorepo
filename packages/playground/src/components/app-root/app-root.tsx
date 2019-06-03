@@ -350,15 +350,18 @@ export class AppRoot {
     }
 
     const query = {
-      type: Node.MethodName.GET_FREE_BALANCE_STATE,
-      requestId: window["uuid"](),
-      params: { multisigAddress } as Node.GetFreeBalanceStateParams
+      jsonapi: "2.0",
+      method: "chan_getFreeBalanceState",
+      params: { multisigAddress },
+      id: Date.now()
     };
 
     let response;
 
     try {
-      response = await node.call(query.type, query);
+      response = await node.router.dispatch(
+        window["jsonRpcDeserialize"](query)
+      );
     } catch (e) {
       // TODO: Use better typed error messages with error codes
       if (e.includes("Call to getFreeBalanceState failed")) {
