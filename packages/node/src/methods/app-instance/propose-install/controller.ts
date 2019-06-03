@@ -8,6 +8,7 @@ import { NodeController } from "../../controller";
 import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
+import { jsonRpcMethod } from "rpc-server";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
@@ -39,6 +40,7 @@ export default class ProposeInstallController extends NodeController {
     ];
   }
 
+  @jsonRpcMethod("chan_proposeInstall")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
