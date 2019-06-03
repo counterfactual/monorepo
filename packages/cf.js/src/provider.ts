@@ -290,7 +290,10 @@ export class Provider {
     } else if ((message as Node.MethodResponse).requestId) {
       this.handleNodeMethodResponse(message as Node.MethodResponse);
     } else if (message["id"]) {
-      this.handleNodeMethodResponse({ requestId: message["id"], ...message });
+      this.handleNodeMethodResponse({
+        requestId: message["id"],
+        ...message
+      } as Node.MethodResponse);
     } else {
       this.handleNodeEvent(message as Node.Event);
     }
