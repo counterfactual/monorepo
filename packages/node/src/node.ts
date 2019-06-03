@@ -5,7 +5,6 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import * as log from "loglevel";
 import "reflect-metadata";
-import { Controller, Router, Rpc } from "rpc-server";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api-router";
@@ -19,6 +18,7 @@ import {
 } from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
+import NodeRouter from "./rpc-router";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
 import {
@@ -57,7 +57,7 @@ export class Node {
   // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
-  public router: Router = {} as Router;
+  public router: NodeRouter = {} as NodeRouter;
 
   static async create(
     messagingService: IMessagingService,
