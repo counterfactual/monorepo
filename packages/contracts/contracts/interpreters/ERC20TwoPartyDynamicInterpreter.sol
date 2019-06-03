@@ -38,8 +38,8 @@ contract ERC20TwoPartyDynamicInterpreter is Interpreter {
     require(transfer.amounts.length == params.to.length,
       "Mismatch between number of transfer amounts and receiving addresses");
 
-    for (uint256 i = 0; i < transfers.amounts.length ; i++) {
-      uint256 amount = transfers.amounts[i];
+    for (uint256 i = 0; i < transfer.amounts.length ; i++) {
+      uint256 amount = transfer.amounts[i];
       address to = params.to[i];
 
       require(amount <= limitRemaining, "hit the limit");
