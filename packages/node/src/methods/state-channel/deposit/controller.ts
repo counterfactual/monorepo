@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
@@ -49,6 +50,7 @@ export default class DepositController extends NodeController {
     }
   }
 
+  @jsonRpcMethod("chan_deposit")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.DepositParams
