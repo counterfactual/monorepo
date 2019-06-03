@@ -15,6 +15,7 @@ import {
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   STATE_OBJECT_NOT_ENCODABLE
 } from "../../errors";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
@@ -56,6 +57,7 @@ export default class TakeActionController extends NodeController {
     }
   }
 
+  @jsonRpcMethod("chan_takeAction")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
