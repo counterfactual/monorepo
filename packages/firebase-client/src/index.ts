@@ -1,9 +1,23 @@
-import { IMessagingService, IStoreService } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import firebase from "firebase";
 import log from "loglevel";
 
 export const WRITE_NULL_TO_FIREBASE = `The records being set contain null/undefined values. If this is intentional, pass the allowDelete flag in set.`;
+
+interface IStoreService {
+  get(key: string): Promise<any>;
+  // Multiple pairs could be written simultaneously if an atomic write
+  // among multiple records is required
+  set(
+    pairs: { key: string; value: any }[],
+    allowDelete?: Boolean
+  ): Promise<boolean>;
+}
+
+export interface IMessagingService {
+  send(to: string, msg: Node.NodeMessage): Promise<void>;
+  onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
+}
 
 export interface FirebaseAppConfiguration {
   databaseURL: string;
