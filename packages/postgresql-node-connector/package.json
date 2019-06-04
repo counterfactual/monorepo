@@ -5,7 +5,8 @@
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b . && rollup -c"
+    "build": "tsc -b . && rollup -c",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit"
   },
   "dependencies": {
     "@counterfactual/types": "0.0.10",
@@ -14,8 +15,12 @@
     "typeorm": "^0.2.17"
   },
   "devDependencies": {
+    "@counterfactual/node": "0.1.21",
+    "@types/jest": "24.0.13",
     "@types/node": "12.0.4",
     "@types/pg": "7.4.14",
+    "dotenv-extended": "2.4.0",
+    "jest": "24.8.0",
     "rollup": "1.13.0",
     "rollup-plugin-commonjs": "10.0.0",
     "rollup-plugin-node-resolve": "5.0.1",

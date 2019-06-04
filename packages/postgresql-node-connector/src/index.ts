@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import "reflect-metadata";
 import { Connection, ConnectionManager, ConnectionOptions } from "typeorm";
 
 import { Node as NodeEntity } from "./entity/Node";
@@ -54,7 +55,7 @@ class PostgresStoreService implements Node.IStoreService {
   async set(
     pairs: { key: string; value: any }[],
     allowDelete?: Boolean
-  ): Promise<boolean> {
+  ): Promise<void> {
     const connection = this.connectionMgr.get();
 
     await connection.transaction(async transactionalEntityManager => {
@@ -78,7 +79,6 @@ class PostgresStoreService implements Node.IStoreService {
         await transactionalEntityManager.save(record);
       }
     });
-    return true;
   }
 
   async get(key: string): Promise<StringKeyValue | string | undefined> {

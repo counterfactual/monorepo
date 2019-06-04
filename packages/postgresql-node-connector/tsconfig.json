@@ -5,7 +5,7 @@
     "declarationDir": "dist/",
     "outDir": "dist/",
     "resolveJsonModule": true,
-    "types": ["node"]
+    "types": ["jest", "node"]
   },
   "references": [{ "path": "../types" }],
   "include": ["src", "test"]

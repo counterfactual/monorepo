@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -29,7 +30,6 @@ import {
   StateChannelJSON
 } from "./models";
 import { debugLog } from "./node";
-import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
 
 /**
@@ -38,7 +38,7 @@ import { hashOfOrderedPublicIdentifiers } from "./utils";
  */
 export class Store {
   constructor(
-    private readonly storeService: IStoreService,
+    private readonly storeService: Node.IStoreService,
     private readonly storeKeyPrefix: string
   ) {}
 

@@ -908,7 +908,26 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/types@^0.0.9":
+"@counterfactual/node@0.1.21":
+  version "0.1.21"
+  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.1.21.tgz#2f4452c3ef897d5ae6655101be762454c54a795d"
+  integrity sha512-FAfN0NNnA7Cf78HM+86AkgI4inre7USGr4CrsO7xC2yZfYUcCaZE5V5pkkgtjwHra7JMS/nl49WDjnC95JbiIw==
+  dependencies:
+    "@counterfactual/cf.js" "0.1.1"
+    "@counterfactual/contracts" "0.1.1"
+    "@counterfactual/firebase-client" "0.0.1"
+    "@counterfactual/types" "0.0.9"
+    "@firebase/util" "0.2.17"
+    ethers "4.0.28"
+    eventemitter3 "^3.1.2"
+    loglevel "^1.6.1"
+    p-queue "^5.0.0"
+    pg "7.11.0"
+    reflect-metadata "^0.1.13"
+    typescript-memoize "^1.0.0-alpha.3"
+    uuid "^3.3.2"
+
+"@counterfactual/types@0.0.9", "@counterfactual/types@^0.0.9":
   version "0.0.9"
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.9.tgz#7a57eaa7b2483cdf0fd5e3863c8868bf8c42d1c1"
   integrity sha512-FSQIfZAXk5TllwcxQzZlwX2LDFs0uFBD0sFpuToo6KYYSTMKg/Q2s/1zXYt6nzU9p8rojixIT8I570DOgFbjbA==
@@ -2593,6 +2612,13 @@
   version "24.0.12"
   resolved "https://registry.npmjs.org/@types/jest/-/jest-24.0.12.tgz#0553dd0a5ac744e7dc4e8700da6d3baedbde3e8f"
   integrity sha512-60sjqMhat7i7XntZckcSGV8iREJyXXI6yFHZkSZvCPUeOnEJ/VP1rU/WpEWQ56mvoh8NhC+sfKAuJRTyGtCOow==
+  dependencies:
+    "@types/jest-diff" "*"
+
+"@types/jest@24.0.13":
+  version "24.0.13"
+  resolved "https://registry.npmjs.org/@types/jest/-/jest-24.0.13.tgz#10f50b64cb05fb02411fbba49e9042a3a11da3f9"
+  integrity sha512-3m6RPnO35r7Dg+uMLj1+xfZaOgIHHHut61djNjzwExXN4/Pm9has9C6I1KMYSfz7mahDhWUOVg4HW/nZdv5Pww==
   dependencies:
     "@types/jest-diff" "*"
 

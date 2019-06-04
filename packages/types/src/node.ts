@@ -36,7 +36,7 @@ export namespace Node {
     set(
       pairs: { key: string; value: any }[],
       allowDelete?: Boolean
-    ): Promise<boolean>;
+    ): Promise<void>;
   }
 
   export type NetworkContext = {

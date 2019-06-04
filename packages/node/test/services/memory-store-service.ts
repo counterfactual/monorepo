@@ -1,6 +1,6 @@
-import { IStoreService } from "../../src";
+import { Node } from "@counterfactual/types";
 
-class MemoryStoreService implements IStoreService {
+class MemoryStoreService implements Node.IStoreService {
   private store: Map<string, any> = new Map();
   constructor() {}
   async get(key: string): Promise<any> {
@@ -10,11 +10,10 @@ class MemoryStoreService implements IStoreService {
     return Promise.resolve(null);
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<boolean> {
+  async set(pairs: { key: string; value: any }[]): Promise<void> {
     for (const pair of pairs) {
       this.store.set(pair.key, pair.value);
     }
-    return true;
   }
 }
 
