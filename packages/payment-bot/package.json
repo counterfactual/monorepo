@@ -11,7 +11,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@counterfactual/node": "0.1.19",
+    "@counterfactual/node": "0.1.20",
     "ethers": "4.0.28",
     "inquirer": "^6.3.1"
   },
