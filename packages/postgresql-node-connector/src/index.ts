@@ -1,19 +1,9 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Node } from "@counterfactual/types";
+import { Connection, ConnectionManager, ConnectionOptions } from "typeorm";
 
 import { Node as NodeEntity } from "./entity/Node";
 
 type StringKeyValue = { [key: string]: StringKeyValue };
-
-// TODO: Import from somewhere else, maybe @counterfactual/types
-interface IStoreService {
-  get(key: string): Promise<any>;
-  // Multiple pairs could be written simultaneously if an atomic write
-  // among multiple records is required
-  set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<boolean>;
-}
 
 export const POSTGRES_CONFIGURATION_ENV_KEYS = {
   username: "POSTGRES_USER",
@@ -49,13 +39,13 @@ export class PostgresServiceFactory {
     await this.connection.connect();
   }
 
-  createStoreService(storeServiceKey: string): IStoreService {
+  createStoreService(storeServiceKey: string): Node.IStoreService {
     console.log("Connected to Postgres");
     return new PostgresStoreService(this.connectionManager, storeServiceKey);
   }
 }
 
-class PostgresStoreService implements IStoreService {
+class PostgresStoreService implements Node.IStoreService {
   constructor(
     private readonly connectionMgr: ConnectionManager,
     private readonly storeServiceKey: string
