@@ -195,11 +195,10 @@ export class AppRoot {
           key: string;
           value: any;
         }[]
-      ): Promise<boolean> {
+      ): Promise<void> {
         pairs.forEach(({ key, value }) => {
           window.localStorage.setItem(key, JSON.stringify(value) as string);
         });
-        return true;
       }
     };
 
