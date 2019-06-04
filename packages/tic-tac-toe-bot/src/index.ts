@@ -3,10 +3,9 @@ import {
   confirmLocalFirebaseConfigurationEnvVars,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
-  FirebaseServiceFactory,
-  MNEMONIC_PATH,
-  Node
-} from "@counterfactual/node";
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import { MNEMONIC_PATH, Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import {
