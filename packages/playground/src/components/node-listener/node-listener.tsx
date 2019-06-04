@@ -84,9 +84,8 @@ export class NodeListener {
         return;
       }
 
-      const appInstanceId = this.currentMessage.data.appInstanceId;
-      const intermediaryIdentifier = this.currentMessage.data.params
-        .intermediaries[0];
+      const { appInstanceId, intermediaries } = this.currentMessage.data;
+      const [intermediaryIdentifier] = intermediaries;
       const installedApp = await this.cfProvider.installVirtual(
         appInstanceId,
         intermediaryIdentifier

@@ -179,7 +179,8 @@ describe("CF.js Provider", () => {
     it("can create a channel between two parties", async () => {
       expect.assertions(3);
 
-      const transactionHash = "t_hash";
+      const transactionHash =
+        "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
 
       nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
         expect(request.type).toBe(Node.MethodName.CREATE_CHANNEL);
@@ -201,7 +202,7 @@ describe("CF.js Provider", () => {
     it("can deposit eth to a channel", async () => {
       expect.assertions(3);
 
-      const multisigAddress = "multisig_address";
+      const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
@@ -223,7 +224,7 @@ describe("CF.js Provider", () => {
     it("can withdraw eth from a channel", async () => {
       expect.assertions(3);
 
-      const multisigAddress = "multisig_address";
+      const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
@@ -245,7 +246,7 @@ describe("CF.js Provider", () => {
     it("can query for a channel's freeBalance", async () => {
       expect.assertions(3);
 
-      const multisigAddress = "multisig_address";
+      const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(

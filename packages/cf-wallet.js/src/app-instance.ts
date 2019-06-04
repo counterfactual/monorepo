@@ -38,6 +38,6 @@ export class AppInstance {
    * Whether this app is virtual i.e. installation was routed through intermediaries
    */
   get isVirtual(): boolean {
-    return !!(this.intermediaries && this.intermediaries.length !== 0);
+    return Array.isArray(this.intermediaries) && this.intermediaries.length > 0;
   }
 }
