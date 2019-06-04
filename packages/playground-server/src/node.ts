@@ -271,7 +271,9 @@ export class NodeWrapper {
       )
     };
 
-    return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
+    return {
+      ...multisigResponse.result
+    } as NodeTypes.CreateChannelTransactionResult;
   }
 }
 
