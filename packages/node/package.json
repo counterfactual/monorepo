@@ -45,7 +45,7 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
-    "@counterfactual/firebase-client": "0.0.1",
+    "@counterfactual/firebase-client": "0.0.2",
     "@counterfactual/types": "0.0.9",
     "@firebase/util": "0.2.17",
     "ethers": "4.0.28",
