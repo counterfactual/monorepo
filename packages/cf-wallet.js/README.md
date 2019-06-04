@@ -23,5 +23,5 @@ yarn
 To build the cf-wallet.js package:
 
 ```shell
-yarn build
+yarn build 
 ```
