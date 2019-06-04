@@ -262,7 +262,7 @@ export class Node {
    * @param callback
    */
   on(event: string, callback: (res: any) => void) {
-    this.outgoing.on(event, callback);
+    this.router.subscribe(event, async (res: any) => callback(res));
   }
 
   /**
@@ -273,7 +273,10 @@ export class Node {
    * @param [callback]
    */
   off(event: string, callback?: (res: any) => void) {
-    this.outgoing.off(event, callback);
+    this.router.unsubscribe(
+      event,
+      callback ? async (res: any) => callback(res) : undefined
+    );
   }
 
   /**
@@ -285,7 +288,7 @@ export class Node {
    * @param [callback]
    */
   once(event: string, callback: (res: any) => void) {
-    this.outgoing.once(event, callback);
+    this.router.subscribeOnce(event, async (res: any) => callback(res));
   }
 
   /**
@@ -294,7 +297,7 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeTypes.MethodRequest) {
-    this.incoming.emit(event, req);
+    this.router.emit(event, req);
   }
 
   /**
@@ -320,7 +323,8 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        this.outgoing.emit(msg.type, msg);
+        // this.outgoing.emit(msg.type, msg);
+        this.router.emit(msg.type, msg);
       }
     );
   }
