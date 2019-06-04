@@ -31,19 +31,7 @@ export default {
     }
   ],
   plugins: [
-    commonjs({
-      include: [
-        "../../node_modules/eventemitter3/index.js",
-        "../../node_modules/rpc-server/dist/index.js"
-      ],
-      namedExports: {
-        "../../node_modules/rpc-server/dist/index.js": [
-          "jsonRpcMethod",
-          "jsonRpcDeserialize",
-          "jsonRpcSerializeAsResponse"
-        ]
-      }
-    }),
+    commonjs(),
     nodeResolve({
       only: [...bundledDependencies]
     }),

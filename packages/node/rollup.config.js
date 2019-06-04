@@ -64,11 +64,6 @@ export default [
         namedExports: {
           "../../node_modules/typescript-memoize/dist/memoize-decorator.js": [
             "Memoize"
-          ],
-          "../../node_modules/rpc-server/dist/index.js": [
-            "jsonRpcMethod",
-            "jsonRpcDeserialize",
-            "jsonRpcSerializeAsResponse"
           ]
         }
       }),
