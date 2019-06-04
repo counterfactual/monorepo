@@ -7,6 +7,7 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+
 /// @title ETH Unidirectional Payment App
 /// @notice This contract allows unidirectional ETH transfers using the
 ///         takeAction paradigm.

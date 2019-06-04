@@ -30,10 +30,19 @@ export interface NodeConfig {
 }
 
 export default class CounterfactualNode {
+  private static port: MessagePort;
   private static node: Node;
+  // @ts-ignore
+  private static nodeProvider: cfWallet.NodeProvider;
+  // @ts-ignore
+  private static cfProvider: cfWallet.Provider;
 
   static getInstance(): Node {
     return CounterfactualNode.node;
+  }
+
+  static getCfProvider() {
+    return CounterfactualNode.cfProvider;
   }
 
   static async create(settings: {
@@ -55,6 +64,81 @@ export default class CounterfactualNode {
       settings.network
     );
 
+    await this.setupNodeProvider();
+
     return CounterfactualNode.getInstance();
+  }
+
+  static async setupNodeProvider() {
+    this.node.on(
+      NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL,
+      this.postToPort.bind(this)
+    );
+    this.node.on(
+      NodeTypes.MethodName.INSTALL_VIRTUAL,
+      this.postToPort.bind(this)
+    );
+    this.node.on(
+      NodeTypes.MethodName.REJECT_INSTALL,
+      this.postToPort.bind(this)
+    );
+    this.node.on(NodeTypes.MethodName.DEPOSIT, this.postToPort.bind(this));
+    this.node.on(NodeTypes.MethodName.WITHDRAW, this.postToPort.bind(this));
+    this.node.on(
+      NodeTypes.MethodName.GET_FREE_BALANCE_STATE,
+      this.postToPort.bind(this)
+    );
+    this.node.on(
+      NodeTypes.EventName.CREATE_CHANNEL,
+      this.postToPort.bind(this)
+    );
+
+    window.addEventListener("message", event => {
+      if (event.data === "cf-node-provider:init") {
+        const { port2 } = this.configureMessagePorts();
+        window.postMessage("cf-node-provider:port", "*", [port2]);
+      }
+    });
+
+    // @ts-ignore
+    this.nodeProvider = new cfWallet.NodeProvider();
+    await this.nodeProvider.connect();
+    this.cfProvider = this.createCfProvider();
+  }
+
+  private static configureMessagePorts(): MessageChannel {
+    const channel = new MessageChannel();
+
+    this.port = channel.port1;
+    this.port.addEventListener("message", this.relayMessage.bind(this));
+    this.port.start();
+
+    return channel;
+  }
+
+  /**
+   * Echoes a message received via PostMessage through
+   * the EventEmitter.
+   *
+   * @param event {MessageEvent}
+   */
+  private static relayMessage(event: MessageEvent): void {
+    this.node.emit(event.data.type, event.data);
+  }
+
+  /**
+   * Attempts to relay a message through the MessagePort. If the port
+   * isn't available, we store the message in `this.messageQueue`
+   * until the port is available.
+   *
+   * @param message {any}
+   */
+  private static postToPort(message: any): void {
+    this.port.postMessage(message);
+  }
+
+  static createCfProvider() {
+    // @ts-ignore
+    return new cfWallet.Provider(this.nodeProvider);
   }
 }
