@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/firebase-client",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/index.d.ts",
