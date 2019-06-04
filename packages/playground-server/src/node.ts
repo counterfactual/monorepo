@@ -8,8 +8,6 @@ import {
 import {
   CreateChannelMessage,
   DepositConfirmationMessage,
-  IMessagingService,
-  IStoreService,
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
@@ -161,8 +159,8 @@ export class NodeWrapper {
     networkOrNetworkContext: string | NetworkContext,
     mnemonic?: string,
     provider?: JsonRpcProvider,
-    storeService?: IStoreService,
-    messagingService?: IMessagingService
+    storeService?: NodeTypes.IStoreService,
+    messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
     if (NodeWrapper.node) {
       return NodeWrapper.node;
@@ -212,8 +210,8 @@ export class NodeWrapper {
     networkOrNetworkContext: string | NetworkContext,
     provider?: JsonRpcProvider,
     mnemonic?: string,
-    storeService?: IStoreService,
-    messagingService?: IMessagingService
+    storeService?: NodeTypes.IStoreService,
+    messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
     const serviceFactoryResolved = await serviceFactoryPromise;
 

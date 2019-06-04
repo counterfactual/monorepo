@@ -927,7 +927,7 @@
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
-"@counterfactual/types@0.0.9", "@counterfactual/types@^0.0.9":
+"@counterfactual/types@0.0.9":
   version "0.0.9"
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.9.tgz#7a57eaa7b2483cdf0fd5e3863c8868bf8c42d1c1"
   integrity sha512-FSQIfZAXk5TllwcxQzZlwX2LDFs0uFBD0sFpuToo6KYYSTMKg/Q2s/1zXYt6nzU9p8rojixIT8I570DOgFbjbA==
