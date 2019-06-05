@@ -167,7 +167,9 @@ async function proposeStateTransition(
       break;
     }
     default: {
-      "The outcome type in this application logic contract is not supported yet."
+      throw new Error(
+        "The outcome type in this application logic contract is not supported yet."
+      );
     }
   }
 
