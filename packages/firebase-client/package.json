@@ -18,7 +18,8 @@
   "devDependencies": {
     "@counterfactual/types": "0.0.9",
     "@types/firebase": "3.2.1",
-    "rollup": "1.12.3"
+    "rollup": "1.12.3",
+    "typescript": "3.5.1"
   },
   "dependencies": {
     "firebase": "6.0.2"
