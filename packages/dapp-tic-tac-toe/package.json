@@ -1,6 +1,10 @@
 {
   "name": "@counterfactual/dapp-tic-tac-toe",
   "version": "0.1.2",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "dependencies": {
     "@counterfactual/apps": "0.1.1",
     "react": "^16.8.6",

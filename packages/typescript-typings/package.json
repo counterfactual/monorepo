@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "license": "MIT",
   "engines": {
-    "node": ">=6.12"
+    "yarn": "^1.10",
+    "node": "10.15.3"
   },
   "description": "Counterfactual Types",
   "scripts": {
