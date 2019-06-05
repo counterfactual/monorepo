@@ -14,6 +14,14 @@ export const POSTGRES_CONFIGURATION_ENV_KEYS = {
   port: "POSTGRES_PORT"
 };
 
+export interface PostgresConnectionOptions {
+  username: string;
+  host: string;
+  database: string;
+  password: string;
+  port: number;
+}
+
 export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
   type: "postgres",
   username: "",
@@ -27,7 +35,7 @@ export class PostgresServiceFactory {
   private connectionManager: ConnectionManager;
   private connection: Connection;
 
-  constructor(configuration: ConnectionOptions) {
+  constructor(configuration: ConnectionOptions, readonly dbName: string) {
     this.connectionManager = new ConnectionManager();
     this.connection = this.connectionManager.create({
       ...EMPTY_POSTGRES_CONFIG,
@@ -36,8 +44,20 @@ export class PostgresServiceFactory {
     } as ConnectionOptions);
   }
 
-  async connectDb() {
+  async connectDb(): Promise<Connection> {
     await this.connection.connect();
+    await this.connection.query(`
+      CREATE EXTENSION IF NOT EXISTS dblink;
+
+      DO $$
+      BEGIN
+      PERFORM dblink_exec('', 'CREATE DATABASE ${this.dbName}');
+      EXCEPTION WHEN duplicate_database THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
+      END
+      $$;
+     `);
+
+    return this.connection;
   }
 
   createStoreService(storeServiceKey: string): Node.IStoreService {
@@ -46,7 +66,7 @@ export class PostgresServiceFactory {
   }
 }
 
-class PostgresStoreService implements Node.IStoreService {
+export class PostgresStoreService implements Node.IStoreService {
   constructor(
     private readonly connectionMgr: ConnectionManager,
     private readonly storeServiceKey: string
