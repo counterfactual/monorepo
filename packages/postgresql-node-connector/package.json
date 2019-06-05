@@ -3,5 +3,9 @@
   "version": "0.0.1",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "dependencies": {}
 }

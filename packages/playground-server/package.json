@@ -5,6 +5,10 @@
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "main": "src/index.ts",
   "directories": {
     "lib": "src",

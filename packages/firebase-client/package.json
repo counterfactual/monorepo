@@ -5,6 +5,10 @@
   "iife": "dist/index.iife.js",
   "types": "dist/index.d.ts",
   "license": "MIT",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "scripts": {
     "build": "tsc -p . && rollup -c",
     "build:watch": "tsc -p . && rollup -c -w",

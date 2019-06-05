@@ -7,6 +7,10 @@
   "types": "dist/src/index.d.ts",
   "iife": "dist/index-iife.js",
   "license": "MIT",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "scripts": {
     "build": "tsc -b . && rollup -c"
   },

@@ -6,6 +6,10 @@
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "main": "src/index.js",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "directories": {
     "lib": "src",
     "test": "tests"

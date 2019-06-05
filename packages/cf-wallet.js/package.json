@@ -5,6 +5,10 @@
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "files": [
     "dist"
   ],

@@ -4,6 +4,10 @@
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
+  "engines": {
+    "yarn": "^1.10",
+    "node": "10.15.3"
+  },
   "files": [
     "dist"
   ],
