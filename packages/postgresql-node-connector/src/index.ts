@@ -108,18 +108,48 @@ export class PostgresStoreService implements Node.IStoreService {
 
   async get(key: string): Promise<StringKeyValue | string | undefined> {
     const storeKey = `${this.storeServiceKey}_${key}`;
-    console.log("getting: ", storeKey);
-    const res = await this.connectionMgr
-      .get()
-      .manager.findOne(NodeStore, storeKey);
-    if (res) {
-      console.trace();
-      console.log(res);
-      console.log(JSON.stringify(res.value[key], undefined, 2));
-      await sleep(500);
-      return res.value[key];
+
+    let res;
+    // FIXME: this queries for all channels or proposed app instances, which
+    // are nested under the respective keywords, hence the 'like' keyword
+    // Action item: this hack won't be needed when a more robust schema around
+    // node records is implemented
+    if (
+      key.endsWith("channel") ||
+      key.endsWith("appInstanceIdToProposedAppInstance")
+    ) {
+      res = await this.connectionMgr
+        .get()
+        .manager.getRepository(NodeStore)
+        .createQueryBuilder("record")
+        .where("record.key like :key", { key: `%${storeKey}%` })
+        .getMany();
+
+      const postProcess = res.map((record: NodeStore) => {
+        const existingKey = Object.keys(record.value)[0];
+        const leafKey = existingKey.split("/").pop()!;
+        const nestedValue = record.value[existingKey];
+        delete record.value[existingKey];
+        record.value[leafKey] = nestedValue;
+        return record.value;
+      });
+
+      if (res.length === 1) {
+        return postProcess[0];
+      }
+      if (res.length > 1) {
+        return postProcess;
+      }
+      return undefined;
     }
-    return undefined;
+
+    res = await this.connectionMgr.get().manager.findOne(NodeStore, storeKey);
+    if (!res) {
+      return undefined;
+    }
+
+    await sleep(500);
+    return res.value[key];
   }
 }
 

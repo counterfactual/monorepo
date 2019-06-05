@@ -95,7 +95,6 @@ export async function getProposedAppInstanceInfo(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceInfo> {
-  console.log("getting proposed app instance: ", appInstanceId);
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
@@ -285,10 +284,6 @@ export async function confirmProposedAppInstanceOnNode(
   nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
-  console.log("confirming");
-  console.log(proposedAppInstanceInfo);
-  console.log(proposalParams);
-  await sleep(500);
   expect(proposalParams.abiEncodings).toEqual(
     proposedAppInstanceInfo.abiEncodings
   );
@@ -437,7 +432,6 @@ export async function installTTTApp(
     let appInstanceId: string;
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-      console.log("confirming proposed app instance");
       confirmProposedAppInstanceOnNode(
         appInstanceInstallationProposalRequest.params,
         await getProposedAppInstanceInfo(nodeA, appInstanceId)

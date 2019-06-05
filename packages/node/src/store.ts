@@ -6,8 +6,6 @@ import {
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
-import { sleep } from "../test/integration/utils";
-
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
