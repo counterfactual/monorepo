@@ -1,10 +1,11 @@
 import {
   confirmFirebaseConfigurationEnvVars,
   confirmLocalFirebaseConfigurationEnvVars,
-  // confirmPostgresConfigurationEnvVars,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
-  FirebaseServiceFactory,
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import {
   MNEMONIC_PATH,
   Node
   // NatsServiceFactory,
