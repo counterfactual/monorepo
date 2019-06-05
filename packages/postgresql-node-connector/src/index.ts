@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import "reflect-metadata";
 import { Connection, ConnectionManager, ConnectionOptions } from "typeorm";
 
-import { NodeStore } from "./entity/NodeStore";
+import { NodeRecord } from "./entity/NodeRecord";
 
 type StringKeyValue = { [key: string]: StringKeyValue };
 
@@ -35,30 +35,33 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
   private connectionManager: ConnectionManager;
   private connection: Connection;
 
-  constructor(configuration: ConnectionOptions) {
+  constructor(
+    configuration: ConnectionOptions,
+    readonly tableName: string = "node_records"
+  ) {
     this.connectionManager = new ConnectionManager();
     this.connection = this.connectionManager.create({
       ...EMPTY_POSTGRES_CONFIG,
       ...configuration,
-      entities: [NodeStore]
+      entities: [NodeRecord]
     } as ConnectionOptions);
   }
 
   async connectDb(): Promise<Connection> {
     await this.connection.connect();
     await this.connection.query(`
-      CREATE TABLE IF NOT EXISTS "node_store"
+      CREATE TABLE IF NOT EXISTS "${this.tableName}"
       (
         key varchar COLLATE pg_catalog."default" NOT NULL,
         value json NOT NULL,
-        CONSTRAINT key_pkey PRIMARY KEY (key)
+        CONSTRAINT node_record_pkey PRIMARY KEY (key)
       )
       WITH (
         OIDS = FALSE
       )
       TABLESPACE pg_default;
 
-      ALTER TABLE "node_store"
+      ALTER TABLE "${this.tableName}"
         OWNER to postgres;
      `);
 
@@ -93,11 +96,11 @@ export class PostgresStoreService implements Node.IStoreService {
           [pair.key]: pair.value
         };
         let record = await transactionalEntityManager.findOne(
-          NodeStore,
+          NodeRecord,
           storeKey
         );
         if (!record) {
-          record = new NodeStore();
+          record = new NodeRecord();
           record.key = storeKey;
         }
         record.value = storeValue;
@@ -120,12 +123,12 @@ export class PostgresStoreService implements Node.IStoreService {
     ) {
       res = await this.connectionMgr
         .get()
-        .manager.getRepository(NodeStore)
+        .manager.getRepository(NodeRecord)
         .createQueryBuilder("record")
         .where("record.key like :key", { key: `%${storeKey}%` })
         .getMany();
 
-      const postProcess = res.map((record: NodeStore) => {
+      const postProcess = res.map((record: NodeRecord) => {
         const existingKey = Object.keys(record.value)[0];
         const leafKey = existingKey.split("/").pop()!;
         const nestedValue = record.value[existingKey];
@@ -143,7 +146,7 @@ export class PostgresStoreService implements Node.IStoreService {
       return undefined;
     }
 
-    res = await this.connectionMgr.get().manager.findOne(NodeStore, storeKey);
+    res = await this.connectionMgr.get().manager.findOne(NodeRecord, storeKey);
     if (!res) {
       return undefined;
     }

@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity("node_store")
-export class NodeStore {
+@Entity("node_records")
+export class NodeRecord {
   @PrimaryColumn()
   key!: string;
 
