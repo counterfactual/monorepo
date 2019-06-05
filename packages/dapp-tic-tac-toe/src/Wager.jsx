@@ -137,14 +137,6 @@ class Wager extends Component {
         ),
         timeout: 172800,
         initialState: {
-          players: [
-            window.ethers.utils.HDNode.fromExtendedKey(
-              user.nodeAddress
-            ).derivePath("0").address,
-            window.ethers.utils.HDNode.fromExtendedKey(
-              opponent.nodeAddress
-            ).derivePath("0").address
-          ],
           turnNum: 0,
           winner: 0,
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
