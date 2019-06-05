@@ -13,7 +13,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   createChannel,
@@ -23,19 +23,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(async () => {
-    await firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(

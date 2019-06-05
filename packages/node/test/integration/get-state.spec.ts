@@ -5,7 +5,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
   createChannel,
@@ -16,19 +16,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {

@@ -3,7 +3,7 @@ import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 
 import { INVALID_ACTION, Node } from "../../src";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   createChannel,
   generateTakeActionRequest,
@@ -13,17 +13,11 @@ import {
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {

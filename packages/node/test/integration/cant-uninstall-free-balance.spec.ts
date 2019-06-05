@@ -4,23 +4,17 @@ import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import { createChannel, generateUninstallRequest } from "./utils";
 
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("Node A and B open channel, attempt to uninstall FreeBalance", () => {

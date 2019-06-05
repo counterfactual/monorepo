@@ -18,10 +18,10 @@ export namespace Node {
   };
 
   export interface ServiceFactory {
-    connect(host: string, port: string): ServiceFactory;
-    auth(email: string, password: string): Promise<void>;
-    createMessagingService(messagingServiceKey: string): IMessagingService;
-    createStoreService(storeServiceKey: string): IStoreService;
+    connect?(host: string, port: string): ServiceFactory;
+    auth?(email: string, password: string): Promise<void>;
+    createMessagingService?(messagingServiceKey: string): IMessagingService;
+    createStoreService?(storeServiceKey: string): IStoreService;
   }
 
   export interface IMessagingService {

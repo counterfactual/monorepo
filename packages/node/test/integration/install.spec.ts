@@ -6,7 +6,7 @@ import { One, Zero } from "ethers/constants";
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
@@ -20,19 +20,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -46,7 +40,7 @@ describe("Node method follows spec - proposeInstall", () => {
         let proposalParams: NodeTypes.ProposeInstallParams;
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          confirmProposedAppInstanceOnNode(
+          await confirmProposedAppInstanceOnNode(
             proposalParams,
             await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );

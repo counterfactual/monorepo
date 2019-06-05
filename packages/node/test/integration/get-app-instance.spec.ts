@@ -4,7 +4,7 @@ import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   confirmAppInstanceInstallation,
   createChannel,
@@ -14,19 +14,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can accept a valid call to get the desired AppInstance details", async () => {

@@ -11,7 +11,7 @@ import {
   ProposeVirtualMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
@@ -25,22 +25,17 @@ import {
 describe("Node method follows spec - proposeInstallVirtual", () => {
   jest.setTimeout(20000);
 
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true, true);
+    const result = await setupWithFirebaseServiceFactory(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",

@@ -31,11 +31,11 @@ export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
   port: 0
 };
 
-export class PostgresServiceFactory {
+export class PostgresServiceFactory implements Node.ServiceFactory {
   private connectionManager: ConnectionManager;
   private connection: Connection;
 
-  constructor(configuration: ConnectionOptions, readonly dbName: string) {
+  constructor(configuration: ConnectionOptions) {
     this.connectionManager = new ConnectionManager();
     this.connection = this.connectionManager.create({
       ...EMPTY_POSTGRES_CONFIG,
@@ -45,19 +45,7 @@ export class PostgresServiceFactory {
   }
 
   async connectDb(): Promise<Connection> {
-    await this.connection.connect();
-    await this.connection.query(`
-      CREATE EXTENSION IF NOT EXISTS dblink;
-
-      DO $$
-      BEGIN
-      PERFORM dblink_exec('', 'CREATE DATABASE ${this.dbName}');
-      EXCEPTION WHEN duplicate_database THEN RAISE NOTICE '%, skipping', SQLERRM USING ERRCODE = SQLSTATE;
-      END
-      $$;
-     `);
-
-    return this.connection;
+    return this.connection.connect();
   }
 
   createStoreService(storeServiceKey: string): Node.IStoreService {
@@ -85,7 +73,7 @@ export class PostgresStoreService implements Node.IStoreService {
         // if you use anything other than JSON (i.e. a raw string). In some cases, the node code is
         // inserting strings as values instead of objects.
         const storeValue = {
-          [pair.key]: JSON.parse(JSON.stringify(pair.value))
+          [pair.key]: pair.value
         };
         let record = await transactionalEntityManager.findOne(
           NodeEntity,
@@ -103,11 +91,23 @@ export class PostgresStoreService implements Node.IStoreService {
 
   async get(key: string): Promise<StringKeyValue | string | undefined> {
     const storeKey = `${this.storeServiceKey}_${key}`;
+    console.log("getting: ", storeKey);
     const res = await this.connectionMgr
       .get()
       .manager.findOne(NodeEntity, storeKey);
-    return res && res.value[key];
+    if (res) {
+      console.trace();
+      console.log(res);
+      console.log(JSON.stringify(res.value[key], undefined, 2));
+      await sleep(500);
+      return res.value[key];
+    }
+    return undefined;
   }
+}
+
+async function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
 
 export function confirmPostgresConfigurationEnvVars() {

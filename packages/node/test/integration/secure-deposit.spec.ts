@@ -5,7 +5,7 @@ import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   createChannel,
   getFreeBalanceState,
@@ -13,21 +13,15 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
     provider = new JsonRpcProvider(global["ganacheURL"]);
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("has the right balance for both parties after deposits", async () => {

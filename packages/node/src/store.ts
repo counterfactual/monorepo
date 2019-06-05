@@ -6,6 +6,8 @@ import {
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
+import { sleep } from "../test/integration/utils";
+
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
@@ -325,11 +327,14 @@ export class Store {
    * Returns a list of proposed `AppInstanceInfo`s.
    */
   public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
+    console.log("getting proposed app instances from store");
     const proposedAppInstancesJson = (await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+    console.log(proposedAppInstancesJson);
+    await sleep(500);
     if (!proposedAppInstancesJson) {
       return [];
     }

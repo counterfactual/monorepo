@@ -6,7 +6,7 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   createChannel,
   generateUninstallRequest,
@@ -15,19 +15,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
+    const result = await setupWithFirebaseServiceFactory(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("Node A and B install TTT, then uninstall it", () => {

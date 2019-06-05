@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity()
+@Entity("node")
 export class Node {
   @PrimaryColumn()
   key!: string;
 
-  @Column("json")
+  @Column({ type: "json" })
   value!: object;
 }

@@ -1,5 +1,7 @@
 // @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
 import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
+import { PostgresServiceFactory } from "@counterfactual/postgresql-node-connector";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import {
   JsonRpcProvider,
@@ -14,7 +16,7 @@ import { MNEMONIC_PATH, Node } from "../../src";
 import { CF_PATH } from "../global-setup.jest";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
-export async function setup(
+export async function setupWithFirebaseServiceFactory(
   global: any,
   nodeCPresent: boolean = false,
   newMnemonics: boolean = false
@@ -26,6 +28,63 @@ export async function setup(
   const messagingService = firebaseServiceFactory.createMessagingService(
     process.env.FIREBASE_MESSAGING_SERVER_KEY!
   );
+
+  if (nodeCPresent) {
+    return setup(
+      messagingService,
+      firebaseServiceFactory,
+      global,
+      newMnemonics,
+      nodeCPresent
+    );
+  }
+
+  return setup(messagingService, firebaseServiceFactory, global, newMnemonics);
+}
+
+export async function setupWithFirebaseMessagingAndPostgresStore(
+  global: any,
+  nodeCPresent: boolean = false,
+  newMnemonics: boolean = false
+) {
+  const firebaseServiceFactory = new LocalFirebaseServiceFactory(
+    process.env.FIREBASE_DEV_SERVER_HOST!,
+    process.env.FIREBASE_DEV_SERVER_PORT!
+  );
+  const messagingService = firebaseServiceFactory.createMessagingService(
+    process.env.FIREBASE_MESSAGING_SERVER_KEY!
+  );
+
+  const postgresServiceFactory = new PostgresServiceFactory({
+    type: "postgres",
+    database: process.env.POSTGRES_DATABASE!,
+    username: process.env.POSTGRES_USER!,
+    host: process.env.POSTGRES_HOST!,
+    password: process.env.POSTGRES_PASSWORD!,
+    port: Number(process.env.POSTGRES_PORT!)
+  });
+  await postgresServiceFactory.connectDb();
+
+  if (nodeCPresent) {
+    return setup(
+      messagingService,
+      postgresServiceFactory,
+      global,
+      newMnemonics,
+      nodeCPresent
+    );
+  }
+
+  return setup(messagingService, postgresServiceFactory, global, newMnemonics);
+}
+
+export async function setup(
+  messagingService: NodeTypes.IMessagingService,
+  serviceFactory: NodeTypes.ServiceFactory,
+  global: any,
+  newMnemonics: boolean = false,
+  nodeCPresent: boolean = false
+) {
   const nodeConfig = {
     STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
   };
@@ -45,11 +104,11 @@ export async function setup(
     mnemonicB = mnemonics.B_MNEMONIC;
   }
 
-  const storeServiceA = firebaseServiceFactory.createStoreService(
-    process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+  const storeServiceA = serviceFactory.createStoreService!(
+    `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
 
-  storeServiceA.set([{ key: MNEMONIC_PATH, value: mnemonicA }]);
+  await storeServiceA.set([{ key: MNEMONIC_PATH, value: mnemonicA }]);
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
@@ -58,10 +117,10 @@ export async function setup(
     global["networkContext"]
   );
 
-  const storeServiceB = firebaseServiceFactory.createStoreService(
-    process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+  const storeServiceB = serviceFactory.createStoreService!(
+    `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
-  storeServiceB.set([{ key: MNEMONIC_PATH, value: mnemonicB }]);
+  await storeServiceB.set([{ key: MNEMONIC_PATH, value: mnemonicB }]);
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
@@ -72,21 +131,21 @@ export async function setup(
 
   let nodeC: Node;
   if (nodeCPresent) {
-    const storeServiceB = firebaseServiceFactory.createStoreService(
-      process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
+    const storeServiceC = serviceFactory.createStoreService!(
+      `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
     );
     nodeC = await Node.create(
       messagingService,
-      storeServiceB,
+      storeServiceC,
       nodeConfig,
       provider,
       global["networkContext"]
     );
 
-    return { nodeA, nodeB, nodeC, firebaseServiceFactory };
+    return { nodeA, nodeB, nodeC };
   }
 
-  return { nodeA, nodeB, firebaseServiceFactory };
+  return { nodeA, nodeB };
 }
 
 export async function generateNewFundedWallet(

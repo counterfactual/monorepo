@@ -99,9 +99,12 @@ export async function getProposedAppInstanceInfo(
     node,
     APP_INSTANCE_STATUS.PROPOSED
   );
-  return allProposedAppInstanceInfos.filter(appInstanceInfo => {
+  const paii = allProposedAppInstanceInfos.filter(appInstanceInfo => {
     return appInstanceInfo.id === appInstanceId;
-  })[0];
+  });
+  console.log("getting proposed app instance info: ", appInstanceId);
+  console.log(paii);
+  return paii[0];
 }
 
 export async function getFreeBalanceState(
@@ -275,12 +278,16 @@ export function makeTTTVirtualProposalRequest(
  * @param proposalParams The parameters of the installation proposal.
  * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
  */
-export function confirmProposedAppInstanceOnNode(
+export async function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
   proposedAppInstanceInfo: AppInstanceInfo,
   nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
+  console.log("confirming");
+  console.log(proposedAppInstanceInfo);
+  console.log(proposalParams);
+  await sleep(500);
   expect(proposalParams.abiEncodings).toEqual(
     proposedAppInstanceInfo.abiEncodings
   );
@@ -380,7 +387,7 @@ export function generateUninstallVirtualRequest(
   };
 }
 
-export function sleep(timeInMilliseconds: number) {
+export async function sleep(timeInMilliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
 
@@ -429,6 +436,7 @@ export async function installTTTApp(
     let appInstanceId: string;
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+      console.log("confirming proposed app instance");
       confirmProposedAppInstanceOnNode(
         appInstanceInstallationProposalRequest.params,
         await getProposedAppInstanceInfo(nodeA, appInstanceId)

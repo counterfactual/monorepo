@@ -9,7 +9,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setupWithFirebaseServiceFactory } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   createChannel,
@@ -19,22 +19,17 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
+    const result = await setupWithFirebaseServiceFactory(global, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. Node C rejects proposal. Node A confirms rejection",

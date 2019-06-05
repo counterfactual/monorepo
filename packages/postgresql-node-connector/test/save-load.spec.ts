@@ -6,17 +6,15 @@ describe("Postgres store service implementation behavior adheres to interface", 
   let postgresService: Node.IStoreService;
 
   beforeAll(async () => {
-    const postgresServiceFactory = new PostgresServiceFactory(
-      {
-        type: "postgres",
-        username: process.env.POSTGRES_USER!,
-        host: process.env.POSTGRES_HOST!,
-        password: process.env.POSTGRES_PASSWORD!,
-        port: Number(process.env.POSTGRES_PORT!),
-        synchronize: true
-      },
-      process.env.POSTGRES_DATABASE!
-    );
+    const postgresServiceFactory = new PostgresServiceFactory({
+      type: "postgres",
+      database: process.env.POSTGRES_DATABASE!,
+      username: process.env.POSTGRES_USER!,
+      host: process.env.POSTGRES_HOST!,
+      password: process.env.POSTGRES_PASSWORD!,
+      port: Number(process.env.POSTGRES_PORT!),
+      synchronize: true
+    });
 
     await postgresServiceFactory.connectDb();
     postgresService = postgresServiceFactory.createStoreService(

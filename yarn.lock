@@ -908,30 +908,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/node@0.1.21":
-  version "0.1.21"
-  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.1.21.tgz#2f4452c3ef897d5ae6655101be762454c54a795d"
-  integrity sha512-FAfN0NNnA7Cf78HM+86AkgI4inre7USGr4CrsO7xC2yZfYUcCaZE5V5pkkgtjwHra7JMS/nl49WDjnC95JbiIw==
-  dependencies:
-    "@counterfactual/cf.js" "0.1.1"
-    "@counterfactual/contracts" "0.1.1"
-    "@counterfactual/firebase-client" "0.0.1"
-    "@counterfactual/types" "0.0.9"
-    "@firebase/util" "0.2.17"
-    ethers "4.0.28"
-    eventemitter3 "^3.1.2"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    pg "7.11.0"
-    reflect-metadata "^0.1.13"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
-"@counterfactual/types@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.9.tgz#7a57eaa7b2483cdf0fd5e3863c8868bf8c42d1c1"
-  integrity sha512-FSQIfZAXk5TllwcxQzZlwX2LDFs0uFBD0sFpuToo6KYYSTMKg/Q2s/1zXYt6nzU9p8rojixIT8I570DOgFbjbA==
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
