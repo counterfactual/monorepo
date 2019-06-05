@@ -106,7 +106,15 @@ async function proposeStateTransition(
     context.provider
   );
 
-  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  let outcomeType: BigNumber;
+
+  try {
+    outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  } catch (e) {
+    throw new Error(
+      "The application contract being referenced in this installation request does not implement outcomeType()."
+    );
+  }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -156,7 +164,7 @@ async function proposeStateTransition(
       break;
     }
     default: {
-      throw Error("unrecognized");
+      "The outcome type in this application logic contract is not supported yet."
     }
   }
 
