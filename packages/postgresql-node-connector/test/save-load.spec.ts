@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { PostgresServiceFactory } from "../src";
 
-describe("Node can use the Postgres store service implementation", () => {
+describe("Postgres store service implementation behavior adheres to interface", () => {
   let postgresService: Node.IStoreService;
 
   beforeAll(async () => {
