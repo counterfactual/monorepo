@@ -8,8 +8,8 @@ describe("Postgres store service implementation behavior adheres to interface", 
   beforeAll(async () => {
     const postgresServiceFactory = new PostgresServiceFactory({
       type: "postgres",
-      database: process.env.POSTGRES_DATABASE!,
       username: process.env.POSTGRES_USER!,
+      database: process.env.POSTGRES_DATABASE!,
       host: process.env.POSTGRES_HOST!,
       password: process.env.POSTGRES_PASSWORD!,
       port: Number(process.env.POSTGRES_PORT!),

@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import "reflect-metadata";
 import { Connection, ConnectionManager, ConnectionOptions } from "typeorm";
 
-import { Node as NodeEntity } from "./entity/Node";
+import { NodeStore } from "./entity/NodeStore";
 
 type StringKeyValue = { [key: string]: StringKeyValue };
 
@@ -40,12 +40,29 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
     this.connection = this.connectionManager.create({
       ...EMPTY_POSTGRES_CONFIG,
       ...configuration,
-      entities: [NodeEntity]
+      entities: [NodeStore]
     } as ConnectionOptions);
   }
 
   async connectDb(): Promise<Connection> {
-    return this.connection.connect();
+    await this.connection.connect();
+    await this.connection.query(`
+      CREATE TABLE IF NOT EXISTS "node_store"
+      (
+        key varchar COLLATE pg_catalog."default" NOT NULL,
+        value json NOT NULL,
+        CONSTRAINT key_pkey PRIMARY KEY (key)
+      )
+      WITH (
+        OIDS = FALSE
+      )
+      TABLESPACE pg_default;
+
+      ALTER TABLE "node_store"
+        OWNER to postgres;
+     `);
+
+    return this.connection;
   }
 
   createStoreService(storeServiceKey: string): Node.IStoreService {
@@ -76,11 +93,11 @@ export class PostgresStoreService implements Node.IStoreService {
           [pair.key]: pair.value
         };
         let record = await transactionalEntityManager.findOne(
-          NodeEntity,
+          NodeStore,
           storeKey
         );
         if (!record) {
-          record = new NodeEntity();
+          record = new NodeStore();
           record.key = storeKey;
         }
         record.value = storeValue;
@@ -94,7 +111,7 @@ export class PostgresStoreService implements Node.IStoreService {
     console.log("getting: ", storeKey);
     const res = await this.connectionMgr
       .get()
-      .manager.findOne(NodeEntity, storeKey);
+      .manager.findOne(NodeStore, storeKey);
     if (res) {
       console.trace();
       console.log(res);
