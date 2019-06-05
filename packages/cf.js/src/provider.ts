@@ -6,7 +6,7 @@ import {
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
-import { jsonRpcDeserialize } from "rpc-server";
+import { jsonRpcDeserialize, jsonRpcSerializeAsResponse } from "rpc-server";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -207,34 +207,49 @@ export class Provider {
 
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
-          return reject({
-            type: EventType.ERROR,
-            data: response.data
-          });
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: response.data
+              },
+              requestId
+            )
+          );
         }
         if (response.type !== methodName) {
-          return reject({
-            type: EventType.ERROR,
-            data: {
-              errorName: "unexpected_message_type",
-              message: `Unexpected response type. Expected ${methodName}, got ${
-                response.type
-              }`
-            }
-          });
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: {
+                  errorName: "unexpected_message_type",
+                  message: `Unexpected response type. Expected ${methodName}, got ${
+                    response.type
+                  }`
+                }
+              },
+              requestId
+            )
+          );
         }
         resolve(response as Node.MethodResponse);
       };
 
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
-          reject({
-            type: EventType.ERROR,
-            data: {
-              errorName: "request_timeout",
-              message: `Request timed out: ${JSON.stringify(request)}`
-            }
-          });
+          reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: {
+                  errorName: "request_timeout",
+                  message: `Request timed out: ${JSON.stringify(request)}`
+                }
+              },
+              requestId
+            )
+          );
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
@@ -284,8 +299,9 @@ export class Provider {
    * @ignore
    */
   private onNodeMessage(message: Node.Message) {
-    const type = message.type;
+    const type = message["jsonrpc"] ? message["result"]["type"] : message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
+      console.log(message);
       this.handleNodeError(message as Node.Error);
     } else if ((message as Node.MethodResponse).requestId) {
       this.handleNodeMethodResponse(message as Node.MethodResponse);
