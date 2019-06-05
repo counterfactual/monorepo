@@ -91,7 +91,7 @@ class Wager extends Component {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
         stateEncoding:
-          "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
+          "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
       },
       this.props.cfProvider
     );
