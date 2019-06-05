@@ -65,6 +65,23 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     return abi.encode(postState);
   }
 
+  function isStateTerminal(bytes calldata encodedState)
+    external
+    pure
+    returns (bool)
+  {
+    AppState memory appState = abi.decode(encodedState, (AppState));
+    return appState.finalized;
+  }
+
+  function outcomeType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
+  }
+
   function applyPayment(
     AppState memory state,
     uint256 paymentAmount,
@@ -84,20 +101,4 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     return state;
   }
 
-  function isStateTerminal(bytes calldata encodedState)
-    external
-    pure
-    returns (bool)
-  {
-    AppState memory appState = abi.decode(encodedState, (AppState));
-    return appState.finalized;
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
-  }
 }
