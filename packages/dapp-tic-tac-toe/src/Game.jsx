@@ -11,7 +11,6 @@ class Game extends Component {
 
     this.state = {
       gameState: {
-        players: [],
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
         winner: 0
       },
