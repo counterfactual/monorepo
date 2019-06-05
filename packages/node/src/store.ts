@@ -323,44 +323,21 @@ export class Store {
     );
   }
 
-  public async getProposedAppInstance(
-    appInstanceId: string
-  ): Promise<AppInstanceInfo> {
-    console.log("getting proposed app instance from store: ", appInstanceId);
-    const proposedAppInstanceJson = (await this.storeService.get(
-      [
-        this.storeKeyPrefix,
-        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
-        appInstanceId
-      ].join("/")
-    )) as ProposedAppInstanceInfoJSON;
-
-    console.log(proposedAppInstanceJson);
-    await sleep(500);
-
-    if (!proposedAppInstanceJson) {
-      return Promise.reject(
-        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
-      );
-    }
-    return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
-  }
-
   /**
    * Returns a list of proposed `AppInstanceInfo`s.
    */
   public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
-    console.log("getting proposed app instances from store");
     const proposedAppInstancesJson = (await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
+      [
+        this.storeKeyPrefix,
+        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE
+      ].join("/")
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
-    console.log(proposedAppInstancesJson);
-    await sleep(500);
+
     if (!proposedAppInstancesJson) {
       return [];
     }
+
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);

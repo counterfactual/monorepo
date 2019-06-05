@@ -11,7 +11,7 @@ export default class GetProposedAppInstanceController extends NodeController {
     params: Node.GetProposedAppInstanceParams
   ): Promise<Node.GetProposedAppInstanceResult> {
     return {
-      appInstance: await requestHandler.store.getProposedAppInstance(
+      appInstance: await requestHandler.store.getProposedAppInstanceInfo(
         params.appInstanceId
       )
     };
