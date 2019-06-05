@@ -111,9 +111,12 @@ async function proposeStateTransition(
   try {
     outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
   } catch (e) {
-    throw new Error(
-      "The application contract being referenced in this installation request does not implement outcomeType()."
-    );
+    if (e.toString().indexOf("VM Exception") !== -1) {
+      throw new Error(
+        "The application logic contract being referenced in this installation request does not implement outcomeType()."
+      );
+    }
+    throw e;
   }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
