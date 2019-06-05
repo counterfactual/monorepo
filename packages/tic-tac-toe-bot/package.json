@@ -7,7 +7,7 @@
   "license": "MIT",
   "main": "src/index.js",
   "engines": {
-    "yarn": "^1.10",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "directories": {

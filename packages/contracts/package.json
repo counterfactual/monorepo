@@ -4,7 +4,7 @@
   "description": "Smart contracts for Counterfactual",
   "license": "MIT",
   "engines": {
-    "yarn": "^1.10",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "files": [

@@ -2,7 +2,7 @@
   "name": "@counterfactual/dapp-high-roller",
   "version": "0.1.0",
   "engines": {
-    "yarn": "^1.10",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "scripts": {
