@@ -10,6 +10,7 @@ if [ "$PLAYGROUND_SCOPE" = "server" ]
 then
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \
@@ -17,12 +18,12 @@ then
     node \
     firebase-client \
     firebase-server \
-    postgresql-node-connector \
     playground-server \
   "
 else
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \
@@ -30,7 +31,6 @@ else
     node \
     firebase-client \
     firebase-server \
-    postgresql-node-connector \
     playground-server \
     playground \
     dapp-high-roller \
