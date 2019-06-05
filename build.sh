@@ -17,6 +17,7 @@ then
     node \
     firebase-client \
     firebase-server \
+    postgresql-node-connector \
     playground-server \
   "
 else
@@ -29,6 +30,7 @@ else
     node \
     firebase-client \
     firebase-server \
+    postgresql-node-connector \
     playground-server \
     playground \
     dapp-high-roller \

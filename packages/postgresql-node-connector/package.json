@@ -2,9 +2,11 @@
   "name": "@counterfactual/postgresql-node-connector",
   "version": "0.0.2",
   "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
   "scripts": {
+    "prepublish": "tsc -b . && rollup -c",
     "build": "tsc -b . && rollup -c",
     "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "lint:fix": "tslint -c tslint.json -p . --fix",
