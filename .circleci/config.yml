@@ -6,7 +6,7 @@ orbs:
 defaults: &defaults
   working_directory: /home/circleci/project
   docker:
-    - image: circleci/node:10.15.3
+    - image: counterfactual/circleci-environment:latest
 
 save_code: &save_code
   save_cache:
@@ -30,10 +30,7 @@ restore_dep: &restore_dep
 
 jobs:
   build:
-    working_directory: /home/circleci/project
-    # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
-    docker:
-      - image: counterfactual/circleci-environment:latest
+    <<: *defaults
     steps:
       - <<: *restore_code
       - checkout
@@ -76,9 +73,13 @@ jobs:
       - image: circleci/node:10.15.3-browsers
     steps:
       - <<: *restore_code
+
       - checkout
 
       - <<: *restore_dep
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
