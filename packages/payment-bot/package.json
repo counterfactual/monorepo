@@ -12,6 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "@counterfactual/node": "0.1.22",
+    "@counterfactual/firebase-client": "0.0.2",
     "ethers": "4.0.28",
     "inquirer": "^6.3.1"
   },
