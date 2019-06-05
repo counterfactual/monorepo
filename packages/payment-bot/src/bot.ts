@@ -262,12 +262,16 @@ async function openVirtualChannel(
       myDeposit: utils.parseEther(depositPartyA),
       peerDeposit: Zero,
       timeout: Zero,
-      initialState: {
-        alice: fromExtendedKey(node.publicIdentifier).derivePath("0").address,
-        bob: fromExtendedKey(counterpartyPublicId).derivePath("0").address,
-        aliceBalance: utils.parseEther(depositPartyA).toString(),
-        bobBalance: "0"
-      },
+      initialState: [
+        {
+          to: fromExtendedKey(node.publicIdentifier).derivePath("0").address,
+          amount: utils.parseEther(depositPartyA).toString(),
+        },
+        {
+          to: fromExtendedKey(counterpartyPublicId).derivePath("0").address,
+          amount: "0",
+        }
+      ],
       intermediaries: [process.env.INTERMEDIARY_IDENTIFIER],
       proposedToIdentifier: counterpartyPublicId
     } as NodeTypes.ProposeInstallVirtualParams,
