@@ -95,16 +95,17 @@ export async function getProposedAppInstanceInfo(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceInfo> {
-  const allProposedAppInstanceInfos = await getApps(
-    node,
-    APP_INSTANCE_STATUS.PROPOSED
-  );
-  const paii = allProposedAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
-  });
-  console.log("getting proposed app instance info: ", appInstanceId);
-  console.log(paii);
-  return paii[0];
+  console.log("getting proposed app instance: ", appInstanceId);
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetProposedAppInstanceResult)
+    .appInstance;
 }
 
 export async function getFreeBalanceState(

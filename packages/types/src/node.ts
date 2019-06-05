@@ -62,6 +62,7 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
     INSTALL = "install",
@@ -167,6 +168,14 @@ export namespace Node {
 
   export type GetProposedAppInstancesResult = {
     appInstances: AppInstanceInfo[];
+  };
+
+  export type GetProposedAppInstanceParams = {
+    appInstanceId: string;
+  };
+
+  export type GetProposedAppInstanceResult = {
+    appInstance: AppInstanceInfo;
   };
 
   export type GetStateParams = {

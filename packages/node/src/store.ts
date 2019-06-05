@@ -323,6 +323,29 @@ export class Store {
     );
   }
 
+  public async getProposedAppInstance(
+    appInstanceId: string
+  ): Promise<AppInstanceInfo> {
+    console.log("getting proposed app instance from store: ", appInstanceId);
+    const proposedAppInstanceJson = (await this.storeService.get(
+      [
+        this.storeKeyPrefix,
+        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
+        appInstanceId
+      ].join("/")
+    )) as ProposedAppInstanceInfoJSON;
+
+    console.log(proposedAppInstanceJson);
+    await sleep(500);
+
+    if (!proposedAppInstanceJson) {
+      return Promise.reject(
+        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+      );
+    }
+    return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
+  }
+
   /**
    * Returns a list of proposed `AppInstanceInfo`s.
    */

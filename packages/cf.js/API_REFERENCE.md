@@ -273,6 +273,18 @@ Result:
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
     - App instance details
 
+### Method: `getProposedAppInstance`
+
+Get details of a proposed app instance.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance to get details of
+
+Result:
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
+    - App instance details
+
 
 ### Method: `takeAction`
 
