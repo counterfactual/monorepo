@@ -252,7 +252,7 @@ async function openVirtualChannel(
   const request: NodeTypes.MethodRequest = {
     type: NodeTypes.MethodName.PROPOSE_INSTALL_VIRTUAL,
     params: {
-      appId: "0x74e5EC2981B39C94f37b48B3A15Bf9ff8F4185b1", // TODO: contract address of app
+      appId: "0xF0Fe9651F289195d45dDFC7D700451b164854CCd", // TODO: contract address of app
       abiEncodings: {
         stateEncoding:
           "tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)",
