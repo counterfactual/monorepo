@@ -25,7 +25,6 @@
     "uuid": "^3.3.2"
   },
   "dependencies": {
-    "@firebase/util": "0.2.15",
     "firebase": "6.0.2",
     "firebase-server": "1.0.2"
   }
