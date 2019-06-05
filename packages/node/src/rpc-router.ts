@@ -11,7 +11,6 @@ type AsyncCallback = (...args: any) => Promise<any>;
 
 export default class NodeRouter extends Router {
   private requestHandler: RequestHandler;
-  // private events: { [key: string]: AsyncCallback[] } = {};
 
   constructor({
     controllers,
@@ -36,7 +35,7 @@ export default class NodeRouter extends Router {
     }
 
     return jsonRpcSerializeAsResponse(
-      new controller.type()[controller.callback](
+      await new controller.type()[controller.callback](
         this.requestHandler,
         rpc.parameters
       ),
@@ -59,8 +58,16 @@ export default class NodeRouter extends Router {
     this.requestHandler.outgoing.off(event, callback);
   }
 
-  async emit(event: string, params: any) {
-    console.log("[RpcRouter]", `Emitted ${event} with`, params);
-    this.requestHandler.incoming.emit(event, params);
+  async emit(event: string, data: any) {
+    let eventData = data;
+
+    if (eventData.data && eventData.type && eventData.from) {
+      // It's a legacy message. Reformat it to JSONRPC.
+      eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
+    }
+
+    console.log("[RpcRouter]", `Emitted ${event} with`, eventData);
+
+    this.requestHandler.incoming.emit(event, eventData);
   }
 }
