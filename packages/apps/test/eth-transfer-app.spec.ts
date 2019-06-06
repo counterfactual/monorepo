@@ -64,6 +64,10 @@ describe("ETHUnidirectionalTransferApp", () => {
     );
   }
 
+  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+    return await ethTransferApp.functions.computeOutcome(encodeState(state));
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
@@ -142,8 +146,29 @@ describe("ETHUnidirectionalTransferApp", () => {
       finalize: true
     };
 
-    const ret = await applyAction(preState, action);
+    let ret = await applyAction(preState, action);
     const state = decodeBytesToAppState(ret);
     expect(state.finalized).to.be.true;
+
+    ret = await computeOutcome(state);
+    console.log("ret: ", ret);
+
+    expect(ret).to.eq(
+      defaultAbiCoder.encode(
+        ["tuple(address to, uint256 amount)[2]"],
+        [
+          [
+            {
+              to: senderAddr,
+              amount: senderAmt
+            },
+            {
+              to: receiverAddr,
+              amount: Zero
+            }
+          ]
+        ]
+      )
+    );
   });
 });
