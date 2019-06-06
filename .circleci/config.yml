@@ -69,6 +69,8 @@ jobs:
       - checkout
 
       - <<: *restore_dep
+      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -115,6 +117,8 @@ jobs:
 
       - attach_workspace:
           at: /home/circleci/project
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
 
       - run: yarn lint
 
