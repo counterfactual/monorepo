@@ -168,16 +168,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.22":
-  version "0.1.22"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.22.tgz#05d2ec83e9ebe4f152c251c662c26bed1de2dc31"
-  integrity sha512-NMDVTRZYWz87WChC8Cu/i+w41002yhVgZbG7BhAR5uIkGxgiuuBlZxvs5KfO2wG2JfC6IBszlq+fY4ZyjiuLiQ==
+"@counterfactual/node@0.1.23":
+  version "0.1.23"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.23.tgz#74d2faad5f08734211da6df8f39226df512e3e91"
+  integrity sha512-zjmSUvRXEThJ4CKVlXdKnNJlE039lk9HhUL6ELkYJKRLzcnMTG86eJR+ohyyIQCUk7mjRsRGv9h3cKI1NLC4EQ==
   dependencies:
     "@counterfactual/cf.js" "0.1.1"
     "@counterfactual/contracts" "0.1.1"
     "@counterfactual/firebase-client" "0.0.2"
     "@counterfactual/types" "0.0.9"
-    "@firebase/util" "0.2.17"
     ethers "4.0.28"
     eventemitter3 "^3.1.2"
     loglevel "^1.6.1"
@@ -349,13 +348,6 @@
   version "0.2.15"
   resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.15.tgz#727799e7c018cc946f8809cd5cc53b0ea32b4ed7"
   integrity sha512-XA6C4HkBOcUfDyvp/clq0MCFSuWSm3bPkolP689RCrGzjBs+bnCzC5a7by6Fq106zAQYeASwULJjTfVtZjKaaQ==
-  dependencies:
-    tslib "1.9.3"
-
-"@firebase/util@0.2.17":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.17.tgz#d2ba0b921ce0ff6de5dce3f155f1f957426e0929"
-  integrity sha512-RvHkhQUkihI4JafJmB7S7Q8qVDFPD+kQdSmUyVTR2sEzxkk92MsIq4dBYnSjOMmnCe7L5lmB6hJdzkHa/TAP5A==
   dependencies:
     tslib "1.9.3"
 
