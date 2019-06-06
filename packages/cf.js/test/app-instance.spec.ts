@@ -15,7 +15,7 @@ describe("CF.js AppInstance", () => {
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
     id: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
-    appId: "0x1515151515151515151515151515151515151515",
+    appDefinition: "0x1515151515151515151515151515151515151515",
     myDeposit: bigNumberify(1000),
     peerDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),

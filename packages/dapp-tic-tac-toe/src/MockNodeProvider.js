@@ -134,7 +134,7 @@ export default class NodeProvider {
       const { x, y } = this.determineOpponentAction();
       const boardCopy = JSON.parse(JSON.stringify(this.activeState.board));
       boardCopy[x][y] = 2;
-  
+
       const winClaim = checkVictory(boardCopy, 2);
       const draw = checkDraw(boardCopy);
 
@@ -177,7 +177,7 @@ export default class NodeProvider {
   generateAppInstanceDetail(params = {}) {
     return Object.assign({
       id: "0x60504030201",
-      appId: "0x123123456456",
+      appDefinition: "0x123123456456",
       abiEncodings: {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
         stateEncoding: "tuple(uint256 turnName, uint256 winner, uint256[3][3] board)"

@@ -167,7 +167,7 @@ describe("ttt-bot", () => {
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
           },
-          appId: NETWORK_CONTEXT["TicTacToe"],
+          appDefinition: NETWORK_CONTEXT["TicTacToe"],
           abiEncodings: {
             actionEncoding:
               "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",

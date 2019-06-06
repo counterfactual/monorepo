@@ -17,7 +17,7 @@ export class AppInstance {
    */
   readonly id: AppInstanceID;
 
-  readonly appId: Address;
+  readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
@@ -26,7 +26,7 @@ export class AppInstance {
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
     this.id = info.id;
-    this.appId = info.appId;
+    this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;

@@ -170,7 +170,7 @@ export namespace Node {
   export type InstallVirtualResult = InstallResult;
 
   export type ProposeInstallParams = {
-    appId: string;
+    appDefinition: string;
     abiEncodings: AppABIEncodings;
     myDeposit: BigNumber;
     peerDeposit: BigNumber;

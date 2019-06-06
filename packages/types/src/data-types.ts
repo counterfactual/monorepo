@@ -5,7 +5,7 @@ import { ABIEncoding, AppInstanceID } from "./simple-types";
 
 export type AppInstanceInfo = {
   id: AppInstanceID;
-  appId: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
