@@ -125,6 +125,7 @@ export class Node {
     );
     this.registerMessagingConnection();
     this.router = createRpcRouter(this.requestHandler);
+    this.requestHandler.injectRouter(this.router);
 
     return this;
   }

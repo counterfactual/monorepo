@@ -9,6 +9,7 @@ import {
   methodNameToImplementation
 } from "./api-router";
 import { InstructionExecutor } from "./machine";
+import NodeRouter from "./rpc-router";
 import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
@@ -23,6 +24,7 @@ export class RequestHandler {
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
+  router: NodeRouter = {} as NodeRouter;
 
   constructor(
     readonly publicIdentifier: string,
@@ -38,6 +40,10 @@ export class RequestHandler {
     readonly blocksNeededForConfirmation: number
   ) {
     this.store = new Store(storeService, storeKeyPrefix);
+  }
+
+  injectRouter(router: NodeRouter) {
+    this.router = router;
     this.mapPublicApiMethods();
     this.mapEventHandlers();
   }
@@ -74,6 +80,7 @@ export class RequestHandler {
           result: await this.methods.get(methodName)(this, req.params)
         };
         this.outgoing.emit(req.type, res);
+        this.router.emit(req.type, res, "outgoing");
       });
     }
   }
@@ -87,6 +94,10 @@ export class RequestHandler {
   private mapEventHandlers() {
     for (const eventName of Object.values(NODE_EVENTS)) {
       this.events.set(eventName, eventNameToImplementation[eventName]);
+      this.router.subscribe(
+        eventName as string,
+        eventNameToImplementation[eventName as string]
+      );
     }
   }
 

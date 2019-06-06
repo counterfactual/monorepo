@@ -6,6 +6,7 @@ import { AppInstance, AppInstanceEventType } from "../src/app-instance";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
+import { jsonRpcMethodNames } from "../src/provider";
 
 describe("CF.js AppInstance", () => {
   let nodeProvider: TestNodeProvider;
@@ -38,8 +39,11 @@ describe("CF.js AppInstance", () => {
 
       const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
-        expect(request.type).toBe(Node.MethodName.GET_STATE);
-        const params = request.params as Node.GetStateParams;
+        console.log("Callback for GET_STATE executed");
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.GET_STATE]
+        );
+        const params = request["parameters"] as Node.GetStateParams;
         expect(params.appInstanceId).toBe(appInstance.id);
         nodeProvider.simulateMessageFromNode({
           type: Node.MethodName.GET_STATE,

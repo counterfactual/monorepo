@@ -44,11 +44,19 @@ export default class NodeRouter extends Router {
   }
 
   async subscribe(event: string, callback: AsyncCallback) {
+    if (!callback) {
+      return;
+    }
+
     console.log("[RpcRouter]", `Subscribed ${event}`);
     this.requestHandler.outgoing.on(event, callback);
   }
 
   async subscribeOnce(event: string, callback: AsyncCallback) {
+    if (!callback) {
+      return;
+    }
+
     console.log("[RpcRouter]", `SubscribedOnce ${event}`);
     this.requestHandler.outgoing.once(event, callback);
   }
@@ -58,7 +66,7 @@ export default class NodeRouter extends Router {
     this.requestHandler.outgoing.off(event, callback);
   }
 
-  async emit(event: string, data: any) {
+  async emit(event: string, data: any, emitter = "incoming") {
     let eventData = data;
 
     if (eventData.data && eventData.type && eventData.from) {
@@ -68,6 +76,6 @@ export default class NodeRouter extends Router {
 
     console.log("[RpcRouter]", `Emitted ${event} with`, eventData);
 
-    this.requestHandler.incoming.emit(event, eventData);
+    this.requestHandler[emitter].emit(event, eventData);
   }
 }

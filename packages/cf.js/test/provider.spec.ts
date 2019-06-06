@@ -2,7 +2,7 @@ import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 
 import { AppInstance } from "../src/app-instance";
-import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
+import { NODE_REQUEST_TIMEOUT, Provider, jsonRpcMethodNames } from "../src/provider";
 import {
   CounterfactualEvent,
   ErrorEventData,
@@ -33,11 +33,11 @@ describe("CF.js Provider", () => {
     provider = new Provider(nodeProvider);
   });
 
-  it("throws generic errors coming from Node", async () => {
+  it.only("throws generic errors coming from Node", async () => {
     expect.assertions(2);
 
     nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
-      expect(request.type).toBe(Node.MethodName.GET_APP_INSTANCES);
+      expect(request["methodName"]).toBe(jsonRpcMethodNames[Node.MethodName.GET_APP_INSTANCES]);
 
       nodeProvider.simulateMessageFromNode({
         requestId: request.requestId,
@@ -47,8 +47,10 @@ describe("CF.js Provider", () => {
     });
 
     try {
+      console.log("About to call getAppInstances");
       await provider.getAppInstances();
     } catch (e) {
+      console.log("Received", e);
       expect(e.data.message).toBe("Music too loud");
     }
   });

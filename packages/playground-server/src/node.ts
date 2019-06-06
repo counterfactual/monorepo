@@ -192,14 +192,12 @@ export class NodeWrapper {
       messagingService
     );
 
-    NodeWrapper.node.on(
-      NodeTypes.EventName.DEPOSIT_CONFIRMED,
-      onDepositConfirmed.bind(this)
+    NodeWrapper.node.on(NodeTypes.EventName.DEPOSIT_CONFIRMED, response =>
+      onDepositConfirmed(response)
     );
 
-    NodeWrapper.node.on(
-      NodeTypes.EventName.CREATE_CHANNEL,
-      onMultisigDeployed.bind(this)
+    NodeWrapper.node.on(NodeTypes.EventName.CREATE_CHANNEL, response =>
+      onMultisigDeployed(response)
     );
 
     Log.info("Node singleton instance ready", {
@@ -280,6 +278,7 @@ export class NodeWrapper {
 }
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
+  console.log("onDepositConfirmed hit");
   if (response === undefined) {
     return;
   }
@@ -297,11 +296,11 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 
   try {
-    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-      requestId: generateUUID(),
-      type: NodeTypes.MethodName.DEPOSIT,
-      params: response.data as NodeTypes.DepositParams
-    });
+    // await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
+    //   requestId: generateUUID(),
+    //   type: NodeTypes.MethodName.DEPOSIT,
+    //   params: response.data as NodeTypes.DepositParams
+    // });
 
     await NodeWrapper.getInstance().router.dispatch(
       jsonRpcDeserialize({

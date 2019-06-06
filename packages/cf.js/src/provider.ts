@@ -17,7 +17,7 @@ import {
   UpdateStateEventData
 } from "./types";
 
-const jsonRpcMethodNames = {
+export const jsonRpcMethodNames = {
   [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
   [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
   [Node.MethodName.GET_STATE]: "chan_getState",
@@ -191,13 +191,19 @@ export class Provider {
       let request;
 
       if (jsonRpcMethodNames[methodName]) {
+        console.log(
+          "RPC method detected",
+          methodName,
+          jsonRpcMethodNames[methodName]
+        );
         request = jsonRpcDeserialize({
           params,
           jsonrpc: "2.0",
-          method: methodName,
+          method: jsonRpcMethodNames[methodName],
           id: requestId
         });
       } else {
+        console.log("Non-RPC method detected", methodName);
         request = {
           params,
           requestId: requestId.toString(),
