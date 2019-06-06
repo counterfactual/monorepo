@@ -14,7 +14,10 @@ then
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
+    firebase-client \
+    firebase-server \
     playground-server \
   "
 else
@@ -24,7 +27,10 @@ else
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
+    firebase-client \
+    firebase-server \
     playground-server \
     playground \
     dapp-high-roller \

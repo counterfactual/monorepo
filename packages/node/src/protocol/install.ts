@@ -108,22 +108,6 @@ async function proposeStateTransition(
 
   const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
 
-  let interpreterAddress: string;
-
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      interpreterAddress = context.network.ETHInterpreter;
-      break;
-    }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
-      interpreterAddress = context.network.TwoPartyEthAsLump;
-      break;
-    }
-    default: {
-      throw Error("unrecognized");
-    }
-  }
-
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
@@ -146,10 +130,41 @@ async function proposeStateTransition(
     )
   );
 
+  let interpreterAddress: string;
+  let interpreterParams: string;
+
+  switch (outcomeType.toNumber()) {
+    case OutcomeType.ETH_TRANSFER: {
+      interpreterAddress = context.network.ETHInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit)"],
+        [{ limit: appInstance.limitOrTotal }]
+      );
+      break;
+    }
+    case OutcomeType.TWO_PARTY_OUTCOME: {
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        [
+          {
+            playerAddrs: [initiatingFbAddress, respondingFbAddress],
+            amount: appInstance.limitOrTotal
+          }
+        ]
+      );
+      break;
+    }
+    default: {
+      throw Error("unrecognized");
+    }
+  }
+
   const newStateChannel = stateChannel.installApp(appInstance, {
     [initiatingFbAddress]: initiatingBalanceDecrement,
     [respondingFbAddress]: respondingBalanceDecrement
   });
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
@@ -158,7 +173,8 @@ async function proposeStateTransition(
     context.network,
     newStateChannel,
     appIdentityHash,
-    interpreterAddress
+    interpreterAddress,
+    interpreterParams
   );
 
   return [appIdentityHash, commitment];
@@ -168,7 +184,8 @@ function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
   appIdentityHash: string,
-  interpreterAddress
+  interpreterAddress: string,
+  interpreterParams: string
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
@@ -186,6 +203,6 @@ function constructInstallOp(
     app.appSeqNo,
     freeBalance.rootNonceValue,
     interpreterAddress,
-    defaultAbiCoder.encode(["uint256"], [app.limitOrTotal])
+    interpreterParams
   );
 }

@@ -1,3 +1,5 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import {
   Node as NodeTypes,
   SolidityABIEncoderV2Type
@@ -10,7 +12,6 @@ import {
   NODE_EVENTS,
   UpdateStateMessage
 } from "../../src";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import { validAction } from "./tic-tac-toe";

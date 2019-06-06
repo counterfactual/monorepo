@@ -37,8 +37,8 @@ export class NodeListener {
     rejectInstallVirtualEvent: this.onRejectInstall.bind(this)
   };
 
-  get node() {
-    return CounterfactualNode.getInstance();
+  get cfProvider() {
+    return CounterfactualNode.getCfProvider();
   }
 
   async componentWillLoad() {
@@ -49,8 +49,11 @@ export class NodeListener {
 
   bindNodeEvents() {
     Object.keys(this.nodeMessageResolver).forEach(eventName => {
-      this.node.off(eventName);
-      this.node.on(eventName, this.nodeMessageResolver[eventName].bind(this));
+      this.cfProvider.off(eventName);
+      this.cfProvider.on(
+        eventName,
+        this.nodeMessageResolver[eventName].bind(this)
+      );
     });
   }
 
@@ -81,19 +84,12 @@ export class NodeListener {
         return;
       }
 
-      const request = {
-        type: Node.MethodName.INSTALL_VIRTUAL,
-        params: {
-          appInstanceId: this.currentMessage.data.appInstanceId,
-          intermediaries: this.currentMessage.data.params.intermediaries
-        } as Node.InstallVirtualParams,
-        requestId: uuid()
-      };
-
-      const installedApp = (await this.node.call(
-        Node.MethodName.INSTALL_VIRTUAL,
-        request
-      )).result as Node.InstallVirtualResult;
+      const { appInstanceId, intermediaries } = this.currentMessage.data;
+      const [intermediaryIdentifier] = intermediaries;
+      const installedApp = await this.cfProvider.installVirtual(
+        appInstanceId,
+        intermediaryIdentifier
+      );
 
       const app: AppDefinition = this.apps.find(app => {
         return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
@@ -124,13 +120,7 @@ export class NodeListener {
   }
 
   async rejectProposeInstall() {
-    await this.node.call(Node.MethodName.REJECT_INSTALL, {
-      type: Node.MethodName.REJECT_INSTALL,
-      params: {
-        appInstanceId: this.currentMessage.data.appInstanceId
-      } as Node.RejectInstallParams,
-      requestId: uuid()
-    });
+    await this.cfProvider.rejectInstall(this.currentMessage.data.appInstanceId);
     this.hideModal();
   }
 

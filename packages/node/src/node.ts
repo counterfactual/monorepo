@@ -21,11 +21,7 @@ import { RequestHandler } from "./request-handler";
 import NodeRouter from "./rpc-router";
 import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
-import {
-  NODE_EVENTS,
-  NodeMessage,
-  NodeMessageWrappedProtocolMessage
-} from "./types";
+import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
 export interface NodeConfig {
@@ -321,7 +317,7 @@ export class Node {
   private registerMessagingConnection() {
     this.messagingService.onReceive(
       this.publicIdentifier,
-      async (msg: NodeMessage) => {
+      async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
         // this.outgoing.emit(msg.type, msg);
         this.router.emit(msg.type, msg);
@@ -345,12 +341,12 @@ export class Node {
    *     _does have_ an _ioSendDeferral_, in which case the message is dispatched
    *     solely to the deffered promise's resolve callback.
    */
-  private async handleReceivedMessage(msg: NodeMessage) {
+  private async handleReceivedMessage(msg: NodeTypes.NodeMessage) {
     if (!Object.values(NODE_EVENTS).includes(msg.type)) {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    const isProtocolMessage = (msg: NodeMessage) =>
+    const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>

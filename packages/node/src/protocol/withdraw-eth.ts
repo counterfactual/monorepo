@@ -155,7 +155,12 @@ function addInstallRefundAppCommitmentToContext(
   params: ProtocolParameters,
   context: Context
 ): [InstallCommitment, string] {
-  const { recipient, amount, multisigAddress } = params as WithdrawParams;
+  const {
+    recipient,
+    amount,
+    multisigAddress,
+    initiatingXpub
+  } = params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -184,8 +189,9 @@ function addInstallRefundAppCommitmentToContext(
   );
 
   const newStateChannel = stateChannel.installApp(refundAppInstance, {
-    [recipient]: amount
+    [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
   });
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel

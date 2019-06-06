@@ -11,7 +11,6 @@ class Game extends Component {
 
     this.state = {
       gameState: {
-        players: [],
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]],
         winner: 0
       },
@@ -102,7 +101,7 @@ class Game extends Component {
   }
 
   get myNumber() {
-    const index = this.state.gameState.players.indexOf(
+    const index = this.props.appInstance.beneficiaries.indexOf(
       window.ethers.utils.getAddress(this.state.my0thKeyAddress)
     );
 

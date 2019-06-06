@@ -1,8 +1,9 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
+
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
@@ -31,10 +32,6 @@ describe("Node method follows spec - uninstall", () => {
   describe("Node A and B install TTT, then uninstall it", () => {
     it("sends proposal with non-null initial state", async done => {
       const initialState = {
-        players: [
-          xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
-          xkeyKthAddress(nodeB.publicIdentifier, 0)
-        ],
         turnNum: 0,
         winner: 1, // Hard-coded winner for test
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]

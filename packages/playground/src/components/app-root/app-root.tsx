@@ -340,7 +340,7 @@ export class AppRoot {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
-    const node = CounterfactualNode.getInstance();
+    const cfProvider = CounterfactualNode.getCfProvider();
 
     if (!multisigAddress || !ethAddress) {
       return {
@@ -349,19 +349,10 @@ export class AppRoot {
       };
     }
 
-    const query = {
-      jsonapi: "2.0",
-      method: "chan_getFreeBalanceState",
-      params: { multisigAddress },
-      id: Date.now()
-    };
-
-    let response;
+    let freeBalance;
 
     try {
-      response = await node.router.dispatch(
-        window["jsonRpcDeserialize"](query)
-      );
+      freeBalance = await cfProvider.getFreeBalanceState(multisigAddress);
     } catch (e) {
       // TODO: Use better typed error messages with error codes
       if (e.includes("Call to getFreeBalanceState failed")) {
@@ -374,8 +365,6 @@ export class AppRoot {
 
       throw e;
     }
-
-    const freeBalance = response.result as Node.GetFreeBalanceStateResult;
 
     // Had to reimplement this on the frontend because the method can't be imported
     // due to ethers not playing nice with ES Modules in this context.
@@ -455,9 +444,9 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
-    const node = CounterfactualNode.getInstance();
+    const provider = CounterfactualNode.getCfProvider();
 
-    node.once(Node.EventName.DEPOSIT_STARTED, args =>
+    provider.once(Node.EventName.DEPOSIT_STARTED, args =>
       this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
@@ -469,18 +458,7 @@ export class AppRoot {
     try {
       const amount = ethers.utils.bigNumberify(valueInWei);
 
-      ret = await node.router.dispatch(
-        window["jsonRpcDeserialize"]({
-          jsonrpc: "2.0",
-          id: Date.now(),
-          method: "chan_deposit",
-          params: {
-            amount,
-            multisigAddress,
-            notifyCounterparty: true
-          }
-        })
-      );
+      ret = await provider.deposit(multisigAddress, amount);
     } catch (e) {
       console.error(e);
     }
@@ -496,9 +474,9 @@ export class AppRoot {
       user: { multisigAddress }
     } = this.accountState;
 
-    const node = CounterfactualNode.getInstance();
+    const provider = CounterfactualNode.getCfProvider();
 
-    node.once(Node.EventName.WITHDRAWAL_STARTED, args => {
+    provider.once(Node.EventName.WITHDRAWAL_STARTED, args => {
       this.updateAccount({
         ethPendingWithdrawalTxHash: args.txHash,
         ethPendingWithdrawalAmountWei: valueInWei
@@ -508,17 +486,11 @@ export class AppRoot {
     let ret;
 
     try {
-      ret = await node.router.dispatch(
-        window["jsonRpcDeserialize"]({
-          jsonrpc: "2.0",
-          id: Date.now(),
-          method: "chan_withdraw",
-          params: {
-            multisigAddress,
-            recipient: this.accountState.user.ethAddress,
-            amount: ethers.utils.bigNumberify(valueInWei)
-          }
-        })
+      const amount = ethers.utils.bigNumberify(valueInWei);
+      ret = await provider.withdraw(
+        multisigAddress,
+        amount,
+        this.accountState.user.ethAddress
       );
     } catch (e) {
       console.error(e);
@@ -531,8 +503,8 @@ export class AppRoot {
   }
 
   waitForMultisig() {
-    const node = CounterfactualNode.getInstance();
-    node.once(
+    const provider = CounterfactualNode.getCfProvider();
+    provider.once(
       Node.EventName.CREATE_CHANNEL,
       this.setMultisigAddress.bind(this)
     );

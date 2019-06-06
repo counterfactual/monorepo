@@ -62,7 +62,6 @@ export class AppRoot {
       highRoller: this.highRoller.bind(this),
       generateRandomRoll: this.generateRandomRoll.bind(this),
       highRollerState: {
-        playerAddrs: [AddressZero, AddressZero],
         stage: HighRollerStage.PRE_GAME,
         salt: HashZero,
         commitHash: HashZero,

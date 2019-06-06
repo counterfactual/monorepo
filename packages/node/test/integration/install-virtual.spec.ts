@@ -1,3 +1,5 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/store-firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
@@ -8,7 +10,6 @@ import {
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {

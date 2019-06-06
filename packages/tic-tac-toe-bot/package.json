@@ -1,11 +1,15 @@
 {
   "name": "@counterfactual/tic-tac-toe-bot",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "description": "A bot for the Tic Tac Toe Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "main": "src/index.js",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "directories": {
     "lib": "src",
     "test": "tests"
@@ -29,12 +33,14 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
+    "@counterfactual/firebase-client": "0.0.2",
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
-    "@counterfactual/node": "0.1.19",
+    "@counterfactual/node": "0.1.23",
     "@counterfactual/types": "^0.0.9",
     "eventemitter3": "^3.1.2"
   },
   "devDependencies": {
+    "@counterfactual/firebase-server": "0.0.1",
     "env-cmd": "9.0.2",
     "ethers": "4.0.28",
     "jest": "24.8.0",
