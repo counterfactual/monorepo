@@ -45,8 +45,8 @@ export async function setupWithMemoryMessagingAndPostgresStore(
 
 export async function setup(
   global: any,
-  newMnemonics: boolean = false,
   nodeCPresent: boolean = false,
+  newMnemonics: boolean = false,
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ) {

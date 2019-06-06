@@ -54,9 +54,17 @@ export class Store {
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
     )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    const sortedChannels = Object.entries(channelsJSON).sort(
+    let sortedChannels = Object.entries(channelsJSON).sort(
       (a, b) => b[1].createdAt || 0 - a[1].createdAt || 0
     );
+
+    if (sortedChannels.length === 0) {
+      return {};
+    }
+
+    if (Object.keys(sortedChannels)[0] === "0") {
+      sortedChannels = Object.values(sortedChannels);
+    }
 
     for (const [key, value] of sortedChannels) {
       channels[key] = StateChannel.fromJson(value);

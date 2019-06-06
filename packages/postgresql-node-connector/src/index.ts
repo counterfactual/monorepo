@@ -128,7 +128,7 @@ export class PostgresStoreService implements Node.IStoreService {
         .where("record.key like :key", { key: `%${storeKey}%` })
         .getMany();
 
-      const postProcess = res.map((record: NodeRecord) => {
+      const nestedRecords = res.map((record: NodeRecord) => {
         const existingKey = Object.keys(record.value)[0];
         const leafKey = existingKey.split("/").pop()!;
         const nestedValue = record.value[existingKey];
@@ -137,13 +137,21 @@ export class PostgresStoreService implements Node.IStoreService {
         return record.value;
       });
 
-      if (res.length === 1) {
-        return postProcess[0];
-      }
-      if (res.length > 1) {
-        return postProcess;
-      }
-      return undefined;
+      const records = {};
+
+      nestedRecords.forEach(record => {
+        const key = Object.keys(record)[0];
+        const value = Object.values(record)[0];
+        // FIXME: the store implementation (firebase) that the node used in the
+        // very first implementation of the store assumed that values which are
+        // null wouldn't contain key entries in the returned object so we have to
+        // explicitly remove these when Postgres correctly returns even null values
+        if (value !== null) {
+          records[key] = value;
+        }
+      });
+
+      return records;
     }
 
     res = await this.connectionMgr.get().manager.findOne(NodeRecord, storeKey);
@@ -151,13 +159,8 @@ export class PostgresStoreService implements Node.IStoreService {
       return undefined;
     }
 
-    await sleep(500);
     return res.value[key];
   }
-}
-
-async function sleep(timeInMilliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
 
 export function confirmPostgresConfigurationEnvVars() {

@@ -23,8 +23,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(20000);
-
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;

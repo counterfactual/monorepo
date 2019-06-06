@@ -15,8 +15,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
-  jest.setTimeout(10000);
-
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;

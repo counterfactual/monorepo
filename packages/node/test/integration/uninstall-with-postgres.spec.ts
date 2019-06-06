@@ -15,8 +15,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
-  jest.setTimeout(20000);
-
   let nodeA: Node;
   let nodeB: Node;
 
