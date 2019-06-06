@@ -15,6 +15,7 @@ then
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
     firebase-client \
     firebase-server \
@@ -28,6 +29,7 @@ else
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
     firebase-client \
     firebase-server \

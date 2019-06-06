@@ -20,7 +20,6 @@ enum HighRollerStage {
 }
 
 type HighRollerAppState = {
-  playerAddrs: string[];
   stage: HighRollerStage;
   salt: string;
   commitHash: string;

@@ -1,10 +1,14 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.20",
+  "version": "0.1.24",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
   "license": "MIT",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "scripts": {
     "build": "tsc -b . && rollup -c",
     "build:watch": "tsc -b . && rollup -c -w",
@@ -45,9 +49,8 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
-    "@counterfactual/firebase-client": "0.0.1",
+    "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/types": "0.0.10",
-    "@firebase/util": "0.2.17",
     "ethers": "4.0.28",
     "eventemitter3": "^3.1.2",
     "loglevel": "^1.6.1",

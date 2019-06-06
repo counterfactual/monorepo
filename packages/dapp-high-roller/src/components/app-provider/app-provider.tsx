@@ -88,7 +88,7 @@ export class AppProvider {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
         stateEncoding:
-          "tuple(address[2] playerAddrs, uint8 stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
+          "tuple(uint8 stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
       },
       this.cfProvider
     );

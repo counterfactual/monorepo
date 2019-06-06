@@ -5,6 +5,10 @@
   "types": "dist/src/index.d.ts",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "scripts": {
     "prepublish": "tsc -b . && rollup -c",
     "build": "tsc -b . && rollup -c",

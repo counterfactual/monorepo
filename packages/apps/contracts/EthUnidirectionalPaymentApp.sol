@@ -7,6 +7,7 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+
 /// @title ETH Unidirectional Payment App
 /// @notice This contract allows unidirectional ETH transfers using the
 ///         takeAction paradigm.
@@ -64,6 +65,23 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     return abi.encode(postState);
   }
 
+  function isStateTerminal(bytes calldata encodedState)
+    external
+    pure
+    returns (bool)
+  {
+    AppState memory appState = abi.decode(encodedState, (AppState));
+    return appState.finalized;
+  }
+
+  function outcomeType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
+  }
+
   function applyPayment(
     AppState memory state,
     uint256 paymentAmount,
@@ -83,20 +101,4 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     return state;
   }
 
-  function isStateTerminal(bytes calldata encodedState)
-    external
-    pure
-    returns (bool)
-  {
-    AppState memory appState = abi.decode(encodedState, (AppState));
-    return appState.finalized;
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
-  }
 }

@@ -180,7 +180,7 @@ export default class NodeProvider {
       appId: "0x123123456456",
       abiEncodings: {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
-        stateEncoding: "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)"
+        stateEncoding: "tuple(uint256 turnName, uint256 winner, uint256[3][3] board)"
       },
       myDeposit: window.ethers.utils.parseEther("0.1"),
       peerDeposit: window.ethers.utils.parseEther("0.1"),
