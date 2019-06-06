@@ -3,7 +3,7 @@ import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   confirmChannelCreation,
   getChannelAddresses,
@@ -16,7 +16,7 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global, true);
+    const result = await setup(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

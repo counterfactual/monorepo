@@ -6,7 +6,7 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setupWithFirebaseMessagingAndPostgresStore } from "./setup";
+import { setupWithMemoryMessagingAndPostgresStore } from "./setup";
 import {
   createChannel,
   generateUninstallRequest,
@@ -21,7 +21,7 @@ describe("Node method follows spec - uninstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseMessagingAndPostgresStore(global);
+    const result = await setupWithMemoryMessagingAndPostgresStore(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

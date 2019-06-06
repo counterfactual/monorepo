@@ -6,7 +6,7 @@ import { One, Zero } from "ethers/constants";
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
@@ -24,7 +24,7 @@ describe("Node method follows spec - proposeInstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

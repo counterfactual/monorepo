@@ -3,7 +3,7 @@ import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 
 import { INVALID_ACTION, Node } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   createChannel,
   generateTakeActionRequest,
@@ -15,7 +15,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

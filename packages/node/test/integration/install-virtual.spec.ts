@@ -11,7 +11,7 @@ import {
   ProposeVirtualMessage
 } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
@@ -30,7 +30,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global, true, true);
+    const result = await setup(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

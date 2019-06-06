@@ -9,7 +9,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   createChannel,
@@ -24,7 +24,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global, true);
+    const result = await setup(global, false, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

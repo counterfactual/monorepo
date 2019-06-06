@@ -5,7 +5,7 @@ import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
@@ -22,7 +22,7 @@ describe("Node method follows spec - uninstall virtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global, true);
+    const result = await setup(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

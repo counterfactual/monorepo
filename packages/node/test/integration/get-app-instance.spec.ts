@@ -4,7 +4,7 @@ import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   confirmAppInstanceInstallation,
   createChannel,
@@ -18,7 +18,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

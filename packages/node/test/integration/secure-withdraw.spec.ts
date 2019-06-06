@@ -5,7 +5,7 @@ import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   createChannel,
   makeDepositRequest,
@@ -18,7 +18,7 @@ describe("Node method follows spec - withdraw", () => {
   let provider: JsonRpcProvider;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     provider = new JsonRpcProvider(global["ganacheURL"]);

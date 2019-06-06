@@ -5,7 +5,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
   createChannel,
@@ -20,7 +20,7 @@ describe("Node method follows spec - getAppInstances", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

@@ -9,7 +9,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   confirmProposedAppInstanceOnNode,
   createChannel,
@@ -25,7 +25,7 @@ describe("Node method follows spec - rejectInstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

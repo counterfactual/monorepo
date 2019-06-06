@@ -13,7 +13,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
@@ -29,7 +29,7 @@ describe("Node method follows spec - takeAction virtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global, true);
+    const result = await setup(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

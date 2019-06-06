@@ -6,7 +6,7 @@ import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setupWithFirebaseServiceFactory } from "./setup";
+import { setup } from "./setup";
 import {
   createChannel,
   generateUninstallRequest,
@@ -19,7 +19,7 @@ describe("Node method follows spec - uninstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithFirebaseServiceFactory(global);
+    const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
   });

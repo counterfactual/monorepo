@@ -14,47 +14,16 @@ import { v4 as generateUUID } from "uuid";
 
 import { MNEMONIC_PATH, Node } from "../../src";
 import { CF_PATH } from "../global-setup.jest";
+import { MemoryMessagingService } from "../services/memory-messaging-service";
+import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
-export async function setupWithFirebaseServiceFactory(
+export async function setupWithMemoryMessagingAndPostgresStore(
   global: any,
   nodeCPresent: boolean = false,
   newMnemonics: boolean = false
 ) {
-  const firebaseServiceFactory = new LocalFirebaseServiceFactory(
-    process.env.FIREBASE_DEV_SERVER_HOST!,
-    process.env.FIREBASE_DEV_SERVER_PORT!
-  );
-  const messagingService = firebaseServiceFactory.createMessagingService(
-    process.env.FIREBASE_MESSAGING_SERVER_KEY!
-  );
-
-  if (nodeCPresent) {
-    return setup(
-      messagingService,
-      firebaseServiceFactory,
-      global,
-      newMnemonics,
-      nodeCPresent
-    );
-  }
-
-  return setup(messagingService, firebaseServiceFactory, global, newMnemonics);
-}
-
-export async function setupWithFirebaseMessagingAndPostgresStore(
-  global: any,
-  nodeCPresent: boolean = false,
-  newMnemonics: boolean = false
-) {
-  const firebaseServiceFactory = new LocalFirebaseServiceFactory(
-    process.env.FIREBASE_DEV_SERVER_HOST!,
-    process.env.FIREBASE_DEV_SERVER_PORT!
-  );
-  const messagingService = firebaseServiceFactory.createMessagingService(
-    process.env.FIREBASE_MESSAGING_SERVER_KEY!
-  );
-
+  const memoryMessagingService = new MemoryMessagingService();
   const postgresServiceFactory = new PostgresServiceFactory({
     type: "postgres",
     database: process.env.POSTGRES_DATABASE!,
@@ -65,25 +34,21 @@ export async function setupWithFirebaseMessagingAndPostgresStore(
   });
   await postgresServiceFactory.connectDb();
 
-  if (nodeCPresent) {
-    return setup(
-      messagingService,
-      postgresServiceFactory,
-      global,
-      newMnemonics,
-      nodeCPresent
-    );
-  }
-
-  return setup(messagingService, postgresServiceFactory, global, newMnemonics);
+  return setup(
+    global,
+    newMnemonics,
+    nodeCPresent,
+    memoryMessagingService,
+    postgresServiceFactory
+  );
 }
 
 export async function setup(
-  messagingService: NodeTypes.IMessagingService,
-  serviceFactory: NodeTypes.ServiceFactory,
   global: any,
   newMnemonics: boolean = false,
-  nodeCPresent: boolean = false
+  nodeCPresent: boolean = false,
+  messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
+  storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ) {
   const nodeConfig = {
     STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
@@ -104,7 +69,7 @@ export async function setup(
     mnemonicB = mnemonics.B_MNEMONIC;
   }
 
-  const storeServiceA = serviceFactory.createStoreService!(
+  const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
 
@@ -117,7 +82,7 @@ export async function setup(
     global["networkContext"]
   );
 
-  const storeServiceB = serviceFactory.createStoreService!(
+  const storeServiceB = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
   await storeServiceB.set([{ key: MNEMONIC_PATH, value: mnemonicB }]);
@@ -131,7 +96,7 @@ export async function setup(
 
   let nodeC: Node;
   if (nodeCPresent) {
-    const storeServiceC = serviceFactory.createStoreService!(
+    const storeServiceC = storeServiceFactory.createStoreService!(
       `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
     );
     nodeC = await Node.create(
