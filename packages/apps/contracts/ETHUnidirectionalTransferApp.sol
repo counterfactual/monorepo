@@ -11,7 +11,7 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 /// @title ETH Unidirectional Transfer App
 /// @notice This contract allows unidirectional ETH transfers using the
 ///         takeAction paradigm.
-contract EthUnidirectionalTransferApp is CounterfactualApp {
+contract ETHUnidirectionalTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;
 
