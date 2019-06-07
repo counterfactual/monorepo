@@ -15,6 +15,8 @@ import { v4 as generateUUID } from "uuid";
 import {
   CreateChannelMessage,
   InstallVirtualMessage,
+  jsonRpcDeserialize,
+  JsonRpcResponse,
   Node,
   NODE_EVENTS,
   ProposeMessage,
@@ -37,14 +39,15 @@ export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
 ): Promise<Address> {
-  const req: NodeTypes.MethodRequest = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.CREATE_CHANNEL,
+  const req = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.CREATE_CHANNEL,
     params: {
       owners: xpubs
-    } as NodeTypes.CreateChannelParams
-  };
-  const response: NodeTypes.MethodResponse = await node.call(req.type, req);
+    }
+  });
+  const response = (await node.router.dispatch(req)) as JsonRpcResponse;
   const result = response.result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
@@ -397,15 +400,18 @@ export async function collateralizeChannel(
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   return new Promise(async (resolve, reject) => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
+      console.log("OnCreateChannel received", msg);
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
       resolve(msg.data.multisigAddress);
     });
 
+    console.log("executing getMultisigCreationTransactionHash");
     await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
+    console.log("executed getMultisigCreationTransactionHash");
   });
 }
 
