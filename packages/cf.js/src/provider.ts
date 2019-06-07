@@ -191,11 +191,6 @@ export class Provider {
       let request;
 
       if (jsonRpcMethodNames[methodName]) {
-        console.log(
-          "RPC method detected",
-          methodName,
-          jsonRpcMethodNames[methodName]
-        );
         request = jsonRpcDeserialize({
           params,
           jsonrpc: "2.0",
@@ -203,7 +198,6 @@ export class Provider {
           id: requestId
         });
       } else {
-        console.log("Non-RPC method detected", methodName);
         request = {
           params,
           requestId: requestId.toString(),
@@ -223,7 +217,7 @@ export class Provider {
             )
           );
         }
-        if (response.type !== methodName) {
+        if ((response["result"]["type"] || response["type"]) !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(
               {
@@ -239,23 +233,18 @@ export class Provider {
             )
           );
         }
-        resolve(response as Node.MethodResponse);
+        resolve(response["result"] as Node.MethodResponse);
       };
 
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
-          reject(
-            jsonRpcSerializeAsResponse(
-              {
-                type: EventType.ERROR,
-                data: {
-                  errorName: "request_timeout",
-                  message: `Request timed out: ${JSON.stringify(request)}`
-                }
-              },
-              requestId
-            )
-          );
+          reject({
+            type: EventType.ERROR,
+            data: {
+              errorName: "request_timeout",
+              message: `Request timed out: ${JSON.stringify(request)}`
+            }
+          });
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
@@ -307,7 +296,6 @@ export class Provider {
   private onNodeMessage(message: Node.Message) {
     const type = message["jsonrpc"] ? message["result"]["type"] : message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
-      console.log(message);
       this.handleNodeError(message as Node.Error);
     } else if ((message as Node.MethodResponse).requestId) {
       this.handleNodeMethodResponse(message as Node.MethodResponse);
@@ -317,20 +305,29 @@ export class Provider {
         ...message
       } as Node.MethodResponse);
     } else {
-      this.handleNodeEvent(message as Node.Event);
+      this.handleNodeEvent(message["result"] as Node.Event);
     }
   }
 
   /**
    * @ignore
    */
-  private handleNodeError(error: Node.Error) {
-    const requestId = error.requestId;
-    if (requestId && this.requestListeners[requestId]) {
-      this.requestListeners[requestId](error);
-      delete this.requestListeners[requestId];
+  private handleNodeError(error: any) {
+    if (error.jsonrpc) {
+      const requestId = error.id;
+      if (requestId && this.requestListeners[requestId]) {
+        this.requestListeners[requestId](error.result);
+        delete this.requestListeners[requestId];
+      }
+      this.eventEmitter.emit(error.result.type, error.result);
+    } else {
+      const requestId = error.requestId;
+      if (requestId && this.requestListeners[requestId]) {
+        this.requestListeners[requestId](error);
+        delete this.requestListeners[requestId];
+      }
+      this.eventEmitter.emit(error.type, error);
     }
-    this.eventEmitter.emit(error.type, error);
   }
 
   /**
@@ -342,16 +339,19 @@ export class Provider {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {
-      const error = {
-        type: EventType.ERROR,
-        data: {
-          errorName: "orphaned_response",
-          message: `Response has no corresponding inflight request: ${JSON.stringify(
-            response
-          )}`
-        }
-      };
-      this.eventEmitter.emit(error.type, error);
+      const error = jsonRpcSerializeAsResponse(
+        {
+          type: EventType.ERROR,
+          data: {
+            errorName: "orphaned_response",
+            message: `Response has no corresponding inflight request: ${JSON.stringify(
+              response
+            )}`
+          }
+        },
+        Number(requestId)
+      );
+      this.eventEmitter.emit(error.result.type, error.result);
     }
   }
 
