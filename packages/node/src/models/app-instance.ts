@@ -4,6 +4,10 @@ import {
   AppInterface,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import {
+  ETHTransferInterpreterParams,
+  TwoPartyOutcomeInterpreterParams
+} from "@counterfactual/types/dist/src/data-types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import {
@@ -93,17 +97,8 @@ export class AppInstance {
     latestState: any,
     latestNonce: number,
     latestTimeout: number,
-    twoPartyOutcomeInterpreterParams?: {
-      // Derived from:
-      // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
-      playerAddrs: [string, string];
-      amount: BigNumber;
-    },
-    ethTransferInterpreterParams?: {
-      // Derived from:
-      // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
-      limit: BigNumber;
-    }
+    twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams,
+    ethTransferInterpreterParams?: ETHTransferInterpreterParams
   ) {
     this.json = {
       multisigAddress,

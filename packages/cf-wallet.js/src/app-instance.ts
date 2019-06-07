@@ -4,6 +4,10 @@ import {
   AppInstanceID,
   AppInstanceInfo
 } from "@counterfactual/types";
+import {
+  ETHTransferInterpreterParams,
+  TwoPartyOutcomeInterpreterParams
+} from "@counterfactual/types/dist/src/data-types";
 import { BigNumber } from "ethers/utils";
 
 import { Provider } from "./provider";
@@ -26,18 +30,8 @@ export class AppInstance {
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
 
-  readonly twoPartyOutcomeInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
-    playerAddrs: [string, string];
-    amount: BigNumber;
-  };
-
-  readonly ethTransferInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
-    limit: BigNumber;
-  };
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 
   readonly intermediaries?: Address[];
 

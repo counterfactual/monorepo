@@ -3,6 +3,19 @@ import { BigNumber } from "ethers/utils";
 
 import { ABIEncoding, AppInstanceID } from "./simple-types";
 
+export type TwoPartyOutcomeInterpreterParams = {
+  // Derived from:
+  // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+  playerAddrs: [string, string];
+  amount: BigNumber;
+};
+
+export type ETHTransferInterpreterParams = {
+  // Derived from:
+  // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+  limit: BigNumber;
+};
+
 export type AppInstanceInfo = {
   id: AppInstanceID;
   appDefinition: string;
@@ -17,18 +30,8 @@ export type AppInstanceInfo = {
   /**
    * Interpreter-related Fields
    */
-  twoPartyOutcomeInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
-    playerAddrs: [string, string];
-    amount: BigNumber;
-  };
-
-  ethTransferInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
-    limit: BigNumber;
-  };
+  twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 };
 
 export type AppABIEncodings = {
