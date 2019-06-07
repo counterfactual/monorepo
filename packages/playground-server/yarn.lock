@@ -162,10 +162,10 @@
   resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.1.tgz#f2045b281b0ab11b99417dc978dcf458aeba221c"
   integrity sha512-RyPxbzBfdhbmPjYLYHviB4aCdN0mqgcH63d0d9OY6TH0h2wThzLi05+elBsXnK6KekKg4cUWwyFtGPvbMHY5SQ==
 
-"@counterfactual/firebase-client@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/firebase-client/-/firebase-client-0.0.2.tgz#f05742f3dbd7ca338780f990612f7dd21a12d11c"
-  integrity sha512-MDXAiGsC8j8d4yDDYfUM5GLzzz0JngVhxvgc0wl3i/Wohqg0mhd01HT5F2zvEuR7V5xBRB9hqjidAJttqK+0aw==
+"@counterfactual/firebase-client@0.0.3":
+  version "0.0.3"
+  resolved "https://registry.npmjs.org/@counterfactual/firebase-client/-/firebase-client-0.0.3.tgz#ae699f107768b1e4054f6fb08a7e7d3c733b6679"
+  integrity sha512-tKq9gRcdHcfCb0p6/A0bop9LC5j8GbvrYlKKdLKwCVHNrNpAscTb5ORf5zsJMoJpZpSKFDWENFveBavphjoSlw==
   dependencies:
     firebase "6.0.2"
 
@@ -185,28 +185,26 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.23":
-  version "0.1.23"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.23.tgz#74d2faad5f08734211da6df8f39226df512e3e91"
-  integrity sha512-zjmSUvRXEThJ4CKVlXdKnNJlE039lk9HhUL6ELkYJKRLzcnMTG86eJR+ohyyIQCUk7mjRsRGv9h3cKI1NLC4EQ==
+"@counterfactual/node@0.1.24":
+  version "0.1.24"
+  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.1.24.tgz#0e38c2ead046de8a38238a7c9cf883551c5da5e4"
+  integrity sha512-U7zNkdEvzFf7o7lUEi+tCwoSNA1T/lg/igW0xSJ87l+tMC6wQOirN/5bC3LB/fZD5B0EZtB5u2BkfQx/R7LAnw==
   dependencies:
     "@counterfactual/cf.js" "0.1.1"
     "@counterfactual/contracts" "0.1.1"
-    "@counterfactual/firebase-client" "0.0.2"
-    "@counterfactual/types" "0.0.9"
+    "@counterfactual/firebase-client" "0.0.3"
+    "@counterfactual/types" "0.0.10"
     ethers "4.0.28"
     eventemitter3 "^3.1.2"
     loglevel "^1.6.1"
     p-queue "^5.0.0"
-    pg "7.11.0"
-    reflect-metadata "^0.1.13"
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
-"@counterfactual/types@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.9.tgz#7a57eaa7b2483cdf0fd5e3863c8868bf8c42d1c1"
-  integrity sha512-FSQIfZAXk5TllwcxQzZlwX2LDFs0uFBD0sFpuToo6KYYSTMKg/Q2s/1zXYt6nzU9p8rojixIT8I570DOgFbjbA==
+"@counterfactual/types@0.0.10":
+  version "0.0.10"
+  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
+  integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
 
 "@counterfactual/types@^0.1.2":
   version "0.1.2"
@@ -5394,7 +5392,7 @@ pg-types@~2.0.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@7.11.0, pg@^7.10.0:
+pg@^7.10.0:
   version "7.11.0"
   resolved "https://registry.yarnpkg.com/pg/-/pg-7.11.0.tgz#a8b9ae9cf19199b7952b72957573d0a9c5e67c0c"
   integrity sha512-YO4V7vCmEMGoF390LJaFaohWNKaA2ayoQOEZmiHVcAUF+YsRThpf/TaKCgSvsSE7cDm37Q/Cy3Gz41xiX/XjTw==
@@ -5733,11 +5731,6 @@ rechoir@^0.6.2:
   integrity sha1-hSBLVNuoLVdC4oyWdW70OvUOM4Q=
   dependencies:
     resolve "^1.1.6"
-
-reflect-metadata@^0.1.13:
-  version "0.1.13"
-  resolved "https://registry.yarnpkg.com/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
-  integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
 
 regenerator-runtime@^0.13.2:
   version "0.13.2"
