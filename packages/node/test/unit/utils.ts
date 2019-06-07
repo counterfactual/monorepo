@@ -22,7 +22,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
     {
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
-      appId: AddressZero,
+      appDefinition: AddressZero,
       abiEncodings: {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined

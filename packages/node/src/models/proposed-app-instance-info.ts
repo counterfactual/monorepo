@@ -13,7 +13,7 @@ import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
 export interface IProposedAppInstanceInfo {
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -26,7 +26,7 @@ export interface IProposedAppInstanceInfo {
 
 export interface ProposedAppInstanceInfoJSON {
   id: Bytes32;
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: string;
   peerDeposit: string;
@@ -49,7 +49,7 @@ export interface ProposedAppInstanceInfoJSON {
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
   id: Bytes32;
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -64,7 +64,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     channel?: StateChannel,
     overrideId?: Bytes32
   ) {
-    this.appId = proposeParams.appId;
+    this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
@@ -79,7 +79,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   // TODO: Note the construction of this is duplicated from the machine
   getIdentityHashFor(stateChannel: StateChannel) {
     const proposedAppInterface: AppInterface = {
-      addr: this.appId,
+      addr: this.appDefinition,
       ...this.abiEncodings
     };
 
@@ -130,7 +130,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   toJson() {
     return {
       id: this.id,
-      appId: this.appId,
+      appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
       myDeposit: this.myDeposit,
       peerDeposit: this.peerDeposit,
@@ -144,7 +144,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
-      appId: json.appId,
+      appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),

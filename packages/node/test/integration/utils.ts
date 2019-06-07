@@ -201,7 +201,7 @@ export function makeRejectInstallRequest(
 export function makeTTTProposalRequest(
   proposedByIdentifier: string,
   proposedToIdentifier: string,
-  appId: string,
+  appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
@@ -213,7 +213,7 @@ export function makeTTTProposalRequest(
     proposedToIdentifier,
     myDeposit,
     peerDeposit,
-    appId,
+    appDefinition,
     initialState,
     abiEncodings: {
       stateEncoding: tttStateEncoding,
@@ -246,7 +246,7 @@ export function makeTTTVirtualProposalRequest(
   proposedByIdentifier: string,
   proposedToIdentifier: string,
   intermediaries: string[],
-  appId: string,
+  appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
@@ -254,7 +254,7 @@ export function makeTTTVirtualProposalRequest(
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
-    appId,
+    appDefinition,
     initialState,
     myDeposit,
     peerDeposit
@@ -284,7 +284,9 @@ export function confirmProposedAppInstanceOnNode(
   expect(proposalParams.abiEncodings).toEqual(
     proposedAppInstanceInfo.abiEncodings
   );
-  expect(proposalParams.appId).toEqual(proposedAppInstanceInfo.appId);
+  expect(proposalParams.appDefinition).toEqual(
+    proposedAppInstanceInfo.appDefinition
+  );
 
   if (nonInitiatingNode) {
     expect(proposalParams.myDeposit).toEqual(

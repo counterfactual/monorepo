@@ -41,7 +41,7 @@
 - `AppFactory`
     - Properties
         - `provider: Provider`
-        - `appId: string`
+        - `appDefinition: string`
             - Address of the on-chain App Definition contract
         - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
@@ -148,7 +148,7 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 - `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -175,7 +175,7 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 - `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -460,7 +460,7 @@ An instance of an installed app.
 - `id: string`
     - Opaque identifier used to refer to this app instance
     - No two distinct app instances (even in different channels) may share the same ID
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app

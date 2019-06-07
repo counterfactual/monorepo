@@ -21,7 +21,7 @@ describe("CF.js Provider", () => {
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
     id: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
-    appId: "0x1515151515151515151515151515151515151515",
+    appDefinition: "0x1515151515151515151515151515151515151515",
     myDeposit: Zero,
     peerDeposit: Zero,
     timeout: Zero,
@@ -126,7 +126,9 @@ describe("CF.js Provider", () => {
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+      expect(appInstance.appDefinition).toBe(
+        TEST_APP_INSTANCE_INFO.appDefinition
+      );
     });
 
     it("can install an app instance virtually", async () => {
@@ -157,7 +159,9 @@ describe("CF.js Provider", () => {
         expectedIntermediaries
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appId).toBe(TEST_APP_INSTANCE_INFO.appId);
+      expect(appInstance.appDefinition).toBe(
+        TEST_APP_INSTANCE_INFO.appDefinition
+      );
       expect(appInstance.isVirtual).toBeTruthy();
       expect(appInstance.intermediaries).toBe(expectedIntermediaries);
     });
