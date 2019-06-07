@@ -124,6 +124,61 @@ async function proposeStateTransition(
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
   const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
 
+  let interpreterAddress: string;
+  let interpreterParams: string;
+
+  let ethTransferInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+        limit: BigNumber;
+      }
+    | undefined;
+
+  let twoPartyOutcomeInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+        playerAddrs: [string, string];
+        amount: BigNumber;
+      }
+    | undefined;
+
+  switch (outcomeType.toNumber()) {
+    case OutcomeType.ETH_TRANSFER: {
+      ethTransferInterpreterParams = {
+        limit: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.ETHInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit)"],
+        [ethTransferInterpreterParams]
+      );
+      break;
+    }
+    case OutcomeType.TWO_PARTY_OUTCOME: {
+      twoPartyOutcomeInterpreterParams = {
+        playerAddrs: [initiatingFbAddress, respondingFbAddress],
+        amount: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        [twoPartyOutcomeInterpreterParams]
+      );
+      break;
+    }
+    default: {
+      throw new Error(
+        "The outcome type in this application logic contract is not supported yet."
+      );
+    }
+  }
+
   const appInstance = new AppInstance(
     /* multisigAddress */ multisigAddress,
     /* signingKeys */ signingKeys,
@@ -135,43 +190,9 @@ async function proposeStateTransition(
     /* latestState */ initialState,
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
-    /* beneficiaries */ [initiatingFbAddress, respondingFbAddress],
-    /* limitOrTotal */ bigNumberify(initiatingBalanceDecrement).add(
-      respondingBalanceDecrement
-    )
+    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
+    /* ethTransferInterpreterParams */ ethTransferInterpreterParams
   );
-
-  let interpreterAddress: string;
-  let interpreterParams: string;
-
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      interpreterAddress = context.network.ETHInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit)"],
-        [{ limit: appInstance.limitOrTotal }]
-      );
-      break;
-    }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
-      interpreterAddress = context.network.TwoPartyEthAsLump;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(address[2] playerAddrs, uint256 amount)"],
-        [
-          {
-            playerAddrs: [initiatingFbAddress, respondingFbAddress],
-            amount: appInstance.limitOrTotal
-          }
-        ]
-      );
-      break;
-    }
-    default: {
-      throw new Error(
-        "The outcome type in this application logic contract is not supported yet."
-      );
-    }
-  }
 
   const newStateChannel = stateChannel.installApp(appInstance, {
     [initiatingFbAddress]: initiatingBalanceDecrement,

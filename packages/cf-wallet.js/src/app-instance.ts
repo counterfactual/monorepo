@@ -4,6 +4,10 @@ import {
   AppInstanceID,
   AppInstanceInfo
 } from "@counterfactual/types";
+import {
+  ETHTransferInterpreterParams,
+  TwoPartyOutcomeInterpreterParams
+} from "@counterfactual/types/dist/src/data-types";
 import { BigNumber } from "ethers/utils";
 
 import { Provider } from "./provider";
@@ -17,11 +21,18 @@ export class AppInstance {
    */
   readonly id: AppInstanceID;
 
+  // Application-specific fields
   readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
+  readonly timeout: BigNumber;
+
+  // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly timeout: BigNumber;
+
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
+
   readonly intermediaries?: Address[];
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
@@ -31,6 +42,9 @@ export class AppInstance {
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
+    this.twoPartyOutcomeInterpreterParams =
+      info.twoPartyOutcomeInterpreterParams;
+    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

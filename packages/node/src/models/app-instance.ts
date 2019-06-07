@@ -4,6 +4,10 @@ import {
   AppInterface,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import {
+  ETHTransferInterpreterParams,
+  TwoPartyOutcomeInterpreterParams
+} from "@counterfactual/types/dist/src/data-types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import {
@@ -29,9 +33,21 @@ export type AppInstanceJson = {
   latestState: SolidityABIEncoderV2Type;
   latestNonce: number;
   latestTimeout: number;
-  beneficiaries: [string, string];
-  limitOrTotal: {
-    _hex: string;
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    playerAddrs: [string, string];
+    amount: { _hex: string };
+  };
+
+  ethTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    limit: { _hex: string };
   };
 };
 
@@ -59,14 +75,12 @@ export type AppInstanceJson = {
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
- * @property beneficiaries The free balance addresses of the two beneficiaries
- *           of the app (the two addresses who could potentially have money
- *           sent to them)
+ * @property ethTransferInterpreterParams The limit / maximum amount of funds
+ *           to be distributed for an app where the interpreter type is ETH_TRANSFER
 
- * @property limitOrTotal If the outcome type is TwoPartyOutcome, the total
- *           amount of ETH in wei allocated to the app; if the outcome type
- *           is ETHTransfer, the static upper bound on the total amount of ETH
- *           allowed to be transfered by this app
+ * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
+ *           and the amount that is to be distributed for an app
+ *           where the interpreter type is TWO_PARTY_OUTCOME
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
@@ -83,8 +97,8 @@ export class AppInstance {
     latestState: any,
     latestNonce: number,
     latestTimeout: number,
-    beneficiaries: [string, string],
-    limitOrTotal: BigNumber
+    twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams,
+    ethTransferInterpreterParams?: ETHTransferInterpreterParams
   ) {
     this.json = {
       multisigAddress,
@@ -97,10 +111,21 @@ export class AppInstance {
       latestState,
       latestNonce,
       latestTimeout,
-      beneficiaries,
-      limitOrTotal: {
-        _hex: limitOrTotal.toHexString()
-      }
+      twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
+        ? {
+            playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
+            amount: {
+              _hex: twoPartyOutcomeInterpreterParams.amount.toHexString()
+            }
+          }
+        : undefined,
+      ethTransferInterpreterParams: ethTransferInterpreterParams
+        ? {
+            limit: {
+              _hex: ethTransferInterpreterParams.limit.toHexString()
+            }
+          }
+        : undefined
     };
   }
 
@@ -125,8 +150,19 @@ export class AppInstance {
       latestState,
       json.latestNonce,
       json.latestTimeout,
-      json.beneficiaries,
-      bigNumberify(json.limitOrTotal._hex)
+      json.twoPartyOutcomeInterpreterParams
+        ? {
+            playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,
+            amount: bigNumberify(
+              json.twoPartyOutcomeInterpreterParams.amount._hex
+            )
+          }
+        : undefined,
+      json.ethTransferInterpreterParams
+        ? {
+            limit: bigNumberify(json.ethTransferInterpreterParams.limit._hex)
+          }
+        : undefined
     );
     return ret;
   }
@@ -201,12 +237,23 @@ export class AppInstance {
     return this.json.latestNonce;
   }
 
-  public get limitOrTotal() {
-    return bigNumberify(this.json.limitOrTotal._hex);
+  public get ethTransferInterpreterParams() {
+    return this.json.ethTransferInterpreterParams
+      ? {
+          limit: bigNumberify(this.json.ethTransferInterpreterParams.limit._hex)
+        }
+      : undefined;
   }
 
-  public get beneficiaries() {
-    return this.json.beneficiaries;
+  public get twoPartyOutcomeInterpreterParams() {
+    return this.json.twoPartyOutcomeInterpreterParams
+      ? {
+          playerAddrs: this.json.twoPartyOutcomeInterpreterParams.playerAddrs,
+          amount: bigNumberify(
+            this.json.twoPartyOutcomeInterpreterParams.amount._hex
+          )
+        }
+      : undefined;
   }
 
   public get timeout() {

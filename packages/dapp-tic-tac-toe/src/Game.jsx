@@ -101,7 +101,7 @@ class Game extends Component {
   }
 
   get myNumber() {
-    const index = this.props.appInstance.beneficiaries.indexOf(
+    const index = this.props.appInstance.twoPartyOutcomeInterpreterParams.playerAddrs.indexOf(
       window.ethers.utils.getAddress(this.state.my0thKeyAddress)
     );
 

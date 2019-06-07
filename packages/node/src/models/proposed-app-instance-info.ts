@@ -120,8 +120,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
-      [AddressZero, AddressZero],
-      bigNumberify(this.myDeposit).add(this.peerDeposit)
+      undefined,
+      {
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit)
+      }
     );
 
     return proposedAppInstance.identityHash;
