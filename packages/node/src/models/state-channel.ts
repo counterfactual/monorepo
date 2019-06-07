@@ -99,7 +99,7 @@ function createETHFreeBalance(
     ],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    [AddressZero, AddressZero],
+    [sortAddresses[0], sortedTopLevelKeys[1]],
     MaxUint256
   );
 }
