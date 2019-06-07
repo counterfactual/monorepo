@@ -12,6 +12,11 @@
   {
     "contractName": "TicTacToeApp",
     "address": "0x6E332C16fc7fCB5E83d99c110d4f5c0f6862CF2b",
-    "transactionHash": "0xfa565d524f2bd70e6fe3a07d00e5cdc78b714b8f5e4e243132b43897bea4fcee"
+    "transactionHash": "0x89b3530ebc7feb5875cca0dafc639458bdfda009f340ea13f44e27099d62741c"
+  },
+  {
+    "contractName": "ETHUnidirectionalTransferApp",
+    "address": "0xfDd8b7c07960214C025B74e28733D30cF67A652d",
+    "transactionHash": "0x33459f45896db60c8f6419628c1e982a8ebf33861745e919dd70a29131ee7e9a"
   }
 ]
