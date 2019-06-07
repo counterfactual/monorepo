@@ -106,7 +106,18 @@ async function proposeStateTransition(
     context.provider
   );
 
-  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  let outcomeType: BigNumber;
+
+  try {
+    outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  } catch (e) {
+    if (e.toString().indexOf("VM Exception") !== -1) {
+      throw new Error(
+        "The application logic contract being referenced in this installation request does not implement outcomeType()."
+      );
+    }
+    throw e;
+  }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -156,7 +167,9 @@ async function proposeStateTransition(
       break;
     }
     default: {
-      throw Error("unrecognized");
+      throw new Error(
+        "The outcome type in this application logic contract is not supported yet."
+      );
     }
   }
 
