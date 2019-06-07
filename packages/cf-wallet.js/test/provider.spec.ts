@@ -126,7 +126,9 @@ describe("CF.js Provider", () => {
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appDefinition).toBe(TEST_APP_INSTANCE_INFO.appDefinition);
+      expect(appInstance.appDefinition).toBe(
+        TEST_APP_INSTANCE_INFO.appDefinition
+      );
     });
 
     it("can install an app instance virtually", async () => {
@@ -157,7 +159,9 @@ describe("CF.js Provider", () => {
         expectedIntermediaries
       );
       expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.appDefinition).toBe(TEST_APP_INSTANCE_INFO.appDefinition);
+      expect(appInstance.appDefinition).toBe(
+        TEST_APP_INSTANCE_INFO.appDefinition
+      );
       expect(appInstance.isVirtual).toBeTruthy();
       expect(appInstance.intermediaries).toBe(expectedIntermediaries);
     });

@@ -284,7 +284,9 @@ export function confirmProposedAppInstanceOnNode(
   expect(proposalParams.abiEncodings).toEqual(
     proposedAppInstanceInfo.abiEncodings
   );
-  expect(proposalParams.appDefinition).toEqual(proposedAppInstanceInfo.appDefinition);
+  expect(proposalParams.appDefinition).toEqual(
+    proposedAppInstanceInfo.appDefinition
+  );
 
   if (nonInitiatingNode) {
     expect(proposalParams.myDeposit).toEqual(
