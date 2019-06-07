@@ -48,7 +48,8 @@ export class AppInstance {
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
-    this.twoPartyOutcomeInterpreterParams = info.twoPartyOutcomeInterpreterParams;
+    this.twoPartyOutcomeInterpreterParams =
+      info.twoPartyOutcomeInterpreterParams;
     this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
