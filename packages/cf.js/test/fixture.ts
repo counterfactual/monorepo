@@ -2,7 +2,6 @@ import { INodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
 import { jsonRpcMethodNames } from "../src/provider";
-import { jsonRpcSerializeAsResponse } from "rpc-server";
 
 // Randomly generated
 export const TEST_XPUBS = [
@@ -27,7 +26,7 @@ export class TestNodeProvider implements INodeProvider {
 
   public simulateMessageFromNode(message: any) {
     console.log("simulating message", message);
-    this.callbacks.forEach(cb => cb(jsonRpcSerializeAsResponse(message, message.requestId)));
+    this.callbacks.forEach(cb => cb(message));
   }
 
   public onMessage(callback: (message: any) => void) {
