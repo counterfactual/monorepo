@@ -32,7 +32,7 @@ function mkAddress(prefix: string = "0xa"): string {
 
 function decodeBytesToAppState(encodedAppState: string): ETHTransferAppState {
   return defaultAbiCoder.decode(
-    [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
+    [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
     encodedAppState
   )[0];
 }
@@ -42,7 +42,7 @@ describe("ETHUnidirectionalTransferApp", () => {
 
   function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
+      [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
       [state]
     );
   }
@@ -151,23 +151,11 @@ describe("ETHUnidirectionalTransferApp", () => {
     expect(state.finalized).to.be.true;
 
     ret = await computeOutcome(state);
-    console.log("ret: ", ret);
 
     expect(ret).to.eq(
       defaultAbiCoder.encode(
-        ["tuple(address to, uint256 amount)[2]"],
-        [
-          [
-            {
-              to: senderAddr,
-              amount: senderAmt
-            },
-            {
-              to: receiverAddr,
-              amount: Zero
-            }
-          ]
-        ]
+        ["tuple(address,uint256)[]"],
+        [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
       )
     );
   });

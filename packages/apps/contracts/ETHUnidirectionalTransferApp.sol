@@ -16,7 +16,7 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    ETHInterpreter.ETHTransfer[2] transfers; // [sender, receiver]
+    ETHInterpreter.ETHTransfer[] transfers; // [sender, receiver]
     bool finalized;
   }
 
