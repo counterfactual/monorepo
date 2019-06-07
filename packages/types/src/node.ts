@@ -56,6 +56,28 @@ export namespace Node {
     WITHDRAW = "withdraw"
   }
 
+  export enum RpcMethodName {
+    CREATE_CHANNEL = "chan_create",
+    DEPOSIT = "chan_deposit",
+    GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
+    GET_APP_INSTANCES = "chan_getAppInstances",
+    GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
+    GET_STATE = "chan_getState",
+    INSTALL = "chan_install",
+    INSTALL_VIRTUAL = "chan_installVirtual",
+    PROPOSE_INSTALL = "chan_proposeInstall",
+    PROPOSE_INSTALL_VIRTUAL = "chan_proposeInstallVirtual",
+    PROPOSE_STATE = "chan_proposeState",
+    REJECT_INSTALL = "chan_rejectInstall",
+    REJECT_STATE = "chan_rejectState",
+    UPDATE_STATE = "chan_updateState",
+    TAKE_ACTION = "chan_takeAction",
+    UNINSTALL = "chan_uninstall",
+    UNINSTALL_VIRTUAL = "chan_uninstallVirtual",
+    WITHDRAW = "chan_withdraw"
+  }
+
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
   export enum EventName {
     COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed",
