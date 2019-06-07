@@ -9,6 +9,11 @@ import { RequestHandler } from "./request-handler";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
+const callbackWithRequestHandler = (
+  requestHandler: RequestHandler,
+  callback: AsyncCallback
+) => (...args: any[]) => callback(requestHandler, ...args);
+
 export default class NodeRouter extends Router {
   private requestHandler: RequestHandler;
 
@@ -49,7 +54,10 @@ export default class NodeRouter extends Router {
     }
 
     console.log("[RpcRouter]", `Subscribed ${event}`);
-    this.requestHandler.outgoing.on(event, callback);
+    this.requestHandler.outgoing.on(
+      event,
+      callbackWithRequestHandler(this.requestHandler, callback)
+    );
   }
 
   async subscribeOnce(event: string, callback: AsyncCallback) {
@@ -58,16 +66,28 @@ export default class NodeRouter extends Router {
     }
 
     console.log("[RpcRouter]", `SubscribedOnce ${event}`);
-    this.requestHandler.outgoing.once(event, callback);
+    this.requestHandler.outgoing.once(
+      event,
+      callbackWithRequestHandler(this.requestHandler, callback)
+    );
   }
 
   async unsubscribe(event: string, callback?: AsyncCallback) {
     console.log("[RpcRouter]", `Unsubscribed ${event}`);
-    this.requestHandler.outgoing.off(event, callback);
+    if (callback) {
+      this.requestHandler.outgoing.off(
+        event,
+        callbackWithRequestHandler(this.requestHandler, callback)
+      );
+    } else {
+      this.requestHandler.outgoing.off(event);
+    }
   }
 
   async emit(event: string, data: any, emitter = "incoming") {
     let eventData = data;
+
+    console.log("[RpcRouter]", `Attempting to emit ${event} with`, eventData);
 
     if (eventData.data && eventData.type && eventData.from) {
       // It's a legacy message. Reformat it to JSONRPC.
