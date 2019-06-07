@@ -46,8 +46,11 @@ describe("Virtual App Set State Commitment", () => {
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random()),
-    [AddressZero, AddressZero],
-    Zero
+    {
+      playerAddrs: [AddressZero, AddressZero],
+      amount: Zero
+    },
+    undefined
   );
 
   beforeAll(() => {

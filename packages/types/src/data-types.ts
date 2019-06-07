@@ -13,8 +13,22 @@ export type AppInstanceInfo = {
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
   intermediaries?: string[];
-  beneficiaries?: string[];
-  limitOrTotal?: BigNumber;
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    playerAddrs: [string, string];
+    amount: BigNumber;
+  };
+
+  ethTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    limit: BigNumber;
+  };
 };
 
 export type AppABIEncodings = {

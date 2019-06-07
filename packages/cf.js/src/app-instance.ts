@@ -35,9 +35,23 @@ export class AppInstance {
   // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly beneficiaries?: string[];
-  readonly limitOrTotal?: BigNumber;
   readonly intermediaries?: Address[];
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    playerAddrs: [string, string];
+    amount: BigNumber;
+  };
+
+  ethTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    limit: BigNumber;
+  };
 
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
@@ -51,8 +65,9 @@ export class AppInstance {
     this.timeout = info.timeout;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
-    this.limitOrTotal = info.limitOrTotal;
-    this.beneficiaries = info.beneficiaries;
+    this.twoPartyOutcomeInterpreterParams =
+      info.twoPartyOutcomeInterpreterParams;
+    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

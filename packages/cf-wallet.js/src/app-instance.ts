@@ -25,8 +25,20 @@ export class AppInstance {
   // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly beneficiaries?: string[];
-  readonly limitOrTotal?: BigNumber;
+
+  readonly twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    playerAddrs: [string, string];
+    amount: BigNumber;
+  };
+
+  readonly ethTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    limit: BigNumber;
+  };
+
   readonly intermediaries?: Address[];
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
@@ -36,8 +48,8 @@ export class AppInstance {
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
-    this.limitOrTotal = info.limitOrTotal;
-    this.beneficiaries = info.beneficiaries;
+    this.twoPartyOutcomeInterpreterParams = info.twoPartyOutcomeInterpreterParams;
+    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

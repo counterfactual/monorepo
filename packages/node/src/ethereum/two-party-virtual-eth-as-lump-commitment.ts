@@ -33,9 +33,11 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       freeBalanceNonce,
       freeBalanceTimeout
     );
+
     if (this.networkContext.TwoPartyVirtualEthAsLump === undefined) {
       throw Error("undefined TwoPartyVirtualEthAsLump");
     }
+
     if (this.beneficiaries.length !== 2) {
       throw Error(
         `TwoPartyVirtualEthAsLump currently only supports 2 beneficiaries but got ${

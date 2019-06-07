@@ -3,7 +3,7 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
+import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
   defaultAbiCoder,
@@ -107,8 +107,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
-        [AddressZero, AddressZero],
-        Zero
+        undefined,
+        {
+          limit: Zero
+        }
       );
 
       stateChannel = stateChannel.installApp(appInstance, {
@@ -156,7 +158,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         appInstance.appSeqNo,
         stateChannel.rootNonceValue,
         network.ETHInterpreter,
-        defaultAbiCoder.encode(["uint256"], [freeBalanceETH.limitOrTotal])
+        defaultAbiCoder.encode(
+          ["uint256"],
+          [freeBalanceETH.ethTransferInterpreterParams!.limit]
+        )
       );
 
       const installTx = installCommitment.transaction([
