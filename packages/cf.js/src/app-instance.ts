@@ -27,12 +27,18 @@ export class AppInstance {
    */
   readonly id: AppInstanceID;
 
+  // Application-specific fields
   readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
+  readonly timeout: BigNumber;
+
+  // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly timeout: BigNumber;
+  readonly beneficiaries?: string[];
+  readonly limitOrTotal?: BigNumber;
   readonly intermediaries?: Address[];
+
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
     key => AppInstanceEventType[key]
@@ -42,9 +48,11 @@ export class AppInstance {
     this.id = info.id;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
+    this.timeout = info.timeout;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
-    this.timeout = info.timeout;
+    this.limitOrTotal = info.limitOrTotal;
+    this.beneficiaries = info.beneficiaries;
     this.intermediaries = info.intermediaries;
   }
 

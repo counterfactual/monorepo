@@ -13,6 +13,8 @@ export type AppInstanceInfo = {
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
   intermediaries?: string[];
+  beneficiaries?: string[];
+  limitOrTotal?: BigNumber;
 };
 
 export type AppABIEncodings = {

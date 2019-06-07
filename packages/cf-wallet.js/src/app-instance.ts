@@ -17,11 +17,16 @@ export class AppInstance {
    */
   readonly id: AppInstanceID;
 
+  // Application-specific fields
   readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
+  readonly timeout: BigNumber;
+
+  // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly timeout: BigNumber;
+  readonly beneficiaries?: string[];
+  readonly limitOrTotal?: BigNumber;
   readonly intermediaries?: Address[];
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
@@ -31,6 +36,8 @@ export class AppInstance {
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
+    this.limitOrTotal = info.limitOrTotal;
+    this.beneficiaries = info.beneficiaries;
     this.intermediaries = info.intermediaries;
   }
 
