@@ -13,7 +13,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - withdraw", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
@@ -22,12 +21,7 @@ describe("Node method follows spec - withdraw", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
     provider = new JsonRpcProvider(global["ganacheURL"]);
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("has the right balance for both parties after withdrawal", async () => {

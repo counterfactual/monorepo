@@ -4,21 +4,6 @@ import log from "loglevel";
 
 export const WRITE_NULL_TO_FIREBASE = `The records being set contain null/undefined values. If this is intentional, pass the allowDelete flag in set.`;
 
-interface IStoreService {
-  get(key: string): Promise<any>;
-  // Multiple pairs could be written simultaneously if an atomic write
-  // among multiple records is required
-  set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<boolean>;
-}
-
-export interface IMessagingService {
-  send(to: string, msg: Node.NodeMessage): Promise<void>;
-  onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
-}
-
 export interface FirebaseAppConfiguration {
   databaseURL: string;
   projectId: string;
@@ -76,19 +61,19 @@ export class FirebaseServiceFactory {
     }
   }
 
-  createMessagingService(messagingServiceKey: string): IMessagingService {
+  createMessagingService(messagingServiceKey: string): Node.IMessagingService {
     return new FirebaseMessagingService(
       this.app.database(),
       messagingServiceKey
     );
   }
 
-  createStoreService(storeServiceKey: string): IStoreService {
+  createStoreService(storeServiceKey: string): Node.IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 }
 
-class FirebaseMessagingService implements IMessagingService {
+class FirebaseMessagingService implements Node.IMessagingService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -165,7 +150,7 @@ function containsNull(obj) {
   return false;
 }
 
-class FirebaseStoreService implements IStoreService {
+class FirebaseStoreService implements Node.IStoreService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly storeServiceKey: string

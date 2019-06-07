@@ -1,11 +1,12 @@
+import { Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { fromMnemonic, HDNode } from "ethers/utils/hdnode";
 
-import { IStoreService } from "./services";
-
 export const MNEMONIC_PATH = "MNEMONIC";
 
-export async function getHDNode(storeService: IStoreService): Promise<HDNode> {
+export async function getHDNode(
+  storeService: Node.IStoreService
+): Promise<HDNode> {
   let mnemonic = await storeService.get(MNEMONIC_PATH);
 
   if (!mnemonic) {

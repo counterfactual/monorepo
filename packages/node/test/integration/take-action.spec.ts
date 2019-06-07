@@ -23,7 +23,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -31,11 +30,6 @@ describe("Node method follows spec - takeAction", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(async () => {
-    await firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(

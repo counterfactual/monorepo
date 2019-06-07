@@ -3,8 +3,7 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
-import * as log from "loglevel";
-import "reflect-metadata";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
@@ -17,7 +16,6 @@ import {
 } from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
-import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
@@ -53,8 +51,8 @@ export class Node {
   protected requestHandler!: RequestHandler;
 
   static async create(
-    messagingService: IMessagingService,
-    storeService: IStoreService,
+    messagingService: NodeTypes.IMessagingService,
+    storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: string | NetworkContext,
@@ -73,8 +71,8 @@ export class Node {
   }
 
   private constructor(
-    private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService,
+    private readonly messagingService: NodeTypes.IMessagingService,
+    private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,

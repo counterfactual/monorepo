@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground-server",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "description": "A backend for the Playground app.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -37,9 +37,9 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/firebase-client": "0.0.2",
-    "@counterfactual/node": "0.1.23",
-    "@counterfactual/types": "0.0.9",
+    "@counterfactual/firebase-client": "0.0.3",
+    "@counterfactual/node": "0.1.24",
+    "@counterfactual/types": "0.0.10",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",

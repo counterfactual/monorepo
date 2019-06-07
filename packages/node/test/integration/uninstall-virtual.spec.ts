@@ -15,24 +15,17 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
-  jest.setTimeout(10000);
-
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
+    const result = await setup(global, true, true);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +
       "then Node A uninstalls the installed AppInstance",

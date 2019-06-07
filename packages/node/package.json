@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.23",
+  "version": "0.1.24",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -20,12 +20,12 @@
   "devDependencies": {
     "@counterfactual/apps": "0.1.1",
     "@counterfactual/firebase-server": "0.0.1",
+    "@counterfactual/postgresql-node-connector": "0.0.2",
     "@types/chai": "4.1.7",
     "@types/dotenv-safe": "5.0.3",
     "@types/jest": "24.0.12",
     "@types/loglevel": "1.5.4",
     "@types/node": "12.0.4",
-    "@types/pg": "7.4.14",
     "chai": "4.2.0",
     "dotenv-extended": "2.4.0",
     "dotenv-safe": "6.1.0",
@@ -49,14 +49,12 @@
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
-    "@counterfactual/firebase-client": "0.0.2",
-    "@counterfactual/types": "0.0.9",
+    "@counterfactual/firebase-client": "0.0.3",
+    "@counterfactual/types": "0.0.10",
     "ethers": "4.0.28",
     "eventemitter3": "^3.1.2",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
-    "pg": "7.11.0",
-    "reflect-metadata": "^0.1.13",
     "typescript-memoize": "^1.0.0-alpha.3",
     "uuid": "^3.3.2"
   }

@@ -9,7 +9,6 @@ import {
   methodNameToImplementation
 } from "./api-router";
 import { InstructionExecutor } from "./machine";
-import { IMessagingService, IStoreService } from "./services";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
 
@@ -28,8 +27,8 @@ export class RequestHandler {
     readonly publicIdentifier: string,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
-    readonly storeService: IStoreService,
-    readonly messagingService: IMessagingService,
+    readonly storeService: Node.IStoreService,
+    readonly messagingService: Node.IMessagingService,
     readonly instructionExecutor: InstructionExecutor,
     readonly networkContext: NetworkContext,
     readonly provider: BaseProvider,

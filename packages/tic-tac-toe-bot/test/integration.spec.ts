@@ -1,11 +1,5 @@
 import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-import {
-  IMessagingService,
-  IStoreService,
-  MNEMONIC_PATH,
-  Node,
-  NodeConfig
-} from "@counterfactual/node";
+import { MNEMONIC_PATH, Node, NodeConfig } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
@@ -27,10 +21,10 @@ describe("ttt-bot", () => {
   let nodeAlice: Node;
   let nodeBot: Node;
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
-  let storeServiceA: IStoreService;
-  let storeServiceB: IStoreService;
-  let storeServiceC: IStoreService;
+  let messagingService: NodeTypes.IMessagingService;
+  let storeServiceA: NodeTypes.IStoreService;
+  let storeServiceB: NodeTypes.IStoreService;
+  let storeServiceC: NodeTypes.IStoreService;
   let nodeConfig: NodeConfig;
   let provider: JsonRpcProvider;
 

@@ -9,7 +9,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setupWithMemoryMessagingAndPostgresStore } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   createChannel,
@@ -24,7 +24,11 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true, false);
+    const result = await setupWithMemoryMessagingAndPostgresStore(
+      global,
+      true,
+      true
+    );
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;

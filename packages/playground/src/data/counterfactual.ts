@@ -1,4 +1,3 @@
-import { IMessagingService, IStoreService } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
@@ -6,8 +5,8 @@ import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 // It's derived from `node.d.ts`.
 export declare class Node {
   static create(
-    messagingService: IMessagingService,
-    storeService: IStoreService,
+    messagingService: NodeTypes.IMessagingService,
+    storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     // @ts-ignore
     provider: ethers.providers.Provider,
@@ -46,8 +45,8 @@ export default class CounterfactualNode {
   }
 
   static async create(settings: {
-    messagingService: IMessagingService;
-    storeService: IStoreService;
+    messagingService: NodeTypes.IMessagingService;
+    storeService: NodeTypes.IStoreService;
     nodeConfig: { STORE_KEY_PREFIX: string };
     network: string;
     networkContext?: NetworkContext;

@@ -95,13 +95,16 @@ export async function getProposedAppInstanceInfo(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceInfo> {
-  const allProposedAppInstanceInfos = await getApps(
-    node,
-    APP_INSTANCE_STATUS.PROPOSED
-  );
-  return allProposedAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
-  })[0];
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetProposedAppInstanceResult)
+    .appInstance;
 }
 
 export async function getFreeBalanceState(
@@ -275,7 +278,7 @@ export function makeTTTVirtualProposalRequest(
  * @param proposalParams The parameters of the installation proposal.
  * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
  */
-export function confirmProposedAppInstanceOnNode(
+export async function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
   proposedAppInstanceInfo: AppInstanceInfo,
   nonInitiatingNode: boolean = false
@@ -382,7 +385,7 @@ export function generateUninstallVirtualRequest(
   };
 }
 
-export function sleep(timeInMilliseconds: number) {
+export async function sleep(timeInMilliseconds: number) {
   return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
 

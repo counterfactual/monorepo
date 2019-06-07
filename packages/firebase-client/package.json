@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/firebase-client",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.9",
+    "@counterfactual/types": "0.0.10",
     "@types/firebase": "3.2.1",
     "rollup": "1.12.3",
     "typescript": "3.5.1"
