@@ -3,10 +3,10 @@ import { bigNumberify } from "ethers/utils";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
+import { jsonRpcMethodNames } from "../src/provider";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
-import { jsonRpcMethodNames } from "../src/provider";
 
 describe("CF.js AppInstance", () => {
   let nodeProvider: TestNodeProvider;

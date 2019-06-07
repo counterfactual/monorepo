@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
-import { Provider, jsonRpcMethodNames } from "../src/provider";
+import { jsonRpcMethodNames, Provider } from "../src/provider";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
