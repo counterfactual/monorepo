@@ -2288,10 +2288,10 @@
   dependencies:
     "@stencil/state-tunnel" "0.0.9-1"
 
-"@stencil/sass@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.npmjs.org/@stencil/sass/-/sass-0.2.3.tgz#836d819d4c3e1182e551de12a7aac77099d9aea2"
-  integrity sha512-JmS0HQVZ+TuBdk+kvNkDJPQYLjC/sc3Ionsbo7/MccdSu7JLikdQ4JOdQClDMdaMV2m4jqHjlQMpxMtOWLf7CQ==
+"@stencil/sass@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@stencil/sass/-/sass-1.0.0.tgz#dcea1eaf3727683d779ad66227cef651403edb4b"
+  integrity sha512-dDCMuu84VgtuCwT26PPQUHgXUZI0jzUHN8GlF9z3NRQsdDjCHA2Vvi32hti2/ZQg69v/jXbOClrITzikfB9OhA==
 
 "@stencil/state-tunnel@0.0.9-1":
   version "0.0.9-1"
