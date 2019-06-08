@@ -53,7 +53,7 @@
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/types": "0.0.10",
     "@firebase/util": "0.2.18",
-    "ethers": "4.0.28",
+    "ethers": "4.0.29",
     "eventemitter3": "^3.1.2",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
