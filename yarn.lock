@@ -19891,10 +19891,10 @@ yn@^3.0.0:
   resolved "https://registry.npmjs.org/yn/-/yn-3.1.0.tgz#fcbe2db63610361afcc5eb9e0ac91e976d046114"
   integrity sha512-kKfnnYkbTfrAdd0xICNFw7Atm8nKpLcLv9AZGEt+kczL/WQVai4e2V6ZN8U/O+iI6WrNuJjNNOyu4zfhl9D3Hg==
 
-zos-lib@2.3.0:
-  version "2.3.0"
-  resolved "https://registry.npmjs.org/zos-lib/-/zos-lib-2.3.0.tgz#fb122949ff1097ef71f6d6cbaec8c6e89783ecae"
-  integrity sha512-VF5dcCghVClbJVdvjGa6BEJnXLO0imsYPtxWLjy1YqZthkfULxiCrHdrOaAU+rLMITOVNh17d9Zw9Tk42gsHRw==
+zos-lib@2.3.1:
+  version "2.3.1"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.3.1.tgz#df72cde0195ac082bd00f9de13ea92ce20f20a20"
+  integrity sha512-giQeblYuwK7WCg1mfalS2P1bZOxJu/okVzLZSBo6/YVMaCrubVuUB86MAtCDHGVkGodfD1Y0bN6pc3WcUFu/Gg==
   dependencies:
     "@types/web3" "^1.0.14"
     axios "^0.18.0"
