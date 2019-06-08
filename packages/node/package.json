@@ -48,7 +48,7 @@
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/types": "0.0.9",
     "@firebase/util": "0.2.18",
-    "ethers": "4.0.28",
+    "ethers": "4.0.29",
     "eventemitter3": "^3.1.2",
     "firebase": "6.1.0",
     "loglevel": "^1.6.1",
