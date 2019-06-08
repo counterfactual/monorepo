@@ -17663,22 +17663,22 @@ trough@^1.0.0:
 
 truffle-blockchain-utils@^0.0.10:
   version "0.0.10"
-  resolved "https://registry.npmjs.org/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.10.tgz#18b772673635a95a893f7083f7be6bd62227462b"
+  resolved "https://registry.yarnpkg.com/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.10.tgz#18b772673635a95a893f7083f7be6bd62227462b"
   integrity sha512-gVvagLCvYD0QXfnkxy6I48P6O+d7TEY0smc2VFuwldl1/clLVWE+KfBO/jFMaAz+nupTQeKvPhNTeyh3JAsCeA==
 
 truffle-contract-schema@^3.0.10:
   version "3.0.10"
-  resolved "https://registry.npmjs.org/truffle-contract-schema/-/truffle-contract-schema-3.0.10.tgz#bb168f25be32479d2cf46a1dde36f425ac8e9522"
+  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.10.tgz#bb168f25be32479d2cf46a1dde36f425ac8e9522"
   integrity sha512-YHxCiAoqk2iamJfaFWfkm7WNhvx75vsOdRjrqlpSzM10M0MO42V88SozHsfcv0h0i7riLO5Eht3EjDJuc5v4iA==
   dependencies:
     ajv "^6.10.0"
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
-truffle-contract@4.0.18:
-  version "4.0.18"
-  resolved "https://registry.npmjs.org/truffle-contract/-/truffle-contract-4.0.18.tgz#8b2e230d56e2918c71c14cbac8aa23ea4ff2f249"
-  integrity sha512-RXJDmxG4CBIPJ4+9yOii2Y9f4mZh9KS1O99nJMnfvQIg0X3A0Xawz7/75znqgpsYp7zF9IxKL/7Uni1zWNBDQw==
+truffle-contract@4.0.19:
+  version "4.0.19"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.19.tgz#986070a7d301e74e69f6f5d6c02ad57dcae08f3a"
+  integrity sha512-3tIDnpNOBEbjJO2VIzBfH4IhXAGXlk/FnrCl52NBDidBa++CVSQVLlgRigqw1UAIX5YN4MeIS5eC/tojee0BRQ==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
@@ -17703,7 +17703,7 @@ truffle-deploy-registry@0.5.1:
 
 truffle-error@^0.0.5:
   version "0.0.5"
-  resolved "https://registry.npmjs.org/truffle-error/-/truffle-error-0.0.5.tgz#6b5740c9f3aac74f47b85d654fff7fe2c1fc5e0e"
+  resolved "https://registry.yarnpkg.com/truffle-error/-/truffle-error-0.0.5.tgz#6b5740c9f3aac74f47b85d654fff7fe2c1fc5e0e"
   integrity sha512-JpzPLMPSCE0vaZ3vH5NO5u42GpMj/Y1SRBkQ6b69PSw3xMSH1umApN32cEcg1nnh8q5FNYc5FnKu0m4tiBffyQ==
 
 truffle-flattener@^1.3.0:
@@ -17729,7 +17729,7 @@ truffle-hdwallet-provider@1.0.10:
 
 truffle-interface-adapter@^0.1.6:
   version "0.1.6"
-  resolved "https://registry.npmjs.org/truffle-interface-adapter/-/truffle-interface-adapter-0.1.6.tgz#ae61f54613f3219fd8d420de57a6e457d6e81ad7"
+  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.1.6.tgz#ae61f54613f3219fd8d420de57a6e457d6e81ad7"
   integrity sha512-UFzVsbIPhE8w4b2Ywp/2xYPIOo4dtdLc2Lwa82UYg2ikf0q4/EteYLFE7hsiTgmPwmeB+L+YQZ8pqLtAa+AOgw==
   dependencies:
     bn.js "^4.11.8"
