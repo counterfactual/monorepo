@@ -1,4 +1,3 @@
-import { StateChannel } from "../../models";
 import { RequestHandler } from "../../request-handler";
 import { CreateChannelMessage } from "../../types";
 
@@ -9,14 +8,4 @@ import { CreateChannelMessage } from "../../types";
 export default async function addMultisigController(
   requestHandler: RequestHandler,
   nodeMsg: CreateChannelMessage
-) {
-  const multisigAddress = nodeMsg.data.multisigAddress;
-  const multisigOwners = nodeMsg.data.owners;
-  await requestHandler.store.saveStateChannel(
-    StateChannel.setupChannel(
-      requestHandler.networkContext.ETHBucket,
-      multisigAddress,
-      multisigOwners
-    )
-  );
-}
+) {}
