@@ -20,7 +20,8 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  ProposeVirtualMessage
+  ProposeVirtualMessage,
+  Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 
@@ -126,25 +127,27 @@ export async function getApps(
   node: Node,
   appInstanceStatus: APP_INSTANCE_STATUS
 ): Promise<AppInstanceInfo[]> {
-  let request: NodeTypes.MethodRequest;
-  let response: NodeTypes.MethodResponse;
+  let request: Rpc;
+  let response: JsonRpcResponse;
   let result;
   if (appInstanceStatus === APP_INSTANCE_STATUS.INSTALLED) {
-    request = {
-      requestId: generateUUID(),
-      type: NodeTypes.MethodName.GET_APP_INSTANCES,
+    request = jsonRpcDeserialize({
+      jsonrpc: "2.0",
+      id: Date.now(),
+      method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
       params: {} as NodeTypes.GetAppInstancesParams
-    };
-    response = await node.call(request.type, request);
+    });
+    response = (await node.router.dispatch(request)) as JsonRpcResponse;
     result = response.result as NodeTypes.GetAppInstancesResult;
     return result.appInstances;
   }
-  request = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCES,
+  request = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_PROPOSED_APP_INSTANCES,
     params: {} as NodeTypes.GetProposedAppInstancesParams
-  };
-  response = await node.call(request.type, request);
+  });
+  response = (await node.router.dispatch(request)) as JsonRpcResponse;
   result = response.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
@@ -152,15 +155,13 @@ export async function getApps(
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber
-): NodeTypes.MethodRequest {
-  return {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.DEPOSIT,
-    params: {
-      multisigAddress,
-      amount
-    } as NodeTypes.DepositParams
-  };
+): Rpc {
+  return jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.DEPOSIT,
+    params: { multisigAddress, amount },
+    jsonrpc: "2.0"
+  });
 }
 
 export function makeWithdrawRequest(
@@ -393,14 +394,13 @@ export async function collateralizeChannel(
   multisigAddress: string
 ): Promise<void> {
   const depositReq = makeDepositRequest(multisigAddress, One);
-  await node1.call(depositReq.type, depositReq);
-  await node2.call(depositReq.type, depositReq);
+  await node1.router.dispatch(depositReq);
+  await node2.router.dispatch(depositReq);
 }
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   return new Promise(async (resolve, reject) => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
-      console.log("OnCreateChannel received", msg);
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
       resolve(msg.data.multisigAddress);
@@ -547,13 +547,18 @@ export async function makeTTTVirtualProposal(
     Zero
   );
   const params = virtualAppInstanceProposalRequest.params as NodeTypes.ProposeInstallVirtualParams;
-  const response = await nodeA.call(
-    virtualAppInstanceProposalRequest.type,
-    virtualAppInstanceProposalRequest
-  );
+  const response = (await nodeA.router.dispatch(
+    jsonRpcDeserialize({
+      params,
+      jsonrpc: "2.0",
+      method: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+      id: Date.now()
+    })
+  )) as JsonRpcResponse;
   const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
     .appInstanceId;
   expect(appInstanceId).toBeDefined();
+  console.log("finished proposing installation", appInstanceId, params);
   return { appInstanceId, params };
 }
 
@@ -566,7 +571,7 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaries
   );
-  node.emit(installVirtualReq.type, installVirtualReq);
+  node.router.emit(installVirtualReq.type, installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {

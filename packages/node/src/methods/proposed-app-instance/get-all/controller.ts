@@ -8,7 +8,7 @@ export default class GetProposedAppInstancesController extends NodeController {
   public static readonly methodName =
     Node.MethodName.GET_PROPOSED_APP_INSTANCES;
 
-  @jsonRpcMethod("chan_getAppInstances")
+  @jsonRpcMethod("chan_getProposedAppInstances")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetProposedAppInstancesParams

@@ -46,15 +46,15 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        console.log("Creating channel AB");
         const multisigAddressAB = await createChannel(nodeA, nodeB);
         console.log("Created channel AB");
-        console.log("Creating channel BC");
         const multisigAddressBC = await createChannel(nodeB, nodeC);
         console.log("Created channel BC");
 
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
+
+        console.log("Collateralization completed");
 
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
         nodeA.once(
@@ -88,7 +88,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeC.once(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           async (msg: ProposeVirtualMessage) => {
-            console.log(msg);
             const { appInstanceId } = msg.data;
             const { intermediaries } = msg.data.params;
             const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
@@ -110,6 +109,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         );
 
         const result = await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+        console.log("makeTTTVirtualProposal called");
         proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
       });
     }

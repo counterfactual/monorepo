@@ -320,8 +320,9 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        // this.outgoing.emit(msg.type, msg);
-        this.router.emit(msg.type, msg);
+        if (msg.type !== "protocolMessageEvent") {
+          this.router.emit(msg.type, msg, "outgoing");
+        }
       }
     );
   }
