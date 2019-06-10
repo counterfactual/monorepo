@@ -1,7 +1,5 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import ERC20TwoPartyDynamicInterpreter from "@counterfactual/contracts/build/ERC20TwoPartyDynamicInterpreter.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
@@ -17,18 +15,6 @@ import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function configureNetworkContext(wallet: Wallet) {
-  const dolphinCoinContract = await new ContractFactory(
-    DolphinCoin.abi,
-    DolphinCoin.bytecode,
-    wallet
-  ).deploy();
-
-  const erc20TwoPartyDynamicInterpreter = await new ContractFactory(
-    ERC20TwoPartyDynamicInterpreter.abi,
-    ERC20TwoPartyDynamicInterpreter.bytecode,
-    wallet
-  ).deploy();
-
   const balanceRefundContract = await new ContractFactory(
     BalanceRefundApp.abi,
     BalanceRefundApp.bytecode,
@@ -108,8 +94,6 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
-    DolphinCoin: dolphinCoinContract.address,
-    ERC20TwoPartyDynamicInterpreter: erc20TwoPartyDynamicInterpreter.address,
     ETHBalanceRefundApp: balanceRefundContract.address,
     ETHBucket: ethBucketContract.address,
     MinimumViableMultisig: mvmContract.address,

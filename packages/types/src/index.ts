@@ -21,8 +21,6 @@ import {
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  DolphinCoin: string;
-  ERC20TwoPartyDynamicInterpreter: string;
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   ETHInterpreter: string;
@@ -39,8 +37,6 @@ export interface NetworkContext {
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "DolphinCoin",
-  "ERC20TwoPartyDynamicInterpreter",
   "ETHBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
