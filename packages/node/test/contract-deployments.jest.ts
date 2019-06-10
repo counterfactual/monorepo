@@ -1,5 +1,6 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
@@ -18,6 +19,12 @@ export async function configureNetworkContext(wallet: Wallet) {
   const balanceRefundContract = await new ContractFactory(
     BalanceRefundApp.abi,
     BalanceRefundApp.bytecode,
+    wallet
+  ).deploy();
+
+  const dolphinCoinContract = await new ContractFactory(
+    DolphinCoin.abi,
+    DolphinCoin.bytecode,
     wallet
   ).deploy();
 
@@ -94,6 +101,7 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
+    DolphinCoin: dolphinCoinContract.address,
     ETHBalanceRefundApp: balanceRefundContract.address,
     ETHBucket: ethBucketContract.address,
     MinimumViableMultisig: mvmContract.address,
