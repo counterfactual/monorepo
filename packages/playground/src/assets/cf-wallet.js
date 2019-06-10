@@ -1,0 +1,1 @@
+../../../cf-wallet.js/dist/index-iife.js

@@ -41,7 +41,7 @@
 - `AppFactory`
     - Properties
         - `provider: Provider`
-        - `appId: string`
+        - `appDefinition: string`
             - Address of the on-chain App Definition contract
         - `encodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - Instance methods
@@ -148,7 +148,7 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 - `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -175,7 +175,7 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 - `proposedToIdentifier: string`
     - Address of the peer responding to the installation request of the app
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -264,6 +264,18 @@ Errors: (TODO)
 ### Method: `getAppInstanceDetails`
 
 Get details of an app instance.
+
+Params:
+- `appInstanceId: string`
+    - ID of the app instance to get details of
+
+Result:
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
+    - App instance details
+
+### Method: `getProposedAppInstance`
+
+Get details of a proposed app instance.
 
 Params:
 - `appInstanceId: string`
@@ -460,7 +472,7 @@ An instance of an installed app.
 - `id: string`
     - Opaque identifier used to refer to this app instance
     - No two distinct app instances (even in different channels) may share the same ID
-- `appId: string`
+- `appDefinition: string`
     - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
     - ABI encodings used for states and actions of this app
@@ -476,7 +488,7 @@ An instance of an installed app.
 ### Data Type: `AppABIEncodings`
 - `stateEncoding: string`
     - ABI encoding of the app state
-        - For example, for the Tic Tac Toe App (https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol), the state encoding string is `"tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"`.
+        - For example, for the Tic Tac Toe App (https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol), the state encoding string is `"tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"`.
 - `actionEncoding?: string`
     - Optional ABI encoding of the app action
     - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)

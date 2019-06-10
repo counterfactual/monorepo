@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryColumn } from "typeorm";
 
-@Entity()
-export class Node {
+@Entity("node_records")
+export class NodeRecord {
   @PrimaryColumn()
   key!: string;
 
-  @Column("json")
+  @Column({ type: "json" })
   value!: object;
 }

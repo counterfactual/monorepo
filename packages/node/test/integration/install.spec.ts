@@ -20,7 +20,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -28,11 +27,6 @@ describe("Node method follows spec - proposeInstall", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -46,7 +40,7 @@ describe("Node method follows spec - proposeInstall", () => {
         let proposalParams: NodeTypes.ProposeInstallParams;
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          confirmProposedAppInstanceOnNode(
+          await confirmProposedAppInstanceOnNode(
             proposalParams,
             await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );

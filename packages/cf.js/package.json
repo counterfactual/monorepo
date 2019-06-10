@@ -5,6 +5,10 @@
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "files": [
     "dist"
   ],
@@ -20,7 +24,7 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.13.0",
+    "rollup": "1.14.5",
     "rollup-plugin-commonjs": "10.0.0",
     "rollup-plugin-node-resolve": "5.0.1",
     "rollup-plugin-typescript2": "0.21.1",
@@ -30,8 +34,8 @@
   },
   "dependencies": {
     "@counterfactual/node-provider": "0.1.2",
-    "@counterfactual/types": "0.0.9",
-    "ethers": "4.0.28",
+    "@counterfactual/types": "0.0.10",
+    "ethers": "4.0.29",
     "eventemitter3": "^3.1.2"
   }
 }

@@ -1,4 +1,3 @@
-import { IMessagingService, IStoreService } from "@counterfactual/node";
 import { Node } from "@counterfactual/types";
 import firebase from "firebase";
 import log from "loglevel";
@@ -62,19 +61,19 @@ export class FirebaseServiceFactory {
     }
   }
 
-  createMessagingService(messagingServiceKey: string): IMessagingService {
+  createMessagingService(messagingServiceKey: string): Node.IMessagingService {
     return new FirebaseMessagingService(
       this.app.database(),
       messagingServiceKey
     );
   }
 
-  createStoreService(storeServiceKey: string): IStoreService {
+  createStoreService(storeServiceKey: string): Node.IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 }
 
-class FirebaseMessagingService implements IMessagingService {
+class FirebaseMessagingService implements Node.IMessagingService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
@@ -151,7 +150,7 @@ function containsNull(obj) {
   return false;
 }
 
-class FirebaseStoreService implements IStoreService {
+class FirebaseStoreService implements Node.IStoreService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly storeServiceKey: string

@@ -14,7 +14,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -22,11 +21,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("can accept a valid call to get the desired AppInstance details", async () => {

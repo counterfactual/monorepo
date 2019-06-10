@@ -2,7 +2,7 @@ import {
   ETHBucketAppState,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import {
@@ -99,8 +99,8 @@ function createETHFreeBalance(
     ],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    [AddressZero, AddressZero],
-    MaxUint256
+    undefined,
+    { limit: MaxUint256 }
   );
 }
 

@@ -2,6 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 // solium-disable-next-line
 import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
@@ -140,6 +141,14 @@ contract HighRollerApp is CounterfactualApp {
     }
   }
 
+  function outcomeType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
+  }
+
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
@@ -209,4 +218,5 @@ contract HighRollerApp is CounterfactualApp {
   {
     return uint8(uint64(q) % 6);
   }
+
 }

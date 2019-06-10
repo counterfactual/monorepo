@@ -16,7 +16,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -24,11 +23,6 @@ describe("Node method follows spec - getAppInstances", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {

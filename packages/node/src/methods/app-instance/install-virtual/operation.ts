@@ -31,7 +31,7 @@ export async function installVirtual(
         intermediaryXpub: appInstanceInfo.intermediaries![0],
         defaultTimeout: appInstanceInfo.timeout.toNumber(),
         appInterface: {
-          addr: appInstanceInfo.appId,
+          addr: appInstanceInfo.appDefinition,
           ...appInstanceInfo.abiEncodings
         },
         initialState: appInstanceInfo.initialState,

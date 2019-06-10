@@ -45,7 +45,6 @@ beforeAll(async () => {
 });
 
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
-  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -96,8 +95,11 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         {}, // latest state
         1, // latest nonce
         0, // latest timeout
-        [AddressZero, AddressZero],
-        Zero
+        {
+          playerAddrs: [AddressZero, AddressZero],
+          amount: Zero
+        },
+        undefined
       );
 
       const beneficiaries = [

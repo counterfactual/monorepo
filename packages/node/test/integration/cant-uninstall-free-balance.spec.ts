@@ -10,17 +10,11 @@ import { createChannel, generateUninstallRequest } from "./utils";
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe("Node A and B open channel, attempt to uninstall FreeBalance", () => {

@@ -3,10 +3,9 @@ import {
   confirmLocalFirebaseConfigurationEnvVars,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
-  FirebaseServiceFactory,
-  MNEMONIC_PATH,
-  Node
-} from "@counterfactual/node";
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import { MNEMONIC_PATH, Node } from "@counterfactual/node";
 import { Wallet } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";

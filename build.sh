@@ -10,10 +10,12 @@ if [ "$PLAYGROUND_SCOPE" = "server" ]
 then
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
     firebase-client \
     firebase-server \
@@ -22,10 +24,12 @@ then
 else
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
     firebase-client \
     firebase-server \

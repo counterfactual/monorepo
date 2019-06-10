@@ -231,8 +231,13 @@ function createAndAddTarget(
     initialState,
     0, // app nonce
     defaultTimeout,
-    [initiatingAddress, intermediaryAddress],
-    bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement)
+    {
+      playerAddrs: [initiatingAddress, intermediaryAddress],
+      amount: bigNumberify(initiatingBalanceDecrement).add(
+        respondingBalanceDecrement
+      )
+    },
+    undefined
   );
 
   const newStateChannel = sc.addVirtualAppInstance(target);

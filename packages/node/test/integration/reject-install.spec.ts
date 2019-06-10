@@ -21,7 +21,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -29,11 +28,6 @@ describe("Node method follows spec - rejectInstall", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -57,7 +51,7 @@ describe("Node method follows spec - rejectInstall", () => {
 
         // node B then decides to reject the proposal
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          confirmProposedAppInstanceOnNode(
+          await confirmProposedAppInstanceOnNode(
             params,
             await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );
