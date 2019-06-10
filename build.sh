@@ -20,7 +20,7 @@ then
     node \
     firebase-client \
     firebase-server \
-    playground-server \
+    simple-hub-server \
   "
 else
   packages=" \
@@ -35,7 +35,7 @@ else
     node \
     firebase-client \
     firebase-server \
-    playground-server \
+    simple-hub-server \
     playground \
     dapp-high-roller \
     dapp-tic-tac-toe \
