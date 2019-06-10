@@ -1,9 +1,10 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
@@ -19,7 +20,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -27,11 +27,6 @@ describe("Node method follows spec - proposeInstall", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   describe(
@@ -45,7 +40,7 @@ describe("Node method follows spec - proposeInstall", () => {
         let proposalParams: NodeTypes.ProposeInstallParams;
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          confirmProposedAppInstanceOnNode(
+          await confirmProposedAppInstanceOnNode(
             proposalParams,
             await getProposedAppInstanceInfo(nodeA, appInstanceId)
           );

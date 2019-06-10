@@ -1,13 +1,13 @@
 import {
   confirmFirebaseConfigurationEnvVars,
   confirmLocalFirebaseConfigurationEnvVars,
-  CreateChannelMessage,
-  DepositConfirmationMessage,
   devAndTestingEnvironments,
   FIREBASE_CONFIGURATION_ENV_KEYS,
-  FirebaseServiceFactory,
-  IMessagingService,
-  IStoreService,
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import {
+  CreateChannelMessage,
+  DepositConfirmationMessage,
   MNEMONIC_PATH,
   Node
 } from "@counterfactual/node";
@@ -159,8 +159,8 @@ export class NodeWrapper {
     networkOrNetworkContext: string | NetworkContext,
     mnemonic?: string,
     provider?: JsonRpcProvider,
-    storeService?: IStoreService,
-    messagingService?: IMessagingService
+    storeService?: NodeTypes.IStoreService,
+    messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
     if (NodeWrapper.node) {
       return NodeWrapper.node;
@@ -210,8 +210,8 @@ export class NodeWrapper {
     networkOrNetworkContext: string | NetworkContext,
     provider?: JsonRpcProvider,
     mnemonic?: string,
-    storeService?: IStoreService,
-    messagingService?: IMessagingService
+    storeService?: NodeTypes.IStoreService,
+    messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
     const serviceFactoryResolved = await serviceFactoryPromise;
 

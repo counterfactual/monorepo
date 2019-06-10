@@ -1,9 +1,8 @@
-import { IMessagingService } from "../../src/services";
-import { NodeMessage } from "../../src/types";
+import { Node } from "@counterfactual/types";
 
-class MockMessagingService implements IMessagingService {
-  async send(to: string, msg: NodeMessage) {}
-  onReceive(address: string, callback: (msg: NodeMessage) => void) {}
+class MockMessagingService implements Node.IMessagingService {
+  async send(to: string, msg: Node.NodeMessage) {}
+  onReceive(address: string, callback: (msg: Node.NodeMessage) => void) {}
 }
 
 const mockMessagingService = new MockMessagingService();

@@ -1,10 +1,14 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.19",
+  "version": "0.1.24",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
   "license": "MIT",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "scripts": {
     "build": "tsc -b . && rollup -c",
     "build:watch": "tsc -b . && rollup -c -w",
@@ -15,7 +19,8 @@
   },
   "devDependencies": {
     "@counterfactual/apps": "0.1.1",
-    "@firebase/app-types": "0.4.0",
+    "@counterfactual/firebase-server": "0.0.1",
+    "@counterfactual/postgresql-node-connector": "0.0.2",
     "@types/chai": "4.1.7",
     "@types/dotenv-safe": "5.0.3",
     "@types/jest": "24.0.12",
@@ -26,7 +31,6 @@
     "dotenv-extended": "2.4.0",
     "dotenv-safe": "6.1.0",
     "ethereum-waffle": "2.0.12",
-    "firebase-server": "1.0.2",
     "ganache-cli": "6.4.3",
     "ganache-core": "2.5.5",
     "jest": "24.8.0",
@@ -35,26 +39,23 @@
     "rollup": "1.13.1",
     "rollup-plugin-commonjs": "10.0.0",
     "rollup-plugin-json": "4.0.0",
-    "rollup-plugin-node-resolve": "5.0.0",
+    "rollup-plugin-node-resolve": "5.0.1",
     "rollup-plugin-typescript2": "0.21.1",
-    "truffle": "5.0.19",
+    "truffle": "5.0.20",
     "ts-jest": "24.0.2",
     "ts-mockito": "2.3.1",
-    "tslint": "5.16.0",
+    "tslint": "5.17.0",
     "typescript": "3.5.1"
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.1.1",
     "@counterfactual/contracts": "0.1.1",
-    "@counterfactual/types": "0.0.9",
-    "@firebase/util": "0.2.18",
+    "@counterfactual/firebase-client": "0.0.3",
+    "@counterfactual/types": "0.0.10",
     "ethers": "4.0.28",
     "eventemitter3": "^3.1.2",
-    "firebase": "6.1.0",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
-    "pg": "7.11.0",
-    "reflect-metadata": "^0.1.13",
     "typescript-memoize": "^1.0.0-alpha.3",
     "uuid": "^3.3.2"
   }

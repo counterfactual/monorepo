@@ -77,23 +77,25 @@ export async function computeFreeBalanceIncrements(
     case OutcomeType.TWO_PARTY_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
-      const total = appInstance.limitOrTotal;
+      const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
+
       if (decoded.eq(Zero)) {
         return {
-          [appInstance.beneficiaries[0]]: total
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
         };
       }
       if (decoded.eq(One)) {
         return {
-          [appInstance.beneficiaries[1]]: total
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
         };
       }
 
       const i0 = total.div(2);
       const i1 = total.sub(i0);
+
       return {
-        [appInstance.beneficiaries[0]]: i0,
-        [appInstance.beneficiaries[1]]: i1
+        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
+        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
       };
     }
     default: {

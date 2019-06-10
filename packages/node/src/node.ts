@@ -3,8 +3,7 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
-import * as log from "loglevel";
-import "reflect-metadata";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import AutoNonceWallet from "./auto-nonce-wallet";
@@ -17,13 +16,8 @@ import {
 } from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
-import { IMessagingService, IStoreService } from "./services";
 import { getHDNode } from "./signer";
-import {
-  NODE_EVENTS,
-  NodeMessage,
-  NodeMessageWrappedProtocolMessage
-} from "./types";
+import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
 export interface NodeConfig {
@@ -57,8 +51,8 @@ export class Node {
   protected requestHandler!: RequestHandler;
 
   static async create(
-    messagingService: IMessagingService,
-    storeService: IStoreService,
+    messagingService: NodeTypes.IMessagingService,
+    storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: string | NetworkContext,
@@ -77,8 +71,8 @@ export class Node {
   }
 
   private constructor(
-    private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService,
+    private readonly messagingService: NodeTypes.IMessagingService,
+    private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,
@@ -313,7 +307,7 @@ export class Node {
   private registerMessagingConnection() {
     this.messagingService.onReceive(
       this.publicIdentifier,
-      async (msg: NodeMessage) => {
+      async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
         this.outgoing.emit(msg.type, msg);
       }
@@ -336,12 +330,12 @@ export class Node {
    *     _does have_ an _ioSendDeferral_, in which case the message is dispatched
    *     solely to the deffered promise's resolve callback.
    */
-  private async handleReceivedMessage(msg: NodeMessage) {
+  private async handleReceivedMessage(msg: NodeTypes.NodeMessage) {
     if (!Object.values(NODE_EVENTS).includes(msg.type)) {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    const isProtocolMessage = (msg: NodeMessage) =>
+    const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>

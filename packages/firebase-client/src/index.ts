@@ -1,25 +1,8 @@
-import * as firebase from "firebase/app";
-import "firebase/auth";
-import "firebase/database";
+import { Node } from "@counterfactual/types";
+import firebase from "firebase";
 import log from "loglevel";
 
-import { WRITE_NULL_TO_FIREBASE } from "./methods/errors";
-import { NodeMessage } from "./types";
-
-export interface IMessagingService {
-  send(to: string, msg: NodeMessage): Promise<void>;
-  onReceive(address: string, callback: (msg: NodeMessage) => void);
-}
-
-export interface IStoreService {
-  get(key: string): Promise<any>;
-  // Multiple pairs could be written simultaneously if an atomic write
-  // among multiple records is required
-  set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<boolean>;
-}
+export const WRITE_NULL_TO_FIREBASE = `The records being set contain null/undefined values. If this is intentional, pass the allowDelete flag in set.`;
 
 export interface FirebaseAppConfiguration {
   databaseURL: string;
@@ -78,31 +61,31 @@ export class FirebaseServiceFactory {
     }
   }
 
-  createMessagingService(messagingServiceKey: string): IMessagingService {
+  createMessagingService(messagingServiceKey: string): Node.IMessagingService {
     return new FirebaseMessagingService(
       this.app.database(),
       messagingServiceKey
     );
   }
 
-  createStoreService(storeServiceKey: string): IStoreService {
+  createStoreService(storeServiceKey: string): Node.IStoreService {
     return new FirebaseStoreService(this.app.database(), storeServiceKey);
   }
 }
 
-class FirebaseMessagingService implements IMessagingService {
+class FirebaseMessagingService implements Node.IMessagingService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly messagingServerKey: string
   ) {}
 
-  async send(to: string, msg: NodeMessage) {
+  async send(to: string, msg: Node.NodeMessage) {
     await this.firebase
       .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
-  onReceive(address: string, callback: (msg: NodeMessage) => void) {
+  onReceive(address: string, callback: (msg: Node.NodeMessage) => void) {
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -120,7 +103,7 @@ class FirebaseMessagingService implements IMessagingService {
         return;
       }
 
-      const msg: NodeMessage = snapshot.val();
+      const msg: Node.NodeMessage = snapshot.val();
 
       if (msg === null) {
         // We check for `msg` being not null because when the Firebase listener
@@ -167,7 +150,7 @@ function containsNull(obj) {
   return false;
 }
 
-class FirebaseStoreService implements IStoreService {
+class FirebaseStoreService implements Node.IStoreService {
   constructor(
     private readonly firebase: firebase.database.Database,
     private readonly storeServiceKey: string

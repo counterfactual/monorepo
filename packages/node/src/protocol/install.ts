@@ -106,28 +106,78 @@ async function proposeStateTransition(
     context.provider
   );
 
-  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  let outcomeType: BigNumber;
 
-  let interpreterAddress: string;
-
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      interpreterAddress = context.network.ETHInterpreter;
-      break;
+  try {
+    outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
+  } catch (e) {
+    if (e.toString().indexOf("VM Exception") !== -1) {
+      throw new Error(
+        "The application logic contract being referenced in this installation request does not implement outcomeType()."
+      );
     }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
-      interpreterAddress = context.network.TwoPartyEthAsLump;
-      break;
-    }
-    default: {
-      throw Error("unrecognized");
-    }
+    throw e;
   }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
   const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
+
+  let interpreterAddress: string;
+  let interpreterParams: string;
+
+  let ethTransferInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+        limit: BigNumber;
+      }
+    | undefined;
+
+  let twoPartyOutcomeInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+        playerAddrs: [string, string];
+        amount: BigNumber;
+      }
+    | undefined;
+
+  switch (outcomeType.toNumber()) {
+    case OutcomeType.ETH_TRANSFER: {
+      ethTransferInterpreterParams = {
+        limit: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.ETHInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit)"],
+        [ethTransferInterpreterParams]
+      );
+      break;
+    }
+    case OutcomeType.TWO_PARTY_OUTCOME: {
+      twoPartyOutcomeInterpreterParams = {
+        playerAddrs: [initiatingFbAddress, respondingFbAddress],
+        amount: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        [twoPartyOutcomeInterpreterParams]
+      );
+      break;
+    }
+    default: {
+      throw new Error(
+        "The outcome type in this application logic contract is not supported yet."
+      );
+    }
+  }
 
   const appInstance = new AppInstance(
     /* multisigAddress */ multisigAddress,
@@ -140,16 +190,15 @@ async function proposeStateTransition(
     /* latestState */ initialState,
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
-    /* beneficiaries */ [initiatingFbAddress, respondingFbAddress],
-    /* limitOrTotal */ bigNumberify(initiatingBalanceDecrement).add(
-      respondingBalanceDecrement
-    )
+    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
+    /* ethTransferInterpreterParams */ ethTransferInterpreterParams
   );
 
   const newStateChannel = stateChannel.installApp(appInstance, {
     [initiatingFbAddress]: initiatingBalanceDecrement,
     [respondingFbAddress]: respondingBalanceDecrement
   });
+
   context.stateChannelsMap.set(multisigAddress, newStateChannel);
 
   const appIdentityHash = appInstance.identityHash;
@@ -158,7 +207,8 @@ async function proposeStateTransition(
     context.network,
     newStateChannel,
     appIdentityHash,
-    interpreterAddress
+    interpreterAddress,
+    interpreterParams
   );
 
   return [appIdentityHash, commitment];
@@ -168,7 +218,8 @@ function constructInstallOp(
   network: NetworkContext,
   stateChannel: StateChannel,
   appIdentityHash: string,
-  interpreterAddress
+  interpreterAddress: string,
+  interpreterParams: string
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
@@ -186,6 +237,6 @@ function constructInstallOp(
     app.appSeqNo,
     freeBalance.rootNonceValue,
     interpreterAddress,
-    defaultAbiCoder.encode(["uint256"], [app.limitOrTotal])
+    interpreterParams
   );
 }

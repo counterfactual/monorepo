@@ -18,7 +18,7 @@ export interface SignedStateHashUpdate {
 
 export type AppInstanceInfo = {
   id: AppInstanceID;
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -97,7 +97,7 @@ export namespace Node {
 
   export type ProposeInstallParams = {
     respondingAddress: Address;
-    appId: Address;
+    appDefinition: Address;
     abiEncodings: AppABIEncodings;
     myDeposit: BigNumber;
     peerDeposit: BigNumber;

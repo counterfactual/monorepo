@@ -1,8 +1,9 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/store-firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
@@ -15,7 +16,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
@@ -23,11 +23,6 @@ describe("Node method follows spec - getAppInstances", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {

@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -29,7 +30,6 @@ import {
   StateChannelJSON
 } from "./models";
 import { debugLog } from "./node";
-import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
 
 /**
@@ -38,7 +38,7 @@ import { hashOfOrderedPublicIdentifiers } from "./utils";
  */
 export class Store {
   constructor(
-    private readonly storeService: IStoreService,
+    private readonly storeService: Node.IStoreService,
     private readonly storeKeyPrefix: string
   ) {}
 
@@ -326,13 +326,16 @@ export class Store {
    */
   public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const proposedAppInstancesJson = (await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
+      [
+        this.storeKeyPrefix,
+        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE
+      ].join("/")
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+
     if (!proposedAppInstancesJson) {
       return [];
     }
+
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);

@@ -1,11 +1,5 @@
-import {
-  IMessagingService,
-  IStoreService,
-  MNEMONIC_PATH,
-  Node,
-  NodeConfig
-} from "@counterfactual/node";
-import { LocalFirebaseServiceFactory } from "@counterfactual/node/test/services/firebase-server";
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
+import { MNEMONIC_PATH, Node, NodeConfig } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
@@ -27,10 +21,10 @@ describe("ttt-bot", () => {
   let nodeAlice: Node;
   let nodeBot: Node;
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let messagingService: IMessagingService;
-  let storeServiceA: IStoreService;
-  let storeServiceB: IStoreService;
-  let storeServiceC: IStoreService;
+  let messagingService: NodeTypes.IMessagingService;
+  let storeServiceA: NodeTypes.IStoreService;
+  let storeServiceB: NodeTypes.IStoreService;
+  let storeServiceC: NodeTypes.IStoreService;
   let nodeConfig: NodeConfig;
   let provider: JsonRpcProvider;
 
@@ -167,7 +161,7 @@ describe("ttt-bot", () => {
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
           },
-          appId: NETWORK_CONTEXT["TicTacToe"],
+          appDefinition: NETWORK_CONTEXT["TicTacToe"],
           abiEncodings: {
             actionEncoding:
               "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",

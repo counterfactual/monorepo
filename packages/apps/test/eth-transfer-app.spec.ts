@@ -5,22 +5,22 @@ import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import EthUnidirectionalPaymentApp from "../build/EthUnidirectionalPaymentApp.json";
+import ETHUnidirectionalTransferApp from "../build/ETHUnidirectionalTransferApp.json";
 
 chai.use(waffle.solidity);
 
-type EthTransfer = {
+type ETHTransfer = {
   to: string;
   amount: BigNumber;
 };
 
-type EthPaymentAppState = {
-  transfers: EthTransfer[];
+type ETHTransferAppState = {
+  transfers: ETHTransfer[];
   finalized: boolean;
 };
 
 type Action = {
-  paymentAmount: BigNumber;
+  transferAmount: BigNumber;
   finalize: boolean;
 };
 
@@ -30,26 +30,26 @@ function mkAddress(prefix: string = "0xa"): string {
   return prefix.padEnd(42, "0");
 }
 
-function decodeBytesToAppState(encodedAppState: string): EthPaymentAppState {
+function decodeBytesToAppState(encodedAppState: string): ETHTransferAppState {
   return defaultAbiCoder.decode(
-    [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
+    [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
     encodedAppState
   )[0];
 }
 
-describe("EthPaymentApp", () => {
-  let ethPaymentApp: Contract;
+describe("ETHUnidirectionalTransferApp", () => {
+  let ethTransferApp: Contract;
 
   function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [`tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)`],
+      [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
       [state]
     );
   }
 
   function encodeAction(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [`tuple(uint256 paymentAmount, bool finalize)`],
+      [`tuple(uint256 transferAmount, bool finalize)`],
       [state]
     );
   }
@@ -58,29 +58,33 @@ describe("EthPaymentApp", () => {
     state: SolidityABIEncoderV2Type,
     action: SolidityABIEncoderV2Type
   ) {
-    return await ethPaymentApp.functions.applyAction(
+    return await ethTransferApp.functions.applyAction(
       encodeState(state),
       encodeAction(action)
     );
   }
 
+  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+    return await ethTransferApp.functions.computeOutcome(encodeState(state));
+  }
+
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    ethPaymentApp = await waffle.deployContract(
+    ethTransferApp = await waffle.deployContract(
       wallet,
-      EthUnidirectionalPaymentApp
+      ETHUnidirectionalTransferApp
     );
   });
 
   describe("applyAction", () => {
-    it("can make payments", async () => {
+    it("can make transfers", async () => {
       const senderAddr = mkAddress("0xa");
       const receiverAddr = mkAddress("0xb");
       const senderAmt = new BigNumber(10000);
-      const paymentAmt1 = new BigNumber(10);
-      const paymentAmt2 = new BigNumber(20);
-      const preState: EthPaymentAppState = {
+      const transferAmt1 = new BigNumber(10);
+      const transferAmt2 = new BigNumber(20);
+      const preState: ETHTransferAppState = {
         transfers: [
           {
             to: senderAddr,
@@ -95,35 +99,35 @@ describe("EthPaymentApp", () => {
       };
 
       let action: Action = {
-        paymentAmount: paymentAmt1,
+        transferAmount: transferAmt1,
         finalize: false
       };
 
       let ret = await applyAction(preState, action);
 
       let state = decodeBytesToAppState(ret);
-      expect(state.transfers[0].amount).to.eq(senderAmt.sub(paymentAmt1));
-      expect(state.transfers[1].amount).to.eq(paymentAmt1);
+      expect(state.transfers[0].amount).to.eq(senderAmt.sub(transferAmt1));
+      expect(state.transfers[1].amount).to.eq(transferAmt1);
 
       action = {
-        paymentAmount: paymentAmt2,
+        transferAmount: transferAmt2,
         finalize: false
       };
       ret = await applyAction(state, action);
 
       state = decodeBytesToAppState(ret);
       expect(state.transfers[0].amount).to.eq(
-        senderAmt.sub(paymentAmt1).sub(paymentAmt2)
+        senderAmt.sub(transferAmt1).sub(transferAmt2)
       );
-      expect(state.transfers[1].amount).to.eq(paymentAmt1.add(paymentAmt2));
+      expect(state.transfers[1].amount).to.eq(transferAmt1.add(transferAmt2));
     });
   });
 
-  it("can finalize the state with a 0 payment", async () => {
+  it("can finalize the state with a 0 transfer", async () => {
     const senderAddr = mkAddress("0xa");
     const receiverAddr = mkAddress("0xb");
     const senderAmt = new BigNumber(10000);
-    const preState: EthPaymentAppState = {
+    const preState: ETHTransferAppState = {
       transfers: [
         {
           to: senderAddr,
@@ -138,12 +142,21 @@ describe("EthPaymentApp", () => {
     };
 
     const action: Action = {
-      paymentAmount: Zero,
+      transferAmount: Zero,
       finalize: true
     };
 
-    const ret = await applyAction(preState, action);
+    let ret = await applyAction(preState, action);
     const state = decodeBytesToAppState(ret);
     expect(state.finalized).to.be.true;
+
+    ret = await computeOutcome(state);
+
+    expect(ret).to.eq(
+      defaultAbiCoder.encode(
+        ["tuple(address,uint256)[]"],
+        [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
+      )
+    );
   });
 });

@@ -1,5 +1,5 @@
 import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
-import { AddressZero, MaxUint256 } from "ethers/constants";
+import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
@@ -155,7 +155,12 @@ function addInstallRefundAppCommitmentToContext(
   params: ProtocolParameters,
   context: Context
 ): [InstallCommitment, string] {
-  const { recipient, amount, multisigAddress } = params as WithdrawParams;
+  const {
+    recipient,
+    amount,
+    multisigAddress,
+    initiatingXpub
+  } = params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -179,13 +184,14 @@ function addInstallRefundAppCommitmentToContext(
     },
     0,
     1008,
-    [AddressZero, AddressZero],
-    MaxUint256
+    undefined,
+    { limit: MaxUint256 }
   );
 
   const newStateChannel = stateChannel.installApp(refundAppInstance, {
-    [recipient]: amount
+    [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
   });
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel

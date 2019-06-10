@@ -1,3 +1,5 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/store-firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
@@ -8,7 +10,6 @@ import {
   NODE_EVENTS,
   ProposeVirtualMessage
 } from "../../src/types";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
@@ -22,9 +23,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
-  jest.setTimeout(20000);
-
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
@@ -34,12 +32,8 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     nodeA = result.nodeA;
     nodeB = result.nodeB;
     nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",

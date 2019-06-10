@@ -1,8 +1,9 @@
+// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
+import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
 import { setup } from "./setup";
 import {
@@ -12,7 +13,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
@@ -21,12 +21,7 @@ describe("Node method follows spec - deposit", () => {
     const result = await setup(global);
     nodeA = result.nodeA;
     nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
     provider = new JsonRpcProvider(global["ganacheURL"]);
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
   });
 
   it("has the right balance for both parties after deposits", async () => {
