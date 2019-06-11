@@ -28,4 +28,4 @@ yarn build
 
 ## API Reference
 
-[Found here](API_REFERENCE.md)
+[Found here](docs/index.html)

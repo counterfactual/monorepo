@@ -25,3 +25,7 @@ To build the cf-wallet.js package:
 ```shell
 yarn build 
 ```
+
+## API Reference
+
+[Found here](docs/index.html)
