@@ -12,11 +12,11 @@ import { getFreeBalance, logEthFreeBalance } from "./utils";
 
 // Keep in sync with high-roller-app.spec.ts
 enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  REVEALING,
-  DONE
+  WAITING_FOR_P1_COMMITMENT,
+  P1_COMMITTED_TO_HASH,
+  P2_COMMITTED_TO_NUM,
+  P1_REVEALED_NUM,
+  P1_TRIED_TO_SUBMIT_ZERO
 }
 
 type HighRollerAppState = {
@@ -25,6 +25,7 @@ type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
+  turnNum: 0;
 };
 
 /// Returns the commit hash that can be used to commit to chosenNumber
@@ -44,7 +45,7 @@ function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
     console.log(newState);
   }
 
-  if (newState.stage === HighRollerStage.COMMITTING_NUM) {
+  if (newState.stage === HighRollerStage.P2_COMMITTED_TO_NUM) {
     const numToCommit = Math.floor(Math.random() * Math.floor(1000));
 
     const numberSalt =

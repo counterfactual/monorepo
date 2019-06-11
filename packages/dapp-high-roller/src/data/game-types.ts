@@ -1,9 +1,9 @@
 export enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  REVEALING,
-  DONE
+  WAITING_FOR_P1_COMMITMENT,
+  P1_COMMITTED_TO_HASH,
+  P2_COMMITTED_TO_NUM,
+  P1_REVEALED_NUM,
+  P1_TRIED_TO_SUBMIT_ZERO
 }
 
 export type HighRollerAppState = {
@@ -12,17 +12,17 @@ export type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
+  turnNum: number;
 };
 
-export enum ActionType {
-  START_GAME,
+export enum HighRollerActionType {
   COMMIT_TO_HASH,
   COMMIT_TO_NUM,
-  REVEAL
+  REVEAL_NUM
 }
 
-export type Action = {
-  actionType: ActionType;
+export type HighRollerAction = {
+  actionType: HighRollerActionType;
   number: number;
   actionHash: string;
 };
