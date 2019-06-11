@@ -13,7 +13,7 @@ const callbackWithRequestHandler = (
   requestHandler: RequestHandler,
   callback: AsyncCallback
 ) => async (...args: any[]) => {
-  console.log("Executing", callback.name, " with ", ...args);
+  // console.log("Executing", callback.name, " with ", ...args);
   await callback(requestHandler, ...args);
 };
 
@@ -100,6 +100,15 @@ export default class NodeRouter extends Router {
     }
   }
 
+  async callEvent(event: string, data: any) {
+    if (this.requestHandler.outgoing["_events"][event]) {
+      const eventHandler = this.requestHandler.outgoing["_events"][event];
+      if (eventHandler.fn) {
+        await eventHandler.fn(data);
+      }
+    }
+  }
+
   async emit(event: string, data: any, emitter = "incoming") {
     let eventData = data;
 
@@ -110,16 +119,16 @@ export default class NodeRouter extends Router {
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }
 
-    console.log(
-      "[RpcRouter]",
-      `Emitted ${event} as ${emitter} with ${JSON.stringify(
-        eventData.result
-      )} from\n${(new Error().stack as string)
-        .split("\n")
-        .slice(1)
-        .map(l => l.substr(6))
-        .join("\n")}`
-    );
+    // console.log(
+    //   "[RpcRouter]",
+    //   `Emitted ${event} as ${emitter} with ${JSON.stringify(
+    //     eventData.result
+    //   )} from\n${(new Error().stack as string)
+    //     .split("\n")
+    //     .slice(1)
+    //     .map(l => l.substr(6))
+    //     .join("\n")}`
+    // );
 
     this.requestHandler[emitter].emit(event, eventData.result);
   }

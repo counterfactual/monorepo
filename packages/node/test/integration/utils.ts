@@ -149,6 +149,7 @@ export async function getApps(
   });
   response = (await node.router.dispatch(request)) as JsonRpcResponse;
   result = response.result as NodeTypes.GetProposedAppInstancesResult;
+  console.log("Result of getProposedAppInstances", result);
   return result.appInstances;
 }
 
