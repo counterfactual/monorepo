@@ -8,7 +8,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome
 } from "./data-types";
 import { INodeProvider, Node } from "./node";
 import {
@@ -23,15 +23,15 @@ export interface NetworkContext {
   ChallengeRegistry: string;
   ETHBalanceRefundApp: string;
   ETHBucket: string;
-  MultiSend: string;
-  RootNonceRegistry: string;
-  UninstallKeyRegistry: string;
-  StateChannelTransaction: string;
-  TwoPartyVirtualEthAsLump: string;
-  MinimumViableMultisig: string;
-  ProxyFactory: string;
   ETHInterpreter: string;
+  MinimumViableMultisig: string;
+  MultiSend: string;
+  ProxyFactory: string;
+  RootNonceRegistry: string;
+  StateChannelTransaction: string;
   TwoPartyEthAsLump: string;
+  TwoPartyVirtualEthAsLump: string;
+  UninstallKeyRegistry: string;
 }
 
 // Keep in sync with above
@@ -39,15 +39,15 @@ export const networkContextProps = [
   "ChallengeRegistry",
   "ETHBalanceRefundApp",
   "ETHBucket",
-  "MultiSend",
-  "RootNonceRegistry",
-  "UninstallKeyRegistry",
-  "StateChannelTransaction",
-  "TwoPartyVirtualEthAsLump",
-  "MinimumViableMultisig",
-  "ProxyFactory",
   "ETHInterpreter",
-  "TwoPartyEthAsLump"
+  "MinimumViableMultisig",
+  "MultiSend",
+  "ProxyFactory",
+  "RootNonceRegistry",
+  "StateChannelTransaction",
+  "TwoPartyEthAsLump",
+  "TwoPartyVirtualEthAsLump",
+  "UninstallKeyRegistry"
 ];
 
 export interface ContractMigration {
@@ -71,5 +71,5 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome
 };

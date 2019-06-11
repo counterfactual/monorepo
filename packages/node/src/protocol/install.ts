@@ -158,7 +158,7 @@ async function proposeStateTransition(
       );
       break;
     }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       twoPartyOutcomeInterpreterParams = {
         playerAddrs: [initiatingFbAddress, respondingFbAddress],
         amount: bigNumberify(initiatingBalanceDecrement).add(

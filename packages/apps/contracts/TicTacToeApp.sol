@@ -3,7 +3,8 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+// solium-disable-next-line
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
 
 contract TicTacToeApp is CounterfactualApp {
@@ -56,7 +57,7 @@ contract TicTacToeApp is CounterfactualApp {
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
   }
 
   function isStateTerminal(bytes calldata encodedState)
@@ -120,11 +121,11 @@ contract TicTacToeApp is CounterfactualApp {
     require(state.winner != 0, "Winner was set to 0; invalid");
 
     if (state.winner == 2) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
     } else if (state.winner == 1) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
     } else /* state.winner == 3, or fallback */ {
-      return abi.encode(TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     }
 
   }

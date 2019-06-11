@@ -80,7 +80,7 @@ export type AppInstanceJson = {
 
  * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
  *           and the amount that is to be distributed for an app
- *           where the interpreter type is TWO_PARTY_OUTCOME
+ *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {

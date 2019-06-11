@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../interfaces/Interpreter.sol";
 
 
-contract TwoPartyOutcome {
+contract TwoPartyFixedOutcome {
 
   enum Outcome {
     SEND_TO_ADDR_ONE,
