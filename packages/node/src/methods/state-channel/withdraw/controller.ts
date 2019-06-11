@@ -14,6 +14,9 @@ import { runWithdrawProtocol } from "./operation";
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
 
+  @jsonRpcMethod("chan_withdraw")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.DepositParams
@@ -35,7 +38,6 @@ export default class WithdrawController extends NodeController {
     }
   }
 
-  @jsonRpcMethod("chan_withdraw")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams

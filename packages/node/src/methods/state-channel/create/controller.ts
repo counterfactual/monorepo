@@ -40,6 +40,9 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 export default class CreateChannelController extends NodeController {
   public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
 
+  @jsonRpcMethod("chan_create")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
@@ -47,7 +50,6 @@ export default class CreateChannelController extends NodeController {
     return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
   }
 
-  @jsonRpcMethod("chan_create")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams

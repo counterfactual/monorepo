@@ -19,6 +19,9 @@ import { createProposedAppInstance } from "./operation";
 export default class ProposeInstallController extends NodeController {
   public static readonly methodName = Node.MethodName.PROPOSE_INSTALL;
 
+  @jsonRpcMethod("chan_proposeInstall")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
@@ -40,7 +43,6 @@ export default class ProposeInstallController extends NodeController {
     ];
   }
 
-  @jsonRpcMethod("chan_proposeInstall")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
