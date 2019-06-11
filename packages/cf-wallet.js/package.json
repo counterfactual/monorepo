@@ -15,11 +15,11 @@
   "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b . && rollup -c && typedoc --out docs src",
+    "build": "tsc -b . && rollup -c && yarn docs",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "jest --detectOpenHandles",
-    "docs": "typedoc src/ --out docs/ --ignoreCompilerErrors",
+    "docs": "typedoc src/ --out docs/ --theme markdown --ignoreCompilerErrors",
     "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
   },
   "devDependencies": {
