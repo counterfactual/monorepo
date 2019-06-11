@@ -28,4 +28,4 @@ yarn build
 
 ## API Reference
 
-[Found here](docs/index.html)
+[Found here](docs/)
