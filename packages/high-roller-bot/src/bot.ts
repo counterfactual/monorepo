@@ -45,12 +45,14 @@ function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
     console.log(newState);
   }
 
-  if (newState.stage === HighRollerStage.P2_COMMITTED_TO_NUM) {
+  if (newState.stage === HighRollerStage.P1_COMMITTED_TO_HASH) {
     const numToCommit = Math.floor(Math.random() * Math.floor(1000));
 
     const numberSalt =
       "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
     const playerFirstNumber = Math.floor(Math.random() * Math.floor(1000));
+
     const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
     const commitHashAction = {
