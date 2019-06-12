@@ -5,7 +5,7 @@ import { bigNumberify } from "ethers/utils";
 import { AppInstance } from "../src/app-instance";
 import {
   jsonRpcMethodNames,
-  // NODE_REQUEST_TIMEOUT,
+  NODE_REQUEST_TIMEOUT,
   Provider
 } from "../src/provider";
 import {
@@ -58,35 +58,7 @@ describe("CF.js Provider", () => {
     try {
       await provider.getFreeBalanceState("foo");
     } catch (e) {
-      expect(e.data.message).toBe("Music too loud");
-    }
-  });
-
-  it("throws an error on message type mismatch", async () => {
-    // expect.assertions(2);
-
-    nodeProvider.onMethodRequest(
-      Node.MethodName.GET_FREE_BALANCE_STATE,
-      request => {
-        expect(request.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
-
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
-            type: Node.MethodName.PROPOSE_INSTALL,
-            result: {
-              appInstanceId: ""
-            }
-          },
-          id: 123
-        });
-      }
-    );
-
-    try {
-      await provider.getFreeBalanceState("foo");
-    } catch (e) {
-      expect(e.data.errorName).toBe("unexpected_message_type");
+      expect(e.result.data.message).toBe("Music too loud");
     }
   });
 
@@ -97,22 +69,27 @@ describe("CF.js Provider", () => {
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
     });
     nodeProvider.simulateMessageFromNode({
-      type: Node.MethodName.INSTALL,
-      requestId: "test",
+      jsonrpc: "2.0",
+      id: 123,
       result: {
+        type: Node.MethodName.INSTALL,
         appInstanceId: ""
       }
     });
   });
 
-  it("throws an error on timeout", async () => {
-    try {
-      await provider.getFreeBalanceState("foo");
-    } catch (err) {
-      expect(err.type).toBe(EventType.ERROR);
-      expect(err.data.errorName).toBe("request_timeout");
-    }
-  }, 1000); // This could be done with fake timers.
+  it(
+    "throws an error on timeout",
+    async () => {
+      try {
+        await provider.getFreeBalanceState("foo");
+      } catch (err) {
+        expect(err.type).toBe(EventType.ERROR);
+        expect(err.data.errorName).toBe("request_timeout");
+      }
+    },
+    NODE_REQUEST_TIMEOUT + 1000
+  );
 
   describe("Node methods", () => {
     it("can install an app instance", async () => {
@@ -214,7 +191,9 @@ describe("CF.js Provider", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            transactionHash,
+            result: {
+              transactionHash
+            },
             type: Node.MethodName.CREATE_CHANNEL
           },
           id: request["id"]
@@ -299,7 +278,9 @@ describe("CF.js Provider", () => {
             id: request["id"],
             result: {
               type: Node.MethodName.GET_FREE_BALANCE_STATE,
-              [TEST_OWNERS[0]]: amount
+              result: {
+                [TEST_OWNERS[0]]: amount
+              }
             }
           });
         }

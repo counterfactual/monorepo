@@ -13,17 +13,13 @@ import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
 
 export const jsonRpcMethodNames = {
-  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
-  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
-  [Node.MethodName.GET_STATE]: "chan_getState",
+  [Node.MethodName.GET_FREE_BALANCE_STATE]: "chan_getFreeBalanceState",
   [Node.MethodName.INSTALL]: "chan_install",
   [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
-  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
-  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
   [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
-  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
-  [Node.MethodName.UNINSTALL]: "chan_uninstall",
-  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
+  [Node.MethodName.CREATE_CHANNEL]: "chan_create",
+  [Node.MethodName.DEPOSIT]: "chan_deposit",
+  [Node.MethodName.WITHDRAW]: "chan_withdraw"
 };
 
 /**
@@ -264,7 +260,7 @@ export class Provider {
   async callRawNodeMethod(
     methodName: Node.MethodName,
     params: Node.MethodParams
-  ): Promise<Node.MethodResponse> {
+  ): Promise<any> {
     const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       let request;
