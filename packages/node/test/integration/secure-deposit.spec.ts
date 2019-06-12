@@ -1,8 +1,9 @@
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import { ContractABI } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber, Interface, ParamType } from "ethers/utils";
+import { BigNumber } from "ethers/utils";
 
 import { Node } from "../../src";
 
@@ -75,7 +76,7 @@ describe("Node method follows spec - deposit", () => {
 async function transferERC20Tokens(
   toAddress: string,
   tokenAddress: string = global["networkContext"]["DolphinCoin"],
-  contractABI: Array<string | ParamType> | string | Interface = DolphinCoin.abi,
+  contractABI: ContractABI = DolphinCoin.abi,
   amount: BigNumber = One
 ): Promise<BigNumber> {
   const deployerAccount = new Wallet(

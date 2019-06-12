@@ -16,6 +16,7 @@ import {
   Address,
   AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
@@ -66,6 +67,7 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  ContractABI,
   SolidityABIEncoderV2Type,
   Bytes32,
   ETHBucketAppState,
