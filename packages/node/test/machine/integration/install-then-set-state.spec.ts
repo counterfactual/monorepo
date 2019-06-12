@@ -2,7 +2,7 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContext } from "@counterfactual/types";
-import { Contract, Wallet, ethers } from "ethers";
+import { Contract, ethers, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
@@ -113,10 +113,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       console.log("encodedLatestState=", appInstance.encodedLatestState);
-      console.log(ethers.utils.defaultAbiCoder.decode(
-        ["tuple(tuple(address,uint256)[])"],
-        appInstance.encodedLatestState
-      ));
+      console.log(
+        ethers.utils.defaultAbiCoder.decode(
+          ["tuple(tuple(address,uint256)[])"],
+          appInstance.encodedLatestState
+        )
+      );
 
       stateChannel = stateChannel.installApp(appInstance, {
         [multisigOwnerKeys[0].address]: WeiPerEther,
@@ -146,7 +148,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         await provider.send("evm_mine", []);
       }
 
-
       // this fails
 
       await appRegistry.functions.setOutcome(
@@ -154,7 +155,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         appInstance.encodedLatestState
       );
 
-      console.log("outcome set to", await appRegistry.functions.appOutcomes(appInstance.identityHash));
+      console.log(
+        "outcome set to",
+        await appRegistry.functions.appOutcomes(appInstance.identityHash)
+      );
 
       const installCommitment = new InstallCommitment(
         network,

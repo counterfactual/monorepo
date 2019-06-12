@@ -87,16 +87,18 @@ function createETHFreeBalance(
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
-    [[
-      {
-        to: beneficiaryForPerson1,
-        amount: Zero
-      },
-      {
-        to: beneficiaryForPerson2,
-        amount: Zero
-      }
-    ]],
+    [
+      [
+        {
+          to: beneficiaryForPerson1,
+          amount: Zero
+        },
+        {
+          to: beneficiaryForPerson2,
+          amount: Zero
+        }
+      ]
+    ],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
