@@ -19,6 +19,7 @@ package-lock.json
 .vscode
 .idea/
 *.iml
+*.sw[op]
 
 npm-debug.log*
 yarn-debug.log*
