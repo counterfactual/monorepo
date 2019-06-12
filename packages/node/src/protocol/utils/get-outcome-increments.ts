@@ -4,24 +4,50 @@ import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { isArray } from "util";
 
 import { StateChannel } from "../../models";
 
-function computeCoinTransferIncrement(outcome): [string, BigNumber] {
-  const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
-
-  if (
-    !(
-      decoded.length === 1 &&
-      decoded[0].length === 1 &&
-      decoded[0][0].length === 2
-    )
-  ) {
-    throw new Error("Outcome function returned unexpected shape");
+function unwrap(arr: any) {
+  if (!isArray(arr)) {
+    throw new Error("passed non-array object to unwrap");
   }
-  const [[[address, to]]] = decoded;
+  if (arr.length !== 1) {
+    throw new Error("passed array of length > 1 to unwrap");
+  }
+  return arr[0];
+}
 
-  return [address, to];
+function computeEthTransferIncrement(outcome): { [s: string]: BigNumber } {
+  const decoded0 = defaultAbiCoder.decode(
+    ["tuple(address,uint256)[]"],
+    outcome
+  );
+  const decoded1 = unwrap(decoded0);
+
+  if (!isArray(decoded1)) {
+    throw new Error("no!");
+  }
+
+  const ret = {} as any;
+
+  for (const pair of decoded1) {
+    if (!(isArray(pair) && pair.length === 2)) {
+      throw new Error("no!");
+    }
+    const [address, to] = pair;
+    ret[address] = to;
+  }
+  return ret;
+}
+
+function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
+  for (const key in arr) {
+    if (arr[key].gt(Zero)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export async function computeFreeBalanceIncrements(
@@ -65,10 +91,10 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeCoinTransferIncrement(outcome);
+        const increments = computeCoinTransferIncrement(outcome);
 
-        if (to.gt(Zero)) {
-          return { [address]: to };
+        if (anyNonzeroValues(increments)) {
+          return increments;
         }
 
         attempts += 1;
