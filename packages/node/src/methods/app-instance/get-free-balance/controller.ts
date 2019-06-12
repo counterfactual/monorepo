@@ -31,7 +31,7 @@ export default class GetFreeBalanceController extends NodeController {
 
     const ret: Node.GetFreeBalanceStateResult = {};
 
-    for (const { amount, to } of appState) {
+    for (const { amount, to } of appState[0]) {
       ret[to] = bigNumberify(amount._hex);
     }
 

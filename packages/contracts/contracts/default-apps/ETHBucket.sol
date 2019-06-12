@@ -17,7 +17,7 @@ contract ETHBucket is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return encodedState;
+    return abi.encode(abi.decode(encodedState, (AppState)).transfers);
   }
 
   function outcomeType()
