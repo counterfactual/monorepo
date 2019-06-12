@@ -7,11 +7,11 @@ import {
 import { bigNumberify } from "ethers/utils";
 
 import {
+  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
-  UpdateStateMessage,
-  JsonRpcResponse
+  UpdateStateMessage
 } from "../../src";
 
 import { setup } from "./setup";

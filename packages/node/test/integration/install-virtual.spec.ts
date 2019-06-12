@@ -43,7 +43,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
-    "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
+      "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       it("sends proposal with non-null initial state", async done => {
         const multisigAddressAB = await createChannel(nodeA, nodeB);
