@@ -87,7 +87,7 @@ function createETHFreeBalance(
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
-    [
+    [[
       {
         to: beneficiaryForPerson1,
         amount: Zero
@@ -96,7 +96,7 @@ function createETHFreeBalance(
         to: beneficiaryForPerson2,
         amount: Zero
       }
-    ],
+    ]],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
@@ -254,7 +254,7 @@ export class StateChannel {
         }
       });
     }
-    return this.setState(freeBalance.identityHash, ret);
+    return this.setState(freeBalance.identityHash, [ret]);
   }
 
   public static setupChannel(

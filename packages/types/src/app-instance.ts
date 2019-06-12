@@ -18,7 +18,7 @@ export type SignedStateHashUpdate = {
   signatures: string;
 };
 
-export type ETHBucketAppState = {
+export type ETHBucketAppState = [{
   amount: { _hex: string };
   to: string;
-}[];
+}[]];
