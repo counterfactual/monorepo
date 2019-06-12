@@ -10,6 +10,8 @@ const NETWORK_NAME_TO_ID = {
   rinkeby: "4"
 };
 
+const CONTRACTS_TO_SKIP = new Set(["DolphinCoin"]);
+
 describe("Checks that all the needed contracts have been deployed on each test net", () => {
   const networks = ["kovan", "ropsten", "rinkeby"];
   networks.forEach((networkName: string) => {
@@ -18,7 +20,10 @@ describe("Checks that all the needed contracts have been deployed on each test n
         networkName
       );
       networkContextProps.forEach((contractName: string) => {
-        if (!networkDeployments.has(contractName)) {
+        if (
+          !CONTRACTS_TO_SKIP.has(contractName) &&
+          !networkDeployments.has(contractName)
+        ) {
           throw Error(contractNotDeployed(contractName, networkName));
         }
       });
