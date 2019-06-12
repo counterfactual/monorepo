@@ -151,14 +151,16 @@ export async function getApps(
 
 export function makeDepositRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress?: string
 ): NodeTypes.MethodRequest {
   return {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.DEPOSIT,
     params: {
       multisigAddress,
-      amount
+      amount,
+      tokenAddress
     } as NodeTypes.DepositParams
   };
 }

@@ -123,6 +123,11 @@ export class Node {
   }
 
   @Memoize()
+  get signerAddress(): string {
+    return this.signer.address;
+  }
+
+  @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
   }

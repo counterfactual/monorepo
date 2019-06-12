@@ -130,6 +130,7 @@ export namespace Node {
   export type DepositParams = {
     multisigAddress: string;
     amount: BigNumber;
+    tokenAddress?: string;
     notifyCounterparty?: boolean;
   };
 

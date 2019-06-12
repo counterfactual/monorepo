@@ -2,6 +2,7 @@
   "extends": ["../../tslint.json"],
   "rules": {
     // Needed because `ProtocolExecutionFlow` uses numbered object keys
-    "object-literal-shorthand": false
+    "object-literal-shorthand": false,
+    "prefer-array-literal": false
   }
 }
