@@ -6,8 +6,8 @@
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
   "engines": {
-    "yarn": ">=1.12",
-    "node": ">=10.15"
+    "yarn": "1.12.3",
+    "node": "10.15.3"
   },
   "scripts": {
     "prepublish": "tsc -b . && rollup -c",
