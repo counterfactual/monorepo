@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/postgresql-node-connector",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
