@@ -38,8 +38,6 @@ contract MixinSetOutcome is
       "setOutcome called with incorrect witness data of finalState"
     );
 
-    // this fails
-
     appOutcomes[identityHash] = MAppCaller.computeOutcome(
       appIdentity.appDefinition,
       finalState
