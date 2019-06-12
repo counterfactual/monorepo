@@ -1,6 +1,4 @@
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { Contract, Wallet } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
