@@ -26,8 +26,11 @@ describe("AppInstance", () => {
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ nonce
       Math.ceil(1000 * Math.random()),
-      [AddressZero, AddressZero],
-      Zero
+      {
+        playerAddrs: [AddressZero, AddressZero],
+        amount: Zero
+      },
+      undefined
     );
 
     expect(appInstance).not.toBe(null);

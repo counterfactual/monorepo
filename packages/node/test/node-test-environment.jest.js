@@ -27,16 +27,16 @@ class NodeEnvironment extends NodeJSEnvironment {
       ChallengeRegistry: accounts.contractAddresses.ChallengeRegistry,
       ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
       ETHBucket: accounts.contractAddresses.ETHBucket,
-      MultiSend: accounts.contractAddresses.MultiSend,
-      RootNonceRegistry: accounts.contractAddresses.RootNonceRegistry,
-      UninstallKeyRegistry: accounts.contractAddresses.UninstallKeyRegistry,
-      StateChannelTransaction: accounts.contractAddresses.StateChannelTransaction,
-      TwoPartyVirtualEthAsLump: accounts.contractAddresses.TwoPartyVirtualEthAsLump,
-      MinimumViableMultisig: accounts.contractAddresses.MinimumViableMultisig,
-      ProxyFactory: accounts.contractAddresses.ProxyFactory,
-      TicTacToe: accounts.contractAddresses.TicTacToe,
       ETHInterpreter: accounts.contractAddresses.ETHInterpreter,
-      TwoPartyEthAsLump: accounts.contractAddresses.TwoPartyEthAsLump
+      MinimumViableMultisig: accounts.contractAddresses.MinimumViableMultisig,
+      MultiSend: accounts.contractAddresses.MultiSend,
+      ProxyFactory: accounts.contractAddresses.ProxyFactory,
+      RootNonceRegistry: accounts.contractAddresses.RootNonceRegistry,
+      StateChannelTransaction: accounts.contractAddresses.StateChannelTransaction,
+      TicTacToe: accounts.contractAddresses.TicTacToe,
+      TwoPartyEthAsLump: accounts.contractAddresses.TwoPartyEthAsLump,
+      TwoPartyVirtualEthAsLump: accounts.contractAddresses.TwoPartyVirtualEthAsLump,
+      UninstallKeyRegistry: accounts.contractAddresses.UninstallKeyRegistry,
     };
 
     this.global.networkContext = networkContext;

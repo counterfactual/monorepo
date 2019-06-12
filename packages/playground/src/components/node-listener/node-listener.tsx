@@ -92,7 +92,9 @@ export class NodeListener {
       );
 
       const app: AppDefinition = this.apps.find(app => {
-        return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
+        return (
+          app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appDefinition
+        );
       })!;
 
       if (!app) {

@@ -12,7 +12,7 @@ import {
 
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import DelegateProxy from "../build/DelegateProxy.json";
-import FixedTwoPartyOutcomeApp from "../build/FixedTwoPartyOutcomeApp.json";
+import TwoPartyFixedOutcomeApp from "../build/TwoPartyFixedOutcomeApp.json";
 import TwoPartyVirtualEthAsLump from "../build/TwoPartyVirtualEthAsLump.json";
 import UninstallKeyRegistry from "../build/UninstallKeyRegistry.json";
 
@@ -25,11 +25,11 @@ describe("TwoPartyVirtualEthAsLump", () => {
   let appRegistry: Contract;
   let uninstallKeyRegistry: Contract;
   let virtualAppAgreement: Contract;
-  let fixedTwoPartyOutcome: Contract;
+  let twoPartyFixedOutcome: Contract;
   let appIdentityHash: string;
 
   /// Deploys a new DelegateProxy instance, funds it, and delegatecalls to
-  /// FixedTwoPartyOutcomeApp with random beneficiaries
+  /// TwoPartyFixedOutcomeApp with random beneficiaries
   const delegatecallVirtualAppAgreement = async (
     virtualAppAgreement: Contract,
     appRegistry: Contract,
@@ -91,15 +91,15 @@ describe("TwoPartyVirtualEthAsLump", () => {
       UninstallKeyRegistry
     );
 
-    fixedTwoPartyOutcome = await waffle.deployContract(
+    twoPartyFixedOutcome = await waffle.deployContract(
       wallet,
-      FixedTwoPartyOutcomeApp
+      TwoPartyFixedOutcomeApp
     );
 
     const appIdentity = {
       owner: await wallet.getAddress(),
       signingKeys: [],
-      appDefinition: fixedTwoPartyOutcome.address,
+      appDefinition: twoPartyFixedOutcome.address,
       defaultTimeout: 10
     };
 

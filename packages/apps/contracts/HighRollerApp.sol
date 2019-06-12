@@ -3,7 +3,8 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
 import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+// solium-disable-next-line
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
 
 /// @title High Roller App
@@ -136,7 +137,7 @@ contract HighRollerApp is CounterfactualApp {
         appState.playerFirstNumber, appState.playerSecondNumber
       ));
     } else {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
     }
   }
 
@@ -145,22 +146,22 @@ contract HighRollerApp is CounterfactualApp {
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
   }
 
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (TwoPartyOutcome.Outcome)
+    returns (TwoPartyFixedOutcome.Outcome)
   {
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
     if (playerFirstTotal > playerSecondTotal) {
-      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE;
+      return TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE;
     } else if (playerFirstTotal < playerSecondTotal) {
-      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO;
+      return TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO;
     } else {
-      return TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
+      return TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
     }
   }
 

@@ -1,6 +1,6 @@
 import {
   SolidityABIEncoderV2Type,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome
 } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
@@ -166,7 +166,9 @@ describe("HighRollerApp", () => {
       const ret = await applyAction(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(TwoPartyOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      expect(state.stage).to.eq(
+        TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
+      );
       expect(state.commitHash).to.eq(hash);
     });
 
@@ -239,7 +241,7 @@ describe("HighRollerApp", () => {
       };
 
       expect(await computeOutcome(preState)).to.eq(
-        TwoPartyOutcome.SEND_TO_ADDR_TWO
+        TwoPartyFixedOutcome.SEND_TO_ADDR_TWO
       );
     });
 
@@ -280,7 +282,7 @@ describe("HighRollerApp", () => {
       };
 
       expect(await computeOutcome(preState)).to.eq(
-        TwoPartyOutcome.SEND_TO_ADDR_ONE
+        TwoPartyFixedOutcome.SEND_TO_ADDR_ONE
       );
     });
   });

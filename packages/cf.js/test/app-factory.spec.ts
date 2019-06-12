@@ -8,7 +8,7 @@ import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
 const TEST_APP = {
   abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
-  appId: "0x1515151515151515151515151515151515151515"
+  appDefinition: "0x1515151515151515151515151515151515151515"
 };
 
 describe("CF.js AppFactory", () => {
@@ -20,7 +20,7 @@ describe("CF.js AppFactory", () => {
     nodeProvider = new TestNodeProvider();
     provider = new Provider(nodeProvider);
     appFactory = new AppFactory(
-      TEST_APP.appId,
+      TEST_APP.appDefinition,
       TEST_APP.abiEncodings,
       provider
     );

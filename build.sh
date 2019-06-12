@@ -10,6 +10,7 @@ if [ "$PLAYGROUND_SCOPE" = "server" ]
 then
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \
@@ -23,6 +24,7 @@ then
 else
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
     node-provider \

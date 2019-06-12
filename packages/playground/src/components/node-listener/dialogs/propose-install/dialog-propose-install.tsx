@@ -29,7 +29,9 @@ export class DialogProposeInstall {
 
   render() {
     const app = this.apps.find(app => {
-      return app.id[KOVAN_NETWORK_ID] === this.message.data.params.appId;
+      return (
+        app.id[KOVAN_NETWORK_ID] === this.message.data.params.appDefinition
+      );
     });
 
     if (!app) {

@@ -3,7 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "../interfaces/CounterfactualApp.sol";
 import "../interfaces/Interpreter.sol";
-import "../interfaces/TwoPartyOutcome.sol";
+import "../interfaces/TwoPartyFixedOutcome.sol";
 
 // there is a counter; player2 can unanimously increment it
 
@@ -36,7 +36,7 @@ contract AppWithAction is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
+    return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
   }
 
   function applyAction(
@@ -68,6 +68,6 @@ contract AppWithAction is CounterfactualApp {
     pure
     returns (uint256)
   {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
+    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
   }
 }

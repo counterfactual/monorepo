@@ -37,12 +37,12 @@ function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
 export class AppFactory {
   /**
    * Constructs a new instance
-   * @param appId Address of the on-chain contract containing the app logic.
+   * @param appDefinition Address of the on-chain contract containing the app logic.
    * @param encodings ABI encodings to encode and decode the app's state and actions
    * @param provider CFjs provider
    */
   constructor(
-    readonly appId: Address,
+    readonly appDefinition: Address,
     readonly encodings: AppABIEncodings,
     readonly provider: Provider
   ) {}
@@ -78,7 +78,7 @@ export class AppFactory {
         myDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
-        appId: this.appId,
+        appDefinition: this.appDefinition,
         abiEncodings: this.encodings
       }
     );
@@ -120,7 +120,7 @@ export class AppFactory {
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         intermediaries: params.intermediaries,
-        appId: this.appId,
+        appDefinition: this.appDefinition,
         abiEncodings: this.encodings
       }
     );

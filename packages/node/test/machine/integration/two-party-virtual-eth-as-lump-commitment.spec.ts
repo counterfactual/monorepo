@@ -1,7 +1,7 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import FixedTwoPartyOutcomeApp from "@counterfactual/contracts/build/FixedTwoPartyOutcomeApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -45,7 +45,6 @@ beforeAll(async () => {
 });
 
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
-  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -54,9 +53,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       0
     );
 
-    const fixedTwoPartyOutcomeAppDefinition = await new ContractFactory(
-      FixedTwoPartyOutcomeApp.abi,
-      FixedTwoPartyOutcomeApp.bytecode,
+    const twoPartyFixedOutcomeAppDefinition = await new ContractFactory(
+      TwoPartyFixedOutcomeApp.abi,
+      TwoPartyFixedOutcomeApp.bytecode,
       wallet
     ).deploy();
 
@@ -86,7 +85,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         0, // default timeout
         {
           // appInterface
-          addr: fixedTwoPartyOutcomeAppDefinition.address,
+          addr: twoPartyFixedOutcomeAppDefinition.address,
           stateEncoding: "",
           actionEncoding: undefined
         },
@@ -96,8 +95,11 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         {}, // latest state
         1, // latest nonce
         0, // latest timeout
-        [AddressZero, AddressZero],
-        Zero
+        {
+          playerAddrs: [AddressZero, AddressZero],
+          amount: Zero
+        },
+        undefined
       );
 
       const beneficiaries = [

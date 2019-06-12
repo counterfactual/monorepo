@@ -76,8 +76,11 @@ beforeEach(() => {
     freeBalanceETH.toJson().latestState,
     freeBalanceETH.toJson().latestNonce,
     freeBalanceETH.timeout,
-    [AddressZero, AddressZero],
-    Zero
+    {
+      playerAddrs: [AddressZero, AddressZero],
+      amount: Zero
+    },
+    undefined
   );
 
   intermediaryCommitment = new VirtualAppSetStateCommitment(

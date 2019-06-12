@@ -1,12 +1,12 @@
 import { WRITE_NULL_TO_FIREBASE } from "@counterfactual/firebase-client";
-import { IStoreService } from "@counterfactual/node";
+import { Node } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
 import { LocalFirebaseServiceFactory } from "../../src";
 
 describe("Storage client can get / set", () => {
   let firebaseServiceFactory: LocalFirebaseServiceFactory;
-  let storeService: IStoreService;
+  let storeService: Node.IStoreService;
   const valueOne = "0x111";
   const valueTwo = "0x222";
 
