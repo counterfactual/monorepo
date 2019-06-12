@@ -5,7 +5,7 @@ import { Contract, Wallet } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-describe("DolphinCoin (ERC20) can be used for deposits, installing and uninstalling apps, and withdrawing", () => {
+describe("DolphinCoin (ERC20) can be created", () => {
   let provider: JsonRpcProvider;
   JsonRpcProvider;
 
