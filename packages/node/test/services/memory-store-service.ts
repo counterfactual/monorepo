@@ -38,6 +38,10 @@ export class MemoryStoreService implements Node.IStoreService {
       this.store.set(pair.key, JSON.parse(JSON.stringify(pair.value)));
     }
   }
+
+  async reset() {
+    this.store.clear();
+  }
 }
 
 export class MemoryStoreServiceFactory implements Node.ServiceFactory {

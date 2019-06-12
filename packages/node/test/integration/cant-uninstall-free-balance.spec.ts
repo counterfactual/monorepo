@@ -1,10 +1,7 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-
 import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { createChannel, generateUninstallRequest } from "./utils";
 
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
@@ -12,9 +9,9 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe("Node A and B open channel, attempt to uninstall FreeBalance", () => {

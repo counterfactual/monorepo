@@ -1,12 +1,12 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setupWithMemoryMessagingAndPostgresStore } from "./setup";
+import {
+  SetupContext,
+  setupWithMemoryMessagingAndPostgresStore
+} from "./setup";
 import {
   createChannel,
   generateUninstallRequest,
@@ -19,9 +19,11 @@ describe("Node method follows spec - uninstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setupWithMemoryMessagingAndPostgresStore(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
+    const context: SetupContext = await setupWithMemoryMessagingAndPostgresStore(
+      global
+    );
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe("Node A and B install TTT, then uninstall it", () => {
