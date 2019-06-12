@@ -1,6 +1,8 @@
 import { INodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 
+import { jsonRpcMethodNames } from "../src/provider";
+
 // Randomly generated
 export const TEST_XPUBS = [
   "xpub6EAvo4pQADUK1nFB2UnC9nC5G9iDN3YaeVQ8vA77eU7GEjaZK8H5jDP8M89kJeajTqXJrfbKXgptCqtvpaG1ydED657Kj6dbfjYse6F7Uxy",
@@ -22,19 +24,22 @@ export class TestNodeProvider implements INodeProvider {
     methodName: Node.MethodName,
     callback: (message: Node.MethodRequest) => void
   ) {
-    this.messageEmitter.on(methodName, callback);
+    this.messageEmitter.on(
+      jsonRpcMethodNames[methodName] || methodName,
+      callback
+    );
   }
 
-  public simulateMessageFromNode(message: Node.Message) {
+  public simulateMessageFromNode(message: any) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: Node.Message) => void) {
+  public onMessage(callback: (message: any) => void) {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message: any) {
     this.postedMessages.push(message);
-    this.messageEmitter.emit(message.type, message);
+    this.messageEmitter.emit(message.methodName, message);
   }
 }

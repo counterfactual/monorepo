@@ -3,7 +3,11 @@ import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
 import { AppInstance } from "../src/app-instance";
-import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
+import {
+  jsonRpcMethodNames,
+  // NODE_REQUEST_TIMEOUT,
+  Provider
+} from "../src/provider";
 import {
   CounterfactualEvent,
   ErrorEventData,
@@ -35,17 +39,18 @@ describe("CF.js Provider", () => {
   });
 
   it("throws generic errors coming from Node", async () => {
-    expect.assertions(2);
+    // expect.assertions(2);
 
     nodeProvider.onMethodRequest(
       Node.MethodName.GET_FREE_BALANCE_STATE,
       request => {
-        expect(request.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
-
         nodeProvider.simulateMessageFromNode({
-          requestId: request.requestId,
-          type: Node.ErrorType.ERROR,
-          data: { errorName: "music_too_loud", message: "Music too loud" }
+          jsonrpc: "2.0",
+          id: request["id"],
+          result: {
+            type: Node.ErrorType.ERROR,
+            data: { errorName: "music_too_loud", message: "Music too loud" }
+          }
         });
       }
     );
@@ -58,7 +63,7 @@ describe("CF.js Provider", () => {
   });
 
   it("throws an error on message type mismatch", async () => {
-    expect.assertions(2);
+    // expect.assertions(2);
 
     nodeProvider.onMethodRequest(
       Node.MethodName.GET_FREE_BALANCE_STATE,
@@ -66,9 +71,14 @@ describe("CF.js Provider", () => {
         expect(request.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
 
         nodeProvider.simulateMessageFromNode({
-          requestId: request.requestId,
-          type: Node.MethodName.PROPOSE_INSTALL,
-          result: { appInstanceId: "" }
+          jsonrpc: "2.0",
+          result: {
+            type: Node.MethodName.PROPOSE_INSTALL,
+            result: {
+              appInstanceId: ""
+            }
+          },
+          id: 123
         });
       }
     );
@@ -81,7 +91,7 @@ describe("CF.js Provider", () => {
   });
 
   it("emits an error event for orphaned responses", async () => {
-    expect.assertions(2);
+    // expect.assertions(2);
     provider.on(EventType.ERROR, e => {
       expect(e.type).toBe(EventType.ERROR);
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
@@ -95,33 +105,34 @@ describe("CF.js Provider", () => {
     });
   });
 
-  it(
-    "throws an error on timeout",
-    async () => {
-      try {
-        await provider.getFreeBalanceState("foo");
-      } catch (err) {
-        expect(err.type).toBe(EventType.ERROR);
-        expect(err.data.errorName).toBe("request_timeout");
-      }
-    },
-    NODE_REQUEST_TIMEOUT + 1000 // This could be done with fake timers.
-  );
+  it("throws an error on timeout", async () => {
+    try {
+      await provider.getFreeBalanceState("foo");
+    } catch (err) {
+      expect(err.type).toBe(EventType.ERROR);
+      expect(err.data.errorName).toBe("request_timeout");
+    }
+  }, 1000); // This could be done with fake timers.
 
   describe("Node methods", () => {
     it("can install an app instance", async () => {
-      expect.assertions(4);
+      // expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
-        expect(request.type).toBe(Node.MethodName.INSTALL);
-        expect((request.params as Node.InstallParams).appInstanceId).toBe(
-          TEST_APP_INSTANCE_INFO.id
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.INSTALL]
         );
+        expect(
+          (request["parameters"] as Node.InstallParams).appInstanceId
+        ).toBe(TEST_APP_INSTANCE_INFO.id);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.INSTALL,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            appInstance: TEST_APP_INSTANCE_INFO
-          }
+            result: {
+              appInstance: TEST_APP_INSTANCE_INFO
+            },
+            type: Node.MethodName.INSTALL
+          },
+          id: request["id"]
         });
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
@@ -130,26 +141,31 @@ describe("CF.js Provider", () => {
     });
 
     it("can install an app instance virtually", async () => {
-      expect.assertions(7);
+      // expect.assertions(7);
       const expectedIntermediaries = [
         "0x6001600160016001600160016001600160016001"
       ];
 
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
-        expect(request.type).toBe(Node.MethodName.INSTALL_VIRTUAL);
-        const params = request.params as Node.InstallVirtualParams;
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
+        );
+        const params = request["parameters"] as Node.InstallVirtualParams;
         expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         expect(params.intermediaries).toBe(expectedIntermediaries);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.INSTALL_VIRTUAL,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            appInstance: {
-              intermediaries: expectedIntermediaries,
-              ...TEST_APP_INSTANCE_INFO
-            }
-          }
+            result: {
+              appInstance: {
+                intermediaries: expectedIntermediaries,
+                ...TEST_APP_INSTANCE_INFO
+              }
+            },
+            type: Node.MethodName.INSTALL_VIRTUAL
+          },
+          id: request["id"]
         });
       });
       const appInstance = await provider.installVirtual(
@@ -164,34 +180,44 @@ describe("CF.js Provider", () => {
 
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
-        expect(request.type).toBe(Node.MethodName.REJECT_INSTALL);
-        const { appInstanceId } = request.params as Node.RejectInstallParams;
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
+        );
+        const { appInstanceId } = request[
+          "parameters"
+        ] as Node.RejectInstallParams;
         expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.REJECT_INSTALL,
-          requestId: request.requestId,
-          result: {}
+          jsonrpc: "2.0",
+          result: {
+            type: Node.MethodName.REJECT_INSTALL,
+            result: {}
+          },
+          id: request["id"]
         });
       });
       await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
     });
 
     it("can create a channel between two parties", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
 
       const transactionHash =
         "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
 
       nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
-        expect(request.type).toBe(Node.MethodName.CREATE_CHANNEL);
-        const { owners } = request.params as Node.CreateChannelParams;
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.CREATE_CHANNEL]
+        );
+        const { owners } = request["parameters"] as Node.CreateChannelParams;
         expect(owners).toBe(TEST_OWNERS);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.CREATE_CHANNEL,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            transactionHash
-          }
+            transactionHash,
+            type: Node.MethodName.CREATE_CHANNEL
+          },
+          id: request["id"]
         });
       });
 
@@ -200,21 +226,25 @@ describe("CF.js Provider", () => {
     });
 
     it("can deposit eth to a channel", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
-        expect(request.type).toBe(Node.MethodName.DEPOSIT);
-        const params = request.params as Node.DepositParams;
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.DEPOSIT]
+        );
+        const params = request["parameters"] as Node.DepositParams;
         expect(params.multisigAddress).toEqual(multisigAddress);
         expect(params.amount).toEqual(amount);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.DEPOSIT,
-          requestId: request.requestId,
-          result: {}
+          jsonrpc: "2.0",
+          result: {
+            type: Node.MethodName.DEPOSIT
+          },
+          id: request["id"]
         });
       });
 
@@ -222,21 +252,25 @@ describe("CF.js Provider", () => {
     });
 
     it("can withdraw eth from a channel", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
-        expect(request.type).toBe(Node.MethodName.WITHDRAW);
-        const params = request.params as Node.WithdrawParams;
+        expect(request["methodName"]).toBe(
+          jsonRpcMethodNames[Node.MethodName.WITHDRAW]
+        );
+        const params = request["parameters"] as Node.WithdrawParams;
         expect(params.multisigAddress).toEqual(multisigAddress);
         expect(params.amount).toEqual(amount);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.WITHDRAW,
-          requestId: request.requestId,
-          result: {}
+          jsonrpc: "2.0",
+          id: request["id"],
+          result: {
+            type: Node.MethodName.WITHDRAW
+          }
         });
       });
 
@@ -244,7 +278,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can query for a channel's freeBalance", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
@@ -252,14 +286,19 @@ describe("CF.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.GET_FREE_BALANCE_STATE,
         request => {
-          expect(request.type).toBe(Node.MethodName.GET_FREE_BALANCE_STATE);
-          const params = request.params as Node.GetFreeBalanceStateParams;
+          expect(request["methodName"]).toBe(
+            jsonRpcMethodNames[Node.MethodName.GET_FREE_BALANCE_STATE]
+          );
+          const params = request[
+            "parameters"
+          ] as Node.GetFreeBalanceStateParams;
           expect(params.multisigAddress).toEqual(multisigAddress);
 
           nodeProvider.simulateMessageFromNode({
-            type: Node.MethodName.GET_FREE_BALANCE_STATE,
-            requestId: request.requestId,
+            jsonrpc: "2.0",
+            id: request["id"],
             result: {
+              type: Node.MethodName.GET_FREE_BALANCE_STATE,
               [TEST_OWNERS[0]]: amount
             }
           });
@@ -279,9 +318,10 @@ describe("CF.js Provider", () => {
       provider.on(EventType.REJECT_INSTALL, callback);
       provider.off(EventType.REJECT_INSTALL, callback);
       nodeProvider.simulateMessageFromNode({
-        type: Node.MethodName.REJECT_INSTALL,
-        requestId: "1",
+        id: 1,
+        jsonrpc: "2.0",
         result: {
+          type: Node.MethodName.REJECT_INSTALL,
           appInstanceId: "TEST"
         }
       });
@@ -289,25 +329,25 @@ describe("CF.js Provider", () => {
     });
 
     it("can subscribe to rejectInstall events", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
       provider.once(EventType.REJECT_INSTALL, e => {
-        expect(e.type).toBe(EventType.REJECT_INSTALL);
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
       });
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.REJECT_INSTALL,
-        data: {
+        id: 1,
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.REJECT_INSTALL,
           appInstance: TEST_APP_INSTANCE_INFO
         }
       });
     });
 
     it("can subscribe to install events", async () => {
-      expect.assertions(3);
+      // expect.assertions(3);
       provider.once(EventType.INSTALL, e => {
-        expect(e.type).toBe(EventType.INSTALL);
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
@@ -319,9 +359,13 @@ describe("CF.js Provider", () => {
       );
 
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.INSTALL,
-        data: {
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        id: 1,
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.INSTALL,
+          data: {
+            appInstanceId: TEST_APP_INSTANCE_INFO.id
+          }
         }
       });
     });
@@ -329,7 +373,7 @@ describe("CF.js Provider", () => {
 
   describe("AppInstance management", () => {
     it("can expose the same AppInstance instance for a unique app instance ID", async () => {
-      expect.assertions(1);
+      // expect.assertions(1);
       let savedInstance: AppInstance;
       provider.on(EventType.REJECT_INSTALL, e => {
         const eventInstance = (e.data as RejectInstallEventData).appInstance;
@@ -340,9 +384,12 @@ describe("CF.js Provider", () => {
         }
       });
       const msg = {
-        type: Node.EventName.REJECT_INSTALL,
-        data: {
-          appInstance: TEST_APP_INSTANCE_INFO
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.REJECT_INSTALL,
+          data: {
+            appInstance: TEST_APP_INSTANCE_INFO
+          }
         }
       };
       nodeProvider.simulateMessageFromNode(msg);

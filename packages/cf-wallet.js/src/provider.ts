@@ -7,9 +7,24 @@ import {
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import EventEmitter from "eventemitter3";
+import { jsonRpcDeserialize, jsonRpcSerializeAsResponse } from "rpc-server";
 
 import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
+
+export const jsonRpcMethodNames = {
+  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
+  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
+  [Node.MethodName.GET_STATE]: "chan_getState",
+  [Node.MethodName.INSTALL]: "chan_install",
+  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
+  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
+  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
+  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
+  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
+  [Node.MethodName.UNINSTALL]: "chan_uninstall",
+  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
+};
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -250,33 +265,56 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = new Date().valueOf().toString();
+    const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
-      const request: Node.MethodRequest = {
-        requestId,
-        params,
-        type: methodName
-      };
+      let request;
+
+      if (jsonRpcMethodNames[methodName]) {
+        request = jsonRpcDeserialize({
+          params,
+          jsonrpc: "2.0",
+          method: jsonRpcMethodNames[methodName],
+          id: requestId
+        });
+      } else {
+        request = {
+          params,
+          requestId: requestId.toString(),
+          type: methodName
+        };
+      }
+
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {
-          return reject({
-            type: EventType.ERROR,
-            data: response.data
-          });
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: response.data
+              },
+              requestId
+            )
+          );
         }
-        if (response.type !== methodName) {
-          return reject({
-            type: EventType.ERROR,
-            data: {
-              errorName: "unexpected_message_type",
-              message: `Unexpected response type. Expected ${methodName}, got ${
-                response.type
-              }`
-            }
-          });
+        if ((response["result"]["type"] || response["type"]) !== methodName) {
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: {
+                  errorName: "unexpected_message_type",
+                  message: `Unexpected response type. Expected ${methodName}, got ${
+                    response.type
+                  }`
+                }
+              },
+              requestId
+            )
+          );
         }
-        resolve(response as Node.MethodResponse);
+        resolve(response["result"] as Node.MethodResponse);
       };
+
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
           reject({
@@ -289,6 +327,7 @@ export class Provider {
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
+
       this.nodeProvider.sendMessage(request);
     });
   }
@@ -325,26 +364,40 @@ export class Provider {
    * @ignore
    */
   private onNodeMessage(message: Node.Message) {
-    const type = message.type;
+    const type = message["jsonrpc"] ? message["result"]["type"] : message.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
       this.handleNodeError(message as Node.Error);
     } else if ((message as Node.MethodResponse).requestId) {
       this.handleNodeMethodResponse(message as Node.MethodResponse);
+    } else if (message["id"]) {
+      this.handleNodeMethodResponse({
+        requestId: message["id"],
+        ...message
+      } as Node.MethodResponse);
     } else {
-      this.handleNodeEvent(message as Node.Event);
+      this.handleNodeEvent(message["result"] as Node.Event);
     }
   }
 
   /**
    * @ignore
    */
-  private handleNodeError(error: Node.Error) {
-    const requestId = error.requestId;
-    if (requestId && this.requestListeners[requestId]) {
-      this.requestListeners[requestId](error);
-      delete this.requestListeners[requestId];
+  private handleNodeError(error: any) {
+    if (error.jsonrpc) {
+      const requestId = error.id;
+      if (requestId && this.requestListeners[requestId]) {
+        this.requestListeners[requestId](error.result);
+        delete this.requestListeners[requestId];
+      }
+      this.eventEmitter.emit(error.result.type, error.result);
+    } else {
+      const requestId = error.requestId;
+      if (requestId && this.requestListeners[requestId]) {
+        this.requestListeners[requestId](error);
+        delete this.requestListeners[requestId];
+      }
+      this.eventEmitter.emit(error.type, error);
     }
-    this.eventEmitter.emit(error.type, error);
   }
 
   /**
@@ -356,16 +409,19 @@ export class Provider {
       this.requestListeners[requestId](response);
       delete this.requestListeners[requestId];
     } else {
-      const error = {
-        type: EventType.ERROR,
-        data: {
-          errorName: "orphaned_response",
-          message: `Response has no corresponding inflight request: ${JSON.stringify(
-            response
-          )}`
-        }
-      };
-      this.eventEmitter.emit(error.type, error);
+      const error = jsonRpcSerializeAsResponse(
+        {
+          type: EventType.ERROR,
+          data: {
+            errorName: "orphaned_response",
+            message: `Response has no corresponding inflight request: ${JSON.stringify(
+              response
+            )}`
+          }
+        },
+        Number(requestId)
+      );
+      this.eventEmitter.emit(error.result.type, error.result);
     }
   }
 
