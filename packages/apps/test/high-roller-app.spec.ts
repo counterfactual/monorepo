@@ -349,7 +349,7 @@ describe("HighRollerApp", () => {
       };
 
       expect(await computeOutcome(preState)).to.eq(
-        TwoPartyOutcome.SEND_TO_ADDR_TWO
+        TwoPartyFixedOutcome.SEND_TO_ADDR_TWO
       );
     });
   });

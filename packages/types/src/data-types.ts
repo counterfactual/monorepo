@@ -3,7 +3,7 @@ import { BigNumber } from "ethers/utils";
 
 import { ABIEncoding, AppInstanceID } from "./simple-types";
 
-export type TwoPartyOutcomeInterpreterParams = {
+export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
   playerAddrs: [string, string];
@@ -30,7 +30,7 @@ export type AppInstanceInfo = {
   /**
    * Interpreter-related Fields
    */
-  twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 };
 
