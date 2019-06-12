@@ -36,7 +36,7 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
   private connection: Connection;
 
   constructor(
-    readonly configuration: PostgresConnectionOptions,
+    readonly configuration: ConnectionOptions | PostgresServiceFactory,
     readonly tableName: string = "node_records"
   ) {
     this.connectionManager = new ConnectionManager();
