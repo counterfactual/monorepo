@@ -36,7 +36,7 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
   private connection: Connection;
 
   constructor(
-    configuration: ConnectionOptions,
+    readonly configuration: PostgresConnectionOptions,
     readonly tableName: string = "node_records"
   ) {
     this.connectionManager = new ConnectionManager();
@@ -62,7 +62,7 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
       TABLESPACE pg_default;
 
       ALTER TABLE "${this.tableName}"
-        OWNER to postgres;
+        OWNER to ${this.configuration.username};
      `);
 
     return this.connection;
