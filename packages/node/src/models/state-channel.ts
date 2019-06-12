@@ -244,7 +244,7 @@ export class StateChannel {
 
   public setFreeBalance(newState: { [addr: string]: BigNumber }) {
     const freeBalance = this.getETHFreeBalance();
-    const ret = [] as ETHBucketAppState;
+    const ret = [] as any;
 
     for (const beneficiaryAddr in newState) {
       ret.push({
