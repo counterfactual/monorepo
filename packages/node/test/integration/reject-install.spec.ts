@@ -1,5 +1,3 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
@@ -9,7 +7,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   confirmProposedAppInstanceOnNode,
   createChannel,
@@ -25,9 +23,9 @@ describe("Node method follows spec - rejectInstall", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe(

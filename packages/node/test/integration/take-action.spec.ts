@@ -1,5 +1,3 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import {
   Node as NodeTypes,
   SolidityABIEncoderV2Type
@@ -13,7 +11,7 @@ import {
   UpdateStateMessage
 } from "../../src";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   createChannel,
@@ -27,9 +25,9 @@ describe("Node method follows spec - takeAction", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe(
