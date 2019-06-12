@@ -20,6 +20,7 @@ import {
 export const jsonRpcMethodNames = {
   [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
   [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
+  [Node.MethodName.GET_PROPOSED_APP_INSTANCES]: "chan_getProposedAppInstances",
   [Node.MethodName.GET_STATE]: "chan_getState",
   [Node.MethodName.INSTALL]: "chan_install",
   [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
