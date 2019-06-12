@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
 import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
+// solium-disable-next-line max-len
 import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 
 
