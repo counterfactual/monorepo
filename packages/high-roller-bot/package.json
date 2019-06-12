@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/high-roller-bot",
-  "version": "0.0.17",
+  "version": "0.0.18",
   "description": "A bot for the High Roller Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.1.25",
+    "@counterfactual/node": "0.1.26",
     "@counterfactual/types": "0.0.11",
     "eventemitter3": "^3.1.2"
   },
