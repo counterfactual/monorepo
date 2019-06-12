@@ -214,7 +214,7 @@ export class Node {
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
           throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
-              data.protocol
+            data.protocol
             }`
           );
         }
@@ -320,9 +320,7 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        if (msg.type !== "protocolMessageEvent") {
-          this.router.emit(msg.type, msg, "outgoing");
-        }
+        this.router.emit(msg.type, msg, "outgoing");
       }
     );
   }

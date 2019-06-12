@@ -20,7 +20,7 @@ import { NODE_EVENTS, NodeEvents } from "./types";
  */
 export class RequestHandler {
   private methods = new Map();
-  // private events = new Map();
+  private events = new Map();
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
@@ -93,12 +93,7 @@ export class RequestHandler {
    */
   private mapEventHandlers() {
     for (const eventName of Object.values(NODE_EVENTS)) {
-      // this.events.set(eventName, eventNameToImplementation[eventName]);
-      this.router.subscribe(
-        eventName as string,
-        eventNameToImplementation[eventName as string],
-        "private"
-      );
+      this.events.set(eventName, eventNameToImplementation[eventName]);
     }
   }
 
@@ -109,16 +104,13 @@ export class RequestHandler {
    * @param msg
    */
   public async callEvent(event: NodeEvents, msg: Node.NodeMessage) {
-    // const controllerExecutionMethod = this.events.get(event);
+    const controllerExecutionMethod = this.events.get(event);
 
-    // if (!controllerExecutionMethod) {
-    //   throw new Error(`Recent ${event} which has no event handler`);
-    // }
+    if (!controllerExecutionMethod) {
+      throw new Error(`Recent ${event} which has no event handler`);
+    }
 
-    // await controllerExecutionMethod(this, msg);
-    // console.log(this.outgoing["_events"]);
-    // this.router.emit(event, msg);
-    await this.router.callEvent(event, msg);
+    await controllerExecutionMethod(this, msg);
   }
 
   public getShardedQueue(shardKey: string): Queue {

@@ -47,14 +47,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
     () => {
       it("sends proposal with non-null initial state", async done => {
         const multisigAddressAB = await createChannel(nodeA, nodeB);
-        console.log("Created channel AB");
         const multisigAddressBC = await createChannel(nodeB, nodeC);
-        console.log("Created channel BC");
 
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
-
-        console.log("Collateralization completed");
 
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
         nodeA.once(
@@ -91,11 +87,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
             const { appInstanceId } = msg.data;
             const { intermediaries } = msg.data.params;
             const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
-
-            // TODO: For some odd reason I need to run this twice.
-            // It shouldn't be that way. This feels like an async issue.
-            await getProposedAppInstances(nodeC);
-
             const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
 
             confirmProposedVirtualAppInstance(proposalParams, proposedAppNodeA);
@@ -114,7 +105,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         );
 
         const result = await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
-        console.log("makeTTTVirtualProposal called");
         proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
       });
     }
