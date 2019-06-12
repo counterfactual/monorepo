@@ -8,7 +8,7 @@ import {
 } from "@counterfactual/types";
 import {
   ETHTransferInterpreterParams,
-  TwoPartyOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types/dist/src/data-types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -44,7 +44,7 @@ export class AppInstance {
   /**
    * Interpreter-related Fields
    */
-  readonly twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 
   private readonly eventEmitter: EventEmitter = new EventEmitter();

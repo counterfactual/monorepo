@@ -6,7 +6,7 @@ import {
 } from "@counterfactual/types";
 import {
   ETHTransferInterpreterParams,
-  TwoPartyOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types/dist/src/data-types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
@@ -97,7 +97,7 @@ export class AppInstance {
     latestState: any,
     latestNonce: number,
     latestTimeout: number,
-    twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams,
+    twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
     ethTransferInterpreterParams?: ETHTransferInterpreterParams
   ) {
     this.json = {

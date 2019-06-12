@@ -59,11 +59,12 @@ export class AppWager {
 
     try {
       const initialState: HighRollerAppState = {
-        stage: HighRollerStage.PRE_GAME,
+        stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        turnNum: 0
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);

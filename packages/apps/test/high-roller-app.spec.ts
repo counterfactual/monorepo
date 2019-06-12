@@ -21,11 +21,11 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
 }
 
 enum HighRollerStage {
-  PRE_GAME,
-  COMMITTING_HASH,
-  COMMITTING_NUM,
-  REVEALING,
-  DONE
+  WAITING_FOR_P1_COMMITMENT,
+  P1_COMMITTED_TO_HASH,
+  P2_COMMITTED_TO_NUM,
+  P1_REVEALED_NUM,
+  P1_TRIED_TO_SUBMIT_ZERO
 }
 
 type HighRollerAppState = {
@@ -34,72 +34,56 @@ type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
+  turnNum: number;
 };
 
-enum ActionType {
-  START_GAME,
+enum HighRollerActionType {
   COMMIT_TO_HASH,
   COMMIT_TO_NUM,
-  REVEAL
+  REVEAL_NUM
 }
 
-type Action = {
-  actionType: ActionType;
+type HighRollerAction = {
+  actionType: HighRollerActionType;
   number: number;
   actionHash: string;
 };
 
+const rlpAppStateEncoding = `
+  tuple(
+    uint8 stage,
+    bytes32 salt,
+    bytes32 commitHash,
+    uint256 playerFirstNumber,
+    uint256 playerSecondNumber,
+    uint256 turnNum
+  )
+`;
+
+const rlpActionEncoding = `
+  tuple(
+    uint8 actionType,
+    uint256 number,
+    bytes32 actionHash,
+  )
+`;
+
 function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
-  return defaultAbiCoder.decode(
-    [
-      `tuple(
-        uint8 stage,
-        bytes32 salt,
-        bytes32 commitHash,
-        uint256 playerFirstNumber,
-        uint256 playerSecondNumber
-      )`
-    ],
-    encodedAppState
-  )[0];
+  return defaultAbiCoder.decode([rlpAppStateEncoding], encodedAppState)[0];
+}
+
+function encodeState(state: SolidityABIEncoderV2Type) {
+  return defaultAbiCoder.encode([rlpAppStateEncoding], [state]);
+}
+
+function encodeAction(state: SolidityABIEncoderV2Type) {
+  return defaultAbiCoder.encode([rlpActionEncoding], [state]);
 }
 
 describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Type) {
-    return defaultAbiCoder.encode(
-      [
-        `
-        tuple(
-          uint8 stage,
-          bytes32 salt,
-          bytes32 commitHash,
-          uint256 playerFirstNumber,
-          uint256 playerSecondNumber
-        )
-      `
-      ],
-      [state]
-    );
-  }
-
-  function encodeAction(state: SolidityABIEncoderV2Type) {
-    return defaultAbiCoder.encode(
-      [
-        `
-        tuple(
-          uint8 actionType,
-          uint256 number,
-          bytes32 actionHash,
-        )
-      `
-      ],
-      [state]
-    );
-  }
-
-  async function applyAction(
+  async function computeStateTransition(
     state: SolidityABIEncoderV2Type,
     action: SolidityABIEncoderV2Type
   ) {
@@ -123,121 +107,176 @@ describe("HighRollerApp", () => {
     highRollerApp = await waffle.deployContract(wallet, HighRollerApp);
   });
 
-  describe("applyAction", () => {
-    it("can start game", async () => {
-      const preState: HighRollerAppState = {
-        stage: HighRollerStage.PRE_GAME,
-        salt: HashZero,
-        commitHash: HashZero,
-        playerFirstNumber: 0,
-        playerSecondNumber: 0
-      };
-
-      const action: Action = {
-        actionType: ActionType.START_GAME,
-        number: 0,
-        actionHash: HashZero
-      };
-      const ret = await applyAction(preState, action);
-
-      const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(1);
-    });
-
+  describe("normal state transition path", () => {
     it("can commit to hash", async () => {
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.COMMITTING_HASH,
+        stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        turnNum: 0
       };
 
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
       const playerFirstNumber = 1;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
-      const action: Action = {
-        actionType: ActionType.COMMIT_TO_HASH,
+      const action: HighRollerAction = {
+        actionType: HighRollerActionType.COMMIT_TO_HASH,
         number: 0,
         actionHash: hash
       };
-      const ret = await applyAction(preState, action);
+
+      const ret = await computeStateTransition(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(
-        TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
-      );
+
+      expect(state.stage).to.eq(HighRollerStage.P1_COMMITTED_TO_HASH);
       expect(state.commitHash).to.eq(hash);
     });
 
     it("can commit to num", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
       const playerFirstNumber = 1;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.COMMITTING_NUM,
+        stage: HighRollerStage.P1_COMMITTED_TO_HASH,
         salt: HashZero,
         commitHash: hash,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        turnNum: 1
       };
 
-      const action: Action = {
-        actionType: ActionType.COMMIT_TO_NUM,
+      const action: HighRollerAction = {
+        actionType: HighRollerActionType.COMMIT_TO_NUM,
         number: 2,
         actionHash: HashZero
       };
-      const ret = await applyAction(preState, action);
+
+      const ret = await computeStateTransition(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(3);
+
+      expect(state.stage).to.eq(HighRollerStage.P2_COMMITTED_TO_NUM);
+
       expect(state.playerSecondNumber).to.eq(2);
+    });
+
+    it("cannot commit to num == 0", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
+      const playerFirstNumber = 1;
+
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        stage: HighRollerStage.P1_COMMITTED_TO_HASH,
+        salt: HashZero,
+        commitHash: hash,
+        playerFirstNumber: 0,
+        playerSecondNumber: 0,
+        turnNum: 1
+      };
+
+      const action: HighRollerAction = {
+        actionType: HighRollerActionType.COMMIT_TO_NUM,
+        number: 0,
+        actionHash: HashZero
+      };
+
+      await expect(computeStateTransition(preState, action)).to.be.revertedWith(
+        "It is considered invalid to use 0 as the number."
+      );
     });
 
     it("can reveal", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
       const playerFirstNumber = 1;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.REVEALING,
+        stage: HighRollerStage.P2_COMMITTED_TO_NUM,
         salt: HashZero,
         commitHash: hash,
         playerFirstNumber: 0,
-        playerSecondNumber: 2
+        playerSecondNumber: 2,
+        turnNum: 2
       };
 
-      const action: Action = {
-        actionType: ActionType.REVEAL,
+      const action: HighRollerAction = {
+        actionType: HighRollerActionType.REVEAL_NUM,
         number: playerFirstNumber,
         actionHash: numberSalt
       };
-      const ret = await applyAction(preState, action);
+
+      const ret = await computeStateTransition(preState, action);
 
       const state = decodeBytesToAppState(ret);
-      expect(state.stage).to.eq(4);
+
+      expect(state.stage).to.eq(HighRollerStage.P1_REVEALED_NUM);
       expect(state.playerFirstNumber).to.eq(1);
       expect(state.playerSecondNumber).to.eq(2);
       expect(state.salt).to.eq(numberSalt);
     });
 
-    it("can end game - playerSecond wins", async () => {
+    it("can reveal but if reveal 0, you cheated", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
-      const playerFirstNumber = 1;
+
+      const playerFirstNumber = 0;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.DONE,
+        stage: HighRollerStage.P2_COMMITTED_TO_NUM,
+        salt: HashZero,
+        commitHash: hash,
+        playerFirstNumber: 0,
+        playerSecondNumber: 2,
+        turnNum: 2
+      };
+
+      const action: HighRollerAction = {
+        actionType: HighRollerActionType.REVEAL_NUM,
+        number: playerFirstNumber,
+        actionHash: numberSalt
+      };
+
+      const ret = await computeStateTransition(preState, action);
+
+      const state = decodeBytesToAppState(ret);
+
+      expect(state.stage).to.eq(HighRollerStage.P1_TRIED_TO_SUBMIT_ZERO);
+    });
+
+    it("can end game - playerSecond wins", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
+      const playerFirstNumber = 1;
+
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        stage: HighRollerStage.P1_REVEALED_NUM,
         salt: numberSalt,
         commitHash: hash,
         playerFirstNumber: 1,
-        playerSecondNumber: 2
+        playerSecondNumber: 2,
+        turnNum: 3
       };
 
       expect(await computeOutcome(preState)).to.eq(
@@ -253,15 +292,18 @@ describe("HighRollerApp", () => {
     it("can end game - draw", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
       const playerFirstNumber = 75;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.DONE,
+        stage: HighRollerStage.P1_REVEALED_NUM,
         salt: numberSalt,
         commitHash: hash,
         playerFirstNumber: 75,
-        playerSecondNumber: 45
+        playerSecondNumber: 45,
+        turnNum: 4
       };
 
       expect(await computeOutcome(preState)).to.eq(2);
@@ -270,19 +312,44 @@ describe("HighRollerApp", () => {
     it("can end game - playerFirst wins", async () => {
       const numberSalt =
         "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
       const playerFirstNumber = 3;
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
       const preState: HighRollerAppState = {
-        stage: HighRollerStage.DONE,
+        stage: HighRollerStage.P1_REVEALED_NUM,
         salt: numberSalt,
         commitHash: hash,
         playerFirstNumber: 3,
-        playerSecondNumber: 2
+        playerSecondNumber: 2,
+        turnNum: 5
       };
 
       expect(await computeOutcome(preState)).to.eq(
         TwoPartyFixedOutcome.SEND_TO_ADDR_ONE
+      );
+    });
+
+    it("can end game - playerFirst cheated", async () => {
+      const numberSalt =
+        "0xdfdaa4d168f0be935a1e1d12b555995bc5ea67bd33fce1bc5be0a1e0a381fc90";
+
+      const playerFirstNumber = 3;
+
+      const hash = computeCommitHash(numberSalt, playerFirstNumber);
+
+      const preState: HighRollerAppState = {
+        stage: HighRollerStage.P1_TRIED_TO_SUBMIT_ZERO,
+        salt: numberSalt,
+        commitHash: hash,
+        playerFirstNumber: 0,
+        playerSecondNumber: 2,
+        turnNum: 5
+      };
+
+      expect(await computeOutcome(preState)).to.eq(
+        TwoPartyFixedOutcome.SEND_TO_ADDR_TWO
       );
     });
   });

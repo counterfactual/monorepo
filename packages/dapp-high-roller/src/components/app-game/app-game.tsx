@@ -5,9 +5,9 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import {
-  Action,
-  ActionType,
   GameState,
+  HighRollerAction,
+  HighRollerActionType,
   HighRollerAppState,
   HighRollerStage,
   PlayerType
@@ -17,7 +17,7 @@ import { AppInstance } from "../../data/mock-app-instance";
 import { cf, HighRollerUIMutableState } from "../../data/types";
 import { computeCommitHash, generateSalt, getProp } from "../../utils/utils";
 
-const { AddressZero, HashZero } = ethers.constants;
+const { HashZero } = ethers.constants;
 const { bigNumberify } = ethers.utils;
 
 // dice sound effect attributions:
@@ -48,11 +48,12 @@ export class AppGame {
   @State() gameStatusLabel: string = "";
 
   defaultHighRollerState: HighRollerAppState = {
-    stage: HighRollerStage.PRE_GAME,
+    stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
     salt: HashZero,
     commitHash: HashZero,
     playerFirstNumber: 0,
-    playerSecondNumber: 0
+    playerSecondNumber: 0,
+    turnNum: 0
   };
 
   @Prop({ mutable: true }) highRollerState: HighRollerAppState = this
@@ -85,7 +86,7 @@ export class AppGame {
   @Watch("highRollerState")
   async onHighRollerStateChanged() {
     if (
-      this.highRollerState.stage === HighRollerStage.COMMITTING_NUM &&
+      this.highRollerState.stage === HighRollerStage.P2_COMMITTED_TO_NUM &&
       !this.rolling.opponentRoll
     ) {
       await this.beginRolling("opponentRoll");
@@ -134,30 +135,26 @@ export class AppGame {
       console.log("Reset appInstance", this.appInstance);
     }
 
-    if (this.highRollerState.stage === HighRollerStage.PRE_GAME) {
+    if (
+      this.highRollerState.stage === HighRollerStage.WAITING_FOR_P1_COMMITMENT
+    ) {
       await this.beginRolling("myRoll");
 
-      const startGameAction: Action = {
-        number: 0,
-        actionType: ActionType.START_GAME,
-        actionHash: HashZero
-      };
-
-      this.highRollerState = (await this.appInstance.takeAction(
-        startGameAction
-      )) as HighRollerAppState;
-
       const numberSalt = generateSalt();
+
       const playerFirstNumber =
         1 + Math.floor(Math.random() * Math.floor(1000));
+
       const hash = computeCommitHash(numberSalt, playerFirstNumber);
 
-      const commitHashAction: Action = {
-        number: 0,
-        actionType: ActionType.COMMIT_TO_HASH,
-        actionHash: hash
+      const commitHashAction: HighRollerAction = {
+        actionType: HighRollerActionType.COMMIT_TO_HASH,
+        actionHash: hash,
+        // NOTE: `number` is unused with COMMIT_TO_HASH but cannot be undefined
+        number: 0
       };
 
+      // TODO: Figure out why this is using ...
       this.highRollerState = {
         ...((await this.appInstance.takeAction(
           commitHashAction
@@ -175,9 +172,9 @@ export class AppGame {
       const playerSecondNumber =
         1 + Math.floor(Math.random() * Math.floor(1000));
 
-      const commitHashAction: Action = {
+      const commitHashAction: HighRollerAction = {
         number: playerSecondNumber,
-        actionType: ActionType.COMMIT_TO_NUM,
+        actionType: HighRollerActionType.COMMIT_TO_NUM,
         actionHash: HashZero
       };
 
