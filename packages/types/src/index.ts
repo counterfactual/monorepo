@@ -7,6 +7,8 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  erc20BalanceRefundStateEncoding,
+  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome
 } from "./data-types";
@@ -26,6 +28,9 @@ export interface NetworkContext {
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   ETHInterpreter: string;
+  ERC20BalanceRefundApp: string;
+  ERC20Bucket: string;
+  ERC20TwoPartyDynamicInterpreter: string;
   MinimumViableMultisig: string;
   MultiSend: string;
   ProxyFactory: string;
@@ -43,6 +48,9 @@ export const networkContextProps = [
   "ETHBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
+  "ERC20BalanceRefundApp",
+  "ERC20Bucket",
+  "ERC20TwoPartyDynamicInterpreter",
   "MinimumViableMultisig",
   "MultiSend",
   "ProxyFactory",
@@ -68,6 +76,8 @@ export {
   AppInstanceInfo,
   AppInterface,
   ContractABI,
+  erc20BalanceRefundStateEncoding,
+  ethBalanceRefundStateEncoding,
   SolidityABIEncoderV2Type,
   Bytes32,
   ETHBucketAppState,

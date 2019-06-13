@@ -1,6 +1,17 @@
-import { Node } from "@counterfactual/types";
+import {
+  AppInterface,
+  erc20BalanceRefundStateEncoding,
+  ethBalanceRefundStateEncoding,
+  NetworkContext,
+  Node,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { TransactionRequest, TransactionResponse } from "ethers/providers";
+import {
+  BaseProvider,
+  TransactionRequest,
+  TransactionResponse
+} from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { xkeyKthAddress } from "../../../machine";
@@ -14,6 +25,15 @@ export interface ETHBalanceRefundAppState {
   recipient: string;
   multisig: string;
   threshold: BigNumber;
+}
+
+export interface ERC20BalanceRefundAppState extends ETHBalanceRefundAppState {
+  token: string;
+}
+
+interface DepositContext {
+  initialState: SolidityABIEncoderV2Type;
+  appInterface: AppInterface;
 }
 
 export async function installBalanceRefundApp(
@@ -36,11 +56,13 @@ export async function installBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const initialState = {
-    recipient: xkeyKthAddress(publicIdentifier, 0),
-    multisig: stateChannel.multisigAddress,
-    threshold: await provider.getBalance(params.multisigAddress)
-  };
+  const depositContext = await getAssetBasedDepositContext(
+    params,
+    publicIdentifier,
+    stateChannel,
+    provider,
+    networkContext
+  );
 
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([
@@ -50,19 +72,14 @@ export async function installBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initialState,
+      initialState: depositContext.initialState,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       initiatingBalanceDecrement: Zero,
       respondingBalanceDecrement: Zero,
       signingKeys: stateChannel.getNextSigningKeys(),
-      appInterface: {
-        addr: networkContext.ETHBalanceRefundApp,
-        stateEncoding:
-          "tuple(address recipient, address multisig,  uint256 threshold)",
-        actionEncoding: undefined
-      },
+      appInterface: depositContext.appInterface,
       // this is the block-time equivalent of 7 days
       defaultTimeout: 1008
     }
@@ -158,4 +175,40 @@ export async function uninstallBalanceRefundApp(
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
   );
+}
+
+async function getAssetBasedDepositContext(
+  params: Node.DepositParams,
+  publicIdentifier: string,
+  stateChannel: StateChannel,
+  provider: BaseProvider,
+  networkContext: NetworkContext
+): Promise<DepositContext> {
+  const initialState = {
+    recipient: xkeyKthAddress(publicIdentifier, 0),
+    multisig: stateChannel.multisigAddress,
+    threshold: await provider.getBalance(params.multisigAddress)
+  };
+
+  if (!params.tokenAddress) {
+    return {
+      initialState,
+      appInterface: {
+        addr: networkContext.ETHBalanceRefundApp,
+        stateEncoding: ethBalanceRefundStateEncoding,
+        actionEncoding: undefined
+      }
+    };
+  }
+  return {
+    initialState: {
+      ...initialState,
+      token: params.tokenAddress
+    },
+    appInterface: {
+      addr: networkContext.ERC20BalanceRefundApp,
+      stateEncoding: erc20BalanceRefundStateEncoding,
+      actionEncoding: undefined
+    }
+  };
 }
