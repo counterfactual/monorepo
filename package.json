@@ -35,8 +35,6 @@
     "tslint-config-airbnb": "5.11.1",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
-    "typedoc": "^0.14.2",
-    "typedoc-plugin-markdown": "^1.2.1",
     "typescript": "3.5.1"
   },
   "resolutions": {

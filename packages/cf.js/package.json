@@ -30,6 +30,7 @@
     "rollup-plugin-typescript2": "0.21.2",
     "tslint": "5.18.0",
     "typedoc": "0.14.2",
+    "typedoc-plugin-markdown": "^1.2.1",
     "typescript": "3.5.1"
   },
   "dependencies": {
