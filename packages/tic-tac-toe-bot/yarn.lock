@@ -910,10 +910,10 @@
     ethers "4.0.26"
     eventemitter3 "^3.1.0"
 
-"@counterfactual/contracts@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.1.tgz#f2045b281b0ab11b99417dc978dcf458aeba221c"
-  integrity sha512-RyPxbzBfdhbmPjYLYHviB4aCdN0mqgcH63d0d9OY6TH0h2wThzLi05+elBsXnK6KekKg4cUWwyFtGPvbMHY5SQ==
+"@counterfactual/contracts@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.2.tgz#5921ba7695884c48c25b02cd3f5deb5338079a55"
+  integrity sha512-6gltf4DAFNIlNpFHs5/HVmYXMOi0JbVJilEtHPO4PCH4KCAwfC127T43milWExMDt23vXTavno7ywn1M2fvrWg==
 
 "@counterfactual/dapp-tic-tac-toe@0.1.2":
   version "0.1.2"
@@ -949,15 +949,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.25":
-  version "0.1.25"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.25.tgz#20b40d75616f757f8b0fb542ef3d067652557a3e"
-  integrity sha512-wNVCv8w/E4ch0Kcm0JbX3L/a47H/Ava61oC0pFC2UlnYOg+tSJyeQShgpSmkqCqEhn92S9bkKBVMn44qvyr+AQ==
+"@counterfactual/node@0.1.26":
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
+  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
   dependencies:
     "@counterfactual/cf.js" "0.1.1"
-    "@counterfactual/contracts" "0.1.1"
+    "@counterfactual/contracts" "0.1.2"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.10"
+    "@counterfactual/types" "0.0.11"
     "@firebase/util" "0.2.18"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
@@ -966,10 +966,10 @@
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
-"@counterfactual/types@0.0.10":
-  version "0.0.10"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
-  integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
+"@counterfactual/types@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
+  integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
 
 "@counterfactual/types@^0.1.2":
   version "0.1.2"
