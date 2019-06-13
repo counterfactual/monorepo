@@ -260,25 +260,17 @@ export class Provider {
   async callRawNodeMethod(
     methodName: Node.MethodName,
     params: Node.MethodParams
-  ): Promise<any> {
+  ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       let request;
 
-      if (jsonRpcMethodNames[methodName]) {
-        request = jsonRpcDeserialize({
-          params,
-          jsonrpc: "2.0",
-          method: jsonRpcMethodNames[methodName],
-          id: requestId
-        });
-      } else {
-        request = {
-          params,
-          requestId: requestId.toString(),
-          type: methodName
-        };
-      }
+      request = jsonRpcDeserialize({
+        params,
+        jsonrpc: "2.0",
+        method: jsonRpcMethodNames[methodName],
+        id: requestId
+      });
 
       this.requestListeners[requestId] = response => {
         if (response.type === Node.ErrorType.ERROR) {

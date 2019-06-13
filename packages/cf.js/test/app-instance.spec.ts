@@ -1,5 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
+import { JsonRpcResponse } from "rpc-server";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
@@ -40,10 +41,10 @@ describe("CF.js AppInstance", () => {
       const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
         console.log("Callback for GET_STATE executed");
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.GET_STATE]
         );
-        const params = request["parameters"] as Node.GetStateParams;
+        const params = request.parameters as Node.GetStateParams;
         expect(params.appInstanceId).toBe(appInstance.id);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -53,7 +54,7 @@ describe("CF.js AppInstance", () => {
               state: expectedState
             }
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
 
@@ -66,10 +67,10 @@ describe("CF.js AppInstance", () => {
       const expectedAction = { action: "1337" };
       const expectedNewState = { val: "5337" };
       nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
         );
-        const params = request["parameters"] as Node.TakeActionParams;
+        const params = request.parameters as Node.TakeActionParams;
         expect(params.appInstanceId).toBe(appInstance.id);
         expect(params.action).toBe(expectedAction);
 
@@ -81,7 +82,7 @@ describe("CF.js AppInstance", () => {
               newState: expectedNewState
             }
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
 
@@ -93,10 +94,10 @@ describe("CF.js AppInstance", () => {
       expect.assertions(2);
 
       nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.UNINSTALL]
         );
-        const params = request["parameters"] as Node.UninstallParams;
+        const params = request.parameters as Node.UninstallParams;
         expect(params.appInstanceId).toBe(appInstance.id);
 
         nodeProvider.simulateMessageFromNode({
@@ -105,7 +106,7 @@ describe("CF.js AppInstance", () => {
             type: Node.MethodName.UNINSTALL,
             result: {}
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
 
@@ -204,7 +205,7 @@ describe("CF.js AppInstance", () => {
             appInstanceId: TEST_APP_INSTANCE_INFO.id
           }
         }
-      };
+      } as JsonRpcResponse;
       nodeProvider.simulateMessageFromNode(event);
       nodeProvider.simulateMessageFromNode(event);
       setTimeout(done, 50);

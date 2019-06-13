@@ -1,5 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
+import { JsonRpcResponse } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
 import {
@@ -43,7 +44,7 @@ describe("CF.js Provider", () => {
     nodeProvider.onMethodRequest(Node.MethodName.GET_APP_INSTANCES, request => {
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
-        id: request["id"],
+        id: request.id as number,
         result: {
           type: Node.ErrorType.ERROR,
           data: { errorName: "music_too_loud", message: "Music too loud" }
@@ -54,14 +55,16 @@ describe("CF.js Provider", () => {
     try {
       await provider.getAppInstances();
     } catch (e) {
+      console.log(e);
       expect(e.result.data.message).toBe("Music too loud");
     }
   });
 
   it("emits an error event for orphaned responses", async () => {
-    expect.assertions(1);
+    expect.assertions(2);
     provider.on(EventType.ERROR, e => {
-      // expect(e.type).toBe(EventType.ERROR);
+      expect(e.type).toBe(EventType.ERROR);
+      console.log(e);
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
     });
     nodeProvider.simulateMessageFromNode({
@@ -72,7 +75,7 @@ describe("CF.js Provider", () => {
           appInstanceId: ""
         }
       },
-      id: 123
+      id: 3
     });
   });
 
@@ -98,12 +101,8 @@ describe("CF.js Provider", () => {
       );
     });
 
-    nodeProvider.simulateMessageFromNode(({
-      jsonrpc: "2.0",
-      result: {
-        type: "notARealEventType"
-      }
-    } as unknown) as Node.Event);
+    // @ts-ignore Ignoring compiler on purpose to simulate an invalid event type.
+    provider.callRawNodeMethod("notARealEventType", {});
   });
 
   it("throws an error when subscribing to an unknown event", async () => {
@@ -122,7 +121,7 @@ describe("CF.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.GET_APP_INSTANCES,
         request => {
-          expect(request["methodName"]).toBe(
+          expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.GET_APP_INSTANCES]
           );
 
@@ -134,7 +133,7 @@ describe("CF.js Provider", () => {
                 appInstances: [TEST_APP_INSTANCE_INFO]
               }
             },
-            id: request["id"]
+            id: request.id as number
           });
         }
       );
@@ -147,12 +146,12 @@ describe("CF.js Provider", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL]
         );
-        expect(
-          (request["parameters"] as Node.InstallParams).appInstanceId
-        ).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect((request.parameters as Node.InstallParams).appInstanceId).toBe(
+          TEST_APP_INSTANCE_INFO.id
+        );
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
@@ -161,7 +160,7 @@ describe("CF.js Provider", () => {
             },
             type: Node.MethodName.INSTALL
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
@@ -178,10 +177,10 @@ describe("CF.js Provider", () => {
       ];
 
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
         );
-        const params = request["parameters"] as Node.InstallVirtualParams;
+        const params = request.parameters as Node.InstallVirtualParams;
         expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         expect(params.intermediaries).toBe(expectedIntermediaries);
 
@@ -196,7 +195,7 @@ describe("CF.js Provider", () => {
             },
             type: Node.MethodName.INSTALL_VIRTUAL
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       const appInstance = await provider.installVirtual(
@@ -213,12 +212,12 @@ describe("CF.js Provider", () => {
 
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
         );
-        const { appInstanceId } = request[
-          "parameters"
-        ] as Node.RejectInstallParams;
+        const {
+          appInstanceId
+        } = request.parameters as Node.RejectInstallParams;
         expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -226,7 +225,7 @@ describe("CF.js Provider", () => {
             type: Node.MethodName.REJECT_INSTALL,
             result: {}
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
@@ -247,8 +246,7 @@ describe("CF.js Provider", () => {
             appInstanceId: "TEST"
           },
           type: Node.MethodName.REJECT_INSTALL
-        },
-        id: 1
+        }
       });
       setTimeout(done, 100);
     });
@@ -318,7 +316,7 @@ describe("CF.js Provider", () => {
             appInstance: TEST_APP_INSTANCE_INFO
           }
         }
-      };
+      } as JsonRpcResponse;
       nodeProvider.simulateMessageFromNode(msg);
       nodeProvider.simulateMessageFromNode(msg);
     });
@@ -343,13 +341,12 @@ describe("CF.js Provider", () => {
         }
       });
       expect(nodeProvider.postedMessages).toHaveLength(1);
-      const detailsRequest = nodeProvider
-        .postedMessages[0] as Node.MethodRequest;
-      expect(detailsRequest["methodName"]).toBe(
+      const [detailsRequest] = nodeProvider.postedMessages;
+      expect(detailsRequest.methodName).toBe(
         jsonRpcMethodNames[Node.MethodName.GET_APP_INSTANCE_DETAILS]
       );
       expect(
-        (detailsRequest["parameters"] as Node.GetAppInstanceDetailsParams)
+        (detailsRequest.parameters as Node.GetAppInstanceDetailsParams)
           .appInstanceId
       ).toBe(TEST_APP_INSTANCE_INFO.id);
       nodeProvider.simulateMessageFromNode({
@@ -360,8 +357,8 @@ describe("CF.js Provider", () => {
             appInstance: TEST_APP_INSTANCE_INFO
           }
         },
-        id: detailsRequest["id"]
-      });
+        id: detailsRequest.id
+      } as JsonRpcResponse);
       // NOTE: For some reason the event won't fire unless we wait for a bit
       await new Promise(r => setTimeout(r, 50));
     });

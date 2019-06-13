@@ -1,4 +1,5 @@
 import { BigNumber } from "ethers/utils";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { AppABIEncodings, AppInstanceInfo } from "./data-types";
 import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
@@ -6,6 +7,11 @@ import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
   sendMessage(message: Node.Message);
+}
+
+export interface IRpcNodeProvider {
+  onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void);
+  sendMessage(message: Rpc);
 }
 
 export namespace Node {

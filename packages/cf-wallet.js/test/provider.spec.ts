@@ -39,7 +39,7 @@ describe("CF.js Provider", () => {
   });
 
   it("throws generic errors coming from Node", async () => {
-    // expect.assertions(2);
+    expect.assertions(2);
 
     nodeProvider.onMethodRequest(
       Node.MethodName.GET_FREE_BALANCE_STATE,
@@ -63,7 +63,7 @@ describe("CF.js Provider", () => {
   });
 
   it("emits an error event for orphaned responses", async () => {
-    // expect.assertions(2);
+    expect.assertions(2);
     provider.on(EventType.ERROR, e => {
       expect(e.type).toBe(EventType.ERROR);
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
@@ -93,7 +93,7 @@ describe("CF.js Provider", () => {
 
   describe("Node methods", () => {
     it("can install an app instance", async () => {
-      // expect.assertions(4);
+      expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
         expect(request["methodName"]).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL]
@@ -120,7 +120,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can install an app instance virtually", async () => {
-      // expect.assertions(7);
+      expect.assertions(7);
       const expectedIntermediaries = [
         "0x6001600160016001600160016001600160016001"
       ];
@@ -181,7 +181,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can create a channel between two parties", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
 
       const transactionHash =
         "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
@@ -209,7 +209,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can deposit eth to a channel", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
@@ -235,7 +235,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can withdraw eth from a channel", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
@@ -261,7 +261,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can query for a channel's freeBalance", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
 
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
@@ -314,7 +314,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can subscribe to rejectInstall events", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
       provider.once(EventType.REJECT_INSTALL, e => {
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
@@ -331,7 +331,7 @@ describe("CF.js Provider", () => {
     });
 
     it("can subscribe to install events", async () => {
-      // expect.assertions(3);
+      expect.assertions(3);
       provider.once(EventType.INSTALL, e => {
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
@@ -358,7 +358,7 @@ describe("CF.js Provider", () => {
 
   describe("AppInstance management", () => {
     it("can expose the same AppInstance instance for a unique app instance ID", async () => {
-      // expect.assertions(1);
+      expect.assertions(1);
       let savedInstance: AppInstance;
       provider.on(EventType.REJECT_INSTALL, e => {
         const eventInstance = (e.data as RejectInstallEventData).appInstance;

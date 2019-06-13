@@ -35,10 +35,10 @@ describe("CF.js AppFactory", () => {
       const expectedAppInstanceId = "TEST_ID";
 
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
         );
-        const params = request["parameters"] as Node.ProposeInstallParams;
+        const params = request.parameters as Node.ProposeInstallParams;
         expect(params.initialState).toBe(expectedState);
         expect(params.myDeposit).toEqual(expectedDeposit);
         nodeProvider.simulateMessageFromNode({
@@ -49,7 +49,7 @@ describe("CF.js AppFactory", () => {
               appInstanceId: expectedAppInstanceId
             }
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       const appInstanceId = await appFactory.proposeInstall({
@@ -73,12 +73,10 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
-          expect(request["methodName"]).toBe(
+          expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
           );
-          const params = request[
-            "parameters"
-          ] as Node.ProposeInstallVirtualParams;
+          const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaries).toBe(expectedIntermediaries);
           expect(params.myDeposit).toEqual(expectedDeposit);
@@ -90,7 +88,7 @@ describe("CF.js AppFactory", () => {
                 appInstanceId: expectedAppInstanceId
               }
             },
-            id: request["id"]
+            id: request.id as number
           });
         }
       );
