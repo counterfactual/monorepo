@@ -5,7 +5,7 @@ import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
-import { Node, INSUFFICIENT_ERC20_FUNDS } from "../../src";
+import { INSUFFICIENT_ERC20_FUNDS, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {

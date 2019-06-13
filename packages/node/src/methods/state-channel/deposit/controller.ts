@@ -55,12 +55,12 @@ export default class DepositController extends NodeController {
       if (balance.lt(amount)) {
         return Promise.reject(INSUFFICIENT_ERC20_FUNDS(address));
       }
-    }
+    } else {
+      const balanceOfSigner = await provider.getBalance(address);
 
-    const balanceOfSigner = await provider.getBalance(address);
-
-    if (balanceOfSigner.lt(amount)) {
-      return Promise.reject(`${INSUFFICIENT_FUNDS}: ${address}`);
+      if (balanceOfSigner.lt(amount)) {
+        return Promise.reject(`${INSUFFICIENT_FUNDS}: ${address}`);
+      }
     }
   }
 

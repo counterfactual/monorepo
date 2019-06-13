@@ -7,7 +7,8 @@ contract Interpreter {
   enum OutcomeType {
     TWO_PARTY_FIXED_OUTCOME,
     TWO_PARTY_DYNAMIC_OUTCOME,
-    ETH_TRANSFER
+    ETH_TRANSFER,
+    ERC20_TRANSFER
   }
 
   function interpretOutcomeAndExecuteEffect(
