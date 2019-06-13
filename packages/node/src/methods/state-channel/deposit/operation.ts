@@ -1,3 +1,4 @@
+import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import {
   AppInterface,
   erc20BalanceRefundStateEncoding,
@@ -6,6 +7,7 @@ import {
   Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import {
   BaseProvider,
@@ -184,10 +186,11 @@ async function getAssetBasedDepositContext(
   provider: BaseProvider,
   networkContext: NetworkContext
 ): Promise<DepositContext> {
+  const { multisigAddress, tokenAddress } = params;
   const initialState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: stateChannel.multisigAddress,
-    threshold: await provider.getBalance(params.multisigAddress)
+    threshold: await provider.getBalance(multisigAddress)
   };
 
   if (!params.tokenAddress) {
@@ -200,10 +203,16 @@ async function getAssetBasedDepositContext(
       }
     };
   }
+  const tokenContract = new Contract(tokenAddress!, ERC20.abi, provider);
+  const tokenThreshold = await tokenContract.functions.balanceOf(
+    multisigAddress
+  );
+
   return {
     initialState: {
       ...initialState,
-      token: params.tokenAddress
+      token: tokenAddress!,
+      threshold: tokenThreshold
     },
     appInterface: {
       addr: networkContext.ERC20BalanceRefundApp,
