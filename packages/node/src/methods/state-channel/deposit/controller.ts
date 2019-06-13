@@ -1,11 +1,18 @@
+import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import { Node } from "@counterfactual/types";
+import { Contract } from "ethers";
+import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
-import { CANNOT_DEPOSIT, INSUFFICIENT_FUNDS } from "../../errors";
+import {
+  CANNOT_DEPOSIT,
+  INSUFFICIENT_ERC20_FUNDS,
+  INSUFFICIENT_FUNDS
+} from "../../errors";
 
 import {
   installBalanceRefundApp,
@@ -28,7 +35,7 @@ export default class DepositController extends NodeController {
     params: Node.DepositParams
   ): Promise<void> {
     const { store, provider } = requestHandler;
-    const { multisigAddress, amount } = params;
+    const { multisigAddress, amount, tokenAddress } = params;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -41,6 +48,14 @@ export default class DepositController extends NodeController {
     }
 
     const address = await requestHandler.getSignerAddress();
+
+    if (tokenAddress) {
+      const contract = new Contract(tokenAddress, ERC20.abi, provider);
+      const balance: BigNumber = await contract.functions.balanceOf(address);
+      if (balance.lt(amount)) {
+        return Promise.reject(INSUFFICIENT_ERC20_FUNDS(address));
+      }
+    }
 
     const balanceOfSigner = await provider.getBalance(address);
 

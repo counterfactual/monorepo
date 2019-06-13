@@ -5,7 +5,7 @@ import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
-import { Node } from "../../src";
+import { Node, INSUFFICIENT_ERC20_FUNDS } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -45,15 +45,22 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it.only("has the right balance for both parties after deposits of ERC20 tokens", async () => {
-    await transferERC20Tokens(nodeA.signerAddress);
-    await transferERC20Tokens(nodeB.signerAddress);
-
     const multisigAddress = await createChannel(nodeA, nodeB);
+
     const depositReq = makeDepositRequest(
       multisigAddress,
       One,
       global["networkContext"]["DolphinCoin"]
     );
+
+    try {
+      await nodeA.call(depositReq.type, depositReq);
+    } catch (e) {
+      expect(e).toEqual(INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress()));
+    }
+
+    await transferERC20Tokens(await nodeA.signerAddress());
+    await transferERC20Tokens(await nodeB.signerAddress());
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
     await nodeA.call(depositReq.type, depositReq);

@@ -123,8 +123,8 @@ export class Node {
   }
 
   @Memoize()
-  get signerAddress(): string {
-    return this.signer.address;
+  async signerAddress(): Promise<string> {
+    return await this.requestHandler.getSignerAddress();
   }
 
   @Memoize()

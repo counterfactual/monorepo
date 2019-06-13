@@ -24,6 +24,9 @@ export const IMPROPERLY_FORMATTED_STRUCT =
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
 
+export const INSUFFICIENT_ERC20_FUNDS = (address: string) =>
+  `Node's default signer does not have enough funds of the specified ERC20 token for this action: ${address}`;
+
 export const INVALID_ACTION = "Invalid action taken";
 
 export const INVALID_NETWORK_NAME =
