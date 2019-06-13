@@ -8,6 +8,9 @@ dist/
 functions/
 
 # cache
+.config
+.node-gyp
+.npm
 .rpt2_cache
 
 # coverage
