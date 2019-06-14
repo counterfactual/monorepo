@@ -1,6 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { JsonRpcResponse, JsonRpcNotification } from "rpc-server";
+import { JsonRpcNotification, JsonRpcResponse } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
 import {
