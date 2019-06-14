@@ -19,7 +19,7 @@ type ETHTransferAppState = {
   finalized: boolean;
 };
 
-type Action = {
+type ETHUnidirectionalTransferAppAction = {
   transferAmount: BigNumber;
   finalize: boolean;
 };
@@ -98,7 +98,7 @@ describe("ETHUnidirectionalTransferApp", () => {
         finalized: false
       };
 
-      let action: Action = {
+      let action: ETHUnidirectionalTransferAppAction = {
         transferAmount: transferAmt1,
         finalize: false
       };
@@ -141,7 +141,7 @@ describe("ETHUnidirectionalTransferApp", () => {
       finalized: false
     };
 
-    const action: Action = {
+    const action: ETHUnidirectionalTransferAppAction = {
       transferAmount: Zero,
       finalize: true
     };
