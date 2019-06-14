@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf.js",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
