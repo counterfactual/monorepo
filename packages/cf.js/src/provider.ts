@@ -216,7 +216,6 @@ export class Provider {
       }
 
       this.requestListeners[requestId] = response => {
-        console.log("Request listener", requestId, response);
         if (response.result.type === Node.ErrorType.ERROR) {
           return reject(
             jsonRpcSerializeAsResponse(
@@ -228,7 +227,6 @@ export class Provider {
             )
           );
         }
-        console.log(response);
         if (response.result.type !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(

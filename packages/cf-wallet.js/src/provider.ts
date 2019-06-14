@@ -289,7 +289,6 @@ export class Provider {
       }
 
       this.requestListeners[requestId] = response => {
-        console.log("Request listener", requestId, response);
         if (response.result.type === Node.ErrorType.ERROR) {
           return reject(
             jsonRpcSerializeAsResponse(
@@ -301,7 +300,6 @@ export class Provider {
             )
           );
         }
-        console.log(response);
         if (response.result.type !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(
@@ -478,7 +476,6 @@ export class Provider {
    * @ignore
    */
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
-    console.log("Handling rejectInstallEvent", nodeEvent);
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
     const appInstance = await this.getOrCreateAppInstance(info.id, info);

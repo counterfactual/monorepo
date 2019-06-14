@@ -86,7 +86,6 @@ export class AppInstance {
       }
     );
     const result = response.result as Node.GetStateResult;
-    console.log("Result for getState", result);
     return result.state;
   }
 

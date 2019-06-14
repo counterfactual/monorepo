@@ -40,7 +40,6 @@ describe("CF.js AppInstance", () => {
 
       const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
-        console.log("Callback for GET_STATE executed");
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.GET_STATE]
         );
