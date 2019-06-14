@@ -23,7 +23,7 @@
     "contractName": "ETHBucket",
     "address": "0x452166f663228EB537faEAC5fd9948387F3f96AA",
     "transactionHash": "0x683407c2e6245a5b7794d40875a43fb4db0f53154b65fdd19215de65f925d9bc"
-  }
+  },
   {
     "contractName": "MinimumViableMultisig",
     "address": "0x0971e871D05739E7821Aedb6a9e75083F3bd4997",

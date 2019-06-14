@@ -908,33 +908,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf.js@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.1.1.tgz#3870746b3c1a2317688a05d8985dbd0b11c7eafa"
-  integrity sha512-Q26xZ/upbRaO0cr3NGgv4GTeZFP0pgC0s50e7lGWuFvGUDED9r3SES5PejcTpnsVz070AjiwHVCji4stuIHdqw==
-  dependencies:
-    "@counterfactual/node-provider" "^0.1.1"
-    "@counterfactual/types" "^0.1.2"
-    ethers "4.0.26"
-    eventemitter3 "^3.1.0"
-
-"@counterfactual/node@0.1.26":
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
-  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
-  dependencies:
-    "@counterfactual/cf.js" "0.1.1"
-    "@counterfactual/contracts" "0.1.2"
-    "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.11"
-    "@firebase/util" "0.2.18"
-    ethers "4.0.29"
-    eventemitter3 "^3.1.2"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
 "@counterfactual/postgresql-node-connector@0.0.2":
   version "0.0.2"
   resolved "https://registry.yarnpkg.com/@counterfactual/postgresql-node-connector/-/postgresql-node-connector-0.0.2.tgz#73c8b6a42acf6595fdb73f646826f7661b21c36d"
@@ -954,11 +927,6 @@
   version "0.0.11"
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
   integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
-
-"@counterfactual/types@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.1.2.tgz#6d088c8faae7649aadbde106a8e7a7a1a166d59a"
-  integrity sha512-6/wFPL8gFiPKcamQ6ctMJaNiGKr71dXMVVX3x52qXhNz79pAKvTsP0sq/agR6FHOJ0vH6c3xMhlElSv5BhqWyw==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -7680,7 +7648,7 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@4.0.0-beta.1, ethers@4.0.26, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
+ethers@4.0.0-beta.1, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
   version "4.0.29"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
   integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==

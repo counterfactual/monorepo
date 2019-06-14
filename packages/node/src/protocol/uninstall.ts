@@ -27,6 +27,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context,
       context.provider
     );
+
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const { signature: theirSig } = yield [
@@ -40,7 +41,9 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     validateSignature(respondingAddress, uninstallCommitment, theirSig);
+
     const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Uninstall,
@@ -59,11 +62,13 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const theirSig = context.message.signature!;
+
     validateSignature(initiatingAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Uninstall,

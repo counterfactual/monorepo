@@ -327,6 +327,10 @@ export class AppInstance {
   ): Promise<SolidityABIEncoderV2Type> {
     const ret: SolidityABIEncoderV2Type = {};
 
+    console.log(this.toEthersContract(provider).address);
+    console.log(this.state);
+    console.log(action);
+
     const computedNextState = this.decodeAppState(
       await this.toEthersContract(provider).functions.applyAction(
         this.encodedLatestState,

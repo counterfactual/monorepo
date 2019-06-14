@@ -20,8 +20,8 @@ import {
 declare var ethers;
 declare var web3;
 
-const { bigNumberify, solidityKeccak256 } = ethers.utils;
-const { AddressZero, HashZero } = ethers.constants;
+const { solidityKeccak256 } = ethers.utils;
+const { HashZero } = ethers.constants;
 
 @Component({
   tag: "app-root",
@@ -37,6 +37,7 @@ export class AppRoot {
 
   constructor() {
     const params = new URLSearchParams(window.location.search);
+
     this.state = {
       account: {},
       opponent: {},
@@ -52,6 +53,7 @@ export class AppRoot {
       updateCfProvider: this.updateCfProvider.bind(this),
       updateIntermediary: this.updateIntermediary.bind(this)
     };
+
     this.uiState = {
       myRoll: [0, 0],
       myScore: 0,
@@ -66,7 +68,8 @@ export class AppRoot {
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        turnNum: 0
       } as HighRollerAppState
     };
 
@@ -189,13 +192,18 @@ export class AppRoot {
 
     // The Contract interface
     const abi = [
-      "function highRoller(bytes32 randomness) public pure returns(uint8 playerFirstTotal, uint8 playerSecondTotal)"
+      `
+      function highRoller(bytes32 randomness)
+        public
+        pure
+        returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
+    `
     ];
 
     // Connect to the network
     const provider = new ethers.providers.Web3Provider(web3.currentProvider);
 
-    const contractAddress = "0x91907355C59BA005843E791c88aAB80b779446c9";
+    const contractAddress = "0x144F1A5C2db59B58f2c73d09A2acb27a57E47618";
 
     // We connect to the Contract using a Provider, so we will only
     // have read-only access to the Contract

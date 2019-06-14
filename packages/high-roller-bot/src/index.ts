@@ -20,7 +20,9 @@ import {
   UserSession
 } from "./utils";
 
-const provider = new JsonRpcProvider("https://kovan.infura.io/metamask");
+const provider = new JsonRpcProvider(
+  "https://kovan.infura.io/v3/11f02c6889494cb8b8f1919a5c536098"
+);
 
 const BASE_URL = process.env.BASE_URL!;
 const TOKEN_PATH = "HR_USER_TOKEN";

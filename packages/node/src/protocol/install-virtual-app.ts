@@ -218,7 +218,7 @@ function createAndAddTarget(
   );
 
   const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
-  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+  const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
   const target = new AppInstance(
     AddressZero,
@@ -232,7 +232,7 @@ function createAndAddTarget(
     0, // app nonce
     defaultTimeout,
     {
-      playerAddrs: [initiatingAddress, intermediaryAddress],
+      playerAddrs: [initiatingAddress, respondingAddress],
       amount: bigNumberify(initiatingBalanceDecrement).add(
         respondingBalanceDecrement
       )
@@ -310,6 +310,7 @@ function proposeStateTransition1(
       [intermediaryAddress]: respondingBalanceDecrement
     }
   );
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
