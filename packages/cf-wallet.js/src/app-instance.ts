@@ -6,7 +6,7 @@ import {
 } from "@counterfactual/types";
 import {
   ETHTransferInterpreterParams,
-  TwoPartyOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types/dist/src/data-types";
 import { BigNumber } from "ethers/utils";
 
@@ -30,7 +30,7 @@ export class AppInstance {
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
 
-  readonly twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 
   readonly intermediaries?: Address[];
