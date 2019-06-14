@@ -1,6 +1,9 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { TwoPartyFixedOutcome } from "@counterfactual/types";
+import {
+  NetworkContext,
+  OutcomeType,
+  TwoPartyFixedOutcome
+} from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";

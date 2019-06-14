@@ -2,10 +2,8 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import {
   ETHTransferInterpreterParams,
+  SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";

@@ -2,9 +2,7 @@ import {
   Address,
   AppABIEncodings,
   AppInstanceID,
-  AppInstanceInfo
-} from "@counterfactual/types";
-import {
+  AppInstanceInfo,
   ETHTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
