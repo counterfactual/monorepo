@@ -11,7 +11,6 @@ import {
   JsonRpcNotification,
   JsonRpcResponse,
   jsonRpcSerializeAsResponse
-  // jsonRpcSerializeAsNotification
 } from "rpc-server";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
