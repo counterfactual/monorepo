@@ -48,10 +48,10 @@
     "typescript": "3.5.1"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.1.1",
+    "@counterfactual/cf.js": "0.2.0",
     "@counterfactual/contracts": "0.1.1",
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/types": "0.0.11",
+    "@counterfactual/types": "0.0.12",
     "@firebase/util": "0.2.18",
     "ethers": "4.0.29",
     "eventemitter3": "^3.1.2",
