@@ -78,7 +78,6 @@ export class RequestHandler {
           requestId: req.requestId,
           result: await this.methods.get(methodName)(this, req.params)
         };
-        // this.outgoing.emit(req.type, res);
         this.router.emit(req.type, res, "outgoing");
       });
     }
