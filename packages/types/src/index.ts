@@ -10,7 +10,7 @@ import {
   OutcomeType,
   TwoPartyFixedOutcome
 } from "./data-types";
-import { INodeProvider, Node } from "./node";
+import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
@@ -68,6 +68,7 @@ export {
   Bytes32,
   ETHBucketAppState,
   INodeProvider,
+  IRpcNodeProvider,
   Node,
   SignedStateHashUpdate,
   OutcomeType,

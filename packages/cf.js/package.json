@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf.js",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
@@ -34,8 +34,9 @@
   },
   "dependencies": {
     "@counterfactual/node-provider": "0.1.2",
-    "@counterfactual/types": "0.0.11",
+    "@counterfactual/types": "0.0.12",
     "ethers": "4.0.29",
-    "eventemitter3": "^3.1.2"
+    "eventemitter3": "^3.1.2",
+    "rpc-server": "prototypal/rpc-server"
   }
 }

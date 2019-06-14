@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
-import { Provider } from "../src/provider";
+import { jsonRpcMethodNames, Provider } from "../src/provider";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
@@ -35,16 +35,21 @@ describe("CF.js AppFactory", () => {
       const expectedAppInstanceId = "TEST_ID";
 
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
-        expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
-        const params = request.params as Node.ProposeInstallParams;
+        expect(request.methodName).toBe(
+          jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
+        );
+        const params = request.parameters as Node.ProposeInstallParams;
         expect(params.initialState).toBe(expectedState);
         expect(params.myDeposit).toEqual(expectedDeposit);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.PROPOSE_INSTALL,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            appInstanceId: expectedAppInstanceId
-          }
+            type: Node.MethodName.PROPOSE_INSTALL,
+            result: {
+              appInstanceId: expectedAppInstanceId
+            }
+          },
+          id: request.id as number
         });
       });
       const appInstanceId = await appFactory.proposeInstall({
@@ -68,17 +73,22 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
-          expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL_VIRTUAL);
-          const params = request.params as Node.ProposeInstallVirtualParams;
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
+          );
+          const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaries).toBe(expectedIntermediaries);
           expect(params.myDeposit).toEqual(expectedDeposit);
           nodeProvider.simulateMessageFromNode({
-            type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
-            requestId: request.requestId,
+            jsonrpc: "2.0",
             result: {
-              appInstanceId: expectedAppInstanceId
-            }
+              type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+              result: {
+                appInstanceId: expectedAppInstanceId
+              }
+            },
+            id: request.id as number
           });
         }
       );

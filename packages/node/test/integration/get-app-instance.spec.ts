@@ -28,7 +28,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       global["networkContext"].TicTacToe
-    ).params as NodeTypes.ProposeInstallParams;
+    ).parameters as NodeTypes.ProposeInstallParams;
 
     const appInstanceId = await installTTTApp(nodeA, nodeB);
     const appInstanceNodeA = await getInstalledAppInstanceInfo(

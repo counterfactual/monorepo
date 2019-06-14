@@ -16,6 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
+import { jsonRpcDeserialize } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -189,14 +190,12 @@ export class NodeWrapper {
       messagingService
     );
 
-    NodeWrapper.node.on(
-      NodeTypes.EventName.DEPOSIT_CONFIRMED,
-      onDepositConfirmed.bind(this)
+    NodeWrapper.node.on(NodeTypes.EventName.DEPOSIT_CONFIRMED, response =>
+      onDepositConfirmed(response)
     );
 
-    NodeWrapper.node.on(
-      NodeTypes.EventName.CREATE_CHANNEL,
-      onMultisigDeployed.bind(this)
+    NodeWrapper.node.on(NodeTypes.EventName.CREATE_CHANNEL, response =>
+      onMultisigDeployed(response)
     );
 
     Log.info("Node singleton instance ready", {
@@ -257,18 +256,22 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = await node.call(
-      NodeTypes.MethodName.CREATE_CHANNEL,
-      {
-        params: {
-          owners: [node.publicIdentifier, nodeAddress]
-        } as NodeTypes.CreateChannelParams,
-        type: NodeTypes.MethodName.CREATE_CHANNEL,
-        requestId: generateUUID()
-      }
-    );
+    const multisigResponse = {
+      result: await node.router.dispatch(
+        jsonRpcDeserialize({
+          id: Date.now(),
+          method: "chan_create",
+          params: {
+            owners: [node.publicIdentifier, nodeAddress]
+          },
+          jsonrpc: "2.0"
+        })
+      )
+    };
 
-    return multisigResponse.result as NodeTypes.CreateChannelTransactionResult;
+    return {
+      ...multisigResponse.result
+    } as NodeTypes.CreateChannelTransactionResult;
   }
 }
 
@@ -290,11 +293,14 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 
   try {
-    await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-      requestId: generateUUID(),
-      type: NodeTypes.MethodName.DEPOSIT,
-      params: response.data as NodeTypes.DepositParams
-    });
+    await NodeWrapper.getInstance().router.dispatch(
+      jsonRpcDeserialize({
+        id: Date.now(),
+        method: "chan_deposit",
+        params: response.data,
+        jsonrpc: "2.0"
+      })
+    );
   } catch (e) {
     Log.error("Failed to deposit on the server", {
       tags: { error: e }

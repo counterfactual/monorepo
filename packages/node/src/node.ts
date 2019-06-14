@@ -6,6 +6,7 @@ import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
+import { createRpcRouter } from "./api-router";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import {
@@ -16,6 +17,7 @@ import {
 } from "./machine";
 import { configureNetworkContext } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
+import NodeRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
@@ -49,6 +51,7 @@ export class Node {
   // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
+  public router: NodeRouter = {} as NodeRouter;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
@@ -119,6 +122,9 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
+    this.router = createRpcRouter(this.requestHandler);
+    this.requestHandler.injectRouter(this.router);
+
     return this;
   }
 
@@ -251,7 +257,7 @@ export class Node {
    * @param callback
    */
   on(event: string, callback: (res: any) => void) {
-    this.outgoing.on(event, callback);
+    this.router.subscribe(event, async (res: any) => callback(res));
   }
 
   /**
@@ -262,7 +268,10 @@ export class Node {
    * @param [callback]
    */
   off(event: string, callback?: (res: any) => void) {
-    this.outgoing.off(event, callback);
+    this.router.unsubscribe(
+      event,
+      callback ? async (res: any) => callback(res) : undefined
+    );
   }
 
   /**
@@ -274,7 +283,7 @@ export class Node {
    * @param [callback]
    */
   once(event: string, callback: (res: any) => void) {
-    this.outgoing.once(event, callback);
+    this.router.subscribeOnce(event, async (res: any) => callback(res));
   }
 
   /**
@@ -283,7 +292,7 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeTypes.MethodRequest) {
-    this.incoming.emit(event, req);
+    this.router.emit(event, req);
   }
 
   /**
@@ -309,7 +318,7 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        this.outgoing.emit(msg.type, msg);
+        this.router.emit(msg.type, msg, "outgoing");
       }
     );
   }
