@@ -293,12 +293,6 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 
   try {
-    // await NodeWrapper.getInstance().call(NodeTypes.MethodName.DEPOSIT, {
-    //   requestId: generateUUID(),
-    //   type: NodeTypes.MethodName.DEPOSIT,
-    //   params: response.data as NodeTypes.DepositParams
-    // });
-
     await NodeWrapper.getInstance().router.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
