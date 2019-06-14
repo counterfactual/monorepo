@@ -7,7 +7,7 @@ import {
 import {
   ETHTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import { Provider } from "./provider";

@@ -7,8 +7,10 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  ETHTransferInterpreterParams,
   OutcomeType,
-  TwoPartyFixedOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
@@ -72,5 +74,7 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyFixedOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams,
+  ETHTransferInterpreterParams
 };

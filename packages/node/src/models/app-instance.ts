@@ -7,7 +7,7 @@ import {
 import {
   ETHTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import {
