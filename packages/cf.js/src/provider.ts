@@ -307,7 +307,6 @@ export class Provider {
    */
   private onNodeMessage(message: JsonRpcNotification | JsonRpcResponse) {
     const type = message.result.type;
-    console.log("Handling message", message);
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
       this.handleNodeError(message as JsonRpcResponse);
     } else if ("id" in message) {
@@ -359,7 +358,6 @@ export class Provider {
    */
   private async handleNodeEvent(event: JsonRpcNotification) {
     const nodeEvent = event.result as Node.Event;
-    console.log("Attempting to handle", nodeEvent);
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
         return this.handleRejectInstallEvent(nodeEvent);

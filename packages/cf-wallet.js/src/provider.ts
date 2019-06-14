@@ -2,12 +2,17 @@ import {
   Address,
   AppInstanceID,
   AppInstanceInfo,
-  INodeProvider,
+  IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import EventEmitter from "eventemitter3";
-import { jsonRpcDeserialize, jsonRpcSerializeAsResponse } from "rpc-server";
+import {
+  jsonRpcDeserialize,
+  JsonRpcNotification,
+  JsonRpcResponse,
+  jsonRpcSerializeAsResponse
+} from "rpc-server";
 
 import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
@@ -33,7 +38,7 @@ export const NODE_REQUEST_TIMEOUT = 20000;
 export class Provider {
   /** @ignore */
   private readonly requestListeners: {
-    [requestId: string]: (msg: Node.Message) => void;
+    [requestId: string]: (msg: JsonRpcResponse) => void;
   } = {};
   /** @ignore */
   private readonly eventEmitter = new EventEmitter();
@@ -44,7 +49,7 @@ export class Provider {
    * Construct a new instance
    * @param nodeProvider NodeProvider instance that enables communication with the Counterfactual node
    */
-  constructor(readonly nodeProvider: INodeProvider) {
+  constructor(readonly nodeProvider: IRpcNodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
   }
 
@@ -263,28 +268,41 @@ export class Provider {
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
-      let request;
-
-      request = jsonRpcDeserialize({
+      const request = jsonRpcDeserialize({
         params,
         jsonrpc: "2.0",
         method: jsonRpcMethodNames[methodName],
         id: requestId
       });
 
+      if (!request.methodName) {
+        return this.handleNodeError({
+          jsonrpc: "2.0",
+          result: {
+            type: EventType.ERROR,
+            data: {
+              errorName: "unexpected_event_type"
+            }
+          },
+          id: requestId
+        });
+      }
+
       this.requestListeners[requestId] = response => {
-        if (response.type === Node.ErrorType.ERROR) {
+        console.log("Request listener", requestId, response);
+        if (response.result.type === Node.ErrorType.ERROR) {
           return reject(
             jsonRpcSerializeAsResponse(
               {
-                type: EventType.ERROR,
-                data: response.data
+                ...response.result,
+                type: EventType.ERROR
               },
               requestId
             )
           );
         }
-        if ((response["result"]["type"] || response["type"]) !== methodName) {
+        console.log(response);
+        if (response.result.type !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(
               {
@@ -292,7 +310,7 @@ export class Provider {
                 data: {
                   errorName: "unexpected_message_type",
                   message: `Unexpected response type. Expected ${methodName}, got ${
-                    response.type
+                    response.result.type
                   }`
                 }
               },
@@ -300,7 +318,7 @@ export class Provider {
             )
           );
         }
-        resolve(response["result"] as Node.MethodResponse);
+        resolve(response.result);
       };
 
       setTimeout(() => {
@@ -351,51 +369,37 @@ export class Provider {
   /**
    * @ignore
    */
-  private onNodeMessage(message: Node.Message) {
-    const type = message["jsonrpc"] ? message["result"]["type"] : message.type;
+  private onNodeMessage(message: JsonRpcNotification | JsonRpcResponse) {
+    const type = message.result.type;
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
-      this.handleNodeError(message as Node.Error);
-    } else if ((message as Node.MethodResponse).requestId) {
-      this.handleNodeMethodResponse(message as Node.MethodResponse);
-    } else if (message["id"]) {
-      this.handleNodeMethodResponse({
-        requestId: message["id"],
-        ...message
-      } as Node.MethodResponse);
+      this.handleNodeError(message as JsonRpcResponse);
+    } else if ("id" in message) {
+      this.handleNodeMethodResponse(message as JsonRpcResponse);
     } else {
-      this.handleNodeEvent(message["result"] as Node.Event);
+      this.handleNodeEvent(message as JsonRpcNotification);
     }
   }
 
   /**
    * @ignore
    */
-  private handleNodeError(error: any) {
-    if (error.jsonrpc) {
-      const requestId = error.id;
-      if (requestId && this.requestListeners[requestId]) {
-        this.requestListeners[requestId](error.result);
-        delete this.requestListeners[requestId];
-      }
-      this.eventEmitter.emit(error.result.type, error.result);
-    } else {
-      const requestId = error.requestId;
-      if (requestId && this.requestListeners[requestId]) {
-        this.requestListeners[requestId](error);
-        delete this.requestListeners[requestId];
-      }
-      this.eventEmitter.emit(error.type, error);
-    }
-  }
-
-  /**
-   * @ignore
-   */
-  private handleNodeMethodResponse(response: Node.MethodResponse) {
-    const { requestId } = response;
-    if (requestId in this.requestListeners) {
-      this.requestListeners[requestId](response);
+  private handleNodeError(error: JsonRpcResponse) {
+    const requestId = error.id;
+    if (requestId && this.requestListeners[requestId]) {
+      this.requestListeners[requestId](error);
       delete this.requestListeners[requestId];
+    }
+    this.eventEmitter.emit(error.result.type, error.result);
+  }
+
+  /**
+   * @ignore
+   */
+  private handleNodeMethodResponse(response: JsonRpcResponse) {
+    const { id } = response;
+    if (id in this.requestListeners) {
+      this.requestListeners[id](response);
+      delete this.requestListeners[id];
     } else {
       const error = jsonRpcSerializeAsResponse(
         {
@@ -407,7 +411,7 @@ export class Provider {
             )}`
           }
         },
-        Number(requestId)
+        Number(id)
       );
       this.eventEmitter.emit(error.result.type, error.result);
     }
@@ -416,7 +420,8 @@ export class Provider {
   /**
    * @ignore
    */
-  private async handleNodeEvent(nodeEvent: Node.Event) {
+  private async handleNodeEvent(event: JsonRpcNotification) {
+    const nodeEvent = event.result as Node.Event;
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
         return this.handleRejectInstallEvent(nodeEvent);
@@ -473,6 +478,7 @@ export class Provider {
    * @ignore
    */
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
+    console.log("Handling rejectInstallEvent", nodeEvent);
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
     const appInstance = await this.getOrCreateAppInstance(info.id, info);

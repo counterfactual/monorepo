@@ -1,6 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { JsonRpcResponse } from "rpc-server";
+import { JsonRpcResponse, JsonRpcNotification } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
 import {
@@ -55,7 +55,6 @@ describe("CF.js Provider", () => {
     try {
       await provider.getAppInstances();
     } catch (e) {
-      console.log(e);
       expect(e.result.data.message).toBe("Music too loud");
     }
   });
@@ -64,7 +63,6 @@ describe("CF.js Provider", () => {
     expect.assertions(2);
     provider.on(EventType.ERROR, e => {
       expect(e.type).toBe(EventType.ERROR);
-      console.log(e);
       expect((e.data as ErrorEventData).errorName).toBe("orphaned_response");
     });
     nodeProvider.simulateMessageFromNode({
@@ -316,7 +314,7 @@ describe("CF.js Provider", () => {
             appInstance: TEST_APP_INSTANCE_INFO
           }
         }
-      } as JsonRpcResponse;
+      } as JsonRpcNotification;
       nodeProvider.simulateMessageFromNode(msg);
       nodeProvider.simulateMessageFromNode(msg);
     });

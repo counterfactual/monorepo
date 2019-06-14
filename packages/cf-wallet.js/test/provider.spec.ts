@@ -1,6 +1,7 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
+import { JsonRpcNotification } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
 import {
@@ -39,14 +40,14 @@ describe("CF.js Provider", () => {
   });
 
   it("throws generic errors coming from Node", async () => {
-    expect.assertions(2);
+    expect.assertions(1);
 
     nodeProvider.onMethodRequest(
       Node.MethodName.GET_FREE_BALANCE_STATE,
       request => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
-          id: request["id"],
+          id: request.id as number,
           result: {
             type: Node.ErrorType.ERROR,
             data: { errorName: "music_too_loud", message: "Music too loud" }
@@ -95,12 +96,12 @@ describe("CF.js Provider", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL]
         );
-        expect(
-          (request["parameters"] as Node.InstallParams).appInstanceId
-        ).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect((request.parameters as Node.InstallParams).appInstanceId).toBe(
+          TEST_APP_INSTANCE_INFO.id
+        );
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
@@ -109,7 +110,7 @@ describe("CF.js Provider", () => {
             },
             type: Node.MethodName.INSTALL
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
@@ -126,10 +127,10 @@ describe("CF.js Provider", () => {
       ];
 
       nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
         );
-        const params = request["parameters"] as Node.InstallVirtualParams;
+        const params = request.parameters as Node.InstallVirtualParams;
         expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         expect(params.intermediaries).toBe(expectedIntermediaries);
 
@@ -144,7 +145,7 @@ describe("CF.js Provider", () => {
             },
             type: Node.MethodName.INSTALL_VIRTUAL
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       const appInstance = await provider.installVirtual(
@@ -161,12 +162,12 @@ describe("CF.js Provider", () => {
 
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
         );
-        const { appInstanceId } = request[
-          "parameters"
-        ] as Node.RejectInstallParams;
+        const {
+          appInstanceId
+        } = request.parameters as Node.RejectInstallParams;
         expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -174,7 +175,7 @@ describe("CF.js Provider", () => {
             type: Node.MethodName.REJECT_INSTALL,
             result: {}
           },
-          id: request["id"]
+          id: request.id as number
         });
       });
       await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
@@ -187,10 +188,10 @@ describe("CF.js Provider", () => {
         "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
 
       nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.CREATE_CHANNEL]
         );
-        const { owners } = request["parameters"] as Node.CreateChannelParams;
+        const { owners } = request.parameters as Node.CreateChannelParams;
         expect(owners).toBe(TEST_OWNERS);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -200,7 +201,7 @@ describe("CF.js Provider", () => {
             },
             type: Node.MethodName.CREATE_CHANNEL
           },
-          id: request["id"]
+          id: request.id
         });
       });
 
@@ -215,10 +216,10 @@ describe("CF.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.DEPOSIT]
         );
-        const params = request["parameters"] as Node.DepositParams;
+        const params = request.parameters as Node.DepositParams;
         expect(params.multisigAddress).toEqual(multisigAddress);
         expect(params.amount).toEqual(amount);
 
@@ -227,7 +228,7 @@ describe("CF.js Provider", () => {
           result: {
             type: Node.MethodName.DEPOSIT
           },
-          id: request["id"]
+          id: request.id
         });
       });
 
@@ -241,16 +242,16 @@ describe("CF.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
-        expect(request["methodName"]).toBe(
+        expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.WITHDRAW]
         );
-        const params = request["parameters"] as Node.WithdrawParams;
+        const params = request.parameters as Node.WithdrawParams;
         expect(params.multisigAddress).toEqual(multisigAddress);
         expect(params.amount).toEqual(amount);
 
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
-          id: request["id"],
+          id: request.id,
           result: {
             type: Node.MethodName.WITHDRAW
           }
@@ -269,12 +270,10 @@ describe("CF.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.GET_FREE_BALANCE_STATE,
         request => {
-          expect(request["methodName"]).toBe(
+          expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.GET_FREE_BALANCE_STATE]
           );
-          const params = request[
-            "parameters"
-          ] as Node.GetFreeBalanceStateParams;
+          const params = request.parameters as Node.GetFreeBalanceStateParams;
           expect(params.multisigAddress).toEqual(multisigAddress);
 
           nodeProvider.simulateMessageFromNode({
@@ -303,7 +302,6 @@ describe("CF.js Provider", () => {
       provider.on(EventType.REJECT_INSTALL, callback);
       provider.off(EventType.REJECT_INSTALL, callback);
       nodeProvider.simulateMessageFromNode({
-        id: 1,
         jsonrpc: "2.0",
         result: {
           type: Node.MethodName.REJECT_INSTALL,
@@ -314,24 +312,25 @@ describe("CF.js Provider", () => {
     });
 
     it("can subscribe to rejectInstall events", async () => {
-      expect.assertions(3);
+      expect.assertions(2);
       provider.once(EventType.REJECT_INSTALL, e => {
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
         expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
       });
       nodeProvider.simulateMessageFromNode({
-        id: 1,
         jsonrpc: "2.0",
         result: {
           type: Node.EventName.REJECT_INSTALL,
-          appInstance: TEST_APP_INSTANCE_INFO
+          data: {
+            appInstance: TEST_APP_INSTANCE_INFO
+          }
         }
       });
     });
 
     it("can subscribe to install events", async () => {
-      expect.assertions(3);
+      expect.assertions(2);
       provider.once(EventType.INSTALL, e => {
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
@@ -344,7 +343,6 @@ describe("CF.js Provider", () => {
       );
 
       nodeProvider.simulateMessageFromNode({
-        id: 1,
         jsonrpc: "2.0",
         result: {
           type: Node.EventName.INSTALL,
@@ -376,7 +374,7 @@ describe("CF.js Provider", () => {
             appInstance: TEST_APP_INSTANCE_INFO
           }
         }
-      };
+      } as JsonRpcNotification;
       nodeProvider.simulateMessageFromNode(msg);
       nodeProvider.simulateMessageFromNode(msg);
     });
