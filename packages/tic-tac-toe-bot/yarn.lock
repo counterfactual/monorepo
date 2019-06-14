@@ -949,10 +949,10 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.26":
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
-  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
+"@counterfactual/node@0.1.27":
+  version "0.1.27"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.27.tgz#5b3dad64c419f371fc9d10e8b4053c75b4db869c"
+  integrity sha512-JFXt68Po0ALKVUBnT4t4QQrYGn2mr4zgNzLOtchGwDvj6kwwYjj0QnqvzAAWeqN9E9uLQC2EccwGXwOQkEwB5A==
   dependencies:
     "@counterfactual/cf.js" "0.1.1"
     "@counterfactual/contracts" "0.1.2"
