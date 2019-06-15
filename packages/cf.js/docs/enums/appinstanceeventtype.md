@@ -20,7 +20,7 @@
 
 **ERROR**:  = "error"
 
-*Defined in [app-instance.ts:22](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L22)*
+*Defined in [app-instance.ts:22](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L22)*
 
 ___
 <a id="uninstall"></a>
@@ -29,7 +29,7 @@ ___
 
 **UNINSTALL**:  = "uninstall"
 
-*Defined in [app-instance.ts:21](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L21)*
+*Defined in [app-instance.ts:21](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L21)*
 
 ___
 <a id="update_state"></a>
@@ -38,7 +38,7 @@ ___
 
 **UPDATE_STATE**:  = "updateState"
 
-*Defined in [app-instance.ts:20](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L20)*
+*Defined in [app-instance.ts:20](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L20)*
 
 ___
 

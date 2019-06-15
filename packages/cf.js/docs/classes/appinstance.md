@@ -52,7 +52,7 @@ Represents an installed app instance
 
 ⊕ **new AppInstance**(info: *`AppInstanceInfo`*, provider: *[Provider](provider.md)*): [AppInstance](appinstance.md)
 
-*Defined in [app-instance.ts:53](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L53)*
+*Defined in [app-instance.ts:53](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L53)*
 
 **Parameters:**
 
@@ -73,7 +73,7 @@ ___
 
 **● abiEncodings**: *`AppABIEncodings`*
 
-*Defined in [app-instance.ts:36](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L36)*
+*Defined in [app-instance.ts:36](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L36)*
 
 ___
 <a id="appdefinition"></a>
@@ -82,7 +82,7 @@ ___
 
 **● appDefinition**: *`Address`*
 
-*Defined in [app-instance.ts:35](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L35)*
+*Defined in [app-instance.ts:35](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L35)*
 
 ___
 <a id="ethtransferinterpreterparams"></a>
@@ -91,7 +91,7 @@ ___
 
 **● ethTransferInterpreterParams**: *`ETHTransferInterpreterParams`*
 
-*Defined in [app-instance.ts:48](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L48)*
+*Defined in [app-instance.ts:48](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L48)*
 
 ___
 <a id="eventemitter"></a>
@@ -100,7 +100,7 @@ ___
 
 **● eventEmitter**: *`EventEmitter`* =  new EventEmitter()
 
-*Defined in [app-instance.ts:50](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L50)*
+*Defined in [app-instance.ts:50](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L50)*
 
 ___
 <a id="id"></a>
@@ -109,7 +109,7 @@ ___
 
 **● id**: *`AppInstanceID`*
 
-*Defined in [app-instance.ts:32](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L32)*
+*Defined in [app-instance.ts:32](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L32)*
 
 Unique ID of this app instance.
 
@@ -120,7 +120,7 @@ ___
 
 **● intermediaries**: *`Address`[]*
 
-*Defined in [app-instance.ts:42](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L42)*
+*Defined in [app-instance.ts:42](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L42)*
 
 ___
 <a id="mydeposit"></a>
@@ -129,7 +129,7 @@ ___
 
 **● myDeposit**: *`BigNumber`*
 
-*Defined in [app-instance.ts:40](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L40)*
+*Defined in [app-instance.ts:40](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L40)*
 
 ___
 <a id="peerdeposit"></a>
@@ -138,7 +138,7 @@ ___
 
 **● peerDeposit**: *`BigNumber`*
 
-*Defined in [app-instance.ts:41](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L41)*
+*Defined in [app-instance.ts:41](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L41)*
 
 ___
 <a id="provider"></a>
@@ -147,7 +147,7 @@ ___
 
 **● provider**: *[Provider](provider.md)*
 
-*Defined in [app-instance.ts:55](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L55)*
+*Defined in [app-instance.ts:55](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L55)*
 
 ___
 <a id="timeout"></a>
@@ -156,7 +156,7 @@ ___
 
 **● timeout**: *`BigNumber`*
 
-*Defined in [app-instance.ts:37](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L37)*
+*Defined in [app-instance.ts:37](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L37)*
 
 ___
 <a id="twopartyoutcomeinterpreterparams"></a>
@@ -165,7 +165,7 @@ ___
 
 **● twoPartyOutcomeInterpreterParams**: *`TwoPartyOutcomeInterpreterParams`*
 
-*Defined in [app-instance.ts:47](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L47)*
+*Defined in [app-instance.ts:47](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L47)*
 
 Interpreter-related Fields
 
@@ -178,7 +178,7 @@ ___
     key => AppInstanceEventType[key]
   )
 
-*Defined in [app-instance.ts:51](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L51)*
+*Defined in [app-instance.ts:51](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L51)*
 
 ___
 
@@ -190,7 +190,7 @@ ___
 
 **get isVirtual**(): `boolean`
 
-*Defined in [app-instance.ts:71](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L71)*
+*Defined in [app-instance.ts:71](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L71)*
 
 Whether this app is virtual i.e. installation was routed through intermediaries
 
@@ -206,7 +206,7 @@ ___
 
 ▸ **getState**(): `Promise`<`SolidityABIEncoderV2Type`>
 
-*Defined in [app-instance.ts:81](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L81)*
+*Defined in [app-instance.ts:81](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L81)*
 
 Get latest state of this app instance
 
@@ -222,7 +222,7 @@ ___
 
 ▸ **off**(eventType: *[AppInstanceEventType](../enums/appinstanceeventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [app-instance.ts:171](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L171)*
+*Defined in [app-instance.ts:171](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L171)*
 
 Unsubscribe from event.
 
@@ -242,7 +242,7 @@ ___
 
 ▸ **on**(eventType: *[AppInstanceEventType](../enums/appinstanceeventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [app-instance.ts:143](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L143)*
+*Defined in [app-instance.ts:143](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L143)*
 
 Subscribe to event.
 
@@ -262,7 +262,7 @@ ___
 
 ▸ **once**(eventType: *[AppInstanceEventType](../enums/appinstanceeventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [app-instance.ts:157](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L157)*
+*Defined in [app-instance.ts:157](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L157)*
 
 Subscribe to event. Unsubscribe once event is fired once.
 
@@ -282,7 +282,7 @@ ___
 
 ▸ **takeAction**(action: *`SolidityABIEncoderV2Type`*): `Promise`<`SolidityABIEncoderV2Type`>
 
-*Defined in [app-instance.ts:101](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L101)*
+*Defined in [app-instance.ts:101](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L101)*
 
 Take an action on the state, modifying it.
 
@@ -306,7 +306,7 @@ ___
 
 ▸ **uninstall**(): `Promise`<`void`>
 
-*Defined in [app-instance.ts:121](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-instance.ts#L121)*
+*Defined in [app-instance.ts:121](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-instance.ts#L121)*
 
 Uninstall this app instance
 

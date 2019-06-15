@@ -43,7 +43,7 @@ Provides convenience methods for interacting with a Counterfactual node
 
 ⊕ **new Provider**(nodeProvider: *`INodeProvider`*): [Provider](provider.md)
 
-*Defined in [provider.ts:30](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L30)*
+*Defined in [provider.ts:30](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L30)*
 
 Construct a new instance
 
@@ -65,7 +65,7 @@ ___
 
 **● nodeProvider**: *`INodeProvider`*
 
-*Defined in [provider.ts:36](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L36)*
+*Defined in [provider.ts:36](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L36)*
 
 NodeProvider instance that enables communication with the Counterfactual node
 
@@ -79,7 +79,7 @@ ___
 
 ▸ **callRawNodeMethod**(methodName: *`MethodName`*, params: *`Node.MethodParams`*): `Promise`<`Node.MethodResponse`>
 
-*Defined in [provider.ts:249](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L249)*
+*Defined in [provider.ts:249](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L249)*
 
 Call a Node method
 
@@ -99,7 +99,7 @@ ___
 
 ▸ **createChannel**(owners: *`Address`[]*): `Promise`<`string`>
 
-*Defined in [provider.ts:109](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L109)*
+*Defined in [provider.ts:109](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L109)*
 
 Creates a channel by deploying a multisignature wallet contract.
 
@@ -121,7 +121,7 @@ ___
 
 ▸ **deposit**(multisigAddress: *`Address`*, amount: *`BigNumber`*, notifyCounterparty?: *`boolean`*): `Promise`<`void`>
 
-*Defined in [provider.ts:146](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L146)*
+*Defined in [provider.ts:146](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L146)*
 
 Deposits the specified amount of funds into the channel with the specified multisig address.
 
@@ -144,7 +144,7 @@ ___
 
 ▸ **getFreeBalanceState**(multisigAddress: *`Address`*): `Promise`<`Node.GetFreeBalanceStateResult`>
 
-*Defined in [provider.ts:189](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L189)*
+*Defined in [provider.ts:189](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L189)*
 
 Queries for the current free balance state of the channel with the specified multisig address.
 
@@ -166,7 +166,7 @@ ___
 
 ▸ **getOrCreateAppInstance**(id: *`AppInstanceID`*, info?: *`AppInstanceInfo`*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:304](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L304)*
+*Defined in [provider.ts:304](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L304)*
 
 Get app instance given its ID. If one doesn't exist, it will be created and its details will be loaded from the Node.
 
@@ -187,7 +187,7 @@ ___
 
 ▸ **install**(appInstanceId: *`AppInstanceID`*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:52](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L52)*
+*Defined in [provider.ts:52](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L52)*
 
 Install a non-virtual app instance given its ID.
 
@@ -211,7 +211,7 @@ ___
 
 ▸ **installVirtual**(appInstanceId: *`AppInstanceID`*, intermediaries: *`Address`[]*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:73](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L73)*
+*Defined in [provider.ts:73](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L73)*
 
 Install a virtual app instance given its ID and a list of intermediaries.
 
@@ -236,7 +236,7 @@ ___
 
 ▸ **off**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:239](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L239)*
+*Defined in [provider.ts:239](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L239)*
 
 Unsubscribe from event.
 
@@ -256,7 +256,7 @@ ___
 
 ▸ **on**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:219](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L219)*
+*Defined in [provider.ts:219](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L219)*
 
 Subscribe to event.
 
@@ -278,7 +278,7 @@ ___
 
 ▸ **once**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:229](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L229)*
+*Defined in [provider.ts:229](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L229)*
 
 Subscribe to event. Unsubscribe once event is fired once.
 
@@ -298,7 +298,7 @@ ___
 
 ▸ **rejectInstall**(appInstanceId: *`AppInstanceID`*): `Promise`<`void`>
 
-*Defined in [provider.ts:95](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L95)*
+*Defined in [provider.ts:95](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L95)*
 
 Reject installation of a proposed app instance
 
@@ -319,7 +319,7 @@ ___
 
 ▸ **withdraw**(multisigAddress: *`Address`*, amount: *`BigNumber`*, recipient: *`Address`*): `Promise`<`void`>
 
-*Defined in [provider.ts:168](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L168)*
+*Defined in [provider.ts:168](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L168)*
 
 Withdraws the specified amount of funds into the channel with the specified multisig address.
 

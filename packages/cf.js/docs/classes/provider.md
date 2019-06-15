@@ -41,7 +41,7 @@ Provides convenience methods for interacting with a Counterfactual node
 
 ⊕ **new Provider**(nodeProvider: *`INodeProvider`*): [Provider](provider.md)
 
-*Defined in [provider.ts:38](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L38)*
+*Defined in [provider.ts:38](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L38)*
 
 Construct a new instance
 
@@ -63,7 +63,7 @@ ___
 
 **● nodeProvider**: *`INodeProvider`*
 
-*Defined in [provider.ts:44](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L44)*
+*Defined in [provider.ts:44](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L44)*
 
 NodeProvider instance that enables communication with the Counterfactual node
 
@@ -76,7 +76,7 @@ ___
     key => EventType[key]
   )
 
-*Defined in [provider.ts:36](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L36)*
+*Defined in [provider.ts:36](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L36)*
 
 ___
 
@@ -88,7 +88,7 @@ ___
 
 ▸ **callRawNodeMethod**(methodName: *`MethodName`*, params: *`Node.MethodParams`*): `Promise`<`Node.MethodResponse`>
 
-*Defined in [provider.ts:170](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L170)*
+*Defined in [provider.ts:170](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L170)*
 
 Call a Node method
 
@@ -108,7 +108,7 @@ ___
 
 ▸ **getAppInstances**(): `Promise`<[AppInstance](appinstance.md)[]>
 
-*Defined in [provider.ts:55](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L55)*
+*Defined in [provider.ts:55](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L55)*
 
 Get all currently installed app instances
 
@@ -124,7 +124,7 @@ ___
 
 ▸ **getOrCreateAppInstance**(id: *`AppInstanceID`*, info?: *`AppInstanceInfo`*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:225](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L225)*
+*Defined in [provider.ts:225](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L225)*
 
 Get app instance given its ID. If one doesn't exist, it will be created and its details will be loaded from the Node.
 
@@ -145,7 +145,7 @@ ___
 
 ▸ **install**(appInstanceId: *`AppInstanceID`*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:80](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L80)*
+*Defined in [provider.ts:80](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L80)*
 
 Install a non-virtual app instance given its ID.
 
@@ -169,7 +169,7 @@ ___
 
 ▸ **installVirtual**(appInstanceId: *`AppInstanceID`*, intermediaries: *`Address`[]*): `Promise`<[AppInstance](appinstance.md)>
 
-*Defined in [provider.ts:101](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L101)*
+*Defined in [provider.ts:101](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L101)*
 
 Install a virtual app instance given its ID and a list of intermediaries.
 
@@ -194,7 +194,7 @@ ___
 
 ▸ **off**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:159](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L159)*
+*Defined in [provider.ts:159](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L159)*
 
 Unsubscribe from event.
 
@@ -214,7 +214,7 @@ ___
 
 ▸ **on**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:137](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L137)*
+*Defined in [provider.ts:137](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L137)*
 
 Subscribe to event.
 
@@ -236,7 +236,7 @@ ___
 
 ▸ **once**(eventType: *[EventType](../enums/eventtype.md)*, callback: *`function`*): `void`
 
-*Defined in [provider.ts:148](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L148)*
+*Defined in [provider.ts:148](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L148)*
 
 Subscribe to event. Unsubscribe once event is fired once.
 
@@ -256,7 +256,7 @@ ___
 
 ▸ **rejectInstall**(appInstanceId: *`AppInstanceID`*): `Promise`<`void`>
 
-*Defined in [provider.ts:123](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L123)*
+*Defined in [provider.ts:123](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L123)*
 
 Reject installation of a proposed app instance
 

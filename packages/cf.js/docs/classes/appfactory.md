@@ -35,7 +35,7 @@ Proposes installations of a given app
 
 ⊕ **new AppFactory**(appDefinition: *`Address`*, encodings: *`AppABIEncodings`*, provider: *[Provider](provider.md)*): [AppFactory](appfactory.md)
 
-*Defined in [app-factory.ts:37](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L37)*
+*Defined in [app-factory.ts:37](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L37)*
 
 Constructs a new instance
 
@@ -59,7 +59,7 @@ ___
 
 **● appDefinition**: *`Address`*
 
-*Defined in [app-factory.ts:45](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L45)*
+*Defined in [app-factory.ts:45](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L45)*
 
 Address of the on-chain contract containing the app logic.
 
@@ -70,7 +70,7 @@ ___
 
 **● encodings**: *`AppABIEncodings`*
 
-*Defined in [app-factory.ts:46](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L46)*
+*Defined in [app-factory.ts:46](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L46)*
 
 ABI encodings to encode and decode the app's state and actions
 
@@ -81,7 +81,7 @@ ___
 
 **● provider**: *[Provider](provider.md)*
 
-*Defined in [app-factory.ts:47](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L47)*
+*Defined in [app-factory.ts:47](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L47)*
 
 CFjs provider
 
@@ -95,7 +95,7 @@ ___
 
 ▸ **proposeInstall**(params: *`object`*): `Promise`<`AppInstanceID`>
 
-*Defined in [app-factory.ts:57](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L57)*
+*Defined in [app-factory.ts:57](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L57)*
 
 Propose installation of a non-virtual app instance i.e. installed in direct channel between you and peer
 
@@ -125,7 +125,7 @@ ___
 
 ▸ **proposeInstallVirtual**(params: *`object`*): `Promise`<`AppInstanceID`>
 
-*Defined in [app-factory.ts:96](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/app-factory.ts#L96)*
+*Defined in [app-factory.ts:96](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/app-factory.ts#L96)*
 
 Propose installation of a virtual app instance i.e. routed through at least one intermediary node
 

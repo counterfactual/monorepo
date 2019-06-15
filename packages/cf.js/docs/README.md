@@ -32,7 +32,7 @@ yarn build
 API Reference
 -------------
 
-[Found here](docs/index.html)
+[Found here](docs/)
 
 ## Index
 
@@ -86,7 +86,7 @@ API Reference
 
 **Ƭ AppEventData**: *`object`*
 
-*Defined in [types/events.ts:15](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L15)*
+*Defined in [types/events.ts:15](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L15)*
 
 #### Type declaration
 
@@ -99,7 +99,7 @@ ___
 
 **Ƭ CounterfactualEvent**: *`object`*
 
-*Defined in [types/events.ts:50](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L50)*
+*Defined in [types/events.ts:50](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L50)*
 
 #### Type declaration
 
@@ -114,7 +114,7 @@ ___
 
 **Ƭ CreateMultisigEventData**: *`object`*
 
-*Defined in [types/events.ts:30](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L30)*
+*Defined in [types/events.ts:30](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L30)*
 
 #### Type declaration
 
@@ -129,7 +129,7 @@ ___
 
 **Ƭ ErrorEventData**: *`object`*
 
-*Defined in [types/events.ts:35](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L35)*
+*Defined in [types/events.ts:35](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L35)*
 
 #### Type declaration
 
@@ -148,7 +148,7 @@ ___
 
 **Ƭ EventData**: *[InstallEventData](#installeventdata) \| [RejectInstallEventData](#rejectinstalleventdata) \| [UninstallEventData](#uninstalleventdata) \| [UpdateStateEventData](#updatestateeventdata) \| [ErrorEventData](#erroreventdata) \| [CreateMultisigEventData](#createmultisigeventdata)*
 
-*Defined in [types/events.ts:42](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L42)*
+*Defined in [types/events.ts:42](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L42)*
 
 ___
 <a id="installeventdata"></a>
@@ -157,7 +157,7 @@ ___
 
 **Ƭ InstallEventData**: *[AppEventData](#appeventdata)*
 
-*Defined in [types/events.ts:19](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L19)*
+*Defined in [types/events.ts:19](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L19)*
 
 ___
 <a id="rejectinstalleventdata"></a>
@@ -166,7 +166,7 @@ ___
 
 **Ƭ RejectInstallEventData**: *[AppEventData](#appeventdata)*
 
-*Defined in [types/events.ts:21](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L21)*
+*Defined in [types/events.ts:21](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L21)*
 
 ___
 <a id="uninstalleventdata"></a>
@@ -175,7 +175,7 @@ ___
 
 **Ƭ UninstallEventData**: *[AppEventData](#appeventdata)*
 
-*Defined in [types/events.ts:23](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L23)*
+*Defined in [types/events.ts:23](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L23)*
 
 ___
 <a id="updatestateeventdata"></a>
@@ -184,7 +184,7 @@ ___
 
 **Ƭ UpdateStateEventData**: *[AppEventData](#appeventdata) & `object`*
 
-*Defined in [types/events.ts:25](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L25)*
+*Defined in [types/events.ts:25](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L25)*
 
 ___
 
@@ -196,7 +196,7 @@ ___
 
 **● NODE_REQUEST_TIMEOUT**: *`20000`* = 20000
 
-*Defined in [provider.ts:22](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/provider.ts#L22)*
+*Defined in [provider.ts:22](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/provider.ts#L22)*
 
 Milliseconds until a method request to the Node is considered timed out.
 
@@ -210,7 +210,7 @@ ___
 
 ▸ **decode**(types: *`string`[]*, data: *`Arrayish`*): `any`
 
-*Defined in [utils/abi.ts:7](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/abi.ts#L7)*
+*Defined in [utils/abi.ts:7](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/abi.ts#L7)*
 
 **Parameters:**
 
@@ -228,7 +228,7 @@ ___
 
 ▸ **encode**(types: *`string`[]*, values: *`any`[]*): `string`
 
-*Defined in [utils/abi.ts:3](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/abi.ts#L3)*
+*Defined in [utils/abi.ts:3](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/abi.ts#L3)*
 
 **Parameters:**
 
@@ -246,7 +246,7 @@ ___
 
 ▸ **encodePacked**(types: *`string`[]*, values: *`any`[]*): `string`
 
-*Defined in [utils/abi.ts:11](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/abi.ts#L11)*
+*Defined in [utils/abi.ts:11](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/abi.ts#L11)*
 
 **Parameters:**
 
@@ -264,7 +264,7 @@ ___
 
 ▸ **signaturesToBytes**(...signatures: *`Signature`[]*): `string`
 
-*Defined in [utils/signature.ts:9](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/signature.ts#L9)*
+*Defined in [utils/signature.ts:9](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/signature.ts#L9)*
 
 **Parameters:**
 
@@ -281,7 +281,7 @@ ___
 
 ▸ **signaturesToBytesSortedBySignerAddress**(digest: *`Bytes32`*, ...signatures: *`Signature`[]*): `string`
 
-*Defined in [utils/signature.ts:29](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/signature.ts#L29)*
+*Defined in [utils/signature.ts:29](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/signature.ts#L29)*
 
 **Parameters:**
 
@@ -299,7 +299,7 @@ ___
 
 ▸ **sortSignaturesBySignerAddress**(digest: *`string`*, signatures: *`Signature`[]*): `Signature`[]
 
-*Defined in [utils/signature.ts:16](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/utils/signature.ts#L16)*
+*Defined in [utils/signature.ts:16](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/utils/signature.ts#L16)*
 
 **Parameters:**
 
@@ -320,7 +320,7 @@ ___
 
 **cf**: *`object`*
 
-*Defined in [index.ts:8](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/index.ts#L8)*
+*Defined in [index.ts:8](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/index.ts#L8)*
 
 <a id="cf.appfactory"></a>
 
@@ -328,7 +328,7 @@ ___
 
 **● AppFactory**: *[AppFactory](classes/appfactory.md)*
 
-*Defined in [index.ts:9](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/index.ts#L9)*
+*Defined in [index.ts:9](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/index.ts#L9)*
 
 ___
 <a id="cf.provider"></a>
@@ -337,7 +337,7 @@ ___
 
 **● Provider**: *[Provider](classes/provider.md)*
 
-*Defined in [index.ts:10](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/index.ts#L10)*
+*Defined in [index.ts:10](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/index.ts#L10)*
 
 ___
 <a id="cf.types"></a>
@@ -346,7 +346,7 @@ ___
 
 **● types**: *`"/home/patience/code/work/monorepo/packages/cf.js/src/types/index"`*
 
-*Defined in [index.ts:11](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/index.ts#L11)*
+*Defined in [index.ts:11](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/index.ts#L11)*
 
 ___
 <a id="cf.utils"></a>
@@ -355,7 +355,7 @@ ___
 
 **● utils**: *`"/home/patience/code/work/monorepo/packages/cf.js/src/utils/index"`*
 
-*Defined in [index.ts:12](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/index.ts#L12)*
+*Defined in [index.ts:12](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/index.ts#L12)*
 
 ___
 

@@ -32,7 +32,7 @@ yarn build
 API Reference
 -------------
 
-[Found here](docs/index.html)
+[Found here](docs/)
 
 ## Index
 
@@ -82,7 +82,7 @@ API Reference
 
 **Ƭ AppEventData**: *`object`*
 
-*Defined in [types/events.ts:14](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L14)*
+*Defined in [types/events.ts:14](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L14)*
 
 #### Type declaration
 
@@ -95,7 +95,7 @@ ___
 
 **Ƭ CounterfactualEvent**: *`object`*
 
-*Defined in [types/events.ts:40](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L40)*
+*Defined in [types/events.ts:40](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L40)*
 
 #### Type declaration
 
@@ -110,7 +110,7 @@ ___
 
 **Ƭ CreateMultisigEventData**: *`object`*
 
-*Defined in [types/events.ts:22](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L22)*
+*Defined in [types/events.ts:22](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L22)*
 
 #### Type declaration
 
@@ -125,7 +125,7 @@ ___
 
 **Ƭ ErrorEventData**: *`object`*
 
-*Defined in [types/events.ts:27](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L27)*
+*Defined in [types/events.ts:27](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L27)*
 
 #### Type declaration
 
@@ -144,7 +144,7 @@ ___
 
 **Ƭ EventData**: *[InstallEventData](#installeventdata) \| [RejectInstallEventData](#rejectinstalleventdata) \| [ErrorEventData](#erroreventdata) \| [CreateMultisigEventData](#createmultisigeventdata)*
 
-*Defined in [types/events.ts:34](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L34)*
+*Defined in [types/events.ts:34](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L34)*
 
 ___
 <a id="installeventdata"></a>
@@ -153,7 +153,7 @@ ___
 
 **Ƭ InstallEventData**: *[AppEventData](#appeventdata)*
 
-*Defined in [types/events.ts:18](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L18)*
+*Defined in [types/events.ts:18](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L18)*
 
 ___
 <a id="rejectinstalleventdata"></a>
@@ -162,7 +162,7 @@ ___
 
 **Ƭ RejectInstallEventData**: *[AppEventData](#appeventdata)*
 
-*Defined in [types/events.ts:20](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/types/events.ts#L20)*
+*Defined in [types/events.ts:20](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/types/events.ts#L20)*
 
 ___
 
@@ -174,7 +174,7 @@ ___
 
 **● NODE_REQUEST_TIMEOUT**: *`20000`* = 20000
 
-*Defined in [provider.ts:17](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/provider.ts#L17)*
+*Defined in [provider.ts:17](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/provider.ts#L17)*
 
 Milliseconds until a method request to the Node is considered timed out.
 
@@ -188,7 +188,7 @@ ___
 
 ▸ **decode**(types: *`string`[]*, data: *`Arrayish`*): `any`
 
-*Defined in [utils/abi.ts:21](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/abi.ts#L21)*
+*Defined in [utils/abi.ts:21](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/abi.ts#L21)*
 
 Returns an Object by parsing data assuming types, with each parameter accessible as a positional parameters. Throws if data is invalid for the types.
 
@@ -208,7 +208,7 @@ ___
 
 ▸ **encode**(types: *`string`[]*, values: *`any`[]*): `string`
 
-*Defined in [utils/abi.ts:10](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/abi.ts#L10)*
+*Defined in [utils/abi.ts:10](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/abi.ts#L10)*
 
 Returns a hex string of the values encoded as the types. Throws if a value is invalid for the type.
 
@@ -228,7 +228,7 @@ ___
 
 ▸ **encodePacked**(types: *`string`[]*, values: *`any`[]*): `string`
 
-*Defined in [utils/abi.ts:31](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/abi.ts#L31)*
+*Defined in [utils/abi.ts:31](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/abi.ts#L31)*
 
 Compute the Solidity non-standard (tightly) packed data for values given the types.
 
@@ -248,7 +248,7 @@ ___
 
 ▸ **signaturesToBytes**(...signatures: *`Signature`[]*): `string`
 
-*Defined in [utils/signature.ts:14](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/signature.ts#L14)*
+*Defined in [utils/signature.ts:14](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/signature.ts#L14)*
 
 Converts an array of signatures into a single string
 
@@ -267,7 +267,7 @@ ___
 
 ▸ **signaturesToBytesSortedBySignerAddress**(digest: *`Bytes32`*, ...signatures: *`Signature`[]*): `string`
 
-*Defined in [utils/signature.ts:45](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/signature.ts#L45)*
+*Defined in [utils/signature.ts:45](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/signature.ts#L45)*
 
 Sorts signatures in ascending order of signer address and converts them into bytes
 
@@ -287,7 +287,7 @@ ___
 
 ▸ **sortSignaturesBySignerAddress**(digest: *`string`*, signatures: *`Signature`[]*): `Signature`[]
 
-*Defined in [utils/signature.ts:26](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/utils/signature.ts#L26)*
+*Defined in [utils/signature.ts:26](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/utils/signature.ts#L26)*
 
 Sorts signatures in ascending order of signer address
 
@@ -310,7 +310,7 @@ ___
 
 **cfWallet**: *`object`*
 
-*Defined in [index.ts:7](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/index.ts#L7)*
+*Defined in [index.ts:7](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/index.ts#L7)*
 
 <a id="cfwallet.provider"></a>
 
@@ -318,7 +318,7 @@ ___
 
 **● Provider**: *[Provider](classes/provider.md)*
 
-*Defined in [index.ts:8](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/index.ts#L8)*
+*Defined in [index.ts:8](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/index.ts#L8)*
 
 ___
 <a id="cfwallet.types"></a>
@@ -327,7 +327,7 @@ ___
 
 **● types**: *`"/home/patience/code/work/monorepo/packages/cf-wallet.js/src/types/index"`*
 
-*Defined in [index.ts:9](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/index.ts#L9)*
+*Defined in [index.ts:9](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/index.ts#L9)*
 
 ___
 <a id="cfwallet.utils"></a>
@@ -336,7 +336,7 @@ ___
 
 **● utils**: *`"/home/patience/code/work/monorepo/packages/cf-wallet.js/src/utils/index"`*
 
-*Defined in [index.ts:10](https://github.com/counterfactual/monorepo/blob/7f293742/packages/cf-wallet.js/src/index.ts#L10)*
+*Defined in [index.ts:10](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf-wallet.js/src/index.ts#L10)*
 
 ___
 

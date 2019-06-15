@@ -24,7 +24,7 @@
 
 **CREATE_MULTISIG**:  = "createMultisig"
 
-*Defined in [types/events.ts:11](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L11)*
+*Defined in [types/events.ts:11](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L11)*
 
 ___
 <a id="error"></a>
@@ -33,7 +33,7 @@ ___
 
 **ERROR**:  = "error"
 
-*Defined in [types/events.ts:12](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L12)*
+*Defined in [types/events.ts:12](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L12)*
 
 ___
 <a id="install"></a>
@@ -42,7 +42,7 @@ ___
 
 **INSTALL**:  = "install"
 
-*Defined in [types/events.ts:6](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L6)*
+*Defined in [types/events.ts:6](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L6)*
 
 ___
 <a id="install_virtual"></a>
@@ -51,7 +51,7 @@ ___
 
 **INSTALL_VIRTUAL**:  = "installVirtual"
 
-*Defined in [types/events.ts:7](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L7)*
+*Defined in [types/events.ts:7](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L7)*
 
 ___
 <a id="reject_install"></a>
@@ -60,7 +60,7 @@ ___
 
 **REJECT_INSTALL**:  = "rejectInstall"
 
-*Defined in [types/events.ts:8](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L8)*
+*Defined in [types/events.ts:8](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L8)*
 
 ___
 <a id="uninstall"></a>
@@ -69,7 +69,7 @@ ___
 
 **UNINSTALL**:  = "uninstall"
 
-*Defined in [types/events.ts:9](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L9)*
+*Defined in [types/events.ts:9](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L9)*
 
 ___
 <a id="update_state"></a>
@@ -78,7 +78,7 @@ ___
 
 **UPDATE_STATE**:  = "updateState"
 
-*Defined in [types/events.ts:10](https://github.com/counterfactual/monorepo/blob/f55a119f/packages/cf.js/src/types/events.ts#L10)*
+*Defined in [types/events.ts:10](https://github.com/counterfactual/monorepo/blob/5f3d3162/packages/cf.js/src/types/events.ts#L10)*
 
 ___
 
