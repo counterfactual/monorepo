@@ -908,6 +908,58 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@counterfactual/cf.js@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.1.1.tgz#3870746b3c1a2317688a05d8985dbd0b11c7eafa"
+  integrity sha512-Q26xZ/upbRaO0cr3NGgv4GTeZFP0pgC0s50e7lGWuFvGUDED9r3SES5PejcTpnsVz070AjiwHVCji4stuIHdqw==
+  dependencies:
+    "@counterfactual/node-provider" "^0.1.1"
+    "@counterfactual/types" "^0.1.2"
+    ethers "4.0.26"
+    eventemitter3 "^3.1.0"
+
+"@counterfactual/node@0.1.26":
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
+  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
+  dependencies:
+    "@counterfactual/cf.js" "0.1.1"
+    "@counterfactual/contracts" "0.1.2"
+    "@counterfactual/firebase-client" "0.0.3"
+    "@counterfactual/types" "0.0.11"
+    "@firebase/util" "0.2.18"
+    ethers "4.0.29"
+    eventemitter3 "^3.1.2"
+    loglevel "^1.6.1"
+    p-queue "^5.0.0"
+    typescript-memoize "^1.0.0-alpha.3"
+    uuid "^3.3.2"
+
+"@counterfactual/postgresql-node-connector@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/postgresql-node-connector/-/postgresql-node-connector-0.0.2.tgz#73c8b6a42acf6595fdb73f646826f7661b21c36d"
+  integrity sha512-3FGj8cm1WPQx+g6Poi58SrUmKuN9mkCEvLYUxh29bsNeBIPvb5fEqUxZDZXSAjOeC6OBXqu/Av9jXOuOmFv+eQ==
+  dependencies:
+    "@counterfactual/types" "0.0.10"
+    pg "7.11.0"
+    reflect-metadata "^0.1.13"
+    typeorm "^0.2.17"
+
+"@counterfactual/types@0.0.10":
+  version "0.0.10"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
+  integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
+
+"@counterfactual/types@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
+  integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
+
+"@counterfactual/types@^0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.1.2.tgz#6d088c8faae7649aadbde106a8e7a7a1a166d59a"
+  integrity sha512-6/wFPL8gFiPKcamQ6ctMJaNiGKr71dXMVVX3x52qXhNz79pAKvTsP0sq/agR6FHOJ0vH6c3xMhlElSv5BhqWyw==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -2814,15 +2866,15 @@
   resolved "https://registry.npmjs.org/@types/node/-/node-12.0.2.tgz#3452a24edf9fea138b48fad4a0a028a683da1e40"
   integrity sha512-5tabW/i+9mhrfEOUcLDu2xBPsHJ+X5Orqy9FKpale3SjDA17j5AEpYq5vfy3oAeAHGcvANRCO3NV3d2D6q3NiA==
 
-"@types/node@12.0.4":
-  version "12.0.4"
-  resolved "https://registry.npmjs.org/@types/node/-/node-12.0.4.tgz#46832183115c904410c275e34cf9403992999c32"
-  integrity sha512-j8YL2C0fXq7IONwl/Ud5Kt0PeXw22zGERt+HSSnwbKOJVsAGkEz3sFCYwaF9IOuoG1HOtE0vKCj6sXF7Q0+Vaw==
-
 "@types/node@12.0.7", "@types/node@^12.0.2", "@types/node@^12.0.3", "@types/node@^12.0.7":
   version "12.0.7"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.7.tgz#4f2563bad652b2acb1722d7e7aae2b0ff62d192c"
   integrity sha512-1YKeT4JitGgE4SOzyB9eMwO0nGVNkNEsm9qlIt1Lqm/tG2QEiSMTD4kS3aO6L+w5SClLVxALmIBESK6Mk5wX0A==
+
+"@types/node@12.0.8":
+  version "12.0.8"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-12.0.8.tgz#551466be11b2adc3f3d47156758f610bd9f6b1d8"
+  integrity sha512-b8bbUOTwzIY3V5vDTY1fIJ+ePKDUBqt2hC2woVGotdQQhG/2Sh62HOKHrT7ab+VerXAcPyAiTEipPu/FsreUtg==
 
 "@types/node@^10.0.3", "@types/node@^10.1.0", "@types/node@^10.3.2":
   version "10.14.8"
@@ -7628,10 +7680,10 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@4.0.0-beta.1, ethers@4.0.28, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20, ethers@^4.0.27:
-  version "4.0.28"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.28.tgz#74d9acb57f4ede3337c8d60476b38d0fe646af01"
-  integrity sha512-5JTHrPoFLqf+xCAI3pKwXSOgWBSJJoAUdPtPLr1ZlKbSKiIFMkPlRNovmZS3jhIw5sHW1YoVWOaJ6ZR2gKRbwg==
+ethers@4.0.0-beta.1, ethers@4.0.26, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
+  version "4.0.29"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
+  integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"
@@ -15532,7 +15584,7 @@ redent@^2.0.0:
     indent-string "^3.0.0"
     strip-indent "^2.0.0"
 
-reflect-metadata@^0.1.12, reflect-metadata@^0.1.13:
+reflect-metadata@0.1.13, reflect-metadata@^0.1.12, reflect-metadata@^0.1.13:
   version "0.1.13"
   resolved "https://registry.npmjs.org/reflect-metadata/-/reflect-metadata-0.1.13.tgz#67ae3ca57c972a2aa1642b10fe363fe32d49dc08"
   integrity sha512-Ts1Y/anZELhSsjMcU605fU9RE4Oi3p5ORujwbIKXfWa+0Zxs510Qrmrce5/Jowq3cHSZSJqBjypxmHarc+vEWg==
@@ -16047,6 +16099,19 @@ rollup@1.14.5:
     "@types/estree" "0.0.39"
     "@types/node" "^12.0.7"
     acorn "^6.1.1"
+
+rollup@1.15.1:
+  version "1.15.1"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-1.15.1.tgz#76580d9a3e7e8632530bcc5809baf431e9e16aa9"
+  integrity sha512-JErZxFKs0w7wpHZXWonAlom1Jezo0gJ7mf7JHTjOAjFGKAqNMEnlzEjMYhy6cqHgSfSPj/idVscuW+Lo6y6AoQ==
+  dependencies:
+    "@types/estree" "0.0.39"
+    "@types/node" "^12.0.7"
+    acorn "^6.1.1"
+
+rpc-server@prototypal/rpc-server:
+  version "0.0.1"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
 
 rsvp@^3.3.3:
   version "3.6.2"
@@ -16652,7 +16717,7 @@ sol-explore@^1.6.2:
 
 solc@0.5.9, solc@^0.5.1, solc@^0.5.8:
   version "0.5.9"
-  resolved "https://registry.npmjs.org/solc/-/solc-0.5.9.tgz#ec513bbbbb8b46b4b4d1a6a2764c50f34877fffc"
+  resolved "https://registry.yarnpkg.com/solc/-/solc-0.5.9.tgz#ec513bbbbb8b46b4b4d1a6a2764c50f34877fffc"
   integrity sha512-IyCEXnSbpb3ii8FkgNu0QDtCtnvyGCtYNQejOaIZi6/9/CLJ2ozDHN2oNG26HfGZ8op9yDgqC+5SHziFvkRZuA==
   dependencies:
     command-exists "^1.2.8"
@@ -17876,7 +17941,7 @@ tslint-eslint-rules@^5.4.0:
 
 tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
   version "6.2.0"
-  resolved "https://registry.npmjs.org/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
   integrity sha512-6tfi/2tHqV/3CL77pULBcK+foty11Rr0idRDxKnteTaKm6gWF9qmaCNU17HVssOuwlYNyOmd9Jsmjd+1t3a3qw==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
@@ -18022,9 +18087,9 @@ typedoc@0.14.2, typedoc@^0.14.2:
     typedoc-default-themes "^0.5.0"
     typescript "3.2.x"
 
-typeorm@^0.2.17:
+typeorm@0.2.18, typeorm@^0.2.17:
   version "0.2.18"
-  resolved "https://registry.npmjs.org/typeorm/-/typeorm-0.2.18.tgz#8ae1d21104117724af41ddc11035c40a705e1de8"
+  resolved "https://registry.yarnpkg.com/typeorm/-/typeorm-0.2.18.tgz#8ae1d21104117724af41ddc11035c40a705e1de8"
   integrity sha512-S553GwtG5ab268+VmaLCN7gKDqFPIzUw0eGMTobJ9yr0Np62Ojfx8j1Oa9bIeh5p7Pz1/kmGabAHoP1MYK05pA==
   dependencies:
     app-root-path "^2.0.1"

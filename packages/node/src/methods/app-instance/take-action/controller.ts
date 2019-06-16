@@ -1,6 +1,7 @@
 import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -18,6 +19,9 @@ import {
 
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
+
+  @jsonRpcMethod("chan_takeAction")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

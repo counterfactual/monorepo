@@ -83,7 +83,7 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have 0 balances for Alice and Bob", () => {
       const fbState = fb.state as ETHBucketAppState;
-      for (const { amount } of fbState) {
+      for (const { amount } of fbState[0]) {
         expect(amount).toEqual(Zero);
       }
     });

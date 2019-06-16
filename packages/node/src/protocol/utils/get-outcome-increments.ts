@@ -74,7 +74,7 @@ export async function computeFreeBalanceIncrements(
         await wait(1000 * attempts);
       }
     }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
       const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;

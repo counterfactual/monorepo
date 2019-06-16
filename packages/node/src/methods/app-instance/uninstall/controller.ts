@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, UninstallMessage } from "../../../types";
@@ -15,6 +16,9 @@ import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL;
+
+  @jsonRpcMethod("chan_uninstall")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

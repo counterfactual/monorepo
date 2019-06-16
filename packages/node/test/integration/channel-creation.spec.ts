@@ -1,9 +1,6 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   confirmChannelCreation,
   getChannelAddresses,
@@ -16,10 +13,10 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
+    const context: SetupContext = await setup(global, true, true);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
   describe("Queued channel creation", () => {

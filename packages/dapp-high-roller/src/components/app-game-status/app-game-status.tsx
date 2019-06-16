@@ -11,7 +11,8 @@ import { GameState, HighRollerStage } from "../../data/game-types";
 export class AppGameStatus {
   @Element() el: HTMLStencilElement = {} as HTMLStencilElement;
   @Prop() gameState: GameState = GameState.Play;
-  @Prop() highRollerStage: HighRollerStage = HighRollerStage.PRE_GAME;
+  @Prop() highRollerStage: HighRollerStage =
+    HighRollerStage.WAITING_FOR_P1_COMMITMENT;
   @Prop() isProposing: boolean = true;
   @Prop() betAmount: string = "0.01 ETH";
   @Prop() account: any = { user: { username: "Facundo" } };
@@ -24,10 +25,10 @@ export class AppGameStatus {
     }
 
     const isTurnForFirstPlayer =
-      this.highRollerStage === HighRollerStage.PRE_GAME;
+      this.highRollerStage === HighRollerStage.WAITING_FOR_P1_COMMITMENT;
     const isTurnForSecondPlayer =
       !this.isProposing &&
-      this.highRollerStage === HighRollerStage.COMMITTING_NUM;
+      this.highRollerStage === HighRollerStage.P2_COMMITTED_TO_NUM;
 
     if (isTurnForFirstPlayer || isTurnForSecondPlayer) {
       return "Your turn";

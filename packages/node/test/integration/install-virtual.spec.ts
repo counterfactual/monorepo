@@ -1,5 +1,3 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/store-firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
@@ -11,7 +9,7 @@ import {
   ProposeVirtualMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
@@ -28,10 +26,10 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
+    const context: SetupContext = await setup(global, true, true);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
   describe(

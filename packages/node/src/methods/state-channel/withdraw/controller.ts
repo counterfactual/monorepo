@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
@@ -12,6 +13,9 @@ import { runWithdrawProtocol } from "./operation";
 
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
+
+  @jsonRpcMethod("chan_withdraw")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

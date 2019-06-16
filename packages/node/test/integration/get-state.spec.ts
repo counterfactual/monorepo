@@ -1,11 +1,9 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/store-firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
   createChannel,
@@ -20,16 +18,16 @@ describe("Node method follows spec - getAppInstances", () => {
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {
     const getStateReq = generateGetStateRequest(generateUUID());
-    expect(
-      nodeA.call(NodeTypes.MethodName.GET_STATE, getStateReq)
-    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    expect(nodeA.router.dispatch(getStateReq)).rejects.toEqual(
+      NO_MULTISIG_FOR_APP_INSTANCE_ID
+    );
   });
 
   it("returns the right state for an installed AppInstance", async () => {
@@ -38,7 +36,7 @@ describe("Node method follows spec - getAppInstances", () => {
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       global["networkContext"].TicTacToe
-    ).params as NodeTypes.ProposeInstallParams;
+    ).parameters as NodeTypes.ProposeInstallParams;
     const appInstanceId = await installTTTApp(nodeA, nodeB);
     const state = await getState(nodeA, appInstanceId);
 

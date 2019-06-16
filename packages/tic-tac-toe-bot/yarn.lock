@@ -910,10 +910,10 @@
     ethers "4.0.26"
     eventemitter3 "^3.1.0"
 
-"@counterfactual/contracts@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.1.tgz#f2045b281b0ab11b99417dc978dcf458aeba221c"
-  integrity sha512-RyPxbzBfdhbmPjYLYHviB4aCdN0mqgcH63d0d9OY6TH0h2wThzLi05+elBsXnK6KekKg4cUWwyFtGPvbMHY5SQ==
+"@counterfactual/contracts@0.1.2":
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.2.tgz#5921ba7695884c48c25b02cd3f5deb5338079a55"
+  integrity sha512-6gltf4DAFNIlNpFHs5/HVmYXMOi0JbVJilEtHPO4PCH4KCAwfC127T43milWExMDt23vXTavno7ywn1M2fvrWg==
 
 "@counterfactual/dapp-tic-tac-toe@0.1.2":
   version "0.1.2"
@@ -949,26 +949,27 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.24":
-  version "0.1.24"
-  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.1.24.tgz#0e38c2ead046de8a38238a7c9cf883551c5da5e4"
-  integrity sha512-U7zNkdEvzFf7o7lUEi+tCwoSNA1T/lg/igW0xSJ87l+tMC6wQOirN/5bC3LB/fZD5B0EZtB5u2BkfQx/R7LAnw==
+"@counterfactual/node@0.1.26":
+  version "0.1.26"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
+  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
   dependencies:
     "@counterfactual/cf.js" "0.1.1"
-    "@counterfactual/contracts" "0.1.1"
+    "@counterfactual/contracts" "0.1.2"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.10"
-    ethers "4.0.28"
+    "@counterfactual/types" "0.0.11"
+    "@firebase/util" "0.2.18"
+    ethers "4.0.29"
     eventemitter3 "^3.1.2"
     loglevel "^1.6.1"
     p-queue "^5.0.0"
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
-"@counterfactual/types@0.0.10":
-  version "0.0.10"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
-  integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
+"@counterfactual/types@0.0.11":
+  version "0.0.11"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
+  integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
 
 "@counterfactual/types@^0.1.2":
   version "0.1.2"
@@ -1237,6 +1238,13 @@
   version "0.2.17"
   resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.17.tgz#d2ba0b921ce0ff6de5dce3f155f1f957426e0929"
   integrity sha512-RvHkhQUkihI4JafJmB7S7Q8qVDFPD+kQdSmUyVTR2sEzxkk92MsIq4dBYnSjOMmnCe7L5lmB6hJdzkHa/TAP5A==
+  dependencies:
+    tslib "1.9.3"
+
+"@firebase/util@0.2.18":
+  version "0.2.18"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.18.tgz#c806491782983807e301efe510aabcc02152ff32"
+  integrity sha512-I17vZZ/xRQu3hYvj/RikySSQFlfej+xXwh+yfdB6VhQavb4H5+NbX/5Tp3jSPp+7obFstVgqkM+yHjX/Z9+DXw==
   dependencies:
     tslib "1.9.3"
 
@@ -3195,7 +3203,7 @@ commander@2.17.x:
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.17.1.tgz#bd77ab7de6de94205ceacc72f1716d29f20a77bf"
   integrity sha512-wPMUt6FnH2yzG95SA6mzjQOEKUU3aLaDEmzs1ti+1E9h+CsrZghRlqEM/EJ4KscsQVG8uNN4uVreUeT8+drlgg==
 
-commander@^2.11.0, commander@^2.12.1, commander@^2.19.0, commander@^2.20.0, commander@~2.20.0:
+commander@^2.0.0, commander@^2.11.0, commander@^2.12.1, commander@^2.19.0, commander@~2.20.0:
   version "2.20.0"
   resolved "https://registry.yarnpkg.com/commander/-/commander-2.20.0.tgz#d58bb2b5c1ee8f87b0d340027e9e94e222c5a422"
   integrity sha512-7j2y+40w61zy6YC2iRNpUe/NwhNyoXrYpHMrSunaMG64nRnaf96zO/KMQR4OyN/UnE5KLyEBnKHd4aG3rskjpQ==
@@ -4131,13 +4139,13 @@ entities@^1.1.1:
   resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.2.tgz#bdfa735299664dfafd34529ed4f8522a275fea56"
   integrity sha512-f2LZMYl1Fzu7YSBKg+RoROelpOaNrcGmE9AZubeDfrCEia483oW4MI4VyFd5VNHIgQ/7qm1I0wUHK1eJnn2y2w==
 
-env-cmd@9.0.2:
-  version "9.0.2"
-  resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-9.0.2.tgz#279acd1ca2d83242f28830d6f97713721b001eb6"
-  integrity sha512-xv7twXRNYvkKNZ3L7IZeQ7aMvEgi3Mf4p+hvgi/s2W1kyeyWxEz75+DNdN7OmMH4nt66oQGkBbBGUPrTX7XqPw==
+env-cmd@9.0.3:
+  version "9.0.3"
+  resolved "https://registry.yarnpkg.com/env-cmd/-/env-cmd-9.0.3.tgz#b85265f5a9fd4c5fc7d7eff34e341dc28c3f9801"
+  integrity sha512-DXNeSkLMlYOmq9At+GyvqpdIDuy3gRvz2Z77kN4cAhRbAGVmeiYaqdWqgHSTJ9wCck6ZD0rtbhHVcN7cc2j7rw==
   dependencies:
-    commander "^2.20.0"
-    cross-spawn "6.0.5"
+    commander "^2.0.0"
+    cross-spawn "^6.0.0"
 
 errno@^0.1.3, errno@~0.1.7:
   version "0.1.7"
@@ -4418,10 +4426,10 @@ ethers@4.0.26:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-ethers@4.0.28:
-  version "4.0.28"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.28.tgz#74d9acb57f4ede3337c8d60476b38d0fe646af01"
-  integrity sha512-5JTHrPoFLqf+xCAI3pKwXSOgWBSJJoAUdPtPLr1ZlKbSKiIFMkPlRNovmZS3jhIw5sHW1YoVWOaJ6ZR2gKRbwg==
+ethers@4.0.29:
+  version "4.0.29"
+  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
+  integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
   dependencies:
     "@types/node" "^10.3.2"
     aes-js "3.0.0"

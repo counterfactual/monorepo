@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, RejectProposalMessage } from "../../../types";
@@ -23,6 +24,7 @@ export default class RejectInstallController extends NodeController {
     ];
   }
 
+  @jsonRpcMethod("chan_rejectInstall")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams

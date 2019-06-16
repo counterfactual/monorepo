@@ -14,6 +14,15 @@ export declare class Node {
     networkContext?: NetworkContext
   ): Promise<Node>;
   readonly publicIdentifier: string;
+  router: {
+    dispatch: ({
+      methodName,
+      parameters
+    }: {
+      methodName: string;
+      parameters: any;
+    }) => any;
+  };
   on(event: string, callback: (res: any) => void): void;
   once(event: string, callback: (res: any) => void): void;
   off(event: string, callback?: (res: any) => void): void;

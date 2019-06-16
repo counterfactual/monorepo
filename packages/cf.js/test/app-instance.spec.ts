@@ -1,8 +1,10 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
+import { JsonRpcResponse } from "rpc-server";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
+import { jsonRpcMethodNames } from "../src/provider";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
@@ -38,15 +40,20 @@ describe("CF.js AppInstance", () => {
 
       const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
-        expect(request.type).toBe(Node.MethodName.GET_STATE);
-        const params = request.params as Node.GetStateParams;
+        expect(request.methodName).toBe(
+          jsonRpcMethodNames[Node.MethodName.GET_STATE]
+        );
+        const params = request.parameters as Node.GetStateParams;
         expect(params.appInstanceId).toBe(appInstance.id);
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.GET_STATE,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            state: expectedState
-          }
+            type: Node.MethodName.GET_STATE,
+            result: {
+              state: expectedState
+            }
+          },
+          id: request.id as number
         });
       });
 
@@ -59,17 +66,22 @@ describe("CF.js AppInstance", () => {
       const expectedAction = { action: "1337" };
       const expectedNewState = { val: "5337" };
       nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
-        expect(request.type).toBe(Node.MethodName.TAKE_ACTION);
-        const params = request.params as Node.TakeActionParams;
+        expect(request.methodName).toBe(
+          jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
+        );
+        const params = request.parameters as Node.TakeActionParams;
         expect(params.appInstanceId).toBe(appInstance.id);
         expect(params.action).toBe(expectedAction);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.TAKE_ACTION,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            newState: expectedNewState
-          }
+            type: Node.MethodName.TAKE_ACTION,
+            result: {
+              newState: expectedNewState
+            }
+          },
+          id: request.id as number
         });
       });
 
@@ -81,14 +93,19 @@ describe("CF.js AppInstance", () => {
       expect.assertions(2);
 
       nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
-        expect(request.type).toBe(Node.MethodName.UNINSTALL);
-        const params = request.params as Node.UninstallParams;
+        expect(request.methodName).toBe(
+          jsonRpcMethodNames[Node.MethodName.UNINSTALL]
+        );
+        const params = request.parameters as Node.UninstallParams;
         expect(params.appInstanceId).toBe(appInstance.id);
 
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.UNINSTALL,
-          requestId: request.requestId,
-          result: {}
+          jsonrpc: "2.0",
+          result: {
+            type: Node.MethodName.UNINSTALL,
+            result: {}
+          },
+          id: request.id as number
         });
       });
 
@@ -111,11 +128,14 @@ describe("CF.js AppInstance", () => {
       });
 
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.UPDATE_STATE,
-        data: {
-          action: expectedAction,
-          newState: expectedNewState,
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.UPDATE_STATE,
+          data: {
+            action: expectedAction,
+            newState: expectedNewState,
+            appInstanceId: TEST_APP_INSTANCE_INFO.id
+          }
         }
       });
     });
@@ -128,9 +148,12 @@ describe("CF.js AppInstance", () => {
       });
 
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.UNINSTALL,
-        data: {
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.UNINSTALL,
+          data: {
+            appInstanceId: TEST_APP_INSTANCE_INFO.id
+          }
         }
       });
     });
@@ -148,11 +171,14 @@ describe("CF.js AppInstance", () => {
       });
 
       nodeProvider.simulateMessageFromNode({
-        type: Node.ErrorType.ERROR,
-        data: {
-          errorName: expectedErrorName,
-          message: expectedMessage,
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        jsonrpc: "2.0",
+        result: {
+          type: Node.ErrorType.ERROR,
+          data: {
+            errorName: expectedErrorName,
+            message: expectedMessage,
+            appInstanceId: TEST_APP_INSTANCE_INFO.id
+          }
         }
       });
     });
@@ -169,13 +195,16 @@ describe("CF.js AppInstance", () => {
         }
       });
       const event = {
-        type: Node.EventName.UPDATE_STATE,
-        data: {
-          action: "200",
-          newState: "1200",
-          appInstanceId: TEST_APP_INSTANCE_INFO.id
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.UPDATE_STATE,
+          data: {
+            action: "200",
+            newState: "1200",
+            appInstanceId: TEST_APP_INSTANCE_INFO.id
+          }
         }
-      };
+      } as JsonRpcResponse;
       nodeProvider.simulateMessageFromNode(event);
       nodeProvider.simulateMessageFromNode(event);
       setTimeout(done, 50);
@@ -186,9 +215,12 @@ describe("CF.js AppInstance", () => {
       appInstance.on(AppInstanceEventType.UNINSTALL, callback);
       appInstance.off(AppInstanceEventType.UNINSTALL, callback);
       nodeProvider.simulateMessageFromNode({
-        type: Node.EventName.UNINSTALL,
-        data: {
-          appInstance: TEST_APP_INSTANCE_INFO
+        jsonrpc: "2.0",
+        result: {
+          type: Node.EventName.UNINSTALL,
+          data: {
+            appInstance: TEST_APP_INSTANCE_INFO
+          }
         }
       });
       setTimeout(done, 50);

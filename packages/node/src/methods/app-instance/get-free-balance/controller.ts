@@ -1,5 +1,6 @@
 import { ETHBucketAppState, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -13,6 +14,7 @@ import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
 
+  @jsonRpcMethod("chan_getFreeBalanceState")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetFreeBalanceStateParams
@@ -31,7 +33,7 @@ export default class GetFreeBalanceController extends NodeController {
 
     const ret: Node.GetFreeBalanceStateResult = {};
 
-    for (const { amount, to } of appState) {
+    for (const { amount, to } of appState[0]) {
       ret[to] = bigNumberify(amount._hex);
     }
 

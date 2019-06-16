@@ -2,7 +2,8 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+// solium-disable-next-line
+import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
 import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";

@@ -62,7 +62,7 @@ export class AppRoot {
       highRoller: this.highRoller.bind(this),
       generateRandomRoll: this.generateRandomRoll.bind(this),
       highRollerState: {
-        stage: HighRollerStage.PRE_GAME,
+        stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,

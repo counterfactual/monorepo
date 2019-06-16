@@ -18,11 +18,20 @@ import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
+export interface NodeContext {
+  node: Node;
+  store: NodeTypes.IStoreService;
+}
+
+export interface SetupContext {
+  [nodeName: string]: NodeContext;
+}
+
 export async function setupWithMemoryMessagingAndPostgresStore(
   global: any,
   nodeCPresent: boolean = false,
   newMnemonics: boolean = false
-) {
+): Promise<SetupContext> {
   const memoryMessagingService = new MemoryMessagingService();
   const postgresServiceFactory = new PostgresServiceFactory({
     type: "postgres",
@@ -49,7 +58,9 @@ export async function setup(
   newMnemonics: boolean = false,
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
-) {
+): Promise<SetupContext> {
+  const setupContext: SetupContext = {};
+
   const nodeConfig = {
     STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
   };
@@ -82,6 +93,11 @@ export async function setup(
     global["networkContext"]
   );
 
+  setupContext["A"] = {
+    node: nodeA,
+    store: storeServiceA
+  };
+
   const storeServiceB = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
@@ -93,6 +109,10 @@ export async function setup(
     provider,
     global["networkContext"]
   );
+  setupContext["B"] = {
+    node: nodeB,
+    store: storeServiceB
+  };
 
   let nodeC: Node;
   if (nodeCPresent) {
@@ -106,11 +126,13 @@ export async function setup(
       provider,
       global["networkContext"]
     );
-
-    return { nodeA, nodeB, nodeC };
+    setupContext["C"] = {
+      node: nodeC,
+      store: storeServiceC
+    };
   }
 
-  return { nodeA, nodeB };
+  return setupContext;
 }
 
 export async function generateNewFundedWallet(

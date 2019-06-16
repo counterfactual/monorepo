@@ -3,7 +3,7 @@ import { BigNumber } from "ethers/utils";
 
 import { ABIEncoding, AppInstanceID } from "./simple-types";
 
-export type TwoPartyOutcomeInterpreterParams = {
+export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
   playerAddrs: [string, string];
@@ -30,7 +30,7 @@ export type AppInstanceInfo = {
   /**
    * Interpreter-related Fields
    */
-  twoPartyOutcomeInterpreterParams?: TwoPartyOutcomeInterpreterParams;
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   ethTransferInterpreterParams?: ETHTransferInterpreterParams;
 };
 
@@ -41,12 +41,13 @@ export type AppABIEncodings = {
 
 // Interpreter.sol::OutcomeType
 export enum OutcomeType {
-  TWO_PARTY_OUTCOME = 0,
-  ETH_TRANSFER = 1
+  TWO_PARTY_FIXED_OUTCOME = 0,
+  TWO_PARTY_DYNAMIC_OUTCOME = 1,
+  ETH_TRANSFER = 2
 }
 
-// TwoPartyOutcome.sol::Outcome
-export enum TwoPartyOutcome {
+// TwoPartyFixedOutcome.sol::Outcome
+export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_ONE = 0,
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
