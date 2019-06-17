@@ -124,6 +124,15 @@ async function proposeStateTransition(
       }
     | undefined;
 
+  let twoPartyDynamicInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreter.sol#L15
+        limit: BigNumber;
+        token: string;
+      }
+    | undefined;
+
   switch (outcomeType) {
     case OutcomeType.ETH_TRANSFER: {
       ethTransferInterpreterParams = {
@@ -152,9 +161,24 @@ async function proposeStateTransition(
       );
       break;
     }
-    // case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
-    // TBD
-    // }
+    case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
+      if (initialState["token"] === undefined) {
+        throw new Error(
+          "An ERC20 token address must be specified as part of the initial state to use this Outcome type"
+        );
+      }
+      twoPartyDynamicInterpreterParams = {
+        limit: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        ),
+        token: initialState["token"]
+      };
+      interpreterAddress = context.network.ERC20TwoPartyDynamicInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit, address token)"],
+        [twoPartyDynamicInterpreterParams]
+      );
+    }
     default: {
       throw new Error(
         "The outcome type in this application logic contract is not supported yet."
