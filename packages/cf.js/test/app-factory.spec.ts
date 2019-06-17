@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/types";
+import { Node, OutcomeType } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
@@ -38,9 +38,12 @@ describe("CF.js AppFactory", () => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
         );
+
         const params = request.parameters as Node.ProposeInstallParams;
+
         expect(params.initialState).toBe(expectedState);
         expect(params.myDeposit).toEqual(expectedDeposit);
+
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
@@ -52,13 +55,16 @@ describe("CF.js AppFactory", () => {
           id: request.id as number
         });
       });
+
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
         peerDeposit: expectedDeposit,
         myDeposit: expectedDeposit,
         timeout: "100",
-        initialState: expectedState
+        initialState: expectedState,
+        outcomeType: OutcomeType.ETH_TRANSFER
       });
+
       expect(appInstanceId).toBe(expectedAppInstanceId);
     });
 
@@ -110,7 +116,8 @@ describe("CF.js AppFactory", () => {
           peerDeposit: parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
-          initialState: { val: "4000" }
+          initialState: { val: "4000" },
+          outcomeType: OutcomeType.ETH_TRANSFER
         });
         done.fail("Expected an error for invalid myDeposit");
       } catch (e) {

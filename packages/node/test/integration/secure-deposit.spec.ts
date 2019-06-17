@@ -44,7 +44,7 @@ describe("Node method follows spec - deposit", () => {
     }
   });
 
-  it.only("has the right balance for both parties after deposits of ERC20 tokens", async () => {
+  it.skip("has the right balance for both parties after deposits of ERC20 tokens", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
 
     const depositReq = makeDepositRequest(

@@ -20,12 +20,4 @@ contract ETHBucket is CounterfactualApp {
     return abi.encode(abi.decode(encodedState, (AppState)).transfers);
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
-  }
-
 }

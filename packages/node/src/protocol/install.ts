@@ -1,6 +1,4 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { Contract } from "ethers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
@@ -97,27 +95,9 @@ async function proposeStateTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    multisigAddress
+    multisigAddress,
+    outcomeType
   } = params as InstallParams;
-
-  const appDefinition = new Contract(
-    appInterface.addr,
-    CounterfactualApp.abi,
-    context.provider
-  );
-
-  let outcomeType: BigNumber;
-
-  try {
-    outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
-  } catch (e) {
-    if (e.toString().indexOf("VM Exception") !== -1) {
-      throw new Error(
-        "The application logic contract being referenced in this installation request does not implement outcomeType()."
-      );
-    }
-    throw e;
-  }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -144,7 +124,7 @@ async function proposeStateTransition(
       }
     | undefined;
 
-  switch (outcomeType.toNumber()) {
+  switch (outcomeType) {
     case OutcomeType.ETH_TRANSFER: {
       ethTransferInterpreterParams = {
         limit: bigNumberify(initiatingBalanceDecrement).add(

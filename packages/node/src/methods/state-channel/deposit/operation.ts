@@ -5,6 +5,7 @@ import {
   ethBalanceRefundStateEncoding,
   NetworkContext,
   Node,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
@@ -83,7 +84,8 @@ export async function installBalanceRefundApp(
       signingKeys: stateChannel.getNextSigningKeys(),
       appInterface: depositContext.appInterface,
       // this is the block-time equivalent of 7 days
-      defaultTimeout: 1008
+      defaultTimeout: 1008,
+      outcomeType: OutcomeType.ETH_TRANSFER
     }
   );
 
