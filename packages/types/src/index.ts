@@ -20,6 +20,7 @@ import {
 } from "./simple-types";
 
 export interface NetworkContext {
+  DolphinCoin: string;
   ChallengeRegistry: string;
   ETHBalanceRefundApp: string;
   ETHBucket: string;
@@ -37,6 +38,7 @@ export interface NetworkContext {
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
+  "DolphinCoin",
   "ETHBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
