@@ -1,5 +1,6 @@
 import {
   AppABIEncodings,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -33,7 +34,8 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Type
+      } as SolidityABIEncoderV2Type,
+      outcomeType: OutcomeType.ETH_TRANSFER
     },
     undefined,
     appInstanceId

@@ -52,14 +52,6 @@ contract TicTacToeApp is CounterfactualApp {
     WinClaim winClaim;
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
-  }
-
   function isStateTerminal(bytes calldata encodedState)
     external
     pure

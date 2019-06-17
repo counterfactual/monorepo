@@ -1,4 +1,4 @@
-import { Node } from "@counterfactual/types";
+import { Node, OutcomeType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
@@ -64,7 +64,8 @@ export async function installBalanceRefundApp(
         actionEncoding: undefined
       },
       // this is the block-time equivalent of 7 days
-      defaultTimeout: 1008
+      defaultTimeout: 1008,
+      outcomeType: OutcomeType.ETH_TRANSFER
     }
   );
 
