@@ -27,4 +27,4 @@ const FormButton: React.FC<FormButtonProps> = ({
   );
 };
 
-export default FormButton;
+export { FormButton };
