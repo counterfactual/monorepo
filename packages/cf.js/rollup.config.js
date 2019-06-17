@@ -8,6 +8,7 @@ const bundledDependencies = new Set([
   "@counterfactual/node-provider",
   "@counterfactual/types",
   "eventemitter3",
+  "rpc-server"
 ]);
 
 export default {
@@ -30,13 +31,9 @@ export default {
     }
   ],
   plugins: [
+    commonjs(),
     nodeResolve({
       only: [...bundledDependencies]
-    }),
-    commonjs({
-      include: [
-        "../../node_modules/eventemitter3/index.js"
-      ]
     }),
     typescript(),
   ]

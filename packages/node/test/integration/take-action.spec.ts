@@ -5,6 +5,7 @@ import {
 import { bigNumberify } from "ethers/utils";
 
 import {
+  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
@@ -37,7 +38,7 @@ describe("Node method follows spec - takeAction", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
+        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
@@ -51,7 +52,9 @@ describe("Node method follows spec - takeAction", () => {
         nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
 
-          const response = await nodeB.call(getStateReq.type, getStateReq);
+          const response = (await nodeB.router.dispatch(
+            getStateReq
+          )) as JsonRpcResponse;
 
           const updatedState = (response.result as NodeTypes.GetStateResult)
             .state;
@@ -63,7 +66,9 @@ describe("Node method follows spec - takeAction", () => {
           validAction
         );
 
-        const response = await nodeA.call(takeActionReq.type, takeActionReq);
+        const response = (await nodeA.router.dispatch(
+          takeActionReq
+        )) as JsonRpcResponse;
 
         newState = (response.result as NodeTypes.TakeActionResult).newState;
 

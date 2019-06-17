@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
@@ -17,6 +18,9 @@ import { createProposedAppInstance } from "./operation";
  */
 export default class ProposeInstallController extends NodeController {
   public static readonly methodName = Node.MethodName.PROPOSE_INSTALL;
+
+  @jsonRpcMethod("chan_proposeInstall")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

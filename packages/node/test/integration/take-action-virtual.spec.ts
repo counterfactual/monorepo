@@ -5,6 +5,7 @@ import {
 import { bigNumberify } from "ethers/utils";
 
 import {
+  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
@@ -40,7 +41,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
+        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
@@ -57,7 +58,9 @@ describe("Node method follows spec - takeAction virtual", () => {
 
         nodeC.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
           const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeC.call(getStateReq.type, getStateReq);
+          const response = (await nodeC.router.dispatch(
+            getStateReq
+          )) as JsonRpcResponse;
           const updatedState = (response.result as NodeTypes.GetStateResult)
             .state;
           expect(updatedState).toEqual(newState);
@@ -69,7 +72,9 @@ describe("Node method follows spec - takeAction virtual", () => {
           validAction
         );
 
-        const response = await nodeA.call(takeActionReq.type, takeActionReq);
+        const response = (await nodeA.router.dispatch(
+          takeActionReq
+        )) as JsonRpcResponse;
         newState = (response.result as NodeTypes.TakeActionResult).newState;
 
         expect(newState["board"][0][0]).toEqual(bigNumberify(1));

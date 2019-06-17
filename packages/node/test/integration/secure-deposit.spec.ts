@@ -27,8 +27,8 @@ describe("Node method follows spec - deposit", () => {
     const depositReq = makeDepositRequest(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
-    await nodeA.call(depositReq.type, depositReq);
-    await nodeB.call(depositReq.type, depositReq);
+    await nodeA.router.dispatch(depositReq);
+    await nodeB.router.dispatch(depositReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       preDepositBalance.add(2).toNumber()

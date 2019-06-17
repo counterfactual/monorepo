@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.1.26",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -48,15 +48,16 @@
     "typescript": "3.5.1"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.1.1",
+    "@counterfactual/cf.js": "0.2.0",
     "@counterfactual/contracts": "0.1.2",
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/types": "0.0.11",
+    "@counterfactual/types": "0.0.12",
     "@firebase/util": "0.2.18",
     "ethers": "4.0.29",
     "eventemitter3": "^3.1.2",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
+    "rpc-server": "prototypal/rpc-server",
     "typescript-memoize": "^1.0.0-alpha.3",
     "uuid": "^3.3.2"
   }

@@ -32,7 +32,7 @@ describe("Node method follows spec - withdraw", () => {
 
     const depositReq = makeDepositRequest(multisigAddress, One);
 
-    await nodeA.call(depositReq.type, depositReq);
+    await nodeA.router.dispatch(depositReq);
 
     const postDepositMultisigBalance = await provider.getBalance(
       multisigAddress
@@ -44,7 +44,7 @@ describe("Node method follows spec - withdraw", () => {
 
     const withdrawReq = makeWithdrawRequest(multisigAddress, One);
 
-    await nodeA.call(withdrawReq.type, withdrawReq);
+    await nodeA.router.dispatch(withdrawReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()

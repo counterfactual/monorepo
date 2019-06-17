@@ -1,7 +1,6 @@
 const tdr = require("truffle-deploy-registry");
 
 const ChallengeRegistry = artifacts.require("ChallengeRegistry");
-const ContractRegistry = artifacts.require("ContractRegistry");
 const DolphinCoin = artifacts.require("DolphinCoin");
 const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 const ETHBucket = artifacts.require("ETHBucket");
@@ -17,7 +16,6 @@ const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
 
 const ARTIFACTS = [
   ChallengeRegistry,
-  ContractRegistry,
   DolphinCoin
   ETHBalanceRefundApp,
   ETHBucket,
