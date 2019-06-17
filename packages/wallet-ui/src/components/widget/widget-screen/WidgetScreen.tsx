@@ -30,7 +30,7 @@ const WidgetScreen: React.FC = ({
       </div>
       <WidgetCard>
         <div className="logo">
-          <WidgetLogo caption="Wallet" />
+          <WidgetLogo />
         </div>
         <WidgetHeader>{header}</WidgetHeader>
         {children}

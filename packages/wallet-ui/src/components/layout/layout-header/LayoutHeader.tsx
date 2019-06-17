@@ -9,7 +9,7 @@ const LayoutHeader: React.FC = () => {
         <nav className="header-content">
           <div className="left">
             <div className="top-line">
-              <WidgetLogo caption="Wallet" />
+              <WidgetLogo />
             </div>
             {/* <widget-dev-flags /> */}
           </div>
