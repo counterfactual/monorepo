@@ -28,12 +28,4 @@ contract ETHBalanceRefundApp {
     return abi.encode(ret);
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (Interpreter.OutcomeType)
-  {
-    return Interpreter.OutcomeType.ETH_TRANSFER;
-  }
-
 }

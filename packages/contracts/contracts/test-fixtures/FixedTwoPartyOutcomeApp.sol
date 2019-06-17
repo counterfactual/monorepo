@@ -17,12 +17,4 @@ contract TwoPartyFixedOutcomeApp {
     );
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
-  }
-
 }

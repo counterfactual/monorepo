@@ -36,13 +36,4 @@ contract CounterfactualApp {
     revert("The computeOutcome method has no implementation for this App");
   }
 
-  // a hack
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    revert("The outcomeType method has no implementation for this App");
-  }
-
 }

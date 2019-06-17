@@ -41,7 +41,8 @@ export async function install(
         ...appInstanceInfo.abiEncodings,
         addr: appInstanceInfo.appDefinition
       },
-      defaultTimeout: appInstanceInfo.timeout.toNumber()
+      defaultTimeout: appInstanceInfo.timeout.toNumber(),
+      outcomeType: appInstanceInfo.outcomeType
     }
   );
 

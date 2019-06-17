@@ -180,14 +180,6 @@ contract HighRollerApp is CounterfactualApp {
 
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
-  }
-
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
