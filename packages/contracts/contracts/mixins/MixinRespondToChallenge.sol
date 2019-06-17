@@ -73,20 +73,18 @@ contract MixinRespondToChallenge is
       action
     );
 
-    challenge.appStateHash = keccak256(newAppState);
-    challenge.challengeNonce += 1;
-    challenge.latestSubmitter = msg.sender;
-
     if (claimFinal) {
       require(
         isStateTerminal(appIdentity.appDefinition, newAppState),
         "Attempted to claimFinal on a non-terminal state"
       );
+      challenge.appStateHash = keccak256(newAppState);
+      challenge.challengeNonce += 1;
+      challenge.latestSubmitter = msg.sender;
       challenge.finalizesAt = block.number;
       challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
     } else {
-      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
-      challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
+      delete appChallenges[identityHash];
     }
 
   }
