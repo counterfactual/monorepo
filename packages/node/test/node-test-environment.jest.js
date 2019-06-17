@@ -26,6 +26,9 @@ class NodeEnvironment extends NodeJSEnvironment {
     const networkContext = {
       ChallengeRegistry: accounts.contractAddresses.ChallengeRegistry,
       DolphinCoin: accounts.contractAddresses.DolphinCoin,
+      ERC20BalanceRefundApp: accounts.contractAddresses.ERC20BalanceRefundApp,
+      ERC20Bucket: accounts.contractAddresses.ERC20Bucket,
+      ERC20TwoPartyDynamicInterpreter: accounts.contractAddresses.ERC20TwoPartyDynamicInterpreter,
       ETHBalanceRefundApp: accounts.contractAddresses.ETHBalanceRefundApp,
       ETHBucket: accounts.contractAddresses.ETHBucket,
       ETHInterpreter: accounts.contractAddresses.ETHInterpreter,

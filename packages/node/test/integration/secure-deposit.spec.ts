@@ -54,7 +54,7 @@ describe("Node method follows spec - deposit", () => {
     );
 
     try {
-      await nodeA.call(depositReq.type, depositReq);
+      await nodeA.router.dispatch(depositReq);
     } catch (e) {
       expect(e).toEqual(INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress()));
     }
@@ -63,17 +63,12 @@ describe("Node method follows spec - deposit", () => {
     await transferERC20Tokens(await nodeB.signerAddress());
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
-    await nodeA.call(depositReq.type, depositReq);
-    await nodeB.call(depositReq.type, depositReq);
+    await nodeA.router.dispatch(depositReq);
+    await nodeB.router.dispatch(depositReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-      preDepositBalance.add(2).toNumber()
+      preDepositBalance
     );
-
-    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    for (const key in freeBalanceState) {
-      expect(freeBalanceState[key]).toEqual(One);
-    }
   });
 });
 

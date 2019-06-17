@@ -172,6 +172,9 @@ async function proposeStateTransition(
       );
       break;
     }
+    // case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
+    // TBD
+    // }
     default: {
       throw new Error(
         "The outcome type in this application logic contract is not supported yet."
