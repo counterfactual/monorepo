@@ -2,12 +2,11 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import {
+  ERC20TwoPartyDynamicInterpreterParams,
   ETHTransferInterpreterParams,
+  SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
 import {
@@ -17,7 +16,7 @@ import {
   keccak256,
   solidityPack
 } from "ethers/utils";
-import * as log from "loglevel";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -48,6 +47,13 @@ export type AppInstanceJson = {
     // Derived from:
     // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
     limit: { _hex: string };
+  };
+
+  erc20TwoPartyDynamicInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreterParams.sol#L20
+    limit: { _hex: string };
+    token: string;
   };
 };
 
@@ -81,6 +87,10 @@ export type AppInstanceJson = {
  * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
  *           and the amount that is to be distributed for an app
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
+ *
+ * @property erc20TwoPartyDynamicInterpreterParams The limit / maximum amount of funds
+ *           to be distributed for an ERC20-based app where the interpreter type
+ *           is ERC20_TRANSFER
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
@@ -98,7 +108,8 @@ export class AppInstance {
     latestNonce: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    ethTransferInterpreterParams?: ETHTransferInterpreterParams
+    ethTransferInterpreterParams?: ETHTransferInterpreterParams,
+    erc20TwoPartyDynamicInterpreterParams?: ERC20TwoPartyDynamicInterpreterParams
   ) {
     this.json = {
       multisigAddress,
@@ -124,6 +135,14 @@ export class AppInstance {
             limit: {
               _hex: ethTransferInterpreterParams.limit.toHexString()
             }
+          }
+        : undefined,
+      erc20TwoPartyDynamicInterpreterParams: erc20TwoPartyDynamicInterpreterParams
+        ? {
+            limit: {
+              _hex: erc20TwoPartyDynamicInterpreterParams.limit.toHexString()
+            },
+            token: erc20TwoPartyDynamicInterpreterParams.token
           }
         : undefined
     };
@@ -161,6 +180,14 @@ export class AppInstance {
       json.ethTransferInterpreterParams
         ? {
             limit: bigNumberify(json.ethTransferInterpreterParams.limit._hex)
+          }
+        : undefined,
+      json.erc20TwoPartyDynamicInterpreterParams
+        ? {
+            limit: bigNumberify(
+              json.erc20TwoPartyDynamicInterpreterParams.limit._hex
+            ),
+            token: json.erc20TwoPartyDynamicInterpreterParams.token
           }
         : undefined
     );
@@ -252,6 +279,17 @@ export class AppInstance {
           amount: bigNumberify(
             this.json.twoPartyOutcomeInterpreterParams.amount._hex
           )
+        }
+      : undefined;
+  }
+
+  public get erc20TwoPartyDynamicInterpreterParams() {
+    return this.json.erc20TwoPartyDynamicInterpreterParams
+      ? {
+          limit: bigNumberify(
+            this.json.erc20TwoPartyDynamicInterpreterParams.limit._hex
+          ),
+          token: this.json.erc20TwoPartyDynamicInterpreterParams.token
         }
       : undefined;
   }

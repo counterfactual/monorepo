@@ -1,4 +1,4 @@
-import { ETHBucketAppState, Node } from "@counterfactual/types";
+import { FundsBucketAppState, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -29,7 +29,7 @@ export default class GetFreeBalanceController extends NodeController {
     const stateChannel = await store.getStateChannel(multisigAddress);
 
     const appState = stateChannel.getETHFreeBalance()
-      .state as ETHBucketAppState;
+      .state as FundsBucketAppState;
 
     const ret: Node.GetFreeBalanceStateResult = {};
 

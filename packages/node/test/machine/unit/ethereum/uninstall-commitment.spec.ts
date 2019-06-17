@@ -1,7 +1,7 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import { ETHBucketAppState } from "@counterfactual/types";
+import { FundsBucketAppState } from "@counterfactual/types";
 import { HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -61,7 +61,7 @@ describe("Uninstall Commitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       freeBalanceETH.identity,
-      freeBalanceETH.state as ETHBucketAppState,
+      freeBalanceETH.state as FundsBucketAppState,
       freeBalanceETH.nonce,
       freeBalanceETH.timeout,
       appBeingUninstalledSeqNo

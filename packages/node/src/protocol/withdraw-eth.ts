@@ -1,4 +1,4 @@
-import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
+import { FundsBucketAppState, NetworkContext } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -228,7 +228,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    freeBalance.state as FundsBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
     freeBalance.appSeqNo

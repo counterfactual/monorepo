@@ -1,4 +1,4 @@
-import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
+import { FundsBucketAppState, NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
@@ -296,7 +296,7 @@ function constructUninstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    freeBalance.state as FundsBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
     seqNoToUninstall

@@ -1,16 +1,16 @@
 import {
-  ETHBucketAppState,
+  FundsBucketAppState,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { MaxUint256, Zero } from "ethers/constants";
+import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import {
   flip,
   fromAppState,
-  getETHBucketAppInterface,
+  getFundsBucketAppInterface,
   merge
-} from "../ethereum/utils/eth-bucket";
+} from "../ethereum/utils/funds-bucket";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
@@ -57,16 +57,16 @@ export type StateChannelJSON = {
     string,
     TwoPartyVirtualEthAsLumpInstanceJson
   ][];
-  readonly freeBalanceAppIndexes: [0, string][];
+  readonly freeBalanceAppIndexes: [string, string][];
   readonly monotonicNumInstalledApps: number;
   readonly rootNonceValue: number;
   readonly createdAt: number;
 };
 
-function createETHFreeBalance(
+function createFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
-  ethBucketAddress: string,
+  fundsBucketAddress: string,
   freeBalanceTimeout: number
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
@@ -83,7 +83,7 @@ function createETHFreeBalance(
     multisigAddress,
     sortedTopLevelKeys,
     freeBalanceTimeout,
-    getETHBucketAppInterface(ethBucketAddress),
+    getFundsBucketAppInterface(fundsBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
@@ -118,10 +118,10 @@ export class StateChannel {
       string,
       TwoPartyVirtualEthAsLumpInstance
     > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
-    private readonly freeBalanceAppIndexes: ReadonlyMap<0, string> = new Map<
-      0,
+    private readonly freeBalanceAppIndexes: ReadonlyMap<
+      string,
       string
-    >([]),
+    > = new Map(),
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0,
     public readonly createdAt: number = Date.now()
@@ -185,9 +185,6 @@ export class StateChannel {
   }
 
   public appInstanceIsFreeBalance(appInstanceId: string): boolean {
-    if (!this.hasAppInstance(appInstanceId)) {
-      return false;
-    }
     return new Set(this.freeBalanceAppIndexes.values()).has(appInstanceId);
   }
 
@@ -208,17 +205,11 @@ export class StateChannel {
   }
 
   public getETHFreeBalance(): AppInstance {
-    if (!this.freeBalanceAppIndexes.has(0)) {
+    if (!this.freeBalanceAppIndexes.has(AddressZero)) {
       throw Error(ERRORS.FREE_BALANCE_MISSING);
     }
 
-    const idx = this.freeBalanceAppIndexes.get(0);
-
-    if (idx === undefined || !this.appInstances.has(idx)) {
-      throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
-    }
-
-    return this.appInstances.get(idx) as AppInstance;
+    return this.appInstances.get(this.freeBalanceAppIndexes.get(AddressZero)!)!;
   }
 
   public getFreeBalanceAddrOf(xpub: string): string {
@@ -237,7 +228,7 @@ export class StateChannel {
 
   public incrementETHFreeBalance(increments: { [addr: string]: BigNumber }) {
     const freeBalance = this.getETHFreeBalance();
-    const freeBalanceState = freeBalance.state as ETHBucketAppState;
+    const freeBalanceState = freeBalance.state as FundsBucketAppState;
 
     return this.setFreeBalance(
       merge(fromAppState(freeBalanceState), increments)
@@ -265,16 +256,22 @@ export class StateChannel {
     userNeuteredExtendedKeys: string[],
     freeBalanceTimeout?: number
   ) {
-    const fb = createETHFreeBalance(
+    const ethFreeBalance = createFreeBalance(
       multisigAddress,
       userNeuteredExtendedKeys,
       ethBucketAddress,
       freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
     );
 
-    const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
+    const appInstances = new Map<string, AppInstance>([
+      [ethFreeBalance.identityHash, ethFreeBalance]
+    ]);
 
-    const freeBalanceAppIndexes = new Map<0, string>([[0, fb.identityHash]]);
+    // AddressZero gets used to index the ETH Free Balance
+    // other ERC20 tokens have their addresses used to index their Free Balances
+    const freeBalanceAppIndexes = new Map<string, string>([
+      [AddressZero, ethFreeBalance.identityHash]
+    ]);
 
     return new StateChannel(
       multisigAddress,
@@ -295,7 +292,7 @@ export class StateChannel {
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
-      new Map<0, string>(),
+      new Map<string, string>(),
       1
     );
   }
@@ -448,7 +445,7 @@ export class StateChannel {
   public installApp(
     appInstance: AppInstance,
     decrements: { [s: string]: BigNumber }
-  ) {
+  ): StateChannel {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {

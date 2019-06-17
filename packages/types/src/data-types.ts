@@ -16,6 +16,13 @@ export type ETHTransferInterpreterParams = {
   limit: BigNumber;
 };
 
+export type ERC20TwoPartyDynamicInterpreterParams = {
+  // Derived from:
+  // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreter.sol#L20
+  limit: BigNumber;
+  token: string;
+};
+
 export type AppInstanceInfo = {
   id: AppInstanceID;
   appDefinition: string;

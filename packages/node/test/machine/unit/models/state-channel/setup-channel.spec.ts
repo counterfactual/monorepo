@@ -1,4 +1,4 @@
-import { ETHBucketAppState } from "@counterfactual/types";
+import { FundsBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
@@ -82,7 +82,7 @@ describe("StateChannel::setupChannel", () => {
     it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const fbState = fb.state as ETHBucketAppState;
+      const fbState = fb.state as FundsBucketAppState;
       for (const { amount } of fbState[0]) {
         expect(amount).toEqual(Zero);
       }

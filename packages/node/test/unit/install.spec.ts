@@ -1,4 +1,4 @@
-import { ETHBucketAppState } from "@counterfactual/types";
+import { FundsBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -11,7 +11,7 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
-import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
+import { fromAppState } from "../../src/ethereum/utils/funds-bucket";
 import {
   InstructionExecutor,
   xkeysToSortedKthAddresses
@@ -100,7 +100,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     const fbState = fromAppState(stateChannel.getETHFreeBalance()
-      .state as ETHBucketAppState);
+      .state as FundsBucketAppState);
 
     expect(fbState[signingKeys[0]]).toEqual(Zero);
     expect(fbState[signingKeys[1]]).toEqual(Zero);

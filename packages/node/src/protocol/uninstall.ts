@@ -1,4 +1,4 @@
-import { ETHBucketAppState } from "@counterfactual/types";
+import { FundsBucketAppState } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
 import { UninstallCommitment } from "../ethereum";
@@ -113,7 +113,7 @@ async function proposeStateTransition(
     newStateChannel.multisigAddress,
     newStateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    freeBalance.state as FundsBucketAppState,
     freeBalance.nonce,
     freeBalance.timeout,
     sequenceNo

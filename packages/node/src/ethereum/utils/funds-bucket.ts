@@ -1,24 +1,24 @@
-import { AppInterface, ETHBucketAppState } from "@counterfactual/types";
+import { AppInterface, FundsBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
-const ethBucketStateEncoding = `
+const fundsBucketStateEncoding = `
   tuple(tuple(
     address to,
     uint256 amount
   )[])
 `;
 
-export function getETHBucketAppInterface(addr: string): AppInterface {
+export function getFundsBucketAppInterface(addr: string): AppInterface {
   return {
     addr,
-    stateEncoding: ethBucketStateEncoding,
+    stateEncoding: fundsBucketStateEncoding,
     actionEncoding: undefined // because no actions exist for ETHBucket
   };
 }
 
-export function encodeETHBucketAppState(state: ETHBucketAppState) {
-  return defaultAbiCoder.encode([ethBucketStateEncoding], [state]);
+export function encodeFundsBucketAppState(state: FundsBucketAppState) {
+  return defaultAbiCoder.encode([fundsBucketStateEncoding], [state]);
 }
 
 /**
@@ -30,7 +30,7 @@ export function encodeETHBucketAppState(state: ETHBucketAppState) {
  * The following function converts encoded ETHBucket app states into this type
  */
 export const fromAppState = (
-  appState: ETHBucketAppState
+  appState: FundsBucketAppState
 ): { [s: string]: BigNumber } => {
   const ret = {};
   for (const { to, amount } of appState[0]) {

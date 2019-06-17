@@ -1,16 +1,19 @@
 import {
   AppIdentity,
   AppInterface,
-  ETHBucketAppState,
+  FundsBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
   erc20BalanceRefundStateEncoding,
+  ERC20TwoPartyDynamicInterpreterParams,
   ethBalanceRefundStateEncoding,
+  ETHTransferInterpreterParams,
   OutcomeType,
-  TwoPartyFixedOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
@@ -75,16 +78,19 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  Bytes32,
   ContractABI,
   erc20BalanceRefundStateEncoding,
+  ERC20TwoPartyDynamicInterpreterParams,
   ethBalanceRefundStateEncoding,
-  SolidityABIEncoderV2Type,
-  Bytes32,
-  ETHBucketAppState,
+  ETHTransferInterpreterParams,
+  FundsBucketAppState,
   INodeProvider,
   IRpcNodeProvider,
   Node,
-  SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyFixedOutcome
+  SignedStateHashUpdate,
+  SolidityABIEncoderV2Type,
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 };
