@@ -5,7 +5,8 @@ import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
 import {
   SetupContext,
-  setupWithMemoryMessagingAndPostgresStore
+  setupWithMemoryMessagingAndPostgresStore,
+  teardownPostgresStore
 } from "./setup";
 import {
   createChannel,
@@ -24,6 +25,10 @@ describe("Node method follows spec - uninstall", () => {
     );
     nodeA = context["A"].node;
     nodeB = context["B"].node;
+  });
+
+  afterAll(async () => {
+    await teardownPostgresStore();
   });
 
   describe("Node A and B install TTT, then uninstall it", () => {

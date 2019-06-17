@@ -71,9 +71,9 @@ describe("Node method follows spec - proposeInstall", () => {
           global["networkContext"].TicTacToe
         );
 
-        expect(
-          nodeA.call(appInstanceProposalReq.type, appInstanceProposalReq)
-        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
+        expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(
+          NULL_INITIAL_STATE_FOR_PROPOSAL
+        );
       });
     }
   );

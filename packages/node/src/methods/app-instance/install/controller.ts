@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
@@ -15,6 +16,9 @@ import { install } from "./operation";
  */
 export default class InstallController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL;
+
+  @jsonRpcMethod("chan_install")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

@@ -25,9 +25,9 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {
     const getStateReq = generateGetStateRequest(generateUUID());
-    expect(
-      nodeA.call(NodeTypes.MethodName.GET_STATE, getStateReq)
-    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    expect(nodeA.router.dispatch(getStateReq)).rejects.toEqual(
+      NO_MULTISIG_FOR_APP_INSTANCE_ID
+    );
   });
 
   it("returns the right state for an installed AppInstance", async () => {
@@ -36,7 +36,7 @@ describe("Node method follows spec - getAppInstances", () => {
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       global["networkContext"].TicTacToe
-    ).params as NodeTypes.ProposeInstallParams;
+    ).parameters as NodeTypes.ProposeInstallParams;
     const appInstanceId = await installTTTApp(nodeA, nodeB);
     const state = await getState(nodeA, appInstanceId);
 

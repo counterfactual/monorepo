@@ -1,5 +1,8 @@
-import { INodeProvider, Node } from "@counterfactual/types";
+import { IRpcNodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
+
+import { jsonRpcMethodNames } from "../src/provider";
 
 // Randomly generated
 export const TEST_XPUBS = [
@@ -7,28 +10,37 @@ export const TEST_XPUBS = [
   "xpub6E7Ww5YRUry7BRUNAqyNGqR1A3AyaRP1dKy8adD5N5nniqkDJpibhspkiLzyhKe9o5TFnHpEhdtautQLqxahWQFCDCeQdBFmRwUiChfUXP4"
 ];
 
-export class TestNodeProvider implements INodeProvider {
-  public postedMessages: Node.Message[] = [];
-  readonly callbacks: ((message: Node.Message) => void)[] = [];
+export class TestNodeProvider implements IRpcNodeProvider {
+  public postedMessages: Rpc[] = [];
+  readonly callbacks: ((
+    message: JsonRpcResponse | JsonRpcNotification
+  ) => void)[] = [];
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
   public onMethodRequest(
     methodName: Node.MethodName,
-    callback: (message: Node.MethodRequest) => void
+    callback: (message: Rpc) => void
   ) {
-    this.messageEmitter.on(methodName, callback);
+    this.messageEmitter.on(
+      jsonRpcMethodNames[methodName] || methodName,
+      callback
+    );
   }
 
-  public simulateMessageFromNode(message: Node.Message) {
+  public simulateMessageFromNode(
+    message: JsonRpcResponse | JsonRpcNotification
+  ) {
     this.callbacks.forEach(cb => cb(message));
   }
 
-  public onMessage(callback: (message: Node.Message) => void) {
+  public onMessage(
+    callback: (message: JsonRpcResponse | JsonRpcNotification) => void
+  ) {
     this.callbacks.push(callback);
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message: Rpc) {
     this.postedMessages.push(message);
-    this.messageEmitter.emit(message.type, message);
+    this.messageEmitter.emit(message.methodName, message);
   }
 }

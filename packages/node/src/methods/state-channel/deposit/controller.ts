@@ -3,6 +3,7 @@ import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
@@ -22,6 +23,9 @@ import {
 
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;
+
+  @jsonRpcMethod("chan_deposit")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,
