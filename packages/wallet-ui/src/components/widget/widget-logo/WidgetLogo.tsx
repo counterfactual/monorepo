@@ -8,7 +8,7 @@ export type WidgetLogoProps = {
 };
 
 const WidgetLogo: React.FC<WidgetLogoProps> = ({
-  caption = "Playground"
+  caption = "Wallet"
 }: WidgetLogoProps) => {
   return (
     <h1 className={`logo ${caption ? "logo--icon-only" : ""}`}>
