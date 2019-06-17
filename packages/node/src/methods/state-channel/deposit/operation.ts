@@ -58,7 +58,7 @@ export async function installBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const depositContext = await getAssetBasedDepositContext(
+  const depositContext = await getDepositContext(
     params,
     publicIdentifier,
     stateChannel,
@@ -179,7 +179,7 @@ export async function uninstallBalanceRefundApp(
   );
 }
 
-async function getAssetBasedDepositContext(
+async function getDepositContext(
   params: Node.DepositParams,
   publicIdentifier: string,
   stateChannel: StateChannel,
