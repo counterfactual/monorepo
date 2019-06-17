@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="70px" height="70px" viewBox="0 0 70 70" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 51.3 (57544) - http://www.bohemiancoding.com/sketch -->
+    <title>#UI / Components / Brand Icon</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <rect id="path-1" x="0" y="0" width="70" height="70"></rect>
+        <path d="M4.55,4.55 L4.55,19.4901 L18.6158,19.4901 L18.6158,4.55 L4.55,4.55 Z M23.1658,21.70035 C23.1658,22.9893478 22.1150478,24.0401 20.82605,24.0401 L2.33975,24.0401 C1.05281688,24.0401 0,22.9910702 0,21.70035 L0,2.33975 C0,1.05110219 1.05110219,-8.51076276e-14 2.33975,-8.51076276e-14 L20.82605,-8.51076276e-14 C20.9679765,0.00227356763 20.9679765,0.00227356763 21.1147153,0.0149262224 C21.5895143,0.0676816675 22.0506326,0.233684249 22.4913742,0.674425823 C22.9321158,1.1151674 23.0981183,1.57628568 23.1508738,2.05108468 C23.1635264,2.19782346 23.1635264,2.19782346 23.1651999,2.27195854 C23.1656326,2.30556643 23.1658327,8.78169691 23.1658,21.70035 Z M31.1864,11.21085 L25.1321,1.91905 C25.03515,1.82175 25.03515,1.7248 25.06735,1.5953 C25.0999,1.43325 25.2616,1.27155 25.45585,1.2068 L28.4669,0.13825 C28.79065,0.0413 29.17915,0.1708 29.3412,0.39725 L36.69015,11.72885 L36.7227,11.76105 C36.81965,11.89055 36.81965,12.0526 36.7227,12.1821 L29.3412,23.5459 C29.14695,23.8049 28.79065,23.9344 28.4669,23.8049 L25.3911,22.7689 C25.2294,22.70415 25.0999,22.60685 25.03515,22.44515 C25.0026,22.3804 24.9704,22.21835 25.06735,22.05665 L31.1864,12.79705 C31.5427,12.3116 31.5427,11.6641 31.1864,11.21085 Z" id="path-3"></path>
+    </defs>
+    <g id="Symbols" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="#UI-/-Components-/-Full-Logo">
+            <g id="#UI-/-Components-/-Brand-Icon-/-Squared">
+                <g>
+                    <g id="Container">
+                        <mask id="mask-2" fill="white">
+                            <use xlink:href="#path-1"></use>
+                        </mask>
+                        <use fill="#101010" xlink:href="#path-1"></use>
+                        <g id="#UI-/-🎨Color-/-Dark" mask="url(#mask-2)" fill="#101010">
+                            <g transform="translate(-1.400000, -1.050000)" id="Icon-Shade">
+                                <rect x="0" y="0" width="75.6" height="75.6"></rect>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Icon" transform="translate(16.450000, 23.100000)">
+                        <mask id="mask-4" fill="white">
+                            <use xlink:href="#path-3"></use>
+                        </mask>
+                        <use fill="#5A5858" fill-rule="nonzero" xlink:href="#path-3"></use>
+                        <g id="#UI-/-🎨Color-/-White" mask="url(#mask-4)" fill="#FFFFFF">
+                            <g transform="translate(-1.400000, -8.050000)" id="Icon-Shade">
+                                <rect x="0" y="0" width="40.32" height="40.32"></rect>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
