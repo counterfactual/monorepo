@@ -29,14 +29,14 @@ contract ERC20TwoPartyDynamicInterpreter is Interpreter {
     external
   {
 
-    TokenTransfer[] memory transfer = abi.decode(input, (TokenTransfer[]));
+    TokenTransfer[] memory transfers = abi.decode(input, (TokenTransfer[]));
 
     Param memory params = abi.decode(encodedParams, (Param));
     uint256 limitRemaining = params.limit;
 
-    for (uint256 i = 0; i < transfer.length ; i++) {
-      uint256 amount = transfer[i].amount;
-      address to = transfer[i].to;
+    for (uint256 i = 0; i < transfers.length; i++) {
+      address to = address(uint160(transfers[i].to));
+      uint256 amount = transfers[i].amount;
 
       require(amount <= limitRemaining, "Hit the transfer limit.");
       limitRemaining -= amount;
