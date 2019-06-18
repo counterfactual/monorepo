@@ -13,6 +13,7 @@ then
     postgresql-node-connector \
     apps \
     contracts \
+    chain \
     node-provider \
     cf.js \
     cf-wallet.js \
@@ -27,6 +28,7 @@ else
     postgresql-node-connector \
     apps \
     contracts \
+    chain \
     node-provider \
     cf.js \
     cf-wallet.js \
