@@ -1,14 +1,15 @@
-@import "../../../styles/ui";
+@import "../../../styles/variables";
 
 .button {
   width: 100%;
   font-size: 110%;
-  font-weight: bold;
+  font-weight: 500;
   background-color: $c-blue;
   border-radius: 2px;
   color: $c-white;
   padding: $rhythm;
   margin-bottom: $rhythm;
+  border-width: 0;
 
   &:not(:disabled) {
     &:hover {

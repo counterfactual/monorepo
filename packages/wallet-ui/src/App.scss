@@ -1,3 +1,10 @@
+@import "./styles/variables";
+@import "./styles/reset";
+@import "./styles/box-sizing";
+@import "./styles/layout";
+@import "./styles/typography";
+@import "./styles/responsive";
+
 /*
   Global App CSS
   ----------------------
@@ -9,11 +16,13 @@
 */
 @import url("https://rsms.me/inter/inter.css");
 
-html {
+html,
+.button {
   font-family: "Inter", sans-serif;
 }
 @supports (font-variation-settings: normal) {
-  html {
+  html,
+  .button {
     font-family: "Inter var", sans-serif;
   }
 }
