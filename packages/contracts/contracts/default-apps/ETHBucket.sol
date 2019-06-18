@@ -7,10 +7,10 @@ import "../libs/LibOutcome.sol";
 
 contract ETHBucket is CounterfactualApp {
 
-  using LibOutcome for LibOutcome.ETHTransfer;
+  using LibOutcome for LibOutcome.CoinTransfer;
 
   struct AppState {
-    LibOutcome.ETHTransfer[] transfers;
+    LibOutcome.CoinTransfer[] transfers;
   }
 
   function computeOutcome(bytes calldata encodedState)

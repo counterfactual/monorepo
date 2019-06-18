@@ -10,7 +10,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
   amount: BigNumber;
 };
 
-export type ETHTransferInterpreterParams = {
+export type CoinTransferInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
   limit: BigNumber;
@@ -31,7 +31,7 @@ export type AppInstanceInfo = {
    * Interpreter-related Fields
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  ethTransferInterpreterParams?: ETHTransferInterpreterParams;
+  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 };
 
 export type AppABIEncodings = {
@@ -43,7 +43,7 @@ export type AppABIEncodings = {
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
   TWO_PARTY_DYNAMIC_OUTCOME = 1,
-  ETH_TRANSFER = 2
+  COIN_TRANSFER = 2
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

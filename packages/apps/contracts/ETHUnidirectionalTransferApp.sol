@@ -13,10 +13,10 @@ import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 contract ETHUnidirectionalTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
+  using LibOutcome for LibOutcome.CoinTransfer;
 
   struct AppState {
-    LibOutcome.ETHTransfer[] transfers; // [sender, receiver]
+    LibOutcome.CoinTransfer[] transfers; // [sender, receiver]
     bool finalized;
   }
 

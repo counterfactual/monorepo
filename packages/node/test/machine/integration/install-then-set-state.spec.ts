@@ -159,7 +159,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         network.ETHInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],
-          [freeBalanceETH.ethTransferInterpreterParams!.limit]
+          [freeBalanceETH.coinTransferInterpreterParams!.limit]
         )
       );
 

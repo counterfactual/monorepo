@@ -10,7 +10,7 @@ import "../libs/LibOutcome.sol";
  */
 contract ETHInterpreter is Interpreter {
 
-  using LibOutcome for LibOutcome.ETHTransfer;
+  using LibOutcome for LibOutcome.CoinTransfer;
 
   struct Param {
     uint256 limit;
@@ -23,8 +23,8 @@ contract ETHInterpreter is Interpreter {
     external
   {
 
-    LibOutcome.ETHTransfer[] memory transfers = abi.decode(
-      input, (LibOutcome.ETHTransfer[])
+    LibOutcome.CoinTransfer[] memory transfers = abi.decode(
+      input, (LibOutcome.CoinTransfer[])
     );
 
     uint256 limitRemaining = abi.decode(params, (Param)).limit;

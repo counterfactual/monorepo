@@ -7,7 +7,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeEthTransferIncrement(outcome): [string, BigNumber] {
+function computeCoinTransferIncrement(outcome): [string, BigNumber] {
   const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
@@ -44,8 +44,8 @@ export async function computeFreeBalanceIncrements(
 
   // Temporary, better solution is to add outcomeType to AppInstance model
   let outcomeType: OutcomeType | undefined;
-  if (typeof appInstance.ethTransferInterpreterParams !== "undefined") {
-    outcomeType = OutcomeType.ETH_TRANSFER;
+  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
+    outcomeType = OutcomeType.COIN_TRANSFER;
   } else if (
     typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
   ) {
@@ -53,7 +53,7 @@ export async function computeFreeBalanceIncrements(
   }
 
   switch (outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
+    case OutcomeType.COIN_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
@@ -65,7 +65,7 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeEthTransferIncrement(outcome);
+        const [address, to] = computeCoinTransferIncrement(outcome);
 
         if (to.gt(Zero)) {
           return { [address]: to };
