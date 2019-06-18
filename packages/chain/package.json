@@ -1,0 +1,33 @@
+{
+  "name": "@counterfactual/chain",
+  "version": "0.0.1",
+  "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
+  "main": "dist/index.js",
+  "types": "dist/src/index.d.ts",
+  "license": "MIT",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
+  "scripts": {
+    "build": "tsc -b . && rollup -c",
+    "build:watch": "tsc -b . && rollup -c -w",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "devDependencies": {
+    "@counterfactual/contracts": "0.1.2",
+    "@counterfactual/types": "0.0.12",
+    "ethers": "4.0.29",
+    "ganache-core": "2.5.5",
+    "rollup": "1.13.0",
+    "rollup-plugin-typescript2": "0.21.1",
+    "truffle": "5.0.20",
+    "typescript": "3.5.1"
+  },
+  "peerDependencies": {
+    "ganache-core": "2.5.5"
+  }
+}

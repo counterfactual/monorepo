@@ -1,5 +1,4 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
+import { CF_PATH } from "@counterfactual/chain";
 import { PostgresServiceFactory } from "@counterfactual/postgresql-node-connector";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -13,7 +12,6 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { MNEMONIC_PATH, Node } from "../../src";
-import { CF_PATH } from "../global-setup.jest";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
