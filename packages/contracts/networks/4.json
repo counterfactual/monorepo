@@ -5,11 +5,6 @@
     "transactionHash": "0x6afc5e09ef286f93bafa56d23f3a3e2857a5305be71758a87cfc8ca5c4398bf3"
   },
   {
-    "contractName": "LibStaticCall",
-    "address": "0x60115fD71192aD0ED8c45a86518058df12E0eE18",
-    "transactionHash": "0x86e74cf88beb4d9e70911df4535763c0809b164fe9ba15ef9e6e01431801da73"
-  },
-  {
     "contractName": "ChallengeRegistry",
     "address": "0xbdf602c9570bF5A85b4dC678f34f6a8Dfd8f6B94",
     "transactionHash": "0xd7f2dc29b06de84a86a082a1721cb77158457df9a17b8543a40c732063ca7e77"
