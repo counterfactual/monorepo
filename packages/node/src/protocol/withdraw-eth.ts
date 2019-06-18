@@ -1,4 +1,8 @@
-import { FundsBucketAppState, NetworkContext } from "@counterfactual/types";
+import {
+  FundsBucketAppState,
+  NetworkContext,
+  OutcomeType
+} from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -184,6 +188,7 @@ function addInstallRefundAppCommitmentToContext(
     },
     0,
     1008,
+    OutcomeType.ETH_TRANSFER,
     undefined,
     { limit: MaxUint256 }
   );

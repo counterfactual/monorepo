@@ -1,7 +1,7 @@
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { ContractABI } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { One, Two } from "ethers/constants";
+import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
@@ -15,7 +15,6 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
-  jest.setTimeout(10000);
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
@@ -45,7 +44,7 @@ describe("Node method follows spec - deposit", () => {
     }
   });
 
-  it.only("has the right balance for both parties after deposits of ERC20 tokens", async () => {
+  it("has the right balance for both parties after deposits of ERC20 tokens", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
     const erc20ContractAddress = global["networkContext"]["DolphinCoin"];
     const erc20Contract = new Contract(
@@ -79,12 +78,39 @@ describe("Node method follows spec - deposit", () => {
     expect(await erc20Contract.functions.balanceOf(multisigAddress)).toEqual(
       Two
     );
-    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    for (const key in freeBalanceState) {
-      expect(freeBalanceState[key]).toEqual(One);
-    }
+
+    await confirmEthAndERC20FreeBalances(
+      nodeA,
+      multisigAddress,
+      erc20ContractAddress
+    );
+    await confirmEthAndERC20FreeBalances(
+      nodeB,
+      multisigAddress,
+      erc20ContractAddress
+    );
   });
 });
+
+async function confirmEthAndERC20FreeBalances(
+  node: Node,
+  multisigAddress: string,
+  erc20ContractAddress: string
+) {
+  const ethFreeBalanceState = await getFreeBalanceState(node, multisigAddress);
+  for (const key in ethFreeBalanceState) {
+    expect(ethFreeBalanceState[key]).toEqual(Zero);
+  }
+
+  const dolphinCoinFreeBalance = await getFreeBalanceState(
+    node,
+    multisigAddress,
+    erc20ContractAddress
+  );
+  for (const key in dolphinCoinFreeBalance) {
+    expect(dolphinCoinFreeBalance[key]).toEqual(One);
+  }
+}
 
 /**
  * @return the ERC20 token balance of the receiver

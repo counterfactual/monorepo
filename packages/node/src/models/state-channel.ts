@@ -1,7 +1,7 @@
 import {
   FundsBucketAppState,
-  SolidityABIEncoderV2Type,
-  OutcomeType
+  OutcomeType,
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
@@ -532,6 +532,8 @@ export class StateChannel {
       this.createdAt
     );
 
+    // FIXME: this needs to be more robust
+    // Any app could have `token` as part of its state
     const tokenAddress = appInstance.state["token"];
     if (tokenAddress) {
       return channel.incrementFreeBalance(flip(decrements), tokenAddress);
@@ -545,6 +547,7 @@ export class StateChannel {
     increments: { [s: string]: BigNumber }
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
+    const tokenAddress = appToBeUninstalled.state["token"];
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
       throw Error(
@@ -564,7 +567,7 @@ export class StateChannel {
       );
     }
 
-    return new StateChannel(
+    const channel = new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
@@ -573,7 +576,12 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(increments);
+    );
+
+    if (tokenAddress) {
+      return channel.incrementFreeBalance(increments, tokenAddress);
+    }
+    return channel.incrementFreeBalance(increments);
   }
 
   public getTwoPartyVirtualEthAsLumpFromTarget(

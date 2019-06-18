@@ -20,7 +20,7 @@ export default class GetFreeBalanceController extends NodeController {
     params: Node.GetFreeBalanceStateParams
   ): Promise<Node.GetFreeBalanceStateResult> {
     const { store } = requestHandler;
-    const { multisigAddress } = params;
+    const { multisigAddress, tokenAddress } = params;
 
     if (!multisigAddress) {
       Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
@@ -28,8 +28,13 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const appState = stateChannel.getFreeBalance()
-      .state as FundsBucketAppState;
+    let appState;
+    try {
+      appState = stateChannel.getFreeBalance(tokenAddress)
+        .state as FundsBucketAppState;
+    } catch (e) {
+      return Promise.reject(e);
+    }
 
     const ret: Node.GetFreeBalanceStateResult = {};
 

@@ -114,14 +114,16 @@ export async function getProposedAppInstanceInfo(
 
 export async function getFreeBalanceState(
   node: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress?: string
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
     params: {
-      multisigAddress
-    },
+      multisigAddress,
+      tokenAddress
+    } as NodeTypes.GetFreeBalanceStateParams,
     jsonrpc: "2.0"
   });
   const response = (await node.router.dispatch(req)) as JsonRpcResponse;

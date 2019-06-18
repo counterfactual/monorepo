@@ -67,6 +67,7 @@ export function createAppInstance(stateChannel?: StateChannel) {
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
     Math.ceil(1000 * Math.random()),
+    OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
