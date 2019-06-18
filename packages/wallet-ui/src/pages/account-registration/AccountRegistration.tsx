@@ -31,9 +31,13 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
         <b>Account will be linked to your Ethereum address: </b>
         {ethAddress}
       </div>
-      <FormButton type="submit" className="button">
-        Create account
-      </FormButton>
+      {/* TODO: This should actually create the account
+       before transitioning to /setup/deposit */}
+      <Link to="/setup/deposit">
+        <FormButton type="button" className="button">
+          Create account
+        </FormButton>
+      </Link>
     </form>
   </WidgetScreen>
 );

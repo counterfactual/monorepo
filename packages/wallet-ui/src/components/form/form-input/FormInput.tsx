@@ -3,7 +3,8 @@ import React from "react";
 import "./FormInput.scss";
 
 export type FormInputProps = {
-  label: string;
+  label: string | React.ReactNode;
+  className?: string;
   max?: number;
   min?: number;
   step?: number;
@@ -37,6 +38,7 @@ class FormInput extends React.Component<FormInputProps, FormInputState> {
   render() {
     const {
       label,
+      className,
       max,
       min,
       step,
@@ -51,7 +53,11 @@ class FormInput extends React.Component<FormInputProps, FormInputState> {
         <div className="label">{label}</div>
 
         <div
-          className={disabled ? "input-container disabled" : "input-container"}
+          className={
+            disabled
+              ? `input-container disabled ${className}`
+              : `input-container ${className}`
+          }
         >
           <input
             className="input"
