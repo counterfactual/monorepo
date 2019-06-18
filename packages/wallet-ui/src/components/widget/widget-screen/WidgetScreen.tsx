@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
+
 import { WidgetLogo } from "../widget-logo/WidgetLogo";
 import { WidgetCard } from "../widget-card/WidgetCard";
 import { WidgetHeader } from "../widget-header/WidgetHeader";
+
+import "./WidgetScreen.scss";
 
 export type WidgetScreenProps = {
   exitable?: boolean;
@@ -11,7 +14,7 @@ export type WidgetScreenProps = {
   post?: React.ReactNode;
 };
 
-const WidgetScreen: React.FC = ({
+const WidgetScreen: React.FC<WidgetScreenProps> = ({
   exitable,
   children,
   header,
@@ -29,9 +32,7 @@ const WidgetScreen: React.FC = ({
         ) : null}
       </div>
       <WidgetCard>
-        <div className="logo">
-          <WidgetLogo />
-        </div>
+        <WidgetLogo caption="" linkToHome={exitable} />
         <WidgetHeader>{header}</WidgetHeader>
         {children}
       </WidgetCard>

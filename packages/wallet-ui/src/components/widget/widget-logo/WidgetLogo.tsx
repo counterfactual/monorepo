@@ -5,17 +5,31 @@ import "./WidgetLogo.scss";
 
 export type WidgetLogoProps = {
   caption?: string;
+  linkToHome?: boolean;
 };
 
 const WidgetLogo: React.FC<WidgetLogoProps> = ({
-  caption = "Wallet"
+  caption = "Wallet",
+  linkToHome = true
 }: WidgetLogoProps) => {
+  const logo = (
+    <React.Fragment>
+      <img src="/assets/icon/logo.svg" alt="Counterfactual" />
+      {caption ? <span>{caption}</span> : null}
+    </React.Fragment>
+  );
+
+  console.log(logo);
+
   return (
     <h1 className={`logo ${!caption ? "logo--icon-only" : ""}`}>
-      <Link className="logo-link" to="/">
-        <img src="/assets/icon/logo.svg" alt="Counterfactual" />
-        <span>{caption}</span>
-      </Link>
+      {linkToHome ? (
+        <Link className="logo-link" to="/">
+          {logo}
+        </Link>
+      ) : (
+        logo
+      )}
     </h1>
   );
 };

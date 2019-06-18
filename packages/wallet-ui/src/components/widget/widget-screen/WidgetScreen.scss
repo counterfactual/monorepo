@@ -10,53 +10,66 @@
   display: flex;
   flex-direction: column;
   overflow: auto;
-}
-
-.constraint {
-  margin: auto;
   width: 100%;
-  height: 75%;
-  max-width: $rhythm * 35;
-  padding: $rhythm;
-}
+  height: 100%;
 
-.pre {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: $rhythm * 3;
-  width: 100%;
+  .constraint {
+    margin: auto;
+    width: 100%;
+    height: 75%;
+    max-width: $rhythm * 35;
+    padding: $rhythm;
+  }
 
-  .close {
+  .pre {
     display: flex;
-    justify-content: center;
-    align-items: center;
-    line-height: 0;
-    padding: 0;
+    justify-content: space-between;
+    margin-bottom: $rhythm * 3;
+    width: 100%;
 
-    img {
-      height: 18px;
-      width: 18px;
+    .close {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      line-height: 0;
+      padding: 0;
+
+      img {
+        height: 18px;
+        width: 18px;
+      }
     }
   }
-}
 
-.logo {
-  width: 33%;
-  margin: auto;
-  min-width: 150px;
-}
-
-.post {
-  margin-top: $rhythm * 3;
-  text-align: center;
-  font-size: 95%;
-}
-
-@media screen and (max-width: $screen-sm) {
-  .constraint {
-    height: 100%;
+  .logo {
+    margin: auto;
+    width: auto;
     display: flex;
-    flex-direction: column;
     justify-content: center;
+
+    img {
+      height: 64px;
+      width: 64px;
+    }
+
+    &:not(.logo--icon-only) {
+      width: 33%;
+      min-width: 150px;
+    }
+  }
+
+  .post {
+    margin-top: $rhythm * 3;
+    text-align: center;
+    font-size: 95%;
+  }
+
+  @media screen and (max-width: $screen-sm) {
+    .constraint {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
   }
 }
