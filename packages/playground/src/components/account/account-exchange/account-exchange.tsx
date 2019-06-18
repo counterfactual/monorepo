@@ -200,7 +200,7 @@ export class AccountExchange {
             disabled={this.isWithdrawalPending ? true : false}
             loading={this.isWithdrawalPending ? true : false}
             error={this.withdrawalError}
-            available={ethers.utils.bigNumberify(this.ethFreeBalanceWei)}
+            available={ethers.utils.bigNumberify(ethFreeBalanceWei)}
             min={0}
             max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
           />
