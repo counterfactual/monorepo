@@ -7,8 +7,6 @@ import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 contract TicTacToeApp is CounterfactualApp {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   enum ActionType {
     PLAY,
     PLAY_AND_WIN,

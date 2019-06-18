@@ -7,8 +7,6 @@ import "../libs/LibOutcome.sol";
 
 contract TwoPartyFixedOutcomeApp {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   function computeOutcome(bytes calldata)
     external
     pure

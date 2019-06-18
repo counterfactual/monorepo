@@ -13,8 +13,6 @@ import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 ///      the CounterFactual framework
 contract HighRollerApp is CounterfactualApp {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   enum ActionType {
     COMMIT_TO_HASH,
     COMMIT_TO_NUM,

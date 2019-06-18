@@ -11,8 +11,6 @@ https://en.wikipedia.org/wiki/Nim
 */
 contract NimApp is CounterfactualApp {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   struct Action {
     uint256 pileIdx;
     uint256 takeAmnt;

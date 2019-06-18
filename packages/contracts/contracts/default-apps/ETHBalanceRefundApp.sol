@@ -6,8 +6,6 @@ import "../libs/LibOutcome.sol";
 
 contract ETHBalanceRefundApp {
 
-  using LibOutcome for LibOutcome.CoinTransfer;
-
   struct AppState {
     address recipient;
     address multisig;
