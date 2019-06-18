@@ -918,6 +918,11 @@
     ethers "4.0.26"
     eventemitter3 "^3.1.0"
 
+"@counterfactual/contracts@0.1.1":
+  version "0.1.1"
+  resolved "https://registry.npmjs.org/@counterfactual/contracts/-/contracts-0.1.1.tgz#f2045b281b0ab11b99417dc978dcf458aeba221c"
+  integrity sha512-RyPxbzBfdhbmPjYLYHviB4aCdN0mqgcH63d0d9OY6TH0h2wThzLi05+elBsXnK6KekKg4cUWwyFtGPvbMHY5SQ==
+
 "@counterfactual/node@0.1.26":
   version "0.1.26"
   resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
@@ -954,6 +959,11 @@
   version "0.0.11"
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
   integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
+
+"@counterfactual/types@0.0.9":
+  version "0.0.9"
+  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.9.tgz#7a57eaa7b2483cdf0fd5e3863c8868bf8c42d1c1"
+  integrity sha512-FSQIfZAXk5TllwcxQzZlwX2LDFs0uFBD0sFpuToo6KYYSTMKg/Q2s/1zXYt6nzU9p8rojixIT8I570DOgFbjbA==
 
 "@counterfactual/types@^0.1.2":
   version "0.1.2"
@@ -7677,7 +7687,7 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@4.0.0-beta.1, ethers@4.0.26, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
+ethers@4.0.0-beta.1, ethers@4.0.26, ethers@4.0.28, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
   version "4.0.29"
   resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
   integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
@@ -17822,6 +17832,15 @@ truffle-interface-adapter@^0.1.6:
   dependencies:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
+
+truffle@5.0.20:
+  version "5.0.20"
+  resolved "https://registry.npmjs.org/truffle/-/truffle-5.0.20.tgz#6fa0ebaa8d3a5c325a717a3bfaf3fee2bf6f0475"
+  integrity sha512-Vr2+UnfoFXPf0shry1CawBrQYGveht4K+vfPx63JwVI71vqpeybPqFHiiuqmcnZ3ch+aQgaelNNQU4rsAKgTJg==
+  dependencies:
+    app-module-path "^2.2.0"
+    mocha "^4.1.0"
+    original-require "1.0.1"
 
 truffle@5.0.21:
   version "5.0.21"
