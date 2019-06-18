@@ -13,20 +13,24 @@
 }
 
 @mixin f-heading {
-  font-size: $f-heading;
-  font-weight: $f-reg;
+  font-size: 1.7rem;
+  font-weight: 500;
 }
 
 .f-heading {
   @include f-heading;
+
+  &.centered {
+    text-align: center;
+  }
 }
 
 @mixin f-subheading {
   font-size: $f-heading;
   font-weight: $f-reg;
 
-  @media screen and (max-width: $screen-sm) {
-    font-size: $f-base;
+  &.centered {
+    text-align: center;
   }
 }
 
@@ -41,4 +45,11 @@
 
 .f-base {
   @include f-base;
+}
+
+.copy {
+  margin: $rhythm * 4 0;
+  font-weight: 300;
+  font-size: 1.2rem;
+  color: $c-darkergrey;
 }

@@ -4,7 +4,8 @@
   min-height: 100vh;
   transition: transform 150ms;
 
-  &--open { // on menu-btn click
+  &--open {
+    // on menu-btn click
     transform: translateX(-15rem);
   }
 
@@ -15,10 +16,19 @@
 }
 
 .section {
-  padding: 1rem;
+  padding: $rhythm / 4 $rhythm * 3;
+
+  &.fill {
+    width: 100%;
+  }
 }
 
 .container {
   max-width: $site-width;
   margin: 0 auto;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: $rhythm * 3;
 }

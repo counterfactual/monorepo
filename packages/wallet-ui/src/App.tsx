@@ -12,12 +12,12 @@ const App: React.FC = () => {
       <Switch>
         <Route exact path="/" component={LayoutHeader} />
       </Switch>
-      <Switch>
-        <main className="wrapper__content">
+      <main className="wrapper__content">
+        <Switch>
           <Route exact path="/" component={Welcome} />
           <Route path="/register" component={AccountRegistration} />
-        </main>
-      </Switch>
+        </Switch>
+      </main>
     </Router>
   );
 };
