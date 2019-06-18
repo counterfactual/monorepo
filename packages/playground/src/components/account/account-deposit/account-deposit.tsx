@@ -1,5 +1,7 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { Signer } from "ethers";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../../data/account";
 import AppRegistryTunnel from "../../../data/app-registry";
@@ -44,7 +46,7 @@ export class AccountDeposit {
   }
 
   async formSubmitionHandler(e) {
-    this.amountDeposited = ethers.utils.parseEther(e.target.value);
+    this.amountDeposited = window["ethers"].utils.parseEther(e.target.value);
 
     try {
       this.stage = "depositing";
@@ -85,7 +87,9 @@ export class AccountDeposit {
           autofocus={true}
           provideFaucetLink={true}
           button={buttonTexts[this.stage]}
-          available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
+          available={window["ethers"].utils.bigNumberify(
+            this.ethWeb3WalletBalance
+          )}
           min={0.1}
           max={1}
           error={this.error}
