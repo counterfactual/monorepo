@@ -13,8 +13,8 @@ import "../interfaces/Interpreter.sol";
 contract ERC20TwoPartyDynamicInterpreter is Interpreter {
 
   struct TokenTransfer {
-    uint256 amount;
     address to;
+    uint256 amount;
   }
 
   struct Param {

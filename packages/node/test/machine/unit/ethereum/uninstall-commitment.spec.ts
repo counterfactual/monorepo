@@ -46,12 +46,12 @@ describe("Uninstall Commitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.incrementETHFreeBalance({
+  stateChannel = stateChannel.incrementFreeBalance({
     [stateChannel.multisigOwners[0]]: WeiPerEther,
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.getETHFreeBalance();
+  const freeBalanceETH = stateChannel.getFreeBalance();
 
   const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
 

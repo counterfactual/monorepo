@@ -140,7 +140,7 @@ export class Node {
 
   @Memoize()
   get ethFreeBalanceAddress(): string {
-    return getETHFreeBalanceAddress(this.publicIdentifier);
+    return getFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -390,7 +390,7 @@ export class Node {
 /**
  * Address used for ETH free balance
  */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
+export function getFreeBalanceAddress(publicIdentifier: string) {
   return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
 

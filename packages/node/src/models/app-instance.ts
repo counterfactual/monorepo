@@ -4,6 +4,7 @@ import {
   AppInterface,
   ERC20TwoPartyDynamicInterpreterParams,
   ETHTransferInterpreterParams,
+  OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -32,6 +33,7 @@ export type AppInstanceJson = {
   latestState: SolidityABIEncoderV2Type;
   latestNonce: number;
   latestTimeout: number;
+  outcomeType: OutcomeType;
 
   /**
    * Interpreter-related Fields
@@ -107,6 +109,7 @@ export class AppInstance {
     latestState: any,
     latestNonce: number,
     latestTimeout: number,
+    outcomeType: OutcomeType,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
     ethTransferInterpreterParams?: ETHTransferInterpreterParams,
     erc20TwoPartyDynamicInterpreterParams?: ERC20TwoPartyDynamicInterpreterParams
@@ -122,6 +125,7 @@ export class AppInstance {
       latestState,
       latestNonce,
       latestTimeout,
+      outcomeType,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -169,6 +173,7 @@ export class AppInstance {
       latestState,
       json.latestNonce,
       json.latestTimeout,
+      json.outcomeType,
       json.twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -292,6 +297,10 @@ export class AppInstance {
           token: this.json.erc20TwoPartyDynamicInterpreterParams.token
         }
       : undefined;
+  }
+
+  public get outcomeType() {
+    return this.json.outcomeType;
   }
 
   public get timeout() {

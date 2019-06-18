@@ -7,7 +7,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeEthTransferIncrement(outcome): [string, BigNumber] {
+function computeFundsTransferIncrement(outcome): [string, BigNumber] {
   const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
@@ -19,9 +19,9 @@ function computeEthTransferIncrement(outcome): [string, BigNumber] {
   ) {
     throw new Error("Outcome function returned unexpected shape");
   }
-  const [[[address, to]]] = decoded;
+  const [[[to, amount]]] = decoded;
 
-  return [address, to];
+  return [to, amount];
 }
 
 export async function computeFreeBalanceIncrements(
@@ -42,17 +42,7 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  // Temporary, better solution is to add outcomeType to AppInstance model
-  let outcomeType: OutcomeType | undefined;
-  if (typeof appInstance.ethTransferInterpreterParams !== "undefined") {
-    outcomeType = OutcomeType.ETH_TRANSFER;
-  } else if (
-    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
-  ) {
-    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
-  }
-
-  switch (outcomeType) {
+  switch (appInstance.outcomeType) {
     case OutcomeType.ETH_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
@@ -65,7 +55,7 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeEthTransferIncrement(outcome);
+        const [address, to] = computeFundsTransferIncrement(outcome);
 
         if (to.gt(Zero)) {
           return { [address]: to };
@@ -104,8 +94,32 @@ export async function computeFreeBalanceIncrements(
         [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
       };
     }
+    case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
+      let attempts = 1;
+
+      const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+      while (1) {
+        outcome = await appDefinition.functions.computeOutcome(
+          appInstance.encodedLatestState
+        );
+
+        const [to, amount] = computeFundsTransferIncrement(outcome);
+
+        if (amount.gt(Zero)) {
+          return { [to]: amount };
+        }
+
+        attempts += 1;
+
+        if (attempts === 10) {
+          throw new Error("Failed to get a outcome after 10 attempts");
+        }
+
+        await wait(1000 * attempts);
+      }
+    }
     default: {
-      throw Error("unknown interpreter");
+      throw Error("Unknown Interpreter");
     }
   }
 }

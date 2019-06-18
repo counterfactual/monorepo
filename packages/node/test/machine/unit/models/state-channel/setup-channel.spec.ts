@@ -38,7 +38,7 @@ describe("StateChannel::setupChannel", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc.getETHFreeBalance();
+      fb = sc.getFreeBalance();
     });
 
     it("should exist", () => {

@@ -71,7 +71,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
-      const freeBalanceETH = stateChannel.getETHFreeBalance();
+      const freeBalanceETH = stateChannel.getFreeBalance();
 
       const setStateCommitment = new SetStateCommitment(
         network,
@@ -105,7 +105,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getETHFreeBalance().identity
+        stateChannel.getFreeBalance().identity
       );
 
       const setupTx = setupCommitment.transaction([

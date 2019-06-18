@@ -1,7 +1,7 @@
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { ContractABI } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { One } from "ethers/constants";
+import { One, Two } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
@@ -15,6 +15,7 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
+  jest.setTimeout(10000);
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
@@ -44,13 +45,19 @@ describe("Node method follows spec - deposit", () => {
     }
   });
 
-  it.skip("has the right balance for both parties after deposits of ERC20 tokens", async () => {
+  it.only("has the right balance for both parties after deposits of ERC20 tokens", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
+    const erc20ContractAddress = global["networkContext"]["DolphinCoin"];
+    const erc20Contract = new Contract(
+      erc20ContractAddress,
+      DolphinCoin.abi,
+      new JsonRpcProvider(global["ganacheURL"])
+    );
 
     const depositReq = makeDepositRequest(
       multisigAddress,
       One,
-      global["networkContext"]["DolphinCoin"]
+      erc20ContractAddress
     );
 
     try {
@@ -66,9 +73,16 @@ describe("Node method follows spec - deposit", () => {
     await nodeA.router.dispatch(depositReq);
     await nodeB.router.dispatch(depositReq);
 
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+    expect(await provider.getBalance(multisigAddress)).toEqual(
       preDepositBalance
     );
+    expect(await erc20Contract.functions.balanceOf(multisigAddress)).toEqual(
+      Two
+    );
+    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+    for (const key in freeBalanceState) {
+      expect(freeBalanceState[key]).toEqual(One);
+    }
   });
 });
 

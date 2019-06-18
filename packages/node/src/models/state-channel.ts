@@ -1,6 +1,7 @@
 import {
   FundsBucketAppState,
-  SolidityABIEncoderV2Type
+  SolidityABIEncoderV2Type,
+  OutcomeType
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
@@ -67,7 +68,8 @@ function createFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
   fundsBucketAddress: string,
-  freeBalanceTimeout: number
+  freeBalanceTimeout: number,
+  tokenAddress?: string
 ) {
   const sortedTopLevelKeys = xkeysToSortedKthAddresses(
     userNeuteredExtendedKeys,
@@ -78,6 +80,9 @@ function createFreeBalance(
   // the built-in assumption here.
   const beneficiaryForPerson1 = sortedTopLevelKeys[0];
   const beneficiaryForPerson2 = sortedTopLevelKeys[1];
+  const outcomeType = tokenAddress
+    ? OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME
+    : OutcomeType.ETH_TRANSFER;
 
   return new AppInstance(
     multisigAddress,
@@ -101,8 +106,11 @@ function createFreeBalance(
     ],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    outcomeType,
     undefined,
-    { limit: MaxUint256 }
+    // FIXME: refactor how the interpreter parameters get plumbed through
+    tokenAddress ? undefined : { limit: MaxUint256 },
+    tokenAddress ? { limit: MaxUint256, token: tokenAddress } : undefined
   );
 }
 
@@ -152,6 +160,10 @@ export class StateChannel {
       throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
+  }
+
+  public hasFreeBalance(tokenAddress: string = AddressZero) {
+    return this.freeBalanceAppIndexes.has(tokenAddress);
   }
 
   public hasAppInstance(appInstanceId: string): boolean {
@@ -204,16 +216,51 @@ export class StateChannel {
     return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
-  public getETHFreeBalance(): AppInstance {
-    if (!this.freeBalanceAppIndexes.has(AddressZero)) {
+  public addFreeBalance(
+    erc20BucketAddress: string,
+    tokenAddress: string
+  ): StateChannel {
+    const newFreeBalance = createFreeBalance(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      erc20BucketAddress,
+      HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout,
+      tokenAddress
+    );
+
+    const appInstances = new Map(this.appInstances.entries());
+    appInstances.set(newFreeBalance.identityHash, newFreeBalance);
+
+    const freeBalanceAppIndexes = new Map(this.freeBalanceAppIndexes);
+    freeBalanceAppIndexes.set(tokenAddress, newFreeBalance.identityHash);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
+      freeBalanceAppIndexes,
+      this.monotonicNumInstalledApps + 1
+    );
+  }
+
+  /**
+   * This defaults to getting the ETH Free Balance unless an ERC20 token address
+   * is specified.
+   * @param tokenAddress
+   */
+  public getFreeBalance(tokenAddress: string = AddressZero): AppInstance {
+    if (!this.freeBalanceAppIndexes.has(tokenAddress)) {
       throw Error(ERRORS.FREE_BALANCE_MISSING);
     }
 
-    return this.appInstances.get(this.freeBalanceAppIndexes.get(AddressZero)!)!;
+    return this.appInstances.get(
+      this.freeBalanceAppIndexes.get(tokenAddress)!
+    )!;
   }
 
   public getFreeBalanceAddrOf(xpub: string): string {
-    const [alice, bob] = this.getETHFreeBalance().signingKeys;
+    const [alice, bob] = this.getFreeBalance().signingKeys;
 
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
@@ -226,17 +273,24 @@ export class StateChannel {
     return topLevelKey;
   }
 
-  public incrementETHFreeBalance(increments: { [addr: string]: BigNumber }) {
-    const freeBalance = this.getETHFreeBalance();
+  public incrementFreeBalance(
+    increments: { [addr: string]: BigNumber },
+    tokenAddress: string = AddressZero
+  ) {
+    const freeBalance = this.getFreeBalance(tokenAddress);
     const freeBalanceState = freeBalance.state as FundsBucketAppState;
 
     return this.setFreeBalance(
-      merge(fromAppState(freeBalanceState), increments)
+      merge(fromAppState(freeBalanceState), increments),
+      tokenAddress
     );
   }
 
-  public setFreeBalance(newState: { [addr: string]: BigNumber }) {
-    const freeBalance = this.getETHFreeBalance();
+  public setFreeBalance(
+    newState: { [addr: string]: BigNumber },
+    tokenAddress: string = AddressZero
+  ) {
+    const freeBalance = this.getFreeBalance(tokenAddress);
     const ret = [] as any;
 
     for (const beneficiaryAddr in newState) {
@@ -393,7 +447,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementETHFreeBalance(flip(decrements));
+    ).incrementFreeBalance(flip(decrements));
   }
 
   public uninstallTwoPartyVirtualEthAsLumpInstance(
@@ -420,7 +474,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementETHFreeBalance(increments);
+    ).incrementFreeBalance(increments);
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -467,7 +521,7 @@ export class StateChannel {
 
     appInstances.set(appInstance.identityHash, appInstance);
 
-    return new StateChannel(
+    const channel = new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
@@ -476,7 +530,14 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementETHFreeBalance(flip(decrements));
+    );
+
+    const tokenAddress = appInstance.state["token"];
+    if (tokenAddress) {
+      return channel.incrementFreeBalance(flip(decrements), tokenAddress);
+    }
+
+    return channel.incrementFreeBalance(flip(decrements));
   }
 
   public uninstallApp(
@@ -512,7 +573,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementETHFreeBalance(increments);
+    ).incrementFreeBalance(increments);
   }
 
   public getTwoPartyVirtualEthAsLumpFromTarget(

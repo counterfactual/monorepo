@@ -1,4 +1,9 @@
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  AppInterface,
+  NetworkContext,
+  OutcomeType,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
@@ -6,6 +11,7 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, InstallParams, ProtocolParameters } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
+import { ERC20_OUTCOME_TYPE } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -51,6 +57,18 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   1: async function*(context: Context) {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+
+    const { initialState, appInterface, multisigAddress, outcomeType } = context
+      .message.params as InstallParams;
+
+    context.stateChannelsMap = installFreeBalanceIfNeeded(
+      context.stateChannelsMap,
+      context.network,
+      initialState,
+      appInterface,
+      multisigAddress,
+      outcomeType
+    );
 
     const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
@@ -124,7 +142,7 @@ async function proposeStateTransition(
       }
     | undefined;
 
-  let twoPartyDynamicInterpreterParams:
+  let erc20TwoPartyDynamicInterpreterParams:
     | {
         // Derived from:
         // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreter.sol#L15
@@ -162,12 +180,7 @@ async function proposeStateTransition(
       break;
     }
     case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
-      if (initialState["token"] === undefined) {
-        throw new Error(
-          "An ERC20 token address must be specified as part of the initial state to use this Outcome type"
-        );
-      }
-      twoPartyDynamicInterpreterParams = {
+      erc20TwoPartyDynamicInterpreterParams = {
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         ),
@@ -176,8 +189,9 @@ async function proposeStateTransition(
       interpreterAddress = context.network.ERC20TwoPartyDynamicInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         ["tuple(uint256 limit, address token)"],
-        [twoPartyDynamicInterpreterParams]
+        [erc20TwoPartyDynamicInterpreterParams]
       );
+      break;
     }
     default: {
       throw new Error(
@@ -197,8 +211,10 @@ async function proposeStateTransition(
     /* latestState */ initialState,
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
+    /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* ethTransferInterpreterParams */ ethTransferInterpreterParams
+    /* ethTransferInterpreterParams */ ethTransferInterpreterParams,
+    /* erc20TwoPartyDynamicInterpreterParams */ erc20TwoPartyDynamicInterpreterParams
   );
 
   const newStateChannel = stateChannel.installApp(appInstance, {
@@ -230,7 +246,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.getFreeBalance();
 
   return new InstallCommitment(
     network,
@@ -246,4 +262,45 @@ function constructInstallOp(
     interpreterAddress,
     interpreterParams
   );
+}
+
+export function installFreeBalanceIfNeeded(
+  channelsMap: Map<string, StateChannel>,
+  networkContext: NetworkContext,
+  initialState: SolidityABIEncoderV2Type,
+  appInterface: AppInterface,
+  multisigAddress: string,
+  outcomeType: OutcomeType
+) {
+  const channel = channelsMap.get(multisigAddress)!;
+
+  if (
+    outcomeType === OutcomeType.ETH_TRANSFER ||
+    outcomeType === OutcomeType.TWO_PARTY_FIXED_OUTCOME
+  ) {
+    return channelsMap;
+  }
+
+  // An ERC20 Balance Refund app is NOT being installed, meaning an ERC20 deposit
+  // is NOT taking place
+  if (appInterface.addr !== networkContext.ERC20BalanceRefundApp) {
+    return channelsMap;
+  }
+
+  const tokenAddress = initialState["token"];
+  if (!tokenAddress) {
+    throw Error(ERC20_OUTCOME_TYPE);
+  }
+
+  if (channel.hasFreeBalance(tokenAddress)) {
+    return channelsMap;
+  }
+
+  const updatedChannel = channel.addFreeBalance(
+    networkContext.ERC20Bucket,
+    tokenAddress
+  );
+
+  channelsMap.set(multisigAddress, updatedChannel);
+  return channelsMap;
 }

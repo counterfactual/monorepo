@@ -75,7 +75,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         [multisigOwnerKeys[1].address]: parseEther("20")
       });
 
-      const freeBalanceETH = stateChannel.getETHFreeBalance();
+      const freeBalanceETH = stateChannel.getFreeBalance();
 
       // target app instance
       const targetAppInstance = new AppInstance(

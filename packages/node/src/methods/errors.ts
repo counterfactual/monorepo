@@ -15,6 +15,9 @@ export const CHANNEL_CREATION_FAILED =
 
 export const DEPOSIT_FAILED = "Failed to send funds to the multisig contract";
 
+export const ERC20_OUTCOME_TYPE =
+  "An ERC20 token address must be specified as part of the initial state to use this Outcome type";
+
 export const ETH_BALANCE_REFUND_NOT_UNINSTALLED =
   "The ETH balance refund AppInstance is still installed when it's not supposed to be";
 
