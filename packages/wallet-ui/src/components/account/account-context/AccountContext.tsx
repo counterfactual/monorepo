@@ -2,6 +2,6 @@ import React from "react";
 
 export default class AccountContext extends React.Component {
   render() {
-    return <div />;
+    return <div className="account-context" />;
   }
 }
