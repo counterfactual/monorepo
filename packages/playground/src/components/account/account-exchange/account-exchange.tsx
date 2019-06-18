@@ -184,7 +184,7 @@ export class AccountExchange {
             loading={this.isDepositPending ? true : false}
             provideFaucetLink={true}
             error={this.depositError}
-            available={ethers.utils.bigNumberify(ethFreeBalanceWei)}
+            available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
             min={0.1}
             max={1}
           />
@@ -200,7 +200,7 @@ export class AccountExchange {
             disabled={this.isWithdrawalPending ? true : false}
             loading={this.isWithdrawalPending ? true : false}
             error={this.withdrawalError}
-            available={ethers.utils.bigNumberify(this.ethFreeBalanceWei)}
+            available={ethers.utils.bigNumberify(ethFreeBalanceWei)}
             min={0}
             max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
           />
