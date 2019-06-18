@@ -36,7 +36,7 @@ const Welcome: React.FC = () => {
           for more.
         </p>
       </div>
-      <Link to="register">
+      <Link to="/setup/register">
         <FormButton>Setup Counterfactual</FormButton>
       </Link>
     </section>
