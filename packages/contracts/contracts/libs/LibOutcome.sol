@@ -1,12 +1,15 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "../interfaces/Interpreter.sol";
 
+library LibOutcome {
 
-contract TwoPartyFixedOutcome {
+  struct ETHTransfer {
+    address to;
+    uint256 amount;
+  }
 
-  enum Outcome {
+  enum TwoPartyFixedOutcome {
     SEND_TO_ADDR_ONE,
     SEND_TO_ADDR_TWO,
     SPLIT_AND_SEND_TO_BOTH_ADDRS

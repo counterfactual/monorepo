@@ -2,9 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
-// solium-disable-next-line max-len
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /// @title High Roller App
@@ -14,6 +12,8 @@ import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol"
 /// @dev This contract is an example of a dApp built to run on
 ///      the CounterFactual framework
 contract HighRollerApp is CounterfactualApp {
+
+  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
 
   enum ActionType {
     COMMIT_TO_HASH,
@@ -152,22 +152,22 @@ contract HighRollerApp is CounterfactualApp {
 
     // If P1 goes offline...
     if (appState.stage == Stage.WAITING_FOR_P1_COMMITMENT) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // If P2 goes offline...
     if (appState.stage == Stage.P1_COMMITTED_TO_HASH) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     }
 
     // If P1 goes offline...
     if (appState.stage == Stage.P2_COMMITTED_TO_NUM) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // If P1 tried to cheat...
     if (appState.stage == Stage.P1_TRIED_TO_SUBMIT_ZERO) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // Co-operative case
@@ -183,19 +183,19 @@ contract HighRollerApp is CounterfactualApp {
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (TwoPartyFixedOutcome.Outcome)
+    returns (LibOutcome.TwoPartyFixedOutcome)
   {
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
 
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
 
     if (playerFirstTotal > playerSecondTotal)
-      return TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE;
+      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE;
 
     if (playerFirstTotal < playerSecondTotal)
-      return TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO;
+      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO;
 
-    return TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
+    return LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
 
   }
 
