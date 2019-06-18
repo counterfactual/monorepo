@@ -1,6 +1,7 @@
 import {
   AppInterface,
   NetworkContext,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
@@ -80,6 +81,7 @@ export type InstallParams = {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
+  outcomeType: OutcomeType;
 };
 
 export type UninstallParams = {

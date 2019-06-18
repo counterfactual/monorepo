@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
+import { OutcomeType } from ".";
 import { AppABIEncodings, AppInstanceInfo } from "./data-types";
 import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
 
@@ -237,6 +238,7 @@ export namespace Node {
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
+    outcomeType: OutcomeType;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {

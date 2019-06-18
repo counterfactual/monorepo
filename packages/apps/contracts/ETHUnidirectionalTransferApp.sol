@@ -76,14 +76,6 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
     return appState.finalized;
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
-  }
-
   function applyTransfer(
     AppState memory state,
     uint256 transferAmount,

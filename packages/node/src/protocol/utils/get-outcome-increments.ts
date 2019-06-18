@@ -7,7 +7,7 @@ import {
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
@@ -46,9 +46,15 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  const outcomeType = bigNumberify(
-    await appDefinition.functions.outcomeType()
-  ).toNumber();
+  // Temporary, better solution is to add outcomeType to AppInstance model
+  let outcomeType: OutcomeType | undefined;
+  if (typeof appInstance.ethTransferInterpreterParams !== "undefined") {
+    outcomeType = OutcomeType.ETH_TRANSFER;
+  } else if (
+    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
+  ) {
+    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
+  }
 
   switch (outcomeType) {
     case OutcomeType.ETH_TRANSFER: {

@@ -184,14 +184,6 @@ contract HighRollerApp is CounterfactualApp {
 
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_FIXED_OUTCOME);
-  }
-
   function highRoller(bytes32 randomness)
     public // NOTE: This is used in app-root.tsx for the clientside dapp
     pure
