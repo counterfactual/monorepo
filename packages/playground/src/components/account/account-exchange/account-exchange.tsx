@@ -184,7 +184,7 @@ export class AccountExchange {
             loading={this.isDepositPending ? true : false}
             provideFaucetLink={true}
             error={this.depositError}
-            available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
+            available={ethers.utils.bigNumberify(ethWeb3WalletBalance)}
             min={0.1}
             max={1}
           />
