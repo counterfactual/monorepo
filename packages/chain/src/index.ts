@@ -1,3 +1,4 @@
+import { NetworkContext } from "@counterfactual/types";
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
@@ -15,6 +16,7 @@ export class Chain {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
+  networkContext: NetworkContext = Object.create(null);
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
@@ -49,9 +51,9 @@ export class Chain {
     this.provider = new Web3Provider(this.server.provider);
   }
 
-  async createConfiguredChain() {
+  async createConfiguredChain(): Promise<NetworkContext> {
     const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    const contractAddresses = await configureNetworkContext(wallet);
-    return contractAddresses;
+    this.networkContext = await configureNetworkContext(wallet);
+    return this.networkContext;
   }
 }

@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
     "yarn": "1.12.3",
