@@ -1,6 +1,6 @@
 import React from "react";
 import { WidgetScreen } from "../../components/widget";
-import { FormInput, FormButton } from "../../components/form";
+import { /* FormInput, */ FormButton } from "../../components/form";
 
 export type AccountRegistrationChangeset = {
   username: string;
@@ -28,7 +28,7 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
       <div slot="header">Create a Playground Account</div>
 
       <form onSubmit={async e => console.log(e)}>
-        <FormInput
+        {/* <FormInput
           label="Username"
           value={changeset.username}
           error={errors.username}
@@ -40,8 +40,9 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
           label="Email (optional)"
           value={changeset.email}
           error={errors.email}
+          type="email"
           // onChange={e => this.change("email", e)}
-        />
+        /> */}
         <div className="smallprint">
           <b>Account will be linked to your Ethereum address: </b>
           {changeset.ethAddress}

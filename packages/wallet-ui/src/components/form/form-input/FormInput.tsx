@@ -15,43 +15,58 @@ export type FormInputProps = {
   autofocus?: boolean;
   change?: ((event: React.ChangeEvent<HTMLInputElement>) => void) | undefined;
 };
-
-const FormInput: React.FC<FormInputProps> = ({
-  label,
-  max = Infinity,
-  min = -Infinity,
-  step = 1,
-  error = "",
-  type = "text",
-  unit = "",
-  disabled = false,
-  value = "",
-  autofocus = false,
-  change = () => {}
-}: FormInputProps) => {
-  return (
-    <label>
-      <div className="label">{label}</div>
-
-      <div
-        className={disabled ? "input-container disabled" : "input-container"}
-      >
-        <input
-          className="input"
-          autoFocus={autofocus}
-          disabled={disabled}
-          type={type}
-          value={value}
-          max={max}
-          min={min}
-          step={step}
-          onChange={change}
-        />
-        {unit ? <div className="unit">{unit}</div> : null}
-      </div>
-      {error ? <div className="error">{error}</div> : null}
-    </label>
-  );
+export type FormInputState = {
+  value?: string | number;
 };
+
+class FormInput extends React.Component<FormInputProps, FormInputState> {
+  constructor(props: FormInputProps) {
+    super(props);
+    this.setState({ value: props.value });
+  }
+
+  handleChange(event) {
+    this.setState({ value: event.target.value });
+    if (this.props.change) {
+      this.props.change(event);
+    }
+  }
+  render() {
+    const {
+      label,
+      max,
+      min,
+      step,
+      error,
+      type,
+      unit,
+      disabled,
+      autofocus
+    } = this.props as FormInputProps;
+    return (
+      <label>
+        <div className="label">{label}</div>
+
+        <div
+          className={disabled ? "input-container disabled" : "input-container"}
+        >
+          <input
+            className="input"
+            autoFocus={autofocus || false}
+            disabled={disabled || false}
+            type={type || "text"}
+            value={this.state.value}
+            max={max || Infinity}
+            min={min || -Infinity}
+            step={step || 1}
+            onChange={event => this.handleChange(event)}
+          />
+          {unit ? <div className="unit">{unit}</div> : null}
+        </div>
+        {error ? <div className="error">{error}</div> : null}
+      </label>
+    );
+  }
+}
 
 export { FormInput };
