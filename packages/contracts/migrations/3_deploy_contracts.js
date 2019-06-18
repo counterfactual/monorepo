@@ -16,7 +16,6 @@ const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
 
 const ARTIFACTS = [
   ChallengeRegistry,
-  DolphinCoin
   ETHBalanceRefundApp,
   ETHBucket,
   MinimumViableMultisig,
