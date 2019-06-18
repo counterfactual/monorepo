@@ -39,24 +39,25 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Solidity Packages
 
-| Package                                            | Version                                                                                                                       | Description                                                 |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| Package | Version | Description |
+| --- | --- | --- |
 | [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state channel logic |
 
 ### Typescript/Javascript Packages
 
 **Counterfactual-specific packages**
 
-| Package                                                    | Version                                                                                                                               | Description                                                      |
-| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| [`@counterfactual/node`](/packages/node)                   | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node)                   | The core state channels client that a user runs                  |
-| [`@counterfactual/cf.js`](/packages/cf.js)                 | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js)                 | A JS API for interacting with off-chain apps                     |
-| [`@counterfactual/node-provider`](/packages/node-provider) | [![npm](https://img.shields.io/npm/v/@counterfactual/node-provider.svg)](https://www.npmjs.com/package/@counterfactual/node-provider) | Wrapper around API calls to a Node                               |
+| Package | Version | Description |
+| --- | --- | --- |
+| [`@counterfactual/node`](/packages/node) | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node) | The core state channels client that a user runs |
+| [`@counterfactual/cf.js`](/packages/cf.js) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js) | A JS API for interacting with off-chain apps |
+| [`@counterfactual/node-provider`](/packages/node-provider) | [![npm](https://img.shields.io/npm/v/@counterfactual/node-provider.svg)](https://www.npmjs.com/package/@counterfactual/node-provider) | Wrapper around API calls to a Node |
+
 **Utilities**
 
-| Package                                                              | Version                                                                                                                                         | Description                        |
-| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
-| [`@counterfactual/types`](/packages/types)                           | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                           | Shared type declarations           |
+| Package | Version | Description |
+| --- | --- | --- |
+| [`@counterfactual/types`](/packages/types) | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types) | Shared type declarations |
 | [`@counterfactual/typescript-typings`](/packages/typescript-typings) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-typings.svg)](https://www.npmjs.com/package/@counterfactual/typescript-typings) | Shims for external library typings |
 
 ## Contributing
@@ -71,7 +72,7 @@ The Playground currently only supports the Kovan network.
 
 ### Installing dependencies
 
-**Make sure you have Yarn v1.10.1 installed or higher**. Refer to [Yarn's installation guide](https://yarnpkg.com/lang/en/docs/install/) for setup instructions for your operating system.
+**Make sure you have Yarn v1.12.3 installed**. For easy management of specific Yarn versions, we recommend using [Yarn Version Manager (YVM)](https://github.com/tophat/yvm).
 
 To install the dependencies:
 
@@ -81,8 +82,7 @@ yarn
 
 ### Building packages
 
-It is recommended (optional) that you installed `solc` compiler binary on your machine
-([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `contracts` and `apps`
+It is recommended (optional) that you installed `solc` compiler binary on your machine ([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `contracts` and `apps`
 
 ```shell
 NATIVE_SOLC=true

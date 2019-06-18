@@ -43,7 +43,7 @@ export default async function globalSetup() {
 
   const provider = new Web3Provider(server.provider);
 
-  const wallet = new Wallet(privateKeyA, provider);
+  const wallet = new Wallet(fundedPrivateKey, provider);
 
   fs.writeFileSync(
     path.join(DIR, "accounts"),

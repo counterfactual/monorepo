@@ -1,4 +1,5 @@
 import { Component, Event, EventEmitter, Prop } from "@stencil/core";
+import { BigNumber } from "ethers/utils";
 
 @Component({
   tag: "account-eth-form",
@@ -49,7 +50,7 @@ export class AccountEthForm {
 
     try {
       formattedEth = parseFloat(
-        ethers.utils.formatEther(this.available)
+        window["ethers"].utils.formatEther(this.available)
       ).toFixed(4);
     } catch {
       formattedEth = "0";

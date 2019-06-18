@@ -1,5 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 import * as log from "loglevel";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -8,7 +9,6 @@ import {
   getAppInstanceInfoFromAppInstance,
   getNonFreeBalanceAppInstances
 } from "./operation";
-
 /**
  * Gets all installed appInstances across all of the channels open on
  * this Node.
@@ -16,6 +16,7 @@ import {
 export default class GetAppInstancesController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_APP_INSTANCES;
 
+  @jsonRpcMethod("chan_getAppInstances")
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetAppInstancesParams

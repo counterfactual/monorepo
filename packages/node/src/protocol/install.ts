@@ -1,6 +1,4 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { Contract } from "ethers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
@@ -97,21 +95,69 @@ async function proposeStateTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    multisigAddress
+    multisigAddress,
+    outcomeType
   } = params as InstallParams;
-
-  const appDefinition = new Contract(
-    appInterface.addr,
-    CounterfactualApp.abi,
-    context.provider
-  );
-
-  const outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
   const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
+
+  let interpreterAddress: string;
+  let interpreterParams: string;
+
+  let coinTransferInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+        limit: BigNumber;
+      }
+    | undefined;
+
+  let twoPartyOutcomeInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+        playerAddrs: [string, string];
+        amount: BigNumber;
+      }
+    | undefined;
+
+  switch (outcomeType) {
+    case OutcomeType.COIN_TRANSFER: {
+      coinTransferInterpreterParams = {
+        limit: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.ETHInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit)"],
+        [coinTransferInterpreterParams]
+      );
+      break;
+    }
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+      twoPartyOutcomeInterpreterParams = {
+        playerAddrs: [initiatingFbAddress, respondingFbAddress],
+        amount: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      interpreterAddress = context.network.TwoPartyEthAsLump;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        [twoPartyOutcomeInterpreterParams]
+      );
+      break;
+    }
+    default: {
+      throw new Error(
+        "The outcome type in this application logic contract is not supported yet."
+      );
+    }
+  }
 
   const appInstance = new AppInstance(
     /* multisigAddress */ multisigAddress,
@@ -124,41 +170,9 @@ async function proposeStateTransition(
     /* latestState */ initialState,
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
-    /* beneficiaries */ [initiatingFbAddress, respondingFbAddress],
-    /* limitOrTotal */ bigNumberify(initiatingBalanceDecrement).add(
-      respondingBalanceDecrement
-    )
+    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
-
-  let interpreterAddress: string;
-  let interpreterParams: string;
-
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      interpreterAddress = context.network.ETHInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit)"],
-        [{ limit: appInstance.limitOrTotal }]
-      );
-      break;
-    }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
-      interpreterAddress = context.network.TwoPartyEthAsLump;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(address[2] playerAddrs, uint256 amount)"],
-        [
-          {
-            playerAddrs: [initiatingFbAddress, respondingFbAddress],
-            amount: appInstance.limitOrTotal
-          }
-        ]
-      );
-      break;
-    }
-    default: {
-      throw Error("unrecognized");
-    }
-  }
 
   const newStateChannel = stateChannel.installApp(appInstance, {
     [initiatingFbAddress]: initiatingBalanceDecrement,

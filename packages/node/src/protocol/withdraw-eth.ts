@@ -1,5 +1,5 @@
 import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
-import { AddressZero, MaxUint256 } from "ethers/constants";
+import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
@@ -184,8 +184,8 @@ function addInstallRefundAppCommitmentToContext(
     },
     0,
     1008,
-    [AddressZero, AddressZero],
-    MaxUint256
+    undefined,
+    { limit: MaxUint256 }
   );
 
   const newStateChannel = stateChannel.installApp(refundAppInstance, {

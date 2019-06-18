@@ -20,7 +20,7 @@ import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
-import memoryStoreService from "../services/memory-store-service";
+import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createProposedAppInstanceInfo } from "./utils";
 
@@ -29,7 +29,7 @@ describe("Can handle correct & incorrect installs", () => {
   let ie: InstructionExecutor;
 
   beforeAll(() => {
-    store = new Store(memoryStoreService, "install.spec.ts-test-store");
+    store = new Store(new MemoryStoreService(), "install.spec.ts-test-store");
     ie = new InstructionExecutor(EMPTY_NETWORK, {} as BaseProvider);
   });
 

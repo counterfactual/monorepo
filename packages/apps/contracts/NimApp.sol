@@ -2,7 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /*
@@ -17,7 +17,7 @@ contract NimApp is CounterfactualApp {
   }
 
   struct AppState {
-    uint256 turnNum;
+    uint256 turnNum; // NOTE: This field is currently mandatory, do not modify!
     uint256[3] pileHeights;
   }
 
@@ -30,8 +30,10 @@ contract NimApp is CounterfactualApp {
     return isWin(state);
   }
 
+  // NOTE: Function is being deprecated soon, do not modify!
   function getTurnTaker(
-    bytes calldata encodedState, address[] calldata signingKeys
+    bytes calldata encodedState,
+    address[] calldata signingKeys
   )
     external
     pure
@@ -71,17 +73,10 @@ contract NimApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
 
-    // TODO: Reverts should not happen, it should return an outcome where
-    //       the person whose took the most recent turn gets all funds.
-    require(
-      isWin(state),
-      "Given state to computeOutcome was not in a winning position"
-    );
-
     if (state.turnNum % 2 == 0) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     } else {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
   }
 

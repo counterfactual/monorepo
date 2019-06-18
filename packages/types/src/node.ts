@@ -1,11 +1,18 @@
 import { BigNumber } from "ethers/utils";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
+import { OutcomeType } from ".";
 import { AppABIEncodings, AppInstanceInfo } from "./data-types";
 import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
   sendMessage(message: Node.Message);
+}
+
+export interface IRpcNodeProvider {
+  onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void);
+  sendMessage(message: Rpc);
 }
 
 export namespace Node {
@@ -16,6 +23,29 @@ export namespace Node {
     from: string;
     type: EventName;
   };
+
+  export interface ServiceFactory {
+    connect?(host: string, port: string): ServiceFactory;
+    auth?(email: string, password: string): Promise<void>;
+    createMessagingService?(messagingServiceKey: string): IMessagingService;
+    createStoreService?(storeServiceKey: string): IStoreService;
+  }
+
+  export interface IMessagingService {
+    send(to: string, msg: Node.NodeMessage): Promise<void>;
+    onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
+  }
+
+  export interface IStoreService {
+    get(key: string): Promise<any>;
+    // Multiple pairs could be written simultaneously if an atomic write
+    // among multiple records is required
+    set(
+      pairs: { key: string; value: any }[],
+      allowDelete?: Boolean
+    ): Promise<void>;
+    reset?(): Promise<void>;
+  }
 
   export type NetworkContext = {
     // Protocol
@@ -40,6 +70,7 @@ export namespace Node {
     GET_APP_INSTANCES = "getAppInstances",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
     INSTALL = "install",
@@ -54,6 +85,28 @@ export namespace Node {
     UNINSTALL = "uninstall",
     UNINSTALL_VIRTUAL = "uninstallVirtual",
     WITHDRAW = "withdraw"
+  }
+
+  export enum RpcMethodName {
+    CREATE_CHANNEL = "chan_create",
+    DEPOSIT = "chan_deposit",
+    GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
+    GET_APP_INSTANCES = "chan_getAppInstances",
+    GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
+    GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
+    GET_STATE = "chan_getState",
+    INSTALL = "chan_install",
+    INSTALL_VIRTUAL = "chan_installVirtual",
+    PROPOSE_INSTALL = "chan_proposeInstall",
+    PROPOSE_INSTALL_VIRTUAL = "chan_proposeInstallVirtual",
+    PROPOSE_STATE = "chan_proposeState",
+    REJECT_INSTALL = "chan_rejectInstall",
+    REJECT_STATE = "chan_rejectState",
+    UPDATE_STATE = "chan_updateState",
+    TAKE_ACTION = "chan_takeAction",
+    UNINSTALL = "chan_uninstall",
+    UNINSTALL_VIRTUAL = "chan_uninstallVirtual",
+    WITHDRAW = "chan_withdraw"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
@@ -147,6 +200,14 @@ export namespace Node {
     appInstances: AppInstanceInfo[];
   };
 
+  export type GetProposedAppInstanceParams = {
+    appInstanceId: string;
+  };
+
+  export type GetProposedAppInstanceResult = {
+    appInstance: AppInstanceInfo;
+  };
+
   export type GetStateParams = {
     appInstanceId: AppInstanceID;
   };
@@ -170,13 +231,14 @@ export namespace Node {
   export type InstallVirtualResult = InstallResult;
 
   export type ProposeInstallParams = {
-    appId: string;
+    appDefinition: string;
     abiEncodings: AppABIEncodings;
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
+    outcomeType: OutcomeType;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {

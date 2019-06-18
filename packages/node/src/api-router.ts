@@ -17,6 +17,7 @@ import {
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
+  GetProposedAppInstanceController,
   GetProposedAppInstancesController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
@@ -29,6 +30,8 @@ import {
   UpdateStateController,
   WithdrawController
 } from "./methods";
+import { RequestHandler } from "./request-handler";
+import NodeRouter from "./rpc-router";
 import { NODE_EVENTS } from "./types";
 
 const controllers = [
@@ -56,6 +59,7 @@ const controllers = [
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
+  GetProposedAppInstanceController,
   GetProposedAppInstancesController
 ];
 
@@ -81,6 +85,9 @@ export const methodNameToImplementation = controllers.reduce(
   },
   {}
 );
+
+export const createRpcRouter = (requestHandler: RequestHandler) =>
+  new NodeRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
   [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,

@@ -1,27 +1,26 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
-import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
+import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
-/// @title ETH Unidirectional Payment App
+
+/// @title ETH Unidirectional Transfer App
 /// @notice This contract allows unidirectional ETH transfers using the
 ///         takeAction paradigm.
-contract EthUnidirectionalPaymentApp is CounterfactualApp {
+contract ETHUnidirectionalTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;
 
   struct AppState {
-    ETHInterpreter.ETHTransfer[2] transfers; // [sender, receiver]
+    LibOutcome.CoinTransfer[] transfers; // [sender, receiver]
     bool finalized;
   }
 
-  struct PaymentAction {
-    uint256 paymentAmount;
+  struct TransferAction {
+    uint256 transferAmount;
     bool finalize;
   }
 
@@ -42,7 +41,8 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return encodedState;
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return abi.encode(state.transfers);
   }
 
   function applyAction(
@@ -53,12 +53,12 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    PaymentAction memory action = abi.decode(encodedAction, (PaymentAction));
+    TransferAction memory action = abi.decode(encodedAction, (TransferAction));
 
     // apply transition based on action
-    AppState memory postState = applyPayment(
+    AppState memory postState = applyTransfer(
       state,
-      action.paymentAmount,
+      action.transferAmount,
       action.finalize
     );
 
@@ -74,28 +74,20 @@ contract EthUnidirectionalPaymentApp is CounterfactualApp {
     return appState.finalized;
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
-  }
-
-  function applyPayment(
+  function applyTransfer(
     AppState memory state,
-    uint256 paymentAmount,
+    uint256 transferAmount,
     bool finalize
   )
     internal
     pure
     returns (AppState memory)
   {
-    // subtract payment amount from sender balance
+    // subtract transfer amount from sender balance
     // SafeMath will throw if below zero
-    state.transfers[0].amount = state.transfers[0].amount.sub(paymentAmount);
-    // add payment amount to receiver balance
-    state.transfers[1].amount = state.transfers[1].amount.add(paymentAmount);
+    state.transfers[0].amount = state.transfers[0].amount.sub(transferAmount);
+    // add transfer amount to receiver balance
+    state.transfers[1].amount = state.transfers[1].amount.add(transferAmount);
     state.finalized = finalize;
 
     return state;

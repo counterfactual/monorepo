@@ -1,9 +1,8 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 contract TicTacToeApp is CounterfactualApp {
@@ -39,7 +38,7 @@ contract TicTacToeApp is CounterfactualApp {
   uint256 constant EMPTY_SQUARE = 0;
 
   struct AppState {
-    uint256 turnNum;
+    uint256 turnNum; // NOTE: This field is currently mandatory, do not modify!
     uint256 winner;
     uint256[3][3] board;
   }
@@ -51,14 +50,6 @@ contract TicTacToeApp is CounterfactualApp {
     WinClaim winClaim;
   }
 
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.TWO_PARTY_OUTCOME);
-  }
-
   function isStateTerminal(bytes calldata encodedState)
     external
     pure
@@ -68,8 +59,10 @@ contract TicTacToeApp is CounterfactualApp {
     return state.winner != GAME_IN_PROGRESS;
   }
 
+  // NOTE: Function is being deprecated soon, do not modify!
   function getTurnTaker(
-    bytes calldata encodedState, address[] calldata signingKeys
+    bytes calldata encodedState,
+    address[] calldata signingKeys
   )
     external
     pure
@@ -117,16 +110,20 @@ contract TicTacToeApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    require(state.winner != 0, "Winner was set to 0; invalid");
 
     if (state.winner == 2) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     } else if (state.winner == 1) {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE);
-    } else /* state.winner == 3, or fallback */ {
-      return abi.encode(TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+    } else if (state.winner == GAME_DRAWN) {
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+    } else {
+      if (state.turnNum % 2 == 0) {
+        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+      } else if (state.turnNum % 2 == 1) {
+        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+      }
     }
-
   }
 
   function playMove(

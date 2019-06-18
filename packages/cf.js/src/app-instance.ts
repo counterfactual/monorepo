@@ -6,6 +6,10 @@ import {
   Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import {
+  CoinTransferInterpreterParams,
+  TwoPartyFixedOutcomeInterpreterParams
+} from "@counterfactual/types/dist/src/data-types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -27,12 +31,22 @@ export class AppInstance {
    */
   readonly id: AppInstanceID;
 
-  readonly appId: Address;
+  // Application-specific fields
+  readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
+  readonly timeout: BigNumber;
+
+  // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly timeout: BigNumber;
   readonly intermediaries?: Address[];
+
+  /**
+   * Interpreter-related Fields
+   */
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
     key => AppInstanceEventType[key]
@@ -40,11 +54,14 @@ export class AppInstance {
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
     this.id = info.id;
-    this.appId = info.appId;
+    this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
+    this.timeout = info.timeout;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
-    this.timeout = info.timeout;
+    this.twoPartyOutcomeInterpreterParams =
+      info.twoPartyOutcomeInterpreterParams;
+    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

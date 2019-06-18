@@ -5,19 +5,9 @@
     "transactionHash": "0x6afc5e09ef286f93bafa56d23f3a3e2857a5305be71758a87cfc8ca5c4398bf3"
   },
   {
-    "contractName": "LibStaticCall",
-    "address": "0x60115fD71192aD0ED8c45a86518058df12E0eE18",
-    "transactionHash": "0x86e74cf88beb4d9e70911df4535763c0809b164fe9ba15ef9e6e01431801da73"
-  },
-  {
     "contractName": "ChallengeRegistry",
     "address": "0xbdf602c9570bF5A85b4dC678f34f6a8Dfd8f6B94",
     "transactionHash": "0xd7f2dc29b06de84a86a082a1721cb77158457df9a17b8543a40c732063ca7e77"
-  },
-  {
-    "contractName": "ContractRegistry",
-    "address": "0x384f59E0CBeBD48CB5E88EE8d8BdD70a050CB558",
-    "transactionHash": "0x92e97cdb06379c862148aef6d720dc3cc631a61b8b9304af8f9ae6462d5f4538"
   },
   {
     "contractName": "ETHBalanceRefundApp",
@@ -71,7 +61,7 @@
   },
   {
     "contractName": "TwoPartyEthAsLump",
-    "address": "0xe872DEF3873C8AA100B3426Bb3BD244DC6766c3a",
-    "transactionHash": "0x610de6638b86dcad289e9052d7f15632e88502de67a424c99ab685ee7fb4fd35"
+    "address": "0x100D0309073769C2d190e7b0bF779C5d77ba8D5C",
+    "transactionHash": "0x878ff5f3014ee15c606e5075a66491f012d53d08295ac7ca91ec383909cba9f6"
   }
 ]

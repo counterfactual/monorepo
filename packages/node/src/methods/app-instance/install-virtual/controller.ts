@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
@@ -11,6 +12,9 @@ import { installVirtual } from "./operation";
 
 export default class InstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
+
+  @jsonRpcMethod("chan_installVirtual")
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

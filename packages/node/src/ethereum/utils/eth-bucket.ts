@@ -3,10 +3,10 @@ import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 const ethBucketStateEncoding = `
-  tuple(
+  tuple(tuple(
     address to,
     uint256 amount
-  )[]
+  )[])
 `;
 
 export function getETHBucketAppInterface(addr: string): AppInterface {
@@ -33,7 +33,7 @@ export const fromAppState = (
   appState: ETHBucketAppState
 ): { [s: string]: BigNumber } => {
   const ret = {};
-  for (const { to, amount } of appState) {
+  for (const { to, amount } of appState[0]) {
     ret[to] = bigNumberify(amount._hex);
   }
   return ret;

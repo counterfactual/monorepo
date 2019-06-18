@@ -1,5 +1,3 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
@@ -9,7 +7,7 @@ import {
   RejectProposalMessage
 } from "../../src/types";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   createChannel,
@@ -19,22 +17,17 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
+    const context: SetupContext = await setup(global, true, false);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. Node C rejects proposal. Node A confirms rejection",

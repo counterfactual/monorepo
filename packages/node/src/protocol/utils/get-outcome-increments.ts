@@ -3,11 +3,11 @@ import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeEthTransferIncrement(outcome): [string, BigNumber] {
+function computeCoinTransferIncrement(outcome): [string, BigNumber] {
   const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
@@ -42,12 +42,18 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  const outcomeType = bigNumberify(
-    await appDefinition.functions.outcomeType()
-  ).toNumber();
+  // Temporary, better solution is to add outcomeType to AppInstance model
+  let outcomeType: OutcomeType | undefined;
+  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
+    outcomeType = OutcomeType.COIN_TRANSFER;
+  } else if (
+    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
+  ) {
+    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
+  }
 
   switch (outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
+    case OutcomeType.COIN_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
@@ -59,7 +65,7 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeEthTransferIncrement(outcome);
+        const [address, to] = computeCoinTransferIncrement(outcome);
 
         if (to.gt(Zero)) {
           return { [address]: to };
@@ -74,26 +80,28 @@ export async function computeFreeBalanceIncrements(
         await wait(1000 * attempts);
       }
     }
-    case OutcomeType.TWO_PARTY_OUTCOME: {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
-      const total = appInstance.limitOrTotal;
+      const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
+
       if (decoded.eq(Zero)) {
         return {
-          [appInstance.beneficiaries[0]]: total
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
         };
       }
       if (decoded.eq(One)) {
         return {
-          [appInstance.beneficiaries[1]]: total
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
         };
       }
 
       const i0 = total.div(2);
       const i1 = total.sub(i0);
+
       return {
-        [appInstance.beneficiaries[0]]: i0,
-        [appInstance.beneficiaries[1]]: i1
+        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
+        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
       };
     }
     default: {

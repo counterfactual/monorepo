@@ -3,6 +3,8 @@ declare var uuid: () => string;
 import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { Web3Provider } from "ethers/providers";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
@@ -29,7 +31,7 @@ export class NodeListener {
   @Prop() web3Detected: boolean = false;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() provider: Web3Provider = {} as Web3Provider;
-  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
+  @Prop() ethMultisigBalance: BigNumber = window["ethers"].constants.Zero;
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
@@ -73,7 +75,7 @@ export class NodeListener {
         .params as Node.ProposeInstallParams;
 
       const currentEthBalance = this.ethMultisigBalance;
-      const minimumEthBalance = ethers.utils.bigNumberify(
+      const minimumEthBalance = window["ethers"].utils.bigNumberify(
         proposeInstallParams.myDeposit
       );
 
@@ -92,7 +94,9 @@ export class NodeListener {
       );
 
       const app: AppDefinition = this.apps.find(app => {
-        return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
+        return (
+          app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appDefinition
+        );
       })!;
 
       if (!app) {

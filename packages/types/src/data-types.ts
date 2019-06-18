@@ -3,9 +3,22 @@ import { BigNumber } from "ethers/utils";
 
 import { ABIEncoding, AppInstanceID } from "./simple-types";
 
+export type TwoPartyFixedOutcomeInterpreterParams = {
+  // Derived from:
+  // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+  playerAddrs: [string, string];
+  amount: BigNumber;
+};
+
+export type CoinTransferInterpreterParams = {
+  // Derived from:
+  // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+  limit: BigNumber;
+};
+
 export type AppInstanceInfo = {
   id: AppInstanceID;
-  appId: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -13,6 +26,12 @@ export type AppInstanceInfo = {
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
   intermediaries?: string[];
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 };
 
 export type AppABIEncodings = {
@@ -22,12 +41,13 @@ export type AppABIEncodings = {
 
 // Interpreter.sol::OutcomeType
 export enum OutcomeType {
-  TWO_PARTY_OUTCOME = 0,
-  ETH_TRANSFER = 1
+  TWO_PARTY_FIXED_OUTCOME = 0,
+  TWO_PARTY_DYNAMIC_OUTCOME = 1,
+  COIN_TRANSFER = 2
 }
 
-// TwoPartyOutcome.sol::Outcome
-export enum TwoPartyOutcome {
+// TwoPartyFixedOutcome.sol::Outcome
+export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_ONE = 0,
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2

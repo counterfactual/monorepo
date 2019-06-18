@@ -3,6 +3,7 @@ import {
   AppABIEncodings,
   AppInstanceID,
   Node,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
@@ -37,12 +38,12 @@ function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
 export class AppFactory {
   /**
    * Constructs a new instance
-   * @param appId Address of the on-chain contract containing the app logic.
+   * @param appDefinition Address of the on-chain contract containing the app logic.
    * @param encodings ABI encodings to encode and decode the app's state and actions
    * @param provider CFjs provider
    */
   constructor(
-    readonly appId: Address,
+    readonly appDefinition: Address,
     readonly encodings: AppABIEncodings,
     readonly provider: Provider
   ) {}
@@ -65,6 +66,8 @@ export class AppFactory {
     timeout: BigNumberish;
     /** Initial state of app instance */
     initialState: SolidityABIEncoderV2Type;
+    /** The outcome type of the app instance */
+    outcomeType: OutcomeType;
   }): Promise<AppInstanceID> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
@@ -78,8 +81,9 @@ export class AppFactory {
         myDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
-        appId: this.appId,
-        abiEncodings: this.encodings
+        appDefinition: this.appDefinition,
+        abiEncodings: this.encodings,
+        outcomeType: params.outcomeType
       }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
@@ -120,8 +124,10 @@ export class AppFactory {
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         intermediaries: params.intermediaries,
-        appId: this.appId,
-        abiEncodings: this.encodings
+        appDefinition: this.appDefinition,
+        abiEncodings: this.encodings,
+        // FIXME: Hard-coded temporarily
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
     const {

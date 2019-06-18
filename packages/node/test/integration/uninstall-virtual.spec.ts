@@ -1,11 +1,8 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
@@ -15,24 +12,17 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
-  jest.setTimeout(10000);
-
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
+    const context: SetupContext = await setup(global, true, true);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A and C install a Virtual AppInstance through an intermediary Node B," +
       "then Node A uninstalls the installed AppInstance",

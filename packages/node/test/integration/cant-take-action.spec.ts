@@ -1,9 +1,6 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-
 import { INVALID_ACTION, Node } from "../../src";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   createChannel,
   generateTakeActionRequest,
@@ -13,17 +10,11 @@ import {
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {
@@ -46,7 +37,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       );
 
       try {
-        await nodeA.call(takeActionReq.type, takeActionReq);
+        await nodeA.router.dispatch(takeActionReq);
       } catch (e) {
         expect(e.toString()).toMatch(INVALID_ACTION);
         done();

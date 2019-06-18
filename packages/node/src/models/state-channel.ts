@@ -2,7 +2,7 @@ import {
   ETHBucketAppState,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { MaxUint256, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import {
@@ -88,19 +88,21 @@ function createETHFreeBalance(
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
     [
-      {
-        to: beneficiaryForPerson1,
-        amount: Zero
-      },
-      {
-        to: beneficiaryForPerson2,
-        amount: Zero
-      }
+      [
+        {
+          to: beneficiaryForPerson1,
+          amount: Zero
+        },
+        {
+          to: beneficiaryForPerson2,
+          amount: Zero
+        }
+      ]
     ],
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    [AddressZero, AddressZero],
-    MaxUint256
+    undefined,
+    { limit: MaxUint256 }
   );
 }
 
@@ -244,7 +246,7 @@ export class StateChannel {
 
   public setFreeBalance(newState: { [addr: string]: BigNumber }) {
     const freeBalance = this.getETHFreeBalance();
-    const ret = [] as ETHBucketAppState;
+    const ret = [] as any;
 
     for (const beneficiaryAddr in newState) {
       ret.push({
@@ -254,7 +256,7 @@ export class StateChannel {
         }
       });
     }
-    return this.setState(freeBalance.identityHash, ret);
+    return this.setState(freeBalance.identityHash, [ret]);
   }
 
   public static setupChannel(

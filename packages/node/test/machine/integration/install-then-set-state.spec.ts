@@ -3,7 +3,7 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
+import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
   defaultAbiCoder,
@@ -60,7 +60,6 @@ beforeAll(async () => {
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
-  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -107,8 +106,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
-        [AddressZero, AddressZero],
-        Zero
+        undefined,
+        {
+          limit: Zero
+        }
       );
 
       stateChannel = stateChannel.installApp(appInstance, {
@@ -156,7 +157,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         appInstance.appSeqNo,
         stateChannel.rootNonceValue,
         network.ETHInterpreter,
-        defaultAbiCoder.encode(["uint256"], [freeBalanceETH.limitOrTotal])
+        defaultAbiCoder.encode(
+          ["uint256"],
+          [freeBalanceETH.coinTransferInterpreterParams!.limit]
+        )
       );
 
       const installTx = installCommitment.transaction([

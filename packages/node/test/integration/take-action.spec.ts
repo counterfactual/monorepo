@@ -1,19 +1,15 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-import {
-  Node as NodeTypes,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import {
+  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
   UpdateStateMessage
 } from "../../src";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   createChannel,
@@ -23,19 +19,13 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(async () => {
-    await firebaseServiceFactory.closeServiceConnections();
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe(
@@ -45,35 +35,38 @@ describe("Node method follows spec - takeAction", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
+        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
 
       it("can take action", async done => {
         await createChannel(nodeA, nodeB);
+
         const appInstanceId = await installTTTApp(nodeA, nodeB);
 
-        let newState: SolidityABIEncoderV2Type;
-
         nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
+          const response = (await nodeB.router.dispatch(
+            generateGetStateRequest(msg.data.appInstanceId)
+          )) as JsonRpcResponse;
 
-          const response = await nodeB.call(getStateReq.type, getStateReq);
+          const { state } = response.result as NodeTypes.GetStateResult;
 
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
+          expect(state).toEqual(newState);
+
           done();
         });
+
         const takeActionReq = generateTakeActionRequest(
           appInstanceId,
           validAction
         );
 
-        const response = await nodeA.call(takeActionReq.type, takeActionReq);
+        const response = (await nodeA.router.dispatch(
+          takeActionReq
+        )) as JsonRpcResponse;
 
-        newState = (response.result as NodeTypes.TakeActionResult).newState;
+        const { newState } = response.result as NodeTypes.TakeActionResult;
 
         expect(newState["board"][0][0]).toEqual(bigNumberify(1));
         expect(newState["turnNum"]).toEqual(bigNumberify(1));

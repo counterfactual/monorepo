@@ -1,5 +1,6 @@
 import {
   AppABIEncodings,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -22,7 +23,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
     {
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
-      appId: AddressZero,
+      appDefinition: AddressZero,
       abiEncodings: {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
@@ -33,7 +34,8 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Type
+      } as SolidityABIEncoderV2Type,
+      outcomeType: OutcomeType.COIN_TRANSFER
     },
     undefined,
     appInstanceId
@@ -65,7 +67,10 @@ export function createAppInstance(stateChannel?: StateChannel) {
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
     Math.ceil(1000 * Math.random()),
-    [AddressZero, AddressZero],
-    Zero
+    {
+      playerAddrs: [AddressZero, AddressZero],
+      amount: Zero
+    },
+    undefined
   );
 }

@@ -3,8 +3,8 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import {
-  ActionType,
   GameState,
+  HighRollerActionType,
   HighRollerAppState,
   HighRollerStage
 } from "../../data/game-types";
@@ -101,7 +101,7 @@ export class AppProvider {
     return (
       bn(state.playerFirstNumber).toNumber() &&
       bn(state.playerSecondNumber).toNumber() &&
-      state.stage === HighRollerStage.DONE
+      state.stage === HighRollerStage.P1_REVEALED_NUM
     );
   }
 
@@ -121,9 +121,9 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    if (state.stage === HighRollerStage.REVEALING) {
+    if (state.stage === HighRollerStage.P2_COMMITTED_TO_NUM) {
       return await this.appInstance.takeAction({
-        actionType: ActionType.REVEAL,
+        actionType: HighRollerActionType.REVEAL_NUM,
         actionHash: this.highRollerState.salt,
         number: state.playerFirstNumber.toString()
       });
@@ -143,7 +143,9 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    const isProposing = state.stage === HighRollerStage.DONE;
+    // @ts-ignore - no idea why this causes an error...
+    const isProposing = state.stage === HighRollerStage.P1_REVEALED_NUM;
+
     const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
     const opponentRoll = isProposing
       ? rolls.playerSecondRoll
@@ -174,7 +176,8 @@ export class AppProvider {
 
     this.updateUIState(newUIState);
 
-    if (state.stage === HighRollerStage.DONE) {
+    // @ts-ignore - no idea why this causes an error...
+    if (state.stage === HighRollerStage.P1_REVEALED_NUM) {
       await this.appInstance.uninstall(this.intermediary);
     }
   }

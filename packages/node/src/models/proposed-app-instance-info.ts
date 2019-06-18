@@ -4,6 +4,7 @@ import {
   AppInstanceInfo,
   AppInterface,
   Bytes32,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
@@ -13,7 +14,7 @@ import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
 export interface IProposedAppInstanceInfo {
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -22,11 +23,12 @@ export interface IProposedAppInstanceInfo {
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 }
 
 export interface ProposedAppInstanceInfoJSON {
   id: Bytes32;
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: string;
   peerDeposit: string;
@@ -35,6 +37,7 @@ export interface ProposedAppInstanceInfoJSON {
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 }
 
 /**
@@ -49,7 +52,7 @@ export interface ProposedAppInstanceInfoJSON {
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
   id: Bytes32;
-  appId: Address;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -58,13 +61,14 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 
   constructor(
     proposeParams: IProposedAppInstanceInfo,
     channel?: StateChannel,
     overrideId?: Bytes32
   ) {
-    this.appId = proposeParams.appId;
+    this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
     this.myDeposit = proposeParams.myDeposit;
     this.peerDeposit = proposeParams.peerDeposit;
@@ -73,13 +77,14 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
+    this.outcomeType = proposeParams.outcomeType;
     this.id = overrideId || this.getIdentityHashFor(channel!);
   }
 
   // TODO: Note the construction of this is duplicated from the machine
   getIdentityHashFor(stateChannel: StateChannel) {
     const proposedAppInterface: AppInterface = {
-      addr: this.appId,
+      addr: this.appDefinition,
       ...this.abiEncodings
     };
 
@@ -120,31 +125,34 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
-      [AddressZero, AddressZero],
-      bigNumberify(this.myDeposit).add(this.peerDeposit)
+      undefined,
+      {
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit)
+      }
     );
 
     return proposedAppInstance.identityHash;
   }
 
-  toJson() {
+  toJson(): ProposedAppInstanceInfoJSON {
     return {
       id: this.id,
-      appId: this.appId,
+      appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      myDeposit: this.myDeposit,
-      peerDeposit: this.peerDeposit,
+      myDeposit: this.myDeposit.toString(),
+      peerDeposit: this.peerDeposit.toString(),
       initialState: this.initialState,
-      timeout: this.timeout,
+      timeout: this.timeout.toString(),
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
-      intermediaries: this.intermediaries
+      intermediaries: this.intermediaries,
+      outcomeType: this.outcomeType
     };
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
-      appId: json.appId,
+      appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       myDeposit: bigNumberify(json.myDeposit),
       peerDeposit: bigNumberify(json.peerDeposit),
@@ -152,8 +160,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
-      intermediaries: json.intermediaries
+      intermediaries: json.intermediaries,
+      outcomeType: json.outcomeType
     };
+
     return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
   }
 }

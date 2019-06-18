@@ -1,4 +1,3 @@
-import { IMessagingService, IStoreService } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 
 // This is a mimic type declaration of the Node, used locally to prevent
@@ -6,8 +5,8 @@ import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 // It's derived from `node.d.ts`.
 export declare class Node {
   static create(
-    messagingService: IMessagingService,
-    storeService: IStoreService,
+    messagingService: NodeTypes.IMessagingService,
+    storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     // @ts-ignore
     provider: ethers.providers.Provider,
@@ -15,6 +14,15 @@ export declare class Node {
     networkContext?: NetworkContext
   ): Promise<Node>;
   readonly publicIdentifier: string;
+  router: {
+    dispatch: ({
+      methodName,
+      parameters
+    }: {
+      methodName: string;
+      parameters: any;
+    }) => any;
+  };
   on(event: string, callback: (res: any) => void): void;
   once(event: string, callback: (res: any) => void): void;
   off(event: string, callback?: (res: any) => void): void;
@@ -46,8 +54,8 @@ export default class CounterfactualNode {
   }
 
   static async create(settings: {
-    messagingService: IMessagingService;
-    storeService: IStoreService;
+    messagingService: NodeTypes.IMessagingService;
+    storeService: NodeTypes.IStoreService;
     nodeConfig: { STORE_KEY_PREFIX: string };
     network: string;
     networkContext?: NetworkContext;
@@ -60,7 +68,9 @@ export default class CounterfactualNode {
       settings.messagingService,
       settings.storeService,
       settings.nodeConfig,
-      new ethers.providers.Web3Provider(window["web3"].currentProvider),
+      new window["ethers"].providers.Web3Provider(
+        window["web3"].currentProvider
+      ),
       settings.network
     );
 
