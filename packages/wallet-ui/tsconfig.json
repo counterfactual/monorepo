@@ -4,7 +4,8 @@
     "noEmit": true,
     "jsx": "preserve",
     "isolatedModules": true,
-    "declaration": false
+    "declaration": false,
+    "types": ["jest", "node", "react", "react-dom"]
   },
   "include": ["src"]
 }
