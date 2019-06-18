@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 
 library LibOutcome {
 
-  struct ETHTransfer {
+  struct CoinTransfer {
     address to;
     uint256 amount;
   }

@@ -65,7 +65,7 @@ export async function installBalanceRefundApp(
       },
       // this is the block-time equivalent of 7 days
       defaultTimeout: 1008,
-      outcomeType: OutcomeType.ETH_TRANSFER
+      outcomeType: OutcomeType.COIN_TRANSFER
     }
   );
 

@@ -107,7 +107,7 @@ async function proposeStateTransition(
   let interpreterAddress: string;
   let interpreterParams: string;
 
-  let ethTransferInterpreterParams:
+  let coinTransferInterpreterParams:
     | {
         // Derived from:
         // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
@@ -125,8 +125,8 @@ async function proposeStateTransition(
     | undefined;
 
   switch (outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
-      ethTransferInterpreterParams = {
+    case OutcomeType.COIN_TRANSFER: {
+      coinTransferInterpreterParams = {
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )
@@ -134,7 +134,7 @@ async function proposeStateTransition(
       interpreterAddress = context.network.ETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         ["tuple(uint256 limit)"],
-        [ethTransferInterpreterParams]
+        [coinTransferInterpreterParams]
       );
       break;
     }
@@ -171,7 +171,7 @@ async function proposeStateTransition(
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* ethTransferInterpreterParams */ ethTransferInterpreterParams
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 
   const newStateChannel = stateChannel.installApp(appInstance, {

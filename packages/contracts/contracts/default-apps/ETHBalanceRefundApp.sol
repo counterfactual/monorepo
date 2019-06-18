@@ -6,7 +6,7 @@ import "../libs/LibOutcome.sol";
 
 contract ETHBalanceRefundApp {
 
-  using LibOutcome for LibOutcome.ETHTransfer;
+  using LibOutcome for LibOutcome.CoinTransfer;
 
   struct AppState {
     address recipient;
@@ -21,7 +21,7 @@ contract ETHBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    LibOutcome.ETHTransfer[] memory ret = new LibOutcome.ETHTransfer[](1);
+    LibOutcome.CoinTransfer[] memory ret = new LibOutcome.CoinTransfer[](1);
 
     ret[0].amount = address(appState.multisig).balance - appState.threshold;
     ret[0].to = appState.recipient;
