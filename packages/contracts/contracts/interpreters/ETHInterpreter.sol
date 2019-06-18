@@ -2,6 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/Interpreter.sol";
+import "../libs/LibOutcome.sol";
 
 /**
  * This file is excluded from ethlint/solium because of this issue:
@@ -9,10 +10,7 @@ import "../interfaces/Interpreter.sol";
  */
 contract ETHInterpreter is Interpreter {
 
-  struct ETHTransfer {
-    address to;
-    uint256 amount;
-  }
+  using LibOutcome for LibOutcome.ETHTransfer;
 
   struct Param {
     uint256 limit;
@@ -25,7 +23,9 @@ contract ETHInterpreter is Interpreter {
     external
   {
 
-    ETHTransfer[] memory transfers = abi.decode(input, (ETHTransfer[]));
+    LibOutcome.ETHTransfer[] memory transfers = abi.decode(
+      input, (LibOutcome.ETHTransfer[])
+    );
 
     uint256 limitRemaining = abi.decode(params, (Param)).limit;
 

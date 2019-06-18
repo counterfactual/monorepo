@@ -2,8 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-// solium-disable-next-line
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /*
@@ -11,6 +10,8 @@ Normal-form Nim
 https://en.wikipedia.org/wiki/Nim
 */
 contract NimApp is CounterfactualApp {
+
+  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
 
   struct Action {
     uint256 pileIdx;
@@ -75,9 +76,9 @@ contract NimApp is CounterfactualApp {
     AppState memory state = abi.decode(encodedState, (AppState));
 
     if (state.turnNum % 2 == 0) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     } else {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
   }
 

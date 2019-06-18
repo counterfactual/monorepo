@@ -55,8 +55,7 @@ contract MAppCaller {
     pure
     returns (bytes memory)
   {
-    return CounterfactualApp(appDefinition)
-      .applyAction(appState, action);
+    return CounterfactualApp(appDefinition).applyAction(appState, action);
   }
 
   /// @notice Execute the application's computeOutcome function to compute an outcome

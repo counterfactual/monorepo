@@ -2,14 +2,15 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/CounterfactualApp.sol";
-import "../interfaces/Interpreter.sol";
-import "../interpreters/ETHInterpreter.sol";
+import "../libs/LibOutcome.sol";
 
 
 contract ETHBucket is CounterfactualApp {
 
+  using LibOutcome for LibOutcome.ETHTransfer;
+
   struct AppState {
-    ETHInterpreter.ETHTransfer[] transfers;
+    LibOutcome.ETHTransfer[] transfers;
   }
 
   function computeOutcome(bytes calldata encodedState)

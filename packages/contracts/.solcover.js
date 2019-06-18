@@ -3,7 +3,6 @@ module.exports = {
   skipFiles: [
     "proxies/Proxy.sol",
     "proxies/ProxyFactory.sol",
-    "libs/LibStaticCall.sol",
     "MultiSend.sol"
   ]
 };

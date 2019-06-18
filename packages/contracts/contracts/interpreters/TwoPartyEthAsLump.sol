@@ -2,10 +2,12 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/Interpreter.sol";
-import "../interfaces/TwoPartyFixedOutcome.sol";
+import "../libs/LibOutcome.sol";
 
 
 contract TwoPartyEthAsLump is Interpreter {
+
+  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
 
   struct Params {
     address payable[2] playerAddrs;
@@ -21,15 +23,15 @@ contract TwoPartyEthAsLump is Interpreter {
 
     Params memory params = abi.decode(encodedParams, (Params));
 
-    TwoPartyFixedOutcome.Outcome outcome = abi.decode(
+    LibOutcome.TwoPartyFixedOutcome outcome = abi.decode(
       encodedOutcome,
-      (TwoPartyFixedOutcome.Outcome)
+      (LibOutcome.TwoPartyFixedOutcome)
     );
 
-    if (outcome == TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE) {
+    if (outcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE) {
       params.playerAddrs[0].transfer(params.amount);
       return;
-    } else if (outcome == TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO) {
+    } else if (outcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO) {
       params.playerAddrs[1].transfer(params.amount);
       return;
     }
