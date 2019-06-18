@@ -11,6 +11,7 @@ export type FormButtonProps = {
   onClick?:
     | ((event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void)
     | undefined;
+  type?: "submit" | "button";
 };
 
 const FormButton: React.FC<FormButtonProps> = ({
@@ -18,10 +19,16 @@ const FormButton: React.FC<FormButtonProps> = ({
   onClick,
   disabled = false,
   spinner = false,
-  className = "button"
+  className = "button",
+  type = "button"
 }: FormButtonProps) => {
   return (
-    <button disabled={disabled} onClick={onClick} className={className}>
+    <button
+      disabled={disabled}
+      onClick={onClick}
+      className={className}
+      type={type}
+    >
       {spinner ? <WidgetSpinner /> : null}
       {children}
     </button>

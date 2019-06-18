@@ -19,8 +19,6 @@ const WidgetLogo: React.FC<WidgetLogoProps> = ({
     </React.Fragment>
   );
 
-  console.log(logo);
-
   return (
     <h1 className={`logo ${!caption ? "logo--icon-only" : ""}`}>
       {linkToHome ? (

@@ -22,15 +22,18 @@ export type FormInputState = {
 class FormInput extends React.Component<FormInputProps, FormInputState> {
   constructor(props: FormInputProps) {
     super(props);
-    this.setState({ value: props.value });
+
+    this.state = { value: props.value || (props.type === "number" ? 0 : "") };
   }
 
-  handleChange(event) {
+  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ value: event.target.value });
+
     if (this.props.change) {
       this.props.change(event);
     }
-  }
+  };
+
   render() {
     const {
       label,
@@ -59,7 +62,7 @@ class FormInput extends React.Component<FormInputProps, FormInputState> {
             max={max || Infinity}
             min={min || -Infinity}
             step={step || 1}
-            onChange={event => this.handleChange(event)}
+            onChange={this.handleChange}
           />
           {unit ? <div className="unit">{unit}</div> : null}
         </div>
