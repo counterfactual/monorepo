@@ -1,10 +1,12 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "../interpreters/ETHInterpreter.sol";
+import "../libs/LibOutcome.sol";
 
 
 contract ETHBalanceRefundApp {
+
+  using LibOutcome for LibOutcome.ETHTransfer;
 
   struct AppState {
     address recipient;
@@ -19,8 +21,7 @@ contract ETHBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    ETHInterpreter.ETHTransfer[] memory ret = new
-      ETHInterpreter.ETHTransfer[](1);
+    LibOutcome.ETHTransfer[] memory ret = new LibOutcome.ETHTransfer[](1);
 
     ret[0].amount = address(appState.multisig).balance - appState.threshold;
     ret[0].to = appState.recipient;

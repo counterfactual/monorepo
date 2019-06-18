@@ -1,13 +1,13 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-// solium-disable-next-line max-len
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 contract TicTacToeApp is CounterfactualApp {
+
+  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
 
   enum ActionType {
     PLAY,
@@ -114,16 +114,16 @@ contract TicTacToeApp is CounterfactualApp {
     AppState memory state = abi.decode(encodedState, (AppState));
 
     if (state.winner == 2) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     } else if (state.winner == 1) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     } else if (state.winner == GAME_DRAWN) {
-      return abi.encode(TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     } else {
       if (state.turnNum % 2 == 0) {
-        return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_ONE);
+        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
       } else if (state.turnNum % 2 == 1) {
-        return abi.encode(TwoPartyFixedOutcome.Outcome.SEND_TO_ADDR_TWO);
+        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
       }
     }
   }
