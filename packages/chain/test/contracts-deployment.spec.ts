@@ -4,16 +4,17 @@ import { Wallet } from "ethers";
 import { Chain } from "../src";
 
 describe("Contracts get deployed as expected", () => {
+  jest.setTimeout(10000);
+
   it("can spin up a new configured chain", async () => {
-    console.log("initiating");
     const chain = new Chain([Wallet.createRandom().mnemonic]);
-    const contractDeployments = await chain.createConfiguredChain();
+    const networkContext = await chain.createConfiguredChain();
 
     // This is not officially part of the NetworkContext but it's deployed
     // in the context of the tests
-    delete contractDeployments["TicTacToe"];
+    delete networkContext["TicTacToe"];
 
-    const contractNames = new Set(Object.keys(contractDeployments));
+    const contractNames = new Set(Object.keys(networkContext));
     const expectedContracts = new Set(networkContextProps);
     expect(contractNames).toEqual(expectedContracts);
   });
