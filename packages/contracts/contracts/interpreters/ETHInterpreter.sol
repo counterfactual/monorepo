@@ -10,8 +10,6 @@ import "../libs/LibOutcome.sol";
  */
 contract ETHInterpreter is Interpreter {
 
-  using LibOutcome for LibOutcome.CoinTransfer;
-
   struct Param {
     uint256 limit;
   }

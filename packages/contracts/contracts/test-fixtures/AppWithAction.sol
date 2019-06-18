@@ -9,8 +9,6 @@ import "../libs/LibOutcome.sol";
 
 contract AppWithAction is CounterfactualApp {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   struct State {
     address player1;
     address player2;

@@ -7,8 +7,6 @@ import "../libs/LibOutcome.sol";
 
 contract TwoPartyEthAsLump is Interpreter {
 
-  using LibOutcome for LibOutcome.TwoPartyFixedOutcome;
-
   struct Params {
     address payable[2] playerAddrs;
     uint256 amount;
