@@ -24,6 +24,7 @@ describe("<FormButton />", () => {
     render(<FormButton />);
     expect(button.disabled).toBe(false);
     expect(button.className).toBe("button");
+    expect(button.type).toBe("button");
   });
 
   it("renders a disabled button", () => {
@@ -58,6 +59,11 @@ describe("<FormButton />", () => {
   it("renders a spinner inside a button", () => {
     render(<FormButton spinner={true} />);
     expect(button.querySelector(".spinner")).not.toBeNull();
+  });
+
+  it("renders a button as a Submit button", () => {
+    render(<FormButton type="submit" />);
+    expect(button.type).toBe("submit");
   });
 
   afterEach(() => {

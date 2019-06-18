@@ -54,8 +54,32 @@ describe("<WidgetLogo />", () => {
       container
     );
 
-    expect(container.querySelector("span")!.innerHTML).toBe(caption);
+    expect(container.querySelector("span")!).toBeNull();
   });
+
+  it("renders without a link to '/' if 'linkToHome' is set to false", () => {
+    ReactDOM.render(
+      <Router>
+        <WidgetLogo linkToHome={false} />
+      </Router>,
+      container
+    );
+
+    expect(container.querySelector("a")).toBeNull();
+  });
+
+  it("renders with a link to '/' if 'linkToHome' is set to true", () => {
+    ReactDOM.render(
+      <Router>
+        <WidgetLogo linkToHome={true} />
+      </Router>,
+      container
+    );
+
+    const link = container.querySelector("a")!;
+    expect(link.href).toBe(new URL("/", "http://localhost").href);
+  });
+
   afterEach(() => {
     ReactDOM.unmountComponentAtNode(container);
   });
