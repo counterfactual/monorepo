@@ -378,7 +378,7 @@ Retrieves the address for the state deposit used by the specified owners.
 Params:
 
 - `owners: string[]`
-    - the addresses who own the state deposit
+    - the addresses who own the state deposit holder
 
 Result:
 
