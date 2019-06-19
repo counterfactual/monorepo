@@ -5,10 +5,12 @@ import { FormButton, FormInput } from "../../components/form";
 
 import "./AccountRegistration.scss";
 import { Link } from "react-router-dom";
-import { addUser, getUsers } from "../../store/user";
+import { addUser } from "../../store/user";
+import { User } from "../../store/types";
 
 type AccountRegistrationProps = {
   ethAddress: string;
+  addUser: (data: User) => void;
 };
 
 const AlreadyHaveAnAccount: React.FC = () => (
@@ -18,7 +20,8 @@ const AlreadyHaveAnAccount: React.FC = () => (
 );
 
 const AccountRegistration: React.FC<AccountRegistrationProps> = ({
-  ethAddress = "0xd30E537Bc4BDb191FF2450f5949c16CFc957abE8"
+  ethAddress = "0xd30E537Bc4BDb191FF2450f5949c16CFc957abE8",
+  addUser
 }) => (
   <WidgetScreen
     header={"Create a Counterfactual Account"}
@@ -34,11 +37,22 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
       </div>
       {/* TODO: This should actually create the account
        before transitioning to /setup/deposit */}
-      <Link to="/setup/deposit">
-        <FormButton type="button" className="button">
-          Create account
-        </FormButton>
-      </Link>
+      {/* <Link to="/setup/deposit"> */}
+      <FormButton
+        type="button"
+        className="button"
+        onClick={() =>
+          addUser({
+            username: "joey",
+            email: "joey@joey.com",
+            ethAddress: "0x0",
+            nodeAddress: "0x0"
+          })
+        }
+      >
+        Create account
+      </FormButton>
+      {/* </Link> */}
     </form>
   </WidgetScreen>
 );
@@ -48,7 +62,6 @@ export default connect(
     users: state.Users
   }),
   dispatch => ({
-    addUser: name => dispatch(addUser(name)),
-    getUsers: () => dispatch(getUsers())
+    addUser: (data: User) => dispatch(addUser(data))
   })
 )(AccountRegistration);

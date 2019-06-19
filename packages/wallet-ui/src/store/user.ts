@@ -1,41 +1,24 @@
-const initialState = [
-  {
-    id: 1,
-    name: "Joel"
-  }
-];
+import PlaygroundAPIClient from "../utils/hub-api-client";
+import { User, Action, ActionType, Dispatcher } from "./types";
 
-const waaait = new Promise((resolve, reject) => {
-  setTimeout(() => {
-    resolve();
-  }, 10000);
-});
+const initialState: User[] = [];
 
-export const addUser = text => {
-  return async dispatch => {
-    dispatch({ type: "REPORT", toc: Date.now() });
-    await waaait;
-    dispatch({ text, type: "ADD_USER", toc: Date.now() });
+export const addUser = (data: User) => {
+  return async (dispatch: Dispatcher<User>) => {
+    dispatch({
+      data: await PlaygroundAPIClient.createAccount(data, "foo"),
+      type: ActionType.AddUser
+    });
   };
 };
 
-export const deleteUser = id => ({ type: "DELETE_USER", id });
 export const getUsers = () => ({ type: "GET" });
 
-export const reducers = function(state = initialState, action) {
+export const reducers = function(state = initialState, action: Action<User>) {
   switch (action.type) {
-    case "ADD_USER":
-      if (action.toc) {
-        console.log("finished at " + action.toc);
-      }
-      return [...state, { id: 2, name: "erik", toc: action.toc }];
-    case "REPORT":
-      console.log("started at ", action.toc);
-      return [...state];
-    case "DELETE_USER":
-      return state.filter(todo => todo.id !== action.id);
+    case ActionType.AddUser:
+      return [...state, { ...action.data }];
     default:
-      console.log(state);
       return state;
   }
 };
