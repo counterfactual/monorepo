@@ -17,12 +17,14 @@
 @import url("https://rsms.me/inter/inter.css");
 
 html,
-.button {
+.button,
+.btn {
   font-family: "Inter", sans-serif;
 }
 @supports (font-variation-settings: normal) {
   html,
-  .button {
+  .button,
+  .btn {
     font-family: "Inter var", sans-serif;
   }
 }
