@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 
 import { FormButton } from "../../components/form";
 
+import "./Welcome.scss";
+
 const Welcome: React.FC = () => {
   return (
     <section className="section fill">

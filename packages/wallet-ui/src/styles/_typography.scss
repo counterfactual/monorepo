@@ -46,10 +46,3 @@
 .f-base {
   @include f-base;
 }
-
-.copy {
-  margin: $rhythm * 4 0;
-  font-weight: 300;
-  font-size: 1.2rem;
-  color: $c-darkergrey;
-}
