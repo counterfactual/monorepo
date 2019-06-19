@@ -8,7 +8,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { StateChannel } from "../../models";
 
 function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
-  const [ decoded ] = defaultAbiCoder.decode(
+  const [decoded] = defaultAbiCoder.decode(
     ["tuple(address,uint256)[]"],
     outcome
   );
