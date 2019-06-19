@@ -297,7 +297,9 @@ describe("CF.js Provider", () => {
   describe("AppInstance management", () => {
     it("can expose the same AppInstance instance for a unique app instance ID", async () => {
       expect.assertions(1);
+
       let savedInstance: AppInstance;
+
       provider.on(EventType.REJECT_INSTALL, e => {
         const eventInstance = (e.data as RejectInstallEventData).appInstance;
         if (!savedInstance) {
@@ -306,6 +308,7 @@ describe("CF.js Provider", () => {
           expect(savedInstance).toBe(eventInstance);
         }
       });
+
       const msg = {
         jsonrpc: "2.0",
         result: {
@@ -315,6 +318,7 @@ describe("CF.js Provider", () => {
           }
         }
       } as JsonRpcNotification;
+
       nodeProvider.simulateMessageFromNode(msg);
       nodeProvider.simulateMessageFromNode(msg);
     });

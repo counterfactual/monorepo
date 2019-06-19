@@ -3,7 +3,12 @@ import { NetworkContext } from "@counterfactual/types";
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolParameters, SetupParams } from "../machine/types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  SetupParams
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
@@ -29,11 +34,13 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Setup,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
     validateSignature(respondingAddress, setupCommitment, theirSig);
 
@@ -73,11 +80,12 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Setup,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };

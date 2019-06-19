@@ -1,5 +1,5 @@
 import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -53,6 +53,7 @@ describe("Three mininodes", () => {
       xkeyKthAddress(mininodeA.xpub, 1),
       xkeyKthAddress(mininodeB.xpub, 1)
     ]);
+
     await mininodeA.ie.runInstallProtocol(mininodeA.scm, {
       signingKeys,
       initiatingXpub: mininodeA.xpub,
@@ -71,10 +72,12 @@ describe("Three mininodes", () => {
           "tuple(address player1, address player2, uint256 counter)",
         actionEncoding: "tuple(uint256 increment)"
       },
-      defaultTimeout: 40
+      defaultTimeout: 40,
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
     });
 
     const appInstances = mininodeA.scm.get(AddressZero)!.appInstances;
+
     const [key] = [...appInstances.keys()].filter(key => {
       return (
         key !==

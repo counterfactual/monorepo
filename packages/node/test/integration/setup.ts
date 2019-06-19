@@ -1,5 +1,4 @@
-// @ts-ignore - firebase-server depends on node being transpiled first, circular dependency
-import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
+import { CF_PATH } from "@counterfactual/chain";
 import { PostgresServiceFactory } from "@counterfactual/postgresql-node-connector";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -13,7 +12,6 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { MNEMONIC_PATH, Node } from "../../src";
-import { CF_PATH } from "../global-setup.jest";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
@@ -33,6 +31,7 @@ export async function setupWithMemoryMessagingAndPostgresStore(
   newMnemonics: boolean = false
 ): Promise<SetupContext> {
   const memoryMessagingService = new MemoryMessagingService();
+
   const postgresServiceFactory = new PostgresServiceFactory({
     type: "postgres",
     database: process.env.POSTGRES_DATABASE!,
@@ -41,6 +40,7 @@ export async function setupWithMemoryMessagingAndPostgresStore(
     password: process.env.POSTGRES_PASSWORD!,
     port: Number(process.env.POSTGRES_PORT!)
   });
+
   await postgresServiceFactory.connectDb();
 
   return setup(
@@ -50,6 +50,21 @@ export async function setupWithMemoryMessagingAndPostgresStore(
     memoryMessagingService,
     postgresServiceFactory
   );
+}
+
+export async function teardownPostgresStore() {
+  const postgresServiceFactory = new PostgresServiceFactory({
+    type: "postgres",
+    database: process.env.POSTGRES_DATABASE!,
+    username: process.env.POSTGRES_USER!,
+    host: process.env.POSTGRES_HOST!,
+    password: process.env.POSTGRES_PASSWORD!,
+    port: Number(process.env.POSTGRES_PORT!)
+  });
+
+  const conn = await postgresServiceFactory.connectDb();
+
+  await conn.query(`DROP TABLE node_records`);
 }
 
 export async function setup(

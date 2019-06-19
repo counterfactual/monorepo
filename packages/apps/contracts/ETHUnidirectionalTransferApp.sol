@@ -1,12 +1,10 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-// solium-disable-next-line
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyFixedOutcome.sol";
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
-import "@counterfactual/contracts/contracts/interpreters/ETHInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
+import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /// @title ETH Unidirectional Transfer App
@@ -17,7 +15,7 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    ETHInterpreter.ETHTransfer[] transfers; // [sender, receiver]
+    LibOutcome.CoinTransfer[] transfers; // [sender, receiver]
     bool finalized;
   }
 
@@ -74,14 +72,6 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
     return appState.finalized;
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
   }
 
   function applyTransfer(

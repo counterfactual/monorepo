@@ -3,13 +3,11 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
+  CoinTransferInterpreterParams,
   Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import {
-  ETHTransferInterpreterParams,
+  SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 
@@ -45,7 +43,7 @@ export class AppInstance {
    * Interpreter-related Fields
    */
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
@@ -61,7 +59,7 @@ export class AppInstance {
     this.peerDeposit = info.peerDeposit;
     this.twoPartyOutcomeInterpreterParams =
       info.twoPartyOutcomeInterpreterParams;
-    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
+    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

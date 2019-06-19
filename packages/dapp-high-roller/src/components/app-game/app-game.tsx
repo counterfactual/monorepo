@@ -134,7 +134,6 @@ export class AppGame {
       );
       console.log("Reset appInstance", this.appInstance);
     }
-
     if (
       this.highRollerState.stage === HighRollerStage.WAITING_FOR_P1_COMMITMENT
     ) {
@@ -166,7 +165,9 @@ export class AppGame {
       this.updateUIState({
         highRollerState: this.highRollerState
       });
-    } else {
+    } else if (
+      this.highRollerState.stage === HighRollerStage.P1_COMMITTED_TO_HASH
+    ) {
       await this.beginRolling("myRoll");
 
       const playerSecondNumber =

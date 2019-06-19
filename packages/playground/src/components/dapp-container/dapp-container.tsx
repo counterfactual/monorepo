@@ -2,6 +2,7 @@ declare var EventEmitter: any;
 
 import { Component, Element, Prop } from "@stencil/core";
 import { MatchResults, RouterHistory } from "@stencil/router";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
@@ -25,7 +26,7 @@ export class DappContainer {
   @Prop() apps: AppDefinition[] = [];
 
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
+  @Prop() ethMultisigBalance: BigNumber = window["ethers"].constants.Zero;
   @Prop() getBalances: () => Promise<
     { ethMultisigBalance: BigNumber; ethFreeBalanceWei: BigNumber } | undefined
   > = async () => undefined;
@@ -166,7 +167,7 @@ export class DappContainer {
           token: this.token
         },
         balance: this.ethMultisigBalance
-          ? ethers.utils.formatEther(this.ethMultisigBalance)
+          ? window["ethers"].utils.formatEther(this.ethMultisigBalance)
           : "0"
       })}`,
       "*"

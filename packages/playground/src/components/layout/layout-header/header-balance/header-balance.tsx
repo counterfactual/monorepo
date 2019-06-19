@@ -1,4 +1,5 @@
 import { Component, Element, Prop } from "@stencil/core";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../../../data/account";
 import { UserSession } from "../../../../types";
@@ -19,7 +20,7 @@ export class HeaderBalance {
       return "0.00 ETH";
     }
 
-    return `${ethers.utils.formatEther(this.ethFreeBalanceWei)} ETH`;
+    return `${window["ethers"].utils.formatEther(this.ethFreeBalanceWei)} ETH`;
   }
 
   get hasethPendingDepositAmountWei() {

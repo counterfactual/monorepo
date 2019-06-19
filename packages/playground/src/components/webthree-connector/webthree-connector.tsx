@@ -1,9 +1,8 @@
 import { Component, Prop } from "@stencil/core";
+import { Web3Provider } from "ethers/providers";
 
 import { AccountState } from "../../data/account";
 import { WalletState } from "../../data/wallet";
-
-const { Web3Provider } = ethers.providers;
 
 const KOVAN_NETWORK_ID = "42";
 
@@ -18,7 +17,9 @@ export class Web3Connector {
   @Prop() walletState: WalletState = {};
 
   getProvider(): Web3Provider {
-    return new Web3Provider(window["web3"].currentProvider);
+    return new window["ethers"].providers.Web3Provider(
+      window["web3"].currentProvider
+    );
   }
 
   getCurrentAddress() {
@@ -36,7 +37,7 @@ export class Web3Connector {
       return await provider.getSigner().getBalance();
     }
 
-    return ethers.constants.Zero;
+    return window["ethers"].constants.Zero;
   }
 
   isWeb3Detected() {

@@ -1,12 +1,15 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { Contract } from "ethers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, InstallParams, ProtocolParameters } from "../machine/types";
+import {
+  Context,
+  InstallParams,
+  ProtocolMessage,
+  ProtocolParameters
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 
@@ -33,11 +36,13 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     validateSignature(respondingAddress, commitment, theirSig);
@@ -75,11 +80,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };
@@ -97,27 +103,9 @@ async function proposeStateTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    multisigAddress
+    multisigAddress,
+    outcomeType
   } = params as InstallParams;
-
-  const appDefinition = new Contract(
-    appInterface.addr,
-    CounterfactualApp.abi,
-    context.provider
-  );
-
-  let outcomeType: BigNumber;
-
-  try {
-    outcomeType = (await appDefinition.functions.outcomeType()) as BigNumber;
-  } catch (e) {
-    if (e.toString().indexOf("VM Exception") !== -1) {
-      throw new Error(
-        "The application logic contract being referenced in this installation request does not implement outcomeType()."
-      );
-    }
-    throw e;
-  }
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
@@ -127,7 +115,7 @@ async function proposeStateTransition(
   let interpreterAddress: string;
   let interpreterParams: string;
 
-  let ethTransferInterpreterParams:
+  let coinTransferInterpreterParams:
     | {
         // Derived from:
         // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
@@ -144,9 +132,9 @@ async function proposeStateTransition(
       }
     | undefined;
 
-  switch (outcomeType.toNumber()) {
-    case OutcomeType.ETH_TRANSFER: {
-      ethTransferInterpreterParams = {
+  switch (outcomeType) {
+    case OutcomeType.COIN_TRANSFER: {
+      coinTransferInterpreterParams = {
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )
@@ -154,7 +142,7 @@ async function proposeStateTransition(
       interpreterAddress = context.network.ETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         ["tuple(uint256 limit)"],
-        [ethTransferInterpreterParams]
+        [coinTransferInterpreterParams]
       );
       break;
     }
@@ -191,7 +179,7 @@ async function proposeStateTransition(
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* ethTransferInterpreterParams */ ethTransferInterpreterParams
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 
   const newStateChannel = stateChannel.installApp(appInstance, {

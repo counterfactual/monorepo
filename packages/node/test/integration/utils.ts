@@ -6,6 +6,7 @@ import {
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -228,8 +229,10 @@ export function makeTTTProposalRequest(
       stateEncoding: tttStateEncoding,
       actionEncoding: tttActionEncoding
     } as AppABIEncodings,
-    timeout: One
+    timeout: One,
+    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
   };
+
   return jsonRpcDeserialize({
     params,
     id: Date.now(),
@@ -439,8 +442,6 @@ export async function installTTTApp(
       initialTTTState
     );
 
-    let appInstanceId: string;
-
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
       confirmProposedAppInstanceOnNode(
         appInstanceInstallationProposalRequest.parameters,
@@ -467,8 +468,8 @@ export async function installTTTApp(
     const response = (await nodeA.router.dispatch(
       appInstanceInstallationProposalRequest
     )) as JsonRpcResponse;
-    appInstanceId = (response.result as NodeTypes.ProposeInstallResult)
-      .appInstanceId;
+
+    const { appInstanceId } = response.result as NodeTypes.ProposeInstallResult;
   });
 }
 

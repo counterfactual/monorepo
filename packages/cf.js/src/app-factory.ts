@@ -3,6 +3,7 @@ import {
   AppABIEncodings,
   AppInstanceID,
   Node,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
@@ -65,6 +66,8 @@ export class AppFactory {
     timeout: BigNumberish;
     /** Initial state of app instance */
     initialState: SolidityABIEncoderV2Type;
+    /** The outcome type of the app instance */
+    outcomeType: OutcomeType;
   }): Promise<AppInstanceID> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
@@ -79,7 +82,8 @@ export class AppFactory {
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         appDefinition: this.appDefinition,
-        abiEncodings: this.encodings
+        abiEncodings: this.encodings,
+        outcomeType: params.outcomeType
       }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
@@ -121,7 +125,9 @@ export class AppFactory {
         initialState: params.initialState,
         intermediaries: params.intermediaries,
         appDefinition: this.appDefinition,
-        abiEncodings: this.encodings
+        abiEncodings: this.encodings,
+        // FIXME: Hard-coded temporarily
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
     const {

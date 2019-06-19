@@ -1,13 +1,17 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  NetworkContext,
+  OutcomeType,
+  TwoPartyFixedOutcome
+} from "@counterfactual/types";
 import { Contract } from "ethers";
-import { One, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeEthTransferIncrement(outcome): [string, BigNumber] {
+function computeCoinTransferIncrement(outcome): [string, BigNumber] {
   const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
@@ -42,12 +46,18 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  const outcomeType = bigNumberify(
-    await appDefinition.functions.outcomeType()
-  ).toNumber();
+  // Temporary, better solution is to add outcomeType to AppInstance model
+  let outcomeType: OutcomeType | undefined;
+  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
+    outcomeType = OutcomeType.COIN_TRANSFER;
+  } else if (
+    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
+  ) {
+    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
+  }
 
   switch (outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
+    case OutcomeType.COIN_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
@@ -59,7 +69,7 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeEthTransferIncrement(outcome);
+        const [address, to] = computeCoinTransferIncrement(outcome);
 
         if (to.gt(Zero)) {
           return { [address]: to };
@@ -79,12 +89,13 @@ export async function computeFreeBalanceIncrements(
 
       const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
 
-      if (decoded.eq(Zero)) {
+      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
           [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
         };
       }
-      if (decoded.eq(One)) {
+
+      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
           [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
         };
