@@ -3,72 +3,109 @@ import React from "react";
 import "./FormInput.scss";
 
 export type FormInputProps = {
-  label: string | React.ReactNode;
   className?: string;
+  label: string | React.ReactNode;
   max?: number;
   min?: number;
   step?: number;
   error?: string;
   type?: string;
   unit?: string;
+  required?: boolean;
   disabled?: boolean;
   value?: string | number;
   autofocus?: boolean;
-  change?: ((event: React.ChangeEvent<HTMLInputElement>) => void) | undefined;
-};
-export type FormInputState = {
-  value?: string | number;
+  change?:
+    | ((
+        validity: { valid: boolean; error?: string },
+        event?: React.ChangeEvent<HTMLInputElement>
+      ) => void)
+    | undefined;
 };
 
-class FormInput extends React.Component<FormInputProps, FormInputState> {
+class FormInput extends React.Component<
+  FormInputProps,
+  {
+    value?: string | number;
+    error: string | undefined;
+    valid: boolean;
+  }
+> {
   constructor(props: FormInputProps) {
     super(props);
-
-    this.state = { value: props.value || (props.type === "number" ? 0 : "") };
+    this.state = {
+      value: props.value || "",
+      error: props.error,
+      valid: !!(props.error || (props.required && props.value !== undefined))
+    };
   }
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    this.setState({ value: event.target.value });
-
-    if (this.props.change) {
-      this.props.change(event);
+  handleChange(event) {
+    const { type, disabled, error, change } = this.props;
+    const inputError =
+      error || this.getError(event.target.validity, type, disabled);
+    if (change) {
+      change({ error, valid: !inputError }, event);
     }
-  };
+    this.setState({
+      error: inputError,
+      value: event.target.value,
+      valid: !inputError
+    });
+  }
+
+  getError(
+    validity: ValidityState,
+    type?: string,
+    disabled?: boolean
+  ): string | undefined {
+    if (disabled || type === "file") return;
+    if (validity.valid) return;
+    if (validity.valueMissing) return "Please fill out this field.";
+    if (validity.typeMismatch) return `Please fill in a valid ${type}`;
+    if (validity.tooShort) return "Please lengthen this text.";
+    if (validity.tooLong) return "Please shorten this text.";
+    if (validity.badInput) return "Please enter a number.";
+    if (validity.stepMismatch) return "Please select a valid value.";
+    if (validity.rangeOverflow) return "Please select a smaller value.";
+    if (validity.rangeUnderflow) return "Please select a larger value.";
+    if (validity.patternMismatch) return "Please match the requested format.";
+    return "The value you entered for this field is invalid.";
+  }
 
   render() {
     const {
-      label,
       className,
+      label,
       max,
       min,
       step,
-      error,
       type,
       unit,
       disabled,
+      required,
       autofocus
     } = this.props as FormInputProps;
+    const { value, error } = this.state;
     return (
-      <label>
+      <label className={className}>
         <div className="label">{label}</div>
-
+        {required}
         <div
-          className={
-            disabled
-              ? `input-container disabled ${className}`
-              : `input-container ${className}`
-          }
+          className={disabled ? "input-container disabled" : "input-container"}
         >
           <input
             className="input"
             autoFocus={autofocus || false}
             disabled={disabled || false}
+            required={required || false}
             type={type || "text"}
-            value={this.state.value}
+            value={value}
             max={max || Infinity}
-            min={min || -Infinity}
+            min={isNaN(min as number) ? -Infinity : min}
             step={step || 1}
-            onChange={this.handleChange}
+            onBlur={event => this.handleChange(event)}
+            onChange={event => this.handleChange(event)}
           />
           {unit ? <div className="unit">{unit}</div> : null}
         </div>

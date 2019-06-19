@@ -25,7 +25,7 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
     exitable={false}
   >
     <form onSubmit={async e => console.log(e)}>
-      <FormInput label="Username" type="text" />
+      <FormInput label="Username" type="text" required={true} />
       <FormInput label="E-mail (optional)" type="email" />
       <div className="smallprint">
         <b>Account will be linked to your Ethereum address: </b>
