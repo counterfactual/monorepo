@@ -9,13 +9,13 @@ import ETHUnidirectionalTransferApp from "../build/ETHUnidirectionalTransferApp.
 
 chai.use(waffle.solidity);
 
-type ETHTransfer = {
+type CoinTransfer = {
   to: string;
   amount: BigNumber;
 };
 
-type ETHTransferAppState = {
-  transfers: ETHTransfer[];
+type CoinTransferAppState = {
+  transfers: CoinTransfer[];
   finalized: boolean;
 };
 
@@ -30,7 +30,7 @@ function mkAddress(prefix: string = "0xa"): string {
   return prefix.padEnd(42, "0");
 }
 
-function decodeBytesToAppState(encodedAppState: string): ETHTransferAppState {
+function decodeBytesToAppState(encodedAppState: string): CoinTransferAppState {
   return defaultAbiCoder.decode(
     [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
     encodedAppState
@@ -38,7 +38,7 @@ function decodeBytesToAppState(encodedAppState: string): ETHTransferAppState {
 }
 
 describe("ETHUnidirectionalTransferApp", () => {
-  let ethTransferApp: Contract;
+  let coinTransferApp: Contract;
 
   function encodeState(state: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
@@ -58,20 +58,20 @@ describe("ETHUnidirectionalTransferApp", () => {
     state: SolidityABIEncoderV2Type,
     action: SolidityABIEncoderV2Type
   ) {
-    return await ethTransferApp.functions.applyAction(
+    return await coinTransferApp.functions.applyAction(
       encodeState(state),
       encodeAction(action)
     );
   }
 
   async function computeOutcome(state: SolidityABIEncoderV2Type) {
-    return await ethTransferApp.functions.computeOutcome(encodeState(state));
+    return await coinTransferApp.functions.computeOutcome(encodeState(state));
   }
 
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    ethTransferApp = await waffle.deployContract(
+    coinTransferApp = await waffle.deployContract(
       wallet,
       ETHUnidirectionalTransferApp
     );
@@ -84,7 +84,7 @@ describe("ETHUnidirectionalTransferApp", () => {
       const senderAmt = new BigNumber(10000);
       const transferAmt1 = new BigNumber(10);
       const transferAmt2 = new BigNumber(20);
-      const preState: ETHTransferAppState = {
+      const preState: CoinTransferAppState = {
         transfers: [
           {
             to: senderAddr,
@@ -127,7 +127,7 @@ describe("ETHUnidirectionalTransferApp", () => {
     const senderAddr = mkAddress("0xa");
     const receiverAddr = mkAddress("0xb");
     const senderAmt = new BigNumber(10000);
-    const preState: ETHTransferAppState = {
+    const preState: CoinTransferAppState = {
       transfers: [
         {
           to: senderAddr,

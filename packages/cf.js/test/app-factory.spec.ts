@@ -62,7 +62,7 @@ describe("CF.js AppFactory", () => {
         myDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
-        outcomeType: OutcomeType.ETH_TRANSFER
+        outcomeType: OutcomeType.COIN_TRANSFER
       });
 
       expect(appInstanceId).toBe(expectedAppInstanceId);
@@ -117,7 +117,7 @@ describe("CF.js AppFactory", () => {
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
           initialState: { val: "4000" },
-          outcomeType: OutcomeType.ETH_TRANSFER
+          outcomeType: OutcomeType.COIN_TRANSFER
         });
         done.fail("Expected an error for invalid myDeposit");
       } catch (e) {

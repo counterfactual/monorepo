@@ -140,7 +140,9 @@ describe("ChallengeRegistry Challenge", () => {
 
   it("Can call respondToChallenge", async () => {
     expect(await latestNonce()).to.eq(0);
+
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
+
     expect(await latestNonce()).to.eq(1);
 
     const signer = new SigningKey(BOB.privateKey);
@@ -149,7 +151,9 @@ describe("ChallengeRegistry Challenge", () => {
     const bytes = signaturesToBytes(signature);
 
     expect(await latestState()).to.be.eql(keccak256(encodeState(PRE_STATE)));
+
     await respondToChallenge(PRE_STATE, ACTION, bytes);
-    expect(await latestState()).to.be.eql(keccak256(encodeState(POST_STATE)));
+
+    expect(await latestState()).to.be.eql(HashZero);
   });
 });

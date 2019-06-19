@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@counterfactual/apps": "0.1.1",
+    "@counterfactual/chain": "0.0.1",
     "@counterfactual/firebase-server": "0.0.1",
     "@counterfactual/postgresql-node-connector": "0.0.2",
     "@types/chai": "4.1.7",

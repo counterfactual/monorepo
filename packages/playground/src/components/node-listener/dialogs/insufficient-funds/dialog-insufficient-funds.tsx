@@ -17,8 +17,8 @@ export class DialogInsufficientFunds {
         content={
           <label>
             You need at least{" "}
-            {ethers.utils.formatEther(this.message.minimumEthBalance)} ETH to
-            ETH in your Playground account to install this game.
+            {window["ethers"].utils.formatEther(this.message.minimumEthBalance)}{" "}
+            ETH to ETH in your Playground account to install this game.
           </label>
         }
         primaryButtonText="Deposit"

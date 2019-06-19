@@ -48,7 +48,10 @@ export class DialogProposeInstall {
             You'll need to deposit
             <br />
             <strong>
-              {ethers.utils.formatEther(this.message.data.params.myDeposit)} ETH
+              {window["ethers"].utils.formatEther(
+                this.message.data.params.myDeposit
+              )}{" "}
+              ETH
             </strong>{" "}
             to play <strong>{app.name}</strong> with{" "}
             <strong>{this.user.username}</strong>.

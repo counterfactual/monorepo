@@ -3,7 +3,7 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  ETHTransferInterpreterParams,
+  CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
@@ -29,7 +29,7 @@ export class AppInstance {
   readonly peerDeposit: BigNumber;
 
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 
   readonly intermediaries?: Address[];
 
@@ -42,7 +42,7 @@ export class AppInstance {
     this.timeout = info.timeout;
     this.twoPartyOutcomeInterpreterParams =
       info.twoPartyOutcomeInterpreterParams;
-    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
+    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 
