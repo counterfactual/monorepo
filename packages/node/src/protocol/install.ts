@@ -211,7 +211,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new InstallCommitment(
     network,

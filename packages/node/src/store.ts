@@ -140,7 +140,7 @@ export class Store {
   }
 
   public async saveFreeBalance(channel: StateChannel) {
-    const freeBalance = channel.getETHFreeBalance();
+    const freeBalance = channel.freeBalance;
     await this.storeService.set([
       {
         key: `${

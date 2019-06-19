@@ -225,7 +225,7 @@ function addUninstallRefundAppCommitmentToContext(
     newStateChannel
   );
 
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   const uninstallCommitment = new UninstallCommitment(
     context.network,
@@ -268,7 +268,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new InstallCommitment(
     network,

@@ -299,7 +299,7 @@ function constructUninstallOp(
   stateChannel: StateChannel,
   seqNoToUninstall: number
 ) {
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new UninstallCommitment(
     network,
