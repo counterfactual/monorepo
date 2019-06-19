@@ -1,10 +1,11 @@
 import React from "react";
-
+import { connect } from "react-redux";
 import { WidgetScreen } from "../../components/widget";
 import { FormButton, FormInput } from "../../components/form";
 
 import "./AccountRegistration.scss";
 import { Link } from "react-router-dom";
+import { addUser, getUsers } from "../../store/user";
 
 type AccountRegistrationProps = {
   ethAddress: string;
@@ -42,4 +43,12 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
   </WidgetScreen>
 );
 
-export { AccountRegistration };
+export default connect(
+  state => ({
+    users: state.Users
+  }),
+  dispatch => ({
+    addUser: name => dispatch(addUser(name)),
+    getUsers: () => dispatch(getUsers())
+  })
+)(AccountRegistration);
