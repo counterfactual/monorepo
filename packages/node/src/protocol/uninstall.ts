@@ -88,7 +88,6 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Uninstall,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO

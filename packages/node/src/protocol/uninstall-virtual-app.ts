@@ -121,7 +121,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         // m4
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s3,
@@ -146,7 +145,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s5
@@ -167,7 +165,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         // m7
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
@@ -205,7 +202,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         // m3
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s3
@@ -228,7 +224,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s7

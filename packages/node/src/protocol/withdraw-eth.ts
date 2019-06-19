@@ -132,6 +132,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: s2,

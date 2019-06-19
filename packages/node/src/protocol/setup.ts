@@ -82,7 +82,6 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
-        params: context.message.params,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
