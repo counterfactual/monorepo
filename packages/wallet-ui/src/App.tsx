@@ -15,7 +15,7 @@ const App: React.FC = () => {
   return (
     <Router>
       <Switch>
-        <Route exact path="/" component={LayoutHeader} />
+        <Route exact path="(/|/channels)" component={LayoutHeader} />
       </Switch>
       <main className="wrapper__content">
         <Switch>
