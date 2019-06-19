@@ -3,7 +3,7 @@ import React from "react";
 import { WidgetLogo } from "../../widget";
 
 import "./LayoutHeader.scss";
-import AccountContext from "../../account/account-context/AccountContext";
+import { AccountContext } from "../../account";
 
 const LayoutHeader: React.FC = () => {
   return (
@@ -14,7 +14,7 @@ const LayoutHeader: React.FC = () => {
           {/* <widget-dev-flags /> */}
         </div>
         <div className="context-container">
-          <AccountContext />
+          <AccountContext isAuthenticated={true} />
         </div>
         {/* <header-account
           onAuthenticationChanged={e => this.updateConnectionWidget(e)}

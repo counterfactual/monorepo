@@ -14,6 +14,44 @@
       background: $c-darkred;
     }
   }
+  .info {
+    display: flex;
+    align-items: center;
+    color: $c-black;
+    padding: 6px;
+
+    .info-img {
+      margin-right: $rhythm;
+      max-height: 20px;
+      align-self: flex-start;
+    }
+
+    .info-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 100px;
+      color: $c-darkgrey;
+      font-size: 85%;
+      max-width: 150px;
+
+      .info-header {
+        color: $c-darkgrey;
+        font-weight: 500;
+      }
+
+      .info-content {
+        color: $c-black;
+        overflow: hidden;
+        max-width: 95%;
+        text-overflow: ellipsis;
+      }
+    }
+
+    &:hover {
+      background: #efefef;
+      border-radius: 4px;
+    }
+  }
 }
 
 .message-container {
@@ -28,10 +66,6 @@
 .info-container {
   display: flex;
   align-items: center;
-
-  > :first-child {
-    margin-right: 40px;
-  }
 }
 
 svg {
