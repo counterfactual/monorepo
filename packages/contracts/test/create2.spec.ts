@@ -2,7 +2,6 @@ import * as waffle from "ethereum-waffle";
 import { Contract, Event, Wallet } from "ethers";
 import { TransactionResponse, Web3Provider } from "ethers/providers";
 import {
-  defaultAbiCoder,
   getAddress,
   keccak256,
   solidityKeccak256,
