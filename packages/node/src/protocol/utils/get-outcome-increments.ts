@@ -18,7 +18,7 @@ function unwrap(arr: any) {
   return arr[0];
 }
 
-function computeEthTransferIncrement(outcome): { [s: string]: BigNumber } {
+function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
   const decoded0 = defaultAbiCoder.decode(
     ["tuple(address,uint256)[]"],
     outcome
