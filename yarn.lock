@@ -908,21 +908,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/postgresql-node-connector@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.npmjs.org/@counterfactual/postgresql-node-connector/-/postgresql-node-connector-0.0.2.tgz#73c8b6a42acf6595fdb73f646826f7661b21c36d"
-  integrity sha512-3FGj8cm1WPQx+g6Poi58SrUmKuN9mkCEvLYUxh29bsNeBIPvb5fEqUxZDZXSAjOeC6OBXqu/Av9jXOuOmFv+eQ==
-  dependencies:
-    "@counterfactual/types" "0.0.10"
-    pg "7.11.0"
-    reflect-metadata "^0.1.13"
-    typeorm "^0.2.17"
-
-"@counterfactual/types@0.0.10":
-  version "0.0.10"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
-  integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -18250,7 +18235,7 @@ typedoc@0.14.2, typedoc@^0.14.2:
     typedoc-default-themes "^0.5.0"
     typescript "3.2.x"
 
-typeorm@0.2.18, typeorm@^0.2.17:
+typeorm@0.2.18:
   version "0.2.18"
   resolved "https://registry.npmjs.org/typeorm/-/typeorm-0.2.18.tgz#8ae1d21104117724af41ddc11035c40a705e1de8"
   integrity sha512-S553GwtG5ab268+VmaLCN7gKDqFPIzUw0eGMTobJ9yr0Np62Ojfx8j1Oa9bIeh5p7Pz1/kmGabAHoP1MYK05pA==
