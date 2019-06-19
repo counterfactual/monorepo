@@ -8,7 +8,7 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
@@ -16,9 +16,9 @@ import { AppInstance, StateChannel } from "../models";
 export interface IProposedAppInstanceInfo {
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
-  timeout: BigNumber;
+  myDeposit: BigNumberish;
+  peerDeposit: BigNumberish;
+  timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
@@ -30,9 +30,9 @@ export interface ProposedAppInstanceInfoJSON {
   id: Bytes32;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
-  myDeposit: string;
-  peerDeposit: string;
-  timeout: string;
+  myDeposit: { _hex: string };
+  peerDeposit: { _hex: string };
+  timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
@@ -70,9 +70,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.myDeposit = proposeParams.myDeposit;
-    this.peerDeposit = proposeParams.peerDeposit;
-    this.timeout = proposeParams.timeout;
+    this.myDeposit = bigNumberify(proposeParams.myDeposit);
+    this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
+    this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
@@ -139,10 +139,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       id: this.id,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      myDeposit: this.myDeposit.toString(),
-      peerDeposit: this.peerDeposit.toString(),
+      myDeposit: { _hex: this.myDeposit.toHexString() },
+      peerDeposit: { _hex: this.peerDeposit.toHexString() },
       initialState: this.initialState,
-      timeout: this.timeout.toString(),
+      timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
       intermediaries: this.intermediaries,
@@ -154,9 +154,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
-      myDeposit: bigNumberify(json.myDeposit),
-      peerDeposit: bigNumberify(json.peerDeposit),
-      timeout: bigNumberify(json.timeout),
+      myDeposit: bigNumberify(json.myDeposit._hex),
+      peerDeposit: bigNumberify(json.peerDeposit._hex),
+      timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
