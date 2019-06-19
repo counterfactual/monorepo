@@ -1,0 +1,12 @@
+.channel-tree {
+  width: 100%;
+  display: block;
+  list-style: none;
+  padding-left: 0;
+  margin-left: 0;
+  margin-top: 0;
+
+  .channel-tree .channel-node-wrapper {
+    padding-left: 32px;
+  }
+}
