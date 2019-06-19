@@ -126,7 +126,7 @@ export function constructSetupCommitment(
   network: NetworkContext,
   stateChannel: StateChannel
 ) {
-  const freeBalance = stateChannel.getFreeBalanceAppInstance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new SetupCommitment(
     network,

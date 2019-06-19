@@ -63,7 +63,7 @@ beforeEach(() => {
     [multisigOwnerKeys[1].address]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.getFreeBalanceAppInstance();
+  const freeBalanceETH = stateChannel.freeBalance;
 
   targetAppInstance = new AppInstance(
     AddressZero,

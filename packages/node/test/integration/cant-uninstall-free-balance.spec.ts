@@ -26,7 +26,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
       );
 
       const fbUninstallReq = generateUninstallRequest(
-        channel.getFreeBalanceAppInstance().identityHash
+        channel.freeBalance.identityHash
       );
 
       try {

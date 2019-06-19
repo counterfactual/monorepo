@@ -63,7 +63,7 @@ export type StateChannelJSON = {
   readonly createdAt: number;
 };
 
-function createETHFreeBalance(
+function createFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
   ethBucketAddress: string,
@@ -197,7 +197,7 @@ export class StateChannel {
     return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
-  public getFreeBalanceAppInstance(): AppInstance {
+  public get freeBalance(): AppInstance {
     if (this.freeBalanceAppInstance) {
       return this.freeBalanceAppInstance;
     }
@@ -231,7 +231,7 @@ export class StateChannel {
   }
 
   public setFreeBalance(newState: { [addr: string]: BigNumber }) {
-    const freeBalance = this.getFreeBalanceAppInstance();
+    const freeBalance = this.freeBalance;
     const ret = [] as any;
 
     for (const beneficiaryAddr in newState) {
@@ -266,7 +266,7 @@ export class StateChannel {
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>([]),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
-      createETHFreeBalance(
+      createFreeBalance(
         multisigAddress,
         userNeuteredExtendedKeys,
         ethBucketAddress,
@@ -285,6 +285,8 @@ export class StateChannel {
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
+      // Note that this FreeBalance is undefined because a channel technically
+      // does not have a FreeBalance before the `setup` protocol gets run
       undefined,
       1
     );
@@ -532,7 +534,9 @@ export class StateChannel {
       ),
       freeBalanceAppInstance: !!this.freeBalanceAppInstance
         ? this.freeBalanceAppInstance.toJson()
-        : undefined,
+        : // Note that this FreeBalance is undefined because a channel technically
+          // does not have a FreeBalance before the `setup` protocol gets run
+          undefined,
       monotonicNumInstalledApps: this.monotonicNumInstalledApps,
       twoPartyVirtualEthAsLumpInstances: [
         ...this.twoPartyVirtualEthAsLumpInstances.entries()

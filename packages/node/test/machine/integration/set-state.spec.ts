@@ -54,7 +54,7 @@ describe("set state on free balance", () => {
       [multisigOwnerKeys[1].address]: WeiPerEther
     });
 
-    const freeBalanceETH = stateChannel.getFreeBalanceAppInstance();
+    const freeBalanceETH = stateChannel.freeBalance;
 
     const setStateCommitment = new SetStateCommitment(
       network,
