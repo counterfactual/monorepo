@@ -2,7 +2,7 @@ import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
-import { Opcode } from "../machine/enums";
+import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
@@ -37,11 +37,13 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     const { signature } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.TakeAction,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         seq: 1,
         toXpub: respondingXpub,
         signature: mySig
-      }
+      } as ProtocolMessage
     ];
 
     validateSignature(
@@ -78,6 +80,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.TakeAction,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         seq: -1,

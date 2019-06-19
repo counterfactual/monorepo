@@ -139,15 +139,16 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf.js@0.1.1":
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.1.1.tgz#3870746b3c1a2317688a05d8985dbd0b11c7eafa"
-  integrity sha512-Q26xZ/upbRaO0cr3NGgv4GTeZFP0pgC0s50e7lGWuFvGUDED9r3SES5PejcTpnsVz070AjiwHVCji4stuIHdqw==
+"@counterfactual/cf.js@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.0.tgz#4a1aabf2c3e592c9b75d2666bf3ccc7c8872a5dc"
+  integrity sha512-Om57KvkfNZ4rQ4c7MfTE8oazWG7nuwwEoYskLliJdyO1UxIjCZY6s6MDFnUC6fE9f/ZmBHR4Lg3N3WSz6pTUXg==
   dependencies:
-    "@counterfactual/node-provider" "^0.1.1"
-    "@counterfactual/types" "^0.1.2"
-    ethers "4.0.26"
-    eventemitter3 "^3.1.0"
+    "@counterfactual/node-provider" "0.1.2"
+    "@counterfactual/types" "0.0.12"
+    ethers "4.0.29"
+    eventemitter3 "^3.1.2"
+    rpc-server prototypal/rpc-server
 
 "@counterfactual/contracts@0.1.2":
   version "0.1.2"
@@ -161,27 +162,28 @@
   dependencies:
     firebase "6.0.2"
 
-"@counterfactual/node-provider@^0.1.1":
+"@counterfactual/node-provider@0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.1.2.tgz#423fa7c516a32e36e56143a9e6b4f9aa05194733"
   integrity sha512-7DrRocC9etadQq1hXNuLZr0FqEWuWcYrT3EtfnJWUkgHbk8C4/liOo2DS5pR0rYxZhh5SH6kn5QyX08W6Oackw==
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.1.26":
-  version "0.1.26"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.1.26.tgz#8ac57cb04d251314c08355ae6fec760b3bbd0498"
-  integrity sha512-rB2htzveRXpx7yQdtzAQ2ScdySwetUfFTt8UYkiwP8188XvTVbBkDIJwMuTxKPk4xVg/rKWR/3fBBCtVNIsdXg==
+"@counterfactual/node@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.1.tgz#099072284ac486eba9fd73d339734ad5468ca4e2"
+  integrity sha512-TM/CLrn5gW2oWQJH4FQ+Zk5EQOgHUUY6IMo14Y12tgBAjbKxfutcmSGu6ZrWqdLTtbeuB3BEBiZLsaixib6xvQ==
   dependencies:
-    "@counterfactual/cf.js" "0.1.1"
+    "@counterfactual/cf.js" "0.2.0"
     "@counterfactual/contracts" "0.1.2"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.11"
+    "@counterfactual/types" "0.0.12"
     "@firebase/util" "0.2.18"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
     loglevel "^1.6.1"
     p-queue "^5.0.0"
+    rpc-server prototypal/rpc-server
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
@@ -190,10 +192,12 @@
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.11.tgz#75dff7023582ac5796bfbe647c3d2bbb0ee0f647"
   integrity sha512-6eruJ34NdULmj3fAnxehrJxB1HPDKbISz7BzPh039ncENkOnbjHIuL1jd7YziyeYkcc61mtKTYe2nJW5ygbu+A==
 
-"@counterfactual/types@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.1.2.tgz#6d088c8faae7649aadbde106a8e7a7a1a166d59a"
-  integrity sha512-6/wFPL8gFiPKcamQ6ctMJaNiGKr71dXMVVX3x52qXhNz79pAKvTsP0sq/agR6FHOJ0vH6c3xMhlElSv5BhqWyw==
+"@counterfactual/types@0.0.12":
+  version "0.0.12"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.12.tgz#082dbf7963d610acad054ee8f87612c31d300fe0"
+  integrity sha512-HC5z/pJrSLpCxpP4vYSSPsKvryniN14Nfk1Ddm4EXIJTsfEX2bT6KAboUw9eWqAnQkl38zpe/gCVWsR3Rl79CQ==
+  dependencies:
+    rpc-server prototypal/rpc-server
 
 "@firebase/app-types@0.4.0":
   version "0.4.0"
@@ -1400,22 +1404,6 @@ esutils@^2.0.2:
   version "2.0.2"
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.2.tgz#0abf4f1caa5bcb1f7a9d8acc6dea4faaa04bac9b"
   integrity sha1-Cr9PHKpbyx96nYrMbepPqqBLrJs=
-
-ethers@4.0.26:
-  version "4.0.26"
-  resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.26.tgz#a4b17184a0ed3db9c88d1b6d28beaa7d0e0ba3e4"
-  integrity sha512-3hK4S8eAGhuWZ/feip5z17MswjGgjb4lEPJqWO/O0dNqToYLSHhvu6gGQPs8d9f+XfpEB2EYexfF0qjhWiZjUA==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.4"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
 
 ethers@4.0.29:
   version "4.0.29"
@@ -3545,6 +3533,10 @@ rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.3:
   integrity sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==
   dependencies:
     glob "^7.1.3"
+
+"rpc-server@github:prototypal/rpc-server", rpc-server@prototypal/rpc-server:
+  version "0.0.1"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
 
 rsvp@^4.8.4:
   version "4.8.4"

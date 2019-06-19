@@ -11,13 +11,13 @@
   },
   {
     "contractName": "ETHBalanceRefundApp",
-    "address": "0x316F3DfED556E3Dc6257F8B813bfEF08875D75Cf",
-    "transactionHash": "0xff7f0c324014bf098aea721b62fda446768956b4ff208b6178cbdb17b3a080bc"
+    "address": "0x1f9430689b1A66002725cBFD4f0EbC17587F21fa",
+    "transactionHash": "0xeadc52d89a8c00256de028e41fd3650ff9b152d605581a07369a7e9bca70fab0"
   },
   {
     "contractName": "ETHBucket",
-    "address": "0x95d07bbb0a635Be23A0D1257130141B08f552A9b",
-    "transactionHash": "0xe539e1fa45d7e8492aa29cbb375ef6cc6610bf080e3be2184672061add310d95"
+    "address": "0x452166f663228EB537faEAC5fd9948387F3f96AA",
+    "transactionHash": "0x683407c2e6245a5b7794d40875a43fb4db0f53154b65fdd19215de65f925d9bc"
   },
   {
     "contractName": "MinimumViableMultisig",

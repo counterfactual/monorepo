@@ -4,9 +4,10 @@ import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
-import { Opcode } from "../machine/enums";
+import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
+  ProtocolMessage,
   ProtocolParameters,
   UninstallVirtualAppParams
 } from "../machine/types";
@@ -41,11 +42,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m1
-        ...context.message,
+        protocol: Protocol.UninstallVirtualApp,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         seq: 1,
         toXpub: intermediaryXpub,
         signature: s1
-      }
+      } as ProtocolMessage
     ];
 
     const { signature: s3, signature2: s2 } = m4;
@@ -99,12 +102,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m2
-        ...context.message,
+        protocol: Protocol.UninstallVirtualApp,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         seq: 2,
         toXpub: respondingXpub,
         signature: s1,
         signature2: s2
-      }
+      } as ProtocolMessage
     ];
     const { signature: s3 } = m3;
 
@@ -114,12 +119,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m4
+        protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s3,
         signature2: s2
-      }
+      } as ProtocolMessage
     ];
     const { signature: s4 } = m5;
 
@@ -137,11 +143,12 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
         signature: s5
-      }
+      } as ProtocolMessage
     ];
 
     const rightUninstallCommitment = await addRightUninstallAgreementToContext(
@@ -156,11 +163,12 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m7
+        protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
         signature: s6
-      }
+      } as ProtocolMessage
     ];
     const { signature: s7 } = m8;
 
@@ -192,11 +200,12 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         // m3
+        protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s3
-      }
+      } as ProtocolMessage
     ];
     const { signature: s6 } = m7;
 
@@ -213,11 +222,12 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
         signature: s7
-      }
+      } as ProtocolMessage
     ];
 
     removeVirtualAppInstance(context.message.params, context);

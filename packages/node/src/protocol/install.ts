@@ -4,7 +4,12 @@ import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, InstallParams, ProtocolParameters } from "../machine/types";
+import {
+  Context,
+  InstallParams,
+  ProtocolMessage,
+  ProtocolParameters
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 
@@ -31,11 +36,13 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     validateSignature(respondingAddress, commitment, theirSig);
@@ -73,11 +80,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };

@@ -1,7 +1,11 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  NetworkContext,
+  OutcomeType,
+  TwoPartyFixedOutcome
+} from "@counterfactual/types";
 import { Contract } from "ethers";
-import { One, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
@@ -85,12 +89,13 @@ export async function computeFreeBalanceIncrements(
 
       const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
 
-      if (decoded.eq(Zero)) {
+      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
           [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
         };
       }
-      if (decoded.eq(One)) {
+
+      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
           [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
         };

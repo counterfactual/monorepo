@@ -4,7 +4,12 @@ import { BaseProvider } from "ethers/providers";
 import { UninstallCommitment } from "../ethereum";
 import { Protocol, ProtocolExecutionFlow } from "../machine";
 import { Opcode } from "../machine/enums";
-import { Context, ProtocolParameters, UninstallParams } from "../machine/types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  UninstallParams
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
@@ -27,20 +32,25 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context,
       context.provider
     );
+
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Uninstall,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     validateSignature(respondingAddress, uninstallCommitment, theirSig);
+
     const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Uninstall,
@@ -59,11 +69,13 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const theirSig = context.message.signature!;
+
     validateSignature(initiatingAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Uninstall,
@@ -74,11 +86,12 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Uninstall,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };

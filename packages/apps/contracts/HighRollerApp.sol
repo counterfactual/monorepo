@@ -53,7 +53,10 @@ contract HighRollerApp is CounterfactualApp {
     returns (bool)
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
-    return appState.stage == Stage.P1_REVEALED_NUM;
+    return (
+      appState.stage == Stage.P1_REVEALED_NUM ||
+      appState.stage == Stage.P1_TRIED_TO_SUBMIT_ZERO
+    );
   }
 
   // NOTE: Function is being deprecated soon, do not modify!
@@ -70,7 +73,8 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   function applyAction(
-    bytes calldata encodedState, bytes calldata encodedAction
+    bytes calldata encodedState,
+    bytes calldata encodedAction
   )
     external
     pure
@@ -178,6 +182,21 @@ contract HighRollerApp is CounterfactualApp {
 
   }
 
+  function highRoller(bytes32 randomness)
+    public // NOTE: This is used in app-root.tsx for the clientside dapp
+    pure
+    returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
+  {
+    (
+      bytes8 hash1,
+      bytes8 hash2,
+      bytes8 hash3,
+      bytes8 hash4
+    ) = cutBytes32(randomness);
+    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
+    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
+  }
+
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
@@ -195,21 +214,6 @@ contract HighRollerApp is CounterfactualApp {
 
     return LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
 
-  }
-
-  function highRoller(bytes32 randomness)
-    internal
-    pure
-    returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
-  {
-    (
-      bytes8 hash1,
-      bytes8 hash2,
-      bytes8 hash3,
-      bytes8 hash4
-    ) = cutBytes32(randomness);
-    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
-    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
   }
 
   function calculateRandomSalt(uint256 num1, uint256 num2)

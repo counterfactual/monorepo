@@ -46,12 +46,14 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m2 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Withdraw,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: s1,
         signature2: s3,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     const { signature: s2, signature2: s4, signature3: s6 } = m2;
@@ -71,6 +73,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: respondingXpub,
         signature: s5,
@@ -129,6 +132,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: s2,
