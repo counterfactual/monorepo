@@ -119,7 +119,7 @@ async function proposeStateTransition(
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 
-  const freeBalance = newStateChannel.getETHFreeBalance();
+  const freeBalance = newStateChannel.getFreeBalanceAppInstance();
 
   const uninstallCommitment = new UninstallCommitment(
     network,

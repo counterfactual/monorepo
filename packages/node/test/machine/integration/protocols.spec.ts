@@ -81,7 +81,7 @@ describe("Three mininodes", () => {
     const [key] = [...appInstances.keys()].filter(key => {
       return (
         key !==
-        mininodeA.scm.get(AddressZero)!.toJson().freeBalanceAppIndexes[0][1]
+        mininodeA.scm.get(AddressZero)!.getFreeBalanceAppInstance().identityHash
       );
     });
 
