@@ -4,37 +4,18 @@ import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
-import { isArray } from "util";
 
 import { StateChannel } from "../../models";
 
-function unwrap(arr: any) {
-  if (!isArray(arr)) {
-    throw new Error("passed non-array object to unwrap");
-  }
-  if (arr.length !== 1) {
-    throw new Error("passed array of length > 1 to unwrap");
-  }
-  return arr[0];
-}
-
 function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
-  const decoded0 = defaultAbiCoder.decode(
+  const [ decoded ] = defaultAbiCoder.decode(
     ["tuple(address,uint256)[]"],
     outcome
   );
-  const decoded1 = unwrap(decoded0);
-
-  if (!isArray(decoded1)) {
-    throw new Error("no!");
-  }
 
   const ret = {} as any;
 
-  for (const pair of decoded1) {
-    if (!(isArray(pair) && pair.length === 2)) {
-      throw new Error("no!");
-    }
+  for (const pair of decoded) {
     const [address, to] = pair;
     ret[address] = to;
   }
