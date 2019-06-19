@@ -20,6 +20,10 @@
     color: $c-blue;
   }
 
+  & > .channel-tree .channel-controls > .channel-control-toggle-placeholder {
+    margin-left: 32px;
+  }
+
   .channel-controls {
     display: inline-flex;
     flex-direction: row;
