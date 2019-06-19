@@ -10,7 +10,7 @@ const NETWORK_NAME_TO_ID = {
   rinkeby: "4"
 };
 
-const CONTRACTS_TO_SKIP = new Set(["DolphinCoin"]);
+const CONTRACTS_TO_SKIP = new Set([""]);
 
 describe("Checks that all the needed contracts have been deployed on each test net", () => {
   const networks = ["kovan", "ropsten", "rinkeby"];
