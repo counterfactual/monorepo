@@ -3,7 +3,6 @@ pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
-import "../libs/LibStaticCall.sol";
 
 import "./MChallengeRegistryCore.sol";
 import "./MAppCaller.sol";

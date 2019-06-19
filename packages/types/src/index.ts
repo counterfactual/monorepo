@@ -7,10 +7,10 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  CoinTransferInterpreterParams,
   erc20BalanceRefundStateEncoding,
   ERC20TwoPartyDynamicInterpreterParams,
   ethBalanceRefundStateEncoding,
-  ETHTransferInterpreterParams,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -83,7 +83,7 @@ export {
   erc20BalanceRefundStateEncoding,
   ERC20TwoPartyDynamicInterpreterParams,
   ethBalanceRefundStateEncoding,
-  ETHTransferInterpreterParams,
+  CoinTransferInterpreterParams,
   FundsBucketAppState,
   INodeProvider,
   IRpcNodeProvider,

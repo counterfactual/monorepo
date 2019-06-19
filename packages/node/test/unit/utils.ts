@@ -35,7 +35,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
-      outcomeType: OutcomeType.ETH_TRANSFER
+      outcomeType: OutcomeType.COIN_TRANSFER
     },
     undefined,
     appInstanceId

@@ -1,15 +1,14 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
-import "../interfaces/CounterfactualApp.sol";
-import "../interfaces/Interpreter.sol";
-import "../interpreters/ERC20TwoPartyDynamicInterpreter.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
 
 
 contract ERC20Bucket is CounterfactualApp {
 
   struct AppState {
-    ERC20TwoPartyDynamicInterpreter.TokenTransfer[] transfers;
+    LibOutcome.CoinTransfer[] transfers;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -19,13 +18,4 @@ contract ERC20Bucket is CounterfactualApp {
   {
     return abi.encode(abi.decode(encodedState, (AppState)).transfers);
   }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ERC20_TRANSFER);
-  }
-
 }

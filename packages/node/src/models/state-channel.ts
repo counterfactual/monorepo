@@ -80,9 +80,7 @@ function createFreeBalance(
   // the built-in assumption here.
   const beneficiaryForPerson1 = sortedTopLevelKeys[0];
   const beneficiaryForPerson2 = sortedTopLevelKeys[1];
-  const outcomeType = tokenAddress
-    ? OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME
-    : OutcomeType.ETH_TRANSFER;
+  const outcomeType = OutcomeType.COIN_TRANSFER;
 
   return new AppInstance(
     multisigAddress,

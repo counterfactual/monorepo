@@ -1,9 +1,8 @@
 pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-
-import "../interpreters/ERC20TwoPartyDynamicInterpreter.sol";
 
 
 contract ERC20BalanceRefundApp {
@@ -22,8 +21,7 @@ contract ERC20BalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    ERC20TwoPartyDynamicInterpreter.TokenTransfer[] memory ret = new
-      ERC20TwoPartyDynamicInterpreter.TokenTransfer[](1);
+    LibOutcome.CoinTransfer[] memory ret = new LibOutcome.CoinTransfer[](1);
 
     // solium-disable-next-line max-len
     ret[0].amount = ERC20(appState.token).balanceOf(appState.multisig) - appState.threshold;

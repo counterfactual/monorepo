@@ -2,8 +2,8 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-
-import "../interfaces/Interpreter.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 
 
 /**
@@ -12,10 +12,7 @@ import "../interfaces/Interpreter.sol";
  */
 contract ERC20TwoPartyDynamicInterpreter is Interpreter {
 
-  struct TokenTransfer {
-    address to;
-    uint256 amount;
-  }
+  using LibOutcome for LibOutcome.CoinTransfer;
 
   struct Param {
     uint256 limit;
@@ -29,7 +26,7 @@ contract ERC20TwoPartyDynamicInterpreter is Interpreter {
     external
   {
 
-    TokenTransfer[] memory transfers = abi.decode(input, (TokenTransfer[]));
+    LibOutcome.CoinTransfer[] memory transfers = abi.decode(input, (LibOutcome.CoinTransfer[]));
 
     Param memory params = abi.decode(encodedParams, (Param));
     uint256 limitRemaining = params.limit;

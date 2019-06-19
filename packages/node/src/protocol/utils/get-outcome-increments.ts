@@ -7,7 +7,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeFundsTransferIncrement(outcome): [string, BigNumber] {
+function computeCoinTransferIncrement(outcome): [string, BigNumber] {
   const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
 
   if (
@@ -43,7 +43,7 @@ export async function computeFreeBalanceIncrements(
   );
 
   switch (appInstance.outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
+    case OutcomeType.COIN_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
@@ -55,10 +55,10 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeFundsTransferIncrement(outcome);
+        const [to, amount] = computeCoinTransferIncrement(outcome);
 
-        if (to.gt(Zero)) {
-          return { [address]: to };
+        if (amount.gt(Zero)) {
+          return { [to]: amount };
         }
 
         attempts += 1;
@@ -93,30 +93,6 @@ export async function computeFreeBalanceIncrements(
         [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
         [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
       };
-    }
-    case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
-      let attempts = 1;
-
-      const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-      while (1) {
-        outcome = await appDefinition.functions.computeOutcome(
-          appInstance.encodedLatestState
-        );
-
-        const [to, amount] = computeFundsTransferIncrement(outcome);
-
-        if (amount.gt(Zero)) {
-          return { [to]: amount };
-        }
-
-        attempts += 1;
-
-        if (attempts === 10) {
-          throw new Error("Failed to get a outcome after 10 attempts");
-        }
-
-        await wait(1000 * attempts);
-      }
     }
     default: {
       throw Error("Unknown Interpreter");

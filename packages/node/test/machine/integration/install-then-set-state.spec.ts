@@ -106,7 +106,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
-        OutcomeType.ETH_TRANSFER,
+        OutcomeType.COIN_TRANSFER,
         undefined,
         {
           limit: Zero
@@ -160,7 +160,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         network.ETHInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],
-          [freeBalanceETH.ethTransferInterpreterParams!.limit]
+          [freeBalanceETH.coinTransferInterpreterParams!.limit]
         )
       );
 

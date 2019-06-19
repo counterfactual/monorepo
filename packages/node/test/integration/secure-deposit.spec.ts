@@ -59,10 +59,19 @@ describe("Node method follows spec - deposit", () => {
       erc20ContractAddress
     );
 
+    expect(
+      await erc20Contract.functions.balanceOf(await nodeA.signerAddress())
+    ).toEqual(Zero);
+
+    let error;
     try {
       await nodeA.router.dispatch(depositReq);
     } catch (e) {
-      expect(e).toEqual(INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress()));
+      error = e;
+    } finally {
+      expect(error).toEqual(
+        INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress())
+      );
     }
 
     await transferERC20Tokens(await nodeA.signerAddress());
@@ -131,6 +140,7 @@ async function transferERC20Tokens(
   const balanceBefore: BigNumber = await contract.functions.balanceOf(
     toAddress
   );
+
   await contract.functions.transfer(toAddress, amount);
   const balanceAfter: BigNumber = await contract.functions.balanceOf(toAddress);
 

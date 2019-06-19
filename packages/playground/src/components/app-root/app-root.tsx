@@ -4,6 +4,8 @@ import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
 import { MatchResults } from "@stencil/router";
+import { Signer } from "ethers";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel, { AccountState } from "../../data/account";
 import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
@@ -100,7 +102,7 @@ export class AppRoot {
     // TODO: This comparison might need changes if the user's doing
     // deposits beyond the registration flow.
     if (
-      ethBalance.eq(ethers.constants.Zero) &&
+      ethBalance.eq(window["ethers"].constants.Zero) &&
       this.accountState.ethPendingDepositAmountWei
     ) {
       return;
@@ -333,7 +335,9 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+    const MINIMUM_EXPECTED_FREE_BALANCE = window["ethers"].utils.parseEther(
+      "0.01"
+    );
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
@@ -343,8 +347,8 @@ export class AppRoot {
 
     if (!multisigAddress || !ethAddress) {
       return {
-        ethFreeBalanceWei: ethers.constants.Zero,
-        ethMultisigBalance: ethers.constants.Zero
+        ethFreeBalanceWei: window["ethers"].constants.Zero,
+        ethMultisigBalance: window["ethers"].constants.Zero
       };
     }
 
@@ -357,8 +361,8 @@ export class AppRoot {
       if (e.includes("Call to getFreeBalanceState failed")) {
         await this.updateAccount({ hasCorruptStateChannelState: true });
         return {
-          ethFreeBalanceWei: ethers.constants.Zero,
-          ethMultisigBalance: ethers.constants.Zero
+          ethFreeBalanceWei: window["ethers"].constants.Zero,
+          ethMultisigBalance: window["ethers"].constants.Zero
         };
       }
 
@@ -366,11 +370,12 @@ export class AppRoot {
     }
 
     // Had to reimplement this on the frontend because the method can't be imported
-    // due to ethers not playing nice with ES Modules in this context.
+    // due to window["ethers"] not playing nice with ES Modules in this context.
     const getAddress = (xkey: string, k: number) =>
-      ethers.utils.computeAddress(
-        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
-          .publicKey
+      window["ethers"].utils.computeAddress(
+        window["ethers"].utils.HDNode.fromExtendedKey(xkey).derivePath(
+          String(k)
+        ).publicKey
       );
 
     const myFreeBalanceAddress = getAddress(nodeAddress, 0);
@@ -455,7 +460,7 @@ export class AppRoot {
     let ret;
 
     try {
-      const amount = ethers.utils.bigNumberify(valueInWei);
+      const amount = window["ethers"].utils.bigNumberify(valueInWei);
 
       ret = await provider.deposit(multisigAddress, amount);
     } catch (e) {
@@ -485,7 +490,7 @@ export class AppRoot {
     let ret;
 
     try {
-      const amount = ethers.utils.bigNumberify(valueInWei);
+      const amount = window["ethers"].utils.bigNumberify(valueInWei);
       ret = await provider.withdraw(
         multisigAddress,
         amount,

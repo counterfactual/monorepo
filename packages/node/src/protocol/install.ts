@@ -58,16 +58,15 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
-    const { initialState, appInterface, multisigAddress, outcomeType } = context
-      .message.params as InstallParams;
+    const { initialState, appInterface, multisigAddress } = context.message
+      .params as InstallParams;
 
     context.stateChannelsMap = installFreeBalanceIfNeeded(
       context.stateChannelsMap,
       context.network,
       initialState,
       appInterface,
-      multisigAddress,
-      outcomeType
+      multisigAddress
     );
 
     const [appIdentityHash, commitment] = await proposeStateTransition(
@@ -125,7 +124,7 @@ async function proposeStateTransition(
   let interpreterAddress: string;
   let interpreterParams: string;
 
-  let ethTransferInterpreterParams:
+  let coinTransferInterpreterParams:
     | {
         // Derived from:
         // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
@@ -152,17 +151,29 @@ async function proposeStateTransition(
     | undefined;
 
   switch (outcomeType) {
-    case OutcomeType.ETH_TRANSFER: {
-      ethTransferInterpreterParams = {
+    case OutcomeType.COIN_TRANSFER: {
+      coinTransferInterpreterParams = {
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )
       };
-      interpreterAddress = context.network.ETHInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit)"],
-        [ethTransferInterpreterParams]
-      );
+      if (initialState["token"]) {
+        erc20TwoPartyDynamicInterpreterParams = {
+          ...coinTransferInterpreterParams,
+          token: initialState["token"]
+        };
+        interpreterAddress = context.network.ERC20TwoPartyDynamicInterpreter;
+        interpreterParams = defaultAbiCoder.encode(
+          ["tuple(uint256 limit, address token)"],
+          [erc20TwoPartyDynamicInterpreterParams]
+        );
+      } else {
+        interpreterAddress = context.network.ETHInterpreter;
+        interpreterParams = defaultAbiCoder.encode(
+          ["tuple(uint256 limit)"],
+          [coinTransferInterpreterParams]
+        );
+      }
       break;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
@@ -176,20 +187,6 @@ async function proposeStateTransition(
       interpreterParams = defaultAbiCoder.encode(
         ["tuple(address[2] playerAddrs, uint256 amount)"],
         [twoPartyOutcomeInterpreterParams]
-      );
-      break;
-    }
-    case OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME: {
-      erc20TwoPartyDynamicInterpreterParams = {
-        limit: bigNumberify(initiatingBalanceDecrement).add(
-          respondingBalanceDecrement
-        ),
-        token: initialState["token"]
-      };
-      interpreterAddress = context.network.ERC20TwoPartyDynamicInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit, address token)"],
-        [erc20TwoPartyDynamicInterpreterParams]
       );
       break;
     }
@@ -213,7 +210,7 @@ async function proposeStateTransition(
     /* defaultTimeout */ defaultTimeout,
     /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* ethTransferInterpreterParams */ ethTransferInterpreterParams,
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
     /* erc20TwoPartyDynamicInterpreterParams */ erc20TwoPartyDynamicInterpreterParams
   );
 
@@ -269,17 +266,9 @@ export function installFreeBalanceIfNeeded(
   networkContext: NetworkContext,
   initialState: SolidityABIEncoderV2Type,
   appInterface: AppInterface,
-  multisigAddress: string,
-  outcomeType: OutcomeType
+  multisigAddress: string
 ) {
   const channel = channelsMap.get(multisigAddress)!;
-
-  if (
-    outcomeType === OutcomeType.ETH_TRANSFER ||
-    outcomeType === OutcomeType.TWO_PARTY_FIXED_OUTCOME
-  ) {
-    return channelsMap;
-  }
 
   // An ERC20 Balance Refund app is NOT being installed, meaning an ERC20 deposit
   // is NOT taking place

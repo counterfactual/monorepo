@@ -2,7 +2,7 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/Interpreter.sol";
-import "../interfaces/TwoPartyFixedOutcome.sol";
+import "../libs/LibOutcome.sol";
 
 
 contract TwoPartyFixedOutcomeApp {
@@ -13,7 +13,7 @@ contract TwoPartyFixedOutcomeApp {
     returns (bytes memory)
   {
     return abi.encode(
-      TwoPartyFixedOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
+      LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
     );
   }
 

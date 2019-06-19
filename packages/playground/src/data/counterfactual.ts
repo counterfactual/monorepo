@@ -68,7 +68,9 @@ export default class CounterfactualNode {
       settings.messagingService,
       settings.storeService,
       settings.nodeConfig,
-      new ethers.providers.Web3Provider(window["web3"].currentProvider),
+      new window["ethers"].providers.Web3Provider(
+        window["web3"].currentProvider
+      ),
       settings.network
     );
 

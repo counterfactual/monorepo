@@ -2,6 +2,7 @@ declare var ga: any;
 
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { Signer } from "ethers";
 
 import AccountTunnel from "../../../data/account";
 import CounterfactualNode from "../../../data/counterfactual";

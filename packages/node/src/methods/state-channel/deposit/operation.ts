@@ -77,8 +77,7 @@ export async function installBalanceRefundApp(
     networkContext,
     depositContext.initialState,
     depositContext.appInterface,
-    multisigAddress,
-    depositContext.outcomeType
+    multisigAddress
   );
   stateChannel = channelsMap.get(multisigAddress)!;
 
@@ -213,6 +212,7 @@ async function getDepositContext(
   networkContext: NetworkContext
 ): Promise<DepositContext> {
   const { multisigAddress, tokenAddress } = params;
+  const outcomeType = OutcomeType.COIN_TRANSFER;
   const initialState = {
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress,
@@ -222,12 +222,12 @@ async function getDepositContext(
   if (!params.tokenAddress) {
     return {
       initialState,
+      outcomeType,
       appInterface: {
         addr: networkContext.ETHBalanceRefundApp,
         stateEncoding: ethBalanceRefundStateEncoding,
         actionEncoding: undefined
-      },
-      outcomeType: OutcomeType.ETH_TRANSFER
+      }
     };
   }
   const tokenContract = new Contract(tokenAddress!, ERC20.abi, provider);
@@ -236,6 +236,7 @@ async function getDepositContext(
   );
 
   return {
+    outcomeType,
     initialState: {
       ...initialState,
       token: tokenAddress!,
@@ -245,7 +246,6 @@ async function getDepositContext(
       addr: networkContext.ERC20BalanceRefundApp,
       stateEncoding: erc20BalanceRefundStateEncoding,
       actionEncoding: undefined
-    },
-    outcomeType: OutcomeType.TWO_PARTY_DYNAMIC_OUTCOME
+    }
   };
 }

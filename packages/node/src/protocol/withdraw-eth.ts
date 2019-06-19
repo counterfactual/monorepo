@@ -188,7 +188,7 @@ function addInstallRefundAppCommitmentToContext(
     },
     0,
     1008,
-    OutcomeType.ETH_TRANSFER,
+    OutcomeType.COIN_TRANSFER,
     undefined,
     { limit: MaxUint256 }
   );

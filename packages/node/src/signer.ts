@@ -14,6 +14,10 @@ export async function getHDNode(
     await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
   }
 
+  return getSigner(mnemonic);
+}
+
+export function getSigner(mnemonic: string): HDNode {
   // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
   return fromMnemonic(mnemonic).derivePath("m/44'/60'/0'/25446");
 }

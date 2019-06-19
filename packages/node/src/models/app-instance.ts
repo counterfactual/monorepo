@@ -2,8 +2,8 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
+  CoinTransferInterpreterParams,
   ERC20TwoPartyDynamicInterpreterParams,
-  ETHTransferInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
@@ -45,7 +45,7 @@ export type AppInstanceJson = {
     amount: { _hex: string };
   };
 
-  ethTransferInterpreterParams?: {
+  coinTransferInterpreterParams?: {
     // Derived from:
     // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
     limit: { _hex: string };
@@ -83,8 +83,8 @@ export type AppInstanceJson = {
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
- * @property ethTransferInterpreterParams The limit / maximum amount of funds
- *           to be distributed for an app where the interpreter type is ETH_TRANSFER
+ * @property coinTransferInterpreterParams The limit / maximum amount of funds
+ *           to be distributed for an app where the interpreter type is COIN_TRANSFER
 
  * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
  *           and the amount that is to be distributed for an app
@@ -111,7 +111,7 @@ export class AppInstance {
     latestTimeout: number,
     outcomeType: OutcomeType,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    ethTransferInterpreterParams?: ETHTransferInterpreterParams,
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
     erc20TwoPartyDynamicInterpreterParams?: ERC20TwoPartyDynamicInterpreterParams
   ) {
     this.json = {
@@ -134,10 +134,10 @@ export class AppInstance {
             }
           }
         : undefined,
-      ethTransferInterpreterParams: ethTransferInterpreterParams
+      coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
             limit: {
-              _hex: ethTransferInterpreterParams.limit.toHexString()
+              _hex: coinTransferInterpreterParams.limit.toHexString()
             }
           }
         : undefined,
@@ -182,9 +182,9 @@ export class AppInstance {
             )
           }
         : undefined,
-      json.ethTransferInterpreterParams
+      json.coinTransferInterpreterParams
         ? {
-            limit: bigNumberify(json.ethTransferInterpreterParams.limit._hex)
+            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
           }
         : undefined,
       json.erc20TwoPartyDynamicInterpreterParams
@@ -269,10 +269,12 @@ export class AppInstance {
     return this.json.latestNonce;
   }
 
-  public get ethTransferInterpreterParams() {
-    return this.json.ethTransferInterpreterParams
+  public get coinTransferInterpreterParams() {
+    return this.json.coinTransferInterpreterParams
       ? {
-          limit: bigNumberify(this.json.ethTransferInterpreterParams.limit._hex)
+          limit: bigNumberify(
+            this.json.coinTransferInterpreterParams.limit._hex
+          )
         }
       : undefined;
   }

@@ -40,6 +40,6 @@
     "tslint": "5.17.0"
   },
   "resolutions": {
-    "ethereum-waffle/solc": "0.5.8"
+    "ethereum-waffle/solc": "0.5.9"
   }
 }
