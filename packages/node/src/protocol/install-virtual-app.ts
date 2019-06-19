@@ -565,7 +565,7 @@ function constructTwoPartyVirtualEthAsLumpCommitment(
   targetHash: string,
   ethVirtualAppAgreementInstance: TwoPartyVirtualEthAsLumpInstance
 ) {
-  const freeBalance = stateChannel.getETHFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new TwoPartyVirtualEthAsLumpCommitment(
     network,
