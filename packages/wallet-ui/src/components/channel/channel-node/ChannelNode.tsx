@@ -13,14 +13,38 @@ type ChannelNodeProps = {
 
 type ChannelNodeState = {
   expanded: boolean;
+  showingMenu: boolean;
 };
 
+type ChannelMenuProps = {
+  type: "hub" | "user" | "app";
+  visible: boolean;
+};
+
+const ChannelMenu: React.FC<ChannelMenuProps> = ({ type, visible }) => (
+  <menu className={`channel-menu ${visible ? "channel-menu--visible" : ""}`}>
+    {type === "hub" ? (
+      <React.Fragment>
+        <li>Details</li>
+      </React.Fragment>
+    ) : null}
+    {type === "app" ? (
+      <React.Fragment>
+        <li>Launch</li>
+        <li>Debug</li>
+        <li>Uninstall</li>
+      </React.Fragment>
+    ) : null}
+  </menu>
+);
+
 class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
-  constructor(props) {
+  constructor(props: ChannelNodeProps) {
     super(props);
 
     this.state = {
-      expanded: true
+      expanded: true,
+      showingMenu: false
     };
   }
 
@@ -30,9 +54,15 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
     });
   };
 
+  toggleMenu = () => {
+    this.setState({
+      showingMenu: !this.state.showingMenu
+    });
+  };
+
   render() {
     const { type, name, ethAddress, children } = this.props;
-    const { expanded } = this.state;
+    const { expanded, showingMenu } = this.state;
 
     return (
       <li className="channel-node">
@@ -63,6 +93,17 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
             </h3>
             <div className="channel-address">{ethAddress}</div>
           </section>
+          {type !== "user" ? (
+            <React.Fragment>
+              <button
+                onClick={this.toggleMenu}
+                className="btn channel-control-menu"
+              >
+                Menu
+              </button>
+              <ChannelMenu type={type} visible={showingMenu} />
+            </React.Fragment>
+          ) : null}
         </div>
         {children && expanded ? <ChannelTree>{children}</ChannelTree> : null}
       </li>

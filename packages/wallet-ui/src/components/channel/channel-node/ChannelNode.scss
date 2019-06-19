@@ -4,6 +4,7 @@
   width: 100%;
 
   .channel-node-wrapper {
+    display: flex;
     padding-bottom: $rhythm * 2;
 
     &:hover {
@@ -27,6 +28,7 @@
   .channel-info {
     display: inline-flex;
     flex-direction: column;
+    flex: 1;
   }
 
   .channel-icon,
@@ -34,6 +36,10 @@
   .channel-control-toggle {
     width: 32px;
     height: 32px;
+  }
+
+  .channel-control-menu {
+    justify-self: flex-end;
   }
 
   .channel-name {
@@ -46,5 +52,32 @@
   .channel-address {
     font-size: 0.8rem;
     color: $c-darkgrey;
+  }
+
+  .channel-menu {
+    display: none;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    background: $c-white;
+    box-shadow: 0px 2px 10px $c-mediumgrey;
+    right: 120px;
+    width: auto;
+    min-width: 120px;
+
+    &.channel-menu--visible {
+      position: absolute;
+      display: block;
+    }
+
+    & > li {
+      padding: $rhythm;
+      text-align: right;
+
+      &:hover {
+        background: $c-lightgrey;
+        cursor: pointer;
+      }
+    }
   }
 }
