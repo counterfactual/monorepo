@@ -3534,9 +3534,9 @@ rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.3:
   dependencies:
     glob "^7.1.3"
 
-"rpc-server@github:prototypal/rpc-server", rpc-server@prototypal/rpc-server:
+rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/474b642c95c3f1007fb70dc558975d286e98d053"
 
 rsvp@^4.8.4:
   version "4.8.4"

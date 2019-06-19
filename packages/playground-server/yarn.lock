@@ -5854,10 +5854,9 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-"rpc-server@github:prototypal/rpc-server", rpc-server@prototypal/rpc-server:
+rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  uid "191cfc7188e96a9b97a0860330f6578861c33a97"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/474b642c95c3f1007fb70dc558975d286e98d053"
 
 rsvp@^4.8.4:
   version "4.8.4"
