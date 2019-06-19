@@ -38,8 +38,6 @@
     "typescript": "3.5.1"
   },
   "resolutions": {
-    "**/tslint-microsoft-contrib": "^6.0.0",
-    "**/ethers": "4.0.29",
-    "**/solc": "0.5.9"
+    "**/tslint-microsoft-contrib": "^6.0.0"
   }
 }
