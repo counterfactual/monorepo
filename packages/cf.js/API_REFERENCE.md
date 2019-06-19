@@ -371,6 +371,21 @@ Error:
 
 - "Insufficient funds"
 
+### Method: `getStateDepositHolderAddress`
+
+Retrieves the address for the state deposit used by the specified owners.
+
+Params:
+
+- `owners: string[]`
+    - the addresses who own the state deposit holder
+
+Result:
+
+- `multisigAddress: string`
+    - the address of the multisig (i.e. the state deposit holder)
+
+
 ### Method: `getFreeBalance`
 
 Gets the free balance AppInstance of the specified channel.
