@@ -123,6 +123,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
@@ -134,6 +135,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
@@ -147,6 +149,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       newChannelWithInitiating.multisigAddress,
       newChannelWithInitiating
     );
+
     context.stateChannelsMap.set(
       newChannelWithResponding.multisigAddress,
       newChannelWithResponding
@@ -177,6 +180,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m4 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,

@@ -80,6 +80,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.TakeAction,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         seq: -1,

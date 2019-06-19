@@ -73,6 +73,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: respondingXpub,
         signature: s5,
