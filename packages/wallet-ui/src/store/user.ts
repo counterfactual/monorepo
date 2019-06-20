@@ -24,7 +24,14 @@ export const addUser = (
     const user = await PlaygroundAPIClient.createAccount(userData, "foo");
     dispatch({ data: { user }, type: ActionType.AddUser });
   } catch (error) {
-    dispatch({ data: { error }, type: ActionType.Error });
+    dispatch({
+      data: {
+        error: {
+          message: error.message
+        }
+      },
+      type: ActionType.Error
+    });
   }
 };
 
