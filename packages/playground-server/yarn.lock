@@ -186,10 +186,10 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.1.tgz#099072284ac486eba9fd73d339734ad5468ca4e2"
-  integrity sha512-TM/CLrn5gW2oWQJH4FQ+Zk5EQOgHUUY6IMo14Y12tgBAjbKxfutcmSGu6ZrWqdLTtbeuB3BEBiZLsaixib6xvQ==
+"@counterfactual/node@0.2.2":
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.2.tgz#cc97eea2d715787945a580e3a0cc857224e92d5e"
+  integrity sha512-VKt3Uk+CL60a3xBq/OLP0/f7E3pHBcm9xsADriNL2mj5I7EiItg87eKcd2FIzB91Y0k5+rHG0rCQS2gk+/Enjg==
   dependencies:
     "@counterfactual/cf.js" "0.2.0"
     "@counterfactual/contracts" "0.1.2"
@@ -200,7 +200,7 @@
     eventemitter3 "^3.1.2"
     loglevel "^1.6.1"
     p-queue "^5.0.0"
-    rpc-server prototypal/rpc-server
+    rpc-server "0.0.1"
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
 
@@ -5854,9 +5854,8 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-"rpc-server@github:prototypal/rpc-server", rpc-server@prototypal/rpc-server:
+rpc-server@0.0.1, rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  uid "191cfc7188e96a9b97a0860330f6578861c33a97"
   resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
 
 rsvp@^4.8.4:
