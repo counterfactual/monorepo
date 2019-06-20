@@ -20,10 +20,12 @@ export const addUser = (
   null,
   Action<ActionType>
 > => async dispatch => {
-  dispatch({
-    data: await PlaygroundAPIClient.createAccount(userData, "foo"),
-    type: ActionType.AddUser
-  });
+  try {
+    const user = await PlaygroundAPIClient.createAccount(userData, "foo");
+    dispatch({ data: { user }, type: ActionType.AddUser });
+  } catch (error) {
+    dispatch({ data: { error }, type: ActionType.Error });
+  }
 };
 
 export const getUsers = () => ({ type: "GET" });
@@ -34,7 +36,11 @@ export const reducers = function(
 ) {
   switch (action.type) {
     case ActionType.AddUser:
-      return { ...state, ...action.data };
+    case ActionType.Error:
+      return {
+        ...state,
+        ...action.data
+      };
     default:
       return state;
   }
