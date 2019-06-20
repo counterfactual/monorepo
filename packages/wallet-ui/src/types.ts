@@ -19,6 +19,6 @@ declare global {
       ) => void;
     };
 
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: () => void;
+    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (...args: any[]) => any;
   }
 }
