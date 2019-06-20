@@ -6,10 +6,17 @@ import { FormButton, FormInput } from "../../components/form";
 import "./AccountRegistration.scss";
 import { Link } from "react-router-dom";
 import { addUser } from "../../store/user";
-import { User } from "../../store/types";
+import { ThunkDispatch } from "redux-thunk";
+import { Action } from "redux";
+import {
+  ApplicationState,
+  ActionType,
+  User,
+  WalletState
+} from "../../store/types";
 
 type AccountRegistrationProps = {
-  ethAddress: string;
+  wallet: WalletState;
   addUser: (data: User) => void;
 };
 
@@ -20,7 +27,7 @@ const AlreadyHaveAnAccount: React.FC = () => (
 );
 
 const AccountRegistration: React.FC<AccountRegistrationProps> = ({
-  ethAddress = "0xd30E537Bc4BDb191FF2450f5949c16CFc957abE8",
+  wallet,
   addUser
 }) => (
   <WidgetScreen
@@ -33,7 +40,7 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
       <FormInput label="E-mail (optional)" type="email" />
       <div className="smallprint">
         <b>Account will be linked to your Ethereum address: </b>
-        {ethAddress}
+        {wallet.wallet.ethAddress}
       </div>
       {/* TODO: This should actually create the account
        before transitioning to /setup/deposit */}
@@ -58,10 +65,11 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
 );
 
 export default connect(
-  state => ({
-    users: state.Users
+  (state: ApplicationState) => ({
+    users: state.Users,
+    wallet: state.Wallet
   }),
-  dispatch => ({
+  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     addUser: (data: User) => dispatch(addUser(data))
   })
 )(AccountRegistration);

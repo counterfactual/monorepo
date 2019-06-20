@@ -1,3 +1,5 @@
+import { Action } from "redux";
+
 export type User = {
   id?: string;
   multisigAddress?: string;
@@ -9,13 +11,33 @@ export type User = {
   email: string;
 };
 
+export type Wallet = {
+  ethAddress: string;
+};
+
+export type WalletState = {
+  wallet: Wallet;
+  error: ErrorData;
+};
+
+export type ErrorData = {
+  message: string;
+};
+
 export enum ActionType {
-  AddUser = "ADD_USER"
+  AddUser = "ADD_USER",
+  ConnectToWallet = "CONNECT_TO_WALLET",
+  SetWalletAddress = "SET_WALLET_ADDRESS",
+  Error = "ERROR"
 }
 
-export type Dispatcher<DataType> = (dispatchRequest: Action<DataType>) => void;
+// export type Dispatcher<DataType> = (dispatchRequest: Action<DataType>) => void;
 
-export type Action<DataType> = {
-  type: ActionType;
+export type StoreAction<DataType> = Action<ActionType> & {
   data: DataType;
+};
+
+export type ApplicationState = {
+  Users: User[];
+  Wallet: WalletState;
 };
