@@ -7,10 +7,10 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  CoinTransferInterpreterParams,
   OutcomeType,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams,
-  CoinTransferInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {

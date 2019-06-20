@@ -192,6 +192,11 @@
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
 
+"@counterfactual/types@0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.14.tgz#7e5d0f3eb523ac428ccebc62a1b9559a2cd82304"
+  integrity sha512-Nd+cQymzOEh+fdKsn4rw9g9GjXhdBKevgUzaWT3irspOLkH+1ifWzqZr41G3B9pUJN/WxJe2dM4UPTv3ydL3Sw==
+
 "@firebase/app-types@0.4.0":
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/@firebase/app-types/-/app-types-0.4.0.tgz#bb2c651f3b275fef549050cff28af752839c75c0"
