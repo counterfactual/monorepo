@@ -900,16 +900,16 @@
   resolved "https://registry.yarnpkg.com/@counterfactual/apps/-/apps-0.1.1.tgz#18214b5cd9ad1e8658e436da27a98e45d53bc57a"
   integrity sha512-ItNpJFL6Vr6U0HqbvmI9/9qYCBoAlnbMv9eoIjJrc7sC6Wp0r0CfP0STh4OloUZB/Pa80uDmUxBkL7hZXJNYPg==
 
-"@counterfactual/cf.js@0.2.0":
-  version "0.2.0"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.0.tgz#4a1aabf2c3e592c9b75d2666bf3ccc7c8872a5dc"
-  integrity sha512-Om57KvkfNZ4rQ4c7MfTE8oazWG7nuwwEoYskLliJdyO1UxIjCZY6s6MDFnUC6fE9f/ZmBHR4Lg3N3WSz6pTUXg==
+"@counterfactual/cf.js@0.2.1":
+  version "0.2.1"
+  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.1.tgz#bf0a5ca683ffe3c35d2fa426daf874ded621cf7d"
+  integrity sha512-wtH36gj2uUTW04AfeXqUhdrH4KZljCfYMpmE96M5nIHqrJ3K98Xk7d0eSopnZ+krZc8BduucExEtB4+L258KiQ==
   dependencies:
     "@counterfactual/node-provider" "0.1.2"
-    "@counterfactual/types" "0.0.12"
+    "@counterfactual/types" "0.0.13"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
-    rpc-server prototypal/rpc-server
+    rpc-server "0.0.1"
 
 "@counterfactual/contracts@0.1.2":
   version "0.1.2"
@@ -950,15 +950,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.2.tgz#cc97eea2d715787945a580e3a0cc857224e92d5e"
-  integrity sha512-VKt3Uk+CL60a3xBq/OLP0/f7E3pHBcm9xsADriNL2mj5I7EiItg87eKcd2FIzB91Y0k5+rHG0rCQS2gk+/Enjg==
+"@counterfactual/node@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.3.tgz#0847c6fce2be72c50ec43c52f64c031f3e6ff16e"
+  integrity sha512-A/eG9w+9SBiZYxUwZF3zPjpYMf4ZdiIh810VFJ3fDgQQPgCINJYGfJ7ervGoBttrGyyQLtVHeg53N7oWb3uYgA==
   dependencies:
-    "@counterfactual/cf.js" "0.2.0"
+    "@counterfactual/cf.js" "0.2.1"
     "@counterfactual/contracts" "0.1.2"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.12"
+    "@counterfactual/types" "0.0.13"
     "@firebase/util" "0.2.18"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
@@ -967,13 +967,6 @@
     rpc-server "0.0.1"
     typescript-memoize "^1.0.0-alpha.3"
     uuid "^3.3.2"
-
-"@counterfactual/types@0.0.12":
-  version "0.0.12"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.12.tgz#082dbf7963d610acad054ee8f87612c31d300fe0"
-  integrity sha512-HC5z/pJrSLpCxpP4vYSSPsKvryniN14Nfk1Ddm4EXIJTsfEX2bT6KAboUw9eWqAnQkl38zpe/gCVWsR3Rl79CQ==
-  dependencies:
-    rpc-server prototypal/rpc-server
 
 "@counterfactual/types@0.0.13":
   version "0.0.13"
@@ -10097,7 +10090,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rpc-server@0.0.1, rpc-server@prototypal/rpc-server:
+rpc-server@0.0.1:
   version "0.0.1"
   resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/474b642c95c3f1007fb70dc558975d286e98d053"
 
