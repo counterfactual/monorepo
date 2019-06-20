@@ -6,11 +6,11 @@ import "./UninstallKeyRegistry.sol";
 import "./ChallengeRegistry.sol";
 
 
-/// @title StateChannelTransaction
+/// @title ConditionalTransactionDelegateTarget
 /// @author Liam Horne - <liam@l4v.io>
 /// @author Mitchell Van Der Hoeff - <mitchell@l4v.io>
 /// @notice Supports a complex transfer of funds contingent on some condition.
-contract StateChannelTransaction {
+contract ConditionalTransactionDelegateTarget {
 
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param uninstallKey The key in the uninstall key registry

@@ -1,6 +1,6 @@
 # Channel Networks
 
-The framework currently contains basic support for channel networks via "virtual apps". In this design, an app instance between that set of parties can have some state deposit assigned indirectly to it, without the set of parties having a direct channel containing them. Since the app instance is not directly funded, no commitment to `StateChannelTransaction.sol:executeEffectOfInterpretedAppOutcome` is made to that app instance. Instead, a number of commitments to `TwoPartyVirtualEthAsLump` are made in different direct channels to the same app instance (i.e., passing the same `appIdentityHash`). The commitment passes the following struct as a field.
+The framework currently contains basic support for channel networks via "virtual apps". In this design, an app instance between that set of parties can have some state deposit assigned indirectly to it, without the set of parties having a direct channel containing them. Since the app instance is not directly funded, no commitment to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` is made to that app instance. Instead, a number of commitments to `TwoPartyVirtualEthAsLump` are made in different direct channels to the same app instance (i.e., passing the same `appIdentityHash`). The commitment passes the following struct as a field.
 
 ```solidity
 struct Agreement {

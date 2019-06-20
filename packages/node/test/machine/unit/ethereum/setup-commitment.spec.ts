@@ -1,4 +1,4 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import {
   bigNumberify,
   getAddress,
@@ -54,8 +54,8 @@ describe("SetupCommitment", () => {
     ).getTransactionDetails();
   });
 
-  it("should be to StateChannelTransaction", () => {
-    expect(tx.to).toBe(networkContext.StateChannelTransaction);
+  it("should be to ConditionalTransactionDelegateTarget", () => {
+    expect(tx.to).toBe(networkContext.ConditionalTransactionDelegateTarget);
   });
 
   it("should have no value", () => {
@@ -63,7 +63,7 @@ describe("SetupCommitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(StateChannelTransaction.abi);
+    const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
