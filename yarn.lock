@@ -919,24 +919,6 @@
     eventemitter3 "^3.1.2"
     rpc-server "0.0.1"
 
-"@counterfactual/node@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.3.tgz#0847c6fce2be72c50ec43c52f64c031f3e6ff16e"
-  integrity sha512-A/eG9w+9SBiZYxUwZF3zPjpYMf4ZdiIh810VFJ3fDgQQPgCINJYGfJ7ervGoBttrGyyQLtVHeg53N7oWb3uYgA==
-  dependencies:
-    "@counterfactual/cf.js" "0.2.1"
-    "@counterfactual/contracts" "0.1.2"
-    "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.13"
-    "@firebase/util" "0.2.18"
-    ethers "4.0.29"
-    eventemitter3 "^3.1.2"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    rpc-server "0.0.1"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
 "@counterfactual/types@0.0.13":
   version "0.0.13"
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
