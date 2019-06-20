@@ -975,6 +975,11 @@
   dependencies:
     rpc-server prototypal/rpc-server
 
+"@counterfactual/types@0.0.13":
+  version "0.0.13"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
+  integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -10094,7 +10099,7 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
 
 rpc-server@0.0.1, rpc-server@prototypal/rpc-server:
   version "0.0.1"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/474b642c95c3f1007fb70dc558975d286e98d053"
 
 rsvp@^3.3.3:
   version "3.6.2"
