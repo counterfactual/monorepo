@@ -8,6 +8,8 @@ import {
   ApplicationState
 } from "./types";
 
+import { RoutePath } from "../types";
+
 const initialState = { wallet: {}, error: {} } as WalletState;
 
 export const connectToWallet = (
@@ -19,18 +21,18 @@ export const connectToWallet = (
   Action<ActionType>
 > => async dispatch => {
   try {
-    await window["ethereum"].enable();
+    window.ethereum.enable();
 
     dispatch({
       data: {
         wallet: {
-          ethAddress: window["ethereum"].selectedAddress
+          ethAddress: window.ethereum.selectedAddress
         }
       } as WalletState,
       type: ActionType.SetWalletAddress
     });
 
-    history.push("/setup/register");
+    history.push(RoutePath.SetupRegister);
   } catch (e) {
     dispatch({
       data: {

@@ -8,6 +8,7 @@ import {
   AccountDeposit,
   Channels
 } from "./pages";
+import { RoutePath } from "./types";
 
 import "./App.scss";
 
@@ -15,14 +16,21 @@ const App: React.FC = () => {
   return (
     <Router>
       <Switch>
-        <Route exact path="(/|/channels)" component={LayoutHeader} />
+        <Route
+          exact
+          path={`(${RoutePath.Root}|${RoutePath.Channels})`}
+          component={LayoutHeader}
+        />
       </Switch>
       <main className="wrapper__content">
         <Switch>
-          <Route exact path="/" component={Welcome} />
-          <Route path="/setup/register" component={AccountRegistration} />
-          <Route path="/setup/deposit" component={AccountDeposit} />
-          <Route path="/channels" component={Channels} />
+          <Route exact path={RoutePath.Root} component={Welcome} />
+          <Route
+            path={RoutePath.SetupRegister}
+            component={AccountRegistration}
+          />
+          <Route path={RoutePath.SetupDeposit} component={AccountDeposit} />
+          <Route path={RoutePath.Channels} component={Channels} />
         </Switch>
       </main>
     </Router>
