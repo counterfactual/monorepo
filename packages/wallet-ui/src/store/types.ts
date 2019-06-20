@@ -31,8 +31,6 @@ export enum ActionType {
   Error = "ERROR"
 }
 
-// export type Dispatcher<DataType> = (dispatchRequest: Action<DataType>) => void;
-
 export type StoreAction<DataType> = Action<ActionType> & {
   data: DataType;
 };

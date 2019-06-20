@@ -7,6 +7,7 @@ import {
 import { ThunkAction } from "redux-thunk";
 import { Action } from "redux";
 import { History } from "history";
+import { RoutePath } from "../types";
 
 const initialState = { wallet: {}, error: {} } as WalletState;
 
@@ -19,18 +20,18 @@ export const connectToWallet = (
   Action<ActionType>
 > => async dispatch => {
   try {
-    await window["ethereum"].enable();
+    window.ethereum.enable();
 
     dispatch({
       data: {
         wallet: {
-          ethAddress: window["ethereum"].selectedAddress
+          ethAddress: window.ethereum.selectedAddress
         }
       } as WalletState,
       type: ActionType.SetWalletAddress
     });
 
-    history.push("/setup/register");
+    history.push(RoutePath.SetupRegister);
   } catch (e) {
     dispatch({
       data: {
