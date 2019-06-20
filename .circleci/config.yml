@@ -122,7 +122,7 @@ jobs:
 
       - run: yarn lint
 
-  ensure-updated-yarn.locks:
+  ensure-updated-lockfiles:
     <<: *defaults
     steps:
       - <<: *restore_code
@@ -194,14 +194,14 @@ workflows:
           requires:
             - build
 
-      - ensure-updated-yarn.locks:
+      - ensure-updated-lockfiles:
           requires:
             - build
 
       - publish-to-npm:
           requires:
             - build
-            - ensure-updated-yarn.locks
+            - ensure-updated-lockfiles
             - run-non-playground-tests
             - run-playground-tests
             - run-tslint
