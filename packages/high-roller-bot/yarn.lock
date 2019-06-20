@@ -3534,7 +3534,8 @@ rimraf@^2.5.4, rimraf@^2.6.1, rimraf@^2.6.3:
 
 rpc-server@0.0.1:
   version "0.0.1"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/474b642c95c3f1007fb70dc558975d286e98d053"
+  resolved "https://registry.npmjs.org/rpc-server/-/rpc-server-0.0.1.tgz#e9580425a6d7924f0f1788180861c2f29973f889"
+  integrity sha512-JyaJElunGQeVFce6lcf6nMXJn7FRo765/Iq9x6lfY58xeZT24SUM+OXzoHyRhXPEclM2tubssQH1QCvy0Tjs8Q==
 
 rsvp@^4.8.4:
   version "4.8.4"
