@@ -1,0 +1,10 @@
+@import "../../../styles/ui";
+
+.widget-error-message {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  padding: 0 10px;
+  margin-right: 10px;
+  color: $c-red;
+}

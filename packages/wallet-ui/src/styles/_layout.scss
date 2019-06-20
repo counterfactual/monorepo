@@ -1,0 +1,36 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  transition: transform 150ms;
+
+  &--open {
+    // on menu-btn click
+    transform: translateX(-15rem);
+  }
+
+  &__content {
+    display: flex;
+    flex-grow: 1;
+  }
+}
+
+.section {
+  padding: $rhythm / 4 $rhythm * 3;
+
+  &.fill {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+.container {
+  max-width: $site-width;
+  margin: 0 auto;
+}
+
+ul {
+  list-style-type: disc;
+  padding-left: $rhythm * 3;
+}

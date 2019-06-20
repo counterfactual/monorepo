@@ -1,0 +1,51 @@
+@import "../../../styles/variables";
+
+.label {
+  margin-bottom: $rhythm;
+  font-size: 105%;
+}
+
+.input-container {
+  display: flex;
+  align-items: center;
+  height: $rhythm * 4;
+  width: 100%;
+  border: thin solid $c-mediumgrey;
+  border-radius: 2px;
+  margin-bottom: $rhythm * 2;
+
+  &.disabled {
+    border: 0;
+  }
+}
+
+.input {
+  flex-grow: 1;
+  font-size: 105%;
+  height: 100%;
+  padding: $rhythm $rhythm * 1.5;
+  border: 0;
+
+  &:focus {
+    outline: 0;
+  }
+
+  &:disabled {
+    background-color: transparent;
+    color: $c-mediumgrey;
+    padding: $rhythm;
+  }
+}
+
+.unit {
+  padding: $rhythm;
+  color: $c-darkgrey;
+  flex-shrink: 0;
+}
+
+.error {
+  color: $c-darkred;
+  font-size: 85%;
+  padding-bottom: $rhythm * 2;
+  margin-top: -$rhythm;
+}

@@ -1,0 +1,8 @@
+@import "../../styles/variables";
+
+.smallprint {
+  margin: $rhythm * 2 0 $rhythm * 2 0;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: $c-darkgrey;
+}
