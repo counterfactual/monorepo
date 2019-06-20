@@ -169,15 +169,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.3.tgz#0847c6fce2be72c50ec43c52f64c031f3e6ff16e"
-  integrity sha512-A/eG9w+9SBiZYxUwZF3zPjpYMf4ZdiIh810VFJ3fDgQQPgCINJYGfJ7ervGoBttrGyyQLtVHeg53N7oWb3uYgA==
+"@counterfactual/node@0.2.4":
+  version "0.2.4"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.4.tgz#35477d0c7df2a39630026e17d01a5f3c4bcc37bb"
+  integrity sha512-p2UMB6JN6b6BhUW1HM0r1q0szzVIsEyP7PNUd1LHcSoFgQ2W9Q9pi/JfNvIdU0Sfukp6qcenwved5fjiHgLymQ==
   dependencies:
     "@counterfactual/cf.js" "0.2.1"
     "@counterfactual/contracts" "0.1.2"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.13"
+    "@counterfactual/types" "0.0.14"
     "@firebase/util" "0.2.18"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
