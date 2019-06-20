@@ -66,7 +66,6 @@ const AccountRegistration: React.FC<AccountRegistrationProps> = ({
 
 export default connect(
   (state: ApplicationState) => ({
-    users: state.Users,
     wallet: state.Wallet
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({

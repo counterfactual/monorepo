@@ -15,11 +15,6 @@ export type Wallet = {
   ethAddress: string;
 };
 
-export type WalletState = {
-  wallet: Wallet;
-  error: ErrorData;
-};
-
 export type ErrorData = {
   message: string;
 };
@@ -31,13 +26,21 @@ export enum ActionType {
   Error = "ERROR"
 }
 
-// export type Dispatcher<DataType> = (dispatchRequest: Action<DataType>) => void;
+export type UserState = {
+  user: User;
+  error: ErrorData;
+};
 
-export type StoreAction<DataType> = Action<ActionType> & {
-  data: DataType;
+export type WalletState = {
+  wallet: Wallet;
+  error: ErrorData;
 };
 
 export type ApplicationState = {
-  Users: User[];
+  User: UserState;
   Wallet: WalletState;
+};
+
+export type StoreAction<DataType> = Action<ActionType> & {
+  data: DataType;
 };

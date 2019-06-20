@@ -1,16 +1,29 @@
 import PlaygroundAPIClient from "../utils/hub-api-client";
-import { User, ActionType, StoreAction } from "./types";
-import { Dispatch } from "redux";
+import { Action } from "redux";
 
-const initialState: User[] = [];
+import {
+  User,
+  ActionType,
+  StoreAction,
+  UserState,
+  ApplicationState
+} from "./types";
+import { ThunkAction } from "redux-thunk";
 
-export const addUser = (data: User) => {
-  return async (dispatch: Dispatch<StoreAction<User>>) => {
-    dispatch({
-      data: await PlaygroundAPIClient.createAccount(data, "foo"),
-      type: ActionType.AddUser
-    });
-  };
+const initialState = { user: {}, error: {} } as UserState;
+
+export const addUser = (
+  userData: User
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  dispatch({
+    data: await PlaygroundAPIClient.createAccount(userData, "foo"),
+    type: ActionType.AddUser
+  });
 };
 
 export const getUsers = () => ({ type: "GET" });
@@ -21,7 +34,7 @@ export const reducers = function(
 ) {
   switch (action.type) {
     case ActionType.AddUser:
-      return [...state, { ...action.data }];
+      return { ...state, ...action.data };
     default:
       return state;
   }

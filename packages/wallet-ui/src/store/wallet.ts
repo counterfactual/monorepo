@@ -1,12 +1,12 @@
+import { ThunkAction } from "redux-thunk";
+import { Action } from "redux";
+import { History } from "history";
 import {
   WalletState,
   ActionType,
   StoreAction,
   ApplicationState
 } from "./types";
-import { ThunkAction } from "redux-thunk";
-import { Action } from "redux";
-import { History } from "history";
 
 const initialState = { wallet: {}, error: {} } as WalletState;
 
