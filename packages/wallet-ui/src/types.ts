@@ -1,4 +1,5 @@
-import { IpcProvider, JsonRPCRequest, JsonRPCResponse } from "web3/providers";
+import { IpcProvider } from "web3/providers";
+import { AsyncSendable, Web3Provider, JsonRpcSigner } from "ethers/providers";
 
 export enum RoutePath {
   Root = "/",
@@ -7,17 +8,19 @@ export enum RoutePath {
   Channels = "/channels"
 }
 
+export type EthereumServiceContext = {
+  provider: Web3Provider;
+  signer: JsonRpcSigner;
+};
+
 declare global {
   interface Window {
-    ethereum: IpcProvider & {
-      enable: () => Promise<void>;
-      selectedAddress: string;
-      networkVersion: string;
-      sendAsync: (
-        payload: JsonRPCRequest,
-        callback: (data: JsonRPCResponse) => void
-      ) => void;
-    };
+    ethereum: IpcProvider &
+      AsyncSendable & {
+        enable: () => Promise<void>;
+        selectedAddress: string;
+        networkVersion: string;
+      };
 
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (...args: any[]) => any;
   }
