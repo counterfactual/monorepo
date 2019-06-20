@@ -1,1 +1,5 @@
 test/test-db.sqlite
+
+# Needed for consistent Heroku deployment environment
+# See: https://github.com/yarnpkg/yarn/issues/5428#issuecomment-389623755
+!yarn.lock

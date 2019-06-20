@@ -16,7 +16,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.12",
+    "@counterfactual/types": "0.0.13",
     "@firebase/app-types": "^0.4.0",
     "@firebase/util": "^0.2.19",
     "@types/firebase": "3.2.1",
