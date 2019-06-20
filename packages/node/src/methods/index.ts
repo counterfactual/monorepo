@@ -16,12 +16,14 @@ import GetProposedAppInstanceController from "./proposed-app-instance/get/contro
 import CreateChannelController from "./state-channel/create/controller";
 import DepositController from "./state-channel/deposit/controller";
 import GetAllChannelAddressesController from "./state-channel/get-all/controller";
+import GetStateDepositHolderAddressController from "./state-channel/get-state-deposit-holder-address/controller";
 import WithdrawController from "./state-channel/withdraw/controller";
 
 export {
   CreateChannelController,
   DepositController,
   GetAllChannelAddressesController,
+  GetStateDepositHolderAddressController,
   GetAppInstanceController,
   GetAppInstanceStateController,
   GetFreeBalanceStateController,

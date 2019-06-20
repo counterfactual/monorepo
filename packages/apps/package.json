@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.1.2",
-    "@counterfactual/types": "0.0.11",
+    "@counterfactual/types": "0.0.14",
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
@@ -40,6 +40,6 @@
     "tslint": "5.17.0"
   },
   "resolutions": {
-    "ethereum-waffle/solc": "0.5.8"
+    "ethereum-waffle/solc": "0.5.9"
   }
 }

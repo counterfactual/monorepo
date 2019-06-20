@@ -90,7 +90,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.numInstalledApps
       );
 
-      let freeBalanceETH = stateChannel.getETHFreeBalance();
+      let freeBalanceETH = stateChannel.freeBalance;
       const state = freeBalanceETH.state;
 
       // todo(xuanji): don't reuse state
@@ -117,7 +117,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
 
-      freeBalanceETH = stateChannel.getETHFreeBalance();
+      freeBalanceETH = stateChannel.freeBalance;
 
       const setStateCommitment = new SetStateCommitment(
         network,
@@ -159,7 +159,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         network.ETHInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],
-          [freeBalanceETH.ethTransferInterpreterParams!.limit]
+          [freeBalanceETH.coinTransferInterpreterParams!.limit]
         )
       );
 

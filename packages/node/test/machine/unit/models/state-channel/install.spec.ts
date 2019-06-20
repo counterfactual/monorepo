@@ -63,7 +63,7 @@ describe("StateChannel::uninstallApp", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc2.getETHFreeBalance();
+      fb = sc2.freeBalance;
     });
 
     it("should have updated balances for Alice and Bob", () => {

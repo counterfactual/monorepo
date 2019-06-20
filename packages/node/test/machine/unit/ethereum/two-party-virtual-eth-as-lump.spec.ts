@@ -49,7 +49,7 @@ describe("ETH Virtual App Agreement Commitment", () => {
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.getETHFreeBalance();
+  const freeBalanceETH = stateChannel.freeBalance;
 
   const uninstallKey = hexlify(randomBytes(32));
   const target = hexlify(randomBytes(32));

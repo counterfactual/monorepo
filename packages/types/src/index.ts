@@ -7,8 +7,10 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  CoinTransferInterpreterParams,
   OutcomeType,
-  TwoPartyFixedOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
@@ -64,6 +66,7 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  CoinTransferInterpreterParams,
   SolidityABIEncoderV2Type,
   Bytes32,
   ETHBucketAppState,
@@ -72,5 +75,6 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyFixedOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 };

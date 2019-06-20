@@ -1,6 +1,7 @@
 import { BigNumber } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
+import { OutcomeType } from ".";
 import { AppABIEncodings, AppInstanceInfo } from "./data-types";
 import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
 
@@ -91,6 +92,7 @@ export namespace Node {
     DEPOSIT = "chan_deposit",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
+    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
@@ -173,6 +175,14 @@ export namespace Node {
     appInstance: AppInstanceInfo;
   };
 
+  export type GetStateDepositHolderAddressParams = {
+    owners: string[];
+  };
+
+  export type GetStateDepositHolderAddressResult = {
+    address: string;
+  };
+
   export type GetAppInstancesParams = {};
 
   export type GetAppInstancesResult = {
@@ -237,6 +247,7 @@ export namespace Node {
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
+    outcomeType: OutcomeType;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {

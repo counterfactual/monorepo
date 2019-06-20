@@ -99,7 +99,7 @@ What should be returned from the `computeOutcome` function depends on the **outc
 In the framework, the following outcome types are currently defined.
 
 - TwoPlayerOutcome: the app results in an outcome of a win, a loss, or a draw. This is represented as the abi encoding of a `uint256`.
-- ETHTransfer: the app arrives in an outcome of a dynamically-sized mapping of address to amount in Wei. This is represenetd as the abi encoding of `tuple(address, uint)[]`.
+- CoinTransfer: the app arrives in an outcome of a dynamically-sized mapping of address to amount in Wei. This is represenetd as the abi encoding of `tuple(address, uint)[]`.
 
 ### Optional Functionality
 

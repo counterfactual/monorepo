@@ -1,4 +1,7 @@
 import { createProviderConsumer } from "@stencil/state-tunnel";
+import { Signer } from "ethers";
+import { Web3Provider } from "ethers/providers";
+import { BigNumber } from "ethers/utils";
 
 export interface WalletState {
   signer?: Signer;

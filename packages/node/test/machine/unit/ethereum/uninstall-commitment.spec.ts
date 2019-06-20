@@ -51,7 +51,7 @@ describe("Uninstall Commitment", () => {
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.getETHFreeBalance();
+  const freeBalanceETH = stateChannel.freeBalance;
 
   const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
 

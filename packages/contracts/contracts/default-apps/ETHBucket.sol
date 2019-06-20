@@ -2,14 +2,13 @@ pragma solidity 0.5.9;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/CounterfactualApp.sol";
-import "../interfaces/Interpreter.sol";
-import "../interpreters/ETHInterpreter.sol";
+import "../libs/LibOutcome.sol";
 
 
 contract ETHBucket is CounterfactualApp {
 
   struct AppState {
-    ETHInterpreter.ETHTransfer[] transfers;
+    LibOutcome.CoinTransfer[] transfers;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -18,14 +17,6 @@ contract ETHBucket is CounterfactualApp {
     returns (bytes memory)
   {
     return abi.encode(abi.decode(encodedState, (AppState)).transfers);
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(Interpreter.OutcomeType.ETH_TRANSFER);
   }
 
 }

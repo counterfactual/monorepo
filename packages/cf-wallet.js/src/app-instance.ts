@@ -2,12 +2,10 @@ import {
   Address,
   AppABIEncodings,
   AppInstanceID,
-  AppInstanceInfo
-} from "@counterfactual/types";
-import {
-  ETHTransferInterpreterParams,
+  AppInstanceInfo,
+  CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import { Provider } from "./provider";
@@ -31,7 +29,7 @@ export class AppInstance {
   readonly peerDeposit: BigNumber;
 
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  readonly ethTransferInterpreterParams?: ETHTransferInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 
   readonly intermediaries?: Address[];
 
@@ -44,7 +42,7 @@ export class AppInstance {
     this.timeout = info.timeout;
     this.twoPartyOutcomeInterpreterParams =
       info.twoPartyOutcomeInterpreterParams;
-    this.ethTransferInterpreterParams = info.ethTransferInterpreterParams;
+    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 

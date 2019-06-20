@@ -57,7 +57,7 @@ function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
 
     const commitHashAction = {
       number: numToCommit,
-      actionType: 2, // ActionType.COMMIT_TO_NUM
+      actionType: 1, // ActionType.COMMIT_TO_NUM
       actionHash: hash
     };
 

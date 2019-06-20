@@ -1,7 +1,4 @@
-import {
-  Node as NodeTypes,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import {
@@ -45,22 +42,21 @@ describe("Node method follows spec - takeAction", () => {
 
       it("can take action", async done => {
         await createChannel(nodeA, nodeB);
+
         const appInstanceId = await installTTTApp(nodeA, nodeB);
 
-        let newState: SolidityABIEncoderV2Type;
-
         nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-
           const response = (await nodeB.router.dispatch(
-            getStateReq
+            generateGetStateRequest(msg.data.appInstanceId)
           )) as JsonRpcResponse;
 
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
+          const { state } = response.result as NodeTypes.GetStateResult;
+
+          expect(state).toEqual(newState);
+
           done();
         });
+
         const takeActionReq = generateTakeActionRequest(
           appInstanceId,
           validAction
@@ -70,7 +66,7 @@ describe("Node method follows spec - takeAction", () => {
           takeActionReq
         )) as JsonRpcResponse;
 
-        newState = (response.result as NodeTypes.TakeActionResult).newState;
+        const { newState } = response.result as NodeTypes.TakeActionResult;
 
         expect(newState["board"][0][0]).toEqual(bigNumberify(1));
         expect(newState["turnNum"]).toEqual(bigNumberify(1));
