@@ -1,7 +1,7 @@
-import React, { useContext } from "react";
+import React from "react";
 import { connect } from "react-redux";
 import { WidgetScreen } from "../../components/widget";
-import { FormButton, FormInput } from "../../components/form";
+import { FormButton, FormInput, InputChangeProps } from "../../components/form";
 
 import "./AccountRegistration.scss";
 import { Link } from "react-router-dom";
@@ -14,8 +14,9 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { EthereumService } from "../../providers/EthereumService";
 import { JsonRpcSigner } from "ethers/providers";
+import { EthereumService } from "../../providers/EthereumService";
+import log from "../../utils/log";
 
 type AccountRegistrationProps = {
   wallet: WalletState;
@@ -28,47 +29,65 @@ const AlreadyHaveAnAccount: React.FC = () => (
   </React.Fragment>
 );
 
-const AccountRegistration: React.FC<AccountRegistrationProps> = ({
-  addUser,
-  wallet
-}) => {
-  const context = useContext(EthereumService);
+class AccountRegistration extends React.Component<
+  AccountRegistrationProps,
+  User
+> {
+  static contextType = EthereumService;
+  constructor(props: AccountRegistrationProps) {
+    super(props);
+    this.state = {
+      username: "",
+      email: "",
+      ethAddress: props.wallet.wallet.ethAddress,
+      nodeAddress: ""
+    };
+  }
 
-  return (
-    <WidgetScreen
-      header={"Create a Counterfactual Account"}
-      post={<AlreadyHaveAnAccount />}
-      exitable={false}
-    >
-      <form onSubmit={async e => console.log(e)}>
-        <FormInput label="Username" type="text" required={true} />
-        <FormInput label="E-mail (optional)" type="email" />
-        <div className="smallprint">
-          <b>Account will be linked to your Ethereum address: </b>
-          {wallet.wallet.ethAddress}
-        </div>
-        <FormButton
-          type="button"
-          className="button"
-          onClick={() =>
-            addUser(
-              {
-                username: "joey",
-                email: "joey@joey.com",
-                ethAddress: "0x0",
-                nodeAddress: "0x0"
-              },
-              context.signer
-            )
-          }
-        >
-          Create account
-        </FormButton>
-      </form>
-    </WidgetScreen>
-  );
-};
+  handleFormChange = (event: InputChangeProps) => {
+    this.setState({ ...this.state, [event.inputName]: event.value });
+  };
 
+  render() {
+    const { wallet, addUser } = this.props;
+    const { signer } = this.context;
+
+    return (
+      <WidgetScreen
+        header={"Create a Counterfactual Account"}
+        post={<AlreadyHaveAnAccount />}
+        exitable={false}
+      >
+        <form>
+          <FormInput
+            label="Username"
+            type="text"
+            name="username"
+            required={true}
+            change={this.handleFormChange}
+          />
+          <FormInput
+            label="E-mail (optional)"
+            type="email"
+            name="email"
+            change={this.handleFormChange}
+          />
+          <div className="smallprint">
+            <b>Account will be linked to your Ethereum address: </b>
+            {wallet.wallet.ethAddress}
+          </div>
+          <FormButton
+            type="button"
+            className="button"
+            onClick={() => addUser(this.state, signer)}
+          >
+            Create account
+          </FormButton>
+        </form>
+      </WidgetScreen>
+    );
+  }
+}
 export default connect(
   (state: ApplicationState) => ({
     wallet: state.Wallet
