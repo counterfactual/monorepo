@@ -5,7 +5,7 @@ export default class NodeProvider {
     this.isConnected = false;
     this.activeState = {
       address: ["888", "777"],
-      turnNum: 0,
+      versionNumber: 0,
       winner: 0,
       board: [
         [0, 0, 0],
@@ -114,7 +114,7 @@ export default class NodeProvider {
 
   takeAction(x, y, playerNumber) {
     this.activeState.board[x][y] = playerNumber;
-    this.activeState.turnNum += 1;
+    this.activeState.versionNumber += 1;
   }
 
   sendActionEvent(appInstanceId) {

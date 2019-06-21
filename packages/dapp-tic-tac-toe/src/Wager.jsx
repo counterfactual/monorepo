@@ -91,7 +91,7 @@ class Wager extends Component {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
         stateEncoding:
-          "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
+          "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"
       },
       this.props.cfProvider
     );
@@ -137,7 +137,7 @@ class Wager extends Component {
         ),
         timeout: 172800,
         initialState: {
-          turnNum: 0,
+          versionNumber: 0,
           winner: 0,
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         },

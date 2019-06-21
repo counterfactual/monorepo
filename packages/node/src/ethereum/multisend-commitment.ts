@@ -47,7 +47,7 @@ export abstract class MultiSendCommitment extends MultisigCommitment {
         this.freeBalanceAppIdentity,
         {
           appStateHash: this.freeBalanceStateHash,
-          nonce: this.freeBalanceNonce,
+          versionNumber: this.freeBalanceNonce,
           timeout: this.freeBalanceTimeout,
           // Don't need signatures since a multisig is always calling MultiSend
           signatures: HashZero

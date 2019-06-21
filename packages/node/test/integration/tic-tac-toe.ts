@@ -1,7 +1,7 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 
 export const tttStateEncoding =
-  "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)";
+  "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)";
 
 export const tttActionEncoding =
   "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)";
@@ -18,7 +18,7 @@ export const validAction = {
 
 export function initialEmptyTTTState(): SolidityABIEncoderV2Type {
   return {
-    turnNum: 0,
+    versionNumber: 0,
     winner: 0,
     board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
   };

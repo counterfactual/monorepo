@@ -113,7 +113,7 @@ async function addStateTransitionAndCommitmentToContext(
     network,
     updatedAppInstance.identity,
     updatedAppInstance.hashOfLatestState,
-    updatedAppInstance.nonce,
+    updatedAppInstance.versionNumber,
     updatedAppInstance.timeout
   );
 

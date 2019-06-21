@@ -15,7 +15,7 @@ contract MixinSetState is
 
   struct SignedAppChallengeUpdate {
     bytes32 appStateHash;
-    uint256 nonce;
+    uint256 versionNumber;
     uint256 timeout;
     bytes signatures;
   }
@@ -60,8 +60,8 @@ contract MixinSetState is
     }
 
     require(
-      req.nonce > challenge.nonce,
-      "Tried to call setState with an outdated nonce version"
+      req.versionNumber > challenge.versionNumber,
+      "Tried to call setState with an outdated versionNumber version"
     );
 
     challenge.status = req.timeout > 0 ?
@@ -69,9 +69,8 @@ contract MixinSetState is
       ChallengeStatus.CHALLENGE_WAS_FINALIZED;
 
     challenge.appStateHash = req.appStateHash;
-    challenge.nonce = req.nonce;
+    challenge.versionNumber = req.versionNumber;
     challenge.finalizesAt = block.number + req.timeout;
-    challenge.challengeNonce = 0;
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
@@ -88,7 +87,7 @@ contract MixinSetState is
     bytes32 digest = computeAppChallengeHash(
       identityHash,
       req.appStateHash,
-      req.nonce,
+      req.versionNumber,
       req.timeout
     );
 

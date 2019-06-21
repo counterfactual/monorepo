@@ -31,7 +31,7 @@ describe("Set State Commitment", () => {
       networkContext,
       appInstance.identity,
       appInstance.hashOfLatestState,
-      appInstance.nonce,
+      appInstance.versionNumber,
       appInstance.timeout
     );
     // TODO: (question) Should there be a way to retrieve the version
@@ -74,9 +74,9 @@ describe("Set State Commitment", () => {
     });
 
     it("should contain expected SignedStateHashUpdate argument", () => {
-      const [stateHash, nonce, timeout, []] = desc.args[1];
+      const [stateHash, versionNumber, timeout, []] = desc.args[1];
       expect(stateHash).toBe(appInstance.hashOfLatestState);
-      expect(nonce).toEqual(bigNumberify(appInstance.nonce));
+      expect(versionNumber).toEqual(bigNumberify(appInstance.versionNumber));
       expect(timeout).toEqual(bigNumberify(appInstance.timeout));
     });
   });
@@ -93,7 +93,7 @@ describe("Set State Commitment", () => {
         [
           "0x19",
           appIdentityToHash(appInstance.identity),
-          appInstance.nonce,
+          appInstance.versionNumber,
           appInstance.timeout,
           appInstance.hashOfLatestState
         ]

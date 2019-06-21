@@ -32,15 +32,15 @@ describe("ChallengeRegistry", () => {
 
   let appRegistry: Contract;
 
-  let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
+  let setStateAsOwner: (versionNumber: number, appState?: string) => Promise<void>;
   let setStateWithSignatures: (
-    nonce: number,
+    versionNumber: number,
     appState?: string
   ) => Promise<void>;
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
   let latestAppState: () => Promise<string>;
-  let latestNonce: () => Promise<number>;
+  let latestversionNumber: () => Promise<number>;
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
@@ -65,16 +65,16 @@ describe("ChallengeRegistry", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
-    latestNonce = async () =>
+    latestversionNumber = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
-        .nonce;
+        .versionNumber;
 
     isStateFinalized = async () =>
       await appRegistry.functions.isStateFinalized(appInstance.identityHash);
 
-    setStateAsOwner = (nonce: number, appState?: string) =>
+    setStateAsOwner = (versionNumber: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
-        nonce,
+        versionNumber,
         appStateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: HashZero
@@ -83,12 +83,12 @@ describe("ChallengeRegistry", () => {
     cancelChallenge = () =>
       appRegistry.functions.cancelChallenge(appInstance.appIdentity, HashZero);
 
-    setStateWithSignatures = async (nonce: number, appState?: string) => {
+    setStateWithSignatures = async (versionNumber: number, appState?: string) => {
       const stateHash = keccak256(appState || HashZero);
       const digest = computeAppChallengeHash(
         appInstance.identityHash,
         stateHash,
-        nonce,
+        versionNumber,
         ONCHAIN_CHALLENGE_TIMEOUT
       );
 
@@ -107,7 +107,7 @@ describe("ChallengeRegistry", () => {
       const data = appRegistry.interface.functions.setState.encode([
         appInstance.appIdentity,
         {
-          nonce,
+          versionNumber,
           appStateHash: stateHash,
           timeout: ONCHAIN_CHALLENGE_TIMEOUT,
           signatures: bytes
@@ -122,14 +122,14 @@ describe("ChallengeRegistry", () => {
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
-        nonce: (await latestNonce()) + 1,
+        versionNumber: (await latestversionNumber()) + 1,
         appStateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
           computeAppChallengeHash(
             appInstance.identityHash,
             await latestAppState(),
-            await latestNonce(),
+            await latestversionNumber(),
             0
           )
         )
@@ -138,76 +138,76 @@ describe("ChallengeRegistry", () => {
 
   describe("updating app state", () => {
     describe("with owner", () => {
-      it("should work with higher nonce", async () => {
-        expect(await latestNonce()).to.eq(0);
+      it("should work with higher versionNumber", async () => {
+        expect(await latestversionNumber()).to.eq(0);
         await setStateAsOwner(1);
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
       });
 
       it("should work many times", async () => {
-        expect(await latestNonce()).to.eq(0);
+        expect(await latestversionNumber()).to.eq(0);
         await setStateAsOwner(1);
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
         await cancelChallenge();
         await setStateAsOwner(2);
-        expect(await latestNonce()).to.eq(2);
+        expect(await latestversionNumber()).to.eq(2);
         await cancelChallenge();
         await setStateAsOwner(3);
-        expect(await latestNonce()).to.eq(3);
+        expect(await latestversionNumber()).to.eq(3);
       });
 
-      it("should work with much higher nonce", async () => {
-        expect(await latestNonce()).to.eq(0);
+      it("should work with much higher versionNumber", async () => {
+        expect(await latestversionNumber()).to.eq(0);
         await setStateAsOwner(1000);
-        expect(await latestNonce()).to.eq(1000);
+        expect(await latestversionNumber()).to.eq(1000);
       });
 
-      it("shouldn't work with an equal nonce", async () => {
+      it("shouldn't work with an equal versionNumber", async () => {
         await expect(setStateAsOwner(0)).to.be.reverted;
-        expect(await latestNonce()).to.eq(0);
+        expect(await latestversionNumber()).to.eq(0);
       });
 
-      it("shouldn't work with an lower nonce", async () => {
+      it("shouldn't work with an lower versionNumber", async () => {
         await setStateAsOwner(1);
         await expect(setStateAsOwner(0)).to.be.reverted;
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
       });
     });
 
     describe("with signing keys", async () => {
-      it("should work with higher nonce", async () => {
-        expect(await latestNonce()).to.eq(0);
+      it("should work with higher versionNumber", async () => {
+        expect(await latestversionNumber()).to.eq(0);
         await setStateWithSignatures(1);
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
       });
 
       it("should work many times", async () => {
-        expect(await latestNonce()).to.eq(0);
+        expect(await latestversionNumber()).to.eq(0);
         await setStateWithSignatures(1);
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
         await cancelChallenge();
         await setStateWithSignatures(2);
-        expect(await latestNonce()).to.eq(2);
+        expect(await latestversionNumber()).to.eq(2);
         await cancelChallenge();
         await setStateWithSignatures(3);
-        expect(await latestNonce()).to.eq(3);
+        expect(await latestversionNumber()).to.eq(3);
       });
 
-      it("should work with much higher nonce", async () => {
-        expect(await latestNonce()).to.eq(0);
+      it("should work with much higher versionNumber", async () => {
+        expect(await latestversionNumber()).to.eq(0);
         await setStateWithSignatures(1000);
-        expect(await latestNonce()).to.eq(1000);
+        expect(await latestversionNumber()).to.eq(1000);
       });
 
-      it("shouldn't work with an equal nonce", async () => {
+      it("shouldn't work with an equal versionNumber", async () => {
         await expect(setStateWithSignatures(0)).to.be.reverted;
-        expect(await latestNonce()).to.eq(0);
+        expect(await latestversionNumber()).to.eq(0);
       });
 
-      it("shouldn't work with a lower nonce", async () => {
+      it("shouldn't work with a lower versionNumber", async () => {
         await setStateWithSignatures(1);
         await expect(setStateWithSignatures(0)).to.be.reverted;
-        expect(await latestNonce()).to.eq(1);
+        expect(await latestversionNumber()).to.eq(1);
       });
     });
   });
@@ -251,7 +251,7 @@ describe("ChallengeRegistry", () => {
     const stateHash = hexlify(randomBytes(32));
     await appRegistry.functions.setState(appInstance.appIdentity, {
       appStateHash: stateHash,
-      nonce: 1,
+      versionNumber: 1,
       timeout: 10,
       signatures: HashZero
     });
@@ -262,17 +262,15 @@ describe("ChallengeRegistry", () => {
       latestSubmitter,
       appStateHash,
       challengeCounter,
-      challengeNonce,
       finalizesAt,
-      nonce
+      versionNumber
     } = await appRegistry.functions.appChallenges(appInstance.identityHash);
 
     expect(status).to.be.eq(1);
     expect(latestSubmitter).to.be.eq(await wallet.getAddress());
     expect(appStateHash).to.be.eq(stateHash);
     expect(challengeCounter).to.be.eq(1);
-    expect(challengeNonce).to.be.eq(0);
     expect(finalizesAt).to.be.eq((await provider.getBlockNumber()) + 10);
-    expect(nonce).to.be.eq(1);
+    expect(versionNumber).to.be.eq(1);
   });
 });

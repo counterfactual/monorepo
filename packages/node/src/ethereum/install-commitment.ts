@@ -17,7 +17,7 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly appIdentity: AppIdentity,
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceStateHash: string,
-    public readonly freeBalanceNonce: number,
+    public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
@@ -30,7 +30,7 @@ export class InstallCommitment extends MultiSendCommitment {
       multisigOwners,
       freeBalanceAppIdentity,
       freeBalanceStateHash,
-      freeBalanceNonce,
+      freeBalanceversionNumber,
       freeBalanceTimeout
     );
   }

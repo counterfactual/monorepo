@@ -94,7 +94,7 @@ export class AppProvider {
             bytes32 commitHash,
             uint256 playerFirstNumber,
             uint256 playerSecondNumber,
-            uint256 turnNum
+            uint256 versionNumber
           )
         `
       },

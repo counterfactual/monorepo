@@ -78,7 +78,7 @@ describe("Node method follows spec - takeAction virtual", () => {
         newState = (response.result as NodeTypes.TakeActionResult).newState;
 
         expect(newState["board"][0][0]).toEqual(bigNumberify(1));
-        expect(newState["turnNum"]).toEqual(bigNumberify(1));
+        expect(newState["versionNumber"]).toEqual(bigNumberify(1));
       });
     }
   );
