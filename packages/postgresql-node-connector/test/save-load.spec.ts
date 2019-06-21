@@ -22,6 +22,12 @@ describe("Postgres store service implementation behavior adheres to interface", 
     );
   });
 
+  afterAll(async () => {
+    if (postgresService.reset !== undefined) {
+      await postgresService.reset();
+    }
+  });
+
   it("can save and load basic records", async done => {
     expect(await postgresService.get("A")).toBeUndefined();
 
@@ -36,6 +42,7 @@ describe("Postgres store service implementation behavior adheres to interface", 
     ]);
 
     expect(await postgresService.get(key)).toEqual(value);
+
     done();
   });
 });
