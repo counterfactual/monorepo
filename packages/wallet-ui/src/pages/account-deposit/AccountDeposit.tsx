@@ -31,9 +31,6 @@ export class AccountDeposit extends React.Component {
             min={0}
             value={2.13}
             step={0.01}
-            change={(event, error) => {
-              console.log(event, error);
-            }}
           />
           {/* TODO: This should actually make a deposit
          before transitioning to /channels */}
