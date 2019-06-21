@@ -29,7 +29,7 @@ declare global {
         networkVersion: string;
         send: (
           eventOrMethod: CounterfactualMethod | CounterfactualEvent,
-          data?: any
+          data?: any[]
         ) => Promise<any>;
       };
 

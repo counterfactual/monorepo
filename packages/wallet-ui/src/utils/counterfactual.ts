@@ -16,7 +16,7 @@ export async function getNodeAddress(): Promise<string> {
 }
 
 export async function storeTokenFromUser({ token }: User): Promise<void> {
-  window.ethereum.send(CounterfactualMethod.SetUser, token);
+  window.ethereum.send(CounterfactualMethod.SetUser, [token]);
 }
 
 export function buildRegistrationSignaturePayload(data: User) {
