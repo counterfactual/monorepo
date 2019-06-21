@@ -1,53 +1,63 @@
-import { AppInstanceInfo, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 
-import { InstructionExecutor } from "../../../machine";
-import { StateChannel } from "../../../models";
-import { Store } from "../../../store";
 import {
-  NO_APP_INSTANCE_ID_TO_INSTALL,
-  VIRTUAL_APP_INSTALLATION_FAIL
-} from "../../errors";
+  InstructionExecutor,
+  VirtualChannelProtocolContext
+} from "../../../machine";
+import { ProposedAppInstanceInfo } from "../../../models";
+import { Store } from "../../../store";
+import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
 export async function installVirtual(
   store: Store,
   instructionExecutor: InstructionExecutor,
   params: Node.InstallParams
-): Promise<AppInstanceInfo> {
+): Promise<ProposedAppInstanceInfo> {
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
     return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
-  const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
-
-  let updatedStateChannelsMap: Map<string, StateChannel>;
-  try {
-    updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
-      new Map(Object.entries(await store.getAllChannels())),
-      {
-        initiatingXpub: appInstanceInfo.proposedToIdentifier,
-        respondingXpub: appInstanceInfo.proposedByIdentifier,
-        intermediaryXpub: appInstanceInfo.intermediaries![0],
-        defaultTimeout: appInstanceInfo.timeout.toNumber(),
-        appInterface: {
-          addr: appInstanceInfo.appDefinition,
-          ...appInstanceInfo.abiEncodings
-        },
-        initialState: appInstanceInfo.initialState,
-        initiatingBalanceDecrement: appInstanceInfo.myDeposit,
-        respondingBalanceDecrement: appInstanceInfo.peerDeposit
-      }
-    );
-  } catch (e) {
-    return Promise.reject(`${VIRTUAL_APP_INSTALLATION_FAIL}: ${e}`);
-  }
-
-  updatedStateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
+  const proposedAppInstanceInfo = await store.getProposedAppInstanceInfo(
+    appInstanceId
   );
 
-  await store.saveRealizedProposedAppInstance(appInstanceInfo);
+  const channelWithIntermediary = await store.getStateChannelFromOwners([
+    proposedAppInstanceInfo.proposedToIdentifier,
+    proposedAppInstanceInfo.intermediaries![0]
+  ]);
 
-  return appInstanceInfo;
+  const channelWithCounterparty = await store.getStateChannelFromOwners([
+    proposedAppInstanceInfo.proposedByIdentifier,
+    proposedAppInstanceInfo.proposedToIdentifier
+  ]);
+
+  const {
+    stateChannelWithIntermediary,
+    stateChannelWithCounterparty
+  } = (await instructionExecutor.runInstallVirtualAppProtocol(
+    channelWithIntermediary,
+    channelWithCounterparty,
+    {
+      initiatingXpub: proposedAppInstanceInfo.proposedToIdentifier,
+      respondingXpub: proposedAppInstanceInfo.proposedByIdentifier,
+      intermediaryXpub: proposedAppInstanceInfo.intermediaries![0],
+      defaultTimeout: proposedAppInstanceInfo.timeout.toNumber(),
+      appInterface: {
+        addr: proposedAppInstanceInfo.appDefinition,
+        ...proposedAppInstanceInfo.abiEncodings
+      },
+      initialState: proposedAppInstanceInfo.initialState,
+      initiatingBalanceDecrement: proposedAppInstanceInfo.myDeposit,
+      respondingBalanceDecrement: proposedAppInstanceInfo.peerDeposit
+    }
+  )) as VirtualChannelProtocolContext;
+
+  await store.saveStateChannel(stateChannelWithIntermediary);
+  await store.saveStateChannel(stateChannelWithCounterparty);
+
+  await store.saveRealizedProposedAppInstance(proposedAppInstanceInfo);
+
+  return proposedAppInstanceInfo;
 }

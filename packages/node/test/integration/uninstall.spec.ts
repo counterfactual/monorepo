@@ -29,10 +29,13 @@ describe("Node method follows spec - uninstall", () => {
       };
 
       await createChannel(nodeA, nodeB);
+
       const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
+
       const uninstallReq = generateUninstallRequest(appInstanceId);
 
       nodeA.emit(uninstallReq.type, uninstallReq);
+
       nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
         expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);

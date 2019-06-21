@@ -32,7 +32,7 @@ export async function getChannelFromPeerAddress(
   );
 
   if (!multisigAddress) {
-    return Promise.reject(NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress));
+    throw new Error(NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress));
   }
 
   return await store.getStateChannel(multisigAddress);

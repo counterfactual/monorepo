@@ -4,7 +4,6 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
  * Handles the retrieval of a Channel's FreeBalance AppInstance.
@@ -23,7 +22,9 @@ export default class GetFreeBalanceController extends NodeController {
     const { multisigAddress } = params;
 
     if (!multisigAddress) {
-      Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+      throw new Error(
+        "chan_getFreeBalanceState: received undefined multisigAddress"
+      );
     }
 
     const stateChannel = await store.getStateChannel(multisigAddress);

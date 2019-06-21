@@ -1,9 +1,5 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
-import {
-  NetworkContext,
-  OutcomeType,
-  TwoPartyFixedOutcome
-} from "@counterfactual/types";
+import { OutcomeType, TwoPartyFixedOutcome } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -36,7 +32,6 @@ function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
 }
 
 export async function computeFreeBalanceIncrements(
-  networkContext: NetworkContext,
   stateChannel: StateChannel,
   appInstanceId: string,
   provider: BaseProvider

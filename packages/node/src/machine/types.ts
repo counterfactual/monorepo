@@ -8,13 +8,9 @@ import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
 
 import { Transaction } from "../ethereum/types";
-import { StateChannel } from "../models";
+import { AppInstance, StateChannel } from "../models";
 
 import { Opcode, Protocol } from "./enums";
-
-export type ProtocolExecutionFlow = {
-  [x: number]: (context: Context) => AsyncIterableIterator<any[]>;
-};
 
 export type Middleware = {
   (args: any): any;
@@ -22,13 +18,57 @@ export type Middleware = {
 
 export type Instruction = Function | Opcode;
 
-/// Arguments passed to a protocol execulion flow
-export interface Context {
+export type BaseProtocolContext = {
   network: NetworkContext;
-  stateChannelsMap: Map<string, StateChannel>;
   message: ProtocolMessage;
   provider: BaseProvider;
-}
+};
+
+export type DirectChannelProtocolContext = BaseProtocolContext & {
+  stateChannel: StateChannel;
+};
+
+export type VirtualChannelProtocolContext = BaseProtocolContext & {
+  stateChannelWithIntermediary: StateChannel;
+  stateChannelWithCounterparty: StateChannel;
+};
+
+export type VirtualChannelIntermediaryProtocolContext = BaseProtocolContext & {
+  stateChannelWithInitiating: StateChannel;
+  stateChannelWithResponding: StateChannel;
+  // TODO: Remove the need for this field; should only be known by endpoints
+  stateChannelWithCounterparty?: StateChannel;
+};
+
+export type AppInstanceProtocolContext = BaseProtocolContext & {
+  appInstance: AppInstance;
+};
+
+export type ProtocolContext =
+  | DirectChannelProtocolContext
+  | VirtualChannelProtocolContext
+  | VirtualChannelIntermediaryProtocolContext
+  | AppInstanceProtocolContext;
+
+export type DirectChannelProtocolExecutionFlow = {
+  [x: number]: (
+    context: DirectChannelProtocolContext
+  ) => AsyncIterableIterator<any[]>;
+};
+
+export type VirtualChannelProtocolExecutionFlow = {
+  0: (context: VirtualChannelProtocolContext) => AsyncIterableIterator<any[]>;
+  1: (
+    context: VirtualChannelIntermediaryProtocolContext
+  ) => AsyncIterableIterator<any[]>;
+  2: (context: VirtualChannelProtocolContext) => AsyncIterableIterator<any[]>;
+};
+
+export type AppInstanceProtocolExecutionFlow = {
+  [x: number]: (
+    context: AppInstanceProtocolContext
+  ) => AsyncIterableIterator<any[]>;
+};
 
 export type ProtocolMessage = {
   protocolExecutionID: string;

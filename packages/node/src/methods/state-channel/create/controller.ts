@@ -14,7 +14,10 @@ import {
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeysToSortedKthAddresses } from "../../../machine";
+import {
+  DirectChannelProtocolContext,
+  xkeysToSortedKthAddresses
+} from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
@@ -106,14 +109,14 @@ export default class CreateChannelController extends NodeController {
 
     const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
 
-    const channel = (await instructionExecutor.runSetupProtocol({
+    const { stateChannel } = (await instructionExecutor.runSetupProtocol({
       multisigAddress,
       respondingXpub,
       initiatingXpub: publicIdentifier
-    })).get(multisigAddress)!;
+    })) as DirectChannelProtocolContext;
 
-    await store.saveStateChannel(channel);
-    await store.saveFreeBalance(channel);
+    await store.saveStateChannel(stateChannel);
+    await store.saveFreeBalance(stateChannel);
 
     const msg: CreateChannelMessage = {
       from: publicIdentifier,

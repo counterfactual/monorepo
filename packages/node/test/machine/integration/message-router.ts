@@ -44,6 +44,7 @@ export class MessageRouter {
         const [message] = args;
         this.routeMessage(message);
       });
+
       node.ie.register(Opcode.IO_SEND_AND_WAIT, async (args: [any]) => {
         const [message] = args;
         message.fromXpub = node.xpub;
@@ -60,9 +61,11 @@ export class MessageRouter {
 
   private routeMessage(message: any) {
     const { toXpub } = message;
+
     if (toXpub === undefined) {
       throw Error("No toXpub found on message");
     }
+
     const deferred = this.deferrals.get(toXpub);
 
     if (deferred === undefined) {

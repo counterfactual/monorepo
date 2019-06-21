@@ -1,9 +1,4 @@
-import {
-  Address,
-  AppInstanceInfo,
-  Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { Address, AppInstanceInfo, Node } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
 import {
@@ -77,13 +72,15 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      return Promise.reject(
+      throw new Error(
         NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
       );
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
+
     debugLog("Getting channel: ", channel);
+
     return channel;
   }
 
@@ -157,12 +154,16 @@ export class Store {
    * This persists the state of the given AppInstance.
    * @param appInstance
    */
-  public async saveAppInstanceState(
-    appInstanceId: string,
-    newState: SolidityABIEncoderV2Type
-  ) {
-    const channel = await this.getChannelFromAppInstanceID(appInstanceId);
-    const updatedChannel = await channel.setState(appInstanceId, newState);
+  public async saveAppInstance(appInstance: AppInstance) {
+    const channel = await this.getChannelFromAppInstanceID(
+      appInstance.identityHash
+    );
+
+    const updatedChannel = await channel.setState(
+      appInstance.identityHash,
+      appInstance.state
+    );
+
     await this.saveStateChannel(updatedChannel);
   }
 
@@ -319,6 +320,30 @@ export class Store {
         this.storeKeyPrefix
       }/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
     );
+  }
+
+  /**
+   * Returns a state channel based on the owners
+   * @param owners
+   */
+  public async getStateChannelFromOwners(
+    owners: string[]
+  ): Promise<StateChannel> {
+    const ownersHash = hashOfOrderedPublicIdentifiers(owners);
+
+    const multisigAddress = await this.storeService.get(
+      `${
+        this.storeKeyPrefix
+      }/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
+    );
+
+    if (!multisigAddress) {
+      throw new Error(
+        "getStateChannelFromOwners: Could not find multisig with owners"
+      );
+    }
+
+    return await this.getStateChannel(multisigAddress);
   }
 
   /**

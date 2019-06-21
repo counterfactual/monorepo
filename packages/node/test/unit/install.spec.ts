@@ -124,7 +124,7 @@ describe("Can handle correct & incorrect installs", () => {
     // expected multisigAddress in it.
     when(
       mockedInstructionExecutor.runInstallProtocol(anything(), anything())
-    ).thenResolve(new Map([[multisigAddress, stateChannel]]));
+    ).thenResolve({ ...anything(), stateChannel });
 
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed

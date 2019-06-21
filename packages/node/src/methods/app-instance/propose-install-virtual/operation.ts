@@ -81,6 +81,7 @@ export async function getOrCreateVirtualChannel(
   store: Store
 ): Promise<StateChannel> {
   let channel: StateChannel;
+
   try {
     channel = await getChannelFromPeerAddress(
       initiatorIdentifier,
@@ -89,15 +90,18 @@ export async function getOrCreateVirtualChannel(
     );
   } catch (e) {
     if (
-      e.includes(
-        NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
-      ) &&
+      e
+        .toString()
+        .includes(
+          NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
+        ) &&
       intermediaries !== undefined
     ) {
       const key = virtualChannelKey(
         [initiatorIdentifier, respondingIdentifier],
         intermediaries[0]
       );
+
       channel = StateChannel.createEmptyChannel(key, [
         initiatorIdentifier,
         respondingIdentifier

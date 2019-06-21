@@ -3,8 +3,11 @@ import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { InstructionExecutor } from "../../../machine";
-import { StateChannel } from "../../../models";
+import {
+  AppInstanceProtocolContext,
+  InstructionExecutor
+} from "../../../machine";
+import { AppInstance } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
@@ -131,13 +134,11 @@ async function runTakeActionProtocol(
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  let stateChannelsMap: Map<string, StateChannel>;
+  let appInstance: AppInstance;
 
   try {
-    stateChannelsMap = await instructionExecutor.runTakeActionProtocol(
-      new Map<string, StateChannel>([
-        [stateChannel.multisigAddress, stateChannel]
-      ]),
+    const returnContext = (await instructionExecutor.runTakeActionProtocol(
+      stateChannel.getAppInstance(appIdentityHash),
       {
         initiatingXpub,
         respondingXpub,
@@ -145,7 +146,8 @@ async function runTakeActionProtocol(
         action,
         multisigAddress: stateChannel.multisigAddress
       }
-    );
+    )) as AppInstanceProtocolContext;
+    appInstance = returnContext.appInstance;
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
@@ -154,7 +156,5 @@ async function runTakeActionProtocol(
     throw e;
   }
 
-  const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
-
-  await store.saveStateChannel(sc);
+  await store.saveAppInstance(appInstance);
 }

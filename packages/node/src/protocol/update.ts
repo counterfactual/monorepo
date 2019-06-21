@@ -1,16 +1,16 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { AppInstanceProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
+  AppInstanceProtocolContext,
   ProtocolMessage,
   ProtocolParameters,
   UpdateParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { StateChannel } from "../models/state-channel";
+import { AppInstance } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { validateSignature } from "./utils/signature-validator";
@@ -21,8 +21,8 @@ import { validateSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/07-update-protocol#messages
  *
  */
-export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+export const UPDATE_PROTOCOL: AppInstanceProtocolExecutionFlow = {
+  0: async function*(context: AppInstanceProtocolContext) {
     const { respondingXpub } = context.message.params;
 
     const [
@@ -52,6 +52,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Update,
@@ -60,7 +61,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(context: Context) {
+  1: async function*(context: AppInstanceProtocolContext) {
     const [
       appIdentityHash,
       setStateCommitment,
@@ -80,6 +81,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);
+
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Update,
@@ -102,40 +104,29 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
 function proposeStateTransition(
   params: ProtocolParameters,
-  context: Context
+  context: AppInstanceProtocolContext
 ): [string, SetStateCommitment, number] {
-  const { appIdentityHash, newState, multisigAddress } = params as UpdateParams;
-  const newStateChannel = context.stateChannelsMap
-    .get(multisigAddress)!
-    .setState(appIdentityHash, newState);
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-  const setStateCommitment = constructUpdateOp(
-    context.network,
-    newStateChannel,
-    appIdentityHash
-  );
-  const appSeqNo = context.stateChannelsMap
-    .get(multisigAddress)!
-    .getAppInstance(appIdentityHash).appSeqNo;
+  const { newState } = params as UpdateParams;
 
-  return [appIdentityHash, setStateCommitment, appSeqNo];
+  const newAppInstance = context.appInstance.setState(newState);
+
+  context.appInstance = newAppInstance;
+
+  const setStateCommitment = constructUpdateOp(context.network, newAppInstance);
+
+  return [
+    newAppInstance.identityHash,
+    setStateCommitment,
+    newAppInstance.appSeqNo
+  ];
 }
 
-function constructUpdateOp(
-  network: NetworkContext,
-  stateChannel: StateChannel,
-  appIdentityHash: string
-) {
-  const app = stateChannel.getAppInstance(appIdentityHash);
-
+function constructUpdateOp(network: NetworkContext, appInstance: AppInstance) {
   return new SetStateCommitment(
     network,
-    app.identity,
-    app.hashOfLatestState,
-    app.nonce,
-    app.timeout
+    appInstance.identity,
+    appInstance.hashOfLatestState,
+    appInstance.nonce,
+    appInstance.timeout
   );
 }

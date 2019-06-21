@@ -1,4 +1,7 @@
-import { InstructionExecutor } from "../../../machine";
+import {
+  InstructionExecutor,
+  VirtualChannelProtocolContext
+} from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(
@@ -13,10 +16,22 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const currentChannels = new Map(Object.entries(await store.getAllChannels()));
+  const channelWithIntermediary = await store.getStateChannelFromOwners([
+    initiatingXpub,
+    intermediaryXpub
+  ]);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
-    currentChannels,
+  const channelWithCounterparty = await store.getStateChannelFromOwners([
+    initiatingXpub,
+    respondingXpub
+  ]);
+
+  const {
+    stateChannelWithIntermediary,
+    stateChannelWithCounterparty
+  } = (await instructionExecutor.runUninstallVirtualAppProtocol(
+    channelWithIntermediary,
+    channelWithCounterparty,
     {
       initiatingXpub,
       respondingXpub,
@@ -24,9 +39,8 @@ export async function uninstallAppInstanceFromChannel(
       targetAppState: appInstance.state,
       targetAppIdentityHash: appInstance.identityHash
     }
-  );
+  )) as VirtualChannelProtocolContext;
 
-  stateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
-  );
+  await store.saveStateChannel(stateChannelWithIntermediary);
+  await store.saveStateChannel(stateChannelWithCounterparty);
 }

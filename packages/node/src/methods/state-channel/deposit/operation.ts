@@ -3,8 +3,7 @@ import { Zero } from "ethers/constants";
 import { TransactionRequest, TransactionResponse } from "ethers/providers";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { xkeyKthAddress } from "../../../machine";
-import { StateChannel } from "../../../models";
+import { DirectChannelProtocolContext, xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -42,34 +41,28 @@ export async function installBalanceRefundApp(
     threshold: await provider.getBalance(params.multisigAddress)
   };
 
-  const stateChannelsMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      // TODO: (architectural decision) Should this use `getAllChannels` or
-      //       is this good enough? InstallProtocol only operates on a single
-      //       channel, anyway. PR #532 might make this question obsolete.
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initialState,
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      initiatingBalanceDecrement: Zero,
-      respondingBalanceDecrement: Zero,
-      signingKeys: stateChannel.getNextSigningKeys(),
-      appInterface: {
-        addr: networkContext.ETHBalanceRefundApp,
-        stateEncoding:
-          "tuple(address recipient, address multisig,  uint256 threshold)",
-        actionEncoding: undefined
-      },
-      // this is the block-time equivalent of 7 days
-      defaultTimeout: 1008,
-      outcomeType: OutcomeType.COIN_TRANSFER
-    }
-  );
+  const {
+    stateChannel: updatedStateChannel
+  } = (await instructionExecutor.runInstallProtocol(stateChannel, {
+    initialState,
+    initiatingXpub: publicIdentifier,
+    respondingXpub: peerAddress,
+    multisigAddress: stateChannel.multisigAddress,
+    initiatingBalanceDecrement: Zero,
+    respondingBalanceDecrement: Zero,
+    signingKeys: stateChannel.getNextSigningKeys(),
+    appInterface: {
+      addr: networkContext.ETHBalanceRefundApp,
+      stateEncoding:
+        "tuple(address recipient, address multisig,  uint256 threshold)",
+      actionEncoding: undefined
+    },
+    // this is the block-time equivalent of 7 days
+    defaultTimeout: 1008,
+    outcomeType: OutcomeType.COIN_TRANSFER
+  })) as DirectChannelProtocolContext;
 
-  await store.saveStateChannel(stateChannelsMap.get(params.multisigAddress)!);
+  await store.saveStateChannel(updatedStateChannel);
 }
 
 export async function makeDeposit(
@@ -143,20 +136,14 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefundApp);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
-    // https://github.com/counterfactual/monorepo/issues/747
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: refundApp.identityHash
-    }
-  );
+  const {
+    stateChannel: updatedStateChannel
+  } = (await instructionExecutor.runUninstallProtocol(stateChannel, {
+    initiatingXpub: publicIdentifier,
+    respondingXpub: peerAddress,
+    multisigAddress: stateChannel.multisigAddress,
+    appIdentityHash: refundApp.identityHash
+  })) as DirectChannelProtocolContext;
 
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
-  );
+  await store.saveStateChannel(updatedStateChannel);
 }

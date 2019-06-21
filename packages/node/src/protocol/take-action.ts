@@ -1,11 +1,14 @@
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { AppInstanceProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
+import {
+  AppInstanceProtocolContext,
+  ProtocolMessage,
+  TakeActionParams
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { StateChannel } from "../models/state-channel";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -17,14 +20,11 @@ type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
  * TODO:
  *
  */
-export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
-    const { appIdentityHash, multisigAddress, respondingXpub } = context.message
-      .params as TakeActionParams;
-    const channel = context.stateChannelsMap.get(
-      multisigAddress
-    ) as StateChannel;
-    const appSeqNo = channel.getAppInstance(appIdentityHash).appSeqNo;
+export const TAKE_ACTION_PROTOCOL: AppInstanceProtocolExecutionFlow = {
+  0: async function*(context: AppInstanceProtocolContext) {
+    const { respondingXpub } = context.message.params as TakeActionParams;
+
+    const { appInstance } = context;
 
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
       context.message as TakeActionProtocolMessage,
@@ -32,7 +32,11 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
 
     const { signature } = yield [
       Opcode.IO_SEND_AND_WAIT,
@@ -47,12 +51,13 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     validateSignature(
-      xkeyKthAddress(respondingXpub, appSeqNo),
+      xkeyKthAddress(respondingXpub, appInstance.appSeqNo),
       setStateCommitment,
       signature
     );
   },
-  1: async function*(context: Context) {
+
+  1: async function*(context: AppInstanceProtocolContext) {
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
       context.message as TakeActionProtocolMessage,
       context,
@@ -60,22 +65,21 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const { signature, params } = context.message;
-    const {
-      appIdentityHash,
-      multisigAddress,
-      initiatingXpub
-    } = params as TakeActionParams;
+    const { initiatingXpub } = params as TakeActionParams;
 
-    const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
-    const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
+    const { appInstance } = context;
 
     validateSignature(
-      xkeyKthAddress(initiatingXpub, appSeqNo),
+      xkeyKthAddress(initiatingXpub, appInstance.appSeqNo),
       setStateCommitment,
       signature
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
 
     yield [
       Opcode.IO_SEND,
@@ -92,22 +96,15 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
 
 async function addStateTransitionAndCommitmentToContext(
   message: TakeActionProtocolMessage,
-  context: Context,
+  context: AppInstanceProtocolContext,
   provider: BaseProvider
 ): Promise<SetStateCommitment> {
-  const { network, stateChannelsMap } = context;
-  const { appIdentityHash, action, multisigAddress } = message.params;
+  const { network, appInstance } = context;
+  const { action } = message.params as TakeActionParams;
 
-  const stateChannel = stateChannelsMap.get(multisigAddress) as StateChannel;
-
-  const appInstance = stateChannel.getAppInstance(appIdentityHash);
-
-  const newChannel = stateChannel.setState(
-    appIdentityHash,
+  const updatedAppInstance = appInstance.setState(
     await appInstance.computeStateTransition(action, provider)
   );
-
-  const updatedAppInstance = newChannel.getAppInstance(appIdentityHash);
 
   const setStateCommitment = new SetStateCommitment(
     network,
@@ -117,7 +114,7 @@ async function addStateTransitionAndCommitmentToContext(
     updatedAppInstance.timeout
   );
 
-  context.stateChannelsMap.set(multisigAddress, newChannel);
+  context.appInstance = updatedAppInstance;
 
   return setStateCommitment;
 }

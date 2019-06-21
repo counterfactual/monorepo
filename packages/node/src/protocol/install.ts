@@ -2,10 +2,10 @@ import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { DirectChannelProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
+  DirectChannelProtocolContext,
   InstallParams,
   ProtocolMessage,
   ProtocolParameters
@@ -21,8 +21,8 @@ import { validateSignature } from "./utils/signature-validator";
  *
  * specs.counterfactual.com/05-install-protocol#messages
  */
-export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+export const INSTALL_PROTOCOL: DirectChannelProtocolExecutionFlow = {
+  0: async function*(context: DirectChannelProtocolContext) {
     const { respondingXpub } = context.message.params;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
@@ -55,7 +55,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(context: Context) {
+  1: async function*(context: DirectChannelProtocolContext) {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
 
@@ -92,7 +92,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
 async function proposeStateTransition(
   params: ProtocolParameters,
-  context: Context
+  context: DirectChannelProtocolContext
 ): Promise<[string, InstallCommitment]> {
   const {
     initiatingBalanceDecrement,
@@ -107,7 +107,7 @@ async function proposeStateTransition(
     outcomeType
   } = params as InstallParams;
 
-  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+  const stateChannel = context.stateChannel;
 
   const initiatingFbAddress = xkeyKthAddress(initiatingXpub, 0);
   const respondingFbAddress = xkeyKthAddress(respondingXpub, 0);
@@ -187,7 +187,7 @@ async function proposeStateTransition(
     [respondingFbAddress]: respondingBalanceDecrement
   });
 
-  context.stateChannelsMap.set(multisigAddress, newStateChannel);
+  context.stateChannel = newStateChannel;
 
   const appIdentityHash = appInstance.identityHash;
 

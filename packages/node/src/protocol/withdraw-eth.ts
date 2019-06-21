@@ -7,10 +7,10 @@ import {
   UninstallCommitment,
   WithdrawETHCommitment
 } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { DirectChannelProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
+  DirectChannelProtocolContext,
   ProtocolMessage,
   ProtocolParameters,
   WithdrawParams
@@ -24,8 +24,8 @@ import { validateSignature } from "./utils/signature-validator";
  * @description This exchange is described at the following URL:
  * https://specs.counterfactual.com/11-withdraw-protocol *
  */
-export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+export const WITHDRAW_ETH_PROTOCOL: DirectChannelProtocolExecutionFlow = {
+  0: async function*(context: DirectChannelProtocolContext) {
     const { respondingXpub, multisigAddress } = context.message
       .params as WithdrawParams;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
@@ -91,7 +91,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(context: Context) {
+  1: async function*(context: DirectChannelProtocolContext) {
     const { initiatingXpub, multisigAddress } = context.message
       .params as WithdrawParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
@@ -157,7 +157,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
 
 function addInstallRefundAppCommitmentToContext(
   params: ProtocolParameters,
-  context: Context
+  context: DirectChannelProtocolContext
 ): [InstallCommitment, string] {
   const {
     recipient,
@@ -166,7 +166,7 @@ function addInstallRefundAppCommitmentToContext(
     initiatingXpub
   } = params as WithdrawParams;
 
-  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+  const { stateChannel } = context;
 
   const refundAppInstance = new AppInstance(
     multisigAddress,
@@ -196,10 +196,7 @@ function addInstallRefundAppCommitmentToContext(
     [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
   });
 
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
+  context.stateChannel = newStateChannel;
 
   const installRefundCommitment = constructInstallOp(
     context.network,
@@ -212,20 +209,14 @@ function addInstallRefundAppCommitmentToContext(
 
 function addUninstallRefundAppCommitmentToContext(
   message: ProtocolMessage,
-  context: Context,
+  context: DirectChannelProtocolContext,
   appIdentityHash: string
 ): UninstallCommitment {
-  const { multisigAddress } = message.params as WithdrawParams;
+  const { stateChannel } = context;
 
-  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+  context.stateChannel = stateChannel.uninstallApp(appIdentityHash, {});
 
-  const newStateChannel = stateChannel.uninstallApp(appIdentityHash, {});
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-
-  const freeBalance = stateChannel.freeBalance;
+  const freeBalance = context.stateChannel.freeBalance;
 
   const uninstallCommitment = new UninstallCommitment(
     context.network,
@@ -243,15 +234,11 @@ function addUninstallRefundAppCommitmentToContext(
 
 function addMultisigSendCommitmentToContext(
   message: ProtocolMessage,
-  context: Context
+  context: DirectChannelProtocolContext
 ) {
-  const {
-    recipient,
-    amount,
-    multisigAddress
-  } = message.params as WithdrawParams;
+  const { recipient, amount } = message.params as WithdrawParams;
 
-  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+  const { stateChannel } = context;
 
   return new WithdrawETHCommitment(
     stateChannel.multisigAddress,

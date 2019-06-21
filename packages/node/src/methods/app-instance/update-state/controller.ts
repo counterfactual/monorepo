@@ -2,8 +2,10 @@ import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
-import { InstructionExecutor } from "../../../machine";
-import { StateChannel } from "../../../models";
+import {
+  AppInstanceProtocolContext,
+  InstructionExecutor
+} from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
@@ -113,10 +115,8 @@ async function runUpdateStateProtocol(
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  const stateChannelsMap = await instructionExecutor.runUpdateProtocol(
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
+  const { appInstance } = (await instructionExecutor.runUpdateProtocol(
+    stateChannel.getAppInstance(appIdentityHash),
     {
       initiatingXpub,
       respondingXpub,
@@ -124,9 +124,7 @@ async function runUpdateStateProtocol(
       newState,
       multisigAddress: stateChannel.multisigAddress
     }
-  );
+  )) as AppInstanceProtocolContext;
 
-  const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
-
-  await store.saveStateChannel(sc);
+  await store.saveAppInstance(appInstance);
 }

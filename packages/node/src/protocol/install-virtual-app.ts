@@ -10,11 +10,12 @@ import { TwoPartyVirtualEthAsLumpCommitment } from "../ethereum/two-party-virtua
 import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
   InstallVirtualAppParams,
-  ProtocolExecutionFlow,
   ProtocolMessage,
-  ProtocolParameters
+  ProtocolParameters,
+  VirtualChannelIntermediaryProtocolContext,
+  VirtualChannelProtocolContext,
+  VirtualChannelProtocolExecutionFlow
 } from "../machine/types";
 import { virtualChannelKey } from "../machine/virtual-app-key";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
@@ -24,7 +25,6 @@ import {
   TwoPartyVirtualEthAsLumpInstance
 } from "../models";
 
-import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { validateSignature } from "./utils/signature-validator";
 
 /**
@@ -33,8 +33,8 @@ import { validateSignature } from "./utils/signature-validator";
  *
  * Commitments Storage Layout:
  */
-export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+export const INSTALL_VIRTUAL_APP_PROTOCOL: VirtualChannelProtocolExecutionFlow = {
+  0: async function*(context: VirtualChannelProtocolContext) {
     const { intermediaryXpub, respondingXpub } = context.message
       .params as InstallVirtualAppParams;
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
@@ -70,13 +70,16 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       s6,
       true
     );
+
     validateSignature(intermediaryAddress, leftCommitment, s2);
+
     validateSignature(respondingAddress, virtualAppSetStateCommitment, s7);
   },
 
-  1: async function*(context: Context) {
+  1: async function*(context: VirtualChannelIntermediaryProtocolContext) {
     const { initiatingXpub, respondingXpub } = context.message
       .params as InstallVirtualAppParams;
+
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
@@ -145,18 +148,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    context.stateChannelsMap.set(
-      newChannelWithInitiating.multisigAddress,
-      newChannelWithInitiating
-    );
-
-    context.stateChannelsMap.set(
-      newChannelWithResponding.multisigAddress,
-      newChannelWithResponding
-    );
+    context.stateChannelWithInitiating = newChannelWithInitiating;
+    context.stateChannelWithResponding = newChannelWithResponding;
   },
 
-  2: async function*(context: Context) {
+  2: async function*(context: VirtualChannelProtocolContext) {
     const [
       rightCommitment,
       virtualAppSetStateCommitment
@@ -164,6 +160,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const { initiatingXpub, intermediaryXpub } = context.message
       .params as InstallVirtualAppParams;
+
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
@@ -205,7 +202,9 @@ function createAndAddTarget(
   initialState: SolidityABIEncoderV2Type,
   initiatingBalanceDecrement: BigNumberish, // FIXME: serialize
   respondingBalanceDecrement: BigNumberish,
-  context: Context,
+  context:
+    | VirtualChannelProtocolContext
+    | VirtualChannelIntermediaryProtocolContext,
   initiatingXpub: string,
   respondingXpub: string,
   intermediaryXpub: string
@@ -216,7 +215,7 @@ function createAndAddTarget(
   );
 
   const sc =
-    context.stateChannelsMap.get(key) ||
+    context.stateChannelWithCounterparty ||
     StateChannel.createEmptyChannel(key, [initiatingXpub, respondingXpub]);
 
   const appSeqNo = sc.numInstalledApps;
@@ -240,6 +239,7 @@ function createAndAddTarget(
     initialState,
     0, // app nonce
     defaultTimeout,
+    // FIXME: _Every_ virtual app is hard-coded to the two party fixed outcome type
     {
       playerAddrs: [initiatingAddress, respondingAddress],
       amount: bigNumberify(initiatingBalanceDecrement).add(
@@ -249,18 +249,14 @@ function createAndAddTarget(
     undefined
   );
 
-  const newStateChannel = sc.addVirtualAppInstance(target);
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
+  context.stateChannelWithCounterparty = sc.addVirtualAppInstance(target);
 
   return target;
 }
 
 function proposeStateTransition1(
   params: ProtocolParameters,
-  context: Context
+  context: VirtualChannelProtocolContext
 ): [TwoPartyVirtualEthAsLumpCommitment, VirtualAppSetStateCommitment] {
   const {
     defaultTimeout,
@@ -285,15 +281,9 @@ function proposeStateTransition1(
     intermediaryXpub
   );
 
-  const channelWithIntermediary = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    initiatingXpub,
-    intermediaryXpub
-  );
-
-  if (!channelWithIntermediary) {
+  if (!context.stateChannelWithIntermediary) {
     throw Error(
-      "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
+      "Initiating party does not have a channel with the intermediary"
     );
   }
 
@@ -301,9 +291,9 @@ function proposeStateTransition1(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
   const leftETHVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
-    channelWithIntermediary.multisigAddress,
-    channelWithIntermediary.numInstalledApps,
-    channelWithIntermediary.rootNonceValue,
+    context.stateChannelWithIntermediary.multisigAddress,
+    context.stateChannelWithIntermediary.numInstalledApps,
+    context.stateChannelWithIntermediary.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
@@ -311,7 +301,7 @@ function proposeStateTransition1(
     intermediaryAddress
   );
 
-  const newStateChannel = channelWithIntermediary.installTwoPartyVirtualEthAsLumpInstances(
+  context.stateChannelWithIntermediary = context.stateChannelWithIntermediary.installTwoPartyVirtualEthAsLumpInstances(
     leftETHVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -320,14 +310,9 @@ function proposeStateTransition1(
     }
   );
 
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-
   const leftCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,
-    newStateChannel,
+    context.stateChannelWithIntermediary,
     targetAppInstance.identityHash,
     leftETHVirtualAppAgreementInstance
   );
@@ -345,7 +330,7 @@ function proposeStateTransition1(
 
 function proposeStateTransition2(
   params: ProtocolParameters,
-  context: Context
+  context: VirtualChannelIntermediaryProtocolContext
 ): [
   StateChannel,
   StateChannel,
@@ -376,11 +361,7 @@ function proposeStateTransition2(
     intermediaryXpub
   );
 
-  const channelWithInitiating = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    intermediaryXpub,
-    initiatingXpub
-  );
+  const channelWithInitiating = context.stateChannelWithInitiating;
 
   if (!channelWithInitiating) {
     throw Error(
@@ -388,11 +369,7 @@ function proposeStateTransition2(
     );
   }
 
-  const channelWithResponding = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    intermediaryXpub,
-    respondingXpub
-  );
+  const channelWithResponding = context.stateChannelWithResponding;
 
   if (!channelWithResponding) {
     throw Error(
@@ -426,7 +403,7 @@ function proposeStateTransition2(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
   const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
-  const newChannelWithInitiating = channelWithInitiating.installTwoPartyVirtualEthAsLumpInstances(
+  const newChannelWithInitiating = context.stateChannelWithInitiating.installTwoPartyVirtualEthAsLumpInstances(
     leftEthVirtualAppAgreementInstance,
     targetAppInstance.identityHash,
     {
@@ -477,7 +454,7 @@ function proposeStateTransition2(
 
 function proposeStateTransition3(
   params: ProtocolParameters,
-  context: Context
+  context: VirtualChannelProtocolContext
 ): [TwoPartyVirtualEthAsLumpCommitment, VirtualAppSetStateCommitment] {
   const {
     defaultTimeout,
@@ -502,15 +479,11 @@ function proposeStateTransition3(
     intermediaryXpub
   );
 
-  const channelWithIntermediary = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    respondingXpub,
-    intermediaryXpub
-  );
+  const channelWithIntermediary = context.stateChannelWithIntermediary;
 
   if (!channelWithIntermediary) {
     throw Error(
-      "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
+      "Responding party does not have a channel with the intermediary"
     );
   }
 
@@ -536,10 +509,8 @@ function proposeStateTransition3(
       [respondingAddress]: respondingBalanceDecrement
     }
   );
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
+
+  context.stateChannelWithIntermediary = newStateChannel;
 
   const rightCommitment = constructTwoPartyVirtualEthAsLumpCommitment(
     context.network,

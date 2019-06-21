@@ -1,7 +1,10 @@
 import { Node } from "@counterfactual/types";
 
-import { InstructionExecutor } from "../../../machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
+import {
+  DirectChannelProtocolContext,
+  InstructionExecutor
+} from "../../../machine";
+import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
@@ -20,22 +23,19 @@ export async function install(
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
-  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+  const existingChannel = await store.getChannelFromAppInstanceID(
+    appInstanceId
+  );
 
-  const stateChannelsMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      // TODO: (architectural decision) Should this use `getAllChannels` or
-      //       is this good enough? InstallProtocol only operates on a single
-      //       channel, anyway. PR #532 might make this question obsolete.
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
+  const { stateChannel } = (await instructionExecutor.runInstallProtocol(
+    existingChannel,
     {
       initiatingXpub: appInstanceInfo.proposedToIdentifier,
       respondingXpub: appInstanceInfo.proposedByIdentifier,
       initiatingBalanceDecrement: appInstanceInfo.myDeposit,
       respondingBalanceDecrement: appInstanceInfo.peerDeposit,
-      multisigAddress: stateChannel.multisigAddress,
-      signingKeys: stateChannel.getNextSigningKeys(),
+      multisigAddress: existingChannel.multisigAddress,
+      signingKeys: existingChannel.getNextSigningKeys(),
       initialState: appInstanceInfo.initialState,
       appInterface: {
         ...appInstanceInfo.abiEncodings,
@@ -44,11 +44,9 @@ export async function install(
       defaultTimeout: appInstanceInfo.timeout.toNumber(),
       outcomeType: appInstanceInfo.outcomeType
     }
-  );
+  )) as DirectChannelProtocolContext;
 
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
-  );
+  await store.saveStateChannel(stateChannel);
 
   await store.saveRealizedProposedAppInstance(appInstanceInfo);
 

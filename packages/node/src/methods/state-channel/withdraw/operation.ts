@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 
+import { DirectChannelProtocolContext } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { getPeersAddressFromChannel } from "../../../utils";
 
@@ -18,16 +19,15 @@ export async function runWithdrawProtocol(
 
   const stateChannel = await store.getStateChannel(multisigAddress);
 
-  const stateChannelsMap = await instructionExecutor.runWithdrawProtocol(
-    stateChannel,
-    {
-      amount,
-      recipient: params.recipient as string,
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress
-    }
-  );
+  const {
+    stateChannel: updatedStateChannel
+  } = (await instructionExecutor.runWithdrawProtocol(stateChannel, {
+    amount,
+    recipient: params.recipient as string,
+    initiatingXpub: publicIdentifier,
+    respondingXpub: peerAddress,
+    multisigAddress: stateChannel.multisigAddress
+  })) as DirectChannelProtocolContext;
 
-  await store.saveStateChannel(stateChannelsMap.get(multisigAddress)!);
+  await store.saveStateChannel(updatedStateChannel);
 }

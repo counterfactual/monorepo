@@ -1,21 +1,21 @@
 import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
+import { BigNumber } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { UninstallCommitment, VirtualAppSetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { VirtualChannelProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
   ProtocolMessage,
   ProtocolParameters,
-  UninstallVirtualAppParams
+  UninstallVirtualAppParams,
+  VirtualChannelIntermediaryProtocolContext,
+  VirtualChannelProtocolContext
 } from "../machine/types";
-import { virtualChannelKey } from "../machine/virtual-app-key";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
-import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { validateSignature } from "./utils/signature-validator";
 
@@ -23,10 +23,21 @@ const zA = (xpub: string) => {
   return fromExtendedKey(xpub).derivePath("0").address;
 };
 
-export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
-    const { intermediaryXpub, respondingXpub } = context.message
-      .params as UninstallVirtualAppParams;
+export const UNINSTALL_VIRTUAL_APP_PROTOCOL: VirtualChannelProtocolExecutionFlow = {
+  0: async function*(context: VirtualChannelProtocolContext) {
+    const {
+      network,
+      stateChannelWithCounterparty,
+      provider,
+      message: { params }
+    } = context;
+
+    const {
+      intermediaryXpub,
+      respondingXpub,
+      targetAppIdentityHash
+    } = params as UninstallVirtualAppParams;
+
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
@@ -56,13 +67,25 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     validateSignature(respondingAddress, lockCommitment, s3);
     validateSignature(intermediaryAddress, lockCommitment, s2, true);
 
-    const uninstallLeft = await addLeftUninstallAgreementToContext(
-      context.message.params,
-      context,
-      context.provider
+    const increments = await getFreeBalanceIncrements(
+      stateChannelWithCounterparty,
+      targetAppIdentityHash,
+      provider
     );
 
-    const s4 = yield [Opcode.OP_SIGN, uninstallLeft];
+    const {
+      leftChannel,
+      leftUninstallCommitment
+    } = await getLeftUninstallAgreement(
+      params,
+      increments,
+      context.stateChannelWithIntermediary,
+      network
+    );
+
+    context.stateChannelWithIntermediary = leftChannel;
+
+    const s4 = yield [Opcode.OP_SIGN, leftUninstallCommitment];
 
     // send m5, wait for m6
     const { signature: s6 } = yield [
@@ -75,13 +98,24 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    validateSignature(intermediaryAddress, uninstallLeft, s6);
+    validateSignature(intermediaryAddress, leftUninstallCommitment, s6);
     removeVirtualAppInstance(context.message.params, context);
   },
 
-  1: async function*(context: Context) {
-    const { initiatingXpub, respondingXpub } = context.message
-      .params as UninstallVirtualAppParams;
+  1: async function*(context: VirtualChannelIntermediaryProtocolContext) {
+    const {
+      network,
+      stateChannelWithCounterparty,
+      provider,
+      message: { params }
+    } = context;
+
+    const {
+      initiatingXpub,
+      respondingXpub,
+      targetAppIdentityHash
+    } = params as UninstallVirtualAppParams;
+
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
@@ -127,13 +161,26 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature2: s2
       } as ProtocolMessage
     ];
+
+    const increments = await getFreeBalanceIncrements(
+      stateChannelWithCounterparty!,
+      targetAppIdentityHash,
+      provider
+    );
+
     const { signature: s4 } = m5;
 
-    const leftUninstallCommitment = await addLeftUninstallAgreementToContext(
-      context.message.params,
-      context,
-      context.provider
+    const {
+      leftChannel,
+      leftUninstallCommitment
+    } = await getLeftUninstallAgreement(
+      params,
+      increments,
+      context.stateChannelWithInitiating,
+      network
     );
+
+    context.stateChannelWithInitiating = leftChannel;
 
     validateSignature(initiatingAddress, leftUninstallCommitment, s4);
 
@@ -151,11 +198,17 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      context.message.params,
-      context,
-      context.provider
+    const {
+      rightChannel,
+      rightUninstallCommitment
+    } = await getRightUninstallAgreement(
+      params,
+      increments,
+      context.stateChannelWithResponding,
+      network
     );
+
+    context.stateChannelWithResponding = rightChannel;
 
     const s6 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
 
@@ -177,19 +230,28 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     removeVirtualAppInstance(context.message.params, context);
   },
 
-  2: async function*(context: Context) {
-    const { initiatingXpub, intermediaryXpub } = context.message
-      .params as UninstallVirtualAppParams;
+  2: async function*(context: VirtualChannelProtocolContext) {
+    const {
+      network,
+      stateChannelWithCounterparty,
+      provider,
+      message: { signature: s1, signature2: s2, params }
+    } = context;
+
+    const {
+      initiatingXpub,
+      intermediaryXpub,
+      targetAppIdentityHash
+    } = params as UninstallVirtualAppParams;
+
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
-      context.message.params,
+      params,
       context,
       false
     );
-
-    const { signature: s1, signature2: s2 } = context.message;
 
     validateSignature(initiatingAddress, lockCommitment, s1);
     validateSignature(intermediaryAddress, lockCommitment, s2, true);
@@ -207,13 +269,26 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: s3
       } as ProtocolMessage
     ];
+
     const { signature: s6 } = m7;
 
-    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      context.message.params,
-      context,
-      context.provider
+    const increments = await getFreeBalanceIncrements(
+      stateChannelWithCounterparty,
+      targetAppIdentityHash,
+      provider
     );
+
+    const {
+      rightChannel,
+      rightUninstallCommitment
+    } = await getRightUninstallAgreement(
+      params,
+      increments,
+      context.stateChannelWithIntermediary,
+      network
+    );
+
+    context.stateChannelWithIntermediary = rightChannel;
 
     validateSignature(intermediaryAddress, rightUninstallCommitment, s6);
 
@@ -236,44 +311,30 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
 function removeVirtualAppInstance(
   params: ProtocolParameters,
-  context: Context
+  context:
+    | VirtualChannelProtocolContext
+    | VirtualChannelIntermediaryProtocolContext
 ) {
-  const {
-    intermediaryXpub,
-    respondingXpub,
-    initiatingXpub,
+  const { targetAppIdentityHash } = params as UninstallVirtualAppParams;
+
+  context.stateChannelWithCounterparty = context.stateChannelWithCounterparty!.removeVirtualApp(
     targetAppIdentityHash
-  } = params as UninstallVirtualAppParams;
-
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
   );
-
-  const sc = context.stateChannelsMap.get(key)!;
-
-  context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
 }
 
 function addVirtualAppStateTransitionToContext(
   params: ProtocolParameters,
-  context: Context,
+  context:
+    | VirtualChannelProtocolContext
+    | VirtualChannelIntermediaryProtocolContext,
   isIntermediary: boolean
 ): VirtualAppSetStateCommitment {
   const {
-    intermediaryXpub,
-    respondingXpub,
-    initiatingXpub,
     targetAppIdentityHash,
     targetAppState
   } = params as UninstallVirtualAppParams;
 
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
-
-  let sc = context.stateChannelsMap.get(key) as StateChannel;
+  let sc = context.stateChannelWithCounterparty!;
 
   if (isIntermediary) {
     sc = sc.setState(targetAppIdentityHash, targetAppState);
@@ -282,7 +343,7 @@ function addVirtualAppStateTransitionToContext(
   sc = sc.lockAppInstance(targetAppIdentityHash);
   const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
 
-  context.stateChannelsMap.set(key, sc);
+  context.stateChannelWithCounterparty = sc;
 
   // post-expiry lock commitment
   return new VirtualAppSetStateCommitment(
@@ -313,12 +374,27 @@ function constructUninstallOp(
   );
 }
 
-async function addRightUninstallAgreementToContext(
-  params: ProtocolParameters,
-  context: Context,
+async function getFreeBalanceIncrements(
+  metaChannel: StateChannel,
+  targetAppIdentityHash: string,
   provider: BaseProvider
 ) {
-  // uninstall right agreement
+  return await computeFreeBalanceIncrements(
+    metaChannel,
+    targetAppIdentityHash,
+    provider
+  );
+}
+
+async function getRightUninstallAgreement(
+  params: ProtocolParameters,
+  increments: { [x: string]: BigNumber },
+  rightChannel: StateChannel,
+  network: NetworkContext
+): Promise<{
+  rightChannel: StateChannel;
+  rightUninstallCommitment: UninstallCommitment;
+}> {
   const {
     initiatingXpub,
     intermediaryXpub,
@@ -326,31 +402,11 @@ async function addRightUninstallAgreementToContext(
     targetAppIdentityHash
   } = params as UninstallVirtualAppParams;
 
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
-
-  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
-
-  const increments = await computeFreeBalanceIncrements(
-    context.network,
-    metachannel,
-    targetAppIdentityHash,
-    provider
-  );
-
-  const sc = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    respondingXpub,
-    intermediaryXpub
-  )!;
-
-  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
+  const agreementInstance = rightChannel.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
+  const newStateChannel = rightChannel.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
@@ -358,18 +414,25 @@ async function addRightUninstallAgreementToContext(
     }
   );
 
-  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
-
-  return constructUninstallOp(context.network, sc, agreementInstance.appSeqNo);
+  return {
+    rightChannel: newStateChannel,
+    rightUninstallCommitment: constructUninstallOp(
+      network,
+      newStateChannel,
+      agreementInstance.appSeqNo
+    )
+  };
 }
 
-async function addLeftUninstallAgreementToContext(
+async function getLeftUninstallAgreement(
   params: ProtocolParameters,
-  context: Context,
-  provider: BaseProvider
-): Promise<UninstallCommitment> {
-  // uninstall left virtual app agreement
-
+  increments: { [x: string]: BigNumber },
+  leftChannel: StateChannel,
+  network: NetworkContext
+): Promise<{
+  leftChannel: StateChannel;
+  leftUninstallCommitment: UninstallCommitment;
+}> {
   const {
     initiatingXpub,
     intermediaryXpub,
@@ -377,31 +440,11 @@ async function addLeftUninstallAgreementToContext(
     targetAppIdentityHash
   } = params as UninstallVirtualAppParams;
 
-  const key = virtualChannelKey(
-    [initiatingXpub, respondingXpub],
-    intermediaryXpub
-  );
-
-  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
-
-  const increments = await computeFreeBalanceIncrements(
-    context.network,
-    metachannel,
-    targetAppIdentityHash,
-    provider
-  );
-
-  const sc = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    initiatingXpub,
-    intermediaryXpub
-  )!;
-
-  const agreementInstance = sc.getTwoPartyVirtualEthAsLumpFromTarget(
+  const agreementInstance = leftChannel.getTwoPartyVirtualEthAsLumpFromTarget(
     targetAppIdentityHash
   );
 
-  const newStateChannel = sc.uninstallTwoPartyVirtualEthAsLumpInstance(
+  const newStateChannel = leftChannel.uninstallTwoPartyVirtualEthAsLumpInstance(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(respondingXpub)],
@@ -409,7 +452,12 @@ async function addLeftUninstallAgreementToContext(
     }
   );
 
-  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
-
-  return constructUninstallOp(context.network, sc, agreementInstance.appSeqNo);
+  return {
+    leftChannel: newStateChannel,
+    leftUninstallCommitment: constructUninstallOp(
+      network,
+      newStateChannel,
+      agreementInstance.appSeqNo
+    )
+  };
 }

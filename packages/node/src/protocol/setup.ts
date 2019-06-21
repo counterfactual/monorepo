@@ -1,10 +1,10 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { DirectChannelProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
-  Context,
+  DirectChannelProtocolContext,
   ProtocolMessage,
   ProtocolParameters,
   SetupParams
@@ -20,8 +20,8 @@ import { validateSignature } from "./utils/signature-validator";
  *
  * specs.counterfactual.com/04-setup-protocol
  */
-export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+export const SETUP_PROTOCOL: DirectChannelProtocolExecutionFlow = {
+  0: async function*(context: DirectChannelProtocolContext) {
     const { respondingXpub, multisigAddress } = context.message
       .params as SetupParams;
     const respondingAddress = xkeyKthAddress(respondingXpub, 0);
@@ -54,7 +54,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
 
-  1: async function*(context: Context) {
+  1: async function*(context: DirectChannelProtocolContext) {
     const { initiatingXpub, multisigAddress } = context.message
       .params as SetupParams;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
@@ -92,7 +92,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 
 function proposeStateTransition(
   params: ProtocolParameters,
-  context: Context
+  context: DirectChannelProtocolContext
 ): SetupCommitment {
   const {
     multisigAddress,
@@ -100,19 +100,13 @@ function proposeStateTransition(
     respondingXpub
   } = params as SetupParams;
 
-  if (context.stateChannelsMap.has(multisigAddress)) {
-    throw Error(`Found an already-setup channel at ${multisigAddress}`);
-  }
-
   const newStateChannel = StateChannel.setupChannel(
     context.network.ETHBucket,
     multisigAddress,
     [initiatingXpub, respondingXpub]
   );
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
+
+  context.stateChannel = newStateChannel;
 
   const setupCommitment = constructSetupCommitment(
     context.network,
