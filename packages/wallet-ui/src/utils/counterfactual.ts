@@ -1,5 +1,6 @@
 import { User } from "../store/types";
-import { CounterfactualMethod } from "../types";
+import { CounterfactualMethod, CounterfactualEvent } from "../types";
+import log from "./log";
 
 export async function getNodeAddress(): Promise<string> {
   const nodeAddress = localStorage.getItem("counterfactual:node:address");
@@ -27,4 +28,17 @@ export function buildRegistrationSignaturePayload(data: User) {
     `Ethereum address: ${data.ethAddress}`,
     `Node address: ${data.nodeAddress}`
   ].join("\n");
+}
+
+export async function forMultisig(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    debugger;
+    return window.ethereum
+      .send(CounterfactualEvent.CreateChannel)
+      .then(data => resolve(data.result))
+      .catch(error => {
+        log("i'm anxious, can't wait for the multisig because", error);
+        reject(error);
+      });
+  });
 }

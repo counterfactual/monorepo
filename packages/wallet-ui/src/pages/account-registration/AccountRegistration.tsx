@@ -1,9 +1,10 @@
 import React from "react";
 import { Action } from "redux";
 import { connect } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, RouteComponentProps } from "react-router-dom";
 import { ThunkDispatch } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
+import { History } from "history";
 
 import { WidgetScreen } from "../../components/widget";
 import { FormButton, FormInput, InputChangeProps } from "../../components/form";
@@ -20,10 +21,10 @@ import { EthereumService } from "../../providers/EthereumService";
 
 import "./AccountRegistration.scss";
 
-type AccountRegistrationProps = {
+type AccountRegistrationProps = RouteComponentProps & {
   wallet: WalletState;
   user: UserState;
-  addUser: (data: User, signer: JsonRpcSigner) => void;
+  addUser: (data: User, signer: JsonRpcSigner, history: History) => void;
 };
 
 const AlreadyHaveAnAccount: React.FC = () => (
@@ -52,7 +53,7 @@ class AccountRegistration extends React.Component<
   };
 
   render() {
-    const { wallet, addUser, user } = this.props;
+    const { wallet, addUser, user, history } = this.props;
     const { signer } = this.context;
 
     return (
@@ -85,7 +86,7 @@ class AccountRegistration extends React.Component<
           <FormButton
             type="button"
             className="button"
-            onClick={() => addUser(this.state, signer)}
+            onClick={() => addUser(this.state, signer, history)}
           >
             Create account
           </FormButton>
@@ -100,7 +101,7 @@ export default connect(
     user: state.User
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    addUser: (data: User, signer: JsonRpcSigner) =>
-      dispatch(addUser(data, signer))
+    addUser: (data: User, signer: JsonRpcSigner, history: History) =>
+      dispatch(addUser(data, signer, history))
   })
 )(AccountRegistration);

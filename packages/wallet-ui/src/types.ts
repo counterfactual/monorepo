@@ -18,7 +18,9 @@ export enum CounterfactualMethod {
   SetUser = "counterfactual:set:user"
 }
 
-export enum CounterfactualEvent {}
+export enum CounterfactualEvent {
+  CreateChannel = "counterfactual:listen:createChannel"
+}
 
 declare global {
   interface Window {

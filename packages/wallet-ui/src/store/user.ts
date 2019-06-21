@@ -2,6 +2,7 @@ import PlaygroundAPIClient from "../utils/hub-api-client";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
+import { History } from "history";
 
 import {
   User,
@@ -14,14 +15,17 @@ import {
 import {
   getNodeAddress,
   buildRegistrationSignaturePayload,
-  storeTokenFromUser
+  storeTokenFromUser,
+  forMultisig
 } from "../utils/counterfactual";
+import { RoutePath } from "../types";
 
 const initialState = { user: {}, error: {} } as UserState;
 
 export const addUser = (
   userData: User,
-  signer: JsonRpcSigner
+  signer: JsonRpcSigner,
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -44,7 +48,14 @@ export const addUser = (
     // 5. Store the token.
     await storeTokenFromUser(user);
 
+    // 6. Wait for multisig and store it into the user.
+    user.multisigAddress = await forMultisig();
+
+    // 7. Dispatch.
     dispatch({ data: { user }, type: ActionType.AddUser });
+
+    // 8. Go to the next screen!
+    history.push(RoutePath.SetupDeposit);
   } catch (error) {
     dispatch({
       data: {
