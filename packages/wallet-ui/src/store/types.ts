@@ -18,6 +18,7 @@ export type Wallet = {
 export type ErrorData = {
   message: string;
   code: string;
+  field: string;
 };
 
 export enum ActionType {

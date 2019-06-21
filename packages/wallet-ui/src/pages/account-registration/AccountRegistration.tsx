@@ -55,6 +55,7 @@ class AccountRegistration extends React.Component<
   render() {
     const { wallet, addUser, user, history } = this.props;
     const { signer } = this.context;
+    const { error } = user;
 
     return (
       <WidgetScreen
@@ -70,18 +71,24 @@ class AccountRegistration extends React.Component<
             required={true}
             change={this.handleFormChange}
           />
+          {error.field === "username" ? (
+            <div className="error">{error.message}</div>
+          ) : null}
           <FormInput
             label="E-mail (optional)"
             type="email"
             name="email"
             change={this.handleFormChange}
           />
+          {error.field === "email" ? (
+            <div className="error">{error.message}</div>
+          ) : null}
           <div className="smallprint">
             <b>Account will be linked to your Ethereum address: </b>
             {wallet.wallet.ethAddress}
           </div>
-          {user.error.code ? (
-            <div className="error">{user.error.code}</div>
+          {error.code && !error.field ? (
+            <div className="error">{error.message}</div>
           ) : null}
           <FormButton
             type="button"

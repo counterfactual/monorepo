@@ -1,4 +1,4 @@
-import PlaygroundAPIClient from "../utils/hub-api-client";
+import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
@@ -57,11 +57,13 @@ export const addUser = (
     // 8. Go to the next screen!
     history.push(RoutePath.SetupDeposit);
   } catch (error) {
+    const { message, code, field } = ErrorDetail[error.code] || error;
     dispatch({
       data: {
         error: {
-          message: error.message,
-          code: error.code
+          message,
+          code,
+          field
         }
       },
       type: ActionType.Error

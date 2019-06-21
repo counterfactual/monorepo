@@ -54,6 +54,69 @@ enum ErrorCode {
   UsernameAlreadyExists = "username_already_exists"
 }
 
+export const CounterfactualErrorCodeDetail = {
+  signature_required: {
+    code: "signature_required",
+    message: "A Signature is required",
+    field: ""
+  },
+  invalid_signature: {
+    code: "invalid_signature",
+    message: "Ups, something is wrong with the signature",
+    field: ""
+  },
+  address_already_registered: {
+    code: "address_already_registered",
+    message: "The address has already been registered",
+    field: "email"
+  },
+  app_registry_not_available: {
+    code: "app_registry_not_available",
+    message: "The registry is not available right now",
+    field: ""
+  },
+  user_address_required: {
+    code: "user_address_required",
+    message: "The user address is required for this operation",
+    field: "email"
+  },
+  no_users_available: {
+    code: "no_users_available",
+    message: "No users are available",
+    field: ""
+  },
+  unhandled_error: {
+    code: "unhandled_error",
+    message: "Something broke! Error not handled",
+    field: ""
+  },
+  user_not_found: {
+    code: "user_not_found",
+    message: "The user is just not there",
+    field: ""
+  },
+  token_required: {
+    code: "token_required",
+    message: "A token is required",
+    field: ""
+  },
+  invalid_token: {
+    code: "invalid_token",
+    message: "Something is wrong with that token",
+    field: ""
+  },
+  username_already_exists: {
+    code: "username_already_exists",
+    message: "That username already exists, sorry",
+    field: "username"
+  }
+};
+
+export const ErrorDetail = {
+  "-32603": CounterfactualErrorCodeDetail.signature_required,
+  ...CounterfactualErrorCodeDetail
+};
+
 enum HttpStatusCode {
   OK = 200,
   Created = 201,
