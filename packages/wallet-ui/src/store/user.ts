@@ -11,6 +11,12 @@ import {
   ApplicationState
 } from "./types";
 
+import {
+  getNodeAddress,
+  buildRegistrationSignaturePayload,
+  storeTokenFromUser
+} from "../utils/counterfactual";
+
 const initialState = { user: {}, error: {} } as UserState;
 
 export const addUser = (
@@ -23,10 +29,21 @@ export const addUser = (
   Action<ActionType>
 > => async dispatch => {
   try {
-    // TODO: Continue here.
-    await signer.signMessage("Hello");
+    // 1. Get the node address
+    userData.nodeAddress = await getNodeAddress();
 
-    const user = await PlaygroundAPIClient.createAccount(userData, "foo");
+    // 2. Build the signable message
+    const signableMessage = buildRegistrationSignaturePayload(userData);
+
+    // 3. Request the signature
+    const signature = await signer.signMessage(signableMessage);
+
+    // 4. Send the API request.
+    const user = await PlaygroundAPIClient.createAccount(userData, signature);
+
+    // 5. Store the token.
+    await storeTokenFromUser(user);
+
     dispatch({ data: { user }, type: ActionType.AddUser });
   } catch (error) {
     dispatch({

@@ -13,6 +13,13 @@ export type EthereumServiceContext = {
   signer: JsonRpcSigner;
 };
 
+export enum CounterfactualMethod {
+  GetNodeAddress = "counterfactual:get:nodeAddress",
+  SetUser = "counterfactual:set:user"
+}
+
+export enum CounterfactualEvent {}
+
 declare global {
   interface Window {
     ethereum: IpcProvider &
@@ -20,6 +27,10 @@ declare global {
         enable: () => Promise<void>;
         selectedAddress: string;
         networkVersion: string;
+        send: (
+          eventOrMethod: CounterfactualMethod | CounterfactualEvent,
+          data?: any
+        ) => Promise<any>;
       };
 
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (...args: any[]) => any;
