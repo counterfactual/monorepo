@@ -49,7 +49,8 @@ export const addUser = (
     dispatch({
       data: {
         error: {
-          message: error.message
+          message: error.message,
+          code: error.code
         }
       },
       type: ActionType.Error
