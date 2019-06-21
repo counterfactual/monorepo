@@ -1,39 +1,64 @@
-import { AppInterface, FundsBucketAppState } from "@counterfactual/types";
+import {
+  AppInterface,
+  CoinBucketBalance,
+  DecodedFreeBalance
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
-const fundsBucketStateEncoding = `
-  tuple(tuple(
-    address to,
-    uint256 amount
-  )[])
+import {
+  CoinBucketBalances,
+  FreeBalanceState
+} from "../../models/free-balance";
+
+const coinBucketStateEncoding = `
+  tuple(
+    address[] tokenAddresses,
+    tuple(
+      address to,
+      uint256 amount
+    )[] balances
+  )
 `;
 
-export function getFundsBucketAppInterface(addr: string): AppInterface {
+export function getCoinBucketAppInterface(addr: string): AppInterface {
   return {
     addr,
-    stateEncoding: fundsBucketStateEncoding,
-    actionEncoding: undefined // because no actions exist for ETHBucket
+    stateEncoding: coinBucketStateEncoding,
+    actionEncoding: undefined // because no actions exist for CoinBucket
   };
 }
 
-export function encodeFundsBucketAppState(state: FundsBucketAppState) {
-  return defaultAbiCoder.encode([fundsBucketStateEncoding], [state]);
+export function encodeFreeBalanceAppState(state: FreeBalanceState) {
+  const encoding = {} as DecodedFreeBalance;
+  for (const coinBucket of Object.entries(state)) {
+    encoding.tokenAddresses.push(coinBucket[0]);
+
+    const coinBucketBalances = coinBucket[1];
+    const balances: CoinBucketBalance[] = [];
+
+    for (const balance of Object.entries(coinBucketBalances)) {
+      balances.push({
+        to: balance[0],
+        amount: {
+          _hex: balance[1].toHexString()
+        }
+      });
+    }
+  }
+  return encoding;
 }
 
 /**
- * For manipulating ETHBucket state, the most convenient type to pass around
- * is the following mapping from address to balance
- *
- * { [s: string]: BigNumber }
- *
- * The following function converts encoded ETHBucket app states into this type
+ * For manipulating `CoinBucket` state, the most convenient type to pass around
+ * is the following mapping from address to balance via `CoinBucketBalances`.
+ * This function converts encoded `CoinBucket` app states into `CoinBucketBalances`.
  */
-export const fromAppState = (
-  appState: FundsBucketAppState
-): { [s: string]: BigNumber } => {
-  const ret = {};
-  for (const { to, amount } of appState[0]) {
+export const decodeCoinBucketBalances = (
+  appState: CoinBucketBalance[]
+): CoinBucketBalances => {
+  const ret: CoinBucketBalances = {};
+  for (const { to, amount } of appState) {
     ret[to] = bigNumberify(amount._hex);
   }
   return ret;
@@ -58,10 +83,10 @@ export function flip(a: { [s: string]: BigNumber }) {
  * unchanged.
  */
 export function merge(
-  base: { [s: string]: BigNumber },
-  increments: { [s: string]: BigNumber }
+  base: CoinBucketBalances,
+  increments: CoinBucketBalances
 ) {
-  const ret = {} as { [s: string]: BigNumber };
+  const ret = {} as CoinBucketBalances;
   for (const key of Object.keys(base)) {
     if (increments[key]) {
       ret[key] = base[key].add(increments[key]);

@@ -21,6 +21,6 @@
     "typescript": "3.5.1"
   },
   "dependencies": {
-    "rpc-server": "prototypal/rpc-server"
+    "rpc-server": "0.0.1"
   }
 }

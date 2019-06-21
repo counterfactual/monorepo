@@ -79,10 +79,7 @@ describe("Three mininodes", () => {
     const appInstances = mininodeA.scm.get(AddressZero)!.appInstances;
 
     const [key] = [...appInstances.keys()].filter(key => {
-      return (
-        key !==
-        mininodeA.scm.get(AddressZero)!.toJson().freeBalanceAppIndexes[0][1]
-      );
+      return key !== mininodeA.scm.get(AddressZero)!.freeBalance.identityHash;
     });
 
     await mininodeA.ie.runUninstallProtocol(mininodeA.scm, {

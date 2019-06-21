@@ -9,11 +9,12 @@ import { bigNumberify, BigNumberish } from "ethers/utils";
 
 import { TwoPartyVirtualEthAsLumpCommitment } from "../ethereum/two-party-virtual-eth-as-lump-commitment";
 import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
-import { Opcode } from "../machine/enums";
+import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
+  ProtocolMessage,
   ProtocolParameters
 } from "../machine/types";
 import { virtualChannelKey } from "../machine/virtual-app-key";
@@ -52,12 +53,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m5 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
-        signature: s1,
-        signature2: s5,
+        protocol: Protocol.InstallVirtualApp,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: intermediaryXpub,
-        seq: 1
-      }
+        seq: 1,
+        params: context.message.params,
+        signature: s1,
+        signature2: s5
+      } as ProtocolMessage
     ];
 
     const { signature: s6, signature2: s2, signature3: s7 } = m5;
@@ -101,12 +104,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.InstallVirtualApp,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         seq: 2,
         toXpub: respondingXpub,
         signature: s5,
         signature2: s3
-      }
+      } as ProtocolMessage
     ];
 
     const { signature: s4, signature2: s7 } = m3;
@@ -119,6 +124,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: respondingXpub,
@@ -130,6 +136,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: initiatingXpub,
@@ -143,6 +150,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       newChannelWithInitiating.multisigAddress,
       newChannelWithInitiating
     );
+
     context.stateChannelsMap.set(
       newChannelWithResponding.multisigAddress,
       newChannelWithResponding
@@ -173,6 +181,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m4 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        protocol: Protocol.InstallVirtualApp,
         protocolExecutionID: context.message.protocolExecutionID,
         seq: -1,
         toXpub: intermediaryXpub,
@@ -219,7 +228,7 @@ function createAndAddTarget(
   );
 
   const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
-  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
+  const respondingAddress = xkeyKthAddress(respondingXpub, 0);
 
   const target = new AppInstance(
     AddressZero,
@@ -234,7 +243,7 @@ function createAndAddTarget(
     defaultTimeout,
     OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
-      playerAddrs: [initiatingAddress, intermediaryAddress],
+      playerAddrs: [initiatingAddress, respondingAddress],
       amount: bigNumberify(initiatingBalanceDecrement).add(
         respondingBalanceDecrement
       )
@@ -312,6 +321,7 @@ function proposeStateTransition1(
       [intermediaryAddress]: respondingBalanceDecrement
     }
   );
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
@@ -557,7 +567,7 @@ function constructTwoPartyVirtualEthAsLumpCommitment(
   targetHash: string,
   ethVirtualAppAgreementInstance: TwoPartyVirtualEthAsLumpInstance
 ) {
-  const freeBalance = stateChannel.getFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new TwoPartyVirtualEthAsLumpCommitment(
     network,

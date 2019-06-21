@@ -38,8 +38,13 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
+<<<<<<< HEAD
     "@counterfactual/node": "0.2.1",
     "@counterfactual/types": "0.0.13",
+=======
+    "@counterfactual/node": "0.2.3",
+    "@counterfactual/types": "0.0.12",
+>>>>>>> master
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
@@ -53,7 +58,7 @@
     "koa-compose": "^4.1.0",
     "logepi": "^1.0.5",
     "pg": "^7.10.0",
-    "rpc-server": "prototypal/rpc-server",
+    "rpc-server": "0.0.1",
     "uuid": "^3.3.2"
   },
   "devDependencies": {

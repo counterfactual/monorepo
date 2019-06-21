@@ -17,11 +17,16 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
+<<<<<<< HEAD
     "@counterfactual/node": "0.2.1",
     "@counterfactual/types": "0.0.13",
+=======
+    "@counterfactual/node": "0.2.3",
+    "@counterfactual/types": "0.0.12",
+>>>>>>> master
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",
-    "@stencil/sass": "1.0.0",
+    "@stencil/sass": "0.1.1",
     "eventemitter3": "3.1.2"
   },
   "repository": {

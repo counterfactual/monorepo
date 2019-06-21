@@ -90,7 +90,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.numInstalledApps
       );
 
-      let freeBalanceETH = stateChannel.getFreeBalance();
+      let freeBalanceETH = stateChannel.freeBalance;
       const state = freeBalanceETH.state;
 
       // todo(xuanji): don't reuse state
@@ -118,7 +118,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
 
-      freeBalanceETH = stateChannel.getFreeBalance();
+      freeBalanceETH = stateChannel.freeBalance;
 
       const setStateCommitment = new SetStateCommitment(
         network,

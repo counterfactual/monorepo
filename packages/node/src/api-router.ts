@@ -19,6 +19,7 @@ import {
   GetInstalledAppInstancesController,
   GetProposedAppInstanceController,
   GetProposedAppInstancesController,
+  GetStateDepositHolderAddressController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
   ProposeInstallAppInstanceController,
@@ -60,7 +61,8 @@ const controllers = [
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
   GetProposedAppInstanceController,
-  GetProposedAppInstancesController
+  GetProposedAppInstancesController,
+  GetStateDepositHolderAddressController
 ];
 
 /**

@@ -5,10 +5,11 @@ import "../interfaces/CounterfactualApp.sol";
 import "../libs/LibOutcome.sol";
 
 
-contract ETHBucket is CounterfactualApp {
+contract CoinBucket is CounterfactualApp {
 
   struct AppState {
-    LibOutcome.CoinTransfer[] transfers;
+    address[] tokenAddresses;
+    LibOutcome.CoinTransfer[] balances;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -16,7 +17,8 @@ contract ETHBucket is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(abi.decode(encodedState, (AppState)).transfers);
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return abi.encode(state.tokenAddresses, state.balances);
   }
 
 }

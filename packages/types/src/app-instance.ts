@@ -18,9 +18,12 @@ export type SignedStateHashUpdate = {
   signatures: string;
 };
 
-export type FundsBucketAppState = [
-  {
-    amount: { _hex: string };
-    to: string;
-  }[]
-];
+export type CoinBucketBalance = {
+  amount: { _hex: string };
+  to: string;
+};
+
+export type DecodedFreeBalance = {
+  tokenAddresses: string[];
+  balances: CoinBucketBalance[];
+};

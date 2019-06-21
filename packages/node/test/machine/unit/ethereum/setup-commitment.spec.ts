@@ -43,7 +43,7 @@ describe("SetupCommitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.getFreeBalance();
+  const freeBalanceETH = stateChannel.freeBalance;
 
   beforeAll(() => {
     tx = new SetupCommitment(

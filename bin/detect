@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "Monorepo"
+exit 0

@@ -19,7 +19,6 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { InstallParams, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { installFreeBalanceIfNeeded } from "../../../protocol/install";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -61,7 +60,7 @@ export async function installBalanceRefundApp(
   );
 
   let stateChannel = await store.getStateChannel(multisigAddress);
-  let channelsMap = new Map<string, StateChannel>([
+  const channelsMap = new Map<string, StateChannel>([
     [multisigAddress, stateChannel]
   ]);
 
@@ -72,13 +71,6 @@ export async function installBalanceRefundApp(
     networkContext
   );
 
-  channelsMap = installFreeBalanceIfNeeded(
-    channelsMap,
-    networkContext,
-    depositContext.initialState,
-    depositContext.appInterface,
-    multisigAddress
-  );
   stateChannel = channelsMap.get(multisigAddress)!;
 
   const installParams: InstallParams = {

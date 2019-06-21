@@ -3,13 +3,11 @@ import {
   AppABIEncodings,
   AppInstanceID,
   AppInstanceInfo,
-  Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import {
   CoinTransferInterpreterParams,
+  Node,
+  SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
-} from "@counterfactual/types/dist/src/data-types";
+} from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 

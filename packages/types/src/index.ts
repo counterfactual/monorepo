@@ -1,7 +1,8 @@
 import {
   AppIdentity,
   AppInterface,
-  FundsBucketAppState,
+  CoinBucketBalance,
+  DecodedFreeBalance,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
@@ -26,7 +27,6 @@ import {
 } from "./simple-types";
 
 export interface NetworkContext {
-  DolphinCoin: string;
   ChallengeRegistry: string;
   ETHBalanceRefundApp: string;
   ETHBucket: string;
@@ -47,7 +47,6 @@ export interface NetworkContext {
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "DolphinCoin",
   "ETHBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
@@ -78,19 +77,20 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  CoinTransferInterpreterParams,
+  SolidityABIEncoderV2Type,
   Bytes32,
   ContractABI,
+  DecodedFreeBalance,
   erc20BalanceRefundStateEncoding,
   ERC20TwoPartyDynamicInterpreterParams,
   ethBalanceRefundStateEncoding,
-  CoinTransferInterpreterParams,
-  FundsBucketAppState,
+  CoinBucketBalance,
   INodeProvider,
   IRpcNodeProvider,
   Node,
   OutcomeType,
   SignedStateHashUpdate,
-  SolidityABIEncoderV2Type,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
 };

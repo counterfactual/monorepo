@@ -80,15 +80,23 @@ export class AppProvider {
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     const highRollerAppDefinitionAddr =
-      "0x91907355C59BA005843E791c88aAB80b779446c9";
+      "0x144F1A5C2db59B58f2c73d09A2acb27a57E47618";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
       highRollerAppDefinitionAddr,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
-        stateEncoding:
-          "tuple(uint8 stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
+        stateEncoding: `
+          tuple(
+            uint8 stage,
+            bytes32 salt,
+            bytes32 commitHash,
+            uint256 playerFirstNumber,
+            uint256 playerSecondNumber,
+            uint256 turnNum
+          )
+        `
       },
       this.cfProvider
     );
@@ -125,7 +133,7 @@ export class AppProvider {
       return await this.appInstance.takeAction({
         actionType: HighRollerActionType.REVEAL_NUM,
         actionHash: this.highRollerState.salt,
-        number: state.playerFirstNumber.toString()
+        number: state.playerFirstNumber
       });
     }
 
@@ -143,13 +151,8 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    // @ts-ignore - no idea why this causes an error...
-    const isProposing = state.stage === HighRollerStage.P1_REVEALED_NUM;
-
-    const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
-    const opponentRoll = isProposing
-      ? rolls.playerSecondRoll
-      : rolls.playerFirstRoll;
+    const myRoll = rolls.playerSecondRoll;
+    const opponentRoll = rolls.playerFirstRoll;
 
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];

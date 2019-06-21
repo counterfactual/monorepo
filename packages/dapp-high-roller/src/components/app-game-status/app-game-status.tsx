@@ -26,9 +26,10 @@ export class AppGameStatus {
 
     const isTurnForFirstPlayer =
       this.highRollerStage === HighRollerStage.WAITING_FOR_P1_COMMITMENT;
+
     const isTurnForSecondPlayer =
       !this.isProposing &&
-      this.highRollerStage === HighRollerStage.P2_COMMITTED_TO_NUM;
+      this.highRollerStage === HighRollerStage.P1_COMMITTED_TO_HASH;
 
     if (isTurnForFirstPlayer || isTurnForSecondPlayer) {
       return "Your turn";

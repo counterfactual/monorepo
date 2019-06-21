@@ -50,7 +50,7 @@ describe("InstallCommitment", () => {
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.getFreeBalance();
+  const freeBalanceETH = stateChannel.freeBalance;
 
   const appInstance = createAppInstance(stateChannel);
 

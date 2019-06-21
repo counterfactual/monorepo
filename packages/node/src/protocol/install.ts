@@ -1,17 +1,16 @@
-import {
-  AppInterface,
-  NetworkContext,
-  OutcomeType,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { InstallCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, InstallParams, ProtocolParameters } from "../machine/types";
+import {
+  Context,
+  InstallParams,
+  ProtocolMessage,
+  ProtocolParameters
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { ERC20_OUTCOME_TYPE } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -37,11 +36,13 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     validateSignature(respondingAddress, commitment, theirSig);
@@ -57,17 +58,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   1: async function*(context: Context) {
     const { initiatingXpub } = context.message.params;
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
-
-    const { initialState, appInterface, multisigAddress } = context.message
-      .params as InstallParams;
-
-    context.stateChannelsMap = installFreeBalanceIfNeeded(
-      context.stateChannelsMap,
-      context.network,
-      initialState,
-      appInterface,
-      multisigAddress
-    );
 
     const [appIdentityHash, commitment] = await proposeStateTransition(
       context.message.params,
@@ -90,11 +80,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Install,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };
@@ -243,7 +234,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new InstallCommitment(
     network,
@@ -259,37 +250,4 @@ function constructInstallOp(
     interpreterAddress,
     interpreterParams
   );
-}
-
-export function installFreeBalanceIfNeeded(
-  channelsMap: Map<string, StateChannel>,
-  networkContext: NetworkContext,
-  initialState: SolidityABIEncoderV2Type,
-  appInterface: AppInterface,
-  multisigAddress: string
-) {
-  const channel = channelsMap.get(multisigAddress)!;
-
-  // An ERC20 Balance Refund app is NOT being installed, meaning an ERC20 deposit
-  // is NOT taking place
-  if (appInterface.addr !== networkContext.ERC20BalanceRefundApp) {
-    return channelsMap;
-  }
-
-  const tokenAddress = initialState["token"];
-  if (!tokenAddress) {
-    throw Error(ERC20_OUTCOME_TYPE);
-  }
-
-  if (channel.hasFreeBalance(tokenAddress)) {
-    return channelsMap;
-  }
-
-  const updatedChannel = channel.addFreeBalance(
-    networkContext.ERC20Bucket,
-    tokenAddress
-  );
-
-  channelsMap.set(multisigAddress, updatedChannel);
-  return channelsMap;
 }

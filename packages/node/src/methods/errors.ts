@@ -18,6 +18,9 @@ export const DEPOSIT_FAILED = "Failed to send funds to the multisig contract";
 export const ERC20_OUTCOME_TYPE =
   "An ERC20 token address must be specified as part of the initial state to use this Outcome type";
 
+export const NO_FREE_BALANCE_FOR_ERC20 = (tokenAddress: string) =>
+  `No Free Balance exists for the specified ERC20 token: ${tokenAddress}`;
+
 export const ETH_BALANCE_REFUND_NOT_UNINSTALLED =
   "The ETH balance refund AppInstance is still installed when it's not supposed to be";
 

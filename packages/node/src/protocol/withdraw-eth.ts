@@ -1,8 +1,4 @@
-import {
-  FundsBucketAppState,
-  NetworkContext,
-  OutcomeType
-} from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -20,7 +16,7 @@ import {
   WithdrawParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance, FreeBalanceState, StateChannel } from "../models";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -50,12 +46,14 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m2 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Withdraw,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: s1,
         signature2: s3,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
 
     const { signature: s2, signature2: s4, signature3: s6 } = m2;
@@ -75,6 +73,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: respondingXpub,
         signature: s5,
@@ -133,6 +132,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const m3 = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: s2,
@@ -226,14 +226,14 @@ function addUninstallRefundAppCommitmentToContext(
     newStateChannel
   );
 
-  const freeBalance = stateChannel.getFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   const uninstallCommitment = new UninstallCommitment(
     context.network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as FundsBucketAppState,
+    freeBalance.state as FreeBalanceState,
     freeBalance.nonce,
     freeBalance.timeout,
     freeBalance.appSeqNo
@@ -269,7 +269,7 @@ function constructInstallOp(
 ) {
   const app = stateChannel.getAppInstance(appIdentityHash);
 
-  const freeBalance = stateChannel.getFreeBalance();
+  const freeBalance = stateChannel.freeBalance;
 
   return new InstallCommitment(
     network,

@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../libs/LibOutcome.sol";
 
 
-contract ETHBalanceRefundApp {
+contract CoinBalanceRefundApp {
 
   struct AppState {
     address recipient;
