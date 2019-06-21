@@ -16,7 +16,6 @@ import {
 } from "../../store/types";
 import { JsonRpcSigner } from "ethers/providers";
 import { EthereumService } from "../../providers/EthereumService";
-import log from "../../utils/log";
 
 type AccountRegistrationProps = {
   wallet: WalletState;
