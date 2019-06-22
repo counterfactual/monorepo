@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/types",
-  "version": "0.0.12",
+  "version": "0.0.16",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -18,9 +18,7 @@
     "ethers": "4.0.31",
     "rollup": "1.16.2",
     "rollup-plugin-typescript2": "0.21.2",
-    "typescript": "3.5.1"
-  },
-  "dependencies": {
-    "rpc-server": "prototypal/rpc-server"
+    "typescript": "3.5.1",
+    "rpc-server": "0.0.1"
   }
 }

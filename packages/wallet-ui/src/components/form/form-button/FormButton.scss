@@ -1,0 +1,44 @@
+@import "../../../styles/variables";
+@import "../../../styles/button";
+
+.button {
+  // width: 100%;
+  font-size: 110%;
+  font-weight: 500;
+  background-color: $c-blue;
+  border-radius: 2px;
+  color: $c-white;
+  padding: $rhythm $rhythm * 6;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: $rhythm;
+  border-width: 0;
+
+  &.full-width {
+    width: 100%;
+  }
+
+  &:not(:disabled) {
+    &:hover {
+      background-color: $c-bluealt;
+    }
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.68;
+  }
+
+  &.button--secondary {
+    background-color: $c-darkgrey;
+
+    &:hover {
+      background-color: $c-darkergrey;
+    }
+  }
+
+  widget-spinner {
+    margin-right: $rhythm * 2;
+  }
+}

@@ -1,0 +1,15 @@
+@import "../../styles/variables";
+
+.channel-trees {
+  flex: 1;
+}
+
+.button-discover-apps {
+  display: block;
+  margin: auto;
+  font-size: 1.1rem;
+  padding: $rhythm $rhythm * 4;
+  font-weight: 400;
+  margin-bottom: $rhythm * 2;
+  justify-self: flex-end;
+}

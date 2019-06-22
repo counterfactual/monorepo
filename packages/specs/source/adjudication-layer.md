@@ -116,7 +116,7 @@ Two interpreters are currently defined, although more can be added independently
 - TwoPartyEthAsLump splits a fixed amount of ETH based on a TwoPartyFixedOutcome. The parameters consist of two beneficiary addresses and the total amount of Eth, and the params are encoded as `tuple(address[2], uint256)`.
 - ETHInterpreter sends ETH based on an CoinTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
 
-The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After an outcome is stored, the adjudication layer allows a commitment to `StateChannelTransaction.sol:executeEffectOfInterpretedAppOutcome` call the intepreter on the outcome.
+The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After an outcome is stored, the adjudication layer allows a commitment to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` call the intepreter on the outcome.
 
 ## FAQ
 

@@ -5,10 +5,7 @@ import { jsonRpcMethod } from "rpc-server";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
-import {
-  getAppInstanceInfoFromAppInstance,
-  getNonFreeBalanceAppInstances
-} from "./operation";
+import { getAppInstanceInfoFromAppInstance } from "./operation";
 /**
  * Gets all installed appInstances across all of the channels open on
  * this Node.
@@ -29,13 +26,9 @@ export default class GetAppInstancesController extends NodeController {
 
     for (const channel of Object.values(channels)) {
       if (channel.appInstances) {
-        const nonFreeBalanceAppInstances = getNonFreeBalanceAppInstances(
-          channel
-        );
-
         const appInstanceInfos = await getAppInstanceInfoFromAppInstance(
           store,
-          nonFreeBalanceAppInstances
+          [...channel.appInstances.values()]
         );
 
         appInstances.push(

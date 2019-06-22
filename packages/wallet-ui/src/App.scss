@@ -1,0 +1,47 @@
+@import "./styles/variables";
+@import "./styles/reset";
+@import "./styles/box-sizing";
+@import "./styles/layout";
+@import "./styles/typography";
+@import "./styles/responsive";
+
+/*
+  Global App CSS
+  ----------------------
+  Use this file for styles that should be applied to all components.
+  For example, "font-family" within the "body" selector is a CSS property
+  most apps will want applied to all components.
+
+  Any global CSS variables should also be applied here.
+*/
+@import url("https://rsms.me/inter/inter.css");
+
+html,
+.button,
+.btn {
+  font-family: "Inter", sans-serif;
+}
+@supports (font-variation-settings: normal) {
+  html,
+  .button,
+  .btn {
+    font-family: "Inter var", sans-serif;
+  }
+}
+
+html {
+  font-size: 15px;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  color: #252525;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}

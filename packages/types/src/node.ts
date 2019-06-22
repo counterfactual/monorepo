@@ -92,6 +92,7 @@ export namespace Node {
     DEPOSIT = "chan_deposit",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
+    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
@@ -172,6 +173,14 @@ export namespace Node {
 
   export type GetAppInstanceDetailsResult = {
     appInstance: AppInstanceInfo;
+  };
+
+  export type GetStateDepositHolderAddressParams = {
+    owners: string[];
+  };
+
+  export type GetStateDepositHolderAddressResult = {
+    address: string;
   };
 
   export type GetAppInstancesParams = {};

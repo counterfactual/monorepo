@@ -8,6 +8,7 @@
   "ignoreDeps": [
     "@stencil/core",
     "@stencil/router",
+    "@stencil/sass",
     "@types/jest",
     "jest-cli",
     "jest",

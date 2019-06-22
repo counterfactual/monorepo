@@ -57,13 +57,13 @@ export type StateChannelJSON = {
     string,
     TwoPartyVirtualEthAsLumpInstanceJson
   ][];
-  readonly freeBalanceAppIndexes: [0, string][];
+  readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumInstalledApps: number;
   readonly rootNonceValue: number;
   readonly createdAt: number;
 };
 
-function createETHFreeBalance(
+function createFreeBalance(
   multisigAddress: string,
   userNeuteredExtendedKeys: string[],
   ethBucketAddress: string,
@@ -118,10 +118,7 @@ export class StateChannel {
       string,
       TwoPartyVirtualEthAsLumpInstance
     > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
-    private readonly freeBalanceAppIndexes: ReadonlyMap<0, string> = new Map<
-      0,
-      string
-    >([]),
+    private readonly freeBalanceAppInstance?: AppInstance,
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly rootNonceValue: number = 0,
     public readonly createdAt: number = Date.now()
@@ -184,13 +181,6 @@ export class StateChannel {
     return appInstances[0];
   }
 
-  public appInstanceIsFreeBalance(appInstanceId: string): boolean {
-    if (!this.hasAppInstance(appInstanceId)) {
-      return false;
-    }
-    return new Set(this.freeBalanceAppIndexes.values()).has(appInstanceId);
-  }
-
   public isAppInstanceInstalled(appInstanceIdentityHash: string) {
     return this.appInstances.has(appInstanceIdentityHash);
   }
@@ -207,22 +197,18 @@ export class StateChannel {
     return this.getSigningKeysFor(this.monotonicNumInstalledApps);
   }
 
-  public getETHFreeBalance(): AppInstance {
-    if (!this.freeBalanceAppIndexes.has(0)) {
-      throw Error(ERRORS.FREE_BALANCE_MISSING);
+  public get freeBalance(): AppInstance {
+    if (this.freeBalanceAppInstance) {
+      return this.freeBalanceAppInstance;
     }
 
-    const idx = this.freeBalanceAppIndexes.get(0);
-
-    if (idx === undefined || !this.appInstances.has(idx)) {
-      throw Error(ERRORS.FREE_BALANCE_IDX_CORRUPT(idx!));
-    }
-
-    return this.appInstances.get(idx) as AppInstance;
+    throw new Error(
+      "There is no free balance app instance installed in this state channel"
+    );
   }
 
   public getFreeBalanceAddrOf(xpub: string): string {
-    const [alice, bob] = this.getETHFreeBalance().signingKeys;
+    const [alice, bob] = this.freeBalanceAppInstance!.signingKeys;
 
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
@@ -236,8 +222,8 @@ export class StateChannel {
   }
 
   public incrementETHFreeBalance(increments: { [addr: string]: BigNumber }) {
-    const freeBalance = this.getETHFreeBalance();
-    const freeBalanceState = freeBalance.state as ETHBucketAppState;
+    const freeBalance = this.freeBalanceAppInstance;
+    const freeBalanceState = freeBalance!.state as ETHBucketAppState;
 
     return this.setFreeBalance(
       merge(fromAppState(freeBalanceState), increments)
@@ -245,7 +231,7 @@ export class StateChannel {
   }
 
   public setFreeBalance(newState: { [addr: string]: BigNumber }) {
-    const freeBalance = this.getETHFreeBalance();
+    const freeBalance = this.freeBalance;
     const ret = [] as any;
 
     for (const beneficiaryAddr in newState) {
@@ -256,7 +242,17 @@ export class StateChannel {
         }
       });
     }
-    return this.setState(freeBalance.identityHash, [ret]);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.twoPartyVirtualEthAsLumpInstances,
+      freeBalance.setState([ret]),
+      this.monotonicNumInstalledApps,
+      this.rootNonceValue,
+      this.createdAt
+    );
   }
 
   public static setupChannel(
@@ -265,23 +261,17 @@ export class StateChannel {
     userNeuteredExtendedKeys: string[],
     freeBalanceTimeout?: number
   ) {
-    const fb = createETHFreeBalance(
-      multisigAddress,
-      userNeuteredExtendedKeys,
-      ethBucketAddress,
-      freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
-    );
-
-    const appInstances = new Map<string, AppInstance>([[fb.identityHash, fb]]);
-
-    const freeBalanceAppIndexes = new Map<0, string>([[0, fb.identityHash]]);
-
     return new StateChannel(
       multisigAddress,
       userNeuteredExtendedKeys,
-      appInstances,
+      new Map<string, AppInstance>([]),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
-      freeBalanceAppIndexes,
+      createFreeBalance(
+        multisigAddress,
+        userNeuteredExtendedKeys,
+        ethBucketAddress,
+        freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
+      ),
       1
     );
   }
@@ -295,7 +285,9 @@ export class StateChannel {
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
       new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
-      new Map<0, string>(),
+      // Note that this FreeBalance is undefined because a channel technically
+      // does not have a FreeBalance before the `setup` protocol gets run
+      undefined,
       1
     );
   }
@@ -319,7 +311,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
@@ -343,7 +335,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -367,7 +359,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -392,7 +384,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       this.appInstances,
       evaaInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
@@ -419,7 +411,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       this.appInstances,
       twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -438,7 +430,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -475,7 +467,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
@@ -511,7 +503,7 @@ export class StateChannel {
       this.userNeuteredExtendedKeys,
       appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalanceAppIndexes,
+      this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -540,7 +532,11 @@ export class StateChannel {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
         }
       ),
-      freeBalanceAppIndexes: Array.from(this.freeBalanceAppIndexes.entries()),
+      freeBalanceAppInstance: !!this.freeBalanceAppInstance
+        ? this.freeBalanceAppInstance.toJson()
+        : // Note that this FreeBalance is undefined because a channel technically
+          // does not have a FreeBalance before the `setup` protocol gets run
+          undefined,
       monotonicNumInstalledApps: this.monotonicNumInstalledApps,
       twoPartyVirtualEthAsLumpInstances: [
         ...this.twoPartyVirtualEthAsLumpInstances.entries()
@@ -578,7 +574,9 @@ export class StateChannel {
           }
         )
       ),
-      new Map(json.freeBalanceAppIndexes),
+      json.freeBalanceAppInstance
+        ? AppInstance.fromJson(json.freeBalanceAppInstance)
+        : undefined,
       json.monotonicNumInstalledApps,
       json.rootNonceValue,
       json.createdAt

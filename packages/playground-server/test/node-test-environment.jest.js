@@ -30,7 +30,7 @@ class NodeEnvironment extends NodeJSEnvironment {
       MultiSend: AddressZero,
       RootNonceRegistry: AddressZero,
       UninstallKeyRegistry: AddressZero,
-      StateChannelTransaction: AddressZero,
+      ConditionalTransactionDelegateTarget: AddressZero,
       TwoPartyVirtualEthAsLump: AddressZero,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,

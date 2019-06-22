@@ -1,0 +1,7 @@
+{
+  "extends": ["../../tslint.json"],
+  "rules": {
+    "variable-name": false,
+    "ordered-imports": false
+  }
+}

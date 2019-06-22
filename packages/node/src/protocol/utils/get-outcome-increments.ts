@@ -11,21 +11,28 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
 
-function computeCoinTransferIncrement(outcome): [string, BigNumber] {
-  const decoded = defaultAbiCoder.decode(["tuple(address,uint256)[]"], outcome);
+function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
+  const [decoded] = defaultAbiCoder.decode(
+    ["tuple(address,uint256)[]"],
+    outcome
+  );
 
-  if (
-    !(
-      decoded.length === 1 &&
-      decoded[0].length === 1 &&
-      decoded[0][0].length === 2
-    )
-  ) {
-    throw new Error("Outcome function returned unexpected shape");
+  const ret = {} as any;
+
+  for (const pair of decoded) {
+    const [address, to] = pair;
+    ret[address] = to;
   }
-  const [[[address, to]]] = decoded;
+  return ret;
+}
 
-  return [address, to];
+function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
+  for (const key in arr) {
+    if (arr[key].gt(Zero)) {
+      return true;
+    }
+  }
+  return false;
 }
 
 export async function computeFreeBalanceIncrements(
@@ -69,10 +76,10 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [address, to] = computeCoinTransferIncrement(outcome);
+        const increments = computeCoinTransferIncrement(outcome);
 
-        if (to.gt(Zero)) {
-          return { [address]: to };
+        if (anyNonzeroValues(increments)) {
+          return increments;
         }
 
         attempts += 1;
