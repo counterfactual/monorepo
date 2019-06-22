@@ -7644,7 +7644,7 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-ethers@4.0.0-beta.1, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20, ethers@^4.0.28:
+ethers@4.0.0-beta.1, ethers@4.0.29, ethers@4.0.31, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20, ethers@^4.0.28:
   version "4.0.29"
   resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
   integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
