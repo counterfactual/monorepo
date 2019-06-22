@@ -37,7 +37,7 @@
     "@types/node": "12.0.10",
     "chai": "4.2.0",
     "dotenv": "8.0.0",
-    "eth-gas-reporter": "0.2.0",
+    "eth-gas-reporter": "0.2.1",
     "ethereum-waffle": "2.0.12",
     "ethers": "4.0.29",
     "ethlint": "1.2.4",
