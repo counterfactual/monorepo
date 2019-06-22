@@ -7,6 +7,7 @@ library LibOutcome {
   struct CoinTransfer {
     address to;
     uint256 amount;
+    address coinAddress;
   }
 
   enum TwoPartyFixedOutcome {
