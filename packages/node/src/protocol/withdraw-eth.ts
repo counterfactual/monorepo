@@ -1,4 +1,4 @@
-import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -16,7 +16,7 @@ import {
   WithdrawParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance, FreeBalanceState, StateChannel } from "../models";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -188,6 +188,7 @@ function addInstallRefundAppCommitmentToContext(
     },
     0,
     1008,
+    OutcomeType.COIN_TRANSFER,
     undefined,
     { limit: MaxUint256 }
   );
@@ -232,7 +233,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    freeBalance.state as FreeBalanceState,
     freeBalance.nonce,
     freeBalance.timeout,
     freeBalance.appSeqNo

@@ -160,6 +160,7 @@ export namespace Node {
   export type DepositParams = {
     multisigAddress: string;
     amount: BigNumber;
+    tokenAddress?: string;
     notifyCounterparty?: boolean;
   };
 
@@ -197,6 +198,7 @@ export namespace Node {
 
   export type GetFreeBalanceStateParams = {
     multisigAddress: string;
+    tokenAddress?: string;
   };
 
   export type GetFreeBalanceStateResult = {

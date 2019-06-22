@@ -1,9 +1,12 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
-import { AppInstance, StateChannel } from "../../../../../src/models";
+import {
+  AppInstance,
+  getETHFreeBalance,
+  StateChannel
+} from "../../../../../src/models";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
@@ -71,6 +74,7 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should use the ETHBucketApp as the app target", () => {
+      // FIXME: update app interface to generic coin bucket
       expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
@@ -82,9 +86,9 @@ describe("StateChannel::setupChannel", () => {
     it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const fbState = fb.state as ETHBucketAppState;
-      for (const { amount } of fbState[0]) {
-        expect(amount).toEqual(Zero);
+      for (const entry of Object.entries(getETHFreeBalance(fb))) {
+        const balance = entry[1];
+        expect(balance).toEqual(Zero);
       }
     });
   });

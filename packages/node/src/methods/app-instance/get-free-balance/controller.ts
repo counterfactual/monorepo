@@ -1,10 +1,16 @@
-import { ETHBucketAppState, Node } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
+import {
+  ETH_FREE_BALANCE_ADDRESS,
+  FreeBalanceState
+} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
+import {
+  NO_FREE_BALANCE_FOR_ERC20,
+  NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
+} from "../../errors";
 
 /**
  * Handles the retrieval of a Channel's FreeBalance AppInstance.
@@ -20,7 +26,7 @@ export default class GetFreeBalanceController extends NodeController {
     params: Node.GetFreeBalanceStateParams
   ): Promise<Node.GetFreeBalanceStateResult> {
     const { store } = requestHandler;
-    const { multisigAddress } = params;
+    const { multisigAddress, tokenAddress } = params;
 
     if (!multisigAddress) {
       Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
@@ -28,14 +34,14 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const appState = stateChannel.freeBalance.state as ETHBucketAppState;
-
-    const ret: Node.GetFreeBalanceStateResult = {};
-
-    for (const { amount, to } of appState[0]) {
-      ret[to] = bigNumberify(amount._hex);
+    const appState = stateChannel.freeBalance.state as FreeBalanceState;
+    if (!tokenAddress) {
+      return appState[ETH_FREE_BALANCE_ADDRESS];
+    }
+    if (appState[tokenAddress] === undefined) {
+      return Promise.reject(NO_FREE_BALANCE_FOR_ERC20(tokenAddress));
     }
 
-    return ret;
+    return appState[tokenAddress];
   }
 }

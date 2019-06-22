@@ -132,6 +132,15 @@ async function proposeStateTransition(
       }
     | undefined;
 
+  let erc20TwoPartyDynamicInterpreterParams:
+    | {
+        // Derived from:
+        // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreter.sol#L15
+        limit: BigNumber;
+        token: string;
+      }
+    | undefined;
+
   switch (outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
       coinTransferInterpreterParams = {
@@ -139,11 +148,23 @@ async function proposeStateTransition(
           respondingBalanceDecrement
         )
       };
-      interpreterAddress = context.network.ETHInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit)"],
-        [coinTransferInterpreterParams]
-      );
+      if (initialState["token"]) {
+        erc20TwoPartyDynamicInterpreterParams = {
+          ...coinTransferInterpreterParams,
+          token: initialState["token"]
+        };
+        interpreterAddress = context.network.ERC20TwoPartyDynamicInterpreter;
+        interpreterParams = defaultAbiCoder.encode(
+          ["tuple(uint256 limit, address token)"],
+          [erc20TwoPartyDynamicInterpreterParams]
+        );
+      } else {
+        interpreterAddress = context.network.ETHInterpreter;
+        interpreterParams = defaultAbiCoder.encode(
+          ["tuple(uint256 limit)"],
+          [coinTransferInterpreterParams]
+        );
+      }
       break;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
@@ -178,8 +199,10 @@ async function proposeStateTransition(
     /* latestState */ initialState,
     /* latestNonce */ 0,
     /* defaultTimeout */ defaultTimeout,
+    /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
+    /* erc20TwoPartyDynamicInterpreterParams */ erc20TwoPartyDynamicInterpreterParams
   );
 
   const newStateChannel = stateChannel.installApp(appInstance, {

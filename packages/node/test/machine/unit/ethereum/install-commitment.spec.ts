@@ -45,7 +45,7 @@ describe("InstallCommitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.incrementETHFreeBalance({
+  stateChannel = stateChannel.incrementFreeBalance({
     [stateChannel.multisigOwners[0]]: WeiPerEther,
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });

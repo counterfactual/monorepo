@@ -53,17 +53,7 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  // Temporary, better solution is to add outcomeType to AppInstance model
-  let outcomeType: OutcomeType | undefined;
-  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
-    outcomeType = OutcomeType.COIN_TRANSFER;
-  } else if (
-    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
-  ) {
-    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
-  }
-
-  switch (outcomeType) {
+  switch (appInstance.outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
@@ -117,7 +107,7 @@ export async function computeFreeBalanceIncrements(
       };
     }
     default: {
-      throw Error("unknown interpreter");
+      throw Error("Unknown Interpreter");
     }
   }
 }

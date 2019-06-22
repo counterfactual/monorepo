@@ -1,7 +1,7 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -106,6 +106,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
+        OutcomeType.COIN_TRANSFER,
         undefined,
         {
           limit: Zero

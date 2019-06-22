@@ -908,10 +908,21 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf.js@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.1.tgz#bf0a5ca683ffe3c35d2fa426daf874ded621cf7d"
-  integrity sha512-wtH36gj2uUTW04AfeXqUhdrH4KZljCfYMpmE96M5nIHqrJ3K98Xk7d0eSopnZ+krZc8BduucExEtB4+L258KiQ==
+"@counterfactual/cf.js@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@counterfactual/cf.js/-/cf.js-0.2.0.tgz#4a1aabf2c3e592c9b75d2666bf3ccc7c8872a5dc"
+  integrity sha512-Om57KvkfNZ4rQ4c7MfTE8oazWG7nuwwEoYskLliJdyO1UxIjCZY6s6MDFnUC6fE9f/ZmBHR4Lg3N3WSz6pTUXg==
+  dependencies:
+    "@counterfactual/node-provider" "0.1.2"
+    "@counterfactual/types" "0.0.12"
+    ethers "4.0.29"
+    eventemitter3 "^3.1.2"
+    rpc-server prototypal/rpc-server
+
+"@counterfactual/postgresql-node-connector@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.npmjs.org/@counterfactual/postgresql-node-connector/-/postgresql-node-connector-0.0.2.tgz#73c8b6a42acf6595fdb73f646826f7661b21c36d"
+  integrity sha512-3FGj8cm1WPQx+g6Poi58SrUmKuN9mkCEvLYUxh29bsNeBIPvb5fEqUxZDZXSAjOeC6OBXqu/Av9jXOuOmFv+eQ==
   dependencies:
     "@counterfactual/node-provider" "0.1.2"
     "@counterfactual/types" "0.0.13"
@@ -7606,9 +7617,9 @@ ethereumjs-common@^0.6.0:
   integrity sha512-4jOrfDu9qOBTTGGb3zrfT1tE1Hyc6a8LJpEk0Vk9AYlLkBY7crjVICyJpRvjNI+KLDMpMITMw3eWVZOLMtZdhw==
 
 ethereumjs-common@^1.1.0:
-  version "1.2.1"
-  resolved "https://registry.npmjs.org/ethereumjs-common/-/ethereumjs-common-1.2.1.tgz#e8bbc43f6a6ece1447cc1faebbef9122adbd153f"
-  integrity sha512-VNr8MBdKHHuWgpYhRUhkp05P0mTcTH8Udb8wXcnnxUmwOWl388Sk/Lw2KL1rQNsV3gid2BB2auHT4vcfs9PFbw==
+  version "1.3.0"
+  resolved "https://registry.npmjs.org/ethereumjs-common/-/ethereumjs-common-1.3.0.tgz#ca7d152b615d5e1851fcf184d062bf14c62c18e6"
+  integrity sha512-/jdFHyHOIS3FiAnunwRZ+oNulFtNNSHyWii3PaNHReOUmBAxij7KMyZLKh0tE16JEsJtXOVz1ceYuq++ILzv+g==
 
 ethereumjs-testrpc-sc@6.1.6:
   version "6.1.6"

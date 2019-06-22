@@ -44,12 +44,12 @@ describe("ETH Virtual App Agreement Commitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  stateChannel = stateChannel.incrementETHFreeBalance({
+  stateChannel = stateChannel.incrementFreeBalance({
     [stateChannel.multisigOwners[0]]: WeiPerEther,
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.freeBalance;
+  const freeBalance = stateChannel.freeBalance;
 
   const uninstallKey = hexlify(randomBytes(32));
   const target = hexlify(randomBytes(32));
@@ -62,10 +62,10 @@ describe("ETH Virtual App Agreement Commitment", () => {
       multisigAddress,
       stateChannel.multisigOwners,
       target,
-      freeBalanceETH.identity,
-      freeBalanceETH.hashOfLatestState,
-      freeBalanceETH.nonce,
-      freeBalanceETH.timeout,
+      freeBalance.identity,
+      freeBalance.hashOfLatestState,
+      freeBalance.nonce,
+      freeBalance.timeout,
       stateChannel.numInstalledApps + 1,
       stateChannel.rootNonceValue,
       bigNumberify(5_000_000),
@@ -136,7 +136,7 @@ describe("ETH Virtual App Agreement Commitment", () => {
           const [
             [owner, signingKeys, appDefinition, defaultTimeout]
           ] = calldata.args;
-          const expected = freeBalanceETH.identity;
+          const expected = freeBalance.identity;
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
           expect(appDefinition).toBe(expected.appDefinition);
@@ -145,9 +145,9 @@ describe("ETH Virtual App Agreement Commitment", () => {
 
         it("should build the expected SignedStateHashUpdate argument", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
-          expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
-          expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
+          expect(stateHash).toBe(freeBalance.hashOfLatestState);
+          expect(nonce).toEqual(bigNumberify(freeBalance.nonce));
+          expect(timeout).toEqual(bigNumberify(freeBalance.timeout));
           expect(signatures).toBe(HashZero);
         });
       });

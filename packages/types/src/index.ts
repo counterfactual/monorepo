@@ -1,13 +1,17 @@
 import {
   AppIdentity,
   AppInterface,
-  ETHBucketAppState,
+  CoinBucketBalance,
+  DecodedFreeBalance,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
+  erc20BalanceRefundStateEncoding,
+  ERC20TwoPartyDynamicInterpreterParams,
+  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -18,6 +22,7 @@ import {
   Address,
   AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
@@ -26,6 +31,9 @@ export interface NetworkContext {
   ETHBalanceRefundApp: string;
   ETHBucket: string;
   ETHInterpreter: string;
+  ERC20BalanceRefundApp: string;
+  ERC20Bucket: string;
+  ERC20TwoPartyDynamicInterpreter: string;
   MinimumViableMultisig: string;
   MultiSend: string;
   ProxyFactory: string;
@@ -42,6 +50,9 @@ export const networkContextProps = [
   "ETHBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
+  "ERC20BalanceRefundApp",
+  "ERC20Bucket",
+  "ERC20TwoPartyDynamicInterpreter",
   "MinimumViableMultisig",
   "MultiSend",
   "ProxyFactory",
@@ -69,12 +80,17 @@ export {
   CoinTransferInterpreterParams,
   SolidityABIEncoderV2Type,
   Bytes32,
-  ETHBucketAppState,
+  ContractABI,
+  DecodedFreeBalance,
+  erc20BalanceRefundStateEncoding,
+  ERC20TwoPartyDynamicInterpreterParams,
+  ethBalanceRefundStateEncoding,
+  CoinBucketBalance,
   INodeProvider,
   IRpcNodeProvider,
   Node,
-  SignedStateHashUpdate,
   OutcomeType,
+  SignedStateHashUpdate,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
 };

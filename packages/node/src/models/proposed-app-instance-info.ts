@@ -123,6 +123,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
+      this.outcomeType,
       // the below two arguments are not currently used in app identity
       // computation
       undefined,

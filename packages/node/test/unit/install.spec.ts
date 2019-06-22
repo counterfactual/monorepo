@@ -1,4 +1,3 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -11,13 +10,12 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
-import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
 import {
   InstructionExecutor,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
-import { StateChannel } from "../../src/models";
+import { getETHFreeBalance, StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
@@ -99,11 +97,10 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = fromAppState(stateChannel.freeBalance
-      .state as ETHBucketAppState);
+    const ethFreeBalance = getETHFreeBalance(stateChannel.freeBalance);
 
-    expect(fbState[signingKeys[0]]).toEqual(Zero);
-    expect(fbState[signingKeys[1]]).toEqual(Zero);
+    expect(ethFreeBalance[signingKeys[0]]).toEqual(Zero);
+    expect(ethFreeBalance[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

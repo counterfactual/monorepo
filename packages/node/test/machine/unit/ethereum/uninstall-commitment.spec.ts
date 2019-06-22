@@ -1,7 +1,6 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import { ETHBucketAppState } from "@counterfactual/types";
 import { HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -18,7 +17,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 import { UninstallCommitment } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
-import { StateChannel } from "../../../../src/models";
+import { FreeBalanceState, StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -46,12 +45,12 @@ describe("Uninstall Commitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.incrementETHFreeBalance({
+  stateChannel = stateChannel.incrementFreeBalance({
     [stateChannel.multisigOwners[0]]: WeiPerEther,
     [stateChannel.multisigOwners[1]]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.freeBalance;
+  const freeBalance = stateChannel.freeBalance;
 
   const appBeingUninstalledSeqNo = Math.ceil(1000 * Math.random());
 
@@ -60,10 +59,10 @@ describe("Uninstall Commitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalanceETH.identity,
-      freeBalanceETH.state as ETHBucketAppState,
-      freeBalanceETH.nonce,
-      freeBalanceETH.timeout,
+      freeBalance.identity,
+      freeBalance.state as FreeBalanceState,
+      freeBalance.nonce,
+      freeBalance.timeout,
       appBeingUninstalledSeqNo
     ).getTransactionDetails();
   });
@@ -129,7 +128,7 @@ describe("Uninstall Commitment", () => {
             [owner, signingKeys, appDefinition, defaultTimeout]
           ] = calldata.args;
 
-          const expected = freeBalanceETH.identity;
+          const expected = freeBalance.identity;
 
           expect(owner).toBe(expected.owner);
           expect(signingKeys).toEqual(expected.signingKeys);
@@ -140,9 +139,9 @@ describe("Uninstall Commitment", () => {
         it("should build the expected SignedStateHashUpdate argument", () => {
           const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
 
-          expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
-          expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
+          expect(stateHash).toBe(freeBalance.hashOfLatestState);
+          expect(nonce).toEqual(bigNumberify(freeBalance.nonce));
+          expect(timeout).toEqual(bigNumberify(freeBalance.timeout));
           expect(signatures).toBe(HashZero);
         });
       });

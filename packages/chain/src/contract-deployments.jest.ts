@@ -1,5 +1,9 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import ERC20BalanceRefundApp from "@counterfactual/contracts/build/ERC20BalanceRefundApp.json";
+import ERC20Bucket from "@counterfactual/contracts/build/ERC20Bucket.json";
+import ERC20Interpreter from "@counterfactual/contracts/build/ERC20TwoPartyDynamicInterpreter.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
@@ -15,15 +19,9 @@ import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function configureNetworkContext(wallet: Wallet) {
-  const balanceRefundContract = await new ContractFactory(
-    BalanceRefundApp.abi,
-    BalanceRefundApp.bytecode,
-    wallet
-  ).deploy();
-
-  const ethBucketContract = await new ContractFactory(
-    ETHBucket.abi,
-    ETHBucket.bytecode,
+  const dolphinCoinContract = await new ContractFactory(
+    DolphinCoin.abi,
+    DolphinCoin.bytecode,
     wallet
   ).deploy();
 
@@ -42,6 +40,36 @@ export async function configureNetworkContext(wallet: Wallet) {
   const tttContract = await new ContractFactory(
     TicTacToeApp.abi,
     TicTacToeApp.bytecode,
+    wallet
+  ).deploy();
+
+  const erc20BucketContract = await new ContractFactory(
+    ERC20Bucket.abi,
+    ERC20Bucket.bytecode,
+    wallet
+  ).deploy();
+
+  const erc20BalanceRefundContract = await new ContractFactory(
+    ERC20BalanceRefundApp.abi,
+    ERC20BalanceRefundApp.bytecode,
+    wallet
+  ).deploy();
+
+  const erc20Interpreter = await new ContractFactory(
+    ERC20Interpreter.abi,
+    ERC20Interpreter.bytecode,
+    wallet
+  ).deploy();
+
+  const ethBucketContract = await new ContractFactory(
+    ETHBucket.abi,
+    ETHBucket.bytecode,
+    wallet
+  ).deploy();
+
+  const balanceRefundContract = await new ContractFactory(
+    BalanceRefundApp.abi,
+    BalanceRefundApp.bytecode,
     wallet
   ).deploy();
 
@@ -94,12 +122,16 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
+    DolphinCoin: dolphinCoinContract.address,
+    ERC20BalanceRefundApp: erc20BalanceRefundContract.address,
+    ERC20Bucket: erc20BucketContract.address,
+    ERC20TwoPartyDynamicInterpreter: erc20Interpreter.address,
     ETHBalanceRefundApp: balanceRefundContract.address,
     ETHBucket: ethBucketContract.address,
+    ETHInterpreter: ethInterpreter.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToe: tttContract.address,
-    ETHInterpreter: ethInterpreter.address,
     TwoPartyEthAsLump: twoPartyEthAsLump.address,
     ChallengeRegistry: appRegistry.address,
     MultiSend: multiSend.address,

@@ -1,5 +1,5 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
@@ -76,6 +76,7 @@ beforeEach(() => {
     freeBalanceETH.toJson().latestState,
     freeBalanceETH.toJson().latestNonce,
     freeBalanceETH.timeout,
+    OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero

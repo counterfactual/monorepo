@@ -1,6 +1,7 @@
 import {
   AppInterface,
   NetworkContext,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
@@ -240,6 +241,7 @@ function createAndAddTarget(
     initialState,
     0, // app nonce
     defaultTimeout,
+    OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
       playerAddrs: [initiatingAddress, respondingAddress],
       amount: bigNumberify(initiatingBalanceDecrement).add(
