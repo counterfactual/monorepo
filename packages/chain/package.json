@@ -24,7 +24,7 @@
     "ganache-core": "2.5.5",
     "rollup": "1.16.2",
     "rollup-plugin-typescript2": "0.21.2",
-    "truffle": "5.0.20",
+    "truffle": "5.0.24",
     "typescript": "3.5.1"
   },
   "peerDependencies": {
