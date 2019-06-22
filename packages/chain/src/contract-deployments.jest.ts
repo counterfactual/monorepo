@@ -81,7 +81,7 @@ export async function configureNetworkContext(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const sonditionalTransactionDelegateTarget = await new ContractFactory(
+  const conditionalTransactionDelegateTarget = await new ContractFactory(
     ConditionalTransactionDelegateTarget.abi,
     ConditionalTransactionDelegateTarget.bytecode,
     wallet
@@ -106,7 +106,7 @@ export async function configureNetworkContext(wallet: Wallet) {
     RootNonceRegistry: rootNonceRegistry.address,
     UninstallKeyRegistry: uninstallKeyRegistry.address,
     ConditionalTransactionDelegateTarget:
-      sonditionalTransactionDelegateTarget.address,
+      conditionalTransactionDelegateTarget.address,
     TwoPartyVirtualEthAsLump: twoPartyVirtualEthAsLump.address
   } as NetworkContext;
 }
