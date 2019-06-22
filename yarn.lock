@@ -17732,24 +17732,24 @@ truffle-blockchain-utils@^0.0.10:
   resolved "https://registry.npmjs.org/truffle-blockchain-utils/-/truffle-blockchain-utils-0.0.10.tgz#18b772673635a95a893f7083f7be6bd62227462b"
   integrity sha512-gVvagLCvYD0QXfnkxy6I48P6O+d7TEY0smc2VFuwldl1/clLVWE+KfBO/jFMaAz+nupTQeKvPhNTeyh3JAsCeA==
 
-truffle-contract-schema@^3.0.10:
+truffle-contract-schema@^3.0.11:
   version "3.0.11"
-  resolved "https://registry.npmjs.org/truffle-contract-schema/-/truffle-contract-schema-3.0.11.tgz#202f6982b51bcad032b7ff2a8d5837853fb69301"
+  resolved "https://registry.yarnpkg.com/truffle-contract-schema/-/truffle-contract-schema-3.0.11.tgz#202f6982b51bcad032b7ff2a8d5837853fb69301"
   integrity sha512-YcgSOlrufi6VtnXg8LU5Ma7JHzHpnZQxzB1PSWnb+JOTc1nL02XRoCWTgEO7PkJnFgf6yrwOpW0ajSwHk3zQ7Q==
   dependencies:
     ajv "^6.10.0"
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
-truffle-contract@4.0.19:
-  version "4.0.19"
-  resolved "https://registry.npmjs.org/truffle-contract/-/truffle-contract-4.0.19.tgz#986070a7d301e74e69f6f5d6c02ad57dcae08f3a"
-  integrity sha512-3tIDnpNOBEbjJO2VIzBfH4IhXAGXlk/FnrCl52NBDidBa++CVSQVLlgRigqw1UAIX5YN4MeIS5eC/tojee0BRQ==
+truffle-contract@4.0.21:
+  version "4.0.21"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.21.tgz#aa336764d9712346ee1914b383b43a57f6ff3962"
+  integrity sha512-nFoEYDCyDihw3eDC7aHSJcNVP7WQbKl0N8umxXS5gAb3AujlNeV0OCV5lbAMMY4KwyfwaZp+uVjLnK/AnuSbww==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
     truffle-blockchain-utils "^0.0.10"
-    truffle-contract-schema "^3.0.10"
+    truffle-contract-schema "^3.0.11"
     truffle-error "^0.0.5"
     truffle-interface-adapter "^0.1.6"
     web3 "1.0.0-beta.37"
