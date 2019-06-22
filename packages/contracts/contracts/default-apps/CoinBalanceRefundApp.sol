@@ -10,6 +10,7 @@ contract CoinBalanceRefundApp {
     address recipient;
     address multisig;
     uint256 threshold;
+    address token;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -21,8 +22,14 @@ contract CoinBalanceRefundApp {
 
     LibOutcome.CoinTransfer[] memory ret = new LibOutcome.CoinTransfer[](1);
 
-    ret[0].amount = address(appState.multisig).balance - appState.threshold;
+    if (appState.token == address(0x0)) {
+      ret[0].amount = address(appState.multisig).balance - appState.threshold;
+    } else {
+      // solium-disable-next-line max-len
+      ret[0].amount = ERC20(appState.token).balanceOf(appState.multisig) - appState.threshold;
+    }
     ret[0].to = appState.recipient;
+    ret[0].coinAddress = appState.token;
 
     return abi.encode(ret);
   }
