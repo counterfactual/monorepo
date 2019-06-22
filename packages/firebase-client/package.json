@@ -22,6 +22,6 @@
     "typescript": "3.5.1"
   },
   "dependencies": {
-    "firebase": "6.0.2"
+    "firebase": "6.2.2"
   }
 }
