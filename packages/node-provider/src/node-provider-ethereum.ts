@@ -103,7 +103,7 @@ export default class NodeProviderEthereum implements INodeProvider {
     }
 
     ethereum
-      .send("counterfactual:nodeProvider", [message])
+      .send("counterfactual:nodeProvider:request", [message])
       .then(({ result }: { result: Node.Message }) => {
         this.eventEmitter.emit("message", result);
       });
@@ -128,12 +128,33 @@ export default class NodeProviderEthereum implements INodeProvider {
   }
 
   private startEthereumEventListeners() {
-    ethereum.on(
-      "counterfactual:proposeInstallVirtual",
-      (data: Node.Message) => {
-        this.eventEmitter.emit("message", data);
-      }
-    );
+    const NODE_EVENTS = [
+      "proposeInstallVirtual",
+      "installVirtualEvent",
+      "getAppInstanceDetails",
+      "getState",
+      "takeAction",
+      "updateStateEvent",
+      "uninstallEvent"
+    ];
+    NODE_EVENTS.forEach((event: string) => {
+      this.startIndividualEthereumEventListener(event);
+    });
+    // ethereum.on(
+    //   "counterfactual:proposeInstallVirtual",
+    //   (data: Node.Message) => {
+    //     this.eventEmitter.emit("message", data);
+    //   }
+    // );
+  }
+
+  startIndividualEthereumEventListener(event: string) {
+    ethereum
+      .send("counterfactual:nodeProvider:event", [event])
+      .then(({ result }: { result: Node.Message }) => {
+        this.eventEmitter.emit("message", result);
+        this.startIndividualEthereumEventListener(event);
+      });
   }
 
   private notifyNodeProviderIsConnected() {
