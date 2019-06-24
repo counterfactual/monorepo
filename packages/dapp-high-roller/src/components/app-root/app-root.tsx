@@ -69,7 +69,7 @@ export class AppRoot {
         commitHash: HashZero,
         playerFirstNumber: 0,
         playerSecondNumber: 0,
-        turnNum: 0
+        versionNumber: 0
       } as HighRollerAppState
     };
 

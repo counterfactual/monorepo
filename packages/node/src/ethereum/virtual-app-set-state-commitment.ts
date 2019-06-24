@@ -1,7 +1,13 @@
 import { utils } from "@counterfactual/cf.js";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
+import {
+  BigNumberish,
+  Interface,
+  keccak256,
+  Signature,
+  solidityPack
+} from "ethers/utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
@@ -20,7 +26,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     // todo(xuanji): the following two are set to null for intermediary. This
     // is bad API design and should be fixed eventually.
     public readonly hashedSolidityABIEncoderV2Struct?: string,
-    public readonly appLocalNonce?: number
+    public readonly appversionNumber?: BigNumberish
   ) {
     super();
   }
@@ -49,7 +55,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
         [
           "0x19",
           appIdentityToHash(this.appIdentity),
-          this.appLocalNonce!,
+          this.appversionNumber!,
           this.timeout,
           this.hashedSolidityABIEncoderV2Struct
         ]
@@ -82,13 +88,13 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
   ): any {
     return {
       appStateHash: this.hashedSolidityABIEncoderV2Struct!,
-      nonce: this.appLocalNonce!,
+      versionNumber: this.appversionNumber!,
       timeout: this.timeout,
       signatures: signaturesToBytes(
         intermediarySignature,
         ...sortSignaturesBySignerAddress(this.hashToSign(false), signatures)
       ),
-      nonceExpiry: NONCE_EXPIRY
+      versionNumberExpiry: NONCE_EXPIRY
     };
   }
 }

@@ -19,7 +19,7 @@ export class UninstallCommitment extends MultiSendCommitment {
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceState: ETHBucketAppState,
-    public readonly freeBalanceNonce: number,
+    public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number
   ) {
@@ -29,7 +29,7 @@ export class UninstallCommitment extends MultiSendCommitment {
       multisigOwners,
       freeBalanceAppIdentity,
       keccak256(encodeETHBucketAppState(freeBalanceState)),
-      freeBalanceNonce,
+      freeBalanceversionNumber,
       freeBalanceTimeout
     );
   }

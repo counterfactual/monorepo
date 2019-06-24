@@ -127,7 +127,7 @@ async function proposeStateTransition(
     newStateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.state as ETHBucketAppState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     sequenceNo
   );

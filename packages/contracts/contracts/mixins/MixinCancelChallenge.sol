@@ -41,7 +41,7 @@ contract MixinCancelChallenge is
     bytes32 stateHash = computeAppChallengeHash(
       identityHash,
       challenge.appStateHash,
-      challenge.nonce,
+      challenge.versionNumber,
       appIdentity.defaultTimeout
     );
 
@@ -52,7 +52,6 @@ contract MixinCancelChallenge is
       );
     }
 
-    challenge.challengeNonce = 0;
     challenge.finalizesAt = 0;
     challenge.status = ChallengeStatus.NO_CHALLENGE;
     challenge.latestSubmitter = msg.sender;

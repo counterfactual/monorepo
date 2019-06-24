@@ -29,7 +29,7 @@ describe("Node method follows spec - uninstall virtual", () => {
     () => {
       it("sends uninstall ", async done => {
         const initialState = {
-          turnNum: 0,
+          versionNumber: 0,
           winner: 1, // Hard-coded winner for test
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         };

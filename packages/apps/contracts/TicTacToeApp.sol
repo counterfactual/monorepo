@@ -38,7 +38,7 @@ contract TicTacToeApp is CounterfactualApp {
   uint256 constant EMPTY_SQUARE = 0;
 
   struct AppState {
-    uint256 turnNum; // NOTE: This field is currently mandatory, do not modify!
+    uint256 versionNumber; // NOTE: This field is mandatory, do not modify!
     uint256 winner;
     uint256[3][3] board;
   }
@@ -69,7 +69,7 @@ contract TicTacToeApp is CounterfactualApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return signingKeys[state.turnNum % 2];
+    return signingKeys[state.versionNumber % 2];
   }
 
   function applyAction(
@@ -84,13 +84,13 @@ contract TicTacToeApp is CounterfactualApp {
 
     AppState memory postState;
     if (action.actionType == ActionType.PLAY) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
+      postState = playMove(state, state.versionNumber % 2, action.playX, action.playY);
     } else if (action.actionType == ActionType.PLAY_AND_WIN) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
-      assertWin(state.turnNum % 2, postState, action.winClaim);
-      postState.winner = (postState.turnNum % 2) + 1;
+      postState = playMove(state, state.versionNumber % 2, action.playX, action.playY);
+      assertWin(state.versionNumber % 2, postState, action.winClaim);
+      postState.winner = (postState.versionNumber % 2) + 1;
     } else if (action.actionType == ActionType.PLAY_AND_DRAW) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
+      postState = playMove(state, state.versionNumber % 2, action.playX, action.playY);
       assertBoardIsFull(postState);
       postState.winner = 3;
     } else if (action.actionType == ActionType.DRAW) {
@@ -99,7 +99,7 @@ contract TicTacToeApp is CounterfactualApp {
       postState.winner = 3;
     }
 
-    postState.turnNum += 1;
+    postState.versionNumber += 1;
 
     return abi.encode(postState);
   }
@@ -118,9 +118,9 @@ contract TicTacToeApp is CounterfactualApp {
     } else if (state.winner == GAME_DRAWN) {
       return abi.encode(LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     } else {
-      if (state.turnNum % 2 == 0) {
+      if (state.versionNumber % 2 == 0) {
         return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
-      } else if (state.turnNum % 2 == 1) {
+      } else if (state.versionNumber % 2 == 1) {
         return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
       }
     }
