@@ -119,7 +119,7 @@ describe("TwoPartyVirtualEthAsLump", () => {
 
     await appRegistry.functions.setState(appIdentity, {
       appStateHash: keccak256(HashZero),
-      nonce: 1,
+      versionNumber: 1,
       timeout: 0,
       signatures: HashZero
     });

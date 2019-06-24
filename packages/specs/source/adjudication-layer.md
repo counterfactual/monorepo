@@ -49,9 +49,8 @@ struct AppChallenge {
     address latestSubmitter;
     bytes32 appStateHash;
     uint256 challengeCounter;
-    uint256 challengeNonce;
     uint256 finalizesAt;
-    uint256 nonce;
+    uint256 versionNumber;
 }
 ```
 
@@ -75,17 +74,15 @@ Thus, this parameter simply records which state the challenge is in.
 
 - **`appStateHash`**: This is the hash of the latest state of the application. We only need to store the hash of the latest state in the event of a challenge because it is possible to accept the full state as calldata, hash it in the EVM, and then compare this to the hash and keep the full state available in calldata to be used for computation.
 
-- **`nonce`**: This is the nonce (i.e., the monotonically increasing version number of the state) at which the `appStateHash` is versioned for a particular challenge.
+- **`versionNumber`**: This is the versionNumber (i.e., the monotonically increasing version number of the state) at which the `appStateHash` is versioned for a particular challenge.
 
-- **`challengeNonce`**: It is allowed for a challenge to be responded to by issuing a new challenge. This idea is isomorphic to the familar state channels concept of "continuing the game on-chain". In this event, you want to keep track of the number of times a challenge has been "re-issued" as a new sense of versioning. We cannot simply increment the `nonce` field for reasons that are described in the section below: [on-chain progressions of off-chain state](#on-chain-progressions-of-off-chain-state).
-
-- **`challengeCounter`**: A challenge _can_ be unanimously cancelled by all parties. In this scenario the `challengeNonce` goes back to 0. However, the `challengeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain. Parties can pre-agree that if this counter ever reaches an excessively high number, simply conclude the application at some pre-determined outcome. This is simply a special mechanism to conclude applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
+- **`challengeCounter`**: The `challengeCounter` is a permanent marker of how many times a challenge has been issued and re-issued on-chain for a particular AppInstance. Parties can pre-agree that if this counter ever reaches an excessively high number, simply conclude the application at some pre-determined outcome. This is simply a special mechanism to conclude applications in cases of excessive griefing by one counterparty. For more information, I recommend reading the [economic risks](https://github.com/counterfactual/paper/blob/master/main.tex#L343) section of the [Counterfactual paper](https://l4.ventures/papers/statechannels.pdf).
 
 Since the contract that Counterfactual relies on for managing challenges is a singleton and is responsible for challnges that can occur in multiple different state channels simultaneously, it implements a mapping from what is called an `AppIdentity` to the challenge data structure described above.
 
 ### Initiating a Challenge
 
-**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding nonce, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
+**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding versionNumber, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
 
 **Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiating a challenge. A function call to the `ChallengeRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
 
@@ -130,24 +127,18 @@ From a conceptual point of view, we think it is important to separate these two 
 
 **Can participants sign new state off-chain during an on-chain challenge?**
 
-It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In the case of a state machine progression then there is a uniquely non-fault-attributable scenario that can occur:
-
-- Honest party A initiates a challenge on-chain with B after B is unresponsive at nonce `k`
-- B comes back online and tries to update the state of the application by signing a unilateral action (thereby incrementing the nonce to `k + 1`) and sending it to A
-- B _also_ goes to chain and makes an on-chain challenge progression with a _different_ action, thereby incrementing the `challengeNonce` to `1`
-
-A is now in a bizarre spot where he can _either_ respond to the challenge on-chain again (making the `challengeNonce` equal to `2`) or he could sign the state with nonce `k + 1`. In the latter case, the newly doubly-signed (`k + 1`)-versioned state would be able to be submitted on-chain and **overwrite** whatever state was on-chain with `challengeNonce` at `1`.
+It is possible that an application may have a challenge initiated on-chain and then have some state updated correctly off-chain. This would likely only occur in the case of a software error, but nonetheless it is possible. In this situation, whatever state has been put on-chain at some versionNumber `k` is considered to be _more valid_ than any off-chain signed state at versionNumber `k`. In order to progress the state off-chain, you would need to sign a new state with versionNumber `k + 1`.
 
 **Can we punish stale state attacks?**
 
-A challenge for an `n`-party off-chain application is considered to be provably malicious if the `nonce` of the challenge was `k` and someone was able to respond with a state signed by the `latestSubmitter` where the `nonce` of _that challenge response_ was at least `k + 2`.
+A challenge for an `n`-party off-chain application is considered to be provably malicious if the `versionNumber` of the challenge was `k` and someone was able to respond with a state signed by the `latestSubmitter` where the `versionNumber` of _that challenge response_ was at least `k + 2`.
 
-The reason why the same version of the above scenario with `nonce` equal to `k + 1` is not considered malicious is that the following situation might occur by an honest party:
+The reason why the same version of the above scenario with `versionNumber` equal to `k + 1` is not considered malicious is that the following situation might occur by an honest party:
 
-- Honest party A signs state with nonce `k` and send it to B. Then, B countersigns and sends to A
-- Honest party A signs state with nonce `k + 1` and send it to B, Then, B is unresponsive
+- Honest party A signs state with versionNumber `k` and send it to B. Then, B countersigns and sends to A
+- Honest party A signs state with versionNumber `k + 1` and send it to B, Then, B is unresponsive
 
-In this situation, honest party A holds a signed copy of state with nonce `k` signed by B and can initiate a challenge on the blockchain. However, it is possible that B did in fact receive the signed state with nonce `k + 1` and can then respond to the challenge with this. Therefore, we must require that a state put on chain have at least `k + 2` to be considered an attempt at a stale state attack.
+In this situation, honest party A holds a signed copy of state with versionNumber `k` signed by B and can initiate a challenge on the blockchain. However, it is possible that B did in fact receive the signed state with versionNumber `k + 1` and can then respond to the challenge with this. Therefore, we must require that a state put on chain have at least `k + 2` to be considered an attempt at a stale state attack.
 
 **Where is the mapping from app definition to outcome type stored?**
 

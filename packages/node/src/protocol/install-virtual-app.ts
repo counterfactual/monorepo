@@ -236,9 +236,9 @@ function createAndAddTarget(
     appInterface,
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no
-    0, // root nonce value: virtual app instances do not have rootNonceValue
+    0, // root versionNumber value: virtual app instances do not have rootNonceValue
     initialState,
-    0, // app nonce
+    0, // app versionNumber
     defaultTimeout,
     {
       playerAddrs: [initiatingAddress, respondingAddress],
@@ -574,7 +574,7 @@ function constructTwoPartyVirtualEthAsLumpCommitment(
     targetHash,
     freeBalance.identity,
     freeBalance.hashOfLatestState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     freeBalance.appSeqNo,
     freeBalance.rootNonceValue,

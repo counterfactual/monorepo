@@ -12,13 +12,13 @@ chai.use(waffle.solidity);
 const { expect } = chai;
 
 type NimAppState = {
-  turnNum: BigNumber;
+  versionNumber: BigNumber;
   pileHeights: BigNumber[];
 };
 
 function decodeBytesToAppState(encodedAppState: string): NimAppState {
   return defaultAbiCoder.decode(
-    ["tuple(uint256 turnNum, uint256[3] pileHeights)"],
+    ["tuple(uint256 versionNumber, uint256[3] pileHeights)"],
     encodedAppState
   )[0];
 }
@@ -31,7 +31,7 @@ describe("Nim", () => {
       [
         `
         tuple(
-          uint256 turnNum,
+          uint256 versionNumber,
           uint256[3] pileHeights
         )
       `
@@ -77,7 +77,7 @@ describe("Nim", () => {
   describe("applyAction", () => {
     it("can take from a pile", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         pileHeights: [6, 5, 12]
       };
 
@@ -93,12 +93,12 @@ describe("Nim", () => {
       expect(postState.pileHeights[0]).to.eq(1);
       expect(postState.pileHeights[1]).to.eq(5);
       expect(postState.pileHeights[2]).to.eq(12);
-      expect(postState.turnNum).to.eq(1);
+      expect(postState.versionNumber).to.eq(1);
     });
 
     it("can take to produce an empty pile", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         pileHeights: [6, 5, 12]
       };
 
@@ -114,12 +114,12 @@ describe("Nim", () => {
       expect(postState.pileHeights[0]).to.eq(0);
       expect(postState.pileHeights[1]).to.eq(5);
       expect(postState.pileHeights[2]).to.eq(12);
-      expect(postState.turnNum).to.eq(1);
+      expect(postState.versionNumber).to.eq(1);
     });
 
     it("should fail for taking too much", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         pileHeights: [6, 5, 12]
       };
 
@@ -137,7 +137,7 @@ describe("Nim", () => {
   describe("isFinal", () => {
     it("empty state is final", async () => {
       const preState = {
-        turnNum: 49,
+        versionNumber: 49,
         pileHeights: [0, 0, 0]
       };
       expect(await isStateTerminal(preState)).to.eq(true);
@@ -145,7 +145,7 @@ describe("Nim", () => {
 
     it("nonempty state is not final", async () => {
       const preState = {
-        turnNum: 49,
+        versionNumber: 49,
         pileHeights: [0, 1, 0]
       };
       expect(await isStateTerminal(preState)).to.eq(false);

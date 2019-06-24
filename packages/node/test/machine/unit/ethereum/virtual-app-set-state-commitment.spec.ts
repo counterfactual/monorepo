@@ -59,7 +59,7 @@ describe("Virtual App Set State Commitment", () => {
       appInstance.identity,
       appInstance.timeout,
       appInstance.hashOfLatestState,
-      appInstance.nonce
+      appInstance.versionNumber
     );
     tx = commitment.transaction([], {
       r: HashZero,
@@ -100,9 +100,9 @@ describe("Virtual App Set State Commitment", () => {
     });
 
     it("should contain expected SignedStateHashUpdate argument", () => {
-      const [stateHash, nonce, timeout, []] = desc.args[1];
+      const [stateHash, versionNumber, timeout, []] = desc.args[1];
       expect(stateHash).toBe(appInstance.hashOfLatestState);
-      expect(nonce).toEqual(bigNumberify(appInstance.nonce));
+      expect(versionNumber).toEqual(bigNumberify(appInstance.versionNumber));
       expect(timeout).toEqual(bigNumberify(appInstance.timeout));
     });
   });
@@ -117,7 +117,7 @@ describe("Virtual App Set State Commitment", () => {
         [
           "0x19",
           appIdentityToHash(appInstance.identity),
-          appInstance.nonce,
+          appInstance.versionNumber,
           appInstance.timeout,
           appInstance.hashOfLatestState
         ]

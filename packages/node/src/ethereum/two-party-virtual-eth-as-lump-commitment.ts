@@ -15,7 +15,7 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
     public readonly targetAppIdentityHash: string,
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceStateHash: string,
-    public readonly freeBalanceNonce: number,
+    public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
@@ -30,7 +30,7 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       multisigOwners,
       freeBalanceAppIdentity,
       freeBalanceStateHash,
-      freeBalanceNonce,
+      freeBalanceversionNumber,
       freeBalanceTimeout
     );
 

@@ -64,7 +64,7 @@ export class AppWager {
         commitHash: HashZero,
         playerFirstNumber: 0,
         playerSecondNumber: 0,
-        turnNum: 0
+        versionNumber: 0
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);

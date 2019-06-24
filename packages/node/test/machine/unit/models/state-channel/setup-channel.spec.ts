@@ -53,8 +53,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.isVirtualApp).toBe(false);
     });
 
-    it("should have nonce 0 to start", () => {
-      expect(fb.nonce).toBe(0);
+    it("should have versionNumber 0 to start", () => {
+      expect(fb.versionNumber).toBe(0);
     });
 
     it("should have a default timeout defined by the hard-coded assumption", () => {

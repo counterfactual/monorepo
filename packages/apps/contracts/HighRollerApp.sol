@@ -38,7 +38,7 @@ contract HighRollerApp is CounterfactualApp {
     bytes32 commitHash;
     uint256 playerFirstNumber;
     uint256 playerSecondNumber;
-    uint256 turnNum; // NOTE: This field is currently mandatory, do not modify!
+    uint256 versionNumber; // NOTE: This field is mandatory, do not modify!
   }
 
   struct Action {
@@ -69,7 +69,7 @@ contract HighRollerApp is CounterfactualApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return signingKeys[state.turnNum % 2];
+    return signingKeys[state.versionNumber % 2];
   }
 
   function applyAction(
@@ -140,7 +140,7 @@ contract HighRollerApp is CounterfactualApp {
 
     }
 
-    nextState.turnNum += 1;
+    nextState.versionNumber += 1;
 
     return abi.encode(nextState);
   }

@@ -34,7 +34,7 @@ type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
-  turnNum: number;
+  versionNumber: number;
 };
 
 enum HighRollerActionType {
@@ -56,7 +56,7 @@ const rlpAppStateEncoding = `
     bytes32 commitHash,
     uint256 playerFirstNumber,
     uint256 playerSecondNumber,
-    uint256 turnNum
+    uint256 versionNumber
   )
 `;
 
@@ -115,7 +115,7 @@ describe("HighRollerApp", () => {
         commitHash: HashZero,
         playerFirstNumber: 0,
         playerSecondNumber: 0,
-        turnNum: 0
+        versionNumber: 0
       };
 
       const numberSalt =
@@ -153,7 +153,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 0,
-        turnNum: 1
+        versionNumber: 1
       };
 
       const action: HighRollerAction = {
@@ -185,7 +185,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 0,
-        turnNum: 1
+        versionNumber: 1
       };
 
       const action: HighRollerAction = {
@@ -213,7 +213,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 2,
-        turnNum: 2
+        versionNumber: 2
       };
 
       const action: HighRollerAction = {
@@ -246,7 +246,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 2,
-        turnNum: 2
+        versionNumber: 2
       };
 
       const action: HighRollerAction = {
@@ -276,7 +276,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 1,
         playerSecondNumber: 2,
-        turnNum: 3
+        versionNumber: 3
       };
 
       expect(await computeOutcome(preState)).to.eq(
@@ -303,7 +303,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 75,
         playerSecondNumber: 45,
-        turnNum: 4
+        versionNumber: 4
       };
 
       expect(await computeOutcome(preState)).to.eq(2);
@@ -323,7 +323,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 3,
         playerSecondNumber: 2,
-        turnNum: 5
+        versionNumber: 5
       };
 
       expect(await computeOutcome(preState)).to.eq(
@@ -345,7 +345,7 @@ describe("HighRollerApp", () => {
         commitHash: hash,
         playerFirstNumber: 0,
         playerSecondNumber: 2,
-        turnNum: 5
+        versionNumber: 5
       };
 
       expect(await computeOutcome(preState)).to.eq(

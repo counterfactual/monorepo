@@ -53,7 +53,7 @@ export class AppGame {
     commitHash: HashZero,
     playerFirstNumber: 0,
     playerSecondNumber: 0,
-    turnNum: 0
+    versionNumber: 0
   };
 
   @Prop({ mutable: true }) highRollerState: HighRollerAppState = this

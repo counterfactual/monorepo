@@ -11,8 +11,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import AppWithAction from "../build/AppWithAction.json";
+import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import { AppInstance, expect } from "./utils";
 const { signaturesToBytes } = utils;
@@ -84,9 +84,9 @@ describe("ChallengeRegistry Challenge", () => {
   let appRegistry: Contract;
   let appDefinition: Contract;
 
-  let setStateAsOwner: (nonce: number, appState?: string) => Promise<void>;
+  let setStateAsOwner: (versionNumber: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
-  let latestNonce: () => Promise<number>;
+  let latestversionNumber: () => Promise<number>;
   let respondToChallenge: (
     state: any,
     action: any,
@@ -116,13 +116,13 @@ describe("ChallengeRegistry Challenge", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
-    latestNonce = async () =>
+    latestversionNumber = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
-        .nonce;
+        .versionNumber;
 
-    setStateAsOwner = (nonce: number, appState?: string) =>
+    setStateAsOwner = (versionNumber: number, appState?: string) =>
       appRegistry.functions.setState(appInstance.appIdentity, {
-        nonce,
+        versionNumber,
         appStateHash: appState || HashZero,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
         signatures: HashZero
@@ -139,11 +139,11 @@ describe("ChallengeRegistry Challenge", () => {
   });
 
   it("Can call respondToChallenge", async () => {
-    expect(await latestNonce()).to.eq(0);
+    expect(await latestversionNumber()).to.eq(0);
 
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
 
-    expect(await latestNonce()).to.eq(1);
+    expect(await latestversionNumber()).to.eq(1);
 
     const signer = new SigningKey(BOB.privateKey);
     const thingToSign = keccak256(encodeAction(ACTION));

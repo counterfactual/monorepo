@@ -8,7 +8,7 @@ Once an application has been installed into the state channel, the multisignatur
 
 As the underlying state of the application changes, the result of the payout function changes. It is the job of the Update Protocol to mutate this state, independently of the rest of the counterfactual structure.
 
-Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alice could run the Update Protocol, transitioning our state to what is represented by the figure above. Notice how both the board changes and the _local_ nonce for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
+Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alice could run the Update Protocol, transitioning our state to what is represented by the figure above. Notice how both the board changes and the _local_ versionNumber for the app is bumped from 0 to 1. To play out the game, we can continuously run the update protocol, making one move at a time.
 
 ## Roles
 

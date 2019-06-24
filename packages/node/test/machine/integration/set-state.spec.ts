@@ -37,7 +37,7 @@ beforeAll(async () => {
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("set state on free balance", () => {
-  it("should have the correct nonce", async done => {
+  it("should have the correct versionNumber", async done => {
     const xkeys = getRandomHDNodes(2);
 
     const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
@@ -60,7 +60,7 @@ describe("set state on free balance", () => {
       network,
       freeBalanceETH.identity,
       freeBalanceETH.hashOfLatestState,
-      freeBalanceETH.nonce,
+      freeBalanceETH.versionNumber,
       freeBalanceETH.timeout
     );
 
@@ -78,7 +78,9 @@ describe("set state on free balance", () => {
       freeBalanceETH.identityHash
     );
 
-    expect(contractAppState.nonce).toBeEq(setStateCommitment.appLocalNonce);
+    expect(contractAppState.versionNumber).toBeEq(
+      setStateCommitment.appversionNumber
+    );
 
     done();
   });

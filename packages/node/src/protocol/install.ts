@@ -176,7 +176,7 @@ async function proposeStateTransition(
     /* appSeqNo */ stateChannel.numInstalledApps,
     /* rootNonceValue */ stateChannel.rootNonceValue,
     /* latestState */ initialState,
-    /* latestNonce */ 0,
+    /* latestversionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
     /* coinTransferInterpreterParams */ coinTransferInterpreterParams
@@ -220,7 +220,7 @@ function constructInstallOp(
     app.identity,
     freeBalance.identity,
     freeBalance.hashOfLatestState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
     freeBalance.rootNonceValue,

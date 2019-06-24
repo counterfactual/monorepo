@@ -127,7 +127,7 @@ describe("ttt-bot", () => {
       nodeAlice.on("updateStateEvent", message => {
         if (
           ethers.utils
-            .bigNumberify(message.data.newState.turnNum)
+            .bigNumberify(message.data.newState.versionNumber)
             .toNumber() === 2
         ) {
           const { board } = message.data.newState;
@@ -157,7 +157,7 @@ describe("ttt-bot", () => {
           intermediaries: [playgroundNode.publicIdentifier],
           proposedToIdentifier: nodeBot.publicIdentifier,
           initialState: {
-            turnNum: 0,
+            versionNumber: 0,
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
           },
@@ -166,7 +166,7 @@ describe("ttt-bot", () => {
             actionEncoding:
               "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
             stateEncoding:
-              "tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"
+              "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"
           },
           myDeposit: Zero,
           peerDeposit: Zero,
