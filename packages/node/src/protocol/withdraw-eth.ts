@@ -1,4 +1,8 @@
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  coinBalanceRefundStateEncoding,
+  NetworkContext,
+  OutcomeType
+} from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -173,9 +177,8 @@ function addInstallRefundAppCommitmentToContext(
     stateChannel.getNextSigningKeys(),
     1008,
     {
-      addr: context.network.ETHBalanceRefundApp,
-      stateEncoding:
-        "tuple(address recipient, address multisig,  uint256 threshold)",
+      addr: context.network.CoinBalanceRefundApp,
+      stateEncoding: coinBalanceRefundStateEncoding,
       actionEncoding: undefined
     },
     false,
@@ -282,7 +285,7 @@ function constructInstallOp(
     freeBalance.timeout,
     app.appSeqNo,
     freeBalance.rootNonceValue,
-    network.ETHInterpreter,
+    network.CoinInterpreter,
     defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );
 }

@@ -27,7 +27,7 @@ describe("StateChannel::uninstallApp", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.CoinBucket,
       multisigAddress,
       xpubs
     );

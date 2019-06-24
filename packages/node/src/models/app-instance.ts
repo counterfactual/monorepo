@@ -3,7 +3,6 @@ import {
   AppIdentity,
   AppInterface,
   CoinTransferInterpreterParams,
-  ERC20TwoPartyDynamicInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
@@ -47,15 +46,8 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/CoinInterpreter.sol#L18
     limit: { _hex: string };
-  };
-
-  erc20TwoPartyDynamicInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreterParams.sol#L20
-    limit: { _hex: string };
-    token: string;
   };
 };
 
@@ -89,10 +81,6 @@ export type AppInstanceJson = {
  * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
  *           and the amount that is to be distributed for an app
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
- *
- * @property erc20TwoPartyDynamicInterpreterParams The limit / maximum amount of funds
- *           to be distributed for an ERC20-based app where the interpreter type
- *           is ERC20_TRANSFER
  */
 // TODO: dont forget dependnecy nonce docstring
 export class AppInstance {
@@ -111,8 +99,7 @@ export class AppInstance {
     latestTimeout: number,
     outcomeType: OutcomeType,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
-    erc20TwoPartyDynamicInterpreterParams?: ERC20TwoPartyDynamicInterpreterParams
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams
   ) {
     this.json = {
       multisigAddress,
@@ -139,14 +126,6 @@ export class AppInstance {
             limit: {
               _hex: coinTransferInterpreterParams.limit.toHexString()
             }
-          }
-        : undefined,
-      erc20TwoPartyDynamicInterpreterParams: erc20TwoPartyDynamicInterpreterParams
-        ? {
-            limit: {
-              _hex: erc20TwoPartyDynamicInterpreterParams.limit.toHexString()
-            },
-            token: erc20TwoPartyDynamicInterpreterParams.token
           }
         : undefined
     };
@@ -185,14 +164,6 @@ export class AppInstance {
       json.coinTransferInterpreterParams
         ? {
             limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
-          }
-        : undefined,
-      json.erc20TwoPartyDynamicInterpreterParams
-        ? {
-            limit: bigNumberify(
-              json.erc20TwoPartyDynamicInterpreterParams.limit._hex
-            ),
-            token: json.erc20TwoPartyDynamicInterpreterParams.token
           }
         : undefined
     );
@@ -286,17 +257,6 @@ export class AppInstance {
           amount: bigNumberify(
             this.json.twoPartyOutcomeInterpreterParams.amount._hex
           )
-        }
-      : undefined;
-  }
-
-  public get erc20TwoPartyDynamicInterpreterParams() {
-    return this.json.erc20TwoPartyDynamicInterpreterParams
-      ? {
-          limit: bigNumberify(
-            this.json.erc20TwoPartyDynamicInterpreterParams.limit._hex
-          ),
-          token: this.json.erc20TwoPartyDynamicInterpreterParams.token
         }
       : undefined;
   }

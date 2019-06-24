@@ -22,7 +22,7 @@ describe("StateChannel::setupChannel", () => {
 
   beforeAll(() => {
     sc = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.CoinBucket,
       multisigAddress,
       userNeuteredExtendedKeys
     );
@@ -75,7 +75,7 @@ describe("StateChannel::setupChannel", () => {
 
     it("should use the ETHBucketApp as the app target", () => {
       // FIXME: update app interface to generic coin bucket
-      expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
+      expect(fb.appInterface.addr).toBe(networkContext.CoinBucket);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 

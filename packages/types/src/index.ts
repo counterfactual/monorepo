@@ -8,10 +8,8 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
-  erc20BalanceRefundStateEncoding,
-  ERC20TwoPartyDynamicInterpreterParams,
-  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -28,12 +26,9 @@ import {
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  ETHBalanceRefundApp: string;
-  ETHBucket: string;
-  ETHInterpreter: string;
-  ERC20BalanceRefundApp: string;
-  ERC20Bucket: string;
-  ERC20TwoPartyDynamicInterpreter: string;
+  CoinBalanceRefundApp: string;
+  CoinBucket: string;
+  CoinInterpreter: string;
   MinimumViableMultisig: string;
   MultiSend: string;
   ProxyFactory: string;
@@ -47,12 +42,9 @@ export interface NetworkContext {
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "ETHBalanceRefundApp",
-  "ETHBucket",
-  "ETHInterpreter",
-  "ERC20BalanceRefundApp",
-  "ERC20Bucket",
-  "ERC20TwoPartyDynamicInterpreter",
+  "CoinBalanceRefundApp",
+  "CoinBucket",
+  "CoinInterpreter",
   "MinimumViableMultisig",
   "MultiSend",
   "ProxyFactory",
@@ -82,9 +74,7 @@ export {
   Bytes32,
   ContractABI,
   DecodedFreeBalance,
-  erc20BalanceRefundStateEncoding,
-  ERC20TwoPartyDynamicInterpreterParams,
-  ethBalanceRefundStateEncoding,
+  coinBalanceRefundStateEncoding,
   CoinBucketBalance,
   INodeProvider,
   IRpcNodeProvider,

@@ -46,7 +46,7 @@ describe("set state on free balance", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      network.ETHBucket,
+      network.CoinBucket,
       AddressZero,
       xkeys.map(x => x.neuter().extendedKey)
     ).setFreeBalance({

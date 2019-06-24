@@ -76,7 +76,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       let stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.CoinBucket,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey),
         1
@@ -157,7 +157,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.timeout,
         appInstance.appSeqNo,
         stateChannel.rootNonceValue,
-        network.ETHInterpreter,
+        network.CoinInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],
           [freeBalanceETH.coinTransferInterpreterParams!.limit]

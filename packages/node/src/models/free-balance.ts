@@ -64,7 +64,6 @@ export function createFreeBalance(
     outcomeType,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    tokenAddress ? undefined : { limit: MaxUint256 },
-    tokenAddress ? { limit: MaxUint256, token: tokenAddress } : undefined
+    { limit: MaxUint256 }
   );
 }

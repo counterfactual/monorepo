@@ -105,7 +105,7 @@ function proposeStateTransition(
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network.ETHBucket,
+    context.network.CoinBucket,
     multisigAddress,
     [initiatingXpub, respondingXpub]
   );

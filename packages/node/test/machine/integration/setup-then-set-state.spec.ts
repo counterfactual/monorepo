@@ -63,7 +63,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.CoinBucket,
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1

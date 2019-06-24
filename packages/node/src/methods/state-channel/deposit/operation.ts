@@ -1,15 +1,14 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import {
   AppInterface,
-  erc20BalanceRefundStateEncoding,
-  ethBalanceRefundStateEncoding,
+  coinBalanceRefundStateEncoding,
   NetworkContext,
   Node,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,
@@ -37,7 +36,6 @@ export interface ERC20BalanceRefundAppState extends ETHBalanceRefundAppState {
 interface DepositContext {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
-  outcomeType: OutcomeType;
 }
 
 export async function installBalanceRefundApp(
@@ -84,7 +82,7 @@ export async function installBalanceRefundApp(
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: depositContext.outcomeType
+    outcomeType: OutcomeType.COIN_TRANSFER
   };
 
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
@@ -164,9 +162,9 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
-  let balanceRefundAddress = networkContext.ETHBalanceRefundApp;
+  let balanceRefundAddress = networkContext.CoinBalanceRefundApp;
   if (params.tokenAddress) {
-    balanceRefundAddress = networkContext.ERC20BalanceRefundApp;
+    balanceRefundAddress = networkContext.CoinBalanceRefundApp;
   }
 
   const [peerAddress] = await getPeersAddressFromChannel(
@@ -203,40 +201,27 @@ async function getDepositContext(
   provider: BaseProvider,
   networkContext: NetworkContext
 ): Promise<DepositContext> {
-  const { multisigAddress, tokenAddress } = params;
-  const outcomeType = OutcomeType.COIN_TRANSFER;
+  const { multisigAddress } = params;
+  const tokenAddress = params.tokenAddress ? params.tokenAddress : AddressZero;
+  let threshold = await provider.getBalance(multisigAddress);
+
+  if (tokenAddress !== AddressZero) {
+    const tokenContract = new Contract(tokenAddress!, ERC20.abi, provider);
+    threshold = await tokenContract.functions.balanceOf(multisigAddress);
+  }
+
   const initialState = {
+    tokenAddress,
+    threshold,
     recipient: xkeyKthAddress(publicIdentifier, 0),
-    multisig: multisigAddress,
-    threshold: await provider.getBalance(multisigAddress)
+    multisig: multisigAddress
   };
 
-  if (!params.tokenAddress) {
-    return {
-      initialState,
-      outcomeType,
-      appInterface: {
-        addr: networkContext.ETHBalanceRefundApp,
-        stateEncoding: ethBalanceRefundStateEncoding,
-        actionEncoding: undefined
-      }
-    };
-  }
-  const tokenContract = new Contract(tokenAddress!, ERC20.abi, provider);
-  const tokenThreshold = await tokenContract.functions.balanceOf(
-    multisigAddress
-  );
-
   return {
-    outcomeType,
-    initialState: {
-      ...initialState,
-      token: tokenAddress!,
-      threshold: tokenThreshold
-    },
+    initialState,
     appInterface: {
-      addr: networkContext.ERC20BalanceRefundApp,
-      stateEncoding: erc20BalanceRefundStateEncoding,
+      addr: networkContext.CoinBalanceRefundApp,
+      stateEncoding: coinBalanceRefundStateEncoding,
       actionEncoding: undefined
     }
   };

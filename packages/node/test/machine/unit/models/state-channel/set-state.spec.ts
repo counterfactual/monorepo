@@ -27,7 +27,7 @@ describe("StateChannel::setState", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.CoinBucket,
       multisigAddress,
       xpubs
     );

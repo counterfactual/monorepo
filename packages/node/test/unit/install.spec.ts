@@ -92,7 +92,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK.ETHBucket,
+      EMPTY_NETWORK.CoinBucket,
       multisigAddress,
       hdnodes.map(x => x.neuter().extendedKey)
     );

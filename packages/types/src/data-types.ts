@@ -12,15 +12,8 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/CoinInterpreter.sol#L18
   limit: BigNumber;
-};
-
-export type ERC20TwoPartyDynamicInterpreterParams = {
-  // Derived from:
-  // packages/contracts/contracts/interpreters/ERC20TwoPartyDynamicInterpreter.sol#L20
-  limit: BigNumber;
-  token: string;
 };
 
 export type AppInstanceInfo = {
@@ -39,7 +32,6 @@ export type AppInstanceInfo = {
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   coinTransferInterpreterParams?: CoinTransferInterpreterParams;
-  erc20TwoPartyDynamicInterpreterParams?: ERC20TwoPartyDynamicInterpreterParams;
 };
 
 export type AppABIEncodings = {
@@ -60,8 +52,5 @@ export enum TwoPartyFixedOutcome {
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
 
-export const ethBalanceRefundStateEncoding =
-  "tuple(address recipient, address multisig, uint256 threshold)";
-
-export const erc20BalanceRefundStateEncoding =
+export const coinBalanceRefundStateEncoding =
   "tuple(address recipient, address multisig, uint256 threshold, address token)";

@@ -37,7 +37,7 @@ export class SetupCommitment extends MultisigCommitment {
         //       when creating the setup commitment
         0,
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.ETHInterpreter,
+        this.networkContext.CoinInterpreter,
         defaultAbiCoder.encode(["uint256"], [MaxUint256])
       ]),
       operation: MultisigOperation.DelegateCall

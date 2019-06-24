@@ -67,7 +67,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       const stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.CoinBucket,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance({

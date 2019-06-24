@@ -39,7 +39,7 @@ describe("Uninstall Commitment", () => {
 
   // State channel testing values
   let stateChannel = StateChannel.setupChannel(
-    networkContext.ETHBucket,
+    networkContext.CoinBucket,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );
