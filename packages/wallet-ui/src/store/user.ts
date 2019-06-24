@@ -4,7 +4,13 @@ import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 
-import { User, StoreAction, UserState, ApplicationState } from "./types";
+import {
+  User,
+  StoreAction,
+  UserState,
+  ApplicationState,
+  ActionType
+} from "./types";
 
 import {
   getNodeAddress,
@@ -16,13 +22,6 @@ import {
 import { RoutePath } from "../types";
 import { parseEther } from "ethers/utils";
 import log from "../utils/log";
-
-enum ActionType {
-  AddUser = "ADD_USER",
-  GetUser = "GET_USER",
-  Error = "USER_ERROR",
-  SetWalletBalance = "WALLET_SET_BALANCE"
-}
 
 const initialState = { user: {}, error: {} } as UserState;
 
@@ -40,7 +39,7 @@ const dispatchError = (
         field
       }
     },
-    type: ActionType.Error
+    type: ActionType.UserError
   });
 };
 
@@ -74,7 +73,7 @@ export const addUser = (
     user.multisigAddress = await forMultisig();
 
     // 7. Dispatch.
-    dispatch({ data: { user }, type: ActionType.AddUser });
+    dispatch({ data: { user }, type: ActionType.UserAdd });
 
     // 8. Go to the next screen!
     history.push(RoutePath.SetupDeposit);
@@ -98,11 +97,11 @@ export const getUser = (): ThunkAction<
     // 2. Dispatch it.
     dispatch({
       data: { user: userData.user },
-      type: ActionType.GetUser
+      type: ActionType.UserGet
     });
     dispatch({
       data: { balance: parseEther(userData.balance) },
-      type: ActionType.SetWalletBalance
+      type: ActionType.WalletSetBalance
     });
   } catch (error) {
     dispatchError(dispatch, error);
@@ -111,12 +110,12 @@ export const getUser = (): ThunkAction<
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<User, ActionType>
+  action: StoreAction<User>
 ) {
   switch (action.type) {
-    case ActionType.AddUser:
-    case ActionType.GetUser:
-    case ActionType.Error:
+    case ActionType.UserAdd:
+    case ActionType.UserGet:
+    case ActionType.UserError:
       return {
         ...state,
         ...action.data

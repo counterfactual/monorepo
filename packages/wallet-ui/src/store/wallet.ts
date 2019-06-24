@@ -2,21 +2,18 @@ import { ThunkAction } from "redux-thunk";
 import { Action } from "redux";
 import { History } from "history";
 
-import { WalletState, StoreAction, ApplicationState, Deposit } from "./types";
+import {
+  WalletState,
+  StoreAction,
+  ApplicationState,
+  Deposit,
+  ActionType
+} from "./types";
 
 import { RoutePath } from "../types";
 import { requestDeposit, forFunds } from "../utils/counterfactual";
 
-import log from "../utils/log";
-
 import { Zero } from "ethers/constants";
-
-enum ActionType {
-  SetWalletAddress = "SET_WALLET_ADDRESS",
-  Error = "WALLET_ERROR",
-  Deposit = "WALLET_DEPOSIT",
-  SetWalletBalance = "SET_WALLET_BALANCE"
-}
 
 const { ethereum } = window;
 const initialState = {
@@ -40,7 +37,7 @@ export const connectToWallet = (
       data: {
         ethAddress: ethereum.selectedAddress
       } as WalletState,
-      type: ActionType.SetWalletAddress
+      type: ActionType.WalletSetAddress
     });
 
     history.push(RoutePath.SetupRegister);
@@ -52,7 +49,7 @@ export const connectToWallet = (
             "You must allow Counterfactual to connect with Metamask in order to use it."
         }
       } as WalletState,
-      type: ActionType.Error
+      type: ActionType.WalletError
     });
   }
 };
@@ -77,14 +74,13 @@ export const deposit = (
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<WalletState, ActionType>
+  action: StoreAction<WalletState>
 ) {
-  log("Receiving into reducer", action);
   switch (action.type) {
-    case ActionType.SetWalletAddress:
-    case ActionType.SetWalletBalance:
-    case ActionType.Deposit:
-    case ActionType.Error:
+    case ActionType.WalletSetAddress:
+    case ActionType.WalletSetBalance:
+    case ActionType.WalletDeposit:
+    case ActionType.WalletError:
       return {
         ...state,
         ...action.data
