@@ -1,6 +1,6 @@
 import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
 import { Action } from "redux";
-import { ThunkAction } from "redux-thunk";
+import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 
@@ -10,16 +10,36 @@ import {
   getNodeAddress,
   buildRegistrationSignaturePayload,
   storeTokenFromUser,
-  forMultisig
+  forMultisig,
+  getUserFromStoredToken
 } from "../utils/counterfactual";
 import { RoutePath } from "../types";
 
 enum ActionType {
   AddUser = "ADD_USER",
+  GetUser = "GET_USER",
   Error = "USER_ERROR"
 }
 
 const initialState = { user: {}, error: {} } as UserState;
+
+const dispatchError = (
+  dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>,
+  error: any
+) => {
+  const { message, code, field } = ErrorDetail[error.code] || error;
+
+  dispatch({
+    data: {
+      error: {
+        message,
+        code,
+        field
+      }
+    },
+    type: ActionType.Error
+  });
+};
 
 export const addUser = (
   userData: User,
@@ -56,21 +76,29 @@ export const addUser = (
     // 8. Go to the next screen!
     history.push(RoutePath.SetupDeposit);
   } catch (error) {
-    const { message, code, field } = ErrorDetail[error.code] || error;
-    dispatch({
-      data: {
-        error: {
-          message,
-          code,
-          field
-        }
-      },
-      type: ActionType.Error
-    });
+    dispatchError(dispatch, error);
   }
 };
 
-export const getUsers = () => ({ type: "GET" });
+export const getUser = (): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  try {
+    // 1. Get the user token.
+    const userData = await getUserFromStoredToken();
+
+    // 2. Dispatch it.
+    dispatch({
+      data: { user: { ...userData.user, balance: userData.balance } },
+      type: ActionType.GetUser
+    });
+  } catch (error) {
+    dispatchError(dispatch, error);
+  }
+};
 
 export const reducers = function(
   state = initialState,
@@ -78,6 +106,7 @@ export const reducers = function(
 ) {
   switch (action.type) {
     case ActionType.AddUser:
+    case ActionType.GetUser:
     case ActionType.Error:
       return {
         ...state,

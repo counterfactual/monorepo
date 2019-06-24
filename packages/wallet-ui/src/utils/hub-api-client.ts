@@ -309,17 +309,15 @@ export default class PlaygroundAPIClient {
     try {
       const data = toAPIResource<User, User>(user);
       const json = (await post("users", data, signature)) as APIResponse;
-      // const resource = json.data as APIResource<User>;
+      const resource = json.data as APIResource<User>;
 
-      // const jsonMultisig = (await post("multisig-deploys", {
-      //   type: "multisigDeploy",
-      //   attributes: { ethAddress: user.ethAddress }
-      // })) as APIResponse;
-      // const resourceMultisig = jsonMultisig.data as APIResource<
-      //   Partial<UserAttributes>
-      // >;
+      const jsonMultisig = (await post("multisig-deploys", {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      })) as APIResponse;
+      const resourceMultisig = jsonMultisig.data as APIResource<Partial<User>>;
 
-      // resource.attributes.transactionHash = resourceMultisig.id as string;
+      resource.attributes.transactionHash = resourceMultisig.id as string;
 
       return {
         ...user,

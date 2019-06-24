@@ -15,7 +15,8 @@ export type EthereumServiceContext = {
 
 export enum CounterfactualMethod {
   GetNodeAddress = "counterfactual:get:nodeAddress",
-  SetUser = "counterfactual:set:user"
+  SetUser = "counterfactual:set:user",
+  RequestUser = "counterfactual:request:user"
 }
 
 export enum CounterfactualEvent {

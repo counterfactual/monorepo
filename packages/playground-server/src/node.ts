@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
-import { jsonRpcDeserialize } from "rpc-server";
+import { jsonRpcDeserialize, JsonRpcResponse } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -256,18 +256,16 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = {
-      result: await node.router.dispatch(
-        jsonRpcDeserialize({
-          id: Date.now(),
-          method: "chan_create",
-          params: {
-            owners: [node.publicIdentifier, nodeAddress]
-          },
-          jsonrpc: "2.0"
-        })
-      )
-    };
+    const multisigResponse = (await node.router.dispatch(
+      jsonRpcDeserialize({
+        id: Date.now(),
+        method: "chan_create",
+        params: {
+          owners: [node.publicIdentifier, nodeAddress]
+        },
+        jsonrpc: "2.0"
+      })
+    )) as JsonRpcResponse;
 
     return {
       ...multisigResponse.result
