@@ -28,16 +28,16 @@ contract SwapInterpreter is Interpreter {
     LibOutcome.CoinBalances[] memory coinBalances = abi.decode(input, (LibOutcome.CoinBalances[]));
 
     Param memory params = abi.decode(encodedParams, (Param));
-    uint256[] limitRemaining = params.limit;
+    uint256[] memory limitRemaining = params.limit;
 
-    for (uint256 i = 0; i < transfers.length; i++) {
-      address payable to = address(uint160(coinBalances[[i].to]))
-      address[] coinAddress = coinBalances[i].coinAddress;
-      address[] balance = coinBalances[i].balance;
+    for (uint256 i = 0; i < coinBalances.length; i++) {
+      address payable to = address(uint160(coinBalances[i].to));
+      address[] memory coinAddress = coinBalances[i].coinAddress;
+      uint256[] memory balance = coinBalances[i].balance;
 
-      for (uint256 j = 0; j < transfers.length; j++) {
-        require(balance[j] <= limitRemaining, "Hit the transfer limit.");
-        limitRemaining -= balance[j];
+      for (uint256 j = 0; j < coinBalances[i].balance.length; j++) {
+        require(balance[j] <= limitRemaining[j], "Hit the transfer limit.");
+        limitRemaining[j] -= balance[j];
         
         if (coinAddress[j] == address(0x0)) {
           // note: send() is deliberately used instead of transfer() here

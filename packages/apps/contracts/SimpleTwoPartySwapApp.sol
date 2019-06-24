@@ -16,8 +16,8 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.CoinBalances[] coinBalances // [Alice, Bob]
-    bool finalized
+    LibOutcome.CoinBalances[] coinBalances; // [Alice, Bob]
+    bool finalized;
   }
 
   function computeOutcome(bytes calldata encodedState)
