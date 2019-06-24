@@ -83,8 +83,13 @@ class AccountContext extends React.Component<AccountContextProps> {
   componentWillReceiveProps(props: AccountContextProps) {
     const { userState, history } = this.props;
 
-    if (userState && userState.user && userState.user.id) {
+    if (userState.user.id) {
       history.push(RoutePath.Channels);
+    } else if (
+      !userState.user.id &&
+      history.location.pathname !== RoutePath.Root
+    ) {
+      history.push(RoutePath.Root);
     }
   }
 
@@ -93,7 +98,7 @@ class AccountContext extends React.Component<AccountContextProps> {
 
     return (
       <div className="account-context">
-        {!user ? (
+        {!user.id ? (
           <UnauthenticatedCommands />
         ) : (
           <AccountInformation username={user.username} balance={user.balance} />
