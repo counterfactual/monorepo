@@ -17,6 +17,11 @@ import ChallengeRegistry from "../build/ChallengeRegistry.json";
 import { AppInstance, expect } from "./utils";
 const { signaturesToBytes } = utils;
 
+enum ActionType {
+  SUBMIT_COUNTER_INCREMENT,
+  ACCEPT_INCREMENT
+}
+
 const ALICE =
   // 0xaeF082d339D227646DB914f0cA9fF02c8544F30b
   new Wallet(
@@ -33,47 +38,22 @@ const BOB =
 const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
 const PRE_STATE = {
-  player1: ALICE.address,
-  player2: BOB.address,
-  counter: bigNumberify(3)
+  counter: bigNumberify(0)
 };
 
 const ACTION = {
+  actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
   increment: bigNumberify(2)
 };
 
-// todo(xuanji): this is manually calculated
-const POST_STATE = {
-  player1: ALICE.address,
-  player2: BOB.address,
-  counter: bigNumberify(5)
-};
-
 function encodeState(state: SolidityABIEncoderV2Type) {
-  return defaultAbiCoder.encode(
-    [
-      `
-      tuple(
-        address player1,
-        address player2,
-        uint256 counter
-      )
-      `
-    ],
-    [state]
-  );
+  return defaultAbiCoder.encode([`tuple(uint256 counter)`], [state]);
 }
 
-function encodeAction(state: SolidityABIEncoderV2Type) {
+function encodeAction(action: SolidityABIEncoderV2Type) {
   return defaultAbiCoder.encode(
-    [
-      `
-      tuple(
-        uint256 increment
-      )
-    `
-    ],
-    [state]
+    [`tuple(uint8 actionType, uint256 increment)`],
+    [action]
   );
 }
 
@@ -155,5 +135,18 @@ describe("ChallengeRegistry Challenge", () => {
     await respondToChallenge(PRE_STATE, ACTION, bytes);
 
     expect(await latestState()).to.be.eql(HashZero);
+  });
+
+  it("Cannot call respondToChallenge with incorrect turn taker", async () => {
+    await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
+
+    const signer = new SigningKey(ALICE.privateKey);
+    const thingToSign = keccak256(encodeAction(ACTION));
+    const signature = await signer.signDigest(thingToSign);
+    const bytes = signaturesToBytes(signature);
+
+    await expect(
+      respondToChallenge(PRE_STATE, ACTION, bytes)
+    ).to.be.revertedWith("Action must have been signed by correct turn taker");
   });
 });
