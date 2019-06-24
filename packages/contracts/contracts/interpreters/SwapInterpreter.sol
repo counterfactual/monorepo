@@ -1,0 +1,52 @@
+pragma solidity 0.5.9;
+pragma experimental "ABIEncoderV2";
+
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
+
+
+/**
+ * This file is excluded from ethlint/solium because of this issue:
+ * https://github.com/duaraghav8/Ethlint/issues/261
+ */
+contract SwapInterpreter is Interpreter {
+
+  using LibOutcome for LibOutcome.CoinBalances;
+
+   struct Param {
+    uint256[] limit;
+  }
+
+  function interpretOutcomeAndExecuteEffect(
+    bytes calldata input,
+    bytes calldata encodedParams
+  )
+    external
+  {
+
+    LibOutcome.CoinBalances[] memory coinBalances = abi.decode(input, (LibOutcome.CoinBalances[]));
+
+    Param memory params = abi.decode(encodedParams, (Param));
+    uint256[] limitRemaining = params.limit;
+
+    for (uint256 i = 0; i < transfers.length; i++) {
+      address payable to = address(uint160(coinBalances[[i].to]))
+      address[] coinAddress = coinBalances[i].coinAddress;
+      address[] balance = coinBalances[i].balance;
+
+      for (uint256 j = 0; j < transfers.length; j++) {
+        require(balance[j] <= limitRemaining, "Hit the transfer limit.");
+        limitRemaining -= balance[j];
+        
+        if (coinAddress[j] == address(0x0)) {
+          // note: send() is deliberately used instead of transfer() here
+          // so that a revert does not stop the rest of the sends
+          to.send(balance[j]);
+        } else {
+          ERC20(coinAddress[j]).transfer(to, balance[j]);
+        }
+      }
+    }
+  }
+}
