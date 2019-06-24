@@ -43,7 +43,7 @@ class AccountRegistration extends React.Component<
     this.state = {
       username: "",
       email: "",
-      ethAddress: props.wallet.wallet.ethAddress,
+      ethAddress: props.wallet.ethAddress,
       nodeAddress: ""
     };
   }
@@ -85,7 +85,7 @@ class AccountRegistration extends React.Component<
           ) : null}
           <div className="smallprint">
             <b>Account will be linked to your Ethereum address: </b>
-            {wallet.wallet.ethAddress}
+            {wallet.ethAddress}
           </div>
           {error.code && !error.field ? (
             <div className="error">{error.message}</div>
@@ -104,8 +104,8 @@ class AccountRegistration extends React.Component<
 }
 export default connect(
   (state: ApplicationState) => ({
-    wallet: state.Wallet,
-    user: state.User
+    wallet: state.WalletState,
+    user: state.UserState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     addUser: (data: User, signer: JsonRpcSigner, history: History) =>

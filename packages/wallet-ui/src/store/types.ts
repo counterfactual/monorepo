@@ -11,10 +11,6 @@ export type User = {
   email: string;
 };
 
-export type Wallet = {
-  ethAddress: string;
-};
-
 export type ErrorData = {
   message: string;
   code: string;
@@ -25,7 +21,7 @@ export enum ActionType {
   AddUser = "ADD_USER",
   ConnectToWallet = "CONNECT_TO_WALLET",
   SetWalletAddress = "SET_WALLET_ADDRESS",
-  Error = "ERROR"
+  Error = "UserError"
 }
 
 export type UserState = {
@@ -34,15 +30,15 @@ export type UserState = {
 };
 
 export type WalletState = {
-  wallet: Wallet;
+  ethAddress: string;
   error: ErrorData;
 };
 
 export type ApplicationState = {
-  User: UserState;
-  Wallet: WalletState;
+  UserState: UserState;
+  WalletState: WalletState;
 };
 
-export type StoreAction<DataType> = Action<ActionType> & {
+export type StoreAction<DataType, ActionEnumType> = Action<ActionEnumType> & {
   data: DataType;
 };

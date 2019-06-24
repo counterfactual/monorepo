@@ -2,17 +2,17 @@ import { ThunkAction } from "redux-thunk";
 import { Action } from "redux";
 import { History } from "history";
 
-import {
-  WalletState,
-  ActionType,
-  StoreAction,
-  ApplicationState
-} from "./types";
+import { WalletState, StoreAction, ApplicationState } from "./types";
 
 import { RoutePath } from "../types";
 
+enum ActionType {
+  SetWalletAddress = "SET_WALLET_ADDRESS",
+  Error = "WALLET_ERROR"
+}
+
 const { ethereum } = window;
-const initialState = { wallet: {}, error: {} } as WalletState;
+const initialState = { ethAddress: "", error: {} } as WalletState;
 
 export const connectToWallet = (
   history: History
@@ -27,9 +27,7 @@ export const connectToWallet = (
 
     dispatch({
       data: {
-        wallet: {
-          ethAddress: ethereum.selectedAddress
-        }
+        ethAddress: ethereum.selectedAddress
       } as WalletState,
       type: ActionType.SetWalletAddress
     });
@@ -50,7 +48,7 @@ export const connectToWallet = (
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<WalletState>
+  action: StoreAction<WalletState, ActionType>
 ) {
   switch (action.type) {
     case ActionType.SetWalletAddress:

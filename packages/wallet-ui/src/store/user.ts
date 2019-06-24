@@ -4,13 +4,7 @@ import { ThunkAction } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 
-import {
-  User,
-  ActionType,
-  StoreAction,
-  UserState,
-  ApplicationState
-} from "./types";
+import { User, StoreAction, UserState, ApplicationState } from "./types";
 
 import {
   getNodeAddress,
@@ -19,6 +13,11 @@ import {
   forMultisig
 } from "../utils/counterfactual";
 import { RoutePath } from "../types";
+
+enum ActionType {
+  AddUser = "ADD_USER",
+  Error = "USER_ERROR"
+}
 
 const initialState = { user: {}, error: {} } as UserState;
 
@@ -75,7 +74,7 @@ export const getUsers = () => ({ type: "GET" });
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<User>
+  action: StoreAction<User, ActionType>
 ) {
   switch (action.type) {
     case ActionType.AddUser:

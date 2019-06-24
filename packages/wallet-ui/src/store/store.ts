@@ -1,16 +1,14 @@
 import { combineReducers, createStore, applyMiddleware, compose } from "redux";
 import ReduxThunk from "redux-thunk";
 
-import { reducers as User } from "./user";
-import { reducers as Wallet } from "./wallet";
+import { reducers as UserState } from "./user";
+import { reducers as WalletState } from "./wallet";
 import { ApplicationState, StoreAction } from "./types";
 
-const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
-
 export default createStore(
-  combineReducers<ApplicationState, StoreAction<any>>({
-    User,
-    Wallet
+  combineReducers<ApplicationState, StoreAction<any, any>>({
+    UserState,
+    WalletState
   }),
-  composeEnhancer(applyMiddleware(ReduxThunk))
+  compose(applyMiddleware(ReduxThunk))
 );
