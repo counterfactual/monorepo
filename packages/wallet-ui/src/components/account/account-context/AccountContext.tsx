@@ -10,9 +10,12 @@ import { ApplicationState, ActionType, UserState } from "../../../store/types";
 import { RoutePath } from "../../../types";
 
 import "./AccountContext.scss";
+import { formatEther, BigNumberish } from "ethers/utils";
+import log from "../../../utils/log";
 
 type AccountContextProps = RouteComponentProps & {
   userState: UserState;
+  balance: BigNumberish;
   getUser: () => void;
 };
 
@@ -81,9 +84,9 @@ class AccountContext extends React.Component<AccountContextProps> {
   }
 
   componentWillReceiveProps(props: AccountContextProps) {
-    const { userState, history } = this.props;
+    const { userState, history } = props;
 
-    if (userState.user.id) {
+    if (userState.user.id && history.location.pathname === RoutePath.Root) {
       history.push(RoutePath.Channels);
     } else if (
       !userState.user.id &&
@@ -95,13 +98,19 @@ class AccountContext extends React.Component<AccountContextProps> {
 
   render() {
     const { user } = this.props.userState;
+    const { balance } = this.props;
+
+    log("AccountContext", this.props);
 
     return (
       <div className="account-context">
         {!user.id ? (
           <UnauthenticatedCommands />
         ) : (
-          <AccountInformation username={user.username} balance={user.balance} />
+          <AccountInformation
+            username={user.username}
+            balance={formatEther(balance)}
+          />
         )}
       </div>
     );
@@ -110,7 +119,8 @@ class AccountContext extends React.Component<AccountContextProps> {
 
 export default connect(
   (state: ApplicationState) => ({
-    userState: state.UserState
+    userState: state.UserState,
+    balance: state.WalletState.balance
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     getUser: () => dispatch(getUser())

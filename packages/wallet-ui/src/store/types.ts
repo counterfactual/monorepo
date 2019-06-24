@@ -1,4 +1,5 @@
 import { Action } from "redux";
+import { BigNumberish } from "ethers/utils/bignumber";
 
 export type User = {
   id?: string;
@@ -9,7 +10,18 @@ export type User = {
   ethAddress: string;
   nodeAddress: string;
   email: string;
-  balance?: string;
+  balance?: string; // formatEther
+};
+
+export type Deposit = {
+  amount: BigNumberish; // parseEther
+  multisigAddress: string;
+  nodeAddress: string;
+};
+
+export type BalanceRequest = {
+  nodeAddress: string;
+  multisigAddress: string;
 };
 
 export type ErrorData = {
@@ -32,6 +44,7 @@ export type UserState = {
 
 export type WalletState = {
   ethAddress: string;
+  balance: BigNumberish;
   error: ErrorData;
 };
 

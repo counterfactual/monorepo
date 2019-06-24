@@ -1,7 +1,7 @@
 import AccountRegistration from "./account-registration/AccountRegistration";
+import AccountDeposit from "./account-deposit/AccountDeposit";
 import Welcome from "./welcome/Welcome";
 
-export { AccountRegistration, Welcome };
+export { AccountRegistration, AccountDeposit, Welcome };
 
-export * from "./account-deposit/AccountDeposit";
 export * from "./channels/Channels";

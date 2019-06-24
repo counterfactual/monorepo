@@ -14,11 +14,14 @@ import {
   getUserFromStoredToken
 } from "../utils/counterfactual";
 import { RoutePath } from "../types";
+import { parseEther } from "ethers/utils";
+import log from "../utils/log";
 
 enum ActionType {
   AddUser = "ADD_USER",
   GetUser = "GET_USER",
-  Error = "USER_ERROR"
+  Error = "USER_ERROR",
+  SetWalletBalance = "WALLET_SET_BALANCE"
 }
 
 const initialState = { user: {}, error: {} } as UserState;
@@ -90,10 +93,16 @@ export const getUser = (): ThunkAction<
     // 1. Get the user token.
     const userData = await getUserFromStoredToken();
 
+    log(userData);
+
     // 2. Dispatch it.
     dispatch({
-      data: { user: { ...userData.user, balance: userData.balance } },
+      data: { user: userData.user },
       type: ActionType.GetUser
+    });
+    dispatch({
+      data: { balance: parseEther(userData.balance) },
+      type: ActionType.SetWalletBalance
     });
   } catch (error) {
     dispatchError(dispatch, error);

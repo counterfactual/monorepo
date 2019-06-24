@@ -16,11 +16,14 @@ export type EthereumServiceContext = {
 export enum CounterfactualMethod {
   GetNodeAddress = "counterfactual:get:nodeAddress",
   SetUser = "counterfactual:set:user",
-  RequestUser = "counterfactual:request:user"
+  RequestUser = "counterfactual:request:user",
+  RequestDeposit = "counterfactual:request:deposit",
+  RequestBalances = "counterfactual:request:balances"
 }
 
 export enum CounterfactualEvent {
-  CreateChannel = "counterfactual:listen:createChannel"
+  CreateChannel = "counterfactual:listen:createChannel",
+  RequestDepositStart = "counterfactual:request:deposit_start"
 }
 
 declare global {
