@@ -73,9 +73,7 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
                 onClick={this.toggleVisibility}
                 className="channel-control-toggle"
                 alt="toggle"
-                src={`/assets/icon/toggle-${
-                  expanded ? "collapse" : "expand"
-                }.svg`}
+                src={`/assets/icon/arrow${expanded ? "-active" : ""}.svg`}
               />
             ) : (
               <span className="channel-control-toggle-placeholder" />
@@ -83,7 +81,9 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
             <img
               onClick={this.toggleVisibility}
               alt={type}
-              src={`/assets/icon/channel-${type}.svg`}
+              src={`/assets/icon/channel-${type}${
+                showingMenu ? "-active" : ""
+              }.svg`}
               className="channel-icon"
             />
           </nav>
@@ -97,9 +97,12 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
             <React.Fragment>
               <button
                 onClick={this.toggleMenu}
-                className="btn channel-control-menu"
+                className="channel-control-menu"
               >
-                Menu
+                <img
+                  alt="open-menu"
+                  src={`/assets/icon/dots${showingMenu ? "-active" : ""}.svg`}
+                />
               </button>
               <ChannelMenu type={type} visible={showingMenu} />
             </React.Fragment>
