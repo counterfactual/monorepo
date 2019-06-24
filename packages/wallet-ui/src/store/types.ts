@@ -9,6 +9,7 @@ export type User = {
   ethAddress: string;
   nodeAddress: string;
   email: string;
+  balance?: string;
 };
 
 export type ErrorData = {

@@ -1,10 +1,19 @@
 import React from "react";
+import { Action } from "redux";
+import { connect } from "react-redux";
+import { ThunkDispatch } from "redux-thunk";
+import { RouteComponentProps } from "react-router-dom";
+
 import { FormButton } from "../../form";
+import { getUser } from "../../../store/user";
+import { ApplicationState, ActionType, UserState } from "../../../store/types";
+import { RoutePath } from "../../../types";
 
 import "./AccountContext.scss";
 
-type AccountContextProps = {
-  isAuthenticated?: boolean;
+type AccountContextProps = RouteComponentProps & {
+  userState: UserState;
+  getUser: () => void;
 };
 
 type AccountInformationProps = AccountBalanceProps & AccountUserProps;
@@ -35,7 +44,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
     <div className="info-text">
       <div className="info-header">Balance</div>
-      <div className="info-content">{balance}</div>
+      <div className="info-content">{balance} ETH</div>
     </div>
   </div>
 );
@@ -62,20 +71,43 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
   </div>
 );
 
-export class AccountContext extends React.Component<AccountContextProps> {
+class AccountContext extends React.Component<AccountContextProps> {
+  constructor(props: AccountContextProps) {
+    super(props);
+
+    const { getUser } = props;
+
+    getUser();
+  }
+
+  componentWillReceiveProps(props: AccountContextProps) {
+    const { userState, history } = this.props;
+
+    if (userState && userState.user && userState.user.id) {
+      history.push(RoutePath.Channels);
+    }
+  }
+
   render() {
-    const { isAuthenticated } = this.props;
+    const { user } = this.props.userState;
+
     return (
       <div className="account-context">
-        {!isAuthenticated ? (
+        {!user ? (
           <UnauthenticatedCommands />
         ) : (
-          <AccountInformation
-            username="JoelAlejandroVillarrealBertoldiDeLasColinasDeAzeroth"
-            balance="1.23 ETH"
-          />
+          <AccountInformation username={user.username} balance={user.balance} />
         )}
       </div>
     );
   }
 }
+
+export default connect(
+  (state: ApplicationState) => ({
+    userState: state.UserState
+  }),
+  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
+    getUser: () => dispatch(getUser())
+  })
+)(AccountContext);

@@ -1,9 +1,17 @@
 import { User } from "../store/types";
 import { CounterfactualMethod, CounterfactualEvent } from "../types";
-import log from "./log";
 
 export async function getNodeAddress(): Promise<string> {
   const data = await window.ethereum.send(CounterfactualMethod.GetNodeAddress);
+
+  return data.result;
+}
+
+export async function getUserFromStoredToken(): Promise<{
+  balance: string;
+  user: User;
+}> {
+  const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
   return data.result;
 }
@@ -23,14 +31,8 @@ export function buildRegistrationSignaturePayload(data: User) {
 }
 
 export async function forMultisig(): Promise<string> {
-  return new Promise((resolve, reject) => {
-    debugger;
-    return window.ethereum
-      .send(CounterfactualEvent.CreateChannel)
-      .then(data => resolve(data.result))
-      .catch(error => {
-        log("i'm anxious, can't wait for the multisig because", error);
-        reject(error);
-      });
+  return new Promise(async resolve => {
+    const data = await window.ethereum.send(CounterfactualEvent.CreateChannel);
+    return resolve(data.result);
   });
 }
