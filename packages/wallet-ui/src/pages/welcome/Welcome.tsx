@@ -57,7 +57,7 @@ const Welcome: React.FC<WelcomeProps> = ({ connectToWallet, history }) => {
 
 export default connect(
   (state: ApplicationState) => ({
-    wallet: state.Wallet
+    wallet: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     connectToWallet: (history: History<any>) =>

@@ -1,16 +1,10 @@
-import PlaygroundAPIClient from "../utils/hub-api-client";
+import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 
-import {
-  User,
-  ActionType,
-  StoreAction,
-  UserState,
-  ApplicationState
-} from "./types";
+import { User, StoreAction, UserState, ApplicationState } from "./types";
 
 import {
   getNodeAddress,
@@ -19,6 +13,11 @@ import {
   forMultisig
 } from "../utils/counterfactual";
 import { RoutePath } from "../types";
+
+enum ActionType {
+  AddUser = "ADD_USER",
+  Error = "USER_ERROR"
+}
 
 const initialState = { user: {}, error: {} } as UserState;
 
@@ -57,11 +56,13 @@ export const addUser = (
     // 8. Go to the next screen!
     history.push(RoutePath.SetupDeposit);
   } catch (error) {
+    const { message, code, field } = ErrorDetail[error.code] || error;
     dispatch({
       data: {
         error: {
-          message: error.message,
-          code: error.code
+          message,
+          code,
+          field
         }
       },
       type: ActionType.Error
@@ -73,7 +74,7 @@ export const getUsers = () => ({ type: "GET" });
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<User>
+  action: StoreAction<User, ActionType>
 ) {
   switch (action.type) {
     case ActionType.AddUser:
