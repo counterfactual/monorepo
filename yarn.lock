@@ -908,7 +908,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-<<<<<<< HEAD
 "@counterfactual/cf.js@0.2.0":
   version "0.2.0"
   resolved "https://registry.npmjs.org/@counterfactual/cf.js/-/cf.js-0.2.0.tgz#4a1aabf2c3e592c9b75d2666bf3ccc7c8872a5dc"
@@ -920,8 +919,6 @@
     eventemitter3 "^3.1.2"
     rpc-server prototypal/rpc-server
 
-=======
->>>>>>> master
 "@counterfactual/postgresql-node-connector@0.0.2":
   version "0.0.2"
   resolved "https://registry.npmjs.org/@counterfactual/postgresql-node-connector/-/postgresql-node-connector-0.0.2.tgz#73c8b6a42acf6595fdb73f646826f7661b21c36d"
@@ -937,7 +934,6 @@
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.10.tgz#64c4fc3d69b0e1e147c7ecf603bd4b43de1113df"
   integrity sha512-DPwsO8G9w9HedngqcTOsm1Z/QPKpNpeH9pFWod0tIYKKoLnJ2Rdpzi3N7esAtg+0FWEh+wVYKNMoOBNgwcGE+A==
 
-<<<<<<< HEAD
 "@counterfactual/types@0.0.12":
   version "0.0.12"
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.12.tgz#082dbf7963d610acad054ee8f87612c31d300fe0"
@@ -945,8 +941,6 @@
   dependencies:
     rpc-server prototypal/rpc-server
 
-=======
->>>>>>> master
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
@@ -7662,9 +7656,6 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
-<<<<<<< HEAD
-ethers@4.0.0-beta.1, ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
-=======
 ethers@4.0.0-beta.1:
   version "4.0.0-beta.1"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.0-beta.1.tgz#0648268b83e0e91a961b1af971c662cdf8cbab6d"
@@ -7682,7 +7673,6 @@ ethers@4.0.0-beta.1:
     xmlhttprequest "1.8.0"
 
 ethers@4.0.29, ethers@^4.0.0, ethers@^4.0.0-beta.1, ethers@^4.0.20:
->>>>>>> master
   version "4.0.29"
   resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
   integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
@@ -16234,17 +16224,14 @@ rollup@1.15.1:
     "@types/node" "^12.0.7"
     acorn "^6.1.1"
 
-<<<<<<< HEAD
-"rpc-server@github:prototypal/rpc-server", rpc-server@prototypal/rpc-server:
-  version "0.0.1"
-  uid "191cfc7188e96a9b97a0860330f6578861c33a97"
-  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
-=======
 rpc-server@0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/rpc-server/-/rpc-server-0.0.1.tgz#e9580425a6d7924f0f1788180861c2f29973f889"
   integrity sha512-JyaJElunGQeVFce6lcf6nMXJn7FRo765/Iq9x6lfY58xeZT24SUM+OXzoHyRhXPEclM2tubssQH1QCvy0Tjs8Q==
->>>>>>> master
+
+rpc-server@prototypal/rpc-server:
+  version "0.0.1"
+  resolved "https://codeload.github.com/prototypal/rpc-server/tar.gz/191cfc7188e96a9b97a0860330f6578861c33a97"
 
 rsvp@^3.3.3:
   version "3.6.2"

@@ -31,14 +31,16 @@ contract CoinInterpreter is Interpreter {
     uint256 limitRemaining = params.limit;
 
     for (uint256 i = 0; i < transfers.length; i++) {
-      address to = address(uint160(transfers[i].to));
-      uint256 amount = transfers[i].amount;
       address coinAddress = transfers[i].coinAddress;
+      address payable to = address(uint160(transfers[i].to));
+      uint256 amount = transfers[i].amount;
 
       require(amount <= limitRemaining, "Hit the transfer limit.");
       limitRemaining -= amount;
 
       if (coinAddress == address(0x0)) {
+        // note: send() is deliberately used instead of transfer() here
+        // so that a revert does not stop the rest of the sends
         to.send(amount);
       } else {
         ERC20(coinAddress).transfer(to, amount);
