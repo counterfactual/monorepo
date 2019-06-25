@@ -8,23 +8,9 @@
       },
       "attributes": {
         "name": "High Roller",
-        "url": "https://high-roller-staging.counterfactual.com",
+        "url": "https://high-roller-production.counterfactual.com",
         "slug": "high-roller",
         "icon": "assets/images/logo.png"
-      },
-      "relationships": {}
-    },
-    {
-      "type": "app",
-      "id": {
-        "3": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
-        "42": "0x3d9CbDd5e869638ca8A114289E42aeE8d0966B5b"
-      },
-      "attributes": {
-        "name": "Tic Tac Toe",
-        "url": "https://tic-tac-toe-staging.netlify.com",
-        "slug": "tic-tac-toe",
-        "icon": "images/logo.png"
       },
       "relationships": {}
     }
