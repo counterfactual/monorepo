@@ -36,14 +36,14 @@ function decodeBytesToAppState(encodedAppState: string): SimpleSwapAppState {
 describe("SimpleTwoPartySwapApp", () => {
   let simpleSwapApp: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Type) {
+  function encodeState(state: SimpleSwapAppState) {
     return defaultAbiCoder.encode(
       [`tuple(tuple(address to, uint256 amount)[] transfers, bool finalized)`],
       [state]
     );
   }
 
-  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+  async function computeOutcome(state: SimpleSwapAppState) {
     return await simpleSwapApp.functions.computeOutcome(encodeState(state));
   }
 
@@ -57,7 +57,7 @@ describe("SimpleTwoPartySwapApp", () => {
   });
 
   describe("update state", () => {
-    it("can update state", async () => {
+    it("can compute outcome with update", async () => {
       const senderAddr = mkAddress("0xa");
       const receiverAddr = mkAddress("0xb");
       const tokenAmt = new BigNumber(10000);
@@ -80,65 +80,64 @@ describe("SimpleTwoPartySwapApp", () => {
         finalized: false
       };
 
-      let action: ETHUnidirectionalTransferAppAction = {
-        transferAmount: transferAmt1,
-        finalize: false
-      };
+      let state = preState;
 
-      let ret = await applyAction(preState, action);
+      state.coinBalances[0].balance = [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)]
+      state.coinBalances[1].balance = [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)]
+      state.finalized = true;
 
-      let state = decodeBytesToAppState(ret);
-      expect(state.transfers[0].amount).to.eq(senderAmt.sub(transferAmt1));
-      expect(state.transfers[1].amount).to.eq(transferAmt1);
+      const ret = await computeOutcome(state);
 
-      action = {
-        transferAmount: transferAmt2,
-        finalize: false
-      };
-      ret = await applyAction(state, action);
-
-      state = decodeBytesToAppState(ret);
-      expect(state.transfers[0].amount).to.eq(
-        senderAmt.sub(transferAmt1).sub(transferAmt2)
+      expect(ret).to.eq(
+        defaultAbiCoder.encode(
+            ["tuple(address,uint256)[]"],
+            [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
+        )
       );
-      expect(state.transfers[1].amount).to.eq(transferAmt1.add(transferAmt2));
-    });
-  });
 
-  it("can finalize the state with a 0 transfer", async () => {
-    const senderAddr = mkAddress("0xa");
-    const receiverAddr = mkAddress("0xb");
-    const senderAmt = new BigNumber(10000);
-    const preState: CoinTransferAppState = {
-      transfers: [
-        {
-          to: senderAddr,
-          amount: senderAmt
-        },
-        {
-          to: receiverAddr,
-          amount: Zero
-        }
-      ],
-      finalized: false
-    };
 
-    const action: ETHUnidirectionalTransferAppAction = {
-      transferAmount: Zero,
-      finalize: true
-    };
+//       state = decodeBytesToAppState(ret);
+//       expect(state.transfers[0].amount).to.eq(
+//         senderAmt.sub(transferAmt1).sub(transferAmt2)
+//       );
+//       expect(state.transfers[1].amount).to.eq(transferAmt1.add(transferAmt2));
+//     });
+//   });
 
-    let ret = await applyAction(preState, action);
-    const state = decodeBytesToAppState(ret);
-    expect(state.finalized).to.be.true;
+//   it("can finalize the state with a 0 transfer", async () => {
+//     const senderAddr = mkAddress("0xa");
+//     const receiverAddr = mkAddress("0xb");
+//     const senderAmt = new BigNumber(10000);
+//     const preState: CoinTransferAppState = {
+//       transfers: [
+//         {
+//           to: senderAddr,
+//           amount: senderAmt
+//         },
+//         {
+//           to: receiverAddr,
+//           amount: Zero
+//         }
+//       ],
+//       finalized: false
+//     };
 
-    ret = await computeOutcome(state);
+//     const action: ETHUnidirectionalTransferAppAction = {
+//       transferAmount: Zero,
+//       finalize: true
+//     };
 
-    expect(ret).to.eq(
-      defaultAbiCoder.encode(
-        ["tuple(address,uint256)[]"],
-        [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
-      )
-    );
+//     let ret = await applyAction(preState, action);
+//     const state = decodeBytesToAppState(ret);
+//     expect(state.finalized).to.be.true;
+
+//     ret = await computeOutcome(state);
+
+//     expect(ret).to.eq(
+//       defaultAbiCoder.encode(
+//         ["tuple(address,uint256)[]"],
+//         [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
+//       )
+//     );
   });
 });
