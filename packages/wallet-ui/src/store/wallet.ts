@@ -14,6 +14,7 @@ import { RoutePath } from "../types";
 import { requestDeposit, forFunds } from "../utils/counterfactual";
 
 import { Zero } from "ethers/constants";
+import { Web3Provider } from "ethers/providers";
 
 const { ethereum } = window;
 const initialState = {
@@ -57,6 +58,7 @@ export const connectToWallet = (
 
 export const deposit = (
   transaction: Deposit,
+  provider: Web3Provider,
   history?: History
 ): ThunkAction<
   void,
@@ -69,7 +71,24 @@ export const deposit = (
     await requestDeposit(transaction);
 
     // 2. Wait until the deposit is completed in both sides.
-    await forFunds(transaction);
+    const counterfactualBalance = await forFunds({
+      multisigAddress: transaction.multisigAddress,
+      nodeAddress: transaction.nodeAddress
+    });
+
+    // 3. Get the Metamask balance.
+    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+
+    // 4. Update the balance.
+    dispatch({
+      data: { ethereumBalance, counterfactualBalance },
+      type: ActionType.WalletSetBalance
+    });
+
+    // Optional: Redirect to Channels.
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
   } catch (e) {
     const error = e as Error;
     dispatch({

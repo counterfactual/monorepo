@@ -6,7 +6,7 @@ import { Action } from "redux";
 import { parseEther, formatEther } from "ethers/utils";
 
 import { WidgetScreen } from "../../components/widget";
-import { FormInput, FormButton } from "../../components/form";
+import { FormInput, FormButton, InputChangeProps } from "../../components/form";
 
 import {
   ApplicationState,
@@ -18,6 +18,9 @@ import {
 import { deposit } from "../../store/wallet";
 
 import "./AccountDeposit.scss";
+import { EthereumService } from "../../providers/EthereumService";
+import { Web3Provider } from "ethers/providers";
+import { History } from "history";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   <div className="balance-label">
@@ -27,7 +30,7 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
 );
 
 type AccountDepositProps = RouteComponentProps & {
-  deposit: (data: Deposit) => void;
+  deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
   userState: UserState;
   walletState: WalletState;
   initialAmount: number;
@@ -39,29 +42,34 @@ class AccountDeposit extends React.Component<
   AccountDepositProps,
   AccountDepositState
 > {
+  static contextType = EthereumService;
+  context!: React.ContextType<typeof EthereumService>;
+
   constructor(props: AccountDepositProps) {
     super(props);
 
     const { initialAmount, userState } = props;
     const { user } = userState;
-    const { multisigAddress, nodeAddress } = user;
+    const { multisigAddress, nodeAddress, ethAddress } = user;
 
     this.state = {
       nodeAddress,
+      ethAddress,
       amount: parseEther(String(initialAmount || 0.1)),
       multisigAddress: multisigAddress as string
     };
   }
 
-  handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  handleChange = ({ value }: InputChangeProps) => {
     this.setState({
       ...this.state,
-      amount: parseEther(event.target.value)
+      amount: parseEther(value as string)
     });
   };
 
   render() {
-    const { walletState, deposit } = this.props;
+    const { walletState, deposit, history } = this.props;
+    const { provider } = this.context;
     const { ethereumBalance, error } = walletState;
     const { amount } = this.state;
 
@@ -77,7 +85,7 @@ class AccountDeposit extends React.Component<
             className="input--balance"
             type="number"
             unit="ETH"
-            min={0.1}
+            min={0.02}
             max={Number(ethereumBalance)}
             value={formatEther(amount)}
             step={0.01}
@@ -87,7 +95,7 @@ class AccountDeposit extends React.Component<
           <FormButton
             type="button"
             className="button"
-            onClick={() => deposit(this.state)}
+            onClick={() => deposit(this.state, provider, history)}
           >
             Proceed
           </FormButton>
@@ -103,6 +111,7 @@ export default connect(
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    deposit: (data: Deposit) => dispatch(deposit(data))
+    deposit: (data: Deposit, provider: Web3Provider, history?: History) =>
+      dispatch(deposit(data, provider, history))
   })
 )(AccountDeposit);

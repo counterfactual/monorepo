@@ -16,6 +16,7 @@ export type Deposit = {
   amount: BigNumberish; // parseEther
   multisigAddress: string;
   nodeAddress: string;
+  ethAddress: string;
 };
 
 export type BalanceRequest = {

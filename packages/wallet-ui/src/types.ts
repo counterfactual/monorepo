@@ -1,4 +1,4 @@
-import { IpcProvider } from "web3/providers";
+import { IpcProvider, JsonRPCResponse } from "web3/providers";
 import { AsyncSendable, Web3Provider, JsonRpcSigner } from "ethers/providers";
 
 export enum RoutePath {
@@ -36,7 +36,7 @@ declare global {
         send: (
           eventOrMethod: CounterfactualMethod | CounterfactualEvent,
           data?: any[]
-        ) => Promise<any>;
+        ) => Promise<JsonRPCResponse>;
       };
 
     __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (...args: any[]) => any;

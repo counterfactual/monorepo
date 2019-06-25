@@ -1,12 +1,21 @@
 import { User, Deposit, BalanceRequest } from "../store/types";
 import { CounterfactualMethod, CounterfactualEvent } from "../types";
 import {
-  getAddress,
+  computeAddress,
   bigNumberify,
   parseEther,
   BigNumberish
 } from "ethers/utils";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import delay from "./delay";
+
+export function xkeyKthAddress(xkey: string, k: number): string {
+  return computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+}
+
+export function xkeyKthHDNode(xkey: string, k: number): HDNode {
+  return fromExtendedKey(xkey).derivePath(`${k}`);
+}
 
 export async function getNodeAddress(): Promise<string> {
   const data = await window.ethereum.send(CounterfactualMethod.GetNodeAddress);
@@ -65,17 +74,19 @@ export async function forFunds({
   return new Promise(async resolve => {
     const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
 
-    const [freeBalance] = await window.ethereum.send(
+    const freeBalance = (await window.ethereum.send(
       CounterfactualMethod.RequestBalances,
       [multisigAddress]
-    );
+    )).result;
 
-    const freeBalanceAddress = getAddress(nodeAddress);
+    const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+
     const counterpartyFreeBalanceAddress = Object.keys(freeBalance).find(
       address => address !== freeBalanceAddress
     ) as string;
 
     const myBalance = bigNumberify(freeBalance[freeBalanceAddress]);
+
     const counterpartyBalance = bigNumberify(
       freeBalance[counterpartyFreeBalanceAddress]
     );
