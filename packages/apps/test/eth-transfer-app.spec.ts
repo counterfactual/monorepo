@@ -47,10 +47,10 @@ describe("ETHUnidirectionalTransferApp", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Type) {
+  function encodeAction(action: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
       [`tuple(uint256 transferAmount, bool finalize)`],
-      [state]
+      [action]
     );
   }
 
