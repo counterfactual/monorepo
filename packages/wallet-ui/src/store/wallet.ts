@@ -19,7 +19,8 @@ const { ethereum } = window;
 const initialState = {
   ethAddress: "",
   error: {},
-  balance: Zero
+  counterfactualBalance: Zero,
+  ethereumBalance: Zero
 } as WalletState;
 
 export const connectToWallet = (
@@ -69,7 +70,17 @@ export const deposit = (
 
     // 2. Wait until the deposit is completed in both sides.
     await forFunds(transaction);
-  } catch {}
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
 };
 
 export const reducers = function(

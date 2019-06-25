@@ -1,7 +1,7 @@
 import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { JsonRpcSigner } from "ethers/providers";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { History } from "history";
 
 import {
@@ -21,7 +21,6 @@ import {
 } from "../utils/counterfactual";
 import { RoutePath } from "../types";
 import { parseEther } from "ethers/utils";
-import log from "../utils/log";
 
 const initialState = { user: {}, error: {} } as UserState;
 
@@ -82,7 +81,9 @@ export const addUser = (
   }
 };
 
-export const getUser = (): ThunkAction<
+export const getUser = (
+  provider: Web3Provider
+): ThunkAction<
   void,
   ApplicationState,
   null,
@@ -91,8 +92,8 @@ export const getUser = (): ThunkAction<
   try {
     // 1. Get the user token.
     const userData = await getUserFromStoredToken();
-
-    log(userData);
+    const counterfactualBalance = parseEther(userData.balance);
+    const ethereumBalance = await provider.getBalance(userData.user.ethAddress);
 
     // 2. Dispatch it.
     dispatch({
@@ -100,7 +101,7 @@ export const getUser = (): ThunkAction<
       type: ActionType.UserGet
     });
     dispatch({
-      data: { balance: parseEther(userData.balance) },
+      data: { counterfactualBalance, ethereumBalance },
       type: ActionType.WalletSetBalance
     });
   } catch (error) {

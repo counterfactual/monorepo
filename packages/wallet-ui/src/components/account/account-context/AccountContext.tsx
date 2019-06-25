@@ -2,7 +2,7 @@ import React from "react";
 import { Action } from "redux";
 import { connect } from "react-redux";
 import { ThunkDispatch } from "redux-thunk";
-import { RouteComponentProps } from "react-router-dom";
+import { RouteComponentProps, Link } from "react-router-dom";
 
 import { FormButton } from "../../form";
 import { getUser } from "../../../store/user";
@@ -12,11 +12,13 @@ import { RoutePath } from "../../../types";
 import "./AccountContext.scss";
 import { formatEther, BigNumberish } from "ethers/utils";
 import log from "../../../utils/log";
+import { Web3Provider } from "ethers/providers";
+import { EthereumService } from "../../../providers/EthereumService";
 
 type AccountContextProps = RouteComponentProps & {
   userState: UserState;
-  balance: BigNumberish;
-  getUser: () => void;
+  counterfactualBalance: BigNumberish;
+  getUser: (provider: Web3Provider) => void;
 };
 
 type AccountInformationProps = AccountBalanceProps & AccountUserProps;
@@ -45,10 +47,12 @@ const UnauthenticatedCommands: React.FC = () => (
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
   <div className="info">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
-    <div className="info-text">
-      <div className="info-header">Balance</div>
-      <div className="info-content">{balance} ETH</div>
-    </div>
+    <Link to={RoutePath.SetupDeposit}>
+      <div className="info-text">
+        <div className="info-header">Balance</div>
+        <div className="info-content">{balance} ETH</div>
+      </div>
+    </Link>
   </div>
 );
 
@@ -75,12 +79,14 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
 );
 
 class AccountContext extends React.Component<AccountContextProps> {
-  constructor(props: AccountContextProps) {
-    super(props);
+  static contextType = EthereumService;
+  context!: React.ContextType<typeof EthereumService>;
 
-    const { getUser } = props;
+  componentDidMount() {
+    const { getUser } = this.props;
+    const { provider } = this.context;
 
-    getUser();
+    getUser(provider);
   }
 
   componentWillReceiveProps(props: AccountContextProps) {
@@ -98,7 +104,7 @@ class AccountContext extends React.Component<AccountContextProps> {
 
   render() {
     const { user } = this.props.userState;
-    const { balance } = this.props;
+    const { counterfactualBalance } = this.props;
 
     log("AccountContext", this.props);
 
@@ -109,7 +115,7 @@ class AccountContext extends React.Component<AccountContextProps> {
         ) : (
           <AccountInformation
             username={user.username}
-            balance={formatEther(balance)}
+            balance={formatEther(counterfactualBalance)}
           />
         )}
       </div>
@@ -120,9 +126,9 @@ class AccountContext extends React.Component<AccountContextProps> {
 export default connect(
   (state: ApplicationState) => ({
     userState: state.UserState,
-    balance: state.WalletState.balance
+    counterfactualBalance: state.WalletState.counterfactualBalance
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    getUser: () => dispatch(getUser())
+    getUser: (provider: Web3Provider) => dispatch(getUser(provider))
   })
 )(AccountContext);

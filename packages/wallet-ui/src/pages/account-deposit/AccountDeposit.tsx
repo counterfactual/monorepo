@@ -12,7 +12,8 @@ import {
   ApplicationState,
   ActionType,
   Deposit,
-  UserState
+  UserState,
+  WalletState
 } from "../../store/types";
 import { deposit } from "../../store/wallet";
 
@@ -28,6 +29,7 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
 type AccountDepositProps = RouteComponentProps & {
   deposit: (data: Deposit) => void;
   userState: UserState;
+  walletState: WalletState;
   initialAmount: number;
 };
 
@@ -59,8 +61,9 @@ class AccountDeposit extends React.Component<
   };
 
   render() {
-    const { userState, deposit } = this.props;
-    const { balance } = userState.user;
+    const { walletState, deposit } = this.props;
+    const { ethereumBalance, error } = walletState;
+    const { amount } = this.state;
 
     return (
       <WidgetScreen header={"Fund your account"} exitable={false}>
@@ -70,15 +73,16 @@ class AccountDeposit extends React.Component<
             your account. Please enter how much ETH you want to deposit:
           </div>
           <FormInput
-            label={<BalanceLabel available="2.13" />}
+            label={<BalanceLabel available={formatEther(ethereumBalance)} />}
             className="input--balance"
             type="number"
             unit="ETH"
             min={0.1}
-            max={Number(balance)}
-            value={formatEther(this.state.amount)}
+            max={Number(ethereumBalance)}
+            value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
+            error={error.message}
           />
           <FormButton
             type="button"
@@ -95,7 +99,8 @@ class AccountDeposit extends React.Component<
 
 export default connect(
   (state: ApplicationState) => ({
-    userState: state.UserState
+    userState: state.UserState,
+    walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     deposit: (data: Deposit) => dispatch(deposit(data))

@@ -10,7 +10,6 @@ export type User = {
   ethAddress: string;
   nodeAddress: string;
   email: string;
-  balance?: string; // formatEther
 };
 
 export type Deposit = {
@@ -47,7 +46,8 @@ export type UserState = {
 
 export type WalletState = {
   ethAddress: string;
-  balance: BigNumberish;
+  counterfactualBalance: BigNumberish;
+  ethereumBalance: BigNumberish;
   error: ErrorData;
 };
 
