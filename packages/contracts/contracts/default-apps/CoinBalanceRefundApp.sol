@@ -31,7 +31,6 @@ contract CoinBalanceRefundApp {
       ret[0].amount = ERC20(appState.token).balanceOf(appState.multisig) - appState.threshold;
     }
     ret[0].to = appState.recipient;
-    ret[0].coinAddress = appState.token;
 
     return abi.encode(ret);
   }
