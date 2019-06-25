@@ -3,9 +3,9 @@ import React from "react";
 import "./FormInput.scss";
 export type InputChangeProps = {
   validity: { valid: boolean; error?: string };
-  event?: React.ChangeEvent<HTMLInputElement>;
-  value: number | string | boolean | undefined;
   inputName: string;
+  event?: React.ChangeEvent<HTMLInputElement>;
+  value?: number | string | boolean;
 };
 
 export type FormInputProps = {
@@ -22,7 +22,7 @@ export type FormInputProps = {
   disabled?: boolean;
   value?: string | number;
   autofocus?: boolean;
-  change?: ((InputChangeProps) => void) | undefined;
+  change?: ((props: InputChangeProps) => void) | undefined;
 };
 
 class FormInput extends React.Component<
@@ -49,9 +49,11 @@ class FormInput extends React.Component<
     if (change) {
       change({
         event,
-        error,
-        inputName: name,
-        valid: !inputError,
+        validity: {
+          error: error as string,
+          valid: !inputError
+        },
+        inputName: name as string,
         value: event.target.value
       });
     }
