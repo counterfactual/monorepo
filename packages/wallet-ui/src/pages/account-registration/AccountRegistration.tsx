@@ -38,8 +38,11 @@ class AccountRegistration extends React.Component<
   User
 > {
   static contextType = EthereumService;
+  context!: React.ContextType<typeof EthereumService>;
+
   constructor(props: AccountRegistrationProps) {
     super(props);
+
     this.state = {
       username: "",
       email: "",
