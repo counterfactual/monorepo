@@ -59,6 +59,19 @@ contract MixinChallenge is
       challengeAppInstanceState
     );
 
+    // PISA code
+    //
+    // DataRegistry(dataRegistry).setHash(
+    //   challengeAppInstanceState.nonce,
+    //   abi.encode(
+    //     MaybeOutcome(
+    //       block.number.add(challengeAppInstanceState.challengeTimeout),
+    //       outcome,
+    //       challengeAppInstanceState
+    //     )
+    //   )
+    // );
+
     emit ChallengeCreated(
       appInstanceId,
       challengeAppInstanceState,

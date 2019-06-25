@@ -12,6 +12,8 @@ contract MixinRefute is
   LibChallengeRules
 {
 
+  uint256 constant INEFFICIENT_REFUTE_TIMEOUT = 10;
+
   event Refuted(
     bytes32 appInstanceId,
     AppInstanceState refutation
@@ -23,7 +25,9 @@ contract MixinRefute is
   )
     public
   {
-    bytes32 appInstanceId = appInstanceIdFromAppInstanceState(refutationAppInstanceState);
+    bytes32 appInstanceId = appInstanceIdFromAppInstanceState(
+      refutationAppInstanceState
+    );
 
     require(
       !isAppInstanceFinalized(appInstanceId),
@@ -49,7 +53,7 @@ contract MixinRefute is
     ).computeOutcome(refutationAppInstanceState.appAttributes);
 
     MaybeOutcome memory updatedOutcome = MaybeOutcome(
-      0,
+      block.number.add(INEFFICIENT_REFUTE_TIMEOUT),
       outcome,
       refutationAppInstanceState
     );

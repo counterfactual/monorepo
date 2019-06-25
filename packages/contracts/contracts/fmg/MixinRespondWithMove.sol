@@ -24,7 +24,9 @@ contract MixinRespondWithMove is
   )
     public
   {
-    bytes32 appInstanceId = appInstanceIdFromAppInstanceState(responseAppInstanceState);
+    bytes32 appInstanceId = appInstanceIdFromAppInstanceState(
+      responseAppInstanceState
+    );
 
     require(
       !isAppInstanceFinalized(appInstanceId),
