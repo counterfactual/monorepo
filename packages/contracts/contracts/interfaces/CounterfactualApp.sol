@@ -28,7 +28,10 @@ contract CounterfactualApp {
     revert("The applyAction method has no implementation for this App");
   }
 
-  function computeOutcome(bytes calldata)
+  function computeOutcome(
+    bytes calldata /* appState */,
+    LibStateChannelApp.PileOfTokens calldata /* holdings */
+  )
     external
     pure
     returns (bytes memory)

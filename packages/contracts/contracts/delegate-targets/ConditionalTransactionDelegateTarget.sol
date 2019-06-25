@@ -11,23 +11,39 @@ import "./ChallengeRegistry.sol";
 /// @notice Supports a complex transfer of funds contingent on some condition.
 contract ConditionalTransactionDelegateTarget {
 
-  /// @notice Execute a fund transfer for a state channel app in a finalized state
-  /// @param uninstallKey The key in the uninstall key registry
-  /// @param appIdentityHash AppIdentityHash to be resolved
+  function withdrawFromUserBalances(
+    ChallengeRegistry appRegistry,
+    bytes32 ledgerChannelIdentityHash
+  )
+    public
+  {
+    require(
+      appRegistry.isStateFinalized(ledgerChannelIdentityHash),
+      "Ledger Channel is not finalized yet"
+    );
+
+    bytes memory outcome = appRegistry.getOutcome(
+      ledgerChannelIdentityHash
+    );
+
+    LedgerChannel.AppState appState = abi.decode(outcome);
+
+    (address, address, uint256)[] personalBalances = appState.personalBalances;
+
+    // execute personalBalances
+  }
+
   function executeEffectOfInterpretedAppOutcome(
     ChallengeRegistry appRegistry,
-    UninstallKeyRegistry uninstallKeyRegistry,
-    bytes32 uninstallKey,
+    bytes32 ledgerChannelIdentityHash,
     bytes32 appIdentityHash,
     address interpreterAddress,
     bytes memory interpreterParams
   )
     public
   {
-    require(
-      !uninstallKeyRegistry.uninstalledKeys(uninstallKey),
-      "App has been uninstalled"
-    );
+
+    // require that ledgerChannelIdentityHash outcome contains this thing
 
     require(
       appRegistry.isStateFinalized(appIdentityHash),
@@ -51,6 +67,7 @@ contract ConditionalTransactionDelegateTarget {
       "Execution of executeEffectOfInterpretedAppOutcome failed"
     );
   }
+
 
 
 }
