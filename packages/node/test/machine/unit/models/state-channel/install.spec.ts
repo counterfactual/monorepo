@@ -1,13 +1,16 @@
-import { WeiPerEther, Zero } from "ethers/constants";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
+import { AppInstance, StateChannel } from "../../../../../src/models";
 import {
-  AppInstance,
-  getETHFreeBalance,
-  StateChannel
-} from "../../../../../src/models";
+  convertCoinBucketToMap,
+  convertFreeBalanceStateFromPlainObject,
+  convertFreeBalanceStateToPlainObject,
+  PlainFreeBalanceState
+} from "../../../../../src/models/free-balance";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -37,11 +40,20 @@ describe("StateChannel::uninstallApp", () => {
     appIdentityHash = appInstance.identityHash;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
-
-    sc1 = sc1.setFreeBalance({
-      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
-      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
-    });
+    const ethFreeBalance = {};
+    ethFreeBalance[AddressZero] = [
+      {
+        to: xkeyKthAddress(xpubs[0], 0),
+        amount: WeiPerEther
+      },
+      {
+        to: xkeyKthAddress(xpubs[1], 0),
+        amount: WeiPerEther
+      }
+    ];
+    sc1 = sc1.setFreeBalance((convertFreeBalanceStateToPlainObject(
+      ethFreeBalance
+    ) as unknown) as SolidityABIEncoderV2Type);
 
     sc2 = sc1.installApp(appInstance, {
       [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
@@ -70,7 +82,12 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      for (const entry of Object.entries(getETHFreeBalance(fb))) {
+      const ethFreeBalance = convertCoinBucketToMap(
+        convertFreeBalanceStateFromPlainObject(
+          (fb.state as unknown) as PlainFreeBalanceState
+        )[AddressZero]
+      );
+      for (const entry of Object.entries(ethFreeBalance)) {
         const balance = entry[1];
         expect(balance).toEqual(Zero);
       }

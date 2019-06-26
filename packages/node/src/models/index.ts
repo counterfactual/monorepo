@@ -1,7 +1,6 @@
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
   createFreeBalance,
-  ETH_TOKEN_ADDRESS,
   FreeBalanceState,
   getETHFreeBalance
 } from "./free-balance";
@@ -19,7 +18,6 @@ export {
   AppInstance,
   AppInstanceJson,
   createFreeBalance,
-  ETH_TOKEN_ADDRESS,
   FreeBalanceState,
   getETHFreeBalance,
   TwoPartyVirtualEthAsLumpInstance,

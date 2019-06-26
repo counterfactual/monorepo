@@ -1,5 +1,9 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  NetworkContext,
+  OutcomeType,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
@@ -13,6 +17,7 @@ import { AppInstance, StateChannel } from "../../../src/models";
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
@@ -54,14 +59,28 @@ beforeEach(() => {
     0
   );
 
-  const stateChannel = StateChannel.setupChannel(
+  let stateChannel = StateChannel.setupChannel(
     network.CoinBucket,
     AddressZero,
     xkeys.map(x => x.neuter().extendedKey)
-  ).setFreeBalance({
-    [multisigOwnerKeys[0].address]: WeiPerEther,
-    [multisigOwnerKeys[1].address]: WeiPerEther
-  });
+  );
+  const ethFreeBalance = {};
+  ethFreeBalance[AddressZero] = [
+    {
+      to: multisigOwnerKeys[0].address,
+      amount: WeiPerEther
+    },
+    {
+      to: multisigOwnerKeys[1].address,
+      amount: WeiPerEther
+    }
+  ];
+
+  stateChannel = stateChannel.setFreeBalance(
+    (convertFreeBalanceStateToPlainObject(
+      ethFreeBalance
+    ) as unknown) as SolidityABIEncoderV2Type
+  );
 
   const freeBalanceETH = stateChannel.freeBalance;
 

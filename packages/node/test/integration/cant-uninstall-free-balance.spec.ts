@@ -20,7 +20,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
 
       // channel to expose the FreeBalance appInstanceId
       const channel = StateChannel.setupChannel(
-        global["networkContext"].ETHBucket,
+        global["networkContext"].CoinBucket,
         multisigAddress,
         [nodeA.publicIdentifier, nodeB.publicIdentifier]
       );
@@ -29,10 +29,13 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
         channel.freeBalance.identityHash
       );
 
+      let error;
       try {
         await nodeA.call(fbUninstallReq.type, fbUninstallReq);
       } catch (e) {
-        expect(e.toString()).toMatch(
+        error = e;
+      } finally {
+        expect(error.toString()).toMatch(
           CANNOT_UNINSTALL_FREE_BALANCE(multisigAddress)
         );
       }

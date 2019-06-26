@@ -103,10 +103,12 @@ export function convertFreeBalanceStateToPlainObject(
   return state;
 }
 
-export const ETH_TOKEN_ADDRESS = AddressZero;
-
 export function getETHFreeBalance(fb: AppInstance) {
-  return convertFreeBalanceStateFromPlainObject(fb.state[ETH_TOKEN_ADDRESS]);
+  return convertCoinBucketToMap(
+    convertFreeBalanceStateFromPlainObject(
+      (fb.state as unknown) as PlainFreeBalanceState
+    )[AddressZero]
+  );
 }
 
 export function createFreeBalance(
@@ -134,7 +136,7 @@ export function createFreeBalance(
       amount: Zero
     });
   }
-  state[ETH_TOKEN_ADDRESS] = ethBalances;
+  state[AddressZero] = ethBalances;
 
   return new AppInstance(
     multisigAddress,
@@ -152,6 +154,6 @@ export function createFreeBalance(
     // FIXME: refactor how the interpreter parameters get plumbed through
     // Note: The token field here doesn't get used because the free balance
     // can hold multiple different kinds of assets
-    { limit: MaxUint256, token: ETH_TOKEN_ADDRESS }
+    { limit: MaxUint256, token: AddressZero }
   );
 }

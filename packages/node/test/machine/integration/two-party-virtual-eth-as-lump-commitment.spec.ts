@@ -2,7 +2,11 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  NetworkContext,
+  OutcomeType,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -16,6 +20,7 @@ import { AppInstance, StateChannel } from "../../../src/models";
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -66,14 +71,28 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
     );
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      const stateChannel = StateChannel.setupChannel(
+      let stateChannel = StateChannel.setupChannel(
         network.CoinBucket,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
-      ).setFreeBalance({
-        [multisigOwnerKeys[0].address]: parseEther("20"),
-        [multisigOwnerKeys[1].address]: parseEther("20")
-      });
+      );
+      const ethFreeBalance = {};
+      ethFreeBalance[AddressZero] = [
+        {
+          to: multisigOwnerKeys[0].address,
+          amount: parseEther("20")
+        },
+        {
+          to: multisigOwnerKeys[1].address,
+          amount: parseEther("20")
+        }
+      ];
+
+      stateChannel = stateChannel.setFreeBalance(
+        (convertFreeBalanceStateToPlainObject(
+          ethFreeBalance
+        ) as unknown) as SolidityABIEncoderV2Type
+      );
 
       const freeBalanceETH = stateChannel.freeBalance;
 

@@ -10,7 +10,6 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 
 import {
   AppInstance,
-  ETH_TOKEN_ADDRESS,
   ProposedAppInstanceInfo,
   StateChannel
 } from "../../src/models";
@@ -37,7 +36,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
         bar: 0
       } as SolidityABIEncoderV2Type,
       outcomeType: OutcomeType.COIN_TRANSFER,
-      tokenAddress: ETH_TOKEN_ADDRESS
+      tokenAddress: AddressZero
     },
     undefined,
     appInstanceId

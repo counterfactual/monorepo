@@ -1,15 +1,16 @@
-import { Zero } from "ethers/constants";
+import { Zero, AddressZero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
-import {
-  AppInstance,
-  getETHFreeBalance,
-  StateChannel
-} from "../../../../../src/models";
+import { AppInstance, StateChannel } from "../../../../../src/models";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
+import {
+  convertCoinBucketToMap,
+  convertFreeBalanceStateFromPlainObject,
+  PlainFreeBalanceState
+} from "../../../../../src/models/free-balance";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();
@@ -69,7 +70,12 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      for (const entry of Object.entries(getETHFreeBalance(fb))) {
+      const ethFreeBalance = convertCoinBucketToMap(
+        convertFreeBalanceStateFromPlainObject(
+          (fb.state as unknown) as PlainFreeBalanceState
+        )[AddressZero]
+      );
+      for (const entry of Object.entries(ethFreeBalance)) {
         const balance = entry[1];
         expect(balance).toEqual(Zero);
       }

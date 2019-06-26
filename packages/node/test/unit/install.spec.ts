@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -15,7 +15,12 @@ import {
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
-import { getETHFreeBalance, StateChannel } from "../../src/models";
+import { StateChannel } from "../../src/models";
+import {
+  convertFreeBalanceStateFromPlainObject,
+  PlainFreeBalanceState,
+  convertCoinBucketToMap
+} from "../../src/models/free-balance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
@@ -97,7 +102,10 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const ethFreeBalance = getETHFreeBalance(stateChannel.freeBalance);
+    const ethFreeBalance = convertCoinBucketToMap(
+      convertFreeBalanceStateFromPlainObject((stateChannel.freeBalance
+        .state as unknown) as PlainFreeBalanceState)[AddressZero]
+    );
 
     expect(ethFreeBalance[signingKeys[0]]).toEqual(Zero);
     expect(ethFreeBalance[signingKeys[1]]).toEqual(Zero);

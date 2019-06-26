@@ -223,8 +223,11 @@ export function makeTTTProposalRequest(
   myDeposit: BigNumber = Zero,
   peerDeposit: BigNumber = Zero
 ): Rpc {
-  const initialState =
-    Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
+  let initialState = {};
+  if (!state["null"]) {
+    initialState =
+      Object.keys(state).length > 1 ? state : initialEmptyTTTState();
+  }
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
@@ -237,7 +240,8 @@ export function makeTTTProposalRequest(
       actionEncoding: tttActionEncoding
     } as AppABIEncodings,
     timeout: One,
-    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+    tokenAddress: AddressZero
   };
 
   return jsonRpcDeserialize({
@@ -530,7 +534,9 @@ export async function confirmAppInstanceInstallation(
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
   delete appInstanceInfo.id;
-  expect(appInstanceInfo).toEqual(proposedParams);
+  expect(JSON.parse(JSON.stringify(appInstanceInfo))).toEqual(
+    JSON.parse(JSON.stringify(proposedParams))
+  );
 }
 
 export async function getState(

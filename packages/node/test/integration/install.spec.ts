@@ -68,7 +68,8 @@ describe("Node method follows spec - proposeInstall", () => {
         const appInstanceProposalReq = makeTTTProposalRequest(
           nodeA.publicIdentifier,
           nodeB.publicIdentifier,
-          global["networkContext"].TicTacToe
+          global["networkContext"].TicTacToe,
+          { null: true }
         );
 
         expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(

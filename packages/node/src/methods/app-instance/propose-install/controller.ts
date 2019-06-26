@@ -27,7 +27,11 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
     const { store } = requestHandler;
-    const { proposedToIdentifier } = params;
+    const { initialState, proposedToIdentifier } = params;
+
+    if (!initialState || Object.keys(initialState).length === 0) {
+      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
+    }
 
     const multisigAddress = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
@@ -48,12 +52,6 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
     const { store, publicIdentifier, messagingService } = requestHandler;
-    const { initialState } = params;
-
-    if (!initialState) {
-      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
-    }
-
     const appInstanceId = await createProposedAppInstance(
       publicIdentifier,
       store,

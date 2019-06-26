@@ -18,6 +18,6 @@ contract CoinBucket is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return abi.encode(state.tokens, state.balances);
+    return abi.encode(state.balances);
   }
 }

@@ -8,7 +8,7 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { Zero, AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,
@@ -17,7 +17,7 @@ import {
 import { bigNumberify } from "ethers/utils";
 
 import { InstallParams, xkeyKthAddress } from "../../../machine";
-import { ETH_TOKEN_ADDRESS, StateChannel } from "../../../models";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";

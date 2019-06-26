@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 
-import { ETH_TOKEN_ADDRESS, ProposedAppInstanceInfo } from "../../models";
+import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
 import { getChannelFromPeerAddress } from "../../utils";
 
@@ -21,7 +22,7 @@ export async function setAppInstanceIDForProposeInstall(
     ...params,
     myDeposit: params.peerDeposit,
     peerDeposit: params.myDeposit,
-    tokenAddress: params.tokenAddress ? params.tokenAddress : ETH_TOKEN_ADDRESS
+    tokenAddress: params.tokenAddress ? params.tokenAddress : AddressZero
   };
 
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(

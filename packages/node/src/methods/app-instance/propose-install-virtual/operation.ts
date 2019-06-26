@@ -1,11 +1,8 @@
 import { Address, Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 
 import { virtualChannelKey } from "../../../machine";
-import {
-  ETH_TOKEN_ADDRESS,
-  ProposedAppInstanceInfo,
-  StateChannel
-} from "../../../models";
+import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
@@ -35,7 +32,7 @@ export async function createProposedVirtualAppInstance(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
-      tokenAddress: tokenAddress ? tokenAddress : ETH_TOKEN_ADDRESS
+      tokenAddress: tokenAddress ? tokenAddress : AddressZero
     },
     channel
   );

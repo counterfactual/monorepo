@@ -5,7 +5,6 @@ import { BigNumber } from "ethers/utils";
 import { flip, merge } from "../ethereum/utils/funds-bucket";
 import { xkeyKthAddress } from "../machine/xkeys";
 
-import { ETH_TOKEN_ADDRESS } from ".";
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
   CoinBucketBalance,
@@ -187,7 +186,7 @@ export class StateChannel {
 
   public incrementFreeBalance(
     increments: { [addr: string]: BigNumber },
-    tokenAddress: string = ETH_TOKEN_ADDRESS
+    tokenAddress: string = AddressZero
   ) {
     const state = convertFreeBalanceStateFromPlainObject((this.freeBalance
       .state as unknown) as PlainFreeBalanceState);
@@ -230,7 +229,7 @@ export class StateChannel {
   }
 
   public static setupChannel(
-    ethBucketAddress: string,
+    coinBucketAddress: string,
     multisigAddress: string,
     userNeuteredExtendedKeys: string[],
     freeBalanceTimeout?: number
@@ -243,7 +242,7 @@ export class StateChannel {
       createFreeBalance(
         multisigAddress,
         userNeuteredExtendedKeys,
-        ethBucketAddress,
+        coinBucketAddress,
         freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
       ),
       1
@@ -362,7 +361,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(flip(decrements), ETH_TOKEN_ADDRESS);
+    ).incrementFreeBalance(flip(decrements), AddressZero);
   }
 
   public uninstallTwoPartyVirtualEthAsLumpInstance(
@@ -389,7 +388,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(increments, ETH_TOKEN_ADDRESS);
+    ).incrementFreeBalance(increments, AddressZero);
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -451,7 +450,7 @@ export class StateChannel {
     if (
       appInstance.outcomeType === OutcomeType.COIN_TRANSFER &&
       appInstance.coinTransferInterpreterParams!.token !== undefined &&
-      appInstance.coinTransferInterpreterParams!.token !== ETH_TOKEN_ADDRESS
+      appInstance.coinTransferInterpreterParams!.token !== AddressZero
     ) {
       tokenAddress = appInstance.coinTransferInterpreterParams!.token;
     }
@@ -493,11 +492,10 @@ export class StateChannel {
       this.createdAt
     );
 
-    let tokenAddress = ETH_TOKEN_ADDRESS;
+    let tokenAddress = AddressZero;
     if (
       appToBeUninstalled.outcomeType === OutcomeType.COIN_TRANSFER &&
-      appToBeUninstalled.coinTransferInterpreterParams!.token !==
-        ETH_TOKEN_ADDRESS
+      appToBeUninstalled.coinTransferInterpreterParams!.token !== AddressZero
     ) {
       tokenAddress = appToBeUninstalled.coinTransferInterpreterParams!.token;
     }

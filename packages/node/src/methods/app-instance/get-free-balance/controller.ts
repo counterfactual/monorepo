@@ -1,10 +1,10 @@
 import { Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { jsonRpcMethod } from "rpc-server";
 
 import {
   convertCoinBucketToMap,
   convertFreeBalanceStateFromPlainObject,
-  ETH_TOKEN_ADDRESS,
   PlainFreeBalanceState
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
@@ -41,7 +41,7 @@ export default class GetFreeBalanceController extends NodeController {
     );
 
     if (!tokenAddress) {
-      return convertCoinBucketToMap(freeBalanceState[ETH_TOKEN_ADDRESS]);
+      return convertCoinBucketToMap(freeBalanceState[AddressZero]);
     }
 
     if (!Object.keys(freeBalanceState).includes(tokenAddress)) {

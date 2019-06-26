@@ -1,7 +1,8 @@
 import { Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 
 import { getOrCreateVirtualChannel } from "../../methods/app-instance/propose-install-virtual/operation";
-import { ETH_TOKEN_ADDRESS, ProposedAppInstanceInfo } from "../../models";
+import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
 
 /**
@@ -33,7 +34,7 @@ export async function setAppInstanceIDForProposeInstallVirtual(
     ...params,
     myDeposit: params.peerDeposit,
     peerDeposit: params.myDeposit,
-    tokenAddress: params.tokenAddress ? params.tokenAddress : ETH_TOKEN_ADDRESS
+    tokenAddress: params.tokenAddress ? params.tokenAddress : AddressZero
   };
 
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
