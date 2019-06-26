@@ -67,6 +67,7 @@ export default class InstallController extends NodeController {
       data: { params }
     };
 
+    // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(respondingAddress, installApprovalMsg);
 
     return {

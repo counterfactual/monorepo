@@ -370,30 +370,30 @@ export function generateTakeActionRequest(
   });
 }
 
-export function generateUninstallRequest(
-  appInstanceId: AppInstanceID
-): NodeTypes.MethodRequest {
-  return {
+export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
+  return jsonRpcDeserialize({
     params: {
       appInstanceId
     } as NodeTypes.UninstallParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.UNINSTALL
-  };
+    id: Date.now(),
+    jsonrpc: "2.0",
+    method: NodeTypes.RpcMethodName.UNINSTALL
+  });
 }
 
 export function generateUninstallVirtualRequest(
   appInstanceId: AppInstanceID,
   intermediaryIdentifier: string
-): NodeTypes.MethodRequest {
-  return {
+): Rpc {
+  return jsonRpcDeserialize({
     params: {
       appInstanceId,
       intermediaryIdentifier
     } as NodeTypes.UninstallVirtualParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.UNINSTALL_VIRTUAL
-  };
+    id: Date.now(),
+    jsonrpc: "2.0",
+    method: NodeTypes.RpcMethodName.UNINSTALL_VIRTUAL
+  });
 }
 
 export async function sleep(timeInMilliseconds: number) {
