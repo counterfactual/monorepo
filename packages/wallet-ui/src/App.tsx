@@ -1,18 +1,33 @@
-import React from "react";
+import { Web3Provider } from "ethers/providers";
+import React, { useContext, useEffect } from "react";
+import { connect } from "react-redux";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
-
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import "./App.scss";
 import { LayoutHeader } from "./components/layout";
 import {
-  Welcome,
-  AccountRegistration,
   AccountDeposit,
-  Channels
+  AccountRegistration,
+  Channels,
+  Welcome
 } from "./pages";
+import { EthereumService } from "./providers/EthereumService";
+import { ActionType, ApplicationState } from "./store/types";
+import { getUser } from "./store/user";
 import { RoutePath } from "./types";
 
-import "./App.scss";
+type AppProps = {
+  getUser: (provider: Web3Provider) => void;
+};
 
-const App: React.FC = () => {
+const App: React.FC<AppProps> = ({ getUser }) => {
+  const { provider } = useContext(EthereumService);
+
+  useEffect(() => {
+    getUser(provider);
+  });
+
   return (
     <Router>
       <Switch>
@@ -36,5 +51,9 @@ const App: React.FC = () => {
     </Router>
   );
 };
-
-export default App;
+export default connect(
+  null,
+  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
+    getUser: (provider: Web3Provider) => dispatch(getUser(provider))
+  })
+)(App);
