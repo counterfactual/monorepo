@@ -8,7 +8,7 @@
       },
       "attributes": {
         "name": "High Roller",
-        "url": "https://high-roller-staging.counterfactual.com",
+        "url": "https://high-roller-production.counterfactual.com",
         "slug": "high-roller",
         "icon": "assets/images/logo.png"
       },
@@ -22,7 +22,7 @@
       },
       "attributes": {
         "name": "Tic Tac Toe",
-        "url": "https://tic-tac-toe-staging.netlify.com",
+        "url": "https://sad-franklin-d7df00.netlify.com",
         "slug": "tic-tac-toe",
         "icon": "images/logo.png"
       },
