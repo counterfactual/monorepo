@@ -19,6 +19,13 @@ export type Deposit = {
   ethAddress: string;
 };
 
+export type Connection = {
+  type: "hub" | "user" | "app";
+  ethAddress: string;
+  name: string;
+  connections: Connection[];
+};
+
 export type BalanceRequest = {
   nodeAddress: string;
   multisigAddress: string;
@@ -37,7 +44,9 @@ export enum ActionType {
   WalletSetAddress = "WALLET_SET_ADDRESS",
   WalletError = "WALLET_ERROR",
   WalletDeposit = "WALLET_DEPOSIT",
-  WalletSetBalance = "WALLET_SET_BALANCE"
+  WalletSetBalance = "WALLET_SET_BALANCE",
+  ChannelsGetAll = "CHANNELS_GET_ALL",
+  ChannelsError = "CHANNELS_ERROR"
 }
 
 export type UserState = {
@@ -52,9 +61,17 @@ export type WalletState = {
   error: ErrorData;
 };
 
+export type ChannelsMap = { [key: string]: Connection };
+
+export type ChannelsState = {
+  channels: ChannelsMap;
+  error: ErrorData;
+};
+
 export type ApplicationState = {
   UserState: UserState;
   WalletState: WalletState;
+  ChannelsState: ChannelsState;
 };
 
 export type StoreAction<DataType, ActionEnumType = ActionType> = Action<

@@ -26,10 +26,10 @@ export async function getNodeAddress(): Promise<string> {
 export async function getUserFromStoredToken(): Promise<{
   balance: string;
   user: User;
-}> {
+} | void> {
   const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
-  return data.result;
+  return data.result || null;
 }
 
 export async function storeTokenFromUser({ token }: User): Promise<void> {
@@ -103,4 +103,22 @@ export async function forFunds({
     await delay(1000);
     return forFunds({ multisigAddress, nodeAddress });
   });
+}
+
+export async function getChannelAddresses(): Promise<string[]> {
+  const { multisigAddresses } = (await window.ethereum.send(
+    CounterfactualMethod.RequestChannels
+  )).result;
+
+  return multisigAddresses;
+}
+
+export async function getChannel(multisigAddress: string): Promise<any> {
+  // const { data } = (await window.ethereum.send(
+  //   CounterfactualMethod.RequestChannel,
+  //   [multisigAddress]
+  // )).result;
+
+  // return data;
+  return {};
 }

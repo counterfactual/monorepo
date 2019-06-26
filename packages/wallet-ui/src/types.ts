@@ -18,7 +18,9 @@ export enum CounterfactualMethod {
   SetUser = "counterfactual:set:user",
   RequestUser = "counterfactual:request:user",
   RequestDeposit = "counterfactual:request:deposit",
-  RequestBalances = "counterfactual:request:balances"
+  RequestBalances = "counterfactual:request:balances",
+  RequestChannels = "counterfactual:request:channels",
+  RequestChannel = "counterfactual:request:channel"
 }
 
 export enum CounterfactualEvent {
