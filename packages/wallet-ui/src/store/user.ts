@@ -91,19 +91,18 @@ export const getUser = (
 > => async dispatch => {
   try {
     // 1. Get the user token.
-    const userData = await getUserFromStoredToken();
+    const { balance, user } = await getUserFromStoredToken();
 
-    if (!userData) {
+    if (!user) {
       return;
     }
-
     // 2. Get the balances.
-    const counterfactualBalance = parseEther(userData.balance);
-    const ethereumBalance = await provider.getBalance(userData.user.ethAddress);
+    const counterfactualBalance = parseEther(balance);
+    const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 3. Store data into UserState and WalletState.
     dispatch({
-      data: { user: userData.user },
+      data: { user },
       type: ActionType.UserGet
     });
     dispatch({
