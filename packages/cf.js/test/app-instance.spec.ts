@@ -1,4 +1,5 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 import { JsonRpcResponse } from "rpc-server";
 
@@ -22,7 +23,8 @@ describe("CF.js AppInstance", () => {
     peerDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    tokenAddress: AddressZero
   };
 
   beforeEach(async () => {

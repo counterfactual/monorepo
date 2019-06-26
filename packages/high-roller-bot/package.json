@@ -34,6 +34,7 @@
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/node": "0.2.6",
+    "@counterfactual/types": "0.0.17",
     "eventemitter3": "^3.1.2"
   },
   "devDependencies": {

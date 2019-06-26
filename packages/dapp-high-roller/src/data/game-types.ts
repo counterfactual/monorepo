@@ -12,7 +12,7 @@ export type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
-  turnNum: number;
+  versionNumber: number;
 };
 
 export enum HighRollerActionType {

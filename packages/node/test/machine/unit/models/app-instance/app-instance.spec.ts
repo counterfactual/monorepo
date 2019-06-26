@@ -25,7 +25,7 @@ describe("AppInstance", () => {
       Math.ceil(Math.random() * 2e10),
       0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
-      999, // <------ nonce
+      999, // <------ versionNumber
       Math.ceil(1000 * Math.random()),
       OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       {

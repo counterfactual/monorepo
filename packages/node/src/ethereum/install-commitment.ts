@@ -1,4 +1,4 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { Interface, keccak256, solidityPack } from "ethers/utils";
 import * as log from "loglevel";
@@ -7,7 +7,7 @@ import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
-const iface = new Interface(StateChannelTransaction.abi);
+const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
 
 export class InstallCommitment extends MultiSendCommitment {
   constructor(
@@ -17,7 +17,7 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly appIdentity: AppIdentity,
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceStateHash: string,
-    public readonly freeBalanceNonce: number,
+    public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
     public readonly rootNonceValue: number,
@@ -30,7 +30,7 @@ export class InstallCommitment extends MultiSendCommitment {
       multisigOwners,
       freeBalanceAppIdentity,
       freeBalanceStateHash,
-      freeBalanceNonce,
+      freeBalanceversionNumber,
       freeBalanceTimeout
     );
   }
@@ -63,7 +63,7 @@ export class InstallCommitment extends MultiSendCommitment {
     const appIdentityHash = appIdentityToHash(this.appIdentity);
 
     return {
-      to: this.networkContext.StateChannelTransaction,
+      to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         /* appRegistry */ this.networkContext.ChallengeRegistry,

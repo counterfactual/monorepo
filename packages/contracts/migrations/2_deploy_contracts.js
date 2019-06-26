@@ -8,7 +8,7 @@ const MultiSend = artifacts.require("MultiSend");
 const RootNonceRegistry = artifacts.require("RootNonceRegistry");
 const UninstallKeyRegistry = artifacts.require("UninstallKeyRegistry");
 const ProxyFactory = artifacts.require("ProxyFactory");
-const StateChannelTransaction = artifacts.require("StateChannelTransaction");
+const ConditionalTransactionDelegateTarget = artifacts.require("ConditionalTransactionDelegateTarget");
 const TwoPartyVirtualEthAsLump = artifacts.require("TwoPartyVirtualEthAsLump");
 const ETHInterpreter = artifacts.require("ETHInterpreter");
 const TwoPartyEthAsLump = artifacts.require("TwoPartyEthAsLump");
@@ -22,7 +22,7 @@ const ARTIFACTS = [
   RootNonceRegistry,
   UninstallKeyRegistry,
   ProxyFactory,
-  StateChannelTransaction,
+  ConditionalTransactionDelegateTarget,
   TwoPartyVirtualEthAsLump,
   ETHInterpreter,
   TwoPartyEthAsLump

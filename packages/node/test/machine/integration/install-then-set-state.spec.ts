@@ -19,11 +19,11 @@ import {
 import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -144,7 +144,7 @@ describe.skip("Scenario: install AppInstance, set state, put on-chain", () => {
         network,
         appInstance.identity,
         keccak256(appInstance.encodedLatestState),
-        appInstance.nonce + 1,
+        appInstance.versionNumber + 1,
         appInstance.timeout
       );
 
@@ -173,7 +173,7 @@ describe.skip("Scenario: install AppInstance, set state, put on-chain", () => {
         appInstance.identity,
         freeBalance.identity,
         freeBalance.hashOfLatestState,
-        freeBalance.nonce,
+        freeBalance.versionNumber,
         freeBalance.timeout,
         appInstance.appSeqNo,
         stateChannel.rootNonceValue,

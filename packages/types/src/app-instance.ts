@@ -13,17 +13,7 @@ export type AppInterface = {
 
 export type SignedStateHashUpdate = {
   appStateHash: string;
-  nonce: number;
+  versionNumber: number;
   timeout: number;
   signatures: string;
-};
-
-export type CoinBucketBalance = {
-  to: string;
-  amount: { _hex: string };
-};
-
-export type DecodedFreeBalance = {
-  tokenAddresses: string[];
-  balances: CoinBucketBalance[];
 };

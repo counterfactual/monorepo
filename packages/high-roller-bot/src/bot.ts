@@ -25,7 +25,7 @@ type HighRollerAppState = {
   commitHash: string;
   playerFirstNumber: number;
   playerSecondNumber: number;
-  turnNum: 0;
+  versionNumber: 0;
 };
 
 /// Returns the commit hash that can be used to commit to chosenNumber

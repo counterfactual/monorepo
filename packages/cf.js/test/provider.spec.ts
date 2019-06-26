@@ -1,5 +1,5 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
-import { Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcNotification, JsonRpcResponse } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
@@ -30,7 +30,8 @@ describe("CF.js Provider", () => {
     peerDeposit: Zero,
     timeout: Zero,
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    tokenAddress: AddressZero
   };
 
   beforeEach(() => {

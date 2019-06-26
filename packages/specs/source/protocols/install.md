@@ -30,7 +30,7 @@ First we introduce a new type which we label `InstallParams`.
 | `appInterface`          | `CfAppInterface` | The definition of the interface of the application to be installed |
 | `defaultTimeout`        | `uint256`        | The challenge period length for this application                   |
 
-> NOTE: `signingKeys` are deterministically generated based on the nonce of the application in relation to the entire channel lifecycle. Further detail still to be provided in these specifications in the future. See [this issue](https://github.com/counterfactual/specs/issues/15) for discussion
+> NOTE: `signingKeys` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Further detail still to be provided in these specifications in the future. See [this issue](https://github.com/counterfactual/specs/issues/15) for discussion
 
 > NOTE: At the moment, this message requires that the hexidecimal value of `peer1.address` is strictly less than the value of `peer2.address` to enforce deterministic ordering of the `signingKey` variable in new application installs. This can be improved in the future
 

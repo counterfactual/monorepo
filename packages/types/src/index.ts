@@ -1,8 +1,6 @@
 import {
   AppIdentity,
   AppInterface,
-  CoinBucketBalance,
-  DecodedFreeBalance,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
@@ -33,7 +31,7 @@ export interface NetworkContext {
   MultiSend: string;
   ProxyFactory: string;
   RootNonceRegistry: string;
-  StateChannelTransaction: string;
+  ConditionalTransactionDelegateTarget: string;
   TwoPartyEthAsLump: string;
   TwoPartyVirtualEthAsLump: string;
   UninstallKeyRegistry: string;
@@ -49,7 +47,7 @@ export const networkContextProps = [
   "MultiSend",
   "ProxyFactory",
   "RootNonceRegistry",
-  "StateChannelTransaction",
+  "ConditionalTransactionDelegateTarget",
   "TwoPartyEthAsLump",
   "TwoPartyVirtualEthAsLump",
   "UninstallKeyRegistry"
@@ -73,9 +71,7 @@ export {
   SolidityABIEncoderV2Type,
   Bytes32,
   ContractABI,
-  DecodedFreeBalance,
   coinBalanceRefundStateEncoding,
-  CoinBucketBalance,
   INodeProvider,
   IRpcNodeProvider,
   Node,

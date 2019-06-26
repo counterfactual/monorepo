@@ -61,7 +61,7 @@ describe("Uninstall Commitment", () => {
       stateChannel.multisigOwners,
       freeBalance.identity,
       freeBalance.state,
-      freeBalance.nonce,
+      freeBalance.versionNumber,
       freeBalance.timeout,
       appBeingUninstalledSeqNo
     ).getTransactionDetails();
@@ -137,10 +137,15 @@ describe("Uninstall Commitment", () => {
         });
 
         it("should build the expected SignedStateHashUpdate argument", () => {
-          const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
+          const [
+            ,
+            [stateHash, versionNumber, timeout, signatures]
+          ] = calldata.args;
 
           expect(stateHash).toBe(freeBalance.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalance.nonce));
+          expect(versionNumber).toEqual(
+            bigNumberify(freeBalance.versionNumber)
+          );
           expect(timeout).toEqual(bigNumberify(freeBalance.timeout));
           expect(signatures).toBe(HashZero);
         });

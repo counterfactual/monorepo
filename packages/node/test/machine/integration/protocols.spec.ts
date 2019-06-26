@@ -20,6 +20,11 @@ let appDefinition: Contract;
 
 expect.extend({ toBeEq });
 
+enum ActionType {
+  SUBMIT_COUNTER_INCREMENT,
+  ACCEPT_INCREMENT
+}
+
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
@@ -62,15 +67,12 @@ describe("Three mininodes", () => {
       initiatingBalanceDecrement: Zero,
       respondingBalanceDecrement: Zero,
       initialState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 0
       },
       appInterface: {
         addr: appDefinition.address,
-        stateEncoding:
-          "tuple(address player1, address player2, uint256 counter)",
-        actionEncoding: "tuple(uint256 increment)"
+        stateEncoding: "tuple(uint256 counter)",
+        actionEncoding: "tuple(uint8 actionType, uint256 increment)"
       },
       defaultTimeout: 40,
       outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
@@ -116,13 +118,10 @@ describe("Three mininodes", () => {
       defaultTimeout: 100,
       appInterface: {
         addr: appDefinition.address,
-        stateEncoding:
-          "tuple(address player1, address player2, uint256 counter)",
-        actionEncoding: "tuple(uint256 increment)"
+        stateEncoding: "tuple(uint256 counter)",
+        actionEncoding: "tuple(uint8 actionType, uint256 increment)"
       },
       initialState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 0
       },
       initiatingBalanceDecrement: bigNumberify(0),
@@ -147,8 +146,6 @@ describe("Three mininodes", () => {
       multisigAddress: virtualKey,
       appIdentityHash: appInstance.identityHash,
       newState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 1
       }
     });
@@ -159,6 +156,7 @@ describe("Three mininodes", () => {
       multisigAddress: virtualKey,
       appIdentityHash: appInstance.identityHash,
       action: {
+        actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
         increment: 1
       }
     });
@@ -169,8 +167,6 @@ describe("Three mininodes", () => {
       respondingXpub: mininodeC.xpub,
       targetAppIdentityHash: appInstance.identityHash,
       targetAppState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 2
       }
     });

@@ -126,7 +126,7 @@ async function proposeStateTransition(
     newStateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.state,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     sequenceNo
   );

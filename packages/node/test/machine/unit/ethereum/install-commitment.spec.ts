@@ -1,6 +1,6 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -62,7 +62,7 @@ describe("InstallCommitment", () => {
       appInstance.identity,
       freeBalanceETH.identity,
       freeBalanceETH.hashOfLatestState,
-      freeBalanceETH.nonce,
+      freeBalanceETH.versionNumber,
       freeBalanceETH.timeout,
       appInstance.appSeqNo,
       stateChannel.rootNonceValue,
@@ -139,9 +139,14 @@ describe("InstallCommitment", () => {
         });
 
         it("should build the expected SignedStateHashUpdate argument", () => {
-          const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
+          const [
+            ,
+            [stateHash, versionNumber, timeout, signatures]
+          ] = calldata.args;
           expect(stateHash).toBe(freeBalanceETH.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalanceETH.nonce));
+          expect(versionNumber).toEqual(
+            bigNumberify(freeBalanceETH.versionNumber)
+          );
           expect(timeout).toEqual(bigNumberify(freeBalanceETH.timeout));
           expect(signatures).toBe(HashZero);
         });
@@ -158,8 +163,8 @@ describe("InstallCommitment", () => {
         [op, to, val, data] = transactions[1];
       });
 
-      it("should be to the StateChannelTransaction", () => {
-        expect(to).toBe(networkContext.StateChannelTransaction);
+      it("should be to the ConditionalTransactionDelegateTarget", () => {
+        expect(to).toBe(networkContext.ConditionalTransactionDelegateTarget);
       });
 
       it("should be of value 0", () => {
@@ -175,7 +180,7 @@ describe("InstallCommitment", () => {
         let calldata: TransactionDescription;
 
         beforeAll(() => {
-          iface = new Interface(StateChannelTransaction.abi);
+          iface = new Interface(ConditionalTransactionDelegateTarget.abi);
           calldata = iface.parseTransaction({ data });
         });
 

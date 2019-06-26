@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/chain",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",

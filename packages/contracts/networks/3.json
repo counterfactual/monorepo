@@ -45,7 +45,7 @@
     "transactionHash": "0xe7f5ba57c153ee1eb306d3bad7fe4d65e5179a00b58ece6b4d8c43dc8ba3c6a9"
   },
   {
-    "contractName": "StateChannelTransaction",
+    "contractName": "ConditionalTransactionDelegateTarget",
     "address": "0x9617Ea3957c787627c72C727D44D621f4b5225A4",
     "transactionHash": "0x4c394d5b965eedfb9c40d618c3b79bc1fc0fc27f0d06be89ce0d5232c4a5e9a4"
   },

@@ -18,7 +18,7 @@ export class UninstallCommitment extends MultiSendCommitment {
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
     public readonly freeBalanceState: SolidityABIEncoderV2Type,
-    public readonly freeBalanceNonce: number,
+    public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number
   ) {
@@ -30,7 +30,7 @@ export class UninstallCommitment extends MultiSendCommitment {
       // FIXME:
       // @ts-ignore
       keccak256(encodeFreeBalanceAppState(freeBalanceState)),
-      freeBalanceNonce,
+      freeBalanceversionNumber,
       freeBalanceTimeout
     );
   }

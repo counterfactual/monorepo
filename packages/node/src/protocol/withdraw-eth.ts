@@ -238,7 +238,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.state,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     freeBalance.appSeqNo
   );
@@ -282,7 +282,7 @@ function constructInstallOp(
     app.identity,
     freeBalance.identity,
     freeBalance.hashOfLatestState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
     freeBalance.rootNonceValue,

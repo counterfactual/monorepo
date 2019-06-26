@@ -18,7 +18,7 @@ export class SetStateCommitment extends EthereumCommitment {
     public readonly networkContext: NetworkContext,
     public readonly appIdentity: AppIdentity,
     public readonly hashedAppState: string,
-    public readonly appLocalNonce: number,
+    public readonly appversionNumber: number,
     public readonly timeout: number
   ) {
     super();
@@ -31,7 +31,7 @@ export class SetStateCommitment extends EthereumCommitment {
         [
           "0x19",
           appIdentityToHash(this.appIdentity),
-          this.appLocalNonce,
+          this.appversionNumber,
           this.timeout,
           this.hashedAppState
         ]
@@ -55,7 +55,7 @@ export class SetStateCommitment extends EthereumCommitment {
   ): SignedStateHashUpdate {
     return {
       appStateHash: this.hashedAppState,
-      nonce: this.appLocalNonce,
+      versionNumber: this.appversionNumber,
       timeout: this.timeout,
       signatures: signaturesToBytesSortedBySignerAddress(
         this.hashToSign(),

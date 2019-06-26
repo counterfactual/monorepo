@@ -6,18 +6,18 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { WeiPerEther, Zero, AddressZero } from "ethers/constants";
+import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { Interface, keccak256 } from "ethers/utils";
 
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -95,7 +95,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         freeBalance.identity,
         keccak256(freeBalance.encodedLatestState),
-        freeBalance.nonce,
+        freeBalance.versionNumber,
         freeBalance.timeout
       );
 

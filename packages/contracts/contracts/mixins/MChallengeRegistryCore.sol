@@ -29,13 +29,13 @@ contract MChallengeRegistryCore {
   /// @notice Compute a unique hash for the state of a channelized app instance
   /// @param identityHash The unique hash of an `AppIdentity`
   /// @param appStateHash The hash of the app state to be signed
-  /// @param nonce The nonce corresponding to the version of the state
+  /// @param versionNumber The versionNumber corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
   function computeAppChallengeHash(
     bytes32 identityHash,
     bytes32 appStateHash,
-    uint256 nonce,
+    uint256 versionNumber,
     uint256 timeout
   )
     internal
@@ -46,7 +46,7 @@ contract MChallengeRegistryCore {
       abi.encodePacked(
         byte(0x19),
         identityHash,
-        nonce,
+        versionNumber,
         timeout,
         appStateHash
       )
@@ -57,16 +57,13 @@ contract MChallengeRegistryCore {
   /// @param turnTaker The address of the user taking the action
   /// @param previousState The hash of a state this action is being taken on
   /// @param action The ABI encoded version of the action being taken
-  /// @param setStateNonce The nonce of the state this action is being taken on
-  /// @param challengeNonce A nonce corresponding to how many actions have been taken on the
-  ///                     state since a new state has been unanimously agreed by signing keys.
+  /// @param versionNumber The versionNumber of the state this action is being taken on
   /// @return A bytes32 hash of the arguments
   function computeActionHash(
     address turnTaker,
     bytes32 previousState,
     bytes memory action,
-    uint256 setStateNonce,
-    uint256 challengeNonce
+    uint256 versionNumber
   )
     internal
     pure
@@ -78,8 +75,7 @@ contract MChallengeRegistryCore {
         turnTaker,
         previousState,
         action,
-        setStateNonce,
-        challengeNonce
+        versionNumber
       )
     );
   }

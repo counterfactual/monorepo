@@ -307,7 +307,7 @@ function constructUninstallOp(
     stateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.state,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     seqNoToUninstall
   );

@@ -17,7 +17,7 @@ contract NimApp is CounterfactualApp {
   }
 
   struct AppState {
-    uint256 turnNum; // NOTE: This field is currently mandatory, do not modify!
+    uint256 versionNumber; // NOTE: This field is mandatory, do not modify!
     uint256[3] pileHeights;
   }
 
@@ -40,7 +40,7 @@ contract NimApp is CounterfactualApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return signingKeys[state.turnNum % 2];
+    return signingKeys[state.versionNumber % 2];
   }
 
   function applyAction(
@@ -61,7 +61,7 @@ contract NimApp is CounterfactualApp {
     AppState memory ret = state;
 
     ret.pileHeights[action.pileIdx] -= action.takeAmnt;
-    ret.turnNum += 1;
+    ret.versionNumber += 1;
 
     return abi.encode(ret);
   }
@@ -73,7 +73,7 @@ contract NimApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
 
-    if (state.turnNum % 2 == 0) {
+    if (state.versionNumber % 2 == 0) {
       return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     } else {
       return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);

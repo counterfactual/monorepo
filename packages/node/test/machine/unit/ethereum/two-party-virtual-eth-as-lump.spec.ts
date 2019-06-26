@@ -64,7 +64,7 @@ describe("ETH Virtual App Agreement Commitment", () => {
       target,
       freeBalance.identity,
       freeBalance.hashOfLatestState,
-      freeBalance.nonce,
+      freeBalance.versionNumber,
       freeBalance.timeout,
       stateChannel.numInstalledApps + 1,
       stateChannel.rootNonceValue,
@@ -144,9 +144,14 @@ describe("ETH Virtual App Agreement Commitment", () => {
         });
 
         it("should build the expected SignedStateHashUpdate argument", () => {
-          const [, [stateHash, nonce, timeout, signatures]] = calldata.args;
+          const [
+            ,
+            [stateHash, versionNumber, timeout, signatures]
+          ] = calldata.args;
           expect(stateHash).toBe(freeBalance.hashOfLatestState);
-          expect(nonce).toEqual(bigNumberify(freeBalance.nonce));
+          expect(versionNumber).toEqual(
+            bigNumberify(freeBalance.versionNumber)
+          );
           expect(timeout).toEqual(bigNumberify(freeBalance.timeout));
           expect(signatures).toBe(HashZero);
         });

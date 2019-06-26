@@ -29,9 +29,8 @@ contract LibStateChannelApp {
     address latestSubmitter;
     bytes32 appStateHash;
     uint256 challengeCounter;
-    uint256 challengeNonce;
     uint256 finalizesAt;
-    uint256 nonce;
+    uint256 versionNumber;
   }
 
 }

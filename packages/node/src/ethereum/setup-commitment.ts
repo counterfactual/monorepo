@@ -1,4 +1,4 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import {
@@ -12,7 +12,7 @@ import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
-const iface = new Interface(StateChannelTransaction.abi);
+const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
 
 export class SetupCommitment extends MultisigCommitment {
   public constructor(
@@ -26,7 +26,7 @@ export class SetupCommitment extends MultisigCommitment {
 
   public getTransactionDetails(): MultisigTransaction {
     return {
-      to: this.networkContext.StateChannelTransaction,
+      to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.ChallengeRegistry,
