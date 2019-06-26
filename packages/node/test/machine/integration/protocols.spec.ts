@@ -7,6 +7,7 @@ import { bigNumberify } from "ethers/utils";
 
 import { xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
+import { ETH_TOKEN_ADDRESS } from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -73,7 +74,8 @@ describe("Three mininodes", () => {
         actionEncoding: "tuple(uint256 increment)"
       },
       defaultTimeout: 40,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      token: ETH_TOKEN_ADDRESS
     });
 
     const appInstances = mininodeA.scm.get(AddressZero)!.appInstances;

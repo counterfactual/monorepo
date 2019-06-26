@@ -17,7 +17,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 import { UninstallCommitment } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
-import { FreeBalanceState, StateChannel } from "../../../../src/models";
+import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -60,7 +60,7 @@ describe("Uninstall Commitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       freeBalance.identity,
-      freeBalance.state as FreeBalanceState,
+      freeBalance.state,
       freeBalance.nonce,
       freeBalance.timeout,
       appBeingUninstalledSeqNo

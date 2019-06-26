@@ -19,8 +19,8 @@ export type SignedStateHashUpdate = {
 };
 
 export type CoinBucketBalance = {
-  amount: { _hex: string };
   to: string;
+  amount: { _hex: string };
 };
 
 export type DecodedFreeBalance = {

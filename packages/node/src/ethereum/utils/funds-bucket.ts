@@ -1,68 +1,36 @@
-import {
-  AppInterface,
-  CoinBucketBalance,
-  DecodedFreeBalance
-} from "@counterfactual/types";
+import { AppInterface } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import {
-  CoinBucketBalances,
+  CoinBucketBalance,
+  CoinBucketBalanceMap,
+  convertCoinBucketFromMap,
+  convertCoinBucketToMap,
   FreeBalanceState
 } from "../../models/free-balance";
 
-const coinBucketStateEncoding = `
+const coinBucketsStateEncoding = `
   tuple(
-    address[] tokenAddresses,
+    address[] tokens,
     tuple(
       address to,
       uint256 amount
-    )[] balances
+    )[][] balances
   )
 `;
 
 export function getCoinBucketAppInterface(addr: string): AppInterface {
   return {
     addr,
-    stateEncoding: coinBucketStateEncoding,
+    stateEncoding: coinBucketsStateEncoding,
     actionEncoding: undefined // because no actions exist for CoinBucket
   };
 }
 
 export function encodeFreeBalanceAppState(state: FreeBalanceState) {
-  const encoding = {} as DecodedFreeBalance;
-  for (const coinBucket of Object.entries(state)) {
-    encoding.tokenAddresses.push(coinBucket[0]);
-
-    const coinBucketBalances = coinBucket[1];
-    const balances: CoinBucketBalance[] = [];
-
-    for (const balance of Object.entries(coinBucketBalances)) {
-      balances.push({
-        to: balance[0],
-        amount: {
-          _hex: balance[1].toHexString()
-        }
-      });
-    }
-  }
-  return encoding;
+  return defaultAbiCoder.encode([coinBucketsStateEncoding], [state]);
 }
-
-/**
- * For manipulating `CoinBucket` state, the most convenient type to pass around
- * is the following mapping from address to balance via `CoinBucketBalances`.
- * This function converts encoded `CoinBucket` app states into `CoinBucketBalances`.
- */
-export const decodeCoinBucketBalances = (
-  appState: CoinBucketBalance[]
-): CoinBucketBalances => {
-  const ret: CoinBucketBalances = {};
-  for (const { to, amount } of appState) {
-    ret[to] = bigNumberify(amount._hex);
-  }
-  return ret;
-};
 
 /**
  * Returns a mapping with all values negated
@@ -83,24 +51,25 @@ export function flip(a: { [s: string]: BigNumber }) {
  * unchanged.
  */
 export function merge(
-  base: CoinBucketBalances,
-  increments: CoinBucketBalances
-) {
-  const ret = {} as CoinBucketBalances;
-  for (const key of Object.keys(base)) {
+  base: CoinBucketBalance[],
+  increments: CoinBucketBalanceMap
+): CoinBucketBalance[] {
+  const baseMap = convertCoinBucketToMap(base);
+  const ret = {} as CoinBucketBalanceMap;
+  for (const key of Object.keys(baseMap)) {
     if (increments[key]) {
-      ret[key] = base[key].add(increments[key]);
+      ret[key] = baseMap[key].add(increments[key]);
       if (ret[key].lt(Zero)) {
         throw new Error("Underflow in merge");
       }
     } else {
-      ret[key] = base[key];
+      ret[key] = baseMap[key];
     }
   }
   for (const key of Object.keys(increments)) {
-    if (!base[key]) {
+    if (!baseMap[key]) {
       throw Error(`mismatch ${Object.keys(base)} ${Object.keys(increments)}`);
     }
   }
-  return ret;
+  return convertCoinBucketFromMap(ret);
 }

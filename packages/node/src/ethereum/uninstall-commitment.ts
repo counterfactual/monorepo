@@ -1,8 +1,10 @@
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import { AppIdentity, NetworkContext } from "@counterfactual/types";
+import {
+  AppIdentity,
+  NetworkContext,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
-
-import { FreeBalanceState } from "../models";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -15,7 +17,7 @@ export class UninstallCommitment extends MultiSendCommitment {
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceState: FreeBalanceState,
+    public readonly freeBalanceState: SolidityABIEncoderV2Type,
     public readonly freeBalanceNonce: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number

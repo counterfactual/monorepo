@@ -24,6 +24,7 @@ export interface IProposedAppInstanceInfo {
   proposedToIdentifier: string;
   intermediaries?: string[];
   outcomeType: OutcomeType;
+  tokenAddress: string;
 }
 
 export interface ProposedAppInstanceInfoJSON {
@@ -38,6 +39,7 @@ export interface ProposedAppInstanceInfoJSON {
   proposedToIdentifier: string;
   intermediaries?: string[];
   outcomeType: OutcomeType;
+  tokenAddress: string;
 }
 
 /**
@@ -62,6 +64,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   proposedToIdentifier: string;
   intermediaries?: string[];
   outcomeType: OutcomeType;
+  tokenAddress: string;
 
   constructor(
     proposeParams: IProposedAppInstanceInfo,
@@ -79,6 +82,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.intermediaries = proposeParams.intermediaries;
     this.outcomeType = proposeParams.outcomeType;
     this.id = overrideId || this.getIdentityHashFor(channel!);
+    this.tokenAddress = proposeParams.tokenAddress;
   }
 
   // TODO: Note the construction of this is duplicated from the machine
@@ -128,7 +132,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       // computation
       undefined,
       {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit)
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
+        token: this.tokenAddress
       }
     );
 
@@ -147,7 +152,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
       intermediaries: this.intermediaries,
-      outcomeType: this.outcomeType
+      outcomeType: this.outcomeType,
+      tokenAddress: this.tokenAddress
     };
   }
 
@@ -162,7 +168,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
       intermediaries: json.intermediaries,
-      outcomeType: json.outcomeType
+      outcomeType: json.outcomeType,
+      tokenAddress: json.tokenAddress
     };
 
     return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);

@@ -42,7 +42,8 @@ export async function install(
         addr: appInstanceInfo.appDefinition
       },
       defaultTimeout: appInstanceInfo.timeout.toNumber(),
-      outcomeType: appInstanceInfo.outcomeType
+      outcomeType: appInstanceInfo.outcomeType,
+      token: appInstanceInfo.tokenAddress
     }
   );
 

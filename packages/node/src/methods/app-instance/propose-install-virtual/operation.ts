@@ -1,7 +1,11 @@
 import { Address, Node } from "@counterfactual/types";
 
 import { virtualChannelKey } from "../../../machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
+import {
+  ETH_TOKEN_ADDRESS,
+  ProposedAppInstanceInfo,
+  StateChannel
+} from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
@@ -18,7 +22,7 @@ export async function createProposedVirtualAppInstance(
   store: Store,
   params: Node.ProposeInstallVirtualParams
 ): Promise<string> {
-  const { intermediaries, proposedToIdentifier } = params;
+  const { intermediaries, proposedToIdentifier, tokenAddress } = params;
 
   const channel = await getOrCreateVirtualChannel(
     myIdentifier,
@@ -30,7 +34,8 @@ export async function createProposedVirtualAppInstance(
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
       ...params,
-      proposedByIdentifier: myIdentifier
+      proposedByIdentifier: myIdentifier,
+      tokenAddress: tokenAddress ? tokenAddress : ETH_TOKEN_ADDRESS
     },
     channel
   );

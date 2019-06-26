@@ -1,6 +1,6 @@
 import { Node } from "@counterfactual/types";
 
-import { ProposedAppInstanceInfo } from "../../../models";
+import { ETH_TOKEN_ADDRESS, ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
 
@@ -25,7 +25,10 @@ export async function createProposedAppInstance(
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
       ...params,
-      proposedByIdentifier: myIdentifier
+      proposedByIdentifier: myIdentifier,
+      tokenAddress: params.tokenAddress
+        ? params.tokenAddress
+        : ETH_TOKEN_ADDRESS
     },
     channel
   );

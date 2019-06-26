@@ -250,6 +250,7 @@ export namespace Node {
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
     outcomeType: OutcomeType;
+    tokenAddress?: string;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
@@ -302,6 +303,7 @@ export namespace Node {
     multisigAddress: string;
     recipient?: string;
     amount: BigNumber;
+    tokenAddress?: string;
   };
 
   export type WithdrawResult = {

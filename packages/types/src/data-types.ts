@@ -14,6 +14,7 @@ export type CoinTransferInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/CoinInterpreter.sol#L18
   limit: BigNumber;
+  token: string;
 };
 
 export type AppInstanceInfo = {
@@ -26,6 +27,7 @@ export type AppInstanceInfo = {
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
   intermediaries?: string[];
+  tokenAddress: string;
 
   /**
    * Interpreter-related Fields

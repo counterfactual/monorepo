@@ -2,8 +2,10 @@ import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
 import {
-  ETH_FREE_BALANCE_ADDRESS,
-  FreeBalanceState
+  convertCoinBucketToMap,
+  convertFreeBalanceStateFromPlainObject,
+  ETH_TOKEN_ADDRESS,
+  PlainFreeBalanceState
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -34,14 +36,18 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const appState = stateChannel.freeBalance.state as FreeBalanceState;
+    const freeBalanceState = convertFreeBalanceStateFromPlainObject(
+      (stateChannel.freeBalance.state as unknown) as PlainFreeBalanceState
+    );
+
     if (!tokenAddress) {
-      return appState[ETH_FREE_BALANCE_ADDRESS];
+      return convertCoinBucketToMap(freeBalanceState[ETH_TOKEN_ADDRESS]);
     }
-    if (appState[tokenAddress] === undefined) {
+
+    if (!Object.keys(freeBalanceState).includes(tokenAddress)) {
       return Promise.reject(NO_FREE_BALANCE_FOR_ERC20(tokenAddress));
     }
 
-    return appState[tokenAddress];
+    return convertCoinBucketToMap(freeBalanceState[tokenAddress]);
   }
 }

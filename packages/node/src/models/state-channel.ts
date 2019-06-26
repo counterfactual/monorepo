@@ -1,19 +1,19 @@
-import {
-  CoinBucketBalance,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { OutcomeType, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
-import {
-  decodeCoinBucketBalances,
-  flip,
-  merge
-} from "../ethereum/utils/funds-bucket";
+import { flip, merge } from "../ethereum/utils/funds-bucket";
 import { xkeyKthAddress } from "../machine/xkeys";
 
+import { ETH_TOKEN_ADDRESS } from ".";
 import { AppInstance, AppInstanceJson } from "./app-instance";
-import { CoinBucketBalances, createFreeBalance } from "./free-balance";
+import {
+  CoinBucketBalance,
+  convertFreeBalanceStateFromPlainObject,
+  convertFreeBalanceStateToPlainObject,
+  createFreeBalance,
+  PlainFreeBalanceState
+} from "./free-balance";
 import {
   TwoPartyVirtualEthAsLumpInstance,
   TwoPartyVirtualEthAsLumpInstanceJson
@@ -187,41 +187,42 @@ export class StateChannel {
 
   public incrementFreeBalance(
     increments: { [addr: string]: BigNumber },
-    tokenAddress: string = AddressZero
+    tokenAddress: string = ETH_TOKEN_ADDRESS
   ) {
-    const encodedCoinBucketBalances = this.freeBalance.state[
-      tokenAddress
-    ] as CoinBucketBalance[];
-    const coinBucketBalances = merge(
-      decodeCoinBucketBalances(encodedCoinBucketBalances),
-      increments
-    );
+    const state = convertFreeBalanceStateFromPlainObject((this.freeBalance
+      .state as unknown) as PlainFreeBalanceState);
 
-    return this.setFreeBalance(coinBucketBalances, tokenAddress);
+    let balances: CoinBucketBalance[];
+    // FreeBalance entry for given `tokenAddress` doesn't exist yet
+    if (!Object.keys(state).includes(tokenAddress)) {
+      balances = [];
+      for (const addr of Object.keys(increments)) {
+        balances.push({
+          to: addr,
+          amount: Zero
+        });
+      }
+      state[tokenAddress] = balances;
+    } else {
+      balances = state[tokenAddress];
+    }
+
+    const updatedCoinBucketBalances = merge(balances, increments);
+    state[tokenAddress] = updatedCoinBucketBalances;
+
+    const newState = (convertFreeBalanceStateToPlainObject(
+      state
+    ) as unknown) as SolidityABIEncoderV2Type;
+    return this.setFreeBalance(newState);
   }
 
-  public setFreeBalance(
-    newCoinBucketBalances: CoinBucketBalances,
-    tokenAddress: string = AddressZero
-  ) {
-    const encodedCoinBucketBalances = [] as CoinBucketBalance[];
-
-    for (const balance of Object.entries(newCoinBucketBalances)) {
-      encodedCoinBucketBalances.push({
-        to: balance[0],
-        amount: {
-          _hex: balance[1].toHexString()
-        }
-      });
-    }
-    this.freeBalance.state[tokenAddress] = encodedCoinBucketBalances;
-
+  public setFreeBalance(state: SolidityABIEncoderV2Type) {
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       this.appInstances,
       this.twoPartyVirtualEthAsLumpInstances,
-      this.freeBalance.setState(this.freeBalance.state),
+      this.freeBalance.setState(state),
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
@@ -361,7 +362,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps + 1,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(flip(decrements));
+    ).incrementFreeBalance(flip(decrements), ETH_TOKEN_ADDRESS);
   }
 
   public uninstallTwoPartyVirtualEthAsLumpInstance(
@@ -388,7 +389,7 @@ export class StateChannel {
       this.monotonicNumInstalledApps,
       this.rootNonceValue,
       this.createdAt
-    ).incrementFreeBalance(increments);
+    ).incrementFreeBalance(increments, ETH_TOKEN_ADDRESS);
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -446,14 +447,15 @@ export class StateChannel {
       this.createdAt
     );
 
-    // FIXME: this needs to be more robust
-    // Any app could have `token` as part of its state
-    const tokenAddress = appInstance.state["token"];
-    if (tokenAddress) {
-      return channel.incrementFreeBalance(flip(decrements), tokenAddress);
+    let tokenAddress = AddressZero;
+    if (
+      appInstance.outcomeType === OutcomeType.COIN_TRANSFER &&
+      appInstance.coinTransferInterpreterParams!.token !== undefined &&
+      appInstance.coinTransferInterpreterParams!.token !== ETH_TOKEN_ADDRESS
+    ) {
+      tokenAddress = appInstance.coinTransferInterpreterParams!.token;
     }
-
-    return channel.incrementFreeBalance(flip(decrements));
+    return channel.incrementFreeBalance(flip(decrements), tokenAddress);
   }
 
   public uninstallApp(
@@ -461,7 +463,6 @@ export class StateChannel {
     increments: { [s: string]: BigNumber }
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
-    const tokenAddress = appToBeUninstalled.state["token"];
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
       throw Error(
@@ -492,10 +493,16 @@ export class StateChannel {
       this.createdAt
     );
 
-    if (tokenAddress) {
-      return channel.incrementFreeBalance(increments, tokenAddress);
+    let tokenAddress = ETH_TOKEN_ADDRESS;
+    if (
+      appToBeUninstalled.outcomeType === OutcomeType.COIN_TRANSFER &&
+      appToBeUninstalled.coinTransferInterpreterParams!.token !==
+        ETH_TOKEN_ADDRESS
+    ) {
+      tokenAddress = appToBeUninstalled.coinTransferInterpreterParams!.token;
     }
-    return channel.incrementFreeBalance(increments);
+
+    return channel.incrementFreeBalance(increments, tokenAddress);
   }
 
   public getTwoPartyVirtualEthAsLumpFromTarget(
@@ -520,7 +527,7 @@ export class StateChannel {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
         }
       ),
-      freeBalanceAppInstance: !!this.freeBalanceAppInstance
+      freeBalanceAppInstance: this.freeBalanceAppInstance
         ? this.freeBalanceAppInstance.toJson()
         : // Note that this FreeBalance is undefined because a channel technically
           // does not have a FreeBalance before the `setup` protocol gets run

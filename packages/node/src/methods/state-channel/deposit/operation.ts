@@ -8,30 +8,20 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero, AddressZero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,
   TransactionResponse
 } from "ethers/providers";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { bigNumberify } from "ethers/utils";
 
 import { InstallParams, xkeyKthAddress } from "../../../machine";
-import { StateChannel } from "../../../models";
+import { ETH_TOKEN_ADDRESS, StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
-
-export interface ETHBalanceRefundAppState {
-  recipient: string;
-  multisig: string;
-  threshold: BigNumber;
-}
-
-export interface ERC20BalanceRefundAppState extends ETHBalanceRefundAppState {
-  token: string;
-}
 
 interface DepositContext {
   initialState: SolidityABIEncoderV2Type;
@@ -62,11 +52,14 @@ export async function installBalanceRefundApp(
     [multisigAddress, stateChannel]
   ]);
 
+  const tokenAddress = params.tokenAddress ? params.tokenAddress : AddressZero;
+
   const depositContext = await getDepositContext(
     params,
     publicIdentifier,
     provider,
-    networkContext
+    networkContext,
+    tokenAddress
   );
 
   stateChannel = channelsMap.get(multisigAddress)!;
@@ -82,7 +75,8 @@ export async function installBalanceRefundApp(
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: OutcomeType.COIN_TRANSFER
+    outcomeType: OutcomeType.COIN_TRANSFER,
+    token: tokenAddress
   };
 
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
@@ -199,20 +193,22 @@ async function getDepositContext(
   params: Node.DepositParams,
   publicIdentifier: string,
   provider: BaseProvider,
-  networkContext: NetworkContext
+  networkContext: NetworkContext,
+  tokenAddress: string
 ): Promise<DepositContext> {
   const { multisigAddress } = params;
-  const tokenAddress = params.tokenAddress ? params.tokenAddress : AddressZero;
-  let threshold = await provider.getBalance(multisigAddress);
-
-  if (tokenAddress !== AddressZero) {
-    const tokenContract = new Contract(tokenAddress!, ERC20.abi, provider);
-    threshold = await tokenContract.functions.balanceOf(multisigAddress);
-  }
+  const threshold =
+    tokenAddress === AddressZero
+      ? await provider.getBalance(multisigAddress)
+      : await new Contract(
+          tokenAddress!,
+          ERC20.abi,
+          provider
+        ).functions.balanceOf(multisigAddress);
 
   const initialState = {
-    tokenAddress,
     threshold,
+    token: tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
   };

@@ -8,7 +8,8 @@ import "../libs/LibOutcome.sol";
 contract CoinBucket is CounterfactualApp {
 
   struct AppState {
-    LibOutcome.CoinTransfer[] balances;
+    address[] tokens;
+    LibOutcome.CoinTransfer[][] balances;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -16,7 +17,7 @@ contract CoinBucket is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(abi.decode(encodedState, (AppState)).balances);
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return abi.encode(state.tokens, state.balances);
   }
-
 }

@@ -104,7 +104,8 @@ async function proposeStateTransition(
     appInterface,
     defaultTimeout,
     multisigAddress,
-    outcomeType
+    outcomeType,
+    token
   } = params as InstallParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
@@ -120,6 +121,7 @@ async function proposeStateTransition(
         // Derived from:
         // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
         limit: BigNumber;
+        token: string;
       }
     | undefined;
 
@@ -135,6 +137,7 @@ async function proposeStateTransition(
   switch (outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
       coinTransferInterpreterParams = {
+        token,
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )

@@ -14,7 +14,11 @@ import {
 
 import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
-import { AppInstance, StateChannel } from "../../../src/models";
+import {
+  AppInstance,
+  ETH_TOKEN_ADDRESS,
+  StateChannel
+} from "../../../src/models";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -109,7 +113,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         OutcomeType.COIN_TRANSFER,
         undefined,
         {
-          limit: Zero
+          limit: Zero,
+          token: ETH_TOKEN_ADDRESS
         }
       );
 

@@ -20,7 +20,7 @@ import {
   WithdrawParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { AppInstance, FreeBalanceState, StateChannel } from "../models";
+import { AppInstance, StateChannel } from "../models";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -167,7 +167,8 @@ function addInstallRefundAppCommitmentToContext(
     recipient,
     amount,
     multisigAddress,
-    initiatingXpub
+    initiatingXpub,
+    tokenAddress
   } = params as WithdrawParams;
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
@@ -193,7 +194,7 @@ function addInstallRefundAppCommitmentToContext(
     1008,
     OutcomeType.COIN_TRANSFER,
     undefined,
-    { limit: MaxUint256 }
+    { limit: MaxUint256, token: tokenAddress }
   );
 
   const newStateChannel = stateChannel.installApp(refundAppInstance, {
@@ -236,7 +237,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as FreeBalanceState,
+    freeBalance.state,
     freeBalance.nonce,
     freeBalance.timeout,
     freeBalance.appSeqNo

@@ -13,7 +13,7 @@ import {
 } from "../machine/types";
 import { virtualChannelKey } from "../machine/virtual-app-key";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { FreeBalanceState, StateChannel } from "../models";
+import { StateChannel } from "../models";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -306,7 +306,7 @@ function constructUninstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as FreeBalanceState,
+    freeBalance.state,
     freeBalance.nonce,
     freeBalance.timeout,
     seqNoToUninstall

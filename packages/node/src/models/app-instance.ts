@@ -48,6 +48,7 @@ export type AppInstanceJson = {
     // Derived from:
     // packages/contracts/contracts/interpreters/CoinInterpreter.sol#L18
     limit: { _hex: string };
+    token: string;
   };
 };
 
@@ -125,7 +126,8 @@ export class AppInstance {
         ? {
             limit: {
               _hex: coinTransferInterpreterParams.limit.toHexString()
-            }
+            },
+            token: coinTransferInterpreterParams.token
           }
         : undefined
     };
@@ -163,7 +165,8 @@ export class AppInstance {
         : undefined,
       json.coinTransferInterpreterParams
         ? {
-            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
+            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex),
+            token: json.coinTransferInterpreterParams.token
           }
         : undefined
     );
@@ -245,7 +248,8 @@ export class AppInstance {
       ? {
           limit: bigNumberify(
             this.json.coinTransferInterpreterParams.limit._hex
-          )
+          ),
+          token: this.json.coinTransferInterpreterParams.token
         }
       : undefined;
   }

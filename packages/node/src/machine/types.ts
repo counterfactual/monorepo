@@ -69,6 +69,7 @@ export type WithdrawParams = {
   multisigAddress: string;
   recipient: string;
   amount: BigNumber;
+  tokenAddress: string;
 };
 
 export type InstallParams = {
@@ -82,6 +83,7 @@ export type InstallParams = {
   appInterface: AppInterface;
   defaultTimeout: number;
   outcomeType: OutcomeType;
+  token: string;
 };
 
 export type UninstallParams = {
