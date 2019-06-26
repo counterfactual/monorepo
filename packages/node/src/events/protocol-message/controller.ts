@@ -63,7 +63,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
+        router.emit(uninstallMsg.type, { result: uninstallMsg }, "outgoing");
       } else if (protocol === Protocol.Withdraw) {
         const withdrawMsg: WithdrawMessage = {
           from: publicIdentifier,
@@ -73,7 +73,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(withdrawMsg.type, withdrawMsg, "outgoing");
+        router.emit(withdrawMsg.type, { result: withdrawMsg }, "outgoing");
       } else if (protocol === Protocol.Setup) {
         const { multisigAddress, initiatingXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
@@ -87,7 +87,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(setupMsg.type, setupMsg, "outgoing");
+        router.emit(setupMsg.type, { result: setupMsg }, "outgoing");
       } else if (protocol === Protocol.TakeAction) {
         const { multisigAddress, appIdentityHash } = params as TakeActionParams;
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
@@ -101,7 +101,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(takeActionMsg.type, takeActionMsg, "outgoing");
+        router.emit(takeActionMsg.type, { result: takeActionMsg }, "outgoing");
       }
     });
 }
