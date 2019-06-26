@@ -13,11 +13,11 @@ import { Signature, SigningKey } from "ethers/utils";
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet

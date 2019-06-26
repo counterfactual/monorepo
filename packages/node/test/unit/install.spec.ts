@@ -17,9 +17,9 @@ import {
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import {
+  convertCoinBucketToMap,
   convertFreeBalanceStateFromPlainObject,
-  PlainFreeBalanceState,
-  convertCoinBucketToMap
+  PlainFreeBalanceState
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";

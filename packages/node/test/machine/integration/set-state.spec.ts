@@ -9,11 +9,11 @@ import { AddressZero, WeiPerEther } from "ethers/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet

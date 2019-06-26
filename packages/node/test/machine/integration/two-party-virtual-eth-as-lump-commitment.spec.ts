@@ -16,11 +16,11 @@ import { SetStateCommitment } from "../../../src/ethereum";
 import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { convertFreeBalanceStateToPlainObject } from "../../../src/models/free-balance";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes

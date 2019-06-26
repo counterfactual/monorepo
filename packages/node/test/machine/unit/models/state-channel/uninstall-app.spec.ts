@@ -1,16 +1,16 @@
-import { Zero, AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { createAppInstance } from "../../../../unit/utils";
-import { generateRandomNetworkContext } from "../../../mocks";
 import {
   convertCoinBucketToMap,
   convertFreeBalanceStateFromPlainObject,
   PlainFreeBalanceState
 } from "../../../../../src/models/free-balance";
+import { createAppInstance } from "../../../../unit/utils";
+import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
   const networkContext = generateRandomNetworkContext();
