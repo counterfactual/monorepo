@@ -28,7 +28,6 @@ class NodeEnvironment extends NodeJSEnvironment {
       ETHBalanceRefundApp: AddressZero,
       ETHBucket: AddressZero,
       MultiSend: AddressZero,
-      RootNonceRegistry: AddressZero,
       UninstallKeyRegistry: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
       TwoPartyVirtualEthAsLump: AddressZero,

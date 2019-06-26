@@ -119,7 +119,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedAppInterface,
       isVirtualApp,
       isVirtualApp ? 1337 : stateChannel.numInstalledApps,
-      stateChannel.rootNonceValue,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),

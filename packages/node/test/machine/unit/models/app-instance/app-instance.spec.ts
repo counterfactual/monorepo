@@ -22,7 +22,6 @@ describe("AppInstance", () => {
       },
       false,
       Math.ceil(Math.random() * 2e10),
-      0,
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
       999, // <------ versionNumber
       Math.ceil(1000 * Math.random()),

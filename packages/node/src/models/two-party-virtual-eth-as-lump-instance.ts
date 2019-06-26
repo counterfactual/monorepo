@@ -3,7 +3,6 @@ import { BigNumber, getAddress, keccak256, solidityPack } from "ethers/utils";
 export type TwoPartyVirtualEthAsLumpInstanceJson = {
   multisigAddress: string;
   appSeqNo: number;
-  rootNonceValue: number;
   expiry: number;
   capitalProvided: BigNumber;
   targetAppIdentityHash: string;
@@ -17,7 +16,6 @@ export class TwoPartyVirtualEthAsLumpInstance {
   constructor(
     public multisigAddress: string,
     public appSeqNo: number,
-    public rootNonceValue: number,
     public expiry: number,
     public capitalProvided: BigNumber,
     public targetAppIdentityHash: string,
@@ -27,7 +25,6 @@ export class TwoPartyVirtualEthAsLumpInstance {
     this.json = {
       multisigAddress,
       appSeqNo,
-      rootNonceValue,
       expiry,
       capitalProvided,
       targetAppIdentityHash,
@@ -45,7 +42,6 @@ export class TwoPartyVirtualEthAsLumpInstance {
     return new TwoPartyVirtualEthAsLumpInstance(
       json.multisigAddress,
       json.appSeqNo,
-      json.rootNonceValue,
       json.expiry,
       json.capitalProvided,
       json.targetAppIdentityHash,

@@ -63,7 +63,6 @@ export function createAppInstance(stateChannel?: StateChannel) {
     /* appSeqNo */ stateChannel
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
-    0,
     { foo: AddressZero, bar: bigNumberify(0) },
     0,
     Math.ceil(1000 * Math.random()),

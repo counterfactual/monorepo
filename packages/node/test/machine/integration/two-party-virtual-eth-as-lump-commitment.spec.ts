@@ -91,7 +91,6 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         },
         true, // virtual
         0, // app sequence number
-        0, // root nonce
         {}, // latest state
         1, // latest versionNumber
         0, // latest timeout
@@ -117,7 +116,6 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         freeBalanceETH.versionNumber, // fb versionNumber
         freeBalanceETH.timeout, // fb timeout
         0, // dependency nonce
-        0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
         beneficiaries, // beneficiaries

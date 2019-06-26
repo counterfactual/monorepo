@@ -180,7 +180,6 @@ function addInstallRefundAppCommitmentToContext(
     },
     false,
     stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
     {
       recipient,
       multisig: multisigAddress,
@@ -280,7 +279,6 @@ function constructInstallOp(
     freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue,
     network.ETHInterpreter,
     defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );
