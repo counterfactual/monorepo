@@ -7,7 +7,7 @@ import { RoutePath } from "../../../types";
 import { FormButton } from "../../form";
 import "./AccountContext.scss";
 
-type AccountContextProps = RouteComponentProps & {
+export type AccountContextProps = RouteComponentProps & {
   userState: UserState;
   counterfactualBalance: BigNumberish;
 };
@@ -24,11 +24,11 @@ type AccountUserProps = {
 
 const UnauthenticatedCommands: React.FC = () => (
   <div className="btn-container">
-    <FormButton className="btn">
+    <FormButton className="btn" data-js="btn-login">
       <img alt="" className="icon" src="/assets/icon/login.svg" />
       Login
     </FormButton>
-    <FormButton className="btn btn-alternate">
+    <FormButton className="btn btn-alternate" data-js="btn-register">
       <img alt="" className="icon" src="/assets/icon/register.svg" />
       Register
     </FormButton>
@@ -36,7 +36,7 @@ const UnauthenticatedCommands: React.FC = () => (
 );
 
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
-  <div className="info">
+  <div className="info" data-js="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
     <Link to={RoutePath.SetupDeposit}>
       <div className="info-text">
@@ -48,7 +48,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
 );
 
 const AccountUser: React.FC<AccountUserProps> = ({ username }) => (
-  <div className="info">
+  <div className="info" data-js="info-user">
     <img alt="" className="info-img" src="/assets/icon/account.svg" />
     <div className="info-text">
       <div className="info-header">Account</div>
@@ -69,7 +69,7 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
   </div>
 );
 
-class AccountContext extends React.Component<AccountContextProps> {
+export class AccountContext extends React.Component<AccountContextProps> {
   componentWillReceiveProps(props: AccountContextProps) {
     const { userState, history } = props;
 
