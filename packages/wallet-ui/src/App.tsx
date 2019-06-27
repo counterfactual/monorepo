@@ -15,16 +15,19 @@ import {
 import { EthereumService } from "./providers/EthereumService";
 import { ActionType, ApplicationState } from "./store/types";
 import { getUser } from "./store/user";
+import { connectToWallet } from "./store/wallet";
 import { RoutePath } from "./types";
 
 type AppProps = {
   getUser: (provider: Web3Provider) => void;
+  connectToWallet: () => void;
 };
 
-const App: React.FC<AppProps> = ({ getUser }) => {
+const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
   const { provider } = useContext(EthereumService);
 
   useEffect(() => {
+    connectToWallet();
     getUser(provider);
   });
 
@@ -54,6 +57,7 @@ const App: React.FC<AppProps> = ({ getUser }) => {
 export default connect(
   null,
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    getUser: (provider: Web3Provider) => dispatch(getUser(provider))
+    getUser: (provider: Web3Provider) => dispatch(getUser(provider)),
+    connectToWallet: () => dispatch(connectToWallet())
   })
 )(App);

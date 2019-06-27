@@ -1,20 +1,17 @@
-import { ThunkAction } from "redux-thunk";
-import { Action } from "redux";
-import { History } from "history";
-
-import {
-  WalletState,
-  StoreAction,
-  ApplicationState,
-  Deposit,
-  ActionType
-} from "./types";
-
-import { RoutePath } from "../types";
-import { requestDeposit, forFunds } from "../utils/counterfactual";
-
 import { Zero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
+import { History } from "history";
+import { Action } from "redux";
+import { ThunkAction } from "redux-thunk";
+import { RoutePath } from "../types";
+import { forFunds, requestDeposit } from "../utils/counterfactual";
+import {
+  ActionType,
+  ApplicationState,
+  Deposit,
+  StoreAction,
+  WalletState
+} from "./types";
 
 const { ethereum } = window;
 const initialState = {
@@ -24,15 +21,14 @@ const initialState = {
   ethereumBalance: Zero
 } as WalletState;
 
-export const connectToWallet = (
-  history: History
-): ThunkAction<
+export const connectToWallet = (): ThunkAction<
   void,
   ApplicationState,
   null,
   Action<ActionType>
 > => async dispatch => {
   try {
+    console.log("persilogs", "hello, it's me");
     await ethereum.enable();
 
     dispatch({
@@ -41,8 +37,6 @@ export const connectToWallet = (
       } as WalletState,
       type: ActionType.WalletSetAddress
     });
-
-    history.push(RoutePath.SetupRegister);
   } catch (e) {
     dispatch({
       data: {

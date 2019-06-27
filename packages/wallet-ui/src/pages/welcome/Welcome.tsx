@@ -1,21 +1,10 @@
 import React from "react";
-import { connect } from "react-redux";
-import { ThunkDispatch } from "redux-thunk";
-import { Action } from "redux";
 import { RouteComponentProps } from "react-router-dom";
-import { History } from "history";
-
 import { FormButton } from "../../components/form";
-import { connectToWallet } from "../../store/wallet";
-import { ApplicationState, ActionType } from "../../store/types";
-
+import { RoutePath } from "../../types";
 import "./Welcome.scss";
 
-type WelcomeProps = RouteComponentProps & {
-  connectToWallet: (history: History) => void;
-};
-
-const Welcome: React.FC<WelcomeProps> = ({ connectToWallet, history }) => {
+const Welcome: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <section className="section fill">
       <h1 className="f-heading centered">
@@ -48,19 +37,11 @@ const Welcome: React.FC<WelcomeProps> = ({ connectToWallet, history }) => {
           for more.
         </p>
       </div>
-      <FormButton onClick={() => connectToWallet(history)}>
+      <FormButton onClick={() => history.push(RoutePath.SetupRegister)}>
         Setup Counterfactual
       </FormButton>
     </section>
   );
 };
 
-export default connect(
-  (state: ApplicationState) => ({
-    wallet: state.WalletState
-  }),
-  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    connectToWallet: (history: History<any>) =>
-      dispatch(connectToWallet(history))
-  })
-)(Welcome);
+export default Welcome;
