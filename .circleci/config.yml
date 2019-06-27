@@ -98,7 +98,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run:
-          name: Run Playground Server tests
+          name: Run Simple Hub Server tests
           command: cd packages/simple-hub-server && yarn test:ci
       - run:
           name: Run High Roller tests
