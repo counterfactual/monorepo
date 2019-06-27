@@ -17,13 +17,14 @@ import {
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;
 
-  @jsonRpcMethod("chan_deposit")
+  @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Queue[]> {
+    console.log("sharded?");
     return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
 
@@ -65,13 +66,15 @@ export default class DepositController extends NodeController {
       outgoing
     } = requestHandler;
     const { multisigAddress } = params;
-
+    console.log("await installBalanceRefundApp(requestHandler, params);");
     await installBalanceRefundApp(requestHandler, params);
-
+    console.log(
+      "const depositSucceeded = await makeDeposit(requestHandler, params);"
+    );
     const depositSucceeded = await makeDeposit(requestHandler, params);
-
+    console.log("await uninstallBalanceRefundApp(requestHandler, params);");
     await uninstallBalanceRefundApp(requestHandler, params);
-
+    console.log("if (depositSucceeded) {");
     if (depositSucceeded) {
       if (params.notifyCounterparty) {
         const [peerAddress] = await getPeersAddressFromChannel(

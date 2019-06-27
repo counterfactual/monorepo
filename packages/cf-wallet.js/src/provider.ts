@@ -30,7 +30,7 @@ export const jsonRpcMethodNames = {
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
-export const NODE_REQUEST_TIMEOUT = 20000;
+export const NODE_REQUEST_TIMEOUT = 30000;
 
 /**
  * Provides convenience methods for interacting with a Counterfactual node
@@ -267,6 +267,7 @@ export class Provider {
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
+
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       const request = jsonRpcDeserialize({
         params,
@@ -300,6 +301,7 @@ export class Provider {
             )
           );
         }
+
         if (response.result.type !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(
@@ -316,6 +318,7 @@ export class Provider {
             )
           );
         }
+
         resolve(response.result);
       };
 
