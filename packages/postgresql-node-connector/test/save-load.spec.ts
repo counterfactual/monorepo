@@ -25,6 +25,10 @@ describe("Postgres store service implementation behavior adheres to interface", 
   afterAll(async () => {
     if (postgresService.reset !== undefined) {
       await postgresService.reset();
+    } else {
+      throw new Error(
+        "Test suite must define reset() method on a StoreService"
+      );
     }
   });
 
