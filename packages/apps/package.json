@@ -29,17 +29,17 @@
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.0.12",
-    "ethers": "4.0.29",
+    "ethers": "4.0.31",
     "ethlint": "1.2.4",
     "mocha": "6.1.4",
-    "solc": "0.5.9",
+    "solc": "0.5.10",
     "truffle": "5.0.21",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.10",
     "ts-mocha": "6.0.0",
-    "tslint": "5.17.0"
+    "tslint": "5.18.0"
   },
   "resolutions": {
-    "ethereum-waffle/solc": "0.5.9"
+    "ethereum-waffle/solc": "0.5.10"
   }
 }

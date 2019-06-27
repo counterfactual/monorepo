@@ -35,14 +35,14 @@
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/node": "0.2.8",
     "@counterfactual/types": "0.0.16",
-    "eventemitter3": "^3.1.2"
+    "eventemitter3": "^4.0.0"
   },
   "devDependencies": {
     "env-cmd": "9.0.3",
-    "ethers": "4.0.29",
+    "ethers": "4.0.31",
     "jest": "24.8.0",
     "ts-node": "8.2.0",
-    "tslint": "5.17.0",
+    "tslint": "5.18.0",
     "typescript": "3.5.1",
     "uuid": "3.3.2"
   }
