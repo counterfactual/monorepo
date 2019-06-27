@@ -16,26 +16,6 @@ Specifically, the Setup Protocol exchanges a commitment allowing a particular of
 
 Unlike other protocols, there is no extra message data for the Setup Protocol because the commitment digests are fully determined by the addresses of the participants.
 
-### The **`SetRootNonce`** Message
-
-|     Field     |           Description            |
-| ------------- | -------------------------------- |
-| `protocol`    | `"setup"`                        |
-| `fromAddress` | The address of Alice             |
-| `toAddress`   | The address of Bob               |
-| `seq`         | `1`                              |
-| `signature`   | Alice's signed commitment digest |
-
-### The **`SetRootNonceAck`** Message
-
-|     Field     |          Description           |
-| ------------- | ------------------------------ |
-| `protocol`    | `"setup"`                      |
-| `fromAddress` | The address of Alice           |
-| `toAddress`   | The address of Bob             |
-| `seq`         | `2`                            |
-| `signature`   | Bob's signed commitment digest |
-
 ### The **`Setup`** Message
 
 |     Field     |                         Description                         |
@@ -61,21 +41,6 @@ Unlike other protocols, there is no extra message data for the Setup Protocol be
 | `signature`   | Bob's signed commitment digest                              |
 
 ## Commitments
-
-**Commitment for `SetRootNonce` and `SetRootNonceAck`**:
-
-The commitments that these two messages rely on have the following parameters:
-
-|       Parameter        |   Type    |                           Description                           |
-| ---------------------- | --------- | --------------------------------------------------------------- |
-| **`rootNonceTimeout`** | `uint256` | Relative timeout in blocks after which the root nonce finalizes |
-| **`rootNonceSalt`**    | `bytes32` | Arbitrary value to facilitate uniqueness of the root nonce      |
-
-The commitment can be visually represented like:
-
-```eval_rst
-.. mermaid:: ../diagrams/set-root-nonce-commitment.mmd
-```
 
 **Commitment for `Setup` and `SetupAck`**:
 

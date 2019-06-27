@@ -20,7 +20,6 @@ export class InstallCommitment extends MultiSendCommitment {
     public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
-    public readonly rootNonceValue: number,
     public readonly interpreterAddr: string,
     public readonly interpreterParams: string
   ) {
@@ -67,10 +66,8 @@ export class InstallCommitment extends MultiSendCommitment {
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         /* appRegistry */ this.networkContext.ChallengeRegistry,
-        /* rootNonceRegistry */ this.networkContext.RootNonceRegistry,
         /* uninstallKeyRegistry */ this.networkContext.UninstallKeyRegistry,
         /* uninstallKey */ uninstallKey,
-        /* rootNonceExpectedValue */ this.rootNonceValue,
         /* appIdentityHash* */ appIdentityHash,
         /* interpreterAddress */ this.interpreterAddr,
         /* interpreterParams */ this.interpreterParams

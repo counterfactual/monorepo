@@ -102,7 +102,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.appInterface, // Re-use the ETHBucket App
         false,
         stateChannel.numInstalledApps,
-        stateChannel.rootNonceValue,
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
@@ -155,7 +154,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.versionNumber,
         freeBalanceETH.timeout,
         appInstance.appSeqNo,
-        stateChannel.rootNonceValue,
         network.ETHInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],

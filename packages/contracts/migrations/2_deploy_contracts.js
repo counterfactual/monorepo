@@ -5,7 +5,6 @@ const ETHBalanceRefundApp = artifacts.require("ETHBalanceRefundApp");
 const ETHBucket = artifacts.require("ETHBucket");
 const MinimumViableMultisig = artifacts.require("MinimumViableMultisig");
 const MultiSend = artifacts.require("MultiSend");
-const RootNonceRegistry = artifacts.require("RootNonceRegistry");
 const UninstallKeyRegistry = artifacts.require("UninstallKeyRegistry");
 const ProxyFactory = artifacts.require("ProxyFactory");
 const ConditionalTransactionDelegateTarget = artifacts.require("ConditionalTransactionDelegateTarget");
@@ -19,7 +18,6 @@ const ARTIFACTS = [
   ETHBucket,
   MinimumViableMultisig,
   MultiSend,
-  RootNonceRegistry,
   UninstallKeyRegistry,
   ProxyFactory,
   ConditionalTransactionDelegateTarget,

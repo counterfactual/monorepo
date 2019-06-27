@@ -29,20 +29,19 @@ describe("Virtual App Set State Commitment", () => {
   const networkContext = generateRandomNetworkContext();
 
   const appInstance = new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
+    /* multisigAddress */ getAddress(hexlify(randomBytes(20))),
+    /* signingKeys */ [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ],
-    Math.ceil(1000 * Math.random()),
-    {
+    /* defaultTimeout */ Math.ceil(1000 * Math.random()),
+    /* appInterface */ {
       addr: getAddress(hexlify(randomBytes(20))),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    false,
-    Math.ceil(1000 * Math.random()),
-    0,
+    /* isVirtualApp */ false,
+    /* appSeqNo */ Math.ceil(1000 * Math.random()),
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random()),

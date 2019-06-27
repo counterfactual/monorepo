@@ -30,12 +30,8 @@ export class SetupCommitment extends MultisigCommitment {
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.ChallengeRegistry,
-        this.networkContext.RootNonceRegistry,
         this.networkContext.UninstallKeyRegistry,
         this.getUninstallKeyForUninstallKeyRegistry(),
-        // NOTE: We *assume* here that the root nonce value will be 0
-        //       when creating the setup commitment
-        0,
         appIdentityToHash(this.freeBalanceAppIdentity),
         this.networkContext.ETHInterpreter,
         defaultAbiCoder.encode(["uint256"], [MaxUint256])

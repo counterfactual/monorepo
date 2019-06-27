@@ -174,7 +174,6 @@ async function proposeStateTransition(
     /* appInterface */ appInterface,
     /* isVirtualApp */ false,
     /* appSeqNo */ stateChannel.numInstalledApps,
-    /* rootNonceValue */ stateChannel.rootNonceValue,
     /* latestState */ initialState,
     /* latestversionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
@@ -223,7 +222,6 @@ function constructInstallOp(
     freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue,
     interpreterAddress,
     interpreterParams
   );
