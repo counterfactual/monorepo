@@ -4,10 +4,10 @@ pragma experimental "ABIEncoderV2";
 import "../interfaces/CounterfactualApp.sol";
 
 
-/// @title MAppCaller
+/// @title LibAppCaller
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice A mixin for the ChallengeRegistry to make staticcalls to Apps
-contract MAppCaller {
+/// @notice A library for the ChallengeRegistry to make staticcalls to Apps
+contract LibAppCaller {
 
   /// @notice A helper method to check if the state of an application is terminal or not
   /// @param appDefinition An address of an app definition to call

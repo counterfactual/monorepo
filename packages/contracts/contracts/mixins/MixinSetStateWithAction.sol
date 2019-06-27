@@ -3,16 +3,15 @@ pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
-
 
 contract MixinSetStateWithAction is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   struct SignedAppChallengeUpdateWithAppState {
@@ -73,7 +72,7 @@ contract MixinSetStateWithAction is
       "setStateWithAction called with action signed by incorrect turn taker"
     );
 
-    bytes memory newState = MAppCaller.applyAction(
+    bytes memory newState = LibAppCaller.applyAction(
       appIdentity.appDefinition,
       req.appState,
       action.encodedAction
@@ -81,7 +80,7 @@ contract MixinSetStateWithAction is
 
     if (action.checkForTerminal) {
       require(
-        MAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
+        LibAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
@@ -125,7 +124,7 @@ contract MixinSetStateWithAction is
     pure
     returns (bool)
   {
-    address turnTaker = MAppCaller.getTurnTaker(
+    address turnTaker = LibAppCaller.getTurnTaker(
       appDefinition,
       signingKeys,
       req.appState
