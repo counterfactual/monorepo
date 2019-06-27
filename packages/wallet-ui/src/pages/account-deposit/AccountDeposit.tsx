@@ -36,7 +36,7 @@ type AccountDepositProps = RouteComponentProps & {
   initialAmount: number;
 };
 
-type AccountDepositState = Deposit;
+type AccountDepositState = Deposit & { loading: boolean };
 
 class AccountDeposit extends React.Component<
   AccountDepositProps,
@@ -56,7 +56,8 @@ class AccountDeposit extends React.Component<
       nodeAddress,
       ethAddress,
       amount: parseEther(String(initialAmount || 0.1)),
-      multisigAddress: multisigAddress as string
+      multisigAddress: multisigAddress as string,
+      loading: false
     };
   }
 
@@ -71,7 +72,7 @@ class AccountDeposit extends React.Component<
     const { walletState, deposit, history } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error } = walletState;
-    const { amount } = this.state;
+    const { amount, loading } = this.state;
 
     return (
       <WidgetScreen header={"Fund your account"} exitable={false}>
@@ -95,7 +96,11 @@ class AccountDeposit extends React.Component<
           <FormButton
             type="button"
             className="button"
-            onClick={() => deposit(this.state, provider, history)}
+            spinner={loading}
+            onClick={() => {
+              this.setState({ loading: true });
+              deposit(this.state, provider, history);
+            }}
           >
             Proceed
           </FormButton>

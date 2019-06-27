@@ -32,10 +32,10 @@ const AlreadyHaveAnAccount: React.FC = () => (
     Already have an account? <Link to="/login">Login here</Link>
   </React.Fragment>
 );
-
+type AccountRegistrationState = User & { loading: boolean };
 class AccountRegistration extends React.Component<
   AccountRegistrationProps,
-  User
+  AccountRegistrationState
 > {
   static contextType = EthereumService;
   context!: React.ContextType<typeof EthereumService>;
@@ -47,7 +47,8 @@ class AccountRegistration extends React.Component<
       username: "",
       email: "",
       ethAddress: props.wallet.ethAddress,
-      nodeAddress: ""
+      nodeAddress: "",
+      loading: false
     };
   }
 
@@ -57,6 +58,7 @@ class AccountRegistration extends React.Component<
 
   render() {
     const { wallet, addUser, user, history } = this.props;
+    const { loading } = this.state;
     const { signer } = this.context;
     const { error } = user;
 
@@ -96,7 +98,11 @@ class AccountRegistration extends React.Component<
           <FormButton
             type="button"
             className="button"
-            onClick={() => addUser(this.state, signer, history)}
+            spinner={loading}
+            onClick={() => {
+              this.setState({ loading: true });
+              addUser(this.state, signer, history);
+            }}
           >
             Create account
           </FormButton>

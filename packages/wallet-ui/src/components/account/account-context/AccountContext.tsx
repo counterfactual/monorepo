@@ -1,24 +1,15 @@
+import { BigNumberish, formatEther } from "ethers/utils";
 import React from "react";
-import { Action } from "redux";
 import { connect } from "react-redux";
-import { ThunkDispatch } from "redux-thunk";
-import { RouteComponentProps, Link } from "react-router-dom";
-
-import { FormButton } from "../../form";
-import { getUser } from "../../../store/user";
-import { ApplicationState, ActionType, UserState } from "../../../store/types";
+import { Link, RouteComponentProps } from "react-router-dom";
+import { ApplicationState, UserState } from "../../../store/types";
 import { RoutePath } from "../../../types";
-
+import { FormButton } from "../../form";
 import "./AccountContext.scss";
-import { formatEther, BigNumberish } from "ethers/utils";
-import log from "../../../utils/log";
-import { Web3Provider } from "ethers/providers";
-import { EthereumService } from "../../../providers/EthereumService";
 
 type AccountContextProps = RouteComponentProps & {
   userState: UserState;
   counterfactualBalance: BigNumberish;
-  getUser: (provider: Web3Provider) => void;
 };
 
 type AccountInformationProps = AccountBalanceProps & AccountUserProps;
@@ -79,16 +70,6 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
 );
 
 class AccountContext extends React.Component<AccountContextProps> {
-  static contextType = EthereumService;
-  context!: React.ContextType<typeof EthereumService>;
-
-  componentDidMount() {
-    const { getUser } = this.props;
-    const { provider } = this.context;
-
-    getUser(provider);
-  }
-
   componentWillReceiveProps(props: AccountContextProps) {
     const { userState, history } = props;
 
@@ -105,9 +86,6 @@ class AccountContext extends React.Component<AccountContextProps> {
   render() {
     const { user } = this.props.userState;
     const { counterfactualBalance } = this.props;
-
-    log("AccountContext", this.props);
-
     return (
       <div className="account-context">
         {!user.id ? (
@@ -123,12 +101,7 @@ class AccountContext extends React.Component<AccountContextProps> {
   }
 }
 
-export default connect(
-  (state: ApplicationState) => ({
-    userState: state.UserState,
-    counterfactualBalance: state.WalletState.counterfactualBalance
-  }),
-  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    getUser: (provider: Web3Provider) => dispatch(getUser(provider))
-  })
-)(AccountContext);
+export default connect((state: ApplicationState) => ({
+  userState: state.UserState,
+  counterfactualBalance: state.WalletState.counterfactualBalance
+}))(AccountContext);

@@ -29,7 +29,7 @@ const FormButton: React.FC<FormButtonProps> = ({
       className={className}
       type={type}
     >
-      {spinner ? <WidgetSpinner /> : null}
+      <WidgetSpinner visible={spinner} color="white" />
       {children}
     </button>
   );

@@ -26,10 +26,10 @@ export async function getNodeAddress(): Promise<string> {
 export async function getUserFromStoredToken(): Promise<{
   balance: string;
   user: User;
-} | void> {
+}> {
   const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
-  return data.result || null;
+  return data.result || {};
 }
 
 export async function storeTokenFromUser({ token }: User): Promise<void> {
