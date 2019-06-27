@@ -27,7 +27,6 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   isVirtualApp: boolean;
   appSeqNo: number;
-  rootNonceValue: number;
   latestState: SolidityABIEncoderV2Type;
   latestversionNumber: number;
   latestTimeout: number;
@@ -91,7 +90,6 @@ export class AppInstance {
     appInterface: AppInterface,
     isVirtualApp: boolean,
     appSeqNo: number,
-    rootNonceValue: number,
     latestState: any,
     latestversionNumber: number,
     latestTimeout: number,
@@ -105,7 +103,6 @@ export class AppInstance {
       appInterface,
       isVirtualApp,
       appSeqNo,
-      rootNonceValue,
       latestState,
       latestversionNumber,
       latestTimeout,
@@ -144,7 +141,6 @@ export class AppInstance {
       json.appInterface,
       json.isVirtualApp,
       json.appSeqNo,
-      json.rootNonceValue,
       latestState,
       json.latestversionNumber,
       json.latestTimeout,
@@ -282,10 +278,6 @@ export class AppInstance {
 
   public get isVirtualApp() {
     return this.json.isVirtualApp;
-  }
-
-  public get rootNonceValue() {
-    return this.json.rootNonceValue;
   }
 
   public lockState(versionNumber: number) {
