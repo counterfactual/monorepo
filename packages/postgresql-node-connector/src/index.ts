@@ -80,6 +80,11 @@ export class PostgresStoreService implements Node.IStoreService {
     private readonly storeServiceKey: string
   ) {}
 
+  async reset() {
+    const connection = this.connectionMgr.get();
+    await connection.dropDatabase();
+  }
+
   async set(
     pairs: { key: string; value: any }[],
     allowDelete?: Boolean

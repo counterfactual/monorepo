@@ -184,7 +184,6 @@ function addInstallRefundAppCommitmentToContext(
     },
     false,
     stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
     {
       recipient,
       multisig: multisigAddress,
@@ -285,8 +284,15 @@ function constructInstallOp(
     freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue,
     network.CoinInterpreter,
-    defaultAbiCoder.encode(["uint256"], [MaxUint256])
+    defaultAbiCoder.encode(
+      ["tuple(uint256 limit, address token)"],
+      [
+        {
+          limit: MaxUint256,
+          token: app.coinTransferInterpreterParams!.token
+        }
+      ]
+    )
   );
 }

@@ -47,10 +47,10 @@ export namespace Node {
     reset?(): Promise<void>;
   }
 
+  // todo(xuanji): what is this
   export type NetworkContext = {
     // Protocol
     MultiSend: string;
-    RootNonceRegistry: string;
     UninstallKeyRegistry: string;
     ChallengeRegistry: string;
     // App-specific

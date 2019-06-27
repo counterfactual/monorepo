@@ -67,7 +67,6 @@ describe("ETH Virtual App Agreement Commitment", () => {
       freeBalance.versionNumber,
       freeBalance.timeout,
       stateChannel.numInstalledApps + 1,
-      stateChannel.rootNonceValue,
       bigNumberify(5_000_000),
       bigNumberify(100),
       beneficiaries,

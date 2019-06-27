@@ -22,8 +22,6 @@ import {
 export const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 172800,
   freeBalanceInitialStateTimeout: 172800,
-  // We assume the Free Balance is installed when the Root Nonce value is 0
-  rootNonceValueAtFreeBalanceInstall: 0,
   // We assume the Free Balance is the first app ever installed
   appSequenceNumberForFreeBalance: 0
 };
@@ -58,9 +56,9 @@ export type StateChannelJSON = {
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumInstalledApps: number;
-  readonly rootNonceValue: number;
   readonly createdAt: number;
 };
+
 export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
@@ -75,7 +73,6 @@ export class StateChannel {
     > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
     private readonly freeBalanceAppInstance?: AppInstance,
     private readonly monotonicNumInstalledApps: number = 0,
-    public readonly rootNonceValue: number = 0,
     public readonly createdAt: number = Date.now()
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
@@ -223,7 +220,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalance.setState(state),
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     );
   }
@@ -286,7 +282,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
-      this.rootNonceValue,
       this.createdAt
     );
   }
@@ -310,7 +305,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     );
   }
@@ -334,7 +328,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     );
   }
@@ -359,7 +352,6 @@ export class StateChannel {
       evaaInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
-      this.rootNonceValue,
       this.createdAt
     ).incrementFreeBalance(flip(decrements), AddressZero);
   }
@@ -386,7 +378,6 @@ export class StateChannel {
       twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     ).incrementFreeBalance(increments, AddressZero);
   }
@@ -405,7 +396,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     );
   }
@@ -442,7 +432,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
-      this.rootNonceValue,
       this.createdAt
     );
 
@@ -488,7 +477,6 @@ export class StateChannel {
       this.twoPartyVirtualEthAsLumpInstances,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
-      this.rootNonceValue,
       this.createdAt
     );
 
@@ -538,7 +526,6 @@ export class StateChannel {
           return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
         }
       ),
-      rootNonceValue: this.rootNonceValue,
       createdAt: this.createdAt
     };
   }
@@ -571,7 +558,6 @@ export class StateChannel {
         ? AppInstance.fromJson(json.freeBalanceAppInstance)
         : undefined,
       json.monotonicNumInstalledApps,
-      json.rootNonceValue,
       json.createdAt
     );
   }

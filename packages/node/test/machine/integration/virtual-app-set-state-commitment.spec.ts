@@ -85,17 +85,16 @@ beforeEach(() => {
   const freeBalanceETH = stateChannel.freeBalance;
 
   targetAppInstance = new AppInstance(
-    AddressZero,
-    stateChannel.multisigOwners,
-    10,
-    freeBalanceETH.appInterface,
-    true,
-    5,
-    0,
-    freeBalanceETH.toJson().latestState,
-    freeBalanceETH.toJson().latestversionNumber,
-    freeBalanceETH.timeout,
-    OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+    /* multisigAddress */ AddressZero,
+    /* signingKeys */ stateChannel.multisigOwners,
+    /* defautTimeout */ 10,
+    /* appInterface */ freeBalanceETH.appInterface,
+    /* isVirtualApp */ true,
+    /* appSeqNo */ 5,
+    /* latestState */ freeBalanceETH.toJson().latestState,
+    /* latestVersionNumber */ freeBalanceETH.toJson().latestversionNumber,
+    /* latestTimeout */ freeBalanceETH.timeout,
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero

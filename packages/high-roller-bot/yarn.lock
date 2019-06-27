@@ -150,10 +150,10 @@
     eventemitter3 "^3.1.2"
     rpc-server "0.0.1"
 
-"@counterfactual/contracts@0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.2.tgz#5921ba7695884c48c25b02cd3f5deb5338079a55"
-  integrity sha512-6gltf4DAFNIlNpFHs5/HVmYXMOi0JbVJilEtHPO4PCH4KCAwfC127T43milWExMDt23vXTavno7ywn1M2fvrWg==
+"@counterfactual/contracts@0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.3.tgz#c298827c4f20c0ffac30776ae955b5efcb713293"
+  integrity sha512-Msur3kkOIhx6x+/DNlQxCrWNA+7BqPBsgQPi6Ow2qgghmIhO3vkhCDzFoZqbrlvpzU8TUzvIqlcsMgRQCM8h8w==
 
 "@counterfactual/firebase-client@0.0.3":
   version "0.0.3"
@@ -169,15 +169,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.5":
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.5.tgz#8e26e158b5444972567d6942a2b44093fe82bdd4"
-  integrity sha512-EuXMRXL5rd1fcwG0i/V47yyo7DpWsofPMP/Qo5uYgI9VMB6h3acXrqoHyGo+LIxamBy96YVDVKqYlnqX2EX6yA==
+"@counterfactual/node@0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.8.tgz#e72182638bed383289208144a8886059f209e506"
+  integrity sha512-Bcn4MkT+qE+BcAGXNDkiKjACOMnKPnLtqEdHQos53rTxm3n9M2u1a2vNXUhJ3Qxdp72br4dzFFJEeVs53C9Lmw==
   dependencies:
     "@counterfactual/cf.js" "0.2.1"
-    "@counterfactual/contracts" "0.1.2"
+    "@counterfactual/contracts" "0.1.3"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.15"
+    "@counterfactual/types" "0.0.16"
     "@firebase/util" "0.2.18"
     ethers "4.0.29"
     eventemitter3 "^3.1.2"
@@ -191,11 +191,6 @@
   version "0.0.13"
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
-
-"@counterfactual/types@0.0.15":
-  version "0.0.15"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.15.tgz#3564414cc7aebdfa470d71fca711e8f5db2480e7"
-  integrity sha512-plOpn74Gxim2cm3Ljk/Y5bL7iUyrNldOPtr1IliUddxxILm42A1QS6z7/CFWMx3gGhbpnfctXd6/zWIW5UfQEQ==
 
 "@counterfactual/types@0.0.16":
   version "0.0.16"

@@ -1,6 +1,6 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { MaxUint256 } from "ethers/constants";
+import { MaxUint256, AddressZero } from "ethers/constants";
 import {
   defaultAbiCoder,
   Interface,
@@ -30,15 +30,19 @@ export class SetupCommitment extends MultisigCommitment {
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
         this.networkContext.ChallengeRegistry,
-        this.networkContext.RootNonceRegistry,
         this.networkContext.UninstallKeyRegistry,
         this.getUninstallKeyForUninstallKeyRegistry(),
-        // NOTE: We *assume* here that the root nonce value will be 0
-        //       when creating the setup commitment
-        0,
         appIdentityToHash(this.freeBalanceAppIdentity),
         this.networkContext.CoinInterpreter,
-        defaultAbiCoder.encode(["uint256"], [MaxUint256])
+        defaultAbiCoder.encode(
+          ["tuple(uint256 limit, address token)"],
+          [
+            {
+              limit: MaxUint256,
+              token: AddressZero
+            }
+          ]
+        )
       ]),
       operation: MultisigOperation.DelegateCall
     };

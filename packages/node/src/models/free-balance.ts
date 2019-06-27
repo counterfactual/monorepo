@@ -145,7 +145,6 @@ export function createFreeBalance(
     getCoinBucketAppInterface(coinBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
-    HARD_CODED_ASSUMPTIONS.rootNonceValueAtFreeBalanceInstall,
     convertFreeBalanceStateToPlainObject(state),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,

@@ -65,7 +65,6 @@ describe("InstallCommitment", () => {
       freeBalanceETH.versionNumber,
       freeBalanceETH.timeout,
       appInstance.appSeqNo,
-      stateChannel.rootNonceValue,
       AddressZero,
       HashZero
     ).getTransactionDetails();
@@ -193,24 +192,18 @@ describe("InstallCommitment", () => {
         it("should have correctly constructed arguments", () => {
           const [
             appRegistryAddress,
-            rootNonceRegistry,
             uninstallKeyRegistry,
             uninstallKey,
-            rootNonceValue,
             appIdentityHash,
             {},
             {}
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.ChallengeRegistry);
-          expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
           expect(uninstallKeyRegistry).toEqual(
             networkContext.UninstallKeyRegistry
           );
           expect(uninstallKey).toBe(appInstance.uninstallKey);
           expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
-          expect(rootNonceValue).toEqual(
-            bigNumberify(appInstance.rootNonceValue)
-          );
         });
       });
     });

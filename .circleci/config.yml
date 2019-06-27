@@ -98,8 +98,8 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
       - run:
-          name: Run Playground Server tests
-          command: cd packages/playground-server && yarn test:ci
+          name: Run Simple Hub Server tests
+          command: cd packages/simple-hub-server && yarn test:ci
       - run:
           name: Run High Roller tests
           command: cd packages/dapp-high-roller && yarn test
@@ -210,7 +210,7 @@ workflows:
               only: master
 
       - heroku/deploy-via-git:
-          app-name: playground-server-staging
+          app-name: simple-hub-server-staging
           requires:
             - publish-to-npm
           filters:

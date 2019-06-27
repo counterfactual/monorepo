@@ -1,6 +1,6 @@
-# [Playground Server](https://github.com/counterfactual/monorepo/packages/playground-server) <img align="right" src="../../logo.svg" height="80px" />
+# [Simple Hub Server](https://github.com/counterfactual/monorepo/packages/simple-hub-server) <img align="right" src="../../logo.svg" height="80px" />
 
-The Playground Server provides several services for the Playground, including:
+The Simple Hub Server provides several services for the Playground, including:
 
 - _Account login and registration_
 - _Matchmaking_, used to provide a multiplayer experience for the demo dApps.
@@ -13,13 +13,13 @@ It also operates as an _intermediary Node_ between peers.
 Successfully running the server requires 2 steps:
 
 - Funding the server's ETH account: The server must have access to funds which it uses to deploy multisignature wallet contracts and collateralize channels. To fund the server, follow the [funding](#Funding-the-Hub-Account-for-Playground-Testing) instructions.
-- Having a relational database to store users connecting to the Playground server. If you have a database already running, you can set its connection string via `DB_CONNECTION_STRING` as an environment variable for the Playground server to connect to. For example, the default connection string used is
+- Having a relational database to store users connecting to the Simple Hub Server. If you have a database already running, you can set its connection string via `DB_CONNECTION_STRING` as an environment variable for the Simple Hub Server to connect to. For example, the default connection string used is
 
 ```
 postgresql://postgres@localhost:5432/postgres
 ```
 
-If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, in `packages/playground-server` simply execute
+If no database is locally running, you can either [install Postgres](https://www.postgresql.org) or if you're already running Docker, in `packages/simple-hub-server` simply execute
 
 ```
 docker-compose up
@@ -29,9 +29,9 @@ which will start a Postgres instance for you and expose it on port 5432.
 
 The database gets auto-configured with the right schema if the appopriate table doesn't exist.
 
-- (Optional) By default the local in-memory Firebase instance is volatile which means that all open channels will have to be re-created after `playground-server` restarts. In order to enable persistency across restarts, export the environment variable `export PLAYGROUND_PERSISTENCE_ENABLED=true`
+- (Optional) By default the local in-memory Firebase instance is volatile which means that all open channels will have to be re-created after `simple-hub-server` restarts. In order to enable persistency across restarts, export the environment variable `export PLAYGROUND_PERSISTENCE_ENABLED=true`
 
-Once the database is up and running, the Playground server can be started by executing:
+Once the database is up and running, the Simple Hub Server can be started by executing:
 
 ```shell
 yarn start
@@ -82,8 +82,8 @@ $ node
 '0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c'
 ```
 
-**Option 2** Read the logs of `playground-server` when running it:
+**Option 2** Read the logs of `simple-hub-server` when running it:
 
 ```
-@counterfactual/playground-server: Node signer address: 0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c
+@counterfactual/simple-hub-server: Node signer address: 0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c
 ```

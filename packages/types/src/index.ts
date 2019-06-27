@@ -30,7 +30,6 @@ export interface NetworkContext {
   MinimumViableMultisig: string;
   MultiSend: string;
   ProxyFactory: string;
-  RootNonceRegistry: string;
   ConditionalTransactionDelegateTarget: string;
   TwoPartyEthAsLump: string;
   TwoPartyVirtualEthAsLump: string;
@@ -46,7 +45,6 @@ export const networkContextProps = [
   "MinimumViableMultisig",
   "MultiSend",
   "ProxyFactory",
-  "RootNonceRegistry",
   "ConditionalTransactionDelegateTarget",
   "TwoPartyEthAsLump",
   "TwoPartyVirtualEthAsLump",
