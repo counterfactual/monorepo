@@ -19,7 +19,7 @@ In order for the Playground to run at your workstation, you'll need:
 - A PostgreSQL database (>= 10.x)
 - A BIP39 mnemonic for the Server's funds account
 
-Check on the [Playground Server requirements](../playground-server/README.md#usage) **before** running the Playground.
+Check on the [Simple Hub Server requirements](../simple-hub-server/README.md#usage) **before** running the Playground.
 
 ### Running the Playground 🎪
 
@@ -32,7 +32,7 @@ yarn run:playground
 This command will run:
 
 - The Playground app itself (this package)
-- The [Playground Server](../playground-server)
+- The [Simple Hub Server](../simple-hub-server)
 - The [High Roller](../dapp-high-roller) and [Tic-Tac-Toe](../dapp-tic-tac-toe) dApps
 
 ### Playing with bots 🤖
