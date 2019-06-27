@@ -2,15 +2,15 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinSetOutcome is
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// @notice Fetch and store the outcome of a state channel application
@@ -38,7 +38,7 @@ contract MixinSetOutcome is
       "setOutcome called with incorrect witness data of finalState"
     );
 
-    appOutcomes[identityHash] = MAppCaller.computeOutcome(
+    appOutcomes[identityHash] = LibAppCaller.computeOutcome(
       appIdentity.appDefinition,
       finalState
     );
