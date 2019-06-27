@@ -49,7 +49,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
 })();
 
 process.on("SIGINT", async () => {
-  console.log("Shutting down playground-server...");
+  console.log("Shutting down simple-hub-server...");
   const serviceFactory = await serviceFactoryPromise;
   await serviceFactory.closeServiceConnections();
   process.exit(0);

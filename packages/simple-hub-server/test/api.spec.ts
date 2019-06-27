@@ -61,7 +61,7 @@ Log.setOutputLevel(LogLevel.ERROR);
 const GANACHE_URL = global["ganacheURL"];
 const NETWORK_CONTEXT = global["networkContext"];
 
-describe("playground-server", () => {
+describe("simple-hub-server", () => {
   let playgroundNode: Node;
   let nodeAlice: Node;
   let nodeBob: Node;
