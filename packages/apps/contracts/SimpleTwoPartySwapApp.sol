@@ -38,12 +38,12 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
     return appState.finalized;
   }
 
-//   function outcomeType()
-//     external
-//     pure
-//     returns (uint256)
-//   {
-//     return uint256(LibOutcome.CoinTransfer[]);
-//   }
+  function outcomeType()
+    external
+    pure
+    returns (uint256)
+  {
+    return uint256(LibOutcome.CoinBalances[]);
+  }
 
 }
