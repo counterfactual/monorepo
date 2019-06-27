@@ -34,13 +34,13 @@ describe("Virtual App Set State Commitment", () => {
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ],
-    /* defaultTimeout */Math.ceil(1000 * Math.random()),
-    /* appInterface */{
+    /* defaultTimeout */ Math.ceil(1000 * Math.random()),
+    /* appInterface */ {
       addr: getAddress(hexlify(randomBytes(20))),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    /* isVirtualApp */false,
+    /* isVirtualApp */ false,
     /* appSeqNo */ Math.ceil(1000 * Math.random()),
     { foo: AddressZero, bar: 0 },
     0,
