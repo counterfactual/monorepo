@@ -16348,15 +16348,6 @@ rollup@1.14.5:
     "@types/node" "^12.0.7"
     acorn "^6.1.1"
 
-rollup@1.15.1:
-  version "1.15.1"
-  resolved "https://registry.npmjs.org/rollup/-/rollup-1.15.1.tgz#76580d9a3e7e8632530bcc5809baf431e9e16aa9"
-  integrity sha512-JErZxFKs0w7wpHZXWonAlom1Jezo0gJ7mf7JHTjOAjFGKAqNMEnlzEjMYhy6cqHgSfSPj/idVscuW+Lo6y6AoQ==
-  dependencies:
-    "@types/estree" "0.0.39"
-    "@types/node" "^12.0.7"
-    acorn "^6.1.1"
-
 rpc-server@0.0.1:
   version "0.0.1"
   resolved "https://registry.npmjs.org/rpc-server/-/rpc-server-0.0.1.tgz#e9580425a6d7924f0f1788180861c2f29973f889"

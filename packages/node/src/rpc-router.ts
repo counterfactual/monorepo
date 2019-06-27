@@ -58,7 +58,7 @@ export default class NodeRouter extends Router {
   async emit(event: string, data: any, emitter = "incoming") {
     let eventData = data;
 
-    if (!eventData.jsonrpc) {
+    if (!eventData["jsonrpc"]) {
       // It's a legacy message. Reformat it to JSONRPC.
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }

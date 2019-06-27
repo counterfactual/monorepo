@@ -1,7 +1,7 @@
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
+import { timeout } from "../../src/utils";
 
 import {
   SetupContext,
@@ -29,25 +29,28 @@ describe("Node method follows spec - uninstall", () => {
   describe("Node A and B install TTT, then uninstall it", () => {
     it("sends proposal with non-null initial state", async done => {
       const initialState = {
-        players: [
-          xkeyKthAddress(nodeA.publicIdentifier, 0), // <-- winner
-          xkeyKthAddress(nodeB.publicIdentifier, 0)
-        ],
         versionNumber: 0,
         winner: 1, // Hard-coded winner for test
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
 
       await createChannel(nodeA, nodeB);
-      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
-      const uninstallReq = generateUninstallRequest(appInstanceId);
 
-      nodeA.emit(uninstallReq.type, uninstallReq);
-      nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
-        expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
+      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
+
+      nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
+        expect(msg.data.appInstanceId).toBe(appInstanceId);
+
+        // FIXME: There is some timing issue with postgres @snario noticed
+        await timeout(1000);
+
         expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
         done();
       });
+
+      await nodeA.router.dispatch(generateUninstallRequest(appInstanceId));
+
+      expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
     });
   });
 });

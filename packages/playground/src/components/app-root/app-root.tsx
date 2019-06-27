@@ -358,7 +358,7 @@ export class AppRoot {
       freeBalance = await cfProvider.getFreeBalanceState(multisigAddress);
     } catch (e) {
       // TODO: Use better typed error messages with error codes
-      if (e.includes("Call to getFreeBalanceState failed")) {
+      if (e.toString().includes("Call to getFreeBalanceState failed")) {
         await this.updateAccount({ hasCorruptStateChannelState: true });
         return {
           ethFreeBalanceWei: window["ethers"].constants.Zero,

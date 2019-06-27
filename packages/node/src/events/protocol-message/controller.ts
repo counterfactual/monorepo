@@ -2,6 +2,7 @@ import {
   Protocol,
   SetupParams,
   TakeActionParams,
+  UninstallParams,
   UninstallVirtualAppParams,
   WithdrawParams
 } from "../../machine";
@@ -12,6 +13,7 @@ import {
   NODE_EVENTS,
   NodeMessageWrappedProtocolMessage,
   UninstallMessage,
+  UninstallVirtualMessage,
   UpdateStateMessage,
   WithdrawMessage
 } from "../../types";
@@ -54,16 +56,30 @@ export default async function protocolMessageEventController(
 
       // TODO: Follow this pattern for all machine related events
       if (protocol === Protocol.UninstallVirtualApp) {
-        const uninstallMsg: UninstallMessage = {
+        const {
+          targetAppIdentityHash,
+          intermediaryXpub
+        } = params as UninstallVirtualAppParams;
+        const uninstallMsg: UninstallVirtualMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.UNINSTALL_VIRTUAL,
           data: {
-            appInstanceId: (params as UninstallVirtualAppParams)
-              .targetAppIdentityHash
+            appInstanceId: targetAppIdentityHash,
+            intermediaryIdentifier: intermediaryXpub
           }
         };
 
-        router.emit(uninstallMsg.type, { result: uninstallMsg }, "outgoing");
+        await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
+      } else if (protocol === Protocol.Uninstall) {
+        const uninstallMsg: UninstallMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.UNINSTALL,
+          data: {
+            appInstanceId: (params as UninstallParams).appIdentityHash
+          }
+        };
+
+        await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
       } else if (protocol === Protocol.Withdraw) {
         const withdrawMsg: WithdrawMessage = {
           from: publicIdentifier,
@@ -73,7 +89,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(withdrawMsg.type, { result: withdrawMsg }, "outgoing");
+        await router.emit(withdrawMsg.type, withdrawMsg, "outgoing");
       } else if (protocol === Protocol.Setup) {
         const { multisigAddress, initiatingXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
@@ -87,21 +103,25 @@ export default async function protocolMessageEventController(
           }
         };
 
-        router.emit(setupMsg.type, { result: setupMsg }, "outgoing");
-      } else if (protocol === Protocol.TakeAction) {
+        await router.emit(setupMsg.type, setupMsg, "outgoing");
+      } else if (
+        protocol === Protocol.TakeAction ||
+        protocol === Protocol.Update
+      ) {
         const { multisigAddress, appIdentityHash } = params as TakeActionParams;
+
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-        const appInstance = sc.getAppInstance(appIdentityHash);
-        const takeActionMsg: UpdateStateMessage = {
+
+        const updateMsg: UpdateStateMessage = {
           from: publicIdentifier,
-          type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
+          type: NODE_EVENTS.UPDATE_STATE,
           data: {
-            newState: appInstance.state,
+            newState: sc.getAppInstance(appIdentityHash).state,
             appInstanceId: appIdentityHash
           }
         };
 
-        router.emit(takeActionMsg.type, { result: takeActionMsg }, "outgoing");
+        await router.emit(updateMsg.type, updateMsg, "outgoing");
       }
     });
 }
