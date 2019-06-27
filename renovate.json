@@ -6,6 +6,7 @@
   "baseBranches": ["next"],
   "automerge": true,
   "ignoreDeps": [
+    "firebase",
     "@stencil/core",
     "@stencil/router",
     "@stencil/sass",

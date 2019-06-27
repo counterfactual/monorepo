@@ -1,18 +1,18 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinVirtualAppSetState is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// signatures[0], instead of signing a message that authorizes

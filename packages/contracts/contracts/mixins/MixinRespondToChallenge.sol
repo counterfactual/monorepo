@@ -1,18 +1,18 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinRespondToChallenge is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// @notice Respond to a challenge with a valid action
