@@ -11,6 +11,7 @@
   },
   "scripts": {
     "build": "tsc -b . && rollup -c",
+    "build:contracts": "cd ../contracts && yarn build && cd - && tsc -b . && rollup -c",
     "build:watch": "tsc -b . && rollup -c -w",
     "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",

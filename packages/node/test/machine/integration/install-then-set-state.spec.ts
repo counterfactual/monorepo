@@ -7,7 +7,7 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
+import { AddressZero, WeiPerEther, Zero, MaxUint256 } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
   defaultAbiCoder,
@@ -64,7 +64,7 @@ beforeAll(async () => {
  * and trigger the InstallCommitment on-chain to resolve that app and verify
  * the balances have been updated on-chain.
  */
-describe.skip("Scenario: install AppInstance, set state, put on-chain", () => {
+describe("Scenario: install AppInstance, set state, put on-chain", () => {
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -127,7 +127,7 @@ describe.skip("Scenario: install AppInstance, set state, put on-chain", () => {
         OutcomeType.COIN_TRANSFER,
         undefined,
         {
-          limit: Zero,
+          limit: MaxUint256,
           token: AddressZero
         }
       );

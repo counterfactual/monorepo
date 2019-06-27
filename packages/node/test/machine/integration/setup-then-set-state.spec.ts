@@ -51,7 +51,7 @@ beforeAll(async () => {
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("Scenario: Setup, set state on free balance, go on chain", () => {
-  it.skip("should distribute funds in ETH free balance when put on chain", async done => {
+  it("should distribute funds in ETH free balance when put on chain", async done => {
     const xkeys = getRandomHDNodes(2);
 
     const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
@@ -69,7 +69,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       let stateChannel = StateChannel.setupChannel(
         network.CoinBucket,
         proxy,
-        xkeys.map(x => x.neuter().extendedKey)
+        xkeys.map(x => x.neuter().extendedKey),
+        /* timeout */ 10
       );
       const ethFreeBalance = {};
       ethFreeBalance[AddressZero] = [

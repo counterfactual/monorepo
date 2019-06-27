@@ -26,7 +26,7 @@ contract CoinInterpreter is Interpreter {
     external
   {
 
-    LibOutcome.CoinTransfer[] memory transfers = abi.decode(input, (LibOutcome.CoinTransfer[]));
+    LibOutcome.CoinTransfer[] memory transfers = abi.decode(input, (LibOutcome.CoinTransfer[][]))[0];
 
     Param memory params = abi.decode(encodedParams, (Param));
     uint256 limitRemaining = params.limit;

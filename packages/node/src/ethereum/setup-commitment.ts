@@ -1,6 +1,6 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { MaxUint256, AddressZero } from "ethers/constants";
+import { AddressZero, MaxUint256 } from "ethers/constants";
 import {
   defaultAbiCoder,
   Interface,
