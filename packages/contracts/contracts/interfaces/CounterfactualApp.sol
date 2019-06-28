@@ -29,8 +29,7 @@ contract CounterfactualApp {
   }
 
   function computeOutcome(
-    bytes calldata /* appState */,
-    LibStateChannelApp.PileOfTokens calldata /* holdings */
+    bytes calldata /* appState */
   )
     external
     pure

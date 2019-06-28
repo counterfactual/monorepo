@@ -5,7 +5,7 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
-contract TwoPartyOutcome is Interpreter {
+contract TwoPartyEthAsLump is Interpreter {
 
   struct Params {
     address payable[2] playerAddrs;
@@ -14,7 +14,7 @@ contract TwoPartyOutcome is Interpreter {
 
   function interpretOutcomeAndExecuteEffect(
     bytes calldata encodedOutcome,
-    LibStateChannelApp.PileOfTokens[] calldata holdings
+    bytes calldata encodedParams
   )
     external
   {
