@@ -53,6 +53,7 @@ export enum ActionType {
 export type UserState = {
   user: User;
   error: ErrorData;
+  status: string;
 };
 
 export type WalletState = {
@@ -76,7 +77,7 @@ export type ApplicationState = {
 };
 
 export type StoreAction<DataType, ActionEnumType = ActionType> = Action<
-  ActionEnumType
+  ActionEnumType | ActionType
 > & {
   data: DataType;
 };

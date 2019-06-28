@@ -4,27 +4,22 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../types";
-import {
-  buildRegistrationSignaturePayload,
-  buildSignatureMessageForLogin,
-  forMultisig,
-  getNodeAddress,
-  getUserFromStoredToken,
-  storeTokenFromUser
-} from "../utils/counterfactual";
+import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
 import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
-import {
-  ActionType,
-  ApplicationState,
-  StoreAction,
-  User,
-  UserState
-} from "./types";
+import { ActionType, ApplicationState, StoreAction, User, UserState } from "./types";
 
-const initialState = { user: {}, error: {} } as UserState;
+const initialState = {
+  user: {},
+  error: {},
+  status: ""
+} as UserState;
 
 const dispatchError = (
-  dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>,
+  dispatch: ThunkDispatch<
+    ApplicationState,
+    null,
+    Action<ActionType | UserAddTransition>
+  >,
   error: any
 ) => {
   const { message, code, field } = ErrorDetail[error.code] || error;
@@ -41,6 +36,12 @@ const dispatchError = (
   });
 };
 
+export enum UserAddTransition {
+  CheckWallet = "USER_ADD_CHECK_WALLET",
+  CreatingAccount = "USER_ADD_CREATING_ACCOUNT",
+  DeployingContract = "USER_ADD_DEPLOYING_CONTRACT"
+}
+
 export const addUser = (
   userData: User,
   signer: JsonRpcSigner,
@@ -49,7 +50,7 @@ export const addUser = (
   void,
   ApplicationState,
   null,
-  Action<ActionType>
+  Action<ActionType | UserAddTransition>
 > => async dispatch => {
   try {
     // 1. Get the node address
@@ -58,9 +59,12 @@ export const addUser = (
     // 2. Build the signable message
     const signableMessage = buildRegistrationSignaturePayload(userData);
     // TODO: dispatch "check wallet"
+    dispatch({ type: UserAddTransition.CheckWallet });
+
     // 3. Request the signature
     const signature = await signer.signMessage(signableMessage);
     // TODO: dispatch "creating account"
+    dispatch({ type: UserAddTransition.CreatingAccount });
 
     // 4. Send the API request.
     const user = await PlaygroundAPIClient.createAccount(userData, signature);
@@ -68,7 +72,7 @@ export const addUser = (
     // 5. Store the token.
     await storeTokenFromUser(user);
 
-    // TODO: dispatch "deploying contract"
+    dispatch({ type: UserAddTransition.DeployingContract });
     // 6. Wait for multisig and store it into the user.
     user.multisigAddress = await forMultisig();
 
@@ -150,7 +154,7 @@ export const getUser = (
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<User>
+  action: StoreAction<User, UserAddTransition>
 ) {
   switch (action.type) {
     case ActionType.UserAdd:
@@ -159,9 +163,13 @@ export const reducers = function(
     case ActionType.UserError:
       return {
         ...state,
-        ...action.data
+        ...action.data,
+        status: action.type
       };
     default:
-      return state;
+      return {
+        ...state,
+        status: action.type
+      };
   }
 };

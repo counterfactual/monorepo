@@ -1,29 +1,27 @@
-import React from "react";
-import { Action } from "redux";
-import { connect } from "react-redux";
-import { Link, RouteComponentProps } from "react-router-dom";
-import { ThunkDispatch } from "redux-thunk";
 import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
-
-import { WidgetScreen } from "../../components/widget";
+import React from "react";
+import { connect } from "react-redux";
+import { Link, RouteComponentProps } from "react-router-dom";
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
 import { FormButton, FormInput, InputChangeProps } from "../../components/form";
-
-import { addUser } from "../../store/user";
-import {
-  ApplicationState,
-  ActionType,
-  User,
-  WalletState,
-  UserState
-} from "../../store/types";
+import { WidgetScreen } from "../../components/widget";
 import { EthereumService } from "../../providers/EthereumService";
-
+import {
+  ActionType,
+  ApplicationState,
+  ErrorData,
+  User,
+  WalletState
+} from "../../store/types";
+import { addUser, UserAddTransition } from "../../store/user";
 import "./AccountRegistration.scss";
 
 type AccountRegistrationProps = RouteComponentProps & {
   wallet: WalletState;
-  user: UserState;
+  error: ErrorData;
+  registrationStatus: string;
   addUser: (data: User, signer: JsonRpcSigner, history: History) => void;
 };
 
@@ -52,16 +50,20 @@ class AccountRegistration extends React.Component<
     };
   }
 
+  buttonText = {
+    [UserAddTransition.CheckWallet]: "Check your wallet",
+    [UserAddTransition.CreatingAccount]: "Creating your Account",
+    [UserAddTransition.DeployingContract]: "Deploying the contract"
+  };
+
   handleFormChange = (event: InputChangeProps) => {
     this.setState({ ...this.state, [event.inputName]: event.value });
   };
 
   render() {
-    const { wallet, addUser, user, history } = this.props;
+    const { wallet, addUser, error, history, registrationStatus } = this.props;
     const { loading } = this.state;
     const { signer } = this.context;
-    const { error } = user;
-
     return (
       <WidgetScreen
         header={"Create a Counterfactual Account"}
@@ -99,12 +101,13 @@ class AccountRegistration extends React.Component<
             type="button"
             className="button"
             spinner={loading}
+            disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
               addUser(this.state, signer, history);
             }}
           >
-            Create account
+            {!loading ? "Create account" : this.buttonText[registrationStatus]}
           </FormButton>
         </form>
       </WidgetScreen>
@@ -114,7 +117,8 @@ class AccountRegistration extends React.Component<
 export default connect(
   (state: ApplicationState) => ({
     wallet: state.WalletState,
-    user: state.UserState
+    error: state.UserState.error,
+    registrationStatus: state.UserState.status
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
     addUser: (data: User, signer: JsonRpcSigner, history: History) =>
