@@ -353,29 +353,30 @@ export default class PlaygroundAPIClient {
   //   }
   // }
 
-  // public static async login(
-  //   user: SessionAttributes,
-  //   signature: string
-  // ): Promise<UserSession> {
-  //   try {
-  //     const json = (await post(
-  //       "session-requests",
-  //       {
-  //         type: "session",
-  //         id: "",
-  //         attributes: {
-  //           ethAddress: user.ethAddress
-  //         } as SessionAttributes
-  //       } as APIResource,
-  //       signature
-  //     )) as APIResponse;
-  //     const resource = json.data as APIResource<UserAttributes>;
-
-  //     return fromAPIResource<UserSession, UserAttributes>(resource);
-  //   } catch (e) {
-  //     return Promise.reject(e);
-  //   }
-  // }
+  public static async login(
+    ethAddress: string,
+    signature: string
+  ): Promise<User> {
+    try {
+      const json = (await post(
+        "session-requests",
+        {
+          type: "session",
+          id: "",
+          attributes: {
+            ethAddress
+          }
+        } as APIResource,
+        signature
+      )) as APIResponse;
+      return {
+        id: (json.data as APIResource).id,
+        ...((json.data as APIResource).attributes as User)
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 
   // public static async getUser(token: string): Promise<UserSession> {
   //   if (!token) {

@@ -1,12 +1,12 @@
-import { User, Deposit, BalanceRequest } from "../store/types";
-import { CounterfactualMethod, CounterfactualEvent } from "../types";
 import {
-  computeAddress,
   bigNumberify,
-  parseEther,
-  BigNumberish
+  BigNumberish,
+  computeAddress,
+  parseEther
 } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { BalanceRequest, Deposit, User } from "../store/types";
+import { CounterfactualEvent, CounterfactualMethod } from "../types";
 import delay from "./delay";
 
 export function xkeyKthAddress(xkey: string, k: number): string {
@@ -44,6 +44,12 @@ export function buildRegistrationSignaturePayload(data: User) {
     `Ethereum address: ${data.ethAddress}`,
     `Node address: ${data.nodeAddress}`
   ].join("\n");
+}
+
+export function buildSignatureMessageForLogin(ethAddress: string) {
+  return ["PLAYGROUND ACCOUNT LOGIN", `Ethereum address: ${ethAddress}`].join(
+    "\n"
+  );
 }
 
 export async function forMultisig(): Promise<string> {

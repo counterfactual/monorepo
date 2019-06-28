@@ -61,10 +61,10 @@ export const deposit = (
   Action<ActionType>
 > => async dispatch => {
   try {
-    // 1. Ask Metamask to do the deposit.
+    // 1. Ask Metamask to do the deposit. !
     await requestDeposit(transaction);
 
-    // 2. Wait until the deposit is completed in both sides.
+    // 2. Wait until the deposit is completed in both sides. !
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
       nodeAddress: transaction.nodeAddress

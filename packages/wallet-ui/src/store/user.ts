@@ -1,26 +1,25 @@
-import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { parseEther } from "ethers/utils";
+import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { History } from "history";
-
-import {
-  User,
-  StoreAction,
-  UserState,
-  ApplicationState,
-  ActionType
-} from "./types";
-
-import {
-  getNodeAddress,
-  buildRegistrationSignaturePayload,
-  storeTokenFromUser,
-  forMultisig,
-  getUserFromStoredToken
-} from "../utils/counterfactual";
 import { RoutePath } from "../types";
-import { parseEther } from "ethers/utils";
+import {
+  buildRegistrationSignaturePayload,
+  buildSignatureMessageForLogin,
+  forMultisig,
+  getNodeAddress,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../utils/counterfactual";
+import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
+import {
+  ActionType,
+  ApplicationState,
+  StoreAction,
+  User,
+  UserState
+} from "./types";
 
 const initialState = { user: {}, error: {} } as UserState;
 
@@ -58,9 +57,10 @@ export const addUser = (
 
     // 2. Build the signable message
     const signableMessage = buildRegistrationSignaturePayload(userData);
-
+    // TODO: dispatch "check wallet"
     // 3. Request the signature
     const signature = await signer.signMessage(signableMessage);
+    // TODO: dispatch "creating account"
 
     // 4. Send the API request.
     const user = await PlaygroundAPIClient.createAccount(userData, signature);
@@ -68,6 +68,7 @@ export const addUser = (
     // 5. Store the token.
     await storeTokenFromUser(user);
 
+    // TODO: dispatch "deploying contract"
     // 6. Wait for multisig and store it into the user.
     user.multisigAddress = await forMultisig();
 
@@ -76,6 +77,39 @@ export const addUser = (
 
     // 8. Go to the next screen!
     history.push(RoutePath.SetupDeposit);
+  } catch (error) {
+    dispatchError(dispatch, error);
+  }
+};
+
+export const loginUser = (
+  ethAddress: string,
+  signer: JsonRpcSigner,
+  history: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  try {
+    // 1. Build the signable message
+    const signableMessage = buildSignatureMessageForLogin(ethAddress);
+
+    // 2. Request the signature
+    const signature = await signer.signMessage(signableMessage);
+
+    // 3. Send the API request.
+    const user = await PlaygroundAPIClient.login(ethAddress, signature);
+
+    // 4. Store the token.
+    await storeTokenFromUser(user);
+
+    // 5. Dispatch.
+    dispatch({ data: { user }, type: ActionType.UserLogin });
+
+    // 6. Go to the next screen!
+    history.push(RoutePath.Channels);
   } catch (error) {
     dispatchError(dispatch, error);
   }
@@ -121,6 +155,7 @@ export const reducers = function(
   switch (action.type) {
     case ActionType.UserAdd:
     case ActionType.UserGet:
+    case ActionType.UserLogin:
     case ActionType.UserError:
       return {
         ...state,

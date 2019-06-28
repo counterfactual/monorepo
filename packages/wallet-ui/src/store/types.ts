@@ -1,5 +1,5 @@
-import { Action } from "redux";
 import { BigNumberish } from "ethers/utils/bignumber";
+import { Action } from "redux";
 
 export type User = {
   id?: string;
@@ -41,6 +41,7 @@ export enum ActionType {
   UserAdd = "USER_ADD",
   UserGet = "USER_GET",
   UserError = "USER_ERROR",
+  UserLogin = "USER_LOGIN",
   WalletSetAddress = "WALLET_SET_ADDRESS",
   WalletError = "WALLET_ERROR",
   WalletDeposit = "WALLET_DEPOSIT",
