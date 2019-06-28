@@ -28,7 +28,6 @@ export const connectToWallet = (): ThunkAction<
   Action<ActionType>
 > => async dispatch => {
   try {
-    console.log("persilogs", "hello, it's me");
     await ethereum.enable();
 
     dispatch({
