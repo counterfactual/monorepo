@@ -17,6 +17,7 @@ import CreateChannelController from "./state-channel/create/controller";
 import DepositController from "./state-channel/deposit/controller";
 import GetAllChannelAddressesController from "./state-channel/get-all/controller";
 import GetStateDepositHolderAddressController from "./state-channel/get-state-deposit-holder-address/controller";
+import GetStateChannelController from "./state-channel/get/controller";
 import WithdrawController from "./state-channel/withdraw/controller";
 
 export {
@@ -24,6 +25,7 @@ export {
   DepositController,
   GetAllChannelAddressesController,
   GetStateDepositHolderAddressController,
+  GetStateChannelController,
   GetAppInstanceController,
   GetAppInstanceStateController,
   GetFreeBalanceStateController,

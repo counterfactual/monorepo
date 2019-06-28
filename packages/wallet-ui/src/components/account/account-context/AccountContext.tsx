@@ -13,7 +13,7 @@ import { RoutePath } from "../../../types";
 import { FormButton } from "../../form";
 import "./AccountContext.scss";
 
-type AccountContextProps = RouteComponentProps & {
+export type AccountContextProps = RouteComponentProps & {
   userState: UserState;
   counterfactualBalance: BigNumberish;
   ethAddress: string;
@@ -35,7 +35,7 @@ type AccountUserProps = {
 };
 
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
-  <div className="info">
+  <div className="info" data-js="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
     <Link to={RoutePath.SetupDeposit}>
       <div className="info-text">
@@ -47,7 +47,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
 );
 
 const AccountUser: React.FC<AccountUserProps> = ({ username }) => (
-  <div className="info">
+  <div className="info" data-js="info-user">
     <img alt="" className="info-img" src="/assets/icon/account.svg" />
     <div className="info-text">
       <div className="info-header">Account</div>
@@ -71,6 +71,7 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
 class AccountContext extends React.Component<AccountContextProps> {
   static contextType = EthereumService;
   context!: React.ContextType<typeof EthereumService>;
+
   componentWillReceiveProps(props: AccountContextProps) {
     const { userState, history } = props;
 

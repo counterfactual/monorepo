@@ -120,11 +120,10 @@ export async function getChannelAddresses(): Promise<string[]> {
 }
 
 export async function getChannel(multisigAddress: string): Promise<any> {
-  // const { data } = (await window.ethereum.send(
-  //   CounterfactualMethod.RequestChannel,
-  //   [multisigAddress]
-  // )).result;
+  const { data } = (await window.ethereum.send(
+    CounterfactualMethod.RequestChannel,
+    [multisigAddress]
+  )).result;
 
-  // return data;
-  return {};
+  return data;
 }

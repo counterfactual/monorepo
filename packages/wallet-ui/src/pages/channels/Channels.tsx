@@ -32,8 +32,9 @@ class Channels extends React.Component<ChannelsProps> {
         <h3>State Channels</h3>
         <div className="channel-trees">
           <ChannelTree>
-            {Object.values(channels).map(channel => (
+            {Object.values(channels).map((channel, index) => (
               <ChannelNode
+                key={`hub${index}`}
                 type={channel.type}
                 name={channel.name}
                 ethAddress={channel.ethAddress}

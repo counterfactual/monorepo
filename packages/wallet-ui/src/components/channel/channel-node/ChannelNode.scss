@@ -63,6 +63,9 @@
   .channel-address {
     font-size: 0.8rem;
     color: $c-darkgrey;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
   }
 
   .channel-menu {
