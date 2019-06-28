@@ -44,7 +44,6 @@ describe("SimpleTwoPartySwapApp", () => {
   }
 
   async function computeOutcome(state: SimpleSwapAppState) {
-    console.log("HOHROGROIJIOGRJOIGA")
     return await simpleSwapApp.functions.computeOutcome(encodeState(state));
   }
 
@@ -91,24 +90,37 @@ describe("SimpleTwoPartySwapApp", () => {
       const ret = await computeOutcome(state);
 
       console.log(decodeBytesToAppState(ret))
+      console.log(decodeBytesToAppState(defaultAbiCoder.encode(
+        [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
+        [
+          {
+            to: senderAddr,
+            coinAddress: [tokenAddr, AddressZero],
+            balance: [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)],
+          },
+          {
+            to: receiverAddr,
+            coinAddress: [tokenAddr, AddressZero],
+            balance: [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)],
+          }
+        ]
+      )))
 
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
-          [{
-            coinBalances: [
-              {
-                to: senderAddr,
-                coinAddress: [tokenAddr, AddressZero],
-                balance: [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)],
-              },
-              {
-                to: receiverAddr,
-                coinAddress: [tokenAddr, AddressZero],
-                balance: [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)],
-              }
-            ]
-          }]
+          [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
+          [
+            {
+              to: senderAddr,
+              coinAddress: [tokenAddr, AddressZero],
+              balance: [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)],
+            },
+            {
+              to: receiverAddr,
+              coinAddress: [tokenAddr, AddressZero],
+              balance: [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)],
+            }
+          ]
         )
       );  
     });
