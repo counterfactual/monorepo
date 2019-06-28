@@ -67,25 +67,17 @@ describe("SetupCommitment", () => {
       desc = iface.parseTransaction({ data });
     });
 
-    it("should be to the executeEffectOfInterpretedAppOutcome method", () => {
+    it("should be to the executeEffectOfFreeBalance method", () => {
       expect(desc.sighash).toBe(
-        iface.functions.executeEffectOfInterpretedAppOutcome.sighash
+        iface.functions.executeEffectOfFreeBalance.sighash
       );
     });
 
     it("should contain expected arguments", () => {
-      const [
-        appRegistry,
-        uninstallKeyRegistry,
-        uninstallKey,
-        appIdentityHash,
-        {},
-        {}
-      ] = desc.args;
+      const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(uninstallKeyRegistry).toEqual(networkContext.UninstallKeyRegistry);
-      expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(interpreterAddress).toBe(networkContext.ETHInterpreter);
     });
   });
 });

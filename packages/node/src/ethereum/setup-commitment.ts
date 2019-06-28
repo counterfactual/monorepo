@@ -1,12 +1,6 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { MaxUint256 } from "ethers/constants";
-import {
-  defaultAbiCoder,
-  Interface,
-  keccak256,
-  solidityPack
-} from "ethers/utils";
+import { Interface } from "ethers/utils";
 
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -28,29 +22,12 @@ export class SetupCommitment extends MultisigCommitment {
     return {
       to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
-      data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
+      data: iface.functions.executeEffectOfFreeBalance.encode([
         this.networkContext.ChallengeRegistry,
-        this.networkContext.UninstallKeyRegistry,
-        this.getUninstallKeyForUninstallKeyRegistry(),
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.ETHInterpreter,
-        defaultAbiCoder.encode(["uint256"], [MaxUint256])
+        this.networkContext.ETHInterpreter
       ]),
       operation: MultisigOperation.DelegateCall
     };
-  }
-
-  private getUninstallKeyForUninstallKeyRegistry(): string {
-    return keccak256(
-      solidityPack(
-        ["address", "bytes32"],
-        [this.multisigAddress, this.getSaltForDependencyNonce()]
-      )
-    );
-  }
-
-  private getSaltForDependencyNonce(): string {
-    // We use 0 here because the ETH free balance has always the 0th appSeqNo
-    return keccak256(defaultAbiCoder.encode(["uint256"], [0]));
   }
 }
