@@ -1,26 +1,23 @@
+import { Web3Provider } from "ethers/providers";
+import { BigNumberish, formatEther, parseEther } from "ethers/utils";
+import { History } from "history";
 import React from "react";
 import { connect } from "react-redux";
 import { RouteComponentProps } from "react-router-dom";
-import { ThunkDispatch } from "redux-thunk";
 import { Action } from "redux";
-import { parseEther, formatEther } from "ethers/utils";
-
+import { ThunkDispatch } from "redux-thunk";
+import { FormButton, FormInput, InputChangeProps } from "../../components/form";
 import { WidgetScreen } from "../../components/widget";
-import { FormInput, FormButton, InputChangeProps } from "../../components/form";
-
+import { EthereumService } from "../../providers/EthereumService";
 import {
-  ApplicationState,
   ActionType,
+  ApplicationState,
   Deposit,
-  UserState,
+  User,
   WalletState
 } from "../../store/types";
-import { deposit } from "../../store/wallet";
-
+import { deposit, WalletDepositTransition } from "../../store/wallet";
 import "./AccountDeposit.scss";
-import { EthereumService } from "../../providers/EthereumService";
-import { Web3Provider } from "ethers/providers";
-import { History } from "history";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   <div className="balance-label">
@@ -31,12 +28,15 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
 
 type AccountDepositProps = RouteComponentProps & {
   deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
-  userState: UserState;
+  user: User;
   walletState: WalletState;
   initialAmount: number;
 };
 
-type AccountDepositState = Deposit & { loading: boolean };
+type AccountDepositState = {
+  loading: boolean;
+  amount: BigNumberish;
+};
 
 class AccountDeposit extends React.Component<
   AccountDepositProps,
@@ -48,15 +48,8 @@ class AccountDeposit extends React.Component<
   constructor(props: AccountDepositProps) {
     super(props);
 
-    const { initialAmount, userState } = props;
-    const { user } = userState;
-    const { multisigAddress, nodeAddress, ethAddress } = user;
-
     this.state = {
-      nodeAddress,
-      ethAddress,
-      amount: parseEther(String(initialAmount || 0.1)),
-      multisigAddress: multisigAddress as string,
+      amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
   }
@@ -68,10 +61,28 @@ class AccountDeposit extends React.Component<
     });
   };
 
+  buttonText = {
+    [WalletDepositTransition.CheckWallet]: "Check your wallet",
+    [WalletDepositTransition.WaitForFunds]: "Transfering funds"
+  };
+
+  createDepositData: () => Deposit = () => {
+    const { user } = this.props;
+    const { multisigAddress, nodeAddress, ethAddress } = user;
+    const { amount } = this.state;
+
+    return {
+      nodeAddress,
+      ethAddress,
+      amount,
+      multisigAddress: multisigAddress as string
+    };
+  };
+
   render() {
     const { walletState, deposit, history } = this.props;
     const { provider } = this.context;
-    const { ethereumBalance, error } = walletState;
+    const { ethereumBalance, error, status } = walletState;
     const { amount, loading } = this.state;
 
     return (
@@ -97,12 +108,13 @@ class AccountDeposit extends React.Component<
             type="button"
             className="button"
             spinner={loading}
+            disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.state, provider, history);
+              deposit(this.createDepositData(), provider, history);
             }}
           >
-            Proceed
+            {!loading ? "Proceed" : this.buttonText[status]}
           </FormButton>
         </form>
       </WidgetScreen>
@@ -112,7 +124,7 @@ class AccountDeposit extends React.Component<
 
 export default connect(
   (state: ApplicationState) => ({
-    userState: state.UserState,
+    user: state.UserState.user,
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({

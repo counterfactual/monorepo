@@ -15,11 +15,7 @@ const initialState = {
 } as UserState;
 
 const dispatchError = (
-  dispatch: ThunkDispatch<
-    ApplicationState,
-    null,
-    Action<ActionType | UserAddTransition>
-  >,
+  dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>,
   error: any
 ) => {
   const { message, code, field } = ErrorDetail[error.code] || error;

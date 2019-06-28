@@ -5,13 +5,7 @@ import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../types";
 import { forFunds, requestDeposit } from "../utils/counterfactual";
-import {
-  ActionType,
-  ApplicationState,
-  Deposit,
-  StoreAction,
-  WalletState
-} from "./types";
+import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "./types";
 
 const { ethereum } = window;
 const initialState = {
@@ -49,6 +43,11 @@ export const connectToWallet = (): ThunkAction<
   }
 };
 
+export enum WalletDepositTransition {
+  CheckWallet = "WALLET_DEPOSIT_CHECK_WALLET",
+  WaitForFunds = "WALLET_DEPOSIT_WAITING_FOR_FUNDS"
+}
+
 export const deposit = (
   transaction: Deposit,
   provider: Web3Provider,
@@ -57,13 +56,15 @@ export const deposit = (
   void,
   ApplicationState,
   null,
-  Action<ActionType>
+  Action<ActionType | WalletDepositTransition>
 > => async dispatch => {
   try {
     // 1. Ask Metamask to do the deposit. !
+    dispatch({ type: WalletDepositTransition.CheckWallet });
     await requestDeposit(transaction);
 
     // 2. Wait until the deposit is completed in both sides. !
+    dispatch({ type: WalletDepositTransition.WaitForFunds });
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
       nodeAddress: transaction.nodeAddress
@@ -97,7 +98,7 @@ export const deposit = (
 
 export const reducers = function(
   state = initialState,
-  action: StoreAction<WalletState>
+  action: StoreAction<WalletState, WalletDepositTransition>
 ) {
   switch (action.type) {
     case ActionType.WalletSetAddress:
@@ -106,9 +107,13 @@ export const reducers = function(
     case ActionType.WalletError:
       return {
         ...state,
-        ...action.data
+        ...action.data,
+        status: action.type
       };
     default:
-      return state;
+      return {
+        ...state,
+        status: action.type
+      };
   }
 };

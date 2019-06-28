@@ -61,6 +61,7 @@ export type WalletState = {
   counterfactualBalance: BigNumberish;
   ethereumBalance: BigNumberish;
   error: ErrorData;
+  status: string;
 };
 
 export type ChannelsMap = { [key: string]: Connection };
