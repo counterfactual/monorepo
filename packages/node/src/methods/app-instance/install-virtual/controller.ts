@@ -110,6 +110,7 @@ export default class InstallVirtualController extends NodeController {
       }
     };
 
+    // TODO: Remove this and add a handler in protocolMessageEventController
     await requestHandler.messagingService.send(
       proposedAppInstanceInfo.proposedByIdentifier,
       installVirtualApprovalMsg

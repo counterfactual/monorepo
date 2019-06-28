@@ -207,6 +207,7 @@ export default class PlaygroundAPIClient {
         type: "multisigDeploy",
         attributes: { ethAddress: user.ethAddress }
       })) as APIResponse;
+
       const resourceMultisig = jsonMultisig.data as APIResource<
         Partial<UserAttributes>
       >;
