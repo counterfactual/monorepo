@@ -58,6 +58,7 @@ export namespace Node {
     DEPOSIT = "deposit",
     GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
     GET_APP_INSTANCES = "getAppInstances",
+    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress",
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
     GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
