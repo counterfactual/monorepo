@@ -22,7 +22,7 @@
     "@counterfactual/types": "0.0.16",
     "ethers": "4.0.31",
     "ganache-core": "2.5.5",
-    "rollup": "1.16.2",
+    "rollup": "1.16.3",
     "rollup-plugin-typescript2": "0.21.2",
     "truffle": "5.0.20",
     "typescript": "3.5.1"
