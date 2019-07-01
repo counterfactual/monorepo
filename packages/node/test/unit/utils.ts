@@ -63,13 +63,13 @@ export function createAppInstance(stateChannel?: StateChannel) {
     /* appSeqNo */ stateChannel
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
-    { foo: AddressZero, bar: bigNumberify(0) },
-    0,
-    Math.ceil(1000 * Math.random()),
-    {
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestversionNumber */ 0,
+    /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    undefined
+    /* coinTransferInterpreterParams */ undefined
   );
 }

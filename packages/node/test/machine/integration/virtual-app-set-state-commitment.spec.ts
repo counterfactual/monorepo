@@ -4,7 +4,7 @@ import * as chai from "chai";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, MaxUint256, WeiPerEther, Zero } from "ethers/constants";
-import { Signature, SigningKey } from "ethers/utils";
+import { Signature, SigningKey, getAddress, hexlify, bigNumberify } from "ethers/utils";
 
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
@@ -13,6 +13,7 @@ import { AppInstance, StateChannel } from "../../../src/models";
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
+import { randomBytes } from "crypto";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
@@ -63,23 +64,25 @@ beforeEach(() => {
     [multisigOwnerKeys[1].address]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.freeBalance;
-
   targetAppInstance = new AppInstance(
-    /* multisigAddress */ AddressZero,
+    /* multisigAddress */ stateChannel.multisigAddress,
     /* signingKeys */ stateChannel.multisigOwners,
     /* defautTimeout */ 10,
-    /* appInterface */ freeBalanceETH.appInterface,
+    /* appInterface */ {
+      addr: getAddress(hexlify(randomBytes(20))),
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    },
     /* isVirtualApp */ true,
     /* appSeqNo */ 5,
-    /* latestState */ freeBalanceETH.toJson().latestState,
-    /* latestVersionNumber */ freeBalanceETH.toJson().latestversionNumber,
-    /* latestTimeout */ freeBalanceETH.timeout,
-    {
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestVersionNumber */ 10,
+    /* latestTimeout */ 10,
+    /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    undefined
+    /* coinTransferInterpreterParams */ undefined
   );
 
   intermediaryCommitment = new VirtualAppSetStateCommitment(
