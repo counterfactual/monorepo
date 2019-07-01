@@ -15,9 +15,11 @@
             "message": "",
             "code": "",
             "field": ""
-          }
+          },
+          "status": ""
         },
         "counterfactualBalance": "0x0000000000000000",
+        "ethAddress": "0x0",
         "match": {
           "isExact": true,
           "params": {},
@@ -41,9 +43,11 @@
             "message": "",
             "code": "",
             "field": ""
-          }
+          },
+          "status": ""
         },
         "counterfactualBalance": "0x0de0b6b3a7640000",
+        "ethAddress": "0x0",
         "match": {
           "isExact": true,
           "params": {},

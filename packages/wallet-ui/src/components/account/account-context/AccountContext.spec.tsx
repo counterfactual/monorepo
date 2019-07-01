@@ -17,7 +17,8 @@ function setup(scenario: keyof typeof mock.scenarios) {
   const props: AccountContextProps = {
     ...mock.scenarios[scenario].props,
     history,
-    location: history.location
+    location: history.location,
+    loginUser: jest.fn()
   };
 
   const component = mount(
@@ -32,9 +33,12 @@ function setup(scenario: keyof typeof mock.scenarios) {
 describe("<AccountContext />", () => {
   describe("Unauthenticated", () => {
     let component: Enzyme.ReactWrapper;
+    let props: AccountContextProps;
 
     beforeEach(() => {
-      component = setup("unauthenticated").component;
+      const mock = setup("unauthenticated");
+      component = mock.component;
+      props = mock.props;
     });
 
     it("should render an account context container", () => {
@@ -54,13 +58,17 @@ describe("<AccountContext />", () => {
       expect(button.text()).toBe("Login");
     });
 
-    it("should render a Register button", () => {
-      const button = component.find(".btn-container [data-js='btn-register']");
+    it("should call loginUser() when clicking the Login button", () => {
+      const button = component.find(".btn-container [data-js='btn-login']");
 
-      expect(button.type()).toBe(FormButton);
-      expect(button.find(".icon").exists()).toBe(true);
-      expect(button.find(".icon").prop("src")).toContain("register");
-      expect(button.text()).toBe("Register");
+      button.simulate("click");
+
+      expect(props.loginUser).toHaveBeenNthCalledWith(
+        1,
+        props.ethAddress,
+        component.context("signer"),
+        props.history
+      );
     });
 
     it("should not render account information", () => {

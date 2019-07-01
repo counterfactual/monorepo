@@ -68,7 +68,7 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
   </div>
 );
 
-class AccountContext extends React.Component<AccountContextProps> {
+export class AccountContext extends React.Component<AccountContextProps> {
   static contextType = EthereumService;
   context!: React.ContextType<typeof EthereumService>;
 
@@ -101,6 +101,7 @@ class AccountContext extends React.Component<AccountContextProps> {
           <div className="btn-container">
             <FormButton
               className="btn"
+              data-js="btn-login"
               onClick={() => {
                 loginUser(ethAddress, signer, history);
               }}
