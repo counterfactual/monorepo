@@ -15,11 +15,11 @@
   "repository": "https://github.com/counterfactual/monorepo/tree/master/packages/cf.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -b . && rollup -c && yarn docs",
+    "build": "tsc -b . && rollup -c",
     "lint": "tslint -c tslint.json -p tsconfig.json",
     "lint:fix": "yarn lint --fix",
     "test": "jest --detectOpenHandles",
-    "docs": "typedoc src/ --out docs/ --theme markdown --ignoreCompilerErrors",
+    "docs": "typedoc src/ --out docs/ --ignoreCompilerErrors",
     "test-debug-ide": "node $NODE_DEBUG_OPTION ./node_modules/.bin/jest"
   },
   "devDependencies": {
@@ -30,7 +30,6 @@
     "rollup-plugin-typescript2": "0.21.2",
     "tslint": "5.18.0",
     "typedoc": "0.14.2",
-    "typedoc-plugin-markdown": "^1.2.1",
     "typescript": "3.5.1"
   },
   "dependencies": {
