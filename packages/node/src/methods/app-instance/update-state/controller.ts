@@ -6,7 +6,6 @@ import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -79,27 +78,6 @@ export default class UpdateStateController extends NodeController {
     );
 
     return { newState };
-  }
-
-  protected async afterExecution(
-    requestHandler: RequestHandler,
-    params: Node.UpdateStateParams
-  ): Promise<void> {
-    const { store, publicIdentifier, messagingService } = requestHandler;
-    const { appInstanceId, newState } = params;
-
-    const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
-
-    const to = getCounterpartyAddress(publicIdentifier, [
-      appInstanceInfo.proposedByIdentifier,
-      appInstanceInfo.proposedToIdentifier
-    ]);
-
-    await messagingService.send(to, {
-      from: requestHandler.publicIdentifier,
-      type: NODE_EVENTS.UPDATE_STATE,
-      data: { appInstanceId, newState }
-    } as UpdateStateMessage);
   }
 }
 

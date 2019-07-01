@@ -11,14 +11,14 @@ chai.use(waffle.solidity);
 const { expect } = chai;
 
 type TicTacToeAppState = {
-  turnNum: number;
+  versionNumber: number;
   winner: number;
   board: number[][];
 };
 
 function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
   return defaultAbiCoder.decode(
-    ["tuple(uint256 turnNum, uint256 winner, uint256[3][3] board)"],
+    ["tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"],
     encodedAppState
   )[0];
 }
@@ -35,7 +35,7 @@ describe("TicTacToeApp", () => {
       [
         `
         tuple(
-          uint256 turnNum,
+          uint256 versionNumber,
           uint256 winner,
           uint256[3][3] board
         )
@@ -83,7 +83,7 @@ describe("TicTacToeApp", () => {
   describe("applyAction", () => {
     it("can place into an empty board", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
@@ -103,12 +103,12 @@ describe("TicTacToeApp", () => {
       const state = decodeBytesToAppState(ret);
 
       expect(state.board[0][0]).to.eq(1);
-      expect(state.turnNum).to.eq(1);
+      expect(state.versionNumber).to.eq(1);
     });
 
     it("can place into an empty square", async () => {
       const preState = {
-        turnNum: 1,
+        versionNumber: 1,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
@@ -128,12 +128,12 @@ describe("TicTacToeApp", () => {
       const state = decodeBytesToAppState(ret);
 
       expect(state.board[1][1]).to.eq(2);
-      expect(state.turnNum).to.eq(2);
+      expect(state.versionNumber).to.eq(2);
     });
 
     it("cannot placeinto an occupied square", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
@@ -155,7 +155,7 @@ describe("TicTacToeApp", () => {
 
     it("can draw from a full board", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 2, 2], [2, 1, 2]]
       };
@@ -179,7 +179,7 @@ describe("TicTacToeApp", () => {
 
     it("cannot draw from a non-full board", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 2, 1], [1, 0, 2], [2, 1, 2]]
       };
@@ -201,7 +201,7 @@ describe("TicTacToeApp", () => {
 
     it("can play_and_draw from an almost full board", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 1, 2]]
       };
@@ -225,7 +225,7 @@ describe("TicTacToeApp", () => {
 
     it("cannot play_and_draw from a sparse board", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[0, 2, 1], [1, 2, 2], [2, 0, 0]]
       };
@@ -247,7 +247,7 @@ describe("TicTacToeApp", () => {
 
     it("can play_and_win from a winning position", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 1, 0], [0, 0, 0], [0, 0, 0]]
       };
@@ -271,7 +271,7 @@ describe("TicTacToeApp", () => {
 
     it("cannot play_and_win from a non winning position", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
@@ -294,7 +294,7 @@ describe("TicTacToeApp", () => {
   describe("computeOutcome", () => {
     it("playerFirst wins should compute the outcome correctly", async () => {
       const preState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 0,
         board: [[1, 1, 0], [0, 0, 0], [0, 0, 0]]
       };

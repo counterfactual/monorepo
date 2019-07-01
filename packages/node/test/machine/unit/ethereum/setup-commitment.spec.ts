@@ -1,6 +1,5 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import {
-  bigNumberify,
   getAddress,
   hexlify,
   Interface,
@@ -20,9 +19,6 @@ import { generateRandomNetworkContext } from "../../mocks";
  * to the specifications defined by Counterfactual as can be found here:
  * https://specs.counterfactual.com/04-setup-protocol#commitments
  *
- * TODO: This test suite _only_ covers the conditional transaction from the specs
- *       above. This is because the root nonce setNonce transaction has not been
- *       implemented in OpSetuptup yet.
  */
 describe("SetupCommitment", () => {
   let tx: MultisigTransaction;
@@ -54,8 +50,8 @@ describe("SetupCommitment", () => {
     ).getTransactionDetails();
   });
 
-  it("should be to StateChannelTransaction", () => {
-    expect(tx.to).toBe(networkContext.StateChannelTransaction);
+  it("should be to ConditionalTransactionDelegateTarget", () => {
+    expect(tx.to).toBe(networkContext.ConditionalTransactionDelegateTarget);
   });
 
   it("should have no value", () => {
@@ -63,7 +59,7 @@ describe("SetupCommitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(StateChannelTransaction.abi);
+    const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -80,21 +76,15 @@ describe("SetupCommitment", () => {
     it("should contain expected arguments", () => {
       const [
         appRegistry,
-        rootNonceRegistry,
         uninstallKeyRegistry,
         uninstallKey,
-        rootNonceValue,
         appIdentityHash,
         {},
         {}
       ] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
       expect(uninstallKeyRegistry).toEqual(networkContext.UninstallKeyRegistry);
       expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
-      expect(rootNonceValue).toEqual(
-        bigNumberify(freeBalanceETH.rootNonceValue)
-      );
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
     });
   });

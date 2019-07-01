@@ -89,9 +89,11 @@ export async function getOrCreateVirtualChannel(
     );
   } catch (e) {
     if (
-      e.includes(
-        NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
-      ) &&
+      e
+        .toString()
+        .includes(
+          NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
+        ) &&
       intermediaries !== undefined
     ) {
       const key = virtualChannelKey(

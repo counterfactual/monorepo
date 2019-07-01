@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 
 
 /// @title LibSignature - A library wrapper around signature verification

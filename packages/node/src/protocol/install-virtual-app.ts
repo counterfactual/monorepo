@@ -236,9 +236,8 @@ function createAndAddTarget(
     appInterface,
     true, // sets it to be a virtual app
     sc.numInstalledApps, // app seq no
-    0, // root nonce value: virtual app instances do not have rootNonceValue
     initialState,
-    0, // app nonce
+    0, // app versionNumber
     defaultTimeout,
     {
       playerAddrs: [initiatingAddress, respondingAddress],
@@ -303,7 +302,6 @@ function proposeStateTransition1(
   const leftETHVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithIntermediary.multisigAddress,
     channelWithIntermediary.numInstalledApps,
-    channelWithIntermediary.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
@@ -403,7 +401,6 @@ function proposeStateTransition2(
   const leftEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithInitiating.multisigAddress,
     channelWithInitiating.numInstalledApps,
-    channelWithInitiating.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
@@ -414,7 +411,6 @@ function proposeStateTransition2(
   const rightEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithResponding.multisigAddress,
     channelWithResponding.numInstalledApps,
-    channelWithResponding.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
@@ -517,7 +513,6 @@ function proposeStateTransition3(
   const rightEthVirtualAppAgreementInstance = new TwoPartyVirtualEthAsLumpInstance(
     channelWithIntermediary.multisigAddress,
     channelWithIntermediary.numInstalledApps,
-    channelWithIntermediary.rootNonceValue,
     100,
     bigNumberify(initiatingBalanceDecrement).add(respondingBalanceDecrement),
     targetAppInstance.identityHash,
@@ -574,10 +569,9 @@ function constructTwoPartyVirtualEthAsLumpCommitment(
     targetHash,
     freeBalance.identity,
     freeBalance.hashOfLatestState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     freeBalance.appSeqNo,
-    freeBalance.rootNonceValue,
     bigNumberify(ethVirtualAppAgreementInstance.expiry),
     bigNumberify(ethVirtualAppAgreementInstance.capitalProvided),
     [

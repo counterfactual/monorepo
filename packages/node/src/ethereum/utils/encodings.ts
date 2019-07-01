@@ -21,7 +21,7 @@ export const APP_IDENTITY = `
 export const SIGNED_STATE_HASH_UPDATE = `
   tuple(
     bytes32 stateHash,
-    uint256 nonce,
+    uint256 versionNumber,
     uint256 timeout,
     bytes signatures
   )`;

@@ -135,7 +135,7 @@ function constructUpdateOp(
     network,
     app.identity,
     app.hashOfLatestState,
-    app.nonce,
+    app.versionNumber,
     app.timeout
   );
 }

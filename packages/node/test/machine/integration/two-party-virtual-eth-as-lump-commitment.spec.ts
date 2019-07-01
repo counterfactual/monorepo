@@ -91,9 +91,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         },
         true, // virtual
         0, // app sequence number
-        0, // root nonce
         {}, // latest state
-        1, // latest nonce
+        1, // latest versionNumber
         0, // latest timeout
         {
           playerAddrs: [AddressZero, AddressZero],
@@ -114,10 +113,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         targetAppInstance.identityHash, // target
         freeBalanceETH.identity, // fb AI
         freeBalanceETH.hashOfLatestState, // fb state hash
-        freeBalanceETH.nonce, // fb nonce
+        freeBalanceETH.versionNumber, // fb versionNumber
         freeBalanceETH.timeout, // fb timeout
         0, // dependency nonce
-        0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
         beneficiaries, // beneficiaries
@@ -128,7 +126,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         network,
         targetAppInstance.identity,
         targetAppInstance.hashOfLatestState,
-        targetAppInstance.nonce,
+        targetAppInstance.versionNumber,
         targetAppInstance.timeout
       );
 

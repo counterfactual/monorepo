@@ -77,7 +77,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         freeBalanceETH.identity,
         keccak256(freeBalanceETH.encodedLatestState),
-        freeBalanceETH.nonce,
+        freeBalanceETH.versionNumber,
         freeBalanceETH.timeout
       );
 

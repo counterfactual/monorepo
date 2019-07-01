@@ -13,12 +13,14 @@ export type AppInterface = {
 
 export type SignedStateHashUpdate = {
   appStateHash: string;
-  nonce: number;
+  versionNumber: number;
   timeout: number;
   signatures: string;
 };
 
-export type ETHBucketAppState = [{
-  amount: { _hex: string };
-  to: string;
-}[]];
+export type ETHBucketAppState = [
+  {
+    amount: { _hex: string };
+    to: string;
+  }[]
+];

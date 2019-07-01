@@ -1,13 +1,12 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import RootNonceRegistry from "@counterfactual/contracts/build/RootNonceRegistry.json";
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
 import TwoPartyEthAsLump from "@counterfactual/contracts/build/TwoPartyEthAsLump.json";
 import TwoPartyVirtualEthAsLump from "@counterfactual/contracts/build/TwoPartyVirtualEthAsLump.json";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
@@ -69,21 +68,15 @@ export async function configureNetworkContext(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const rootNonceRegistry = await new ContractFactory(
-    RootNonceRegistry.abi,
-    RootNonceRegistry.bytecode,
-    wallet
-  ).deploy();
-
   const uninstallKeyRegistry = await new ContractFactory(
     UninstallKeyRegistry.abi,
     UninstallKeyRegistry.bytecode,
     wallet
   ).deploy();
 
-  const stateChannelTransaction = await new ContractFactory(
-    StateChannelTransaction.abi,
-    StateChannelTransaction.bytecode,
+  const conditionalTransactionDelegateTarget = await new ContractFactory(
+    ConditionalTransactionDelegateTarget.abi,
+    ConditionalTransactionDelegateTarget.bytecode,
     wallet
   ).deploy();
 
@@ -103,9 +96,9 @@ export async function configureNetworkContext(wallet: Wallet) {
     TwoPartyEthAsLump: twoPartyEthAsLump.address,
     ChallengeRegistry: appRegistry.address,
     MultiSend: multiSend.address,
-    RootNonceRegistry: rootNonceRegistry.address,
     UninstallKeyRegistry: uninstallKeyRegistry.address,
-    StateChannelTransaction: stateChannelTransaction.address,
+    ConditionalTransactionDelegateTarget:
+      conditionalTransactionDelegateTarget.address,
     TwoPartyVirtualEthAsLump: twoPartyVirtualEthAsLump.address
   } as NetworkContext;
 }

@@ -92,20 +92,8 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<void> {
-    const {
-      store,
-      publicIdentifier,
-      messagingService,
-      outgoing
-    } = requestHandler;
+    const { store, outgoing } = requestHandler;
     const { appInstanceId, action } = params;
-
-    const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
-
-    const to = getCounterpartyAddress(publicIdentifier, [
-      appInstanceInfo.proposedByIdentifier,
-      appInstanceInfo.proposedToIdentifier
-    ]);
 
     const appInstance = await store.getAppInstance(appInstanceId);
 
@@ -114,8 +102,6 @@ export default class TakeActionController extends NodeController {
       type: NODE_EVENTS.UPDATE_STATE,
       data: { appInstanceId, action, newState: appInstance.state }
     } as UpdateStateMessage;
-
-    await messagingService.send(to, msg);
 
     outgoing.emit(msg.type, msg);
   }
@@ -157,4 +143,6 @@ async function runTakeActionProtocol(
   const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
 
   await store.saveStateChannel(sc);
+
+  return {};
 }

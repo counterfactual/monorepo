@@ -1,25 +1,24 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
-
 
 contract MixinSetStateWithAction is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   struct SignedAppChallengeUpdateWithAppState {
     // NOTE: We include the full bytes of the state update,
     //       not just the hash of it as in MixinSetState.
     bytes appState;
-    uint256 nonce;
+    uint256 versionNumber;
     uint256 timeout;
     bytes signatures;
   }
@@ -59,7 +58,7 @@ contract MixinSetStateWithAction is
     );
 
     require(
-      req.nonce > challenge.nonce,
+      req.versionNumber > challenge.versionNumber,
       "setStateWithAction was called with outdated state"
     );
 
@@ -67,14 +66,13 @@ contract MixinSetStateWithAction is
       correctKeySignedTheAction(
         appIdentity.appDefinition,
         appIdentity.signingKeys,
-        challenge.challengeNonce,
         req,
         action
       ),
       "setStateWithAction called with action signed by incorrect turn taker"
     );
 
-    bytes memory newState = MAppCaller.applyAction(
+    bytes memory newState = LibAppCaller.applyAction(
       appIdentity.appDefinition,
       req.appState,
       action.encodedAction
@@ -82,7 +80,7 @@ contract MixinSetStateWithAction is
 
     if (action.checkForTerminal) {
       require(
-        MAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
+        LibAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
@@ -93,8 +91,7 @@ contract MixinSetStateWithAction is
     }
 
     challenge.appStateHash = keccak256(newState);
-    challenge.nonce = req.nonce;
-    challenge.challengeNonce = 0;
+    challenge.versionNumber = req.versionNumber;
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
@@ -111,7 +108,7 @@ contract MixinSetStateWithAction is
     bytes32 digest = computeAppChallengeHash(
       identityHash,
       keccak256(req.appState),
-      req.nonce,
+      req.versionNumber,
       req.timeout
     );
     return verifySignatures(req.signatures, digest, signingKeys);
@@ -120,7 +117,6 @@ contract MixinSetStateWithAction is
   function correctKeySignedTheAction(
     address appDefinition,
     address[] memory signingKeys,
-    uint256 challengeNonce,
     SignedAppChallengeUpdateWithAppState memory req,
     SignedAction memory action
   )
@@ -128,7 +124,7 @@ contract MixinSetStateWithAction is
     pure
     returns (bool)
   {
-    address turnTaker = MAppCaller.getTurnTaker(
+    address turnTaker = LibAppCaller.getTurnTaker(
       appDefinition,
       signingKeys,
       req.appState
@@ -140,8 +136,7 @@ contract MixinSetStateWithAction is
         turnTaker,
         keccak256(req.appState),
         action.encodedAction,
-        req.nonce,
-        challengeNonce
+        req.versionNumber
       ),
       0
     );

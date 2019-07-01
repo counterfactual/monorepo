@@ -13,7 +13,9 @@ import { getAppInstanceInfoFromAppInstance } from "./operation";
 export default class GetAppInstancesController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_APP_INSTANCES;
 
-  @jsonRpcMethod("chan_getAppInstances")
+  @jsonRpcMethod(Node.RpcMethodName.GET_APP_INSTANCES)
+  public executeMethod = super.executeMethod;
+
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetAppInstancesParams

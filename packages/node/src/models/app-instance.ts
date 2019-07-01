@@ -27,9 +27,8 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   isVirtualApp: boolean;
   appSeqNo: number;
-  rootNonceValue: number;
   latestState: SolidityABIEncoderV2Type;
-  latestNonce: number;
+  latestversionNumber: number;
   latestTimeout: number;
 
   /**
@@ -69,7 +68,7 @@ export type AppInstanceJson = {
 
  * @property latestState The unencoded representation of the latest state.
 
- * @property latestNonce The nonce of the latest signed state update.
+ * @property latestversionNumber The versionNumber of the latest signed state update.
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
@@ -80,7 +79,7 @@ export type AppInstanceJson = {
  *           and the amount that is to be distributed for an app
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
-// TODO: dont forget dependnecy nonce docstring
+// TODO: dont forget dependnecy versionNumber docstring
 export class AppInstance {
   private readonly json: AppInstanceJson;
 
@@ -91,9 +90,8 @@ export class AppInstance {
     appInterface: AppInterface,
     isVirtualApp: boolean,
     appSeqNo: number,
-    rootNonceValue: number,
     latestState: any,
-    latestNonce: number,
+    latestversionNumber: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
     coinTransferInterpreterParams?: CoinTransferInterpreterParams
@@ -105,9 +103,8 @@ export class AppInstance {
       appInterface,
       isVirtualApp,
       appSeqNo,
-      rootNonceValue,
       latestState,
-      latestNonce,
+      latestversionNumber,
       latestTimeout,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
@@ -144,9 +141,8 @@ export class AppInstance {
       json.appInterface,
       json.isVirtualApp,
       json.appSeqNo,
-      json.rootNonceValue,
       latestState,
-      json.latestNonce,
+      json.latestversionNumber,
       json.latestTimeout,
       json.twoPartyOutcomeInterpreterParams
         ? {
@@ -203,7 +199,7 @@ export class AppInstance {
   @Memoize()
   public get uninstallKey() {
     // The unique "key" in the UninstallKeyRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, hash(<app nonce>))
+    // hash(<stateChannel.multisigAddress address>, hash(<app versionNumber>))
     const ret = keccak256(
       solidityPack(
         ["address", "bytes32"],
@@ -231,8 +227,8 @@ export class AppInstance {
     return this.json.latestState;
   }
 
-  public get nonce() {
-    return this.json.latestNonce;
+  public get versionNumber() {
+    return this.json.latestversionNumber;
   }
 
   public get coinTransferInterpreterParams() {
@@ -284,15 +280,11 @@ export class AppInstance {
     return this.json.isVirtualApp;
   }
 
-  public get rootNonceValue() {
-    return this.json.rootNonceValue;
-  }
-
-  public lockState(nonce: number) {
+  public lockState(versionNumber: number) {
     return AppInstance.fromJson({
       ...this.json,
       latestState: this.json.latestState,
-      latestNonce: nonce
+      latestversionNumber: versionNumber
     });
   }
 
@@ -316,7 +308,7 @@ export class AppInstance {
     return AppInstance.fromJson({
       ...this.json,
       latestState: newState,
-      latestNonce: this.nonce + 1,
+      latestversionNumber: this.versionNumber + 1,
       latestTimeout: timeout
     });
   }

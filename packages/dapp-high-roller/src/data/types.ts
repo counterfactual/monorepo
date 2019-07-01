@@ -11,7 +11,7 @@ export type Bytes32 = string;
 
 export interface SignedStateHashUpdate {
   stateHash: string;
-  nonce: number;
+  versionNumber: number;
   timeout: number;
   signatures: string;
 }

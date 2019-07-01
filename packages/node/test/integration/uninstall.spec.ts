@@ -23,21 +23,25 @@ describe("Node method follows spec - uninstall", () => {
   describe("Node A and B install TTT, then uninstall it", () => {
     it("sends proposal with non-null initial state", async done => {
       const initialState = {
-        turnNum: 0,
+        versionNumber: 0,
         winner: 1, // Hard-coded winner for test
         board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
       };
 
       await createChannel(nodeA, nodeB);
-      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
-      const uninstallReq = generateUninstallRequest(appInstanceId);
 
-      nodeA.emit(uninstallReq.type, uninstallReq);
-      nodeB.on(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
-        expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
+      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
+
+      nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
+        expect(msg.data.appInstanceId).toBe(appInstanceId);
+
         expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
         done();
       });
+
+      await nodeA.router.dispatch(generateUninstallRequest(appInstanceId));
+
+      expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
     });
   });
 });

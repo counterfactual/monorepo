@@ -51,9 +51,7 @@ export interface UninstallMessage extends Node.NodeMessage {
 
 export interface UninstallVirtualMessage extends Node.NodeMessage {
   // TODO: update this to include the intermediares
-  data: {
-    params: Node.UninstallVirtualParams;
-  };
+  data: Node.UninstallVirtualParams;
 }
 
 export interface WithdrawMessage extends Node.NodeMessage {

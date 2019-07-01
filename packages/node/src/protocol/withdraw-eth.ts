@@ -180,7 +180,6 @@ function addInstallRefundAppCommitmentToContext(
     },
     false,
     stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
     {
       recipient,
       multisig: multisigAddress,
@@ -233,7 +232,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigOwners,
     freeBalance.identity,
     freeBalance.state as ETHBucketAppState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     freeBalance.appSeqNo
   );
@@ -277,10 +276,9 @@ function constructInstallOp(
     app.identity,
     freeBalance.identity,
     freeBalance.hashOfLatestState,
-    freeBalance.nonce,
+    freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue,
     network.ETHInterpreter,
     defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );

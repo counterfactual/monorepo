@@ -36,10 +36,10 @@ class Game extends Component {
 
   async onUpdateState({
     data: {
-      newState: { players, turnNum, winner, board }
+      newState: { players, versionNumber, winner, board }
     }
   }) {
-    this.updateGame({ players, turnNum, winner, board });
+    this.updateGame({ players, versionNumber, winner, board });
 
     if (!window.ethers.constants.Zero.eq(winner)) {
       try {
@@ -112,14 +112,14 @@ class Game extends Component {
     return this.myNumber === 1 ? 2 : 1;
   }
 
-  get turnNumber() {
+  get versionNumberber() {
     return window.ethers.utils
-      .bigNumberify(this.state.gameState.turnNum || { _hex: "0x00" })
+      .bigNumberify(this.state.gameState.versionNumber || { _hex: "0x00" })
       .toNumber();
   }
 
   get isMyTurn() {
-    return this.turnNumber % 2 === (this.myNumber === 1 ? 0 : 1);
+    return this.versionNumberber % 2 === (this.myNumber === 1 ? 0 : 1);
   }
 
   render() {

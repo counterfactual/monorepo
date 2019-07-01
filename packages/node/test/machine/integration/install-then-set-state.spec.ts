@@ -102,7 +102,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         freeBalanceETH.appInterface, // Re-use the ETHBucket App
         false,
         stateChannel.numInstalledApps,
-        stateChannel.rootNonceValue,
         state,
         0,
         freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
@@ -123,7 +122,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         network,
         appInstance.identity,
         keccak256(appInstance.encodedLatestState),
-        appInstance.nonce + 1,
+        appInstance.versionNumber + 1,
         appInstance.timeout
       );
 
@@ -152,10 +151,9 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         appInstance.identity,
         freeBalanceETH.identity,
         freeBalanceETH.hashOfLatestState,
-        freeBalanceETH.nonce,
+        freeBalanceETH.versionNumber,
         freeBalanceETH.timeout,
         appInstance.appSeqNo,
-        stateChannel.rootNonceValue,
         network.ETHInterpreter,
         defaultAbiCoder.encode(
           ["uint256"],

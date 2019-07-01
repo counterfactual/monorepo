@@ -5,6 +5,8 @@ RUN add-apt-repository ppa:ethereum/ethereum
 
 RUN apt-get update
 
+# there doesn't appear to be any way to specify solc version num
+# https://launchpad.net/~ethereum/+archive/ubuntu/ethereum/+packages?field.name_filter=solc&field.status_filter=published&field.series_filter=
 RUN apt-get install -y solc
 
 # install node 10.x and yarn 1.10.x
