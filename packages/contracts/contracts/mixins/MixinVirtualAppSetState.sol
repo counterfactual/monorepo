@@ -52,12 +52,12 @@ contract MixinVirtualAppSetState is
 
     require(
       req.versionNumber > challenge.versionNumber,
-      "Tried to call setState with an outdated versionNumber version"
+      "Tried to call virtualAppSetState with an outdated versionNumber version"
     );
 
     require(
       req.versionNumber < req.versionNumberExpiry,
-      "Tried to call setState with versionNumber greater than intermediary versionNumber expiry");
+      "Tried to call virtualAppSetState with versionNumber greater than intermediary versionNumber expiry");
 
     challenge.status = req.timeout > 0 ?
       ChallengeStatus.CHALLENGE_IS_OPEN :

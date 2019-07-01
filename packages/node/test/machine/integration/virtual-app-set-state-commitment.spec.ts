@@ -1,10 +1,17 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
+import { randomBytes } from "crypto";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, MaxUint256, WeiPerEther, Zero } from "ethers/constants";
-import { Signature, SigningKey } from "ethers/utils";
+import {
+  bigNumberify,
+  getAddress,
+  hexlify,
+  Signature,
+  SigningKey
+} from "ethers/utils";
 
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
@@ -63,23 +70,25 @@ beforeEach(() => {
     [multisigOwnerKeys[1].address]: WeiPerEther
   });
 
-  const freeBalanceETH = stateChannel.freeBalance;
-
   targetAppInstance = new AppInstance(
-    /* multisigAddress */ AddressZero,
+    /* multisigAddress */ stateChannel.multisigAddress,
     /* signingKeys */ stateChannel.multisigOwners,
     /* defautTimeout */ 10,
-    /* appInterface */ freeBalanceETH.appInterface,
+    /* appInterface */ {
+      addr: getAddress(hexlify(randomBytes(20))),
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    },
     /* isVirtualApp */ true,
     /* appSeqNo */ 5,
-    /* latestState */ freeBalanceETH.toJson().latestState,
-    /* latestVersionNumber */ freeBalanceETH.toJson().latestversionNumber,
-    /* latestTimeout */ freeBalanceETH.timeout,
-    {
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestVersionNumber */ 10,
+    /* latestTimeout */ 10,
+    /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    undefined
+    /* coinTransferInterpreterParams */ undefined
   );
 
   intermediaryCommitment = new VirtualAppSetStateCommitment(

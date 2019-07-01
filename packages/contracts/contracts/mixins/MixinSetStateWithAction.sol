@@ -7,6 +7,7 @@ import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
 
+
 contract MixinSetStateWithAction is
   LibSignature,
   LibStateChannelApp,
