@@ -19,7 +19,7 @@ contract ConditionalTransactionDelegateTarget {
   {
     require(
       appRegistry.isStateFinalized(freeBalanceAppIdentityHash),
-      "App is not finalized yet"
+      "Free Balance app instance is not finalized yet"
     );
 
     bytes memory outcome = appRegistry.getOutcome(
@@ -38,7 +38,7 @@ contract ConditionalTransactionDelegateTarget {
 
     require(
       success,
-      "Execution of executeEffectOfInterpretedAppOutcome failed"
+      "Execution of executeEffectOfFreeBalance failed"
     );
   }
 
