@@ -45,7 +45,7 @@ export interface NetworkContext {
 
 // Keep in sync with above
 export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
-  "ChallengeRegistry",
+  "AppInstanceAdjudicator",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
   "MultiAssetMultiPartyCoinTransferInterpreter",

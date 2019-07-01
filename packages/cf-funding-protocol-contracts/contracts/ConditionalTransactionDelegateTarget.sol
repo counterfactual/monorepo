@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 /* solium-disable-next-line */
-import "@counterfactual/cf-adjudicator-contracts/contracts/ChallengeRegistry.sol";
+import "@counterfactual/cf-adjudicator-contracts/contracts/AppInstanceAdjudicator.sol";
 
 import "./libs/LibOutcome.sol";
 
@@ -23,7 +23,7 @@ contract ConditionalTransactionDelegateTarget {
   }
 
   function executeEffectOfFreeBalance(
-    ChallengeRegistry challengeRegistry,
+    AppInstanceAdjudicator adjudicator,
     bytes32 freeBalanceAppIdentityHash,
     address multiAssetMultiPartyCoinTransferInterpreterAddress,
     bytes memory multiAssetMultiPartyCoinTransferInterpreterParams
@@ -31,12 +31,12 @@ contract ConditionalTransactionDelegateTarget {
     public
   {
     require(
-      challengeRegistry.isStateFinalized(freeBalanceAppIdentityHash),
+      adjudicator.isStateFinalized(freeBalanceAppIdentityHash),
       "Free Balance app instance is not finalized yet"
     );
 
     LibOutcome.CoinTransfer[][] memory outcome = abi.decode(
-      challengeRegistry.getOutcome(freeBalanceAppIdentityHash),
+      adjudicator.getOutcomeData(freeBalanceAppIdentityHash),
       (FreeBalanceAppState)
     ).balances;
 
@@ -61,7 +61,7 @@ contract ConditionalTransactionDelegateTarget {
   /// @notice Execute a fund transfer for a state channel app in a finalized state
   /// @param appIdentityHash AppIdentityHash to be resolved
   function executeEffectOfInterpretedAppOutcome(
-    ChallengeRegistry challengeRegistry,
+    AppInstanceAdjudicator adjudicator,
     bytes32 freeBalanceAppIdentityHash,
     bytes32 appIdentityHash,
     address interpreterAddress,
@@ -71,7 +71,7 @@ contract ConditionalTransactionDelegateTarget {
   {
 
     bytes32[] memory activeApps = abi.decode(
-      challengeRegistry.getOutcome(freeBalanceAppIdentityHash),
+      adjudicator.getOutcomeData(freeBalanceAppIdentityHash),
       (FreeBalanceAppState)
     ).activeApps;
 
@@ -85,7 +85,7 @@ contract ConditionalTransactionDelegateTarget {
 
     require(appIsFunded, "Referenced AppInstance is not funded");
 
-    bytes memory outcome = challengeRegistry.getOutcome(appIdentityHash);
+    bytes memory outcome = adjudicator.getOutcomeData(appIdentityHash);
 
     (
       bool success,

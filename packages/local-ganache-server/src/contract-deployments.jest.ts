@@ -1,5 +1,5 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/build/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
@@ -62,9 +62,9 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const challengeRegistry = await new ContractFactory(
-    ChallengeRegistry.abi,
-    ChallengeRegistry.bytecode,
+  const appRegistry = await new ContractFactory(
+    AppInstanceAdjudicator.abi,
+    AppInstanceAdjudicator.bytecode,
     wallet
   ).deploy();
 
@@ -99,22 +99,25 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   return {
-    ChallengeRegistry: challengeRegistry.address,
+    AppInstanceAdjudicator: appRegistry.address,
+    CoinBalanceRefundApp: coinBalanceRefundContract.address,
+    CoinTransferInterpreter: coinTransferETHInterpreter.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
+    DolphinCoin: dolphinCoin.address,
     IdentityApp: identityApp.address,
+    MinimumViableMultisig: mvmContract.address,
     MultiAssetMultiPartyCoinTransferInterpreter:
       coinTransferETHInterpreter.address,
-    CoinBalanceRefundApp: coinBalanceRefundContract.address,
-    DolphinCoin: dolphinCoin.address,
-    MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     SingleAssetTwoPartyCoinTransferInterpreter:
       singleAssetTwoPartyCoinTransferInterpreter.address,
+    SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter:
+      singleAssetTwoPartyCoinTransferFromVirtualAppInterpreter.address,
     TicTacToeApp: tttContract.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
-    TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppInterpreter:
-      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address,
+    TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address
   } as NetworkContextForTestSuite;
 }

@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -11,6 +11,8 @@ contract MixinRefute is
   MAppInstanceAdjudicatorCore,
   LibChallengeRules
 {
+
+  using SafeMath for uint;
 
   uint256 constant INEFFICIENT_REFUTE_TIMEOUT = 10;
 

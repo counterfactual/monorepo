@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental ABIEncoderV2;
 
 import "./LibAppInstanceState.sol";
@@ -6,13 +6,6 @@ import "../interfaces/CounterfactualApp.sol";
 
 
 contract LibChallengeRules is LibAppInstanceState {
-
-  struct Challenge {
-    bytes32 appInstanceId;
-    AppInstanceState channelState;
-    uint32 expirationTime;
-    uint256[] payouts;
-  }
 
   function validChallenge(
     AppInstanceState memory _fromAppInstanceState,

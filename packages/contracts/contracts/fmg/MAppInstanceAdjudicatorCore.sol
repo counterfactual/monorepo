@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental ABIEncoderV2;
 
 import "./LibAppInstanceState.sol";
@@ -15,7 +15,7 @@ contract MAppInstanceAdjudicatorCore is LibAppInstanceState {
   }
 
   function isAppInstanceFinalized(bytes32 appInstanceId)
-    internal
+    public
     view
     returns (bool)
   {
@@ -23,6 +23,14 @@ contract MAppInstanceAdjudicatorCore is LibAppInstanceState {
       outcomes[appInstanceId].finalizedAt < block.number &&
       outcomes[appInstanceId].finalizedAt > 0
     );
+  }
+
+  function getOutcomeData(bytes32 appInstanceId)
+    public
+    view
+    returns (bytes memory)
+  {
+    return outcomes[appInstanceId].outcome;
   }
 
 }
