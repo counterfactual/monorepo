@@ -1,10 +1,17 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
+import { randomBytes } from "crypto";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, MaxUint256, WeiPerEther, Zero } from "ethers/constants";
-import { Signature, SigningKey, getAddress, hexlify, bigNumberify } from "ethers/utils";
+import {
+  bigNumberify,
+  getAddress,
+  hexlify,
+  Signature,
+  SigningKey
+} from "ethers/utils";
 
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
@@ -13,7 +20,6 @@ import { AppInstance, StateChannel } from "../../../src/models";
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
-import { randomBytes } from "crypto";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
