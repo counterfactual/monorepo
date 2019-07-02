@@ -45,28 +45,28 @@ describe("AppInstanceAdjudicator", () => {
   });
 
   it("test", async () => {
-    const channelState = {
+    const appInstanceState = {
       appDefinition: app.address,
       participants: [ALICE, BOB],
       actionTaken: HashZero,
       appAttributes: HashZero,
       challengeTimeout: 100,
       nonce: 0,
-      turnNum: 0,
-      commitmentType: 0,
+      versionNum: 0,
+      stateType: 0,
     };
 
     await adjudicator.functions.challenge(
       {
-        ...channelState,
-        turnNum: 0,
+        ...appInstanceState,
+        versionNum: 0,
         actionTaken: defaultAbiCoder.encode(["tuple(uint256)"], [1])
       },
       {
-        ...channelState,
-        turnNum: 1,
+        ...appInstanceState,
+        versionNum: 1,
         actionTaken: defaultAbiCoder.encode([""])
-      }
+      },
       bytes[] memory signatures
     )
   });

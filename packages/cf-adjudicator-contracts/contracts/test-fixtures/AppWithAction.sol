@@ -26,7 +26,7 @@ contract AppWithAction is CounterfactualApp {
   }
 
   /**
-   * The 0th signer is allowed to make one nonzero increment at turnNum = 0,
+   * The 0th signer is allowed to make one nonzero increment at versionNum = 0,
    * after which time the 1st signer may finalize the outcome.
    */
   function getTurnTaker(

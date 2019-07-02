@@ -59,7 +59,7 @@ contract LibChallengeRules is LibAppInstanceState {
     returns (bool)
   {
     require(
-      _refutationAppInstanceState.turnNum > _challengeAppInstanceState.turnNum,
+      _refutationAppInstanceState.versionNum > _challengeAppInstanceState.versionNum,
       "the refutationAppInstanceState must have a higher nonce"
     );
 
@@ -114,8 +114,8 @@ contract LibChallengeRules is LibAppInstanceState {
     );
 
     require(
-      _challengeAppInstanceState.turnNum == _alternativeAppInstanceState.turnNum,
-      "alternativeAppInstanceState must have the same nonce as the challenge channelState"
+      _challengeAppInstanceState.versionNum == _alternativeAppInstanceState.versionNum,
+      "alternativeAppInstanceState must have the same nonce as the challenge appInstanceState"
     );
 
     // .. it must be signed (by the challenger)
@@ -127,7 +127,7 @@ contract LibChallengeRules is LibAppInstanceState {
 
     require(
       validTransition(_alternativeAppInstanceState, _nextAppInstanceState),
-      "it must be a valid transition of the appcommitment (from the alternative channelState)"
+      "it must be a valid transition of the appcommitment (from the alternative appInstanceState)"
     );
 
     return true;
@@ -148,8 +148,8 @@ contract LibChallengeRules is LibAppInstanceState {
     );
 
     require(
-      _toAppInstanceState.turnNum == _fromAppInstanceState.turnNum + 1,
-      "Invalid transition: turnNum must increase by 1"
+      _toAppInstanceState.versionNum == _fromAppInstanceState.versionNum + 1,
+      "Invalid transition: versionNum must increase by 1"
     );
 
     if (isApp(_fromAppInstanceState)) {
@@ -177,7 +177,7 @@ contract LibChallengeRules is LibAppInstanceState {
     } else {
       require(
         isConclude(_toAppInstanceState),
-        "Invalid transition from App: commitmentType must be Conclude"
+        "Invalid transition from App: stateType must be Conclude"
       );
       require(
         outcomesEqual(_fromAppInstanceState, _toAppInstanceState),
@@ -198,7 +198,7 @@ contract LibChallengeRules is LibAppInstanceState {
 
     require(
       isConclude(_toAppInstanceState),
-      "Invalid transition from Conclude: commitmentType must be Conclude"
+      "Invalid transition from Conclude: stateType must be Conclude"
     );
 
     require(

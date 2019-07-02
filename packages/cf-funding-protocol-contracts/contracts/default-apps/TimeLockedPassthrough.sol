@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 /* solium-disable-next-line */
 import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/CounterfactualApp.sol";
 /* solium-disable-next-line */
-import "@counterfactual/cf-adjudicator-contracts/contracts/ChallengeRegistry.sol";
+import "@counterfactual/cf-adjudicator-contracts/contracts/AppInstanceAdjudicator.sol";
 
 
 /// @notice TimeLockedPassThrough - Before `switchesOutcomeAt`, this contract
@@ -27,7 +27,7 @@ import "@counterfactual/cf-adjudicator-contracts/contracts/ChallengeRegistry.sol
 contract TimeLockedPassThrough {
 
   struct AppState {
-    address challengeRegistryAddress;
+    AppInstanceAdjudicator adjudicator;
     bytes32 targetAppIdentityHash;
     uint256 switchesOutcomeAt;
     bytes defaultOutcome;
@@ -43,9 +43,7 @@ contract TimeLockedPassThrough {
     if (block.number >= appState.switchesOutcomeAt)
       return appState.defaultOutcome;
 
-    return ChallengeRegistry(
-      appState.challengeRegistryAddress
-    ).getOutcome(
+    return appState.adjudicator.getOutcomeData(
       appState.targetAppIdentityHash
     );
   }

@@ -10,37 +10,39 @@ contract LibAppInstanceState is LibSignature {
   enum AppInstanceStateType { App, Conclude }
 
   struct AppInstanceState {
+
+    /* The address of the contract defining applyAction and computeOutcome */
     address appDefinition;
+
+    /* Array of addresses responsible for signing updates */
     address[] participants;
+
+    /* Type of this AppInstanceState: RUNNING or CONCLUDE */
+    AppInstanceStateType stateType;
+
+    /* Encoded action data for call to applyAction */
     bytes actionTaken;
+
+    /* Current state of the AppInstance to be interpreted by appDefinition contract */
     bytes appAttributes;
+
+    /* Timeout that would start on-chain were this state used in challenge */
     uint256 challengeTimeout;
-    // uint32 commitmentCount;
+
+    /* Unique identifier for this AppInstance */
     uint32 nonce;
-    uint32 turnNum;
-    uint8 commitmentType;
+
+    /* Current version number of this state in the AppInstance */
+    uint32 versionNum;
+
   }
 
-  // struct CompressedAppInstanceState {
-  //   /** Same as AppInstanceState */
-  //   address appDefinition;
-  //   uint32 nonce;
-  //   address[] participants;
-  //   uint8 commitmentType;
-  //   uint32 turnNum;
-  //   uint32 commitmentCount;
-  //   bytes outcome;
-  //   bytes actionTaken;
-  //   /** ------------------------ */
-  //   bytes32 appAttributes;
-  // }
-
   function isApp(AppInstanceState memory self) public pure returns (bool) {
-    return self.commitmentType == uint(AppInstanceStateType.App);
+    return self.stateType == AppInstanceStateType.App;
   }
 
   function isConclude(AppInstanceState memory self) public pure returns (bool) {
-    return self.commitmentType == uint(AppInstanceStateType.Conclude);
+    return self.stateType == AppInstanceStateType.Conclude;
   }
 
   function outcomesEqual(
@@ -61,7 +63,7 @@ contract LibAppInstanceState is LibSignature {
   }
 
   function appInstanceIdFromAppInstanceState(
-    AppInstanceState memory channelState
+    AppInstanceState memory appInstanceState
   )
     internal
     pure
@@ -69,46 +71,48 @@ contract LibAppInstanceState is LibSignature {
   {
     return keccak256(
       abi.encodePacked(
-        channelState.appDefinition,
-        channelState.nonce,
-        channelState.participants
+        appInstanceState.appDefinition,
+        appInstanceState.nonce,
+        appInstanceState.participants
       )
     );
   }
 
-  function turnTakerFromAppInstanceState(AppInstanceState memory channelState)
+  function turnTakerFromAppInstanceState(
+    AppInstanceState memory appInstanceState
+  )
     internal
     pure
     returns (address)
   {
-    return channelState.participants[
-      channelState.turnNum % channelState.participants.length
+    return appInstanceState.participants[
+      appInstanceState.versionNum % appInstanceState.participants.length
     ];
   }
 
   function requireSignature(
-    AppInstanceState memory channelState,
+    AppInstanceState memory appInstanceState,
     bytes memory signature
   )
     internal
     pure
   {
     require(
-      moveAuthorized(channelState, signature),
+      moveAuthorized(appInstanceState, signature),
       "Correct turn taker must have signed AppInstanceState"
     );
   }
 
   function moveAuthorized(
-    AppInstanceState memory channelState,
+    AppInstanceState memory appInstanceState,
     bytes memory signature
   )
     internal
     pure
     returns (bool)
   {
-    return turnTakerFromAppInstanceState(channelState) ==
-      recoverKey(signature, keccak256(abi.encode(channelState)), 0);
+    return turnTakerFromAppInstanceState(appInstanceState) ==
+      recoverKey(signature, keccak256(abi.encode(appInstanceState)), 0);
   }
 
 }

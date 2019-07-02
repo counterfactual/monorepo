@@ -69,6 +69,15 @@ contract ConditionalTransactionDelegateTarget {
   )
     public
   {
+    require(
+      adjudicator.isAppInstanceFinalized(freeBalanceAppIdentityHash),
+      "Free Balance app instance is not finalized yet"
+    );
+
+    require(
+      adjudicator.isAppInstanceFinalized(appIdentityHash),
+      "Referenced app instance is not finalized yet"
+    );
 
     bytes32[] memory activeApps = abi.decode(
       adjudicator.getOutcomeData(freeBalanceAppIdentityHash),
