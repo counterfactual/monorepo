@@ -26,6 +26,10 @@ To build the cf.js package:
 yarn build
 ```
 
-## API Reference
+## Docs
 
-[Found here](API_REFERENCE.md)
+To generate the docs:
+
+```shell
+yarn docs 
+```

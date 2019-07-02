@@ -1,5 +1,5 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { One, Zero } from "ethers/constants";
 
 import {
   JsonRpcResponse,
@@ -45,14 +45,30 @@ describe("Node method follows spec - takeAction", () => {
 
         const appInstanceId = await installTTTApp(nodeA, nodeB);
 
+        const expectedNewState = {
+          board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],
+          versionNumber: One,
+          winner: Zero
+        };
+
         nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const response = (await nodeB.router.dispatch(
-            generateGetStateRequest(msg.data.appInstanceId)
-          )) as JsonRpcResponse;
+          /**
+           * TEST #1
+           * The event emitted by Node C after an action is taken by A
+           * sends the appInstanceId and the newState correctly.
+           */
+          expect(msg.data.appInstanceId).toEqual(appInstanceId);
+          expect(msg.data.newState).toEqual(expectedNewState);
 
-          const { state } = response.result as NodeTypes.GetStateResult;
+          /**
+           * TEST #3
+           * The database of Node C is correctly updated and querying it works
+           */
+          const { state } = ((await nodeB.router.dispatch(
+            generateGetStateRequest(appInstanceId)
+          )) as JsonRpcResponse).result as NodeTypes.GetStateResult;
 
-          expect(state).toEqual(newState);
+          expect(state).toEqual(expectedNewState);
 
           done();
         });
@@ -62,14 +78,15 @@ describe("Node method follows spec - takeAction", () => {
           validAction
         );
 
-        const response = (await nodeA.router.dispatch(
+        /**
+         * TEST #2
+         * The return value from the call to Node A includes the new state
+         */
+        const { newState } = ((await nodeA.router.dispatch(
           takeActionReq
-        )) as JsonRpcResponse;
+        )) as JsonRpcResponse).result as NodeTypes.TakeActionResult;
 
-        const { newState } = response.result as NodeTypes.TakeActionResult;
-
-        expect(newState["board"][0][0]).toEqual(bigNumberify(1));
-        expect(newState["versionNumber"]).toEqual(bigNumberify(1));
+        expect(newState).toEqual(expectedNewState);
       });
     }
   );

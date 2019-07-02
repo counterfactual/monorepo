@@ -26,7 +26,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     // todo(xuanji): the following two are set to null for intermediary. This
     // is bad API design and should be fixed eventually.
     public readonly hashedSolidityABIEncoderV2Struct?: string,
-    public readonly appversionNumber?: BigNumberish
+    public readonly appVersionNumber?: BigNumberish
   ) {
     super();
   }
@@ -55,7 +55,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
         [
           "0x19",
           appIdentityToHash(this.appIdentity),
-          this.appversionNumber!,
+          this.appVersionNumber!,
           this.timeout,
           this.hashedSolidityABIEncoderV2Struct
         ]
@@ -88,7 +88,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
   ): any {
     return {
       appStateHash: this.hashedSolidityABIEncoderV2Struct!,
-      versionNumber: this.appversionNumber!,
+      versionNumber: this.appVersionNumber!,
       timeout: this.timeout,
       signatures: signaturesToBytes(
         intermediarySignature,

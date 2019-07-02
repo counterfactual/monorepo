@@ -302,14 +302,19 @@ export class Provider {
   /**
    * @ignore
    */
-  private onNodeMessage(message: JsonRpcNotification | JsonRpcResponse) {
-    const type = message.result.type;
+  private onNodeMessage(
+    message: JsonRpcNotification | JsonRpcResponse | Node.Event
+  ) {
+    const type = message["jsonrpc"]
+      ? (message as JsonRpcNotification | JsonRpcResponse).result.type
+      : (message as Node.Event).type;
+
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
       this.handleNodeError(message as JsonRpcResponse);
     } else if ("id" in message) {
       this.handleNodeMethodResponse(message as JsonRpcResponse);
     } else {
-      this.handleNodeEvent(message as JsonRpcNotification);
+      this.handleNodeEvent(message as JsonRpcNotification | Node.Event);
     }
   }
 
@@ -353,8 +358,11 @@ export class Provider {
   /**
    * @ignore
    */
-  private async handleNodeEvent(event: JsonRpcNotification) {
-    const nodeEvent = event.result as Node.Event;
+  private async handleNodeEvent(event: JsonRpcNotification | Node.Event) {
+    const nodeEvent = event["jsonrpc"]
+      ? (event as JsonRpcNotification | JsonRpcResponse).result
+      : (event as Node.Event);
+
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
         return this.handleRejectInstallEvent(nodeEvent);

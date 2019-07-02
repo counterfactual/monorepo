@@ -97,12 +97,7 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ) {
     const { owners } = params;
-    const {
-      publicIdentifier,
-      instructionExecutor,
-      messagingService,
-      store
-    } = requestHandler;
+    const { publicIdentifier, instructionExecutor, store } = requestHandler;
 
     const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
 
@@ -124,8 +119,6 @@ export default class CreateChannelController extends NodeController {
         counterpartyXpub: respondingXpub
       } as Node.CreateChannelResult
     };
-
-    await messagingService.send(respondingXpub, msg);
 
     requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg);
   }
