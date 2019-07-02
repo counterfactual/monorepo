@@ -24,9 +24,9 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.16.2",
-    "rollup-plugin-commonjs": "10.0.0",
-    "rollup-plugin-node-resolve": "5.0.4",
+    "rollup": "1.16.3",
+    "rollup-plugin-commonjs": "10.0.1",
+    "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-typescript2": "0.21.2",
     "tslint": "5.18.0",
     "typedoc": "0.14.2",
@@ -35,7 +35,7 @@
   "dependencies": {
     "@counterfactual/node-provider": "0.1.2",
     "@counterfactual/types": "0.0.16",
-    "ethers": "4.0.31",
+    "ethers": "4.0.32",
     "eventemitter3": "^4.0.0",
     "global": "^4.3.2",
     "rpc-server": "0.0.1"
