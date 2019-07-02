@@ -133,7 +133,7 @@ export default class CounterfactualNode {
    * @param event {MessageEvent}
    */
   private static relayMessage(event: MessageEvent): void {
-    this.node.emit(event.data.type, event.data);
+    this.node.emit(event.data.methodName, event.data);
   }
 
   /**

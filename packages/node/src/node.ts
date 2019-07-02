@@ -318,6 +318,7 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
+        console.log("emit message", JSON.stringify(msg))
         this.router.emit(msg.type, msg, "outgoing");
       }
     );
