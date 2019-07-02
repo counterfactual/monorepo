@@ -54,15 +54,15 @@ struct AppChallenge {
 }
 ```
 
-Where `ChallengeStatus` is one of `NO_CHALLENGE`, `CHALLENGE_WAS_FINALIZED`, or `CHALLENGE_IS_OPEN`.
+Where `ChallengeStatus` is one of `NO_CHALLENGE`, `EXPLICITLY_FINALIZED`, or `FINALIZES_AFTER_DEADLINE`.
 
 Here is a description of why each field exists in this data structure:
 
 - **`status`**: A challenge exists in one of four logical states.
   - `NO_CHALLENGE`: Has never been opened (the "null" challenge and default for all off-chain apps)
-  - `CHALLENGE_IS_OPEN`: Open and its timeout parameter is in the future (can be responded to)
-  - `CHALLENGE_IS_OPEN`: Was opened and the timeout expired (the challenge was finalized)
-  - `CHALLENGE_WAS_FINALIZED`: Was finalized explicitly
+  - `FINALIZES_AFTER_DEADLINE`: Open and its timeout parameter is in the future (can be responded to)
+  - `FINALIZES_AFTER_DEADLINE`: Was opened and the timeout expired (the challenge was finalized)
+  - `EXPLICITLY_FINALIZED`: Was finalized explicitly
 
 ![statechannel statuses](img/statechannel-statuses.svg)
 

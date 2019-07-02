@@ -60,8 +60,8 @@ contract MixinVirtualAppSetState is
       "Tried to call virtualAppSetState with versionNumber greater than intermediary versionNumber expiry");
 
     challenge.status = req.timeout > 0 ?
-      ChallengeStatus.CHALLENGE_IS_OPEN :
-      ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      ChallengeStatus.FINALIZES_AFTER_DEADLINE :
+      ChallengeStatus.EXPLICITLY_FINALIZED;
 
     challenge.appStateHash = req.appStateHash;
     challenge.versionNumber = req.versionNumber;

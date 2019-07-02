@@ -42,7 +42,7 @@ contract MixinSetState is
     require(
       challenge.status == ChallengeStatus.NO_CHALLENGE ||
       (
-        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN &&
+        challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE &&
         challenge.finalizesAt >= block.number
       ),
       "setState was called on an app that has already been finalized"
@@ -65,8 +65,8 @@ contract MixinSetState is
     );
 
     challenge.status = req.timeout > 0 ?
-      ChallengeStatus.CHALLENGE_IS_OPEN :
-      ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      ChallengeStatus.FINALIZES_AFTER_DEADLINE :
+      ChallengeStatus.EXPLICITLY_FINALIZED;
 
     challenge.appStateHash = req.appStateHash;
     challenge.versionNumber = req.versionNumber;
