@@ -3,6 +3,7 @@ pragma experimental ABIEncoderV2;
 
 import "./MAppInstanceAdjudicatorCore.sol";
 import "./MixinChallenge.sol";
+import "./MixinChallengeUnanimous.sol";
 import "./MixinRefute.sol";
 import "./MixinRespondWithMove.sol";
 import "./MixinAlternativeRespondWithMove.sol";
@@ -13,6 +14,7 @@ import "./MixinConclude.sol";
 contract AppInstanceAdjudicator is
   MAppInstanceAdjudicatorCore,
   MixinChallenge,
+  MixinChallengeUnanimous,
   MixinRefute,
   MixinRespondWithMove,
   MixinAlternativeRespondWithMove,
