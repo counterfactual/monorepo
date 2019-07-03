@@ -54,7 +54,7 @@ contract MixinSetStateWithAction is
 
     require(
       challenge.status == ChallengeStatus.NO_CHALLENGE ||
-      (challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN && challenge.finalizesAt >= block.number),
+      (challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE && challenge.finalizesAt >= block.number),
       "setStateWithAction was called on an app that has already been finalized"
     );
 
@@ -85,10 +85,10 @@ contract MixinSetStateWithAction is
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
       challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
+      challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     }
 
     challenge.appStateHash = keccak256(newState);
