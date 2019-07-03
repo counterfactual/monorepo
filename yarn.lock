@@ -924,6 +924,11 @@
   resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
 
+"@counterfactual/types@0.0.17":
+  version "0.0.17"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.17.tgz#a697f79138d55638fa40e48e71b56878f53d7f63"
+  integrity sha512-kLRE+fTLz4t5zUzKLM/UYc/+5TBS4pS546kEyExoLM3yKYC+THfU5y/ISTJZChANyiR96fSwIW+rB8f0HJQZaQ==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
