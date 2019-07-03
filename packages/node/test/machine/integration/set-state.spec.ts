@@ -79,7 +79,7 @@ describe("set state on free balance", () => {
     );
 
     expect(contractAppState.versionNumber).toBeEq(
-      setStateCommitment.appversionNumber
+      setStateCommitment.appVersionNumber
     );
 
     done();
