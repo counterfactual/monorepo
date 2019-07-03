@@ -27,7 +27,7 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
-const NONCE_EXPIRY = 65536;
+const VERSION_NUMBER_EXPIRY = 65536;
 
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
@@ -343,7 +343,7 @@ export class StateChannel {
 
     appInstances.set(
       appInstanceIdentityHash,
-      appInstance.lockState(NONCE_EXPIRY)
+      appInstance.lockState(VERSION_NUMBER_EXPIRY)
     );
 
     return new StateChannel(
