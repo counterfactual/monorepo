@@ -38,8 +38,8 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.2.8",
-    "@counterfactual/types": "0.0.16",
+    "@counterfactual/node": "0.2.10",
+    "@counterfactual/types": "0.0.18",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
