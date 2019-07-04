@@ -15,6 +15,7 @@ import {
 import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { createFundedFreeBalance } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -80,10 +81,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey),
         1
-      ).setFreeBalance({
-        [multisigOwnerKeys[0].address]: WeiPerEther,
-        [multisigOwnerKeys[1].address]: WeiPerEther
-      });
+      ).setFreeBalance(
+        createFundedFreeBalance(
+          multisigOwnerKeys.map<string>(key => key.address),
+          WeiPerEther
+        )
+      );
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
         xkeys.map(x => x.extendedKey),

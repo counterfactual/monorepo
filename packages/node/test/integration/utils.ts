@@ -643,3 +643,20 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
     delete appInstance.peerDeposit;
   });
 }
+
+export function createFundedFreeBalance(
+  addresses: string[],
+  amount: BigNumber
+) {
+  const ethFreeBalance = {};
+  const balances: {}[] = [];
+  for (let i = 0; i < addresses.length; i += 1) {
+    const balance = {};
+    balance["to"] = addresses[i];
+    balance["amount"] = amount;
+    balances.push(balance);
+  }
+  ethFreeBalance[AddressZero] = balances;
+
+  return ethFreeBalance;
+}

@@ -52,3 +52,6 @@ export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
+
+export const ethBalanceRefundStateEncoding =
+  "tuple(address recipient, address multisig, uint256 threshold)";

@@ -1,14 +1,12 @@
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import {
-  AppIdentity,
-  ETHBucketAppState,
-  NetworkContext
-} from "@counterfactual/types";
+import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
+
+import { FreeBalanceState } from "../models/free-balance";
 
 import { MultiSendCommitment } from "./multisend-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
-import { encodeETHBucketAppState } from "./utils/eth-bucket";
+import { encodeFreeBalanceAppState } from "./utils/funds-bucket";
 
 const uninstallKeyRegistryIface = new Interface(UninstallKeyRegistry.abi);
 
@@ -18,7 +16,7 @@ export class UninstallCommitment extends MultiSendCommitment {
     public readonly multisig: string,
     public readonly multisigOwners: string[],
     public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceState: ETHBucketAppState,
+    public readonly freeBalanceState: FreeBalanceState,
     public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number
@@ -28,7 +26,7 @@ export class UninstallCommitment extends MultiSendCommitment {
       multisig,
       multisigOwners,
       freeBalanceAppIdentity,
-      keccak256(encodeETHBucketAppState(freeBalanceState)),
+      keccak256(encodeFreeBalanceAppState(freeBalanceState)),
       freeBalanceversionNumber,
       freeBalanceTimeout
     );

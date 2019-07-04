@@ -1,7 +1,7 @@
-import { ETHBucketAppState, Node } from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
+import { getETHFreeBalance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
@@ -28,14 +28,6 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const appState = stateChannel.freeBalance.state as ETHBucketAppState;
-
-    const ret: Node.GetFreeBalanceStateResult = {};
-
-    for (const { amount, to } of appState[0]) {
-      ret[to] = bigNumberify(amount._hex);
-    }
-
-    return ret;
+    return getETHFreeBalance(stateChannel.freeBalance);
   }
 }

@@ -1,13 +1,13 @@
 import {
   AppIdentity,
   AppInterface,
-  ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
+  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -65,9 +65,9 @@ export {
   AppInstanceInfo,
   AppInterface,
   CoinTransferInterpreterParams,
+  ethBalanceRefundStateEncoding,
   SolidityABIEncoderV2Type,
   Bytes32,
-  ETHBucketAppState,
   INodeProvider,
   IRpcNodeProvider,
   Node,

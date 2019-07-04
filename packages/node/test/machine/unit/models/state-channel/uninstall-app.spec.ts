@@ -1,10 +1,10 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
+import { getETHFreeBalance } from "../../../../../src/models/free-balance";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -66,8 +66,8 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const fbState = fb.state as ETHBucketAppState;
-      for (const { amount } of fbState[0]) {
+      const ethFBState = getETHFreeBalance(fb);
+      for (const amount of Object.values(ethFBState)) {
         expect(amount).toEqual(Zero);
       }
     });
