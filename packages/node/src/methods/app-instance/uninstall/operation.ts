@@ -1,4 +1,4 @@
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 
@@ -13,7 +13,8 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Uninstall,
     new Map(Object.entries(await store.getAllChannels())),
     {
       initiatingXpub,
