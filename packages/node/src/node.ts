@@ -180,6 +180,8 @@ export class Node {
         const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
+        console.log("SEND IO_SEND", to)
+
         await this.messagingService.send(to, {
           data,
           from: fromXpub,
@@ -200,6 +202,8 @@ export class Node {
         this.ioSendDeferrals.set(data.protocolExecutionID, deferral);
 
         const counterpartyResponse = deferral.promise;
+
+        console.log("SEND IO_SEND_AND_WAIT", to)
 
         await this.messagingService.send(to, {
           data,

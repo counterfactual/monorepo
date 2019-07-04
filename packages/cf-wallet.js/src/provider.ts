@@ -274,11 +274,13 @@ export class Provider {
       const request = jsonRpcDeserialize({
         params,
         jsonrpc: "2.0",
-        method: methodName,
+        method: jsonRpcMethodNames[methodName],
         id: requestId
       });
       // @ts-ignore
       request.params = request.parameters;
+      // @ts-ignore
+      request.type = jsonRpcMethodNames[methodName];
 
       if (!request.methodName) {
         return this.handleNodeError({
