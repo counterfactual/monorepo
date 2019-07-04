@@ -58,17 +58,14 @@ Where `ChallengeStatus` is one of `NO_CHALLENGE`, `EXPLICITLY_FINALIZED`, or `FI
 
 Here is a description of why each field exists in this data structure:
 
-- **`status`**: A challenge exists in one of four logical states.
+- **`status` and `finalizesAt` **: A challenge exists is either "not finalized" or "finalized". A timeout is used as one transition between these two states. These two fields together determine if the channel is currently finalized and if there is a timeout running.
+
   - `NO_CHALLENGE`: Has never been opened (the "null" challenge and default for all off-chain apps)
-  - `FINALIZES_AFTER_DEADLINE`: Open and its timeout parameter is in the future (can be responded to)
-  - `FINALIZES_AFTER_DEADLINE`: Was opened and the timeout expired (the challenge was finalized)
-  - `EXPLICITLY_FINALIZED`: Was finalized explicitly
+  - `FINALIZES_AFTER_DEADLINE`, `finalizesAt` in future: open and can be responded to
+  - `FINALIZES_AFTER_DEADLINE`, `finalizesAt` in past: timeout expired, the challenge was finalized
+  - `EXPLICITLY_FINALIZED`: Was finalized via a transition to an `is_final` state
 
 ![statechannel statuses](img/statechannel-statuses.svg)
-
-Thus, this parameter simply records which state the challenge is in.
-
-- **`finalizesAt`**: This is the block number at which a challenge is considered to be finalized if there is no reponse from anyone that is able to respond to the challenge.
 
 - **`latestSubmitter`**: This is a record of _who_ submitted the last challenge. This is useful to ensure that if a [provably malicious](#provably-malicious-challenges) challenge was submitted, the malicious party can be punished.
 
