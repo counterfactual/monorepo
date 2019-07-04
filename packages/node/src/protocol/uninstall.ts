@@ -1,4 +1,3 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
 import { UninstallCommitment } from "../ethereum";
@@ -12,6 +11,7 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
+import { FreeBalanceState } from "../models/free-balance";
 
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -126,7 +126,7 @@ async function proposeStateTransition(
     newStateChannel.multisigAddress,
     newStateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    (freeBalance.state as unknown) as FreeBalanceState,
     freeBalance.versionNumber,
     freeBalance.timeout,
     sequenceNo

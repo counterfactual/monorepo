@@ -1,6 +1,6 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
-import { HashZero, WeiPerEther, Zero } from "ethers/constants";
+import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
   getAddress,
@@ -44,10 +44,13 @@ describe("ETH Virtual App Agreement Commitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  stateChannel = stateChannel.incrementETHFreeBalance({
-    [stateChannel.multisigOwners[0]]: WeiPerEther,
-    [stateChannel.multisigOwners[1]]: WeiPerEther
-  });
+  stateChannel = stateChannel.incrementFreeBalance(
+    {
+      [stateChannel.multisigOwners[0]]: WeiPerEther,
+      [stateChannel.multisigOwners[1]]: WeiPerEther
+    },
+    AddressZero
+  );
 
   const freeBalanceETH = stateChannel.freeBalance;
 

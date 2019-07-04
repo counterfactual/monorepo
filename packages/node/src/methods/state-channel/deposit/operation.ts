@@ -1,19 +1,29 @@
-import { Node, OutcomeType } from "@counterfactual/types";
+import {
+  AppInterface,
+  ethBalanceRefundStateEncoding,
+  NetworkContext,
+  Node,
+  OutcomeType,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { TransactionRequest, TransactionResponse } from "ethers/providers";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import {
+  BaseProvider,
+  TransactionRequest,
+  TransactionResponse
+} from "ethers/providers";
+import { bigNumberify } from "ethers/utils";
 
-import { xkeyKthAddress } from "../../../machine";
+import { InstallParams, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
-export interface ETHBalanceRefundAppState {
-  recipient: string;
-  multisig: string;
-  threshold: BigNumber;
+interface DepositContext {
+  initialState: SolidityABIEncoderV2Type;
+  appInterface: AppInterface;
 }
 
 export async function installBalanceRefundApp(
@@ -28,45 +38,43 @@ export async function installBalanceRefundApp(
     provider
   } = requestHandler;
 
+  const { multisigAddress } = params;
+
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
     store,
-    params.multisigAddress
+    multisigAddress
   );
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
+  const channelsMap = new Map<string, StateChannel>([
+    [stateChannel.multisigAddress, stateChannel]
+  ]);
 
-  const initialState = {
-    recipient: xkeyKthAddress(publicIdentifier, 0),
-    multisig: stateChannel.multisigAddress,
-    threshold: await provider.getBalance(params.multisigAddress)
+  const depositContext = await getDepositContext(
+    params,
+    publicIdentifier,
+    provider,
+    networkContext
+  );
+
+  const installParams: InstallParams = {
+    initialState: depositContext.initialState,
+    initiatingXpub: publicIdentifier,
+    respondingXpub: peerAddress,
+    multisigAddress: stateChannel.multisigAddress,
+    initiatingBalanceDecrement: Zero,
+    respondingBalanceDecrement: Zero,
+    signingKeys: stateChannel.getNextSigningKeys(),
+    appInterface: depositContext.appInterface,
+    // this is the block-time equivalent of 7 days
+    defaultTimeout: 1008,
+    outcomeType: OutcomeType.COIN_TRANSFER
   };
 
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
-    new Map<string, StateChannel>([
-      // TODO: (architectural decision) Should this use `getAllChannels` or
-      //       is this good enough? InstallProtocol only operates on a single
-      //       channel, anyway. PR #532 might make this question obsolete.
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initialState,
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress,
-      initiatingBalanceDecrement: Zero,
-      respondingBalanceDecrement: Zero,
-      signingKeys: stateChannel.getNextSigningKeys(),
-      appInterface: {
-        addr: networkContext.ETHBalanceRefundApp,
-        stateEncoding:
-          "tuple(address recipient, address multisig,  uint256 threshold)",
-        actionEncoding: undefined
-      },
-      // this is the block-time equivalent of 7 days
-      defaultTimeout: 1008,
-      outcomeType: OutcomeType.COIN_TRANSFER
-    }
+    channelsMap,
+    installParams
   );
 
   await store.saveStateChannel(stateChannelsMap.get(params.multisigAddress)!);
@@ -159,4 +167,29 @@ export async function uninstallBalanceRefundApp(
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
   );
+}
+
+async function getDepositContext(
+  params: Node.DepositParams,
+  publicIdentifier: string,
+  provider: BaseProvider,
+  networkContext: NetworkContext
+): Promise<DepositContext> {
+  const { multisigAddress } = params;
+  const threshold = await provider.getBalance(multisigAddress);
+
+  const initialState = {
+    threshold,
+    recipient: xkeyKthAddress(publicIdentifier, 0),
+    multisig: multisigAddress
+  };
+
+  return {
+    initialState,
+    appInterface: {
+      addr: networkContext.ETHBalanceRefundApp,
+      stateEncoding: ethBalanceRefundStateEncoding,
+      actionEncoding: undefined
+    }
+  };
 }

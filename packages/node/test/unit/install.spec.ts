@@ -1,6 +1,5 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -11,13 +10,17 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
-import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
 import {
   InstructionExecutor,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
+import {
+  convertFreeBalanceStateFromSerializableObject,
+  convertPartyBalancesToMap,
+  HexFreeBalanceState
+} from "../../src/models/free-balance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
@@ -99,8 +102,10 @@ describe("Can handle correct & incorrect installs", () => {
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = fromAppState(stateChannel.freeBalance
-      .state as ETHBucketAppState);
+    const fbState = convertPartyBalancesToMap(
+      convertFreeBalanceStateFromSerializableObject((stateChannel.freeBalance
+        .state as unknown) as HexFreeBalanceState)[AddressZero]
+    );
 
     expect(fbState[signingKeys[0]]).toEqual(Zero);
     expect(fbState[signingKeys[1]]).toEqual(Zero);

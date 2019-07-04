@@ -21,9 +21,7 @@ contract ETHInterpreter is Interpreter {
     external
   {
 
-    LibOutcome.CoinTransfer[] memory transfers = abi.decode(
-      input, (LibOutcome.CoinTransfer[])
-    );
+    LibOutcome.CoinTransfer[] memory transfers = abi.decode(input, (LibOutcome.CoinTransfer[][]))[0];
 
     uint256 limitRemaining = abi.decode(params, (Param)).limit;
 
