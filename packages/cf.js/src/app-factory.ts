@@ -74,7 +74,7 @@ export class AppFactory {
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
 
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.PROPOSE_INSTALL,
+      Node.RpcMethodName.PROPOSE_INSTALL,
       {
         timeout,
         peerDeposit,
@@ -116,7 +116,7 @@ export class AppFactory {
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
 
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+      Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
       {
         timeout,
         peerDeposit,
