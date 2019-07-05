@@ -18,25 +18,22 @@ Some specific examples of this include:
 - storing state commitments (delegating to an arbitrary, possibly non-local service implementing a desired interface)
 - implementing a custom Write-Ahead-Log to tweak performance/security properties
 
-Node Protocol
-=============
+# Node API
 
-Message Format
---------------
+## Message Format
 
 Messages in the Node Protocol have the following fields:
 
 - `type: string`
-    - Name of the Method or Event that this message represents e.g. "getAppInstances", "install"
+  - Name of the Method or Event that this message represents e.g. "getAppInstances", "install"
 - `requestId?: string`
-    - Unique ID for a Method request.
-    - Only required for Methods. Leave empty for Events.
+  - Unique ID for a Method request.
+  - Only required for Methods. Leave empty for Events.
 - `data: { [key: string]: any }`
-    - Data payload for this message.
-    - See "Result" section of a Method and "Data" section of an Event for details.
+  - Data payload for this message.
+  - See "Result" section of a Method and "Data" section of an Event for details.
 
-Public Methods
---------------
+## Public Methods
 
 ### Method: `getAppInstances`
 
@@ -47,34 +44,38 @@ NOTE: This is terrible from a security perspective. In the future this method wi
 Params: None
 
 Result:
+
 - `appInstances:`[`AppInstanceInfo`](#data-type-appinstanceinfo)`[]`
-    - All the app instances installed on the Node
+  - All the app instances installed on the Node
 
 ### Method: `proposeInstall`
 
 Requests that a peer start the install protocol for an app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
+
 - `proposedToIdentifier: string`
-    - Address of the peer responding to the installation request of the app
+  - Address of the peer responding to the installation request of the app
 - `appDefinition: string`
-    - On-chain address of App Definition contract
+  - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
-    - ABI encodings used for states and actions of this app
+  - ABI encodings used for states and actions of this app
 - `myDeposit: BigNumber`
-    - Amount of the asset deposited by this user
+  - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
-    - Amount of the asset deposited by the counterparty
+  - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
-    - Number of blocks until a submitted state for this app is considered finalized
+  - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
-    - Initial state of app instance
+  - Initial state of app instance
 
 Result:
+
 - `appInstanceId: string`
-    - Generated appInstanceId
+  - Generated appInstanceId
 
 Errors: (TODO)
+
 - Not enough funds
 
 ### Method: `proposeInstallVirtual`
@@ -82,28 +83,31 @@ Errors: (TODO)
 Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
 
 Params:
+
 - `proposedToIdentifier: string`
-    - Address of the peer responding to the installation request of the app
+  - Address of the peer responding to the installation request of the app
 - `appDefinition: string`
-    - On-chain address of App Definition contract
+  - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
-    - ABI encodings used for states and actions of this app
+  - ABI encodings used for states and actions of this app
 - `myDeposit: BigNumber`
-    - Amount of the asset deposited by this user
+  - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
-    - Amount of the asset deposited by the counterparty
+  - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
-    - Number of blocks until a submitted state for this app is considered finalized
+  - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
-    - Initial state of app instance
+  - Initial state of app instance
 - `intermediaries: string[]`
-    - List of the Node identifiers of intermediaries to route the virtual app installation through
+  - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
+
 - `appInstanceId: string`
-    - Generated appInstanceId
+  - Generated appInstanceId
 
 Errors: (TODO)
+
 - Not enough funds
 
 ### Method: `rejectInstall`
@@ -111,12 +115,14 @@ Errors: (TODO)
 Reject an app instance installation.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to reject
+  - ID of the app instance to reject
 
 Result: "OK"
 
 Errors: (TODO)
+
 - Proposed app instance doesn't exist
 
 ### Method: `install`
@@ -124,16 +130,18 @@ Errors: (TODO)
 Install an app instance.
 
 Params:
-- `appInstanceId: string`
-    - ID of the app instance to install
-    - Counterparty must have called `proposedInstall` and generated this ID
 
+- `appInstanceId: string`
+  - ID of the app instance to install
+  - Counterparty must have called `proposedInstall` and generated this ID
 
 Result:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - Successfully installed app instance
+  - Successfully installed app instance
 
 Errors: (TODO)
+
 - Counterparty rejected installation
 
 ### Method: `installVirtual`
@@ -141,17 +149,20 @@ Errors: (TODO)
 Install a virtual app instance.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to install
-    - Counterparty must have called `proposedInstall` and generated this ID
+  - ID of the app instance to install
+  - Counterparty must have called `proposedInstall` and generated this ID
 - `intermediaries: string[]`
-    - List of the Node identifiers of intermediaries to route the virtual app installation through
+  - List of the Node identifiers of intermediaries to route the virtual app installation through
 
 Result:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - Successfully installed app instance
+  - Successfully installed app instance
 
 Errors: (TODO)
+
 - Counterparty rejected installation
 
 ### Method: `getState`
@@ -159,57 +170,65 @@ Errors: (TODO)
 Get the latest state of an app instance.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to get state of
+  - ID of the app instance to get state of
 
 Result:
+
 - `state:`[`AppState`](#data-type-appstate)
-    - Latest state of the app instance
+  - Latest state of the app instance
 
 Errors: (TODO)
-- App not installed
 
+- App not installed
 
 ### Method: `getAppInstanceDetails`
 
 Get details of an app instance.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to get details of
+  - ID of the app instance to get details of
 
 Result:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - App instance details
+  - App instance details
 
 ### Method: `getProposedAppInstance`
 
 Get details of a proposed app instance.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to get details of
+  - ID of the app instance to get details of
 
 Result:
-- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - App instance details
 
+- `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
+  - App instance details
 
 ### Method: `takeAction`
 
 Take action on current app state to advance it to a new state.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance for which to take action
+  - ID of the app instance for which to take action
 - `action:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
-    - Action to take on the current state
+  - Action to take on the current state
 
 Result:
+
 - `newState:`[`AppState`](#data-type-appstate)
-    - New app state
+  - New app state
 
 Errors: (TODO)
+
 - Illegal action
 
 ### Method: `uninstall`
@@ -217,12 +236,14 @@ Errors: (TODO)
 Uninstall an app instance, paying out users according to the latest signed state.
 
 Params:
+
 - `appInstanceId: string`
-    - ID of the app instance to uninstall
+  - ID of the app instance to uninstall
 
 Result: "OK"
 
 Errors: (TODO)
+
 - App state not terminal
 
 ### Method: `proposeState`
@@ -244,14 +265,14 @@ Creates a channel by deploying a multisignature wallet contract.
 Params:
 
 - `owners: Address[]`
-    - the addresses who should be the owners of the multisig
+  - the addresses who should be the owners of the multisig
 
 Result:
 
 - `CreateChannelTransactionResult`
-    - `transactionHash: string`
-        - the hash of the multisig deployment transaction
-            - This can be used to either register a listener for when the transaction has been mined or await the mining.
+  - `transactionHash: string`
+    - the hash of the multisig deployment transaction
+      - This can be used to either register a listener for when the transaction has been mined or await the mining.
 
 ### Method: `getChannelAddresses`
 
@@ -260,21 +281,22 @@ Gets the (multisig) addresses of all the channels that are open on the Node.
 Result:
 
 - `addresses: Address[]`
-    - the list of multisig addresses representing the open channels on the Node.
+  - the list of multisig addresses representing the open channels on the Node.
 
 ### Method: `deposit`
 
-Deposits the specified amount of ETH (denominated in Wei) into the channel with the specified multisig address.
+If a token address is specified, deposits the specified amount of said token into the channel. Otherwise it defaults to ETH (denominated in Wei).
 
 Params:
 
 - `multisigAddress: string`
 - `amount: BigNumber`
+- `tokenAddress?: string`
 
 Result:
 
 - `multisigBalance: BigNumber`
-    - the updated balance of the multisig
+  - the updated balance of the multisig
 
 Error:
 
@@ -287,13 +309,12 @@ Retrieves the address for the state deposit used by the specified owners.
 Params:
 
 - `owners: string[]`
-    - the addresses who own the state deposit holder
+  - the addresses who own the state deposit holder
 
 Result:
 
 - `multisigAddress: string`
-    - the address of the multisig (i.e. the state deposit holder)
-
+  - the address of the multisig (i.e. the state deposit holder)
 
 ### Method: `getFreeBalance`
 
@@ -313,53 +334,57 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
-Events
-------
+## Events
 
 ### Event: `depositEvent`
 
 Fired if a deposit has been made by a counter party.
 
 Data:
+
 - `multisigAddress: string`
-    - The address of the channel that the deposit was made into.
+  - The address of the channel that the deposit was made into.
 - `amount: BigNumber`
-    - The amount that was deposited by the counter party.
+  - The amount that was deposited by the counter party.
 
 ### Event: `installEvent`
 
 Fired if new app instance was successfully installed.
 
 Data:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - Newly installed app instance
+  - Newly installed app instance
 
 ### Event: `rejectInstallEvent`
 
 Fired if installation of a new app instance was rejected.
 
 Data:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - Rejected app instance
+  - Rejected app instance
 
 ### Event: `updateStateEvent`
 
 Fired if app state is successfully updated.
 
 Data:
+
 - `appInstanceId: string`
-    - ID of app instance whose app state was updated
+  - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
 - `action?:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
-    - Optional action that was taken to advance from the old state to the new state
+  - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstallEvent`
 
 Fired if app instance is successfully uninstalled
 
 Data:
+
 - `appInstance:`[`AppInstanceInfo`](#data-type-appinstanceinfo)
-    - Uninstalled app instance
+  - Uninstalled app instance
 
 ### Event: `proposeStateEvent`
 
@@ -378,46 +403,45 @@ Note: On the Node calling the creation of the channel, this event _must_ have a 
 Data:
 
 - `CreateChannelResult`
-    - `counterpartyXpub: string`
-        - Xpub of the counterparty that the channel was opened with
-    - `multisigAddress: Address`
-        - The address of the multisig that was created
-    - `owners: Address[]`
-        - The list of multisig owners of the created channel
+  - `counterpartyXpub: string`
+    - Xpub of the counterparty that the channel was opened with
+  - `multisigAddress: Address`
+    - The address of the multisig that was created
+  - `owners: Address[]`
+    - The list of multisig owners of the created channel
 
-
-Data Types
-----------
+## Data Types
 
 ### Data Type: `AppInstanceInfo`
 
 An instance of an installed app.
 
 - `id: string`
-    - Opaque identifier used to refer to this app instance
-    - No two distinct app instances (even in different channels) may share the same ID
+  - Opaque identifier used to refer to this app instance
+  - No two distinct app instances (even in different channels) may share the same ID
 - `appDefinition: string`
-    - On-chain address of App Definition contract
+  - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
-    - ABI encodings used for states and actions of this app
+  - ABI encodings used for states and actions of this app
 - `myDeposit: BigNumber`
-    - Amount of the asset deposited by this user
+  - Amount of the asset deposited by this user
 - `peerDeposit: BigNumber`
-    - Amount of the asset deposited by the counterparty
+  - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
-    - Number of blocks until a submitted state for this app is considered finalized
+  - Number of blocks until a submitted state for this app is considered finalized
 - `intermediaries?: string[]`
-    - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
+  - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
 
 ### Data Type: `AppABIEncodings`
+
 - `stateEncoding: string`
-    - ABI encoding of the app state
-        - For example, for the Tic Tac Toe App (https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol), the state encoding string is `"tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"`.
+  - ABI encoding of the app state
+    - For example, for the Tic Tac Toe App (https://github.com/counterfactual/monorepo/blob/master/packages/apps/contracts/TicTacToeApp.sol), the state encoding string is `"tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"`.
 - `actionEncoding?: string`
-    - Optional ABI encoding of the app action
-    - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)
-    - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction)
-        - Again, for the Tic Tac Toe App, the action encoding string is `"tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)"`.
+  - Optional ABI encoding of the app action
+  - If left blank, instances of the app will only be able to update state using [`proposeState`](#method-proposestate)
+  - If supplied, instances of this app will also be able to update state using [`takeAction`](#method-takeaction)
+    - Again, for the Tic Tac Toe App, the action encoding string is `"tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)"`.
 
 ### Data Type: `AppState`
 
