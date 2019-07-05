@@ -51,12 +51,19 @@ class FirebaseMessagingService implements Node.IMessagingService {
   ) {}
 
   async send(to: string, msg: any) {
+    console.log("Sending message to", to, msg);
     await this.firebase
       .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
   }
 
   onReceive(address: string, callback: (msg: any) => void) {
+    console.log(
+      "Attempting to handle received from: ",
+      address,
+      " with ",
+      callback
+    );
     if (!this.firebase.app) {
       console.error(
         "Cannot register a connection with an uninitialized firebase handle"
@@ -79,8 +86,11 @@ class FirebaseMessagingService implements Node.IMessagingService {
         // connects, the snapshot starts with a `null` value, and on the second
         // the call it receives a value.
         // See: https://stackoverflow.com/a/37310606/2680092
+        console.log("Message is null");
         return;
       }
+
+      console.log("Received", msg);
 
       if (msg.from !== snapshot.key) {
         console.error("Incorrect message received", msg);
@@ -91,6 +101,13 @@ class FirebaseMessagingService implements Node.IMessagingService {
         .remove();
 
       try {
+        console.log(
+          "Received message from",
+          address,
+          msg,
+          "Handling via",
+          callback
+        );
         callback(msg);
       } catch (error) {
         console.error(

@@ -57,11 +57,17 @@ export class RequestHandler {
     method: Node.MethodName,
     req: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
-    return {
+    console.log("RequestHandler#callMethod(", method, req, ")");
+
+    const result = {
       type: req.type,
       requestId: req.requestId,
       result: await this.methods.get(method)(this, req.params)
     };
+
+    console.log("RequestHandler#callMethod() => ", result);
+
+    return result;
   }
 
   /**
@@ -73,11 +79,24 @@ export class RequestHandler {
       this.methods.set(methodName, methodNameToImplementation[methodName]);
 
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
+        console.log(
+          "RequestHandler#incoming.on(",
+          methodName,
+          ").callback(",
+          req,
+          ")"
+        );
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,
           result: await this.methods.get(methodName)(this, req.params)
         };
+        console.log(
+          "RequestHandler#incoming.on(",
+          methodName,
+          ").callback => ",
+          res
+        );
         // @ts-ignore
         this.router.emit(req.methodName, res, "outgoing");
       });
@@ -109,6 +128,7 @@ export class RequestHandler {
       throw new Error(`Recent ${event} which has no event handler`);
     }
 
+    console.log("RequestHandler#callEvent(", event, msg, ")");
     await controllerExecutionMethod(this, msg);
   }
 

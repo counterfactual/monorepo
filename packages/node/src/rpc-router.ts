@@ -63,6 +63,8 @@ export default class NodeRouter extends Router {
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }
 
+    console.log("RpcRouter#emit(", event, eventData, emitter, ")");
+
     this.requestHandler[emitter].emit(event, eventData.result);
   }
 }
