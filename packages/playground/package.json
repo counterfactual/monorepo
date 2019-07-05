@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/playground",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "engines": {
     "yarn": "1.12.3",
     "node": "10.15.3"
@@ -17,7 +17,7 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@counterfactual/node": "0.2.12",
+    "@counterfactual/node": "0.2.13",
     "@counterfactual/types": "0.0.19",
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",

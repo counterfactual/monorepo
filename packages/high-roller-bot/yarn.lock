@@ -169,10 +169,10 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.12":
-  version "0.2.12"
-  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.2.12.tgz#f9cdcadaec1a3c264a4b554cfa43253686a00338"
-  integrity sha512-U2vJAgxSLR1gca8TK/mU587pLrN2QdSnIalozqYXsyod5iEhki5A/hHQenMvrgDMrT/k96qSAzKJWhYmHeOo0g==
+"@counterfactual/node@0.2.13":
+  version "0.2.13"
+  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.2.13.tgz#fd0d9ab4e2ae1efa0d38cd63da91b603c848fa62"
+  integrity sha512-a7ob5iR6k86QphA1vNfMJO1qfqSEGFdHBRjb9i8Uw6YuUnLA3RIZCimCCwDZgxMvgevFHSse1wxPVvl2KHrCvw==
   dependencies:
     "@counterfactual/cf.js" "0.2.1"
     "@counterfactual/contracts" "0.1.4"

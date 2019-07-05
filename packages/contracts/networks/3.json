@@ -16,8 +16,8 @@
   },
   {
     "contractName": "ETHBucket",
-    "address": "0x606dCCF2Db71b3102Fc015828858032369EBF830",
-    "transactionHash": "0x4a3a80dd57944d8ae3fc31443d6407e578437ceb17d985bad09584168a459ee9"
+    "address": "0x6A4D01E54479C3fAbB3C84D4C799D549F6319dfd",
+    "transactionHash": "0x64e5c71ee79c9595247953d08403a29da6324710ab418f6dbf2b885fba9d3d7d"
   },
   {
     "contractName": "MinimumViableMultisig",
@@ -56,8 +56,8 @@
   },
   {
     "contractName": "ETHInterpreter",
-    "address": "0x4E530FE0b7ec303e7398AFa24572B0305901F84f",
-    "transactionHash": "0x369324ba1e13edd107a334b1c56d3a654698ed2b96c8a3a5414df276f5c996f8"
+    "address": "0x8Fe592Ec9C3e90948540008D18E7D805aB8cE17e",
+    "transactionHash": "0x1cef7af2a5dfa6ec221b6b712edf61e95ecb33709a70a91301ebb1869ade5511"
   },
   {
     "contractName": "TwoPartyEthAsLump",
