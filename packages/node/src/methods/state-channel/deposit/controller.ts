@@ -17,7 +17,7 @@ import {
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;
 
-  @jsonRpcMethod("chan_deposit")
+  @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(

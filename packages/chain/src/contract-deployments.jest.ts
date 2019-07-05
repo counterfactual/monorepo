@@ -7,7 +7,6 @@ import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json"
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import RootNonceRegistry from "@counterfactual/contracts/build/RootNonceRegistry.json";
 import TwoPartyEthAsLump from "@counterfactual/contracts/build/TwoPartyEthAsLump.json";
 import TwoPartyVirtualEthAsLump from "@counterfactual/contracts/build/TwoPartyVirtualEthAsLump.json";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
@@ -69,12 +68,6 @@ export async function configureNetworkContext(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const rootNonceRegistry = await new ContractFactory(
-    RootNonceRegistry.abi,
-    RootNonceRegistry.bytecode,
-    wallet
-  ).deploy();
-
   const uninstallKeyRegistry = await new ContractFactory(
     UninstallKeyRegistry.abi,
     UninstallKeyRegistry.bytecode,
@@ -103,7 +96,6 @@ export async function configureNetworkContext(wallet: Wallet) {
     TwoPartyEthAsLump: twoPartyEthAsLump.address,
     ChallengeRegistry: appRegistry.address,
     MultiSend: multiSend.address,
-    RootNonceRegistry: rootNonceRegistry.address,
     UninstallKeyRegistry: uninstallKeyRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,

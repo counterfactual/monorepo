@@ -18,6 +18,8 @@ import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
 
 export const jsonRpcMethodNames = {
+  [Node.MethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS]:
+    "chan_getStateDepositHolderAddress",
   [Node.MethodName.GET_FREE_BALANCE_STATE]: "chan_getFreeBalanceState",
   [Node.MethodName.INSTALL]: "chan_install",
   [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
@@ -30,7 +32,7 @@ export const jsonRpcMethodNames = {
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
-export const NODE_REQUEST_TIMEOUT = 20000;
+export const NODE_REQUEST_TIMEOUT = 30000;
 
 /**
  * Provides convenience methods for interacting with a Counterfactual node
@@ -267,6 +269,7 @@ export class Provider {
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
+
     return new Promise<Node.MethodResponse>((resolve, reject) => {
       const request = jsonRpcDeserialize({
         params,
@@ -300,6 +303,7 @@ export class Provider {
             )
           );
         }
+
         if (response.result.type !== methodName) {
           return reject(
             jsonRpcSerializeAsResponse(
@@ -316,6 +320,7 @@ export class Provider {
             )
           );
         }
+
         resolve(response.result);
       };
 
@@ -367,14 +372,19 @@ export class Provider {
   /**
    * @ignore
    */
-  private onNodeMessage(message: JsonRpcNotification | JsonRpcResponse) {
-    const type = message.result.type;
+  private onNodeMessage(
+    message: JsonRpcNotification | JsonRpcResponse | Node.Event
+  ) {
+    const type = message["jsonrpc"]
+      ? (message as JsonRpcNotification | JsonRpcResponse).result.type
+      : (message as Node.Event).type;
+
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
       this.handleNodeError(message as JsonRpcResponse);
     } else if ("id" in message) {
       this.handleNodeMethodResponse(message as JsonRpcResponse);
     } else {
-      this.handleNodeEvent(message as JsonRpcNotification);
+      this.handleNodeEvent(message as JsonRpcNotification | Node.Event);
     }
   }
 
@@ -418,8 +428,11 @@ export class Provider {
   /**
    * @ignore
    */
-  private async handleNodeEvent(event: JsonRpcNotification) {
-    const nodeEvent = event.result as Node.Event;
+  private async handleNodeEvent(event: JsonRpcNotification | Node.Event) {
+    const nodeEvent = event["jsonrpc"]
+      ? (event as JsonRpcNotification | JsonRpcResponse).result
+      : (event as Node.Event);
+
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
         return this.handleRejectInstallEvent(nodeEvent);

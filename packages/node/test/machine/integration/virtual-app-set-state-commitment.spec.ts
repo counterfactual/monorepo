@@ -1,14 +1,22 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { NetworkContext } from "@counterfactual/types";
 import * as chai from "chai";
+import { randomBytes } from "crypto";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, MaxUint256, WeiPerEther, Zero } from "ethers/constants";
-import { Signature, SigningKey } from "ethers/utils";
+import {
+  bigNumberify,
+  getAddress,
+  hexlify,
+  Signature,
+  SigningKey
+} from "ethers/utils";
 
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { createFundedFreeBalance } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -58,29 +66,32 @@ beforeEach(() => {
     network.ETHBucket,
     AddressZero,
     xkeys.map(x => x.neuter().extendedKey)
-  ).setFreeBalance({
-    [multisigOwnerKeys[0].address]: WeiPerEther,
-    [multisigOwnerKeys[1].address]: WeiPerEther
-  });
-
-  const freeBalanceETH = stateChannel.freeBalance;
+  ).setFreeBalance(
+    createFundedFreeBalance(
+      multisigOwnerKeys.map<string>(key => key.address),
+      WeiPerEther
+    )
+  );
 
   targetAppInstance = new AppInstance(
-    AddressZero,
-    stateChannel.multisigOwners,
-    10,
-    freeBalanceETH.appInterface,
-    true,
-    5,
-    0,
-    freeBalanceETH.toJson().latestState,
-    freeBalanceETH.toJson().latestversionNumber,
-    freeBalanceETH.timeout,
-    {
+    /* multisigAddress */ stateChannel.multisigAddress,
+    /* signingKeys */ stateChannel.multisigOwners,
+    /* defautTimeout */ 10,
+    /* appInterface */ {
+      addr: getAddress(hexlify(randomBytes(20))),
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    },
+    /* isVirtualApp */ true,
+    /* appSeqNo */ 5,
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestVersionNumber */ 10,
+    /* latestTimeout */ 10,
+    /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    undefined
+    /* coinTransferInterpreterParams */ undefined
   );
 
   intermediaryCommitment = new VirtualAppSetStateCommitment(

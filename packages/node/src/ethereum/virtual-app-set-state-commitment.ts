@@ -14,7 +14,7 @@ import { appIdentityToHash } from "./utils/app-identity";
 const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
 
 // hardcoded assumption: all installed virtual apps can go through this many update operations
-const NONCE_EXPIRY = 65536;
+const VERSION_NUMBER_EXPIRY = 65536;
 
 const iface = new Interface(ChallengeRegistry.abi);
 
@@ -26,7 +26,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
     // todo(xuanji): the following two are set to null for intermediary. This
     // is bad API design and should be fixed eventually.
     public readonly hashedSolidityABIEncoderV2Struct?: string,
-    public readonly appversionNumber?: BigNumberish
+    public readonly appVersionNumber?: BigNumberish
   ) {
     super();
   }
@@ -41,7 +41,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
           [
             "0x19",
             appIdentityToHash(this.appIdentity),
-            NONCE_EXPIRY,
+            VERSION_NUMBER_EXPIRY,
             this.timeout,
             "0x01"
           ]
@@ -55,7 +55,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
         [
           "0x19",
           appIdentityToHash(this.appIdentity),
-          this.appversionNumber!,
+          this.appVersionNumber!,
           this.timeout,
           this.hashedSolidityABIEncoderV2Struct
         ]
@@ -88,13 +88,13 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
   ): any {
     return {
       appStateHash: this.hashedSolidityABIEncoderV2Struct!,
-      versionNumber: this.appversionNumber!,
+      versionNumber: this.appVersionNumber!,
       timeout: this.timeout,
       signatures: signaturesToBytes(
         intermediarySignature,
         ...sortSignaturesBySignerAddress(this.hashToSign(false), signatures)
       ),
-      versionNumberExpiry: NONCE_EXPIRY
+      versionNumberExpiry: VERSION_NUMBER_EXPIRY
     };
   }
 }

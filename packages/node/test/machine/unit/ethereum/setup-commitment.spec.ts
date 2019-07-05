@@ -1,6 +1,5 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import {
-  bigNumberify,
   getAddress,
   hexlify,
   Interface,
@@ -20,9 +19,6 @@ import { generateRandomNetworkContext } from "../../mocks";
  * to the specifications defined by Counterfactual as can be found here:
  * https://specs.counterfactual.com/04-setup-protocol#commitments
  *
- * TODO: This test suite _only_ covers the conditional transaction from the specs
- *       above. This is because the root nonce setNonce transaction has not been
- *       implemented in OpSetuptup yet.
  */
 describe("SetupCommitment", () => {
   let tx: MultisigTransaction;
@@ -71,31 +67,17 @@ describe("SetupCommitment", () => {
       desc = iface.parseTransaction({ data });
     });
 
-    it("should be to the executeEffectOfInterpretedAppOutcome method", () => {
+    it("should be to the executeEffectOfFreeBalance method", () => {
       expect(desc.sighash).toBe(
-        iface.functions.executeEffectOfInterpretedAppOutcome.sighash
+        iface.functions.executeEffectOfFreeBalance.sighash
       );
     });
 
     it("should contain expected arguments", () => {
-      const [
-        appRegistry,
-        rootNonceRegistry,
-        uninstallKeyRegistry,
-        uninstallKey,
-        rootNonceValue,
-        appIdentityHash,
-        {},
-        {}
-      ] = desc.args;
+      const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
-      expect(uninstallKeyRegistry).toEqual(networkContext.UninstallKeyRegistry);
-      expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
-      expect(rootNonceValue).toEqual(
-        bigNumberify(freeBalanceETH.rootNonceValue)
-      );
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(interpreterAddress).toBe(networkContext.ETHInterpreter);
     });
   });
 });

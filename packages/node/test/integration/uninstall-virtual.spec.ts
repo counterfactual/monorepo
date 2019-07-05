@@ -1,6 +1,6 @@
 import { Node } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { NODE_EVENTS, UninstallMessage } from "../../src/types";
+import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -36,6 +36,7 @@ describe("Node method follows spec - uninstall virtual", () => {
 
         const multisigAddressAB = await createChannel(nodeA, nodeB);
         const multisigAddressBC = await createChannel(nodeB, nodeC);
+
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
@@ -46,24 +47,27 @@ describe("Node method follows spec - uninstall virtual", () => {
           initialState
         );
 
-        nodeC.on(
+        nodeC.once(
           NODE_EVENTS.UNINSTALL_VIRTUAL,
-          async (msg: UninstallMessage) => {
-            expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-              []
+          async (msg: UninstallVirtualMessage) => {
+            expect(msg.data.appInstanceId).toBe(appInstanceId);
+            expect(msg.data.intermediaryIdentifier).toBe(
+              nodeB.publicIdentifier
             );
+
             expect(await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
               []
             );
+
             done();
           }
         );
 
-        const uninstallReq = generateUninstallVirtualRequest(
-          appInstanceId,
-          nodeB.publicIdentifier
+        await nodeA.router.dispatch(
+          generateUninstallVirtualRequest(appInstanceId, nodeB.publicIdentifier)
         );
-        nodeA.emit(uninstallReq.type, uninstallReq);
+
+        expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
       });
     }
   );

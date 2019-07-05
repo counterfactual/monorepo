@@ -18,7 +18,6 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
     public readonly freeBalanceversionNumber: number,
     public readonly freeBalanceTimeout: number,
     public readonly dependencyNonce: number,
-    public readonly rootNonceValue: number,
     public readonly expiryBlock: BigNumber,
     public readonly capitalProvided: BigNumber,
     public readonly beneficiaries: string[],
@@ -60,7 +59,6 @@ export class TwoPartyVirtualEthAsLumpCommitment extends MultiSendCommitment {
       data: iface.functions.delegateTarget.encode([
         {
           registry: this.networkContext.ChallengeRegistry,
-          rootNonceRegistry: this.networkContext.RootNonceRegistry,
           uninstallKeyRegistry: this.networkContext.UninstallKeyRegistry,
           expiry: this.expiryBlock,
           appIdentityHash: this.targetAppIdentityHash,

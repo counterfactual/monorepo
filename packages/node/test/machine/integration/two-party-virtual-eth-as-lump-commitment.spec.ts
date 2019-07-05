@@ -12,6 +12,7 @@ import { SetStateCommitment } from "../../../src/ethereum";
 import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { createFundedFreeBalance } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -70,10 +71,12 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         network.ETHBucket,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
-      ).setFreeBalance({
-        [multisigOwnerKeys[0].address]: parseEther("20"),
-        [multisigOwnerKeys[1].address]: parseEther("20")
-      });
+      ).setFreeBalance(
+        createFundedFreeBalance(
+          multisigOwnerKeys.map<string>(key => key.address),
+          parseEther("20")
+        )
+      );
 
       const freeBalanceETH = stateChannel.freeBalance;
 
@@ -91,7 +94,6 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         },
         true, // virtual
         0, // app sequence number
-        0, // root nonce
         {}, // latest state
         1, // latest versionNumber
         0, // latest timeout
@@ -117,7 +119,6 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         freeBalanceETH.versionNumber, // fb versionNumber
         freeBalanceETH.timeout, // fb timeout
         0, // dependency nonce
-        0, // root nonce
         new BigNumber(0), // expiry
         new BigNumber(10), // 10 wei
         beneficiaries, // beneficiaries

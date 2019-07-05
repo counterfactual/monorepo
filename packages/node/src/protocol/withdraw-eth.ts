@@ -1,4 +1,4 @@
-import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -17,6 +17,7 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
+import { FreeBalanceState } from "../models/free-balance";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -180,7 +181,6 @@ function addInstallRefundAppCommitmentToContext(
     },
     false,
     stateChannel.numInstalledApps,
-    stateChannel.rootNonceValue,
     {
       recipient,
       multisig: multisigAddress,
@@ -232,7 +232,7 @@ function addUninstallRefundAppCommitmentToContext(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    (freeBalance.state as unknown) as FreeBalanceState,
     freeBalance.versionNumber,
     freeBalance.timeout,
     freeBalance.appSeqNo
@@ -280,7 +280,6 @@ function constructInstallOp(
     freeBalance.versionNumber,
     freeBalance.timeout,
     app.appSeqNo,
-    freeBalance.rootNonceValue,
     network.ETHInterpreter,
     defaultAbiCoder.encode(["uint256"], [MaxUint256])
   );

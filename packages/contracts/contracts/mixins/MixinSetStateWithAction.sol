@@ -1,18 +1,18 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinSetStateWithAction is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   struct SignedAppChallengeUpdateWithAppState {
@@ -54,7 +54,7 @@ contract MixinSetStateWithAction is
 
     require(
       challenge.status == ChallengeStatus.NO_CHALLENGE ||
-      (challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN && challenge.finalizesAt >= block.number),
+      (challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE && challenge.finalizesAt >= block.number),
       "setStateWithAction was called on an app that has already been finalized"
     );
 
@@ -73,7 +73,7 @@ contract MixinSetStateWithAction is
       "setStateWithAction called with action signed by incorrect turn taker"
     );
 
-    bytes memory newState = MAppCaller.applyAction(
+    bytes memory newState = LibAppCaller.applyAction(
       appIdentity.appDefinition,
       req.appState,
       action.encodedAction
@@ -81,14 +81,14 @@ contract MixinSetStateWithAction is
 
     if (action.checkForTerminal) {
       require(
-        MAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
+        LibAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
       challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
       challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = ChallengeStatus.CHALLENGE_IS_OPEN;
+      challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     }
 
     challenge.appStateHash = keccak256(newState);
@@ -125,7 +125,7 @@ contract MixinSetStateWithAction is
     pure
     returns (bool)
   {
-    address turnTaker = MAppCaller.getTurnTaker(
+    address turnTaker = LibAppCaller.getTurnTaker(
       appDefinition,
       signingKeys,
       req.appState

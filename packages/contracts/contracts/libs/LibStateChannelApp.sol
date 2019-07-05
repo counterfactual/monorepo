@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 
 
 /// @title LibStateChannelApp
@@ -9,8 +9,8 @@ contract LibStateChannelApp {
   // The status of a challenge in the ChallengeRegistry
   enum ChallengeStatus {
     NO_CHALLENGE,
-    CHALLENGE_IS_OPEN,
-    CHALLENGE_WAS_FINALIZED
+    FINALIZES_AFTER_DEADLINE,
+    EXPLICITLY_FINALIZED
   }
 
   // A minimal structure that uniquely identifies a single instance of an App

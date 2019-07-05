@@ -1,13 +1,13 @@
 import {
   AppIdentity,
   AppInterface,
-  ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
+  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -29,7 +29,6 @@ export interface NetworkContext {
   MinimumViableMultisig: string;
   MultiSend: string;
   ProxyFactory: string;
-  RootNonceRegistry: string;
   ConditionalTransactionDelegateTarget: string;
   TwoPartyEthAsLump: string;
   TwoPartyVirtualEthAsLump: string;
@@ -45,7 +44,6 @@ export const networkContextProps = [
   "MinimumViableMultisig",
   "MultiSend",
   "ProxyFactory",
-  "RootNonceRegistry",
   "ConditionalTransactionDelegateTarget",
   "TwoPartyEthAsLump",
   "TwoPartyVirtualEthAsLump",
@@ -67,9 +65,9 @@ export {
   AppInstanceInfo,
   AppInterface,
   CoinTransferInterpreterParams,
+  ethBalanceRefundStateEncoding,
   SolidityABIEncoderV2Type,
   Bytes32,
-  ETHBucketAppState,
   INodeProvider,
   IRpcNodeProvider,
   Node,

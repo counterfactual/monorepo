@@ -45,10 +45,13 @@ describe("InstallCommitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.incrementETHFreeBalance({
-    [stateChannel.multisigOwners[0]]: WeiPerEther,
-    [stateChannel.multisigOwners[1]]: WeiPerEther
-  });
+  stateChannel = stateChannel.incrementFreeBalance(
+    {
+      [stateChannel.multisigOwners[0]]: WeiPerEther,
+      [stateChannel.multisigOwners[1]]: WeiPerEther
+    },
+    AddressZero
+  );
 
   const freeBalanceETH = stateChannel.freeBalance;
 
@@ -65,7 +68,6 @@ describe("InstallCommitment", () => {
       freeBalanceETH.versionNumber,
       freeBalanceETH.timeout,
       appInstance.appSeqNo,
-      stateChannel.rootNonceValue,
       AddressZero,
       HashZero
     ).getTransactionDetails();
@@ -193,24 +195,18 @@ describe("InstallCommitment", () => {
         it("should have correctly constructed arguments", () => {
           const [
             appRegistryAddress,
-            rootNonceRegistry,
             uninstallKeyRegistry,
             uninstallKey,
-            rootNonceValue,
             appIdentityHash,
             {},
             {}
           ] = calldata.args;
           expect(appRegistryAddress).toBe(networkContext.ChallengeRegistry);
-          expect(rootNonceRegistry).toEqual(networkContext.RootNonceRegistry);
           expect(uninstallKeyRegistry).toEqual(
             networkContext.UninstallKeyRegistry
           );
           expect(uninstallKey).toBe(appInstance.uninstallKey);
           expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
-          expect(rootNonceValue).toEqual(
-            bigNumberify(appInstance.rootNonceValue)
-          );
         });
       });
     });

@@ -24,8 +24,7 @@ module.exports = {
           process.env.ETH_ACCOUNT_MNENOMIC,
           `https://kovan.infura.io/v3/${process.env.INFURA_API_KEY}`
         ),
-      gas: process.env.DEFAULT_GAS,
-      gasPrice: process.env.DEFAULT_GAS_PRICE
+      gas: process.env.DEFAULT_GAS
     },
     ropsten: {
       network_id: 3,
@@ -34,8 +33,7 @@ module.exports = {
           process.env.ETH_ACCOUNT_MNENOMIC,
           `https://ropsten.infura.io/v3/${process.env.INFURA_API_KEY}`
         ),
-      gas: process.env.DEFAULT_GAS,
-      gasPrice: process.env.DEFAULT_GAS_PRICE
+      gas: process.env.DEFAULT_GAS
     },
     rinkeby: {
       network_id: 4,
@@ -44,8 +42,7 @@ module.exports = {
           process.env.ETH_ACCOUNT_MNENOMIC,
           `https://rinkeby.infura.io/v3/${process.env.INFURA_API_KEY}`
         ),
-      gas: process.env.DEFAULT_GAS,
-      gasPrice: process.env.DEFAULT_GAS_PRICE
+      gas: process.env.DEFAULT_GAS
     },
   },
   solc: {

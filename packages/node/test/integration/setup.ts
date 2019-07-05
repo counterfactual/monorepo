@@ -52,21 +52,6 @@ export async function setupWithMemoryMessagingAndPostgresStore(
   );
 }
 
-export async function teardownPostgresStore() {
-  const postgresServiceFactory = new PostgresServiceFactory({
-    type: "postgres",
-    database: process.env.POSTGRES_DATABASE!,
-    username: process.env.POSTGRES_USER!,
-    host: process.env.POSTGRES_HOST!,
-    password: process.env.POSTGRES_PASSWORD!,
-    port: Number(process.env.POSTGRES_PORT!)
-  });
-
-  const conn = await postgresServiceFactory.connectDb();
-
-  await conn.query(`DROP TABLE node_records`);
-}
-
 export async function setup(
   global: any,
   nodeCPresent: boolean = false,

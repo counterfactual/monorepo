@@ -1,18 +1,18 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
+import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
-import "./MAppCaller.sol";
 
 
 contract MixinVirtualAppSetState is
   LibSignature,
   LibStateChannelApp,
-  MChallengeRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// signatures[0], instead of signing a message that authorizes
@@ -52,16 +52,16 @@ contract MixinVirtualAppSetState is
 
     require(
       req.versionNumber > challenge.versionNumber,
-      "Tried to call setState with an outdated versionNumber version"
+      "Tried to call virtualAppSetState with an outdated versionNumber version"
     );
 
     require(
       req.versionNumber < req.versionNumberExpiry,
-      "Tried to call setState with versionNumber greater than intermediary versionNumber expiry");
+      "Tried to call virtualAppSetState with versionNumber greater than intermediary versionNumber expiry");
 
     challenge.status = req.timeout > 0 ?
-      ChallengeStatus.CHALLENGE_IS_OPEN :
-      ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      ChallengeStatus.FINALIZES_AFTER_DEADLINE :
+      ChallengeStatus.EXPLICITLY_FINALIZED;
 
     challenge.appStateHash = req.appStateHash;
     challenge.versionNumber = req.versionNumber;

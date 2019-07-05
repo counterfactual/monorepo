@@ -46,6 +46,7 @@ export default async function proposeInstallVirtualEventController(
     nodeMsg.data.params.proposedToIdentifier
   );
 
+  // TODO: Remove this and add a handler in protocolMessageEventController
   await requestHandler.messagingService.send(
     nextNodeAddress,
     relayedProposalMsg

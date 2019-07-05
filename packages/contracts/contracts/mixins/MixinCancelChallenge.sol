@@ -1,4 +1,4 @@
-pragma solidity 0.5.9;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
@@ -33,9 +33,9 @@ contract MixinCancelChallenge is
 
     require(
       (
-        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN
+        challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE
       ) && challenge.finalizesAt >= block.number,
-      "cancelChallenge called on app not in CHALLENGE_IS_OPEN state"
+      "cancelChallenge called on app not in FINALIZES_AFTER_DEADLINE state"
     );
 
     bytes32 stateHash = computeAppChallengeHash(
