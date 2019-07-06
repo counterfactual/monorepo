@@ -7468,22 +7468,22 @@ eth-ens-namehash@2.0.8:
     idna-uts46-hx "^2.3.1"
     js-sha3 "^0.5.7"
 
-eth-gas-reporter@0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.1.tgz#087b9c90a001ed46b5eb05abb75222122d277d54"
-  integrity sha512-fOfC4aT3nZX8+pQDyQf19RaREuUecj7NUwiER1g/UdD2efjVMVxGWMy5P8dkpbM7Qh9Ps0lLNiO1sh39e8JnDA==
+eth-gas-reporter@0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.3.tgz#efeb1c3b3daf173aeb3971041a3930b3d62e34cc"
+  integrity sha512-1R5eK5t+JGAjlCAensFsduwouf5Mi7wXMbCPr6NSiup6A9Ie1cQW5pd6oupB0kwADSDxaDu86CZE17y0Fs/8Gg==
   dependencies:
     abi-decoder "^1.2.0"
     cli-table3 "^0.5.0"
     colors "^1.1.2"
     ethers "^4.0.28"
+    fs-readdir-recursive "^1.1.0"
     lodash "^4.17.11"
     mocha "^5.2.0"
     req-cwd "^2.0.0"
     request "^2.88.0"
     request-promise-native "^1.0.5"
     sha1 "^1.1.1"
-    shelljs "^0.7.8"
     solidity-parser-antlr "^0.4.2"
     sync-request "^6.0.0"
 
@@ -8648,6 +8648,11 @@ fs-promise@^2.0.0:
     fs-extra "^2.0.0"
     mz "^2.6.0"
     thenify-all "^1.6.0"
+
+fs-readdir-recursive@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/fs-readdir-recursive/-/fs-readdir-recursive-1.1.0.tgz#e32fc030a2ccee44a6b5371308da54be0b397d27"
+  integrity sha512-GNanXlVr2pf02+sPN40XN8HG+ePaNcvM0q5mZBd668Obwb0yD5GiUbZOFgwn8kGMY6I3mdyDJzieUy3PTYyTRA==
 
 fs-write-stream-atomic@^1.0.8:
   version "1.0.10"
@@ -16925,7 +16930,7 @@ shell-quote@1.6.1:
     array-reduce "~0.0.0"
     jsonify "~0.0.0"
 
-shelljs@^0.7.4, shelljs@^0.7.8:
+shelljs@^0.7.4:
   version "0.7.8"
   resolved "https://registry.yarnpkg.com/shelljs/-/shelljs-0.7.8.tgz#decbcf874b0d1e5fb72e14b164a9683048e9acb3"
   integrity sha1-3svPh0sNHl+3LhSxZKloMEjprLM=
