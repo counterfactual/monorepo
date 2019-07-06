@@ -2813,10 +2813,22 @@
   dependencies:
     "@types/koa" "*"
 
-"@types/koa@*", "@types/koa@2.0.48":
+"@types/koa@*":
   version "2.0.48"
   resolved "https://registry.yarnpkg.com/@types/koa/-/koa-2.0.48.tgz#29162783029d3e5df8b58c55f6bf0d35f78fc39f"
   integrity sha512-CiIUYhHlOFJhSCTmsFoFkV2t9ij1JwW26nt0W9XZoWTvmAw6zTE0+k3IAoGICtjzIfhZpZcO323NHmI1LGmdDw==
+  dependencies:
+    "@types/accepts" "*"
+    "@types/cookies" "*"
+    "@types/http-assert" "*"
+    "@types/keygrip" "*"
+    "@types/koa-compose" "*"
+    "@types/node" "*"
+
+"@types/koa@2.0.49":
+  version "2.0.49"
+  resolved "https://registry.yarnpkg.com/@types/koa/-/koa-2.0.49.tgz#8ffc2ddbdd715a2c392a218c67e116cb07007234"
+  integrity sha512-WQWpCH8O4Dslk8IcXfazff40aM1jXX7BQRbADIj/fKozVPu76P/wQE4sRe2SCWMn8yNkOcare2MkDrnZqLMkPQ==
   dependencies:
     "@types/accepts" "*"
     "@types/cookies" "*"
@@ -3004,10 +3016,10 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.3.tgz#9c088679876f374eb5983f150d4787aa6fb32d7e"
   integrity sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==
 
-"@types/uuid@3.4.4":
-  version "3.4.4"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.4.tgz#7af69360fa65ef0decb41fd150bf4ca5c0cefdf5"
-  integrity sha512-tPIgT0GUmdJQNSHxp0X2jnpQfBSTfGxUMc/2CXBU2mnyTFVYVa2ojpoQ74w0U2yn2vw3jnC640+77lkFFpdVDw==
+"@types/uuid@3.4.5":
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.5.tgz#d4dc10785b497a1474eae0ba7f0cb09c0ddfd6eb"
+  integrity sha512-MNL15wC3EKyw1VLF+RoVO4hJJdk9t/Hlv3rt1OL65Qvuadm4BYo6g9ZJQqoq7X8NBFSsQXgAujWciovh2lpVjA==
   dependencies:
     "@types/node" "*"
 
@@ -18238,10 +18250,10 @@ truffle-interface-adapter@^0.1.6:
     bn.js "^4.11.8"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.25:
-  version "5.0.25"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.25.tgz#79e06eb004af481e6b43625557f68de97d5d1dd1"
-  integrity sha512-QGP6m/FPl761Vo01bp/kIvLse5ZiJP1sOs3CIDEXOskP4YilE4NmYuG0GwFSeVyxgjjXFzycJ16QHpndMK8KPQ==
+truffle@5.0.26:
+  version "5.0.26"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.26.tgz#cb9a6dcd77501821ba6e8ba51b2d4eef58da7458"
+  integrity sha512-gf3Khot59ZM2Tegqb2md0lpr1SXGUHKJkSajCyXsiFCiiHUbX6NpXn/mgJgk1SXt7FAHpL0zYdLI1pYfqzvBFw==
   dependencies:
     app-module-path "^2.2.0"
     mocha "5.2.0"
