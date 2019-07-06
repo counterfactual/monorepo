@@ -924,11 +924,6 @@
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
 
-"@counterfactual/types@0.0.19":
-  version "0.0.19"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.19.tgz#b370c7696f97981d73dacb4e85256da48575f44d"
-  integrity sha512-3RGzb186Ra4we4wTe/+he4FA+TaoCYgmfIwRQz35Q3ZKHH/0nIqxSrVuy6ayv/5lMNx+pqm+p7MCZb6DRl4w4Q==
-
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
