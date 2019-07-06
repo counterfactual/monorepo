@@ -3024,10 +3024,10 @@
   resolved "https://registry.yarnpkg.com/@types/unist/-/unist-2.0.3.tgz#9c088679876f374eb5983f150d4787aa6fb32d7e"
   integrity sha512-FvUupuM3rlRsRtCN+fDudtmytGO6iHJuuRKS1Ss0pG5z8oX0diNEw94UEL7hgDbpN94rgaK5R7sWm6RrSkZuAQ==
 
-"@types/uuid@3.4.4":
-  version "3.4.4"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.4.tgz#7af69360fa65ef0decb41fd150bf4ca5c0cefdf5"
-  integrity sha512-tPIgT0GUmdJQNSHxp0X2jnpQfBSTfGxUMc/2CXBU2mnyTFVYVa2ojpoQ74w0U2yn2vw3jnC640+77lkFFpdVDw==
+"@types/uuid@3.4.5":
+  version "3.4.5"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.5.tgz#d4dc10785b497a1474eae0ba7f0cb09c0ddfd6eb"
+  integrity sha512-MNL15wC3EKyw1VLF+RoVO4hJJdk9t/Hlv3rt1OL65Qvuadm4BYo6g9ZJQqoq7X8NBFSsQXgAujWciovh2lpVjA==
   dependencies:
     "@types/node" "*"
 
@@ -17295,10 +17295,10 @@ spdy@^4.0.0:
     select-hose "^2.0.0"
     spdy-transport "^3.0.0"
 
-spinnies@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/spinnies/-/spinnies-0.4.2.tgz#cffff8cdb612b0c328c36d4454fea928405a1af9"
-  integrity sha512-do3DmZT9PiazyTDZvj7RY855qFjI895p/8JyzXhZ3YPcqdVs8YY8iQIWffwIInhO2OhcQoKLbGDXY7nbgo9BkQ==
+spinnies@^0.4.3:
+  version "0.4.3"
+  resolved "https://registry.yarnpkg.com/spinnies/-/spinnies-0.4.3.tgz#2ea0ad148e78353ddf621dec3951a6f4c3cbf66e"
+  integrity sha512-TTA2vWXrXJpfThWAl2t2hchBnCMI1JM5Wmb2uyI7Zkefdw/xO98LDy6/SBYwQPiYXL3swx3Eb44ZxgoS8X5wpA==
   dependencies:
     chalk "^2.4.2"
     cli-cursor "^3.0.0"
@@ -20603,10 +20603,10 @@ yn@^3.0.0:
   resolved "https://registry.yarnpkg.com/yn/-/yn-3.1.0.tgz#fcbe2db63610361afcc5eb9e0ac91e976d046114"
   integrity sha512-kKfnnYkbTfrAdd0xICNFw7Atm8nKpLcLv9AZGEt+kczL/WQVai4e2V6ZN8U/O+iI6WrNuJjNNOyu4zfhl9D3Hg==
 
-zos-lib@2.4.0:
-  version "2.4.0"
-  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.4.0.tgz#d486b44e85c3e5ddc1280a263da2dd940391e0b6"
-  integrity sha512-OBF4Qd1fRdCAdpl32qa+gJRLmnumI3cw0sN9OBML+WT2xasMVD0R++cKiF+S0skLJvv9A+DovitADPVeJ7lwpQ==
+zos-lib@2.4.1:
+  version "2.4.1"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.4.1.tgz#17a113946ce6d19295de6ee0d6137e3e364116db"
+  integrity sha512-7GfH0fSsptNCBuh1GfWHvUuNY+A1kWaPQqnWy5f/A0/U6by5fgS91q8RNErtjcijAPoUqQoRH1sNBHrb0l0WSg==
   dependencies:
     "@types/cbor" "^2.0.0"
     "@types/web3" "^1.0.14"
@@ -20639,6 +20639,6 @@ zos-lib@2.4.0:
     lodash.values "^4.3.0"
     lodash.without "^4.4.0"
     semver "^5.5.1"
-    spinnies "^0.4.2"
+    spinnies "^0.4.3"
     truffle-flattener "^1.4.0"
     web3 "1.0.0-beta.37"
