@@ -1,8 +1,7 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
-import { ETHBucketAppState } from "@counterfactual/types";
-import { HashZero, WeiPerEther, Zero } from "ethers/constants";
+import { AddressZero, HashZero, WeiPerEther, Zero } from "ethers/constants";
 import {
   bigNumberify,
   defaultAbiCoder,
@@ -19,6 +18,7 @@ import { UninstallCommitment } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { decodeMultisendCalldata } from "../../../../src/ethereum/utils/multisend-decoder";
 import { StateChannel } from "../../../../src/models";
+import { FreeBalanceState } from "../../../../src/models/free-balance";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -46,10 +46,13 @@ describe("Uninstall Commitment", () => {
   );
 
   // Set the state to some test values
-  stateChannel = stateChannel.incrementETHFreeBalance({
-    [stateChannel.multisigOwners[0]]: WeiPerEther,
-    [stateChannel.multisigOwners[1]]: WeiPerEther
-  });
+  stateChannel = stateChannel.incrementFreeBalance(
+    {
+      [stateChannel.multisigOwners[0]]: WeiPerEther,
+      [stateChannel.multisigOwners[1]]: WeiPerEther
+    },
+    AddressZero
+  );
 
   const freeBalanceETH = stateChannel.freeBalance;
 
@@ -61,7 +64,7 @@ describe("Uninstall Commitment", () => {
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
       freeBalanceETH.identity,
-      freeBalanceETH.state as ETHBucketAppState,
+      (freeBalanceETH.state as unknown) as FreeBalanceState,
       freeBalanceETH.versionNumber,
       freeBalanceETH.timeout,
       appBeingUninstalledSeqNo

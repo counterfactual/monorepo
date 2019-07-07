@@ -28,8 +28,8 @@ contract MixinSetOutcome is
     AppChallenge storage app = appChallenges[identityHash];
 
     require(
-      app.status == ChallengeStatus.CHALLENGE_WAS_FINALIZED ||
-      (app.status == ChallengeStatus.CHALLENGE_IS_OPEN && block.number > app.finalizesAt),
+      app.status == ChallengeStatus.EXPLICITLY_FINALIZED ||
+      (app.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE && block.number > app.finalizesAt),
       "setOutcome can only be called after a challenge has been finalized"
     );
 

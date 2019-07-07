@@ -1,4 +1,4 @@
-import { ETHBucketAppState, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
@@ -14,6 +14,7 @@ import {
 import { virtualChannelKey } from "../machine/virtual-app-key";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
+import { FreeBalanceState } from "../models/free-balance";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -306,7 +307,7 @@ function constructUninstallOp(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     freeBalance.identity,
-    freeBalance.state as ETHBucketAppState,
+    (freeBalance.state as unknown) as FreeBalanceState,
     freeBalance.versionNumber,
     freeBalance.timeout,
     seqNoToUninstall
