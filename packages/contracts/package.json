@@ -34,10 +34,10 @@
     "@counterfactual/types": "0.0.19",
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/chai": "4.1.7",
-    "@types/node": "12.0.10",
+    "@types/node": "12.0.12",
     "chai": "4.2.0",
     "dotenv": "8.0.0",
-    "eth-gas-reporter": "0.2.1",
+    "eth-gas-reporter": "0.2.3",
     "ethereum-waffle": "2.0.12",
     "ethers": "4.0.32",
     "ethlint": "1.2.4",
@@ -46,13 +46,13 @@
     "shx": "0.3.2",
     "solc": "0.5.10",
     "solidity-coverage": "0.5.11",
-    "truffle": "5.0.25",
+    "truffle": "5.0.26",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.13",
     "ts-mocha": "6.0.0",
     "ts-node": "8.2.0",
     "tslint": "5.18.0",
-    "zos-lib": "2.4.0"
+    "zos-lib": "2.4.1"
   },
   "resolutions": {
     "ethereum-waffle/solc": "0.5.10"
