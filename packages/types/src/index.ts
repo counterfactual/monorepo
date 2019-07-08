@@ -6,8 +6,8 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
-  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -23,7 +23,7 @@ import {
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  ETHBalanceRefundApp: string;
+  CoinBalanceRefundApp: string;
   ETHBucket: string;
   ETHInterpreter: string;
   MinimumViableMultisig: string;
@@ -38,7 +38,7 @@ export interface NetworkContext {
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "ETHBalanceRefundApp",
+  "CoinBalanceRefundApp",
   "ETHBucket",
   "ETHInterpreter",
   "MinimumViableMultisig",
@@ -64,8 +64,8 @@ export {
   AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
-  ethBalanceRefundStateEncoding,
   SolidityABIEncoderV2Type,
   Bytes32,
   INodeProvider,

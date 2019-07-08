@@ -1,12 +1,12 @@
 import {
   AppInterface,
-  ethBalanceRefundStateEncoding,
+  coinBalanceRefundStateEncoding,
   NetworkContext,
   Node,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { Zero } from "ethers/constants";
+import { Zero, AddressZero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,
@@ -139,7 +139,7 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
-  const { ETHBalanceRefundApp } = networkContext;
+  const { CoinBalanceRefundApp } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -149,7 +149,7 @@ export async function uninstallBalanceRefundApp(
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-  const refundApp = stateChannel.getAppInstanceOfKind(ETHBalanceRefundApp);
+  const refundApp = stateChannel.getAppInstanceOfKind(CoinBalanceRefundApp);
 
   const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
     // https://github.com/counterfactual/monorepo/issues/747
@@ -181,14 +181,15 @@ async function getDepositContext(
   const initialState = {
     threshold,
     recipient: xkeyKthAddress(publicIdentifier, 0),
-    multisig: multisigAddress
+    multisig: multisigAddress,
+    token: AddressZero
   };
 
   return {
     initialState,
     appInterface: {
-      addr: networkContext.ETHBalanceRefundApp,
-      stateEncoding: ethBalanceRefundStateEncoding,
+      addr: networkContext.CoinBalanceRefundApp,
+      stateEncoding: coinBalanceRefundStateEncoding,
       actionEncoding: undefined
     }
   };

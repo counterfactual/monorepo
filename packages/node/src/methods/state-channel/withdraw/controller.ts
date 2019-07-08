@@ -33,7 +33,7 @@ export default class WithdrawController extends NodeController {
 
     const channel = await store.getStateChannel(multisigAddress);
 
-    if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefundApp)) {
+    if (channel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)) {
       return Promise.reject(CANNOT_WITHDRAW);
     }
   }

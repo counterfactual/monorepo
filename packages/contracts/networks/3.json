@@ -10,7 +10,7 @@
     "transactionHash": "0x95cf97f46892fec8b93eef97673179740980caf6812857847ddc375ffea71eaf"
   },
   {
-    "contractName": "ETHBalanceRefundApp",
+    "contractName": "CoinBalanceRefundApp",
     "address": "0x6da80698eA5c36431aBf56442d8c65bFbCF1e684",
     "transactionHash": "0xf0d168c9ed68b2b149c14adb18bfbeaf97c217d46b1a0013400664b11691221b"
   },

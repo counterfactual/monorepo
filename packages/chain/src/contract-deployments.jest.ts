@@ -1,7 +1,7 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
+import BalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
@@ -87,7 +87,7 @@ export async function configureNetworkContext(wallet: Wallet) {
   ).deploy();
 
   return {
-    ETHBalanceRefundApp: balanceRefundContract.address,
+    CoinBalanceRefundApp: balanceRefundContract.address,
     ETHBucket: ethBucketContract.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
