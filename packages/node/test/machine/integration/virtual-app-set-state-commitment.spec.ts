@@ -16,7 +16,7 @@ import {
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -67,7 +67,7 @@ beforeEach(() => {
     AddressZero,
     xkeys.map(x => x.neuter().extendedKey)
   ).setFreeBalance(
-    createFundedFreeBalance(
+    createFreeBalanceStateWithFundedETHAmounts(
       multisigOwnerKeys.map<string>(key => key.address),
       WeiPerEther
     )

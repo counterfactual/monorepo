@@ -6,7 +6,7 @@ import { AddressZero, WeiPerEther } from "ethers/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -51,7 +51,7 @@ describe("set state on free balance", () => {
       AddressZero,
       xkeys.map(x => x.neuter().extendedKey)
     ).setFreeBalance(
-      createFundedFreeBalance(
+      createFreeBalanceStateWithFundedETHAmounts(
         multisigOwnerKeys.map<string>(key => key.address),
         WeiPerEther
       )

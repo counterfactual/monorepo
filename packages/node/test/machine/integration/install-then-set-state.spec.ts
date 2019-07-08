@@ -15,7 +15,7 @@ import {
 import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -82,7 +82,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         xkeys.map(x => x.neuter().extendedKey),
         1
       ).setFreeBalance(
-        createFundedFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           WeiPerEther
         )

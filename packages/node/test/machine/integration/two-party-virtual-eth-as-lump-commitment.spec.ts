@@ -12,7 +12,7 @@ import { SetStateCommitment } from "../../../src/ethereum";
 import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -72,7 +72,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(
-        createFundedFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           parseEther("20")
         )
