@@ -162,7 +162,7 @@ export async function getApps(
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress: string = AddressZero
+  tokenAddress?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
