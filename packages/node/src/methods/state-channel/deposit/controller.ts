@@ -20,6 +20,7 @@ import {
   makeDeposit,
   uninstallBalanceRefundApp
 } from "./operation";
+import { AddressZero } from "ethers/constants";
 
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;
@@ -39,7 +40,11 @@ export default class DepositController extends NodeController {
     params: Node.DepositParams
   ): Promise<void> {
     const { store, provider } = requestHandler;
-    const { multisigAddress, amount, tokenAddress } = params;
+    const { multisigAddress, amount } = params;
+
+    params.tokenAddress = params.tokenAddress
+      ? params.tokenAddress
+      : AddressZero;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -53,8 +58,8 @@ export default class DepositController extends NodeController {
 
     const address = await requestHandler.getSignerAddress();
 
-    if (tokenAddress) {
-      const contract = new Contract(tokenAddress, ERC20.abi, provider);
+    if (params.tokenAddress !== AddressZero) {
+      const contract = new Contract(params.tokenAddress, ERC20.abi, provider);
       const balance: BigNumber = await contract.functions.balanceOf(address);
       if (balance.lt(amount)) {
         return Promise.reject(INSUFFICIENT_ERC20_FUNDS(address));
@@ -80,6 +85,10 @@ export default class DepositController extends NodeController {
       outgoing
     } = requestHandler;
     const { multisigAddress } = params;
+
+    params.tokenAddress = params.tokenAddress
+      ? params.tokenAddress
+      : AddressZero;
 
     await installBalanceRefundApp(requestHandler, params);
 

@@ -1,4 +1,4 @@
-import { Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
@@ -35,10 +35,14 @@ describe("StateChannel::uninstallApp", () => {
       [xkeyKthAddress(xpubs[1], 0)]: Zero
     });
 
-    sc2 = sc1.uninstallApp(testApp.identityHash, {
-      [xkeyKthAddress(xpubs[0], 0)]: Zero,
-      [xkeyKthAddress(xpubs[1], 0)]: Zero
-    });
+    sc2 = sc1.uninstallApp(
+      testApp.identityHash,
+      {
+        [xkeyKthAddress(xpubs[0], 0)]: Zero,
+        [xkeyKthAddress(xpubs[1], 0)]: Zero
+      },
+      AddressZero
+    );
   });
 
   it("should not alter any of the base properties", () => {

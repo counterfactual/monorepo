@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { MaxUint256 } from "ethers/constants";
+import { AddressZero, MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
@@ -219,7 +219,11 @@ function addUninstallRefundAppCommitmentToContext(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  const newStateChannel = stateChannel.uninstallApp(appIdentityHash, {});
+  const newStateChannel = stateChannel.uninstallApp(
+    appIdentityHash,
+    {},
+    AddressZero
+  );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel

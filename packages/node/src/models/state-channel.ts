@@ -1,5 +1,5 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { flip, merge } from "../ethereum/utils/funds-bucket";
@@ -9,12 +9,12 @@ import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
   convertFreeBalanceStateFromSerializableObject,
   convertFreeBalanceStateToSerializableObject,
-  convertPartyBalancesFromMap,
   createFreeBalance,
   FreeBalanceState,
-  getETHFreeBalance,
   HexFreeBalanceState,
-  PartyBalanceMap
+  PartyBalanceMap,
+  getETHFreeBalance,
+  PartyBalance
 } from "./free-balance";
 import {
   TwoPartyVirtualEthAsLumpInstance,
@@ -185,14 +185,20 @@ export class StateChannel {
     increments: PartyBalanceMap,
     tokenAddress: string
   ) {
-    const ethFreeBalanceState = getETHFreeBalance(this.freeBalance);
-    const fbState = convertFreeBalanceStateFromSerializableObject((this
+    let fbState = convertFreeBalanceStateFromSerializableObject((this
       .freeBalance.state as unknown) as HexFreeBalanceState);
 
-    fbState[AddressZero] = merge(
-      convertPartyBalancesFromMap(ethFreeBalanceState),
-      increments
-    );
+    if (!(tokenAddress in fbState)) {
+      fbState = addTokenBalancetoFreeBalance(
+        fbState,
+        tokenAddress,
+        getETHFreeBalance(this.freeBalance)
+      );
+    }
+
+    const tokenFreeBalance = fbState[tokenAddress];
+
+    fbState[tokenAddress] = merge(tokenFreeBalance, increments);
 
     return this.setFreeBalance(fbState);
   }
@@ -425,7 +431,8 @@ export class StateChannel {
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    increments: { [s: string]: BigNumber }
+    increments: PartyBalanceMap,
+    tokenAddress: string
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
@@ -455,7 +462,7 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).incrementFreeBalance(increments, AddressZero);
+    ).incrementFreeBalance(increments, tokenAddress);
   }
 
   public getTwoPartyVirtualEthAsLumpFromTarget(
@@ -528,4 +535,20 @@ export class StateChannel {
       json.createdAt
     );
   }
+}
+
+function addTokenBalancetoFreeBalance(
+  fbState: FreeBalanceState,
+  tokenAddress: string,
+  ethFreeBalanceMap: PartyBalanceMap
+): FreeBalanceState {
+  const newTokenBalances: PartyBalance[] = [];
+  for (const address of Object.keys(ethFreeBalanceMap)) {
+    newTokenBalances.push({
+      to: address,
+      amount: Zero
+    });
+  }
+  fbState[tokenAddress] = newTokenBalances;
+  return fbState;
 }

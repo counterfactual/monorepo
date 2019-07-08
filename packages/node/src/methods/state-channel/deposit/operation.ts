@@ -40,7 +40,7 @@ export async function installBalanceRefundApp(
     provider
   } = requestHandler;
 
-  const { multisigAddress } = params;
+  const { multisigAddress, tokenAddress } = params;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
@@ -57,7 +57,8 @@ export async function installBalanceRefundApp(
     params,
     publicIdentifier,
     provider,
-    networkContext
+    networkContext,
+    tokenAddress!
   );
 
   const installParams: InstallParams = {
@@ -100,7 +101,7 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  if (!tokenAddress) {
+  if (tokenAddress === AddressZero) {
     let retryCount = 3;
     while (retryCount > 0) {
       try {
@@ -132,7 +133,7 @@ export async function makeDeposit(
 
     await txResponse!.wait(blocksNeededForConfirmation);
   } else {
-    const erc20Contract = new Contract(tokenAddress, ERC20.abi, signer);
+    const erc20Contract = new Contract(tokenAddress!, ERC20.abi, signer);
     await erc20Contract.functions.transfer(
       multisigAddress,
       bigNumberify(amount)
@@ -152,12 +153,13 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
+  const { multisigAddress, tokenAddress } = params;
   const { CoinBalanceRefundApp } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
     publicIdentifier,
     store,
-    params.multisigAddress
+    multisigAddress
   );
 
   const stateChannel = await store.getStateChannel(params.multisigAddress);
@@ -170,6 +172,7 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
+      tokenAddress,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
@@ -186,16 +189,24 @@ async function getDepositContext(
   params: Node.DepositParams,
   publicIdentifier: string,
   provider: BaseProvider,
-  networkContext: NetworkContext
+  networkContext: NetworkContext,
+  tokenAddress: string
 ): Promise<DepositContext> {
   const { multisigAddress } = params;
-  const threshold = await provider.getBalance(multisigAddress);
+  const threshold =
+    tokenAddress === AddressZero
+      ? await provider.getBalance(multisigAddress)
+      : await new Contract(
+          tokenAddress!,
+          ERC20.abi,
+          provider
+        ).functions.balanceOf(multisigAddress);
 
   const initialState = {
     threshold,
+    token: tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
-    multisig: multisigAddress,
-    token: AddressZero
+    multisig: multisigAddress
   };
 
   return {

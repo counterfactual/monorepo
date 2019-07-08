@@ -101,7 +101,11 @@ async function proposeStateTransition(
   context: Context,
   provider: BaseProvider
 ): Promise<[UninstallCommitment, string]> {
-  const { appIdentityHash, multisigAddress } = params as UninstallParams;
+  const {
+    appIdentityHash,
+    multisigAddress,
+    tokenAddress
+  } = params as UninstallParams;
   const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
@@ -115,7 +119,11 @@ async function proposeStateTransition(
     provider
   );
 
-  const newStateChannel = sc.uninstallApp(appIdentityHash, increments);
+  const newStateChannel = sc.uninstallApp(
+    appIdentityHash,
+    increments,
+    tokenAddress!
+  );
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 

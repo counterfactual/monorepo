@@ -44,7 +44,7 @@ describe("Node method follows spec - deposit", () => {
     }
   });
 
-  it("has the right balance for both parties after deposits of ERC20 tokens", async () => {
+  it("has the right balance for both parties after deposits of ERC20 tokens and ETH", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
     const erc20ContractAddress = global["networkContext"]["DolphinCoin"];
     const erc20Contract = new Contract(
@@ -53,7 +53,7 @@ describe("Node method follows spec - deposit", () => {
       new JsonRpcProvider(global["ganacheURL"])
     );
 
-    const depositReq = makeDepositRequest(
+    let depositReq = makeDepositRequest(
       multisigAddress,
       One,
       erc20ContractAddress
@@ -76,9 +76,8 @@ describe("Node method follows spec - deposit", () => {
 
     await transferERC20Tokens(await nodeA.signerAddress());
     await transferERC20Tokens(await nodeB.signerAddress());
-    return;
 
-    const preDepositBalance = await provider.getBalance(multisigAddress);
+    let preDepositBalance = await provider.getBalance(multisigAddress);
     await nodeA.router.dispatch(depositReq);
     await nodeB.router.dispatch(depositReq);
 
@@ -99,6 +98,23 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress,
       erc20ContractAddress
     );
+
+    // now deposits ETH
+
+    depositReq = makeDepositRequest(multisigAddress, One);
+
+    preDepositBalance = await provider.getBalance(multisigAddress);
+    await nodeA.router.dispatch(depositReq);
+    await nodeB.router.dispatch(depositReq);
+
+    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+      preDepositBalance.add(2).toNumber()
+    );
+
+    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+    for (const key in freeBalanceState) {
+      expect(freeBalanceState[key]).toEqual(One);
+    }
   });
 });
 
