@@ -64,6 +64,7 @@ export default class DepositController extends NodeController {
       publicIdentifier,
       outgoing
     } = requestHandler;
+
     const { multisigAddress } = params;
 
     await installBalanceRefundApp(requestHandler, params);

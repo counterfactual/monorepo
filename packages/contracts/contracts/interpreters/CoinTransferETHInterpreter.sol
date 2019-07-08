@@ -8,7 +8,7 @@ import "../libs/LibOutcome.sol";
  * This file is excluded from ethlint/solium because of this issue:
  * https://github.com/duaraghav8/Ethlint/issues/261
  */
-contract ETHInterpreter is Interpreter {
+contract CoinTransferETHInterpreter is Interpreter {
 
   struct Param {
     uint256 limit;
@@ -21,7 +21,14 @@ contract ETHInterpreter is Interpreter {
     external
   {
 
-    LibOutcome.CoinTransfer[] memory transfers = abi.decode(input, (LibOutcome.CoinTransfer[][]))[0];
+    // NOTE: We expect `input` to be of type CoinTransfer[][]
+    // and so we pull the 0th indexed value from it for ETH.
+    // This adds an assumption that input will have ETH values
+    // at its 0th index.
+    LibOutcome.CoinTransfer[] memory transfers = abi.decode(
+      input,
+      (LibOutcome.CoinTransfer[][])
+    )[0];
 
     uint256 limitRemaining = abi.decode(params, (Param)).limit;
 

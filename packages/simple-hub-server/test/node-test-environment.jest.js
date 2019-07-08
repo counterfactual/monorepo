@@ -26,15 +26,14 @@ class NodeEnvironment extends NodeJSEnvironment {
     const networkContext = {
       ChallengeRegistry: AddressZero,
       ETHBalanceRefundApp: AddressZero,
-      ETHBucket: AddressZero,
-      MultiSend: AddressZero,
-      UninstallKeyRegistry: AddressZero,
+      FreeBalanceApp: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
-      TwoPartyVirtualEthAsLump: AddressZero,
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter:
+        data.networkContext.twoPartyFixedOutcomeFromVirtualAppETHInterpreter,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
       TicTacToe: data.networkContext.TicTacToe,
-      ETHInterpreter: data.networkContext.ETHInterpreter
+      CoinTransferETHInterpreter: data.networkContext.CoinTransferETHInterpreter
     };
 
     this.global.networkContext = networkContext;

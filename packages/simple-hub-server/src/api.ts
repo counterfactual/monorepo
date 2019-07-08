@@ -3,7 +3,7 @@ import cors from "@koa/cors";
 import Koa from "koa";
 import { KoaLoggingMiddleware as logs } from "logepi";
 
-import validateSignature from "./middlewares/validate-signature";
+import requireValidSignatureOrThrowError from "./middlewares/validate-signature";
 import AppProcessor from "./resources/app/processor";
 import AppResource from "./resources/app/resource";
 import HeartbeatProcessor from "./resources/heartbeat/processor";
@@ -52,7 +52,7 @@ export default function mountApi() {
 
   api
     .use(cors({ keepHeadersOnError: false }))
-    .use(jsonApiKoa(app, validateSignature(app)))
+    .use(jsonApiKoa(app, requireValidSignatureOrThrowError(app)))
     .use(
       conditionalLogs({
         exclude: ["/heartbeats", "/apps"]

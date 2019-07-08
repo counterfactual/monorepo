@@ -23,7 +23,7 @@ describe("StateChannel::uninstallApp", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       xpubs
     );
@@ -66,8 +66,9 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const ethFBState = getETHBalancesFromFreeBalanceAppInstance(fb);
-      for (const amount of Object.values(ethFBState)) {
+      for (const amount of Object.values(
+        getETHBalancesFromFreeBalanceAppInstance(fb)
+      )) {
         expect(amount).toEqual(Zero);
       }
     });

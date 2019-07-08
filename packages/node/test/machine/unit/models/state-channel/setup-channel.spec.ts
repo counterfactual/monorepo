@@ -19,7 +19,7 @@ describe("StateChannel::setupChannel", () => {
 
   beforeAll(() => {
     sc = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       userNeuteredExtendedKeys
     );
@@ -70,8 +70,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.signingKeys).toEqual(sc.multisigOwners);
     });
 
-    it("should use the ETHBucketApp as the app target", () => {
-      expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
+    it("should use the FreeBalanceAppApp as the app target", () => {
+      expect(fb.appInterface.addr).toBe(networkContext.FreeBalanceApp);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 
@@ -82,8 +82,9 @@ describe("StateChannel::setupChannel", () => {
     it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const ethFBState = getETHBalancesFromFreeBalanceAppInstance(fb);
-      for (const amount of Object.values(ethFBState)) {
+      for (const amount of Object.values(
+        getETHBalancesFromFreeBalanceAppInstance(fb)
+      )) {
         expect(amount).toEqual(Zero);
       }
     });

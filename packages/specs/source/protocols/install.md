@@ -1,12 +1,81 @@
 # Install Protocol
 
-To illustrate the install protocol, first assume that the multisignature wallet owns 20 ETH and that the Free Balance application has recorded a balance of 10 ETH for both for Alice and Bob. Running the install protocol allows Alice and Bob to install an application where Alice and Bob both deposit 1 ETH to be disbursed based on the outcome logic of the application.
+The **Install Protocol** can be followed to allocate some funds inside of a `StateChannel` to a new `AppInstance`.
 
-In this example, the application is Tic-Tac-Toe. You can see with the visual representation below that the funds available in the free balance decrease and the funds committed to the Tic-Tac-Toe application increase by the corresponding amount.
+## Commitments
+
+In order for some of the funds in the multisignature wallet to be securely considered "allocated" to some `AppInstance`, there must exist a `DELEGATECALL` transaction to some contract which defines the logic for spending it and then executes the on-chain state transition to make it happen. In particular, this contract must do the following:
+
+1. **Get the list of funded apps.** Go the `ChallengeRegistry` for the final outcome of the `FreeBalance` `AppInstance` to see the list of `activeApps`.
+
+2. **Verify this app is funded.** Check that the `appInstanceIdentityHash` of a particular `AppInstance` is in the list of `activeApps`.
+
+3. **Get the outcome of the app.** Go to the `ChallengeRegistry` for the final outcome of the `AppInstance` that these funds were allocated to
+
+4. **Execute the effect.** Forward this outcome to the `interpreterAddress` along with some `interpreterParams` to have that interpreter execute the on-chain state transition.
+
+So, the commitments involved in this protocol must do two things:
+
+1. **Execute a conditional transaction.** Ensure that there is a `DELEGATECALL` to the above mentioned contract (i.e., the "delegate target")
+
+2. **Update the free balance state.** Ensure that there is a signed message to update the `FreeBalance` `AppInstance`'s state to include the new `appInstanceIdentityHash` in the `activeApps` array with the right amount of funds decrement from `balances`.
+
+### The `ConditionalTransaction`
+
+The pre-signed conditional transaction can be visually represented like this:
 
 ```eval_rst
-.. mermaid:: ../diagrams/install-protocol-state.mmd
+.. mermaid:: ../diagrams/conditional-transaction-commitment.mmd
 ```
+
+The digest that must be signed is the following:
+
+```js
+keccak256(
+  abi.encodePacked(
+    byte(0x19),
+
+    // Array of addresses of the owners of the multsig
+    multisigOwners,
+
+    // Address of the ConditionalTransactionDelegateTarget.sol library
+    to,
+
+    // A value of 0 as no ETH is being sent
+    0,
+
+    // The encoded function call to the delegate target
+    abi.encodeWithSignature(
+      // The name of the method in ConditionalTransactionDelegateTarget.sol
+      "executeEffectOfInterpretedAppOutcome(address,bytes32,bytes32,address,bytes)",
+
+      // Address of the global registry for on-chain challenges
+      challengeRegistryAddress,
+
+      // The unique identifier of the FreeBalance AppInstance
+      freeBalanceAppIdentityHash,
+
+      // The unique identifier of the AppInstance funds were allocated to
+      appIdentityHash,
+
+      // The address of the interpreter handling the outcome
+      interpreterAddress,
+
+      // Any extra data to pass to the interpreter function
+      interpreterParams
+    ),
+
+    // An enum representing a DELEGATECALL
+    1
+  )
+);
+```
+
+The signatures of this digest will be passed into the `execTransaction` method on the multisignature wallet.
+
+### The `FreeBalanceSetState`
+
+The commitment to be signed to the `FreeBalance` `AppInstance` is identical to what would be signed in an **Update Protocol** commitment. The state update is such that the balances decrease of each participants in the `balances` array of their `FreeBalanceApp` and there is an added entry in the `activeApps` array.
 
 ## Messages
 
@@ -20,65 +89,48 @@ First we introduce a new type which we label `InstallParams`.
 
 **Type: `InstallParams`**
 
-|          Field          |       Type       |                            Description                             |
-| ----------------------- | ---------------- | ------------------------------------------------------------------ |
-| `aliceBalanceDecrement` | `uint256`        | The proposed sub-deposit into the application of the first party   |
-| `bobBalanceDecrement`   | `uint256`        | The proposed sub-deposit into the application of the second party  |
-| `signingKeys`           | `address[]`      | TBD                                                                |
-| `terms`                 | `Terms`          | The terms of agreement for this application                        |
-| `initialState`          | `JSON`        | TBD                                                                |
-| `appInterface`          | `CfAppInterface` | The definition of the interface of the application to be installed |
-| `defaultTimeout`        | `uint256`        | The challenge period length for this application                   |
+| Field                   | Type           | Description                                                        |
+| ----------------------- | -------------- | ------------------------------------------------------------------ |
+| `aliceBalanceDecrement` | `uint256`      | The proposed sub-deposit into the AppInstance of the first party   |
+| `bobBalanceDecrement`   | `uint256`      | The proposed sub-deposit into the AppInstance of the second party  |
+| `signingKeys`           | `address[]`    | The unique signing keys of the participants for this AppInstance   |
+| `initialState`          | `object`       | An object representing the initial state of the AppInstance        |
+| `appInterface`          | `AppInterface` | The definition of the interface of the AppInstance to be installed |
+| `defaultTimeout`        | `uint256`      | The default challenge period length for this AppInstance           |
+| `interpreterAddress`    | `address`      | The address of an interpreter that will interpret the outcome      |
+| `interpreterParams`     | `bytes`        | Any parameters to be submitted to the interpreter upon execution   |
 
-> NOTE: `signingKeys` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Further detail still to be provided in these specifications in the future. See [this issue](https://github.com/counterfactual/specs/issues/15) for discussion
+> NOTE: `signingKeys` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Specifically the key is computed as the (`appSeqNo`)-th derived child of an extended public key that is the unique identifier for a state channel user.
 
-> NOTE: At the moment, this message requires that the hexidecimal value of `peer1.address` is strictly less than the value of `peer2.address` to enforce deterministic ordering of the `signingKey` variable in new application installs. This can be improved in the future
+### M1: Initiating signs `ConditionalTransaction`
 
-### The **`Install`** Message
+| Field       | Description                                                               |
+| ----------- | ------------------------------------------------------------------------- |
+| `protocol`  | `"install"`                                                               |
+| `multisig`  | The address of the on-chain multisignature wallet for this `StateChannel` |
+| `params`    | An `InstallParams` object describing the proposed app                     |
+| `toXpub`    | The extended public key of the responding party                           |
+| `seq`       | `1`                                                                       |
+| `signature` | Signed copy of the `ConditionalTransaction` digest by initiator           |
 
-|     Field     |                         Description                         |
-| ------------- | ----------------------------------------------------------- |
-| `protocol`    | `"install"`                                                 |
-| `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
-| `params`      | An `InstallParams` object describing the proposed app       |
-| `fromAddress` | The address of Alice                                        |
-| `toAddress`   | The address of Bob                                          |
-| `seq`         | `1`                                                         |
-| `signature`   | Alice's signed commitment digest                            |
+### M2: Responder countersigns `ConditionalTransaction` and signs `FreeBalanceSetState`
 
-### The **`InstallAck`** Message
+| Field        | Description                                                     |
+| ------------ | --------------------------------------------------------------- |
+| `protocol`   | `"install"`                                                     |
+| `multisig`   | The address of the on-chain Alice-Bob multisignature wallet     |
+| `toXpub`     | The extended public key of the initiating party                 |
+| `seq`        | `-1`                                                            |
+| `signature`  | Signed copy of the `ConditionalTransaction` digest by responder |
+| `signature2` | Signed copy of the `FreeBalanceSetState` digest by responder    |
 
-|     Field     |                         Description                         |
-| ------------- | ----------------------------------------------------------- |
-| `protocol`    | `"install"`                                                 |
-| `multisig`    | The address of the on-chain Alice-Bob multisignature wallet |
-| `data`        | An `InstallData` object describing the proposed app         |
-| `fromAddress` | The address of Alice                                        |
-| `toAddress`   | The address of Bob                                          |
-| `seq`         | `2`                                                         |
-| `signature`   | Bob's signed commitment digest                              |
+### M3: Initiator signs `FreeBalanceSetState`
 
-## Commitments
-
-**Commitment for `Install` and `InstallAck`**:
-
-Let `c1` and `c2` be the amounts that parties 1 and 2 wish to contribute towards the application respectively. Then, the commitment should:
-
-- Updates the state of the free balance application to one where the first party's balance is reduced by `c_1` and party the second party's balance should be reduced by `c_2`.
-- Makes a delegatecall to `executeEffectOfInterpretedAppOutcome` with a limit of `c_1 + c_2` as also included in the terms.
-
-The following parameters are included in the commitment:
-
-|     Parameter      |   Type    |                                              Description                                              |
-| ------------------ | --------- | ----------------------------------------------------------------------------------------------------- |
-| **`uninstallKey`** | `bytes32` | Arbitrary value that the installed app's conditional transaction depends on inside the UninstallKeyRegistry |
-| **`appStateHash`** | `bytes32` | The computed `keccak256` hash of the initial ABIEncoderV2 encoded state of the application            |
-
-The commitment can be visually represented like:
-
-```eval_rst
-.. mermaid:: ../diagrams/install-protocol-commitment.mmd
-```
-
-
-> NOTE: Although not shown in the visualization, the order of transactions is important. The `multiSend` must encode the call to `proxyCall` **before** the call to `executeEffectOfInterpretedAppOutcome`.
+| Field       | Description                                                  |
+| ----------- | ------------------------------------------------------------ |
+| `protocol`  | `"install"`                                                  |
+| `multisig`  | The address of the on-chain Alice-Bob multisignature wallet  |
+| `params`    | An `InstallData` object describing the proposed app          |
+| `toXpub`    | The extended public key of the responding party              |
+| `seq`       | `-1`                                                         |
+| `signature` | Signed copy of the `FreeBalanceSetState` digest by initiator |

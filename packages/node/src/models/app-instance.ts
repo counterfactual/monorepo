@@ -12,10 +12,8 @@ import {
   BigNumber,
   bigNumberify,
   defaultAbiCoder,
-  keccak256,
-  solidityPack
+  keccak256
 } from "ethers/utils";
-import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -36,14 +34,14 @@ export type AppInstanceJson = {
    */
   twoPartyOutcomeInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
   };
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
     limit: { _hex: string };
   };
 };
@@ -64,7 +62,7 @@ export type AppInstanceJson = {
 
  * @property isVirtualApp A flag indicating whether this AppInstance's state
  *           deposits come directly from a multisig or through a virtual app
- *           proxy agreement (TwoPartyVirtualEthAsLump.sol)
+ *           proxy agreement.
 
  * @property latestState The unencoded representation of the latest state.
 
@@ -194,30 +192,6 @@ export class AppInstance {
       [this.json.appInterface.stateEncoding],
       [this.json.latestState]
     );
-  }
-
-  @Memoize()
-  public get uninstallKey() {
-    // The unique "key" in the UninstallKeyRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, hash(<app versionNumber>))
-    const ret = keccak256(
-      solidityPack(
-        ["address", "bytes32"],
-        [
-          this.json.multisigAddress,
-          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
-        ]
-      )
-    );
-
-    log.debug(`
-      app-instance: computed
-        uninstallKey = ${ret} using
-        sender = ${this.json.multisigAddress},
-        salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
-    `);
-
-    return ret;
   }
 
   // TODO: All these getters seems a bit silly, would be nice to improve

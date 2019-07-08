@@ -64,7 +64,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.FreeBalanceApp,
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1
@@ -125,9 +125,11 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       });
 
       expect(await provider.getBalance(proxy)).toBeEq(Zero);
+
       expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
         WeiPerEther
       );
+
       expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
         WeiPerEther
       );

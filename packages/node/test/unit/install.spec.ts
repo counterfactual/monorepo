@@ -1,5 +1,5 @@
 import { Wallet } from "ethers";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
+import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -17,9 +17,10 @@ import {
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import {
-  convertFreeBalanceStateFromSerializableObject,
-  convertPartyBalancesToMap,
-  HexFreeBalanceState
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  convertCoinTransfersToCoinTransfersMap,
+  deserializeFreeBalanceState,
+  FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
@@ -97,18 +98,20 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK.ETHBucket,
+      EMPTY_NETWORK.FreeBalanceApp,
       multisigAddress,
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = convertPartyBalancesToMap(
-      convertFreeBalanceStateFromSerializableObject((stateChannel.freeBalance
-        .state as unknown) as HexFreeBalanceState)[AddressZero]
+    const balancesForETHToken = convertCoinTransfersToCoinTransfersMap(
+      deserializeFreeBalanceState(stateChannel.freeBalance
+        .state as FreeBalanceStateJSON).balancesIndexedByToken[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ]
     );
 
-    expect(fbState[signingKeys[0]]).toEqual(Zero);
-    expect(fbState[signingKeys[1]]).toEqual(Zero);
+    expect(balancesForETHToken[signingKeys[0]]).toEqual(Zero);
+    expect(balancesForETHToken[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

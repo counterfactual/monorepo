@@ -4,7 +4,6 @@ module.exports = {
     "external/Proxy.sol",
     "external/ProxyFactory.sol",
     "lib/StaticCall.sol",
-    "delegateTargets/MultiSend.sol",
     "Registry.sol",
     "test/loadContracts.sol"
   ]

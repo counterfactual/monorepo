@@ -1,22 +1,16 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/contracts/build/Proxy.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { TransactionResponse } from "ethers/providers";
-import {
-  getAddress,
-  Interface,
-  keccak256,
-  solidityKeccak256,
-  solidityPack
-} from "ethers/utils";
+import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -57,34 +51,13 @@ export default class CreateChannelController extends NodeController {
     const { owners } = params;
     const { wallet, networkContext } = requestHandler;
 
-    const multisigOwners = xkeysToSortedKthAddresses(owners, 0);
-
-    const setupData = new Interface(
-      MinimumViableMultisig.abi
-    ).functions.setup.encode([multisigOwners]);
-
-    const multisigAddress = getAddress(
-      solidityKeccak256(
-        ["bytes1", "address", "uint256", "bytes32"],
-        [
-          "0xff",
-          networkContext.ProxyFactory,
-          solidityKeccak256(["bytes32", "uint256"], [keccak256(setupData), 0]),
-          keccak256(
-            solidityPack(
-              ["bytes", "uint256"],
-              [`0x${Proxy.bytecode}`, networkContext.MinimumViableMultisig]
-            )
-          )
-        ]
-      ).slice(-40)
+    const multisigAddress = getCreate2MultisigAddress(
+      owners,
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(
-      wallet,
-      setupData,
-      networkContext
-    );
+    const tx = await this.sendMultisigDeployTx(wallet, owners, networkContext);
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
@@ -125,7 +98,7 @@ export default class CreateChannelController extends NodeController {
 
   private async sendMultisigDeployTx(
     signer: Signer,
-    setupData: string,
+    owners: string[],
     networkContext: NetworkContext
   ): Promise<TransactionResponse> {
     const proxyFactory = new Contract(
@@ -141,7 +114,9 @@ export default class CreateChannelController extends NodeController {
         const extraGasLimit = tryCount * 1e6;
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
-          setupData,
+          new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+            xkeysToSortedKthAddresses(owners, 0)
+          ]),
           0, // TODO: Increment nonce as needed
           {
             gasLimit: CREATE_PROXY_AND_SETUP_GAS + extraGasLimit,

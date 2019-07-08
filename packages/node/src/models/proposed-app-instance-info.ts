@@ -1,9 +1,7 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
-  Bytes32,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -14,7 +12,7 @@ import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
 export interface IProposedAppInstanceInfo {
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumberish;
   peerDeposit: BigNumberish;
@@ -27,8 +25,8 @@ export interface IProposedAppInstanceInfo {
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: Bytes32;
-  appDefinition: Address;
+  id: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };
   peerDeposit: { _hex: string };
@@ -51,8 +49,8 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  id: Bytes32;
-  appDefinition: Address;
+  id: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -66,7 +64,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   constructor(
     proposeParams: IProposedAppInstanceInfo,
     channel?: StateChannel,
-    overrideId?: Bytes32
+    overrideId?: string
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;

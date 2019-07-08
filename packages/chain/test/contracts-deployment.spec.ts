@@ -12,7 +12,7 @@ describe("Contracts get deployed as expected", () => {
 
     // This is not officially part of the NetworkContext but it's deployed
     // in the context of the tests
-    delete networkContext["TicTacToe"];
+    delete networkContext["TicTacToeApp"];
 
     const contractNames = new Set(Object.keys(networkContext));
     const expectedContracts = new Set(networkContextProps);

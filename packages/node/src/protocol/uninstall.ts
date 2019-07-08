@@ -1,6 +1,6 @@
 import { BaseProvider } from "ethers/providers";
 
-import { UninstallCommitment } from "../ethereum";
+import { SetStateCommitment } from "../ethereum";
 import { Protocol, ProtocolExecutionFlow } from "../machine";
 import { Opcode } from "../machine/enums";
 import {
@@ -11,11 +11,10 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
-import { FreeBalanceState } from "../models/free-balance";
 
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { validateSignature } from "./utils/signature-validator";
+import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -47,7 +46,11 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    validateSignature(respondingAddress, uninstallCommitment, theirSig);
+    requireValidSignatureOrThrowError(
+      respondingAddress,
+      uninstallCommitment,
+      theirSig
+    );
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,
@@ -73,7 +76,11 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.signature!;
 
-    validateSignature(initiatingAddress, uninstallCommitment, theirSig);
+    requireValidSignatureOrThrowError(
+      initiatingAddress,
+      uninstallCommitment,
+      theirSig
+    );
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
@@ -106,13 +113,11 @@ async function proposeStateTransition(
   params: ProtocolParameters,
   context: Context,
   provider: BaseProvider
-): Promise<[UninstallCommitment, string]> {
+): Promise<[SetStateCommitment, string]> {
   const { appIdentityHash, multisigAddress } = params as UninstallParams;
   const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-
-  const sequenceNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
   const increments = await computeFreeBalanceIncrements(
     network,
@@ -127,15 +132,12 @@ async function proposeStateTransition(
 
   const freeBalance = newStateChannel.freeBalance;
 
-  const uninstallCommitment = new UninstallCommitment(
-    network,
-    newStateChannel.multisigAddress,
-    newStateChannel.multisigOwners,
+  const uninstallCommitment = new SetStateCommitment(
+    context.network,
     freeBalance.identity,
-    (freeBalance.state as unknown) as FreeBalanceState,
+    freeBalance.hashOfLatestState,
     freeBalance.versionNumber,
-    freeBalance.timeout,
-    sequenceNo
+    freeBalance.timeout
   );
 
   return [uninstallCommitment, appIdentityHash];

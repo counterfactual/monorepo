@@ -1,26 +1,6 @@
 # Channel Networks
 
-The framework currently contains basic support for channel networks via "virtual apps". In this design, an app instance between that set of parties can have some state deposit assigned indirectly to it, without the set of parties having a direct channel containing them. Since the app instance is not directly funded, no commitment to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` is made to that app instance. Instead, a number of commitments to `TwoPartyVirtualEthAsLump` are made in different direct channels to the same app instance (i.e., passing the same `appIdentityHash`). The commitment passes the following struct as a field.
-
-```solidity
-struct Agreement {
-  ChallengeRegistry registry;
-  UninstallKeyRegistry uninstallKeyRegistry;
-  uint256 expiry;
-  bytes32 appIdentityHash;
-  uint256 capitalProvided;
-  address payable[2] beneficiaries;
-  bytes32 uninstallKey;
-}
-```
-
-- **`registry`**: The `ChallengeRegistry` where the target app instance is stored
-- **`uninstallKeyRegistry`**: The `UninstallKeyRegistry` by which this agreement can be cancelled
-- **`expiry`**: The block height above which this agreement is valid
-- **`appIdentityHash`**: Hash of the target app identity
-- **`capitalProvided`**: Total amount of ETH the target app instance allocates
-- **`beneficiaries`**: The two recipients of ETH, the numerical balance of which is decided by the target app instance's outcome
-- **`uninstallKey`**: Passed to `nonceRegistry` to check if this commitment is cancelled
+The framework currently contains basic support for channel networks via "virtual apps". In this design, an app instance between that set of parties can have some state deposit assigned indirectly to it, without the set of parties having a direct channel containing them. A commitment is made to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` with the `appIdentityHash` being that of the virtual app but the interpreter is unique for each side of the network. The outcome is interpreted to send one side the value the virtual app's outcome dictates they should receive and the intermediary the other side's value. For example, in an A-I-B virtual app, where I is intermediating an app instance between A and B, then there is a commitment made in the A-I channel that interprets the outcome of the A-B virtual app such that A would receive A's result and I receives B's result.
 
 ## FAQ
 

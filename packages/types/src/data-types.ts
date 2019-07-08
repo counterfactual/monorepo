@@ -5,14 +5,14 @@ import { ABIEncoding, AppInstanceID } from "./simple-types";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+  // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
   playerAddrs: [string, string];
   amount: BigNumber;
 };
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
   limit: BigNumber;
 };
 
