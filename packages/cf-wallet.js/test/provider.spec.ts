@@ -114,7 +114,7 @@ describe("CF.js Provider", () => {
         });
       });
       const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -152,7 +152,7 @@ describe("CF.js Provider", () => {
         TEST_APP_INSTANCE_INFO.id,
         expectedIntermediaries
       );
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.id);
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -316,7 +316,7 @@ describe("CF.js Provider", () => {
       provider.once(EventType.REJECT_INSTALL, e => {
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.id);
       });
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
@@ -334,7 +334,7 @@ describe("CF.js Provider", () => {
       provider.once(EventType.INSTALL, e => {
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.id);
       });
 
       await provider.getOrCreateAppInstance(

@@ -27,7 +27,7 @@ export interface IProposedAppInstanceInfo {
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: Bytes32;
+  identityHash: string;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };
@@ -135,7 +135,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
   toJson(): ProposedAppInstanceInfoJSON {
     return {
-      id: this.id,
+      identityHash: this.id,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
       myDeposit: { _hex: this.myDeposit.toHexString() },
@@ -163,6 +163,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       outcomeType: json.outcomeType
     };
 
-    return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
+    return new ProposedAppInstanceInfo(proposeParams, undefined, json.identityHash);
   }
 }
