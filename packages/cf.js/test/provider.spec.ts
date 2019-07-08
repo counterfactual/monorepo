@@ -138,7 +138,9 @@ describe("CF.js Provider", () => {
 
       const instances = await provider.getAppInstances();
       expect(instances).toHaveLength(1);
-      expect(instances[0].identityHash).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      expect(instances[0].identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
     });
 
     it("can install an app instance", async () => {
@@ -161,8 +163,12 @@ describe("CF.js Provider", () => {
           id: request.id as number
         });
       });
-      const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.identityHash);
-      expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      const appInstance = await provider.install(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -200,7 +206,9 @@ describe("CF.js Provider", () => {
         TEST_APP_INSTANCE_INFO.identityHash,
         expectedIntermediaries
       );
-      expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -255,7 +263,9 @@ describe("CF.js Provider", () => {
         expect(e.type).toBe(EventType.REJECT_INSTALL);
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
@@ -274,7 +284,9 @@ describe("CF.js Provider", () => {
         expect(e.type).toBe(EventType.INSTALL);
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.identityHash).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
 
       await provider.getOrCreateAppInstance(
