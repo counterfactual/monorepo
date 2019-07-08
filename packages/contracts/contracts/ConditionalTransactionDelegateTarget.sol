@@ -11,18 +11,18 @@ import "./ChallengeRegistry.sol";
 contract ConditionalTransactionDelegateTarget {
 
   function executeEffectOfFreeBalance(
-    ChallengeRegistry appRegistry,
+    ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
     address ethInterpreterAddress
   )
     public
   {
     require(
-      appRegistry.isStateFinalized(freeBalanceAppIdentityHash),
+      challengeRegistry.isStateFinalized(freeBalanceAppIdentityHash),
       "Free Balance app instance is not finalized yet"
     );
 
-    bytes memory outcome = appRegistry.getOutcome(
+    bytes memory outcome = challengeRegistry.getOutcome(
       freeBalanceAppIdentityHash
     );
 
@@ -46,7 +46,7 @@ contract ConditionalTransactionDelegateTarget {
   /// @param uninstallKey The key in the uninstall key registry
   /// @param appIdentityHash AppIdentityHash to be resolved
   function executeEffectOfInterpretedAppOutcome(
-    ChallengeRegistry appRegistry,
+    ChallengeRegistry challengeRegistry,
     UninstallKeyRegistry uninstallKeyRegistry,
     bytes32 uninstallKey,
     bytes32 appIdentityHash,
@@ -61,11 +61,11 @@ contract ConditionalTransactionDelegateTarget {
     );
 
     require(
-      appRegistry.isStateFinalized(appIdentityHash),
+      challengeRegistry.isStateFinalized(appIdentityHash),
       "App is not finalized yet"
     );
 
-    bytes memory outcome = appRegistry.getOutcome(
+    bytes memory outcome = challengeRegistry.getOutcome(
       appIdentityHash
     );
 
