@@ -50,7 +50,10 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     validateSignature(respondingAddress, uninstallCommitment, theirSig);
 
-    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = uninstallCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -75,7 +78,10 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = uninstallCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,

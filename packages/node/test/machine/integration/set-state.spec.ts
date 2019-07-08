@@ -67,7 +67,7 @@ describe("set state on free balance", () => {
       freeBalanceETH.timeout
     );
 
-    const setStateTx = setStateCommitment.transaction([
+    const setStateTx = setStateCommitment.getSignedTransaction([
       multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
       multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
     ]);

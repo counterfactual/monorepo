@@ -51,7 +51,10 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       theirSig
     );
 
-    const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setStateCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Update,
@@ -79,7 +82,10 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const finalCommitment = setStateCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setStateCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Update,

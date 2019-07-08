@@ -82,7 +82,10 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    const finalCommitment = withdrawETHCommitment.transaction([s3, s4]);
+    const finalCommitment = withdrawETHCommitment.getSignedTransaction([
+      s3,
+      s4
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -122,7 +125,10 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     const s4 = yield [Opcode.OP_SIGN, withdrawETHCommitment];
     const s6 = yield [Opcode.OP_SIGN, uninstallRefundCommitment];
 
-    const finalCommitment = withdrawETHCommitment.transaction([s3, s4]);
+    const finalCommitment = withdrawETHCommitment.getSignedTransaction([
+      s3,
+      s4
+    ]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Withdraw,

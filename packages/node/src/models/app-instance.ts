@@ -28,7 +28,7 @@ export type AppInstanceJson = {
   isVirtualApp: boolean;
   appSeqNo: number;
   latestState: SolidityABIEncoderV2Type;
-  latestversionNumber: number;
+  latestVersionNumber: number;
   latestTimeout: number;
 
   /**
@@ -68,7 +68,7 @@ export type AppInstanceJson = {
 
  * @property latestState The unencoded representation of the latest state.
 
- * @property latestversionNumber The versionNumber of the latest signed state update.
+ * @property latestVersionNumber The versionNumber of the latest signed state update.
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
@@ -91,7 +91,7 @@ export class AppInstance {
     isVirtualApp: boolean,
     appSeqNo: number,
     latestState: any,
-    latestversionNumber: number,
+    latestVersionNumber: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
     coinTransferInterpreterParams?: CoinTransferInterpreterParams
@@ -104,7 +104,7 @@ export class AppInstance {
       isVirtualApp,
       appSeqNo,
       latestState,
-      latestversionNumber,
+      latestVersionNumber,
       latestTimeout,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
@@ -142,7 +142,7 @@ export class AppInstance {
       json.isVirtualApp,
       json.appSeqNo,
       latestState,
-      json.latestversionNumber,
+      json.latestVersionNumber,
       json.latestTimeout,
       json.twoPartyOutcomeInterpreterParams
         ? {
@@ -228,7 +228,7 @@ export class AppInstance {
   }
 
   public get versionNumber() {
-    return this.json.latestversionNumber;
+    return this.json.latestVersionNumber;
   }
 
   public get coinTransferInterpreterParams() {
@@ -284,7 +284,7 @@ export class AppInstance {
     return AppInstance.fromJson({
       ...this.json,
       latestState: this.json.latestState,
-      latestversionNumber: versionNumber
+      latestVersionNumber: versionNumber
     });
   }
 
@@ -308,7 +308,7 @@ export class AppInstance {
     return AppInstance.fromJson({
       ...this.json,
       latestState: newState,
-      latestversionNumber: this.versionNumber + 1,
+      latestVersionNumber: this.versionNumber + 1,
       latestTimeout: timeout
     });
   }

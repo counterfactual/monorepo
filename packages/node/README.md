@@ -1,6 +1,6 @@
 ## Protocols
 
-The Node contains a TypeScript implementation of the [Counterfactual protocol](https://github.com/counterfactual/specs/blob/master/v0/protocols.md). It is responsible for executing the Counterfactual protocols [specified here](https://specs.counterfactual.com) and producing correctly constructed signed commitments that correspond to state transitions of the users' state channels.
+The Node contains a TypeScript implementation of the [Counterfactual protocol](https://specs.counterfactual.com). It is responsible for executing the protocols and producing correctly constructed signed commitments that correspond to state transitions of the users' state channels.
 
 The main areas of interest with this implementation are:
 

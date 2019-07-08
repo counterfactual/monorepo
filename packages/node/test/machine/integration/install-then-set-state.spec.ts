@@ -130,7 +130,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       await wallet.sendTransaction({
-        ...setStateCommitment.transaction([
+        ...setStateCommitment.getSignedTransaction([
           uniqueAppSigningKeys[0].signDigest(setStateCommitment.hashToSign()),
           uniqueAppSigningKeys[1].signDigest(setStateCommitment.hashToSign())
         ]),
@@ -164,7 +164,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         )
       );
 
-      const installTx = installCommitment.transaction([
+      const installTx = installCommitment.getSignedTransaction([
         multisigOwnerKeys[0].signDigest(installCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(installCommitment.hashToSign())
       ]);
