@@ -133,7 +133,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         targetAppInstance.timeout
       );
 
-      const setStateTx = setStateCommitment.transaction([
+      const setStateTx = setStateCommitment.getSignedTransaction([
         // TODO: Replace with k-th signing keys later
         multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
@@ -155,7 +155,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       });
 
       await wallet.sendTransaction({
-        ...commitment.transaction([
+        ...commitment.getSignedTransaction([
           multisigOwnerKeys[0].signDigest(commitment.hashToSign()),
           multisigOwnerKeys[1].signDigest(commitment.hashToSign())
         ]),

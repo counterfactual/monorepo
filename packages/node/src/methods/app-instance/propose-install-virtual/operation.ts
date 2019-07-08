@@ -20,7 +20,7 @@ export async function createProposedVirtualAppInstance(
 ): Promise<string> {
   const { intermediaries, proposedToIdentifier } = params;
 
-  const channel = await getOrCreateVirtualChannel(
+  const channel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
     myIdentifier,
     proposedToIdentifier,
     intermediaries,
@@ -48,10 +48,10 @@ export async function createProposedVirtualAppInstance(
  * @param respondingAddress
  */
 export function getNextNodeAddress(
-  thisAddress: Address,
-  intermediaries: Address[],
-  respondingAddress: Address
-): Address {
+  thisAddress: string,
+  intermediaries: string[],
+  respondingAddress: string
+): string {
   const intermediaryIndex = intermediaries.findIndex(
     intermediaryAddress => intermediaryAddress === thisAddress
   );
@@ -74,41 +74,39 @@ export function isNodeIntermediary(
   return intermediaries.includes(thisAddress);
 }
 
-export async function getOrCreateVirtualChannel(
-  initiatorIdentifier: string,
-  respondingIdentifier: string,
+export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  initiatingXpub: string,
+  respondingXpub: string,
   intermediaries: string[],
   store: Store
 ): Promise<StateChannel> {
-  let channel: StateChannel;
+  let stateChannel: StateChannel;
   try {
-    channel = await getChannelFromPeerAddress(
-      initiatorIdentifier,
-      respondingIdentifier,
+    stateChannel = await getChannelFromPeerAddress(
+      initiatingXpub,
+      respondingXpub,
       store
     );
   } catch (e) {
     if (
       e
         .toString()
-        .includes(
-          NO_CHANNEL_BETWEEN_NODES(initiatorIdentifier, respondingIdentifier)
-        ) &&
+        .includes(NO_CHANNEL_BETWEEN_NODES(initiatingXpub, respondingXpub)) &&
       intermediaries !== undefined
     ) {
       const key = virtualChannelKey(
-        [initiatorIdentifier, respondingIdentifier],
+        [initiatingXpub, respondingXpub],
         intermediaries[0]
       );
-      channel = StateChannel.createEmptyChannel(key, [
-        initiatorIdentifier,
-        respondingIdentifier
+      stateChannel = StateChannel.createEmptyChannel(key, [
+        initiatingXpub,
+        respondingXpub
       ]);
 
-      await store.saveStateChannel(channel);
+      await store.saveStateChannel(stateChannel);
     } else {
-      return Promise.reject(e);
+      throw e;
     }
   }
-  return channel;
+  return stateChannel;
 }

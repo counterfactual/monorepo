@@ -85,7 +85,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         freeBalanceETH.timeout
       );
 
-      const setStateTx = setStateCommitment.transaction([
+      const setStateTx = setStateCommitment.getSignedTransaction([
         multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
       ]);
@@ -112,7 +112,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         stateChannel.freeBalance.identity
       );
 
-      const setupTx = setupCommitment.transaction([
+      const setupTx = setupCommitment.getSignedTransaction([
         multisigOwnerKeys[0].signDigest(setupCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setupCommitment.hashToSign())
       ]);

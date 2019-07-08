@@ -39,7 +39,7 @@ export class SetStateCommitment extends EthereumCommitment {
     );
   }
 
-  public transaction(sigs: Signature[]): Transaction {
+  public getSignedTransaction(sigs: Signature[]): Transaction {
     return {
       to: this.networkContext.ChallengeRegistry,
       value: 0,

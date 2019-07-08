@@ -1,6 +1,6 @@
 import { Node } from "@counterfactual/types";
 
-import { getOrCreateVirtualChannel } from "../../methods/app-instance/propose-install-virtual/operation";
+import { getOrCreateStateChannelThatWrapsVirtualAppInstance } from "../../methods/app-instance/propose-install-virtual/operation";
 import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
 
@@ -22,7 +22,7 @@ export async function setAppInstanceIDForProposeInstallVirtual(
 ) {
   const { intermediaries } = params;
 
-  const channel = await getOrCreateVirtualChannel(
+  const channel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
     proposedByIdentifier,
     myIdentifier,
     intermediaries,
