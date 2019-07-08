@@ -175,7 +175,7 @@ async function proposeStateTransition(
     /* isVirtualApp */ false,
     /* appSeqNo */ stateChannel.numInstalledApps,
     /* latestState */ initialState,
-    /* latestversionNumber */ 0,
+    /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
     /* coinTransferInterpreterParams */ coinTransferInterpreterParams
