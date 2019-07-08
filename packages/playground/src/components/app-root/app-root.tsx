@@ -460,7 +460,7 @@ export class AppRoot {
 
     provider.once(Node.EventName.DEPOSIT_CONFIRMED, async args => {
       await this.getBalances();
-      await this.resetPendingDepositState();  
+      await this.resetPendingDepositState();
     });
 
     let ret;
