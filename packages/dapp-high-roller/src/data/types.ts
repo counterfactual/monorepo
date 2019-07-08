@@ -37,16 +37,6 @@ export interface INodeProvider {
 }
 
 export namespace Node {
-  export type NetworkContext = {
-    // Protocol
-    MultiSend: Address;
-    RootNonceRegistry: Address;
-    UninstallKeyRegistry: Address;
-    ChallengeRegistry: Address;
-    // App-specific
-    ETHBalanceRefundApp: Address;
-  };
-
   export enum ErrorType {
     ERROR = "error"
   }
