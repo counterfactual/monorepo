@@ -4,17 +4,19 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { ContractFactory, Wallet } from "ethers";
 
-export async function configureNetworkContext(wallet: Wallet) {
+export async function deployTestArtifactsToChain(wallet: Wallet) {
   const mvmContract = await new ContractFactory(
     MinimumViableMultisig.abi,
     MinimumViableMultisig.bytecode,
     wallet
   ).deploy();
+
   const proxyFactoryContract = await new ContractFactory(
     ProxyFactory.abi,
     ProxyFactory.bytecode,
     wallet
   ).deploy();
+
   const tttContract = await new ContractFactory(
     TicTacToeApp.interface,
     TicTacToeApp.bytecode,

@@ -12,7 +12,7 @@ import {
   convertPartyBalancesFromMap,
   createFreeBalance,
   FreeBalanceState,
-  getETHFreeBalance,
+  getETHBalancesFromFreeBalanceAppInstance,
   HexFreeBalanceState,
   PartyBalanceMap
 } from "./free-balance";
@@ -185,7 +185,9 @@ export class StateChannel {
     increments: PartyBalanceMap,
     tokenAddress: string
   ) {
-    const ethFreeBalanceState = getETHFreeBalance(this.freeBalance);
+    const ethFreeBalanceState = getETHBalancesFromFreeBalanceAppInstance(
+      this.freeBalance
+    );
     const fbState = convertFreeBalanceStateFromSerializableObject((this
       .freeBalance.state as unknown) as HexFreeBalanceState);
 

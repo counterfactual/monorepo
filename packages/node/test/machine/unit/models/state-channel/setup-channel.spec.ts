@@ -3,7 +3,7 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHFreeBalance } from "../../../../../src/models/free-balance";
+import { getETHBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
@@ -82,7 +82,7 @@ describe("StateChannel::setupChannel", () => {
     it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const ethFBState = getETHFreeBalance(fb);
+      const ethFBState = getETHBalancesFromFreeBalanceAppInstance(fb);
       for (const amount of Object.values(ethFBState)) {
         expect(amount).toEqual(Zero);
       }

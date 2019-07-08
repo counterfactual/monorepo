@@ -150,7 +150,9 @@ export function convertFreeBalanceStateToSerializableObject(
   return (state as unknown) as SolidityABIEncoderV2Type;
 }
 
-export function getETHFreeBalance(fb: AppInstance): PartyBalanceMap {
+export function getETHBalancesFromFreeBalanceAppInstance(
+  fb: AppInstance
+): PartyBalanceMap {
   return convertPartyBalancesToMap(
     convertFreeBalanceStateFromSerializableObject(
       (fb.state as unknown) as HexFreeBalanceState

@@ -4,8 +4,8 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHFreeBalance } from "../../../../../src/models/free-balance";
-import { createFundedFreeBalance } from "../../../../integration/utils";
+import { getETHBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../../../integration/utils";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -37,7 +37,7 @@ describe("StateChannel::uninstallApp", () => {
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
 
     sc1 = sc1.setFreeBalance(
-      createFundedFreeBalance(
+      createFreeBalanceStateWithFundedETHAmounts(
         [xkeyKthAddress(xpubs[0], 0), xkeyKthAddress(xpubs[1], 0)],
         WeiPerEther
       )
@@ -70,8 +70,9 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const ethFBState = getETHFreeBalance(fb);
-      for (const amount of Object.values(ethFBState)) {
+      for (const amount of Object.values(
+        getETHBalancesFromFreeBalanceAppInstance(fb)
+      )) {
         expect(amount).toEqual(Zero);
       }
     });
