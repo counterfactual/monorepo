@@ -104,7 +104,7 @@ export class AppInstance {
       isVirtualApp,
       appSeqNo,
       latestState,
-      latestVersionNumber: latestVersionNumber,
+      latestVersionNumber,
       latestTimeout,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
