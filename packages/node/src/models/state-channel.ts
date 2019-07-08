@@ -185,7 +185,9 @@ export class StateChannel {
     increments: PartyBalanceMap,
     tokenAddress: string
   ) {
-    const ethFreeBalanceState = getETHBalancesFromFreeBalanceAppInstance(this.freeBalance);
+    const ethFreeBalanceState = getETHBalancesFromFreeBalanceAppInstance(
+      this.freeBalance
+    );
     const fbState = convertFreeBalanceStateFromSerializableObject((this
       .freeBalance.state as unknown) as HexFreeBalanceState);
 

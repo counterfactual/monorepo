@@ -70,7 +70,9 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      for (const amount of Object.values(getETHBalancesFromFreeBalanceAppInstance(fb))) {
+      for (const amount of Object.values(
+        getETHBalancesFromFreeBalanceAppInstance(fb)
+      )) {
         expect(amount).toEqual(Zero);
       }
     });
