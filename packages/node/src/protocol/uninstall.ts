@@ -1,3 +1,4 @@
+import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 
 import { UninstallCommitment } from "../ethereum";
@@ -122,7 +123,9 @@ async function proposeStateTransition(
   const newStateChannel = sc.uninstallApp(
     appIdentityHash,
     increments,
-    tokenAddress!
+    // installing/uninstalling apps with ERC20 is not yet supported
+    // so all installs/uninstalls default to ETH
+    tokenAddress ? tokenAddress : AddressZero
   );
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
