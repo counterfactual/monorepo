@@ -46,7 +46,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     validateSignature(respondingAddress, commitment, theirSig);
-    const finalCommitment = commitment.transaction([mySig, theirSig]);
+    const finalCommitment = commitment.getSignedTransaction([mySig, theirSig]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Install,
@@ -69,7 +69,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, commitment];
 
-    const finalCommitment = commitment.transaction([mySig, theirSig]);
+    const finalCommitment = commitment.getSignedTransaction([mySig, theirSig]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Install,

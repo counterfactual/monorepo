@@ -2,7 +2,6 @@ import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { AddressZero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import NimApp from "../build/NimApp.json";

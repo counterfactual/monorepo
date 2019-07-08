@@ -44,7 +44,10 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     ];
     validateSignature(respondingAddress, setupCommitment, theirSig);
 
-    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setupCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -69,7 +72,10 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setupCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Setup,

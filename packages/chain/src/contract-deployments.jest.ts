@@ -13,7 +13,7 @@ import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRe
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
-export async function configureNetworkContext(wallet: Wallet) {
+export async function deployTestArtifactsToChain(wallet: Wallet) {
   const balanceRefundContract = await new ContractFactory(
     BalanceRefundApp.abi,
     BalanceRefundApp.bytecode,

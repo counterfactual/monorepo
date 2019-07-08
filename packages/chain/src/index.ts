@@ -6,7 +6,7 @@ import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import ganache from "ganache-core";
 
-import { configureNetworkContext } from "./contract-deployments.jest";
+import { deployTestArtifactsToChain } from "./contract-deployments.jest";
 
 dotenvExtended.load();
 
@@ -53,7 +53,7 @@ export class Chain {
 
   async createConfiguredChain(): Promise<NetworkContext> {
     const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    this.networkContext = await configureNetworkContext(wallet);
+    this.networkContext = await deployTestArtifactsToChain(wallet);
     return this.networkContext;
   }
 }
