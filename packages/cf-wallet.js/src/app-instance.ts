@@ -33,7 +33,7 @@ export class AppInstance {
   readonly intermediaries?: Address[];
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
-    this.identityHash = info.id;
+    this.identityHash = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
     this.myDeposit = info.myDeposit;
