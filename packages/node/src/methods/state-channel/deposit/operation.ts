@@ -6,7 +6,7 @@ import {
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { Zero, AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,

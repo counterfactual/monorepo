@@ -189,6 +189,7 @@ export namespace Node {
 
   export type GetFreeBalanceStateParams = {
     multisigAddress: string;
+    tokenAddress?: string;
   };
 
   export type GetFreeBalanceStateResult = {

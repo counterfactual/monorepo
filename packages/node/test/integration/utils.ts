@@ -114,13 +114,15 @@ export async function getProposedAppInstanceInfo(
 
 export async function getFreeBalanceState(
   node: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = AddressZero
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
     params: {
-      multisigAddress
+      multisigAddress,
+      tokenAddress
     },
     jsonrpc: "2.0"
   });
@@ -159,12 +161,17 @@ export async function getApps(
 
 export function makeDepositRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress: string = AddressZero
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.DEPOSIT,
-    params: { multisigAddress, amount },
+    params: {
+      multisigAddress,
+      amount,
+      tokenAddress
+    } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
 }

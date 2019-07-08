@@ -18,8 +18,14 @@ export const DEPOSIT_FAILED = "Failed to send funds to the multisig contract";
 export const ETH_BALANCE_REFUND_NOT_UNINSTALLED =
   "The ETH balance refund AppInstance is still installed when it's not supposed to be";
 
+export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
+  `No free balance exists for the specified token: ${tokenAddress}`;
+
 export const IMPROPERLY_FORMATTED_STRUCT =
   "Improperly formatted ABIEncoderV2 struct";
+
+export const INSUFFICIENT_ERC20_FUNDS = (address: string) =>
+  `Node's default signer does not have enough funds of the specified ERC20 token for this action: ${address}`;
 
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";

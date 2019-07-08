@@ -1,9 +1,13 @@
-import { BigNumberish } from "ethers/utils";
+import { BigNumberish, Interface, ParamType } from "ethers/utils";
 
 export type ABIEncoding = string;
 export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
+
+// This is copied from the ethers definition of how an ABI is typed.
+// tslint:disable-next-line:prefer-array-literal
+export type ContractABI = Array<string | ParamType> | string | Interface;
 
 // The application-specific state of an app instance, to be interpreted by the
 // app developer. We just treat it as an opaque blob; however since we pass this

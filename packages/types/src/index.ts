@@ -18,6 +18,7 @@ import {
   Address,
   AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
@@ -66,6 +67,7 @@ export {
   AppInterface,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  ContractABI,
   SolidityABIEncoderV2Type,
   Bytes32,
   INodeProvider,
