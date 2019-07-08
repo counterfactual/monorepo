@@ -1,6 +1,7 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
@@ -20,7 +21,6 @@ import {
   makeDeposit,
   uninstallBalanceRefundApp
 } from "./operation";
-import { AddressZero } from "ethers/constants";
 
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;

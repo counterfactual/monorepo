@@ -11,10 +11,10 @@ import {
   convertFreeBalanceStateToSerializableObject,
   createFreeBalance,
   FreeBalanceState,
-  HexFreeBalanceState,
-  PartyBalanceMap,
   getETHFreeBalance,
-  PartyBalance
+  HexFreeBalanceState,
+  PartyBalance,
+  PartyBalanceMap
 } from "./free-balance";
 import {
   TwoPartyVirtualEthAsLumpInstance,
