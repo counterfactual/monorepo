@@ -10,6 +10,7 @@ import {
   xkeyKthAddress
 } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -91,7 +92,8 @@ describe("Three mininodes", () => {
         actionEncoding: "tuple(uint8 actionType, uint256 increment)"
       },
       defaultTimeout: 40,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
     const appInstances = mininodeA.scm.get(multisigAB)!.appInstances;
@@ -138,7 +140,8 @@ describe("Three mininodes", () => {
         counter: 0
       },
       initiatingBalanceDecrement: bigNumberify(0),
-      respondingBalanceDecrement: bigNumberify(0)
+      respondingBalanceDecrement: bigNumberify(0),
+      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
     expect(mininodeA.scm.size).toBe(2);

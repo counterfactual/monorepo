@@ -21,10 +21,11 @@ import {
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../machine/virtual-app-unique-identifier";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
@@ -124,7 +125,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on virtual app agreement is good)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
       intermediarySignatureOnAliceIngridVirtualAppAgreement,
@@ -157,7 +158,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on free balance app activation is good
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
       intermediarySignatureOnAliceIngridFreeBalanceAppActivation,
@@ -222,14 +223,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signatures on virtual app agreement are OK)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       intermediarySignatureOnVirtualAppSetStateCommitment,
       true
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       respondingSignatureOnVirtualAppSetStateCommitment
@@ -315,7 +316,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on conditional transaction is good from initiating)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
       initiatingSignatureOnAliceIngridVirtualAppAgreement
@@ -364,7 +365,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on conditional transaction is good from responding
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
       respondingSignatureOnIngridBobVirtualAppAgreement
@@ -382,7 +383,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require( signature on free balance app activation is good)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
       respondingSignatureOnIngridBobFreeBalanceAppActivation
@@ -446,7 +447,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on free balance activation with initiaitng is good)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
       initiatingSignatureOnAliceIngridFreeBalanceAppActivation
@@ -478,7 +479,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on virtual app set state from initiaitng is good)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       initiatingSignatureOnVirtualAppSetStateCommitment
@@ -530,7 +531,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require virtual app set state is good from responding
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       respondingSignatureOnVirtualAppSetStateCommitment
@@ -633,7 +634,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on virtual app agreement is good from)
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
       intermediarySignatureOnIngridBobVirtualAppAgreement,
@@ -697,7 +698,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require(signature on free balance app activation is good
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
       intermediarySignatureOnIngridBobFreeBalanceAppActivation,
@@ -730,14 +731,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: require virtual app set state commitment sigs by intermediary and initiaitng are good
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       intermediarySignatureOnVirtualAppSetStateCommitment,
       true
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       virtualAppSetStateCommitmentWithIntermediary,
       initiatingSignatureOnVirtualAppSetStateCommitment
@@ -894,6 +895,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   const {
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
+    tokenAddress,
     initiatingXpub,
     intermediaryXpub,
     respondingXpub
@@ -939,7 +941,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     {
       [initiatingAddress]: initiatingBalanceDecrement,
       [intermediaryAddress]: respondingBalanceDecrement
-    }
+    },
+    tokenAddress
   );
 
   return [
@@ -1017,7 +1020,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     {
       [initiatingAddress]: initiatingBalanceDecrement,
       [intermediaryAddress]: respondingBalanceDecrement
-    }
+    },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   const stateChannelWithResponding = channelWithResponding.addSingleAssetTwoPartyIntermediaryAgreement(
@@ -1032,7 +1036,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     {
       [intermediaryAddress]: initiatingBalanceDecrement,
       [respondingAddress]: respondingBalanceDecrement
-    }
+    },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   return [
@@ -1098,7 +1103,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     {
       [intermediaryAddress]: initiatingBalanceDecrement,
       [respondingAddress]: respondingBalanceDecrement
-    }
+    },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   return [

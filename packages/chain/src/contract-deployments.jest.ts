@@ -1,8 +1,9 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
 import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
@@ -14,12 +15,19 @@ import { ContractFactory, Wallet } from "ethers";
 
 export type NetworkContextForTestSuite = NetworkContext & {
   TicTacToeApp: string;
+  DolphinCoin: string;
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
-  const balanceRefundContract = await new ContractFactory(
-    BalanceRefundApp.abi,
-    BalanceRefundApp.bytecode,
+  const coinBalanceRefundContract = await new ContractFactory(
+    CoinBalanceRefundApp.abi,
+    CoinBalanceRefundApp.bytecode,
+    wallet
+  ).deploy();
+
+  const dolphinCoin = await new ContractFactory(
+    DolphinCoin.abi,
+    DolphinCoin.bytecode,
     wallet
   ).deploy();
 
@@ -87,10 +95,11 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
-    ETHBalanceRefundApp: balanceRefundContract.address,
     FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
     CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    CoinBalanceRefundApp: coinBalanceRefundContract.address,
+    DolphinCoin: dolphinCoin.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,

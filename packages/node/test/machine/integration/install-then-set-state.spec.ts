@@ -18,6 +18,7 @@ import {
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -119,8 +120,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
         undefined,
         {
-          limit: parseEther("2")
-        }
+          limit: parseEther("2"),
+          tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        },
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {
@@ -187,7 +190,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.identityHash,
         network.CoinTransferETHInterpreter,
         defaultAbiCoder.encode(
-          ["tuple(uint256 limit)"],
+          ["tuple(uint256 limit, address tokenAddress)"],
           [identityAppInstance.coinTransferInterpreterParams!]
         )
       );

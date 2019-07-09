@@ -14,7 +14,7 @@ import { Context, InstallParams, ProtocolMessage } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -81,7 +81,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       preProtocolStateChannel.getFreeBalanceAddrOf(respondingXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
@@ -114,7 +114,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.timeout
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       preProtocolStateChannel.getFreeBalanceAddrOf(respondingXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
@@ -191,7 +191,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
@@ -246,7 +246,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
@@ -284,6 +284,7 @@ function computeStateChannelTransition(
   const {
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
+    tokenAddress,
     initiatingXpub,
     respondingXpub,
     signingKeys,
@@ -302,6 +303,7 @@ function computeStateChannelTransition(
     twoPartyOutcomeInterpreterParams
   } = computeInterpreterParameters(
     outcomeType,
+    tokenAddress,
     initiatingBalanceDecrement,
     respondingBalanceDecrement,
     initiatingFbAddress,
@@ -319,7 +321,8 @@ function computeStateChannelTransition(
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
+    /* tokenAddress */ tokenAddress
   );
 
   return stateChannel.installApp(appInstanceToBeInstalled, {
@@ -351,6 +354,7 @@ function computeStateChannelTransition(
  */
 function computeInterpreterParameters(
   outcomeType: OutcomeType,
+  tokenAddress: string,
   initiatingBalanceDecrement: BigNumber,
   respondingBalanceDecrement: BigNumber,
   initiatingFbAddress: string,
@@ -365,6 +369,7 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
       coinTransferInterpreterParams = {
+        tokenAddress,
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )
@@ -414,7 +419,7 @@ function constructConditionalTransactionData(
     case OutcomeType.COIN_TRANSFER: {
       interpreterAddress = network.CoinTransferETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit)"],
+        ["tuple(uint256 limit, address tokenAddress)"],
         [appInstance.coinTransferInterpreterParams]
       );
       break;

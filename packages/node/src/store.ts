@@ -92,7 +92,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  public async getMultisigAddressFromAppInstanceID(
+  public async getMultisigAddressFromstring(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -184,7 +184,7 @@ export class Store {
           key: `${
             this.storeKeyPrefix
           }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-            appInstanceInfo.id
+            appInstanceInfo.identityHash
           }`,
           value: null
         },
@@ -192,7 +192,7 @@ export class Store {
           key: `${
             this.storeKeyPrefix
           }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
-            appInstanceInfo.id
+            appInstanceInfo.identityHash
           }`,
           value: appInstanceInfo
         }
@@ -216,7 +216,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: proposedAppInstance.toJson()
       },
@@ -224,7 +224,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: stateChannel.multisigAddress
       }
@@ -243,7 +243,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: proposedAppInstance.toJson()
       },
@@ -251,7 +251,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: keccak256(
           defaultAbiCoder.encode(
@@ -371,7 +371,7 @@ export class Store {
   public async getChannelFromAppInstanceID(
     appInstanceId: string
   ): Promise<StateChannel> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
+    const multisigAddress = await this.getMultisigAddressFromstring(
       appInstanceId
     );
 

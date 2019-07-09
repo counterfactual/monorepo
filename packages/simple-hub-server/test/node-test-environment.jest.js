@@ -25,8 +25,9 @@ class NodeEnvironment extends NodeJSEnvironment {
 
     const networkContext = {
       ChallengeRegistry: AddressZero,
-      ETHBalanceRefundApp: AddressZero,
       FreeBalanceApp: AddressZero,
+      CoinBalanceRefundApp: AddressZero,
+      MultiSend: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter:
         data.networkContext.twoPartyFixedOutcomeFromVirtualAppETHInterpreter,

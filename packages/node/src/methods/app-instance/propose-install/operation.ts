@@ -32,5 +32,5 @@ export async function createProposedAppInstance(
 
   await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
 
-  return proposedAppInstanceInfo.id;
+  return proposedAppInstanceInfo.identityHash;
 }

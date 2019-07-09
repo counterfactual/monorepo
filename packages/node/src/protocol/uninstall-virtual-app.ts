@@ -14,11 +14,12 @@ import {
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../machine/virtual-app-unique-identifier";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 const zA = (xpub: string) => {
   return fromExtendedKey(xpub).derivePath("0").address;
@@ -78,8 +79,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const { signature: s3, signature2: signature2 } = m4;
 
-    requireValidSignatureOrThrowError(respondingAddress, lockCommitment, s3);
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(respondingAddress, lockCommitment, s3);
+    assertIsValidSignature(
       intermediaryAddress,
       lockCommitment,
       signature2,
@@ -105,7 +106,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
-    requireValidSignatureOrThrowError(intermediaryAddress, uninstallLeft, s6);
+    assertIsValidSignature(intermediaryAddress, uninstallLeft, s6);
     removeVirtualAppInstance(params, context);
   },
 
@@ -129,11 +130,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       true
     );
 
-    requireValidSignatureOrThrowError(
-      initiatingAddress,
-      lockCommitment,
-      signature
-    );
+    assertIsValidSignature(initiatingAddress, lockCommitment, signature);
 
     const signature2 = yield [Opcode.OP_SIGN_AS_INTERMEDIARY, lockCommitment];
 
@@ -152,7 +149,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
     const { signature: s3 } = m3;
 
-    requireValidSignatureOrThrowError(respondingAddress, lockCommitment, s3);
+    assertIsValidSignature(respondingAddress, lockCommitment, s3);
 
     const m5 = yield [
       Opcode.IO_SEND_AND_WAIT,
@@ -175,11 +172,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    requireValidSignatureOrThrowError(
-      initiatingAddress,
-      leftUninstallCommitment,
-      s4
-    );
+    assertIsValidSignature(initiatingAddress, leftUninstallCommitment, s4);
 
     const s5 = yield [Opcode.OP_SIGN, leftUninstallCommitment];
 
@@ -216,11 +209,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
     const { signature: s7 } = m8;
 
-    requireValidSignatureOrThrowError(
-      respondingAddress,
-      rightUninstallCommitment,
-      s7
-    );
+    assertIsValidSignature(respondingAddress, rightUninstallCommitment, s7);
 
     removeVirtualAppInstance(params, context);
   },
@@ -245,13 +234,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       false
     );
 
-    requireValidSignatureOrThrowError(
-      initiatingAddress,
-      lockCommitment,
-      signature
-    );
+    assertIsValidSignature(initiatingAddress, lockCommitment, signature);
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       intermediaryAddress,
       lockCommitment,
       signature2,
@@ -280,11 +265,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       provider
     );
 
-    requireValidSignatureOrThrowError(
-      intermediaryAddress,
-      rightUninstallCommitment,
-      s6
-    );
+    assertIsValidSignature(intermediaryAddress, rightUninstallCommitment, s6);
 
     const s7 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
 
@@ -416,7 +397,8 @@ async function addRightUninstallAgreementToContext(
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
       [zA(respondingXpub)]: increments[zA(respondingXpub)]
-    }
+    },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
@@ -463,7 +445,8 @@ async function addLeftUninstallAgreementToContext(
     {
       [zA(intermediaryXpub)]: increments[zA(respondingXpub)],
       [zA(initiatingXpub)]: increments[zA(initiatingXpub)]
-    }
+    },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);

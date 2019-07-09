@@ -74,6 +74,7 @@ export type WithdrawParams = {
 export type InstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
+  tokenAddress: string;
   multisigAddress: string;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
@@ -100,6 +101,7 @@ export type InstallVirtualAppParams = {
   initialState: SolidityABIEncoderV2Type;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
+  tokenAddress: string;
 };
 
 export type UninstallVirtualAppParams = {

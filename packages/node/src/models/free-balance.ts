@@ -65,7 +65,7 @@ export function createFreeBalance(
     activeAppsMap: {},
     balancesIndexedByToken: {
       // NOTE: Extremely important to understand that the default
-      // addreses of the recipients are the "top level keys" as defined
+      // addresses of the recipients are the "top level keys" as defined
       // as the 0th derived children of the xpubs.
       [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: [
         { to: sortedTopLevelKeys[0], amount: Zero },
@@ -86,7 +86,7 @@ export function createFreeBalance(
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: MaxUint256 }
+    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS }
   );
 }
 
@@ -118,19 +118,30 @@ export function convertCoinTransfersMapToCoinTransfers(
  * Given an AppInstance whose state is HexFreeBalanceState, convert the state
  * into the locally more convenient data type CoinTransferMap and return that.
  *
+ * Note that this function will also default the `to` addresses of a new token
+ * to the 0th signing keys of the FreeBalanceApp AppInstance.
+ *
  * @export
  * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
  *
  * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokens
  */
-export function getETHBalancesFromFreeBalanceAppInstance(
-  freeBalanceAppInstance: AppInstance
+export function getBalancesFromFreeBalanceAppInstance(
+  freeBalanceAppInstance: AppInstance,
+  tokenAddress: string
 ): CoinTransferMap {
-  return convertCoinTransfersToCoinTransfersMap(
-    deserializeFreeBalanceState(
-      freeBalanceAppInstance.state as FreeBalanceStateJSON
-    ).balancesIndexedByToken[CONVENTION_FOR_ETH_TOKEN_ADDRESS]
+  const freeBalanceState = deserializeFreeBalanceState(
+    freeBalanceAppInstance.state as FreeBalanceStateJSON
   );
+
+  const coinTransfers = freeBalanceState.balancesIndexedByToken[
+    tokenAddress
+  ] || [
+    { to: freeBalanceAppInstance.signingKeys[0], amount: Zero },
+    { to: freeBalanceAppInstance.signingKeys[1], amount: Zero }
+  ];
+
+  return convertCoinTransfersToCoinTransfersMap(coinTransfers);
 }
 
 export function deserializeFreeBalanceState(

@@ -4,7 +4,7 @@ import { ProposedAppInstanceInfo } from "../../models";
 import { Store } from "../../store";
 import { getChannelFromPeerAddress } from "../../utils";
 
-export async function setAppInstanceIDForProposeInstall(
+export async function setstringForProposeInstall(
   myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallParams,

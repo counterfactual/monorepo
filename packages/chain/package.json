@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/chain",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
   "license": "MIT",
@@ -17,8 +17,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.4",
-    "@counterfactual/types": "0.0.19",
+    "@counterfactual/contracts": "0.1.5",
+    "@counterfactual/types": "0.0.20",
     "ethers": "4.0.32",
     "ganache-core": "2.5.5",
     "truffle": "5.0.26",

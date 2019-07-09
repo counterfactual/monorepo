@@ -2,6 +2,7 @@ import { AppInstanceInfo, Node } from "@counterfactual/types";
 
 import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -37,7 +38,8 @@ export async function installVirtual(
         },
         initialState: appInstanceInfo.initialState,
         initiatingBalanceDecrement: appInstanceInfo.myDeposit,
-        respondingBalanceDecrement: appInstanceInfo.peerDeposit
+        respondingBalanceDecrement: appInstanceInfo.peerDeposit,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
   } catch (e) {

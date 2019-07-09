@@ -14,7 +14,7 @@ import { StateChannel } from "../models";
 
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -46,11 +46,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
-      respondingAddress,
-      uninstallCommitment,
-      theirSig
-    );
+    assertIsValidSignature(respondingAddress, uninstallCommitment, theirSig);
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,
@@ -76,11 +72,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.signature!;
 
-    requireValidSignatureOrThrowError(
-      initiatingAddress,
-      uninstallCommitment,
-      theirSig
-    );
+    assertIsValidSignature(initiatingAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
@@ -115,6 +107,7 @@ async function proposeStateTransition(
   provider: BaseProvider
 ): Promise<[SetStateCommitment, string]> {
   const { appIdentityHash, multisigAddress } = params as UninstallParams;
+
   const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;

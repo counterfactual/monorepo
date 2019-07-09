@@ -2,22 +2,18 @@ import { getAddress, recoverAddress, Signature } from "ethers/utils";
 
 import { EthereumCommitment } from "../../ethereum/types";
 
-export function requireValidSignatureOrThrowError(
+export function assertIsValidSignature(
   expectedSigner: string,
   commitment?: EthereumCommitment,
   signature?: Signature,
   signerIsIntermediary?: boolean
 ) {
   if (commitment === undefined) {
-    throw Error(
-      "requireValidSignatureOrThrowError received an undefined commitment"
-    );
+    throw Error("assertIsValidSignature received an undefined commitment");
   }
 
   if (signature === undefined) {
-    throw Error(
-      "requireValidSignatureOrThrowError received an undefined signature"
-    );
+    throw Error("assertIsValidSignature received an undefined signature");
   }
 
   const signer = recoverAddress(

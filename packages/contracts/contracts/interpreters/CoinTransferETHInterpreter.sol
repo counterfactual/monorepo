@@ -1,22 +1,24 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
+import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+
 import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
-/**
- * This file is excluded from ethlint/solium because of this issue:
- * https://github.com/duaraghav8/Ethlint/issues/261
- */
+
 contract CoinTransferETHInterpreter is Interpreter {
 
-  struct Param {
+  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
+
+  struct Params {
     uint256 limit;
+    address tokenAddress;
   }
 
   function interpretOutcomeAndExecuteEffect(
     bytes calldata input,
-    bytes calldata params
+    bytes calldata encodedParams
   )
     external
   {
@@ -30,18 +32,23 @@ contract CoinTransferETHInterpreter is Interpreter {
       (LibOutcome.CoinTransfer[][])
     )[0];
 
-    uint256 limitRemaining = abi.decode(params, (Param)).limit;
+    Params memory params = abi.decode(encodedParams, (Params));
 
     for (uint256 i = 0; i < transfers.length; i++) {
       address payable to = address(uint160(transfers[i].to));
       uint256 amount = transfers[i].amount;
 
-      require(amount <= limitRemaining, "hit the limit");
-      limitRemaining -= amount;
+      require(amount <= params.limit, "hit the limit");
+
+      params.limit -= amount;
 
       // note: send() is deliberately used instead of transfer() here
       // so that a revert does not stop the rest of the sends
-      to.send(amount);
+      if (params.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+        to.send(amount);
+      } else {
+        ERC20(params.tokenAddress).transfer(to, amount);
+      }
     }
   }
 }

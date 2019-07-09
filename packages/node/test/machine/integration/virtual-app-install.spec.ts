@@ -14,6 +14,7 @@ import {
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -146,7 +147,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         {
           [multisigOwnerKeys[0].address]: parseEther("5"),
           [multisigOwnerKeys[1].address]: parseEther("5")
-        }
+        },
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
       const setStateCommitment = new SetStateCommitment(

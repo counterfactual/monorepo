@@ -6,8 +6,8 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
-  ethBalanceRefundStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -16,15 +16,15 @@ import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
-  AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface NetworkContext {
   ChallengeRegistry: string;
   ConditionalTransactionDelegateTarget: string;
-  ETHBalanceRefundApp: string;
+  CoinBalanceRefundApp: string;
   CoinTransferETHInterpreter: string;
   FreeBalanceApp: string;
   IdentityApp: string;
@@ -38,7 +38,7 @@ export interface NetworkContext {
 export const networkContextProps = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
-  "ETHBalanceRefundApp",
+  "CoinBalanceRefundApp",
   "CoinTransferETHInterpreter",
   "IdentityApp",
   "FreeBalanceApp",
@@ -59,11 +59,11 @@ export {
   Address,
   AppABIEncodings,
   AppIdentity,
-  AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
-  ethBalanceRefundStateEncoding,
+  ContractABI,
   SolidityABIEncoderV2Type,
   Bytes32,
   INodeProvider,

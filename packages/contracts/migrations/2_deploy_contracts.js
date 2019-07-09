@@ -3,7 +3,7 @@ const tdr = require("truffle-deploy-registry");
 const ARTIFACTS = [
   artifacts.require("ChallengeRegistry"),
   artifacts.require("ConditionalTransactionDelegateTarget"),
-  artifacts.require("ETHBalanceRefundApp"),
+  artifacts.require("CoinBalanceRefundApp"),
   artifacts.require("CoinTransferETHInterpreter"),
   artifacts.require("FreeBalanceApp"),
   artifacts.require("IdentityApp"),

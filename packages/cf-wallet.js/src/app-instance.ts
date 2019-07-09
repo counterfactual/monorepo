@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
@@ -17,7 +16,7 @@ export class AppInstance {
   /**
    * Unique ID of this app instance.
    */
-  readonly id: AppInstanceID;
+  readonly identityHash: string;
 
   // Application-specific fields
   readonly appDefinition: Address;
@@ -34,7 +33,7 @@ export class AppInstance {
   readonly intermediaries?: Address[];
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
-    this.id = info.id;
+    this.identityHash = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
     this.myDeposit = info.myDeposit;

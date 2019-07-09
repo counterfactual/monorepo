@@ -39,19 +39,19 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
-      install(store, ie, "a", "b", { appInstanceId: undefined! })
+      install(store, ie, { appInstanceId: undefined! })
     ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
-    await expect(
-      install(store, ie, "a", "b", { appInstanceId: "" })
-    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
+    await expect(install(store, ie, { appInstanceId: "" })).rejects.toEqual(
+      NO_APP_INSTANCE_ID_TO_INSTALL
+    );
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
-      install(store, ie, "a", "b", { appInstanceId: HashZero })
+      install(store, ie, { appInstanceId: HashZero })
     ).rejects.toEqual(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero));
   });
 
@@ -74,7 +74,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     await expect(
-      install(instance(mockedStore), ie, "a", "b", { appInstanceId })
+      install(instance(mockedStore), ie, { appInstanceId })
     ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
@@ -137,7 +137,7 @@ describe("Can handle correct & incorrect installs", () => {
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
-      install(store, ie, "a", "b", {
+      install(store, ie, {
         appInstanceId
       })
     ).resolves.toEqual(proposedAppInstanceInfo);

@@ -3,7 +3,10 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getBalancesFromFreeBalanceAppInstance
+} from "../../../../../src/models/free-balance";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
@@ -83,7 +86,10 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have 0 balances for Alice and Bob", () => {
       for (const amount of Object.values(
-        getETHBalancesFromFreeBalanceAppInstance(fb)
+        getBalancesFromFreeBalanceAppInstance(
+          fb,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
       )) {
         expect(amount).toEqual(Zero);
       }

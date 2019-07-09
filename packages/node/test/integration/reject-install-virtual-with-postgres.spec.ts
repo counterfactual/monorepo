@@ -74,8 +74,9 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
-
-            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
+            expect(proposedAppInstanceA.identityHash).toEqual(
+              proposedAppInstanceC.identityHash
+            );
 
             const rejectReq = makeRejectInstallRequest(appInstanceId);
 

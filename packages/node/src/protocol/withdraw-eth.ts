@@ -11,9 +11,10 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { requireValidSignatureOrThrowError } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -94,7 +95,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
@@ -127,7 +128,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
@@ -179,7 +180,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       withdrawETHCommitment,
       counterpartySignatureOnWithdrawalCommitment
@@ -203,7 +204,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       postUninstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       respondingAddress,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
@@ -305,7 +306,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
@@ -363,7 +364,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
@@ -390,7 +391,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       amount
     );
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       withdrawETHCommitment,
       counterpartySignatureOnWithdrawalCommitment
@@ -450,7 +451,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    requireValidSignatureOrThrowError(
+    assertIsValidSignature(
       initiatingAddress,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
@@ -497,7 +498,7 @@ function addRefundAppToStateChannel(
     stateChannel.getNextSigningKeys(),
     defaultTimeout,
     {
-      addr: network.ETHBalanceRefundApp,
+      addr: network.CoinBalanceRefundApp,
       stateEncoding: `
         tuple(
           address recipient,
@@ -517,7 +518,8 @@ function addRefundAppToStateChannel(
     0,
     defaultTimeout,
     undefined,
-    { limit: MaxUint256 }
+    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS },
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   return stateChannel.installApp(refundAppInstance, {
@@ -552,7 +554,7 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.freeBalance.identityHash,
     network.CoinTransferETHInterpreter,
     defaultAbiCoder.encode(
-      ["tuple(uint256 limit)"],
+      ["tuple(uint256 limit, address tokenAddress)"],
       [appInstance.coinTransferInterpreterParams]
     )
   );

@@ -23,8 +23,8 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.4",
-    "@counterfactual/types": "0.0.19",
+    "@counterfactual/contracts": "0.1.5",
+    "@counterfactual/types": "0.0.20",
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",

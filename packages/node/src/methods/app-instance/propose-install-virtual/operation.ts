@@ -37,7 +37,7 @@ export async function createProposedVirtualAppInstance(
 
   await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
 
-  return proposedAppInstanceInfo.id;
+  return proposedAppInstanceInfo.identityHash;
 }
 
 /**

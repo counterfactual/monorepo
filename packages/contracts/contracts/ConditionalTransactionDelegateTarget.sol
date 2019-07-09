@@ -9,7 +9,13 @@ import "./libs/LibOutcome.sol";
 /// @author Liam Horne - <liam@l4v.io>
 contract ConditionalTransactionDelegateTarget {
 
+  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
+
+  struct CoinTransferParams {
+    uint256 limit;
+    address tokenAddress;
+  }
 
   struct FreeBalanceAppState {
     address[] tokens;
@@ -40,9 +46,14 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      // This is the `limit` param, which for the case of the
-      // FreeBalance is set to the max amount.
-      abi.encode(MAX_UINT256)
+      abi.encode(
+        CoinTransferParams(
+          // This is the `limit` param, which for the case of the
+          // FreeBalance is set to the max amount.
+          MAX_UINT256,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
+      )
     );
 
     (

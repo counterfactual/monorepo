@@ -18,6 +18,8 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
+
 export type AppInstanceJson = {
   multisigAddress: string;
   signingKeys: string[];
@@ -43,7 +45,10 @@ export type AppInstanceJson = {
     // Derived from:
     // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
     limit: { _hex: string };
+    tokenAddress: string;
   };
+
+  tokenAddress: string;
 };
 
 /**
@@ -92,7 +97,8 @@ export class AppInstance {
     latestVersionNumber: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
+    tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
   ) {
     this.json = {
       multisigAddress,
@@ -104,6 +110,7 @@ export class AppInstance {
       latestState,
       latestVersionNumber,
       latestTimeout,
+      tokenAddress,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -114,6 +121,7 @@ export class AppInstance {
         : undefined,
       coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
+            tokenAddress,
             limit: {
               _hex: coinTransferInterpreterParams.limit.toHexString()
             }
@@ -152,9 +160,11 @@ export class AppInstance {
         : undefined,
       json.coinTransferInterpreterParams
         ? {
+            tokenAddress: json.tokenAddress,
             limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
           }
-        : undefined
+        : undefined,
+      json.tokenAddress
     );
     return ret;
   }
@@ -208,6 +218,7 @@ export class AppInstance {
   public get coinTransferInterpreterParams() {
     return this.json.coinTransferInterpreterParams
       ? {
+          tokenAddress: this.json.tokenAddress,
           limit: bigNumberify(
             this.json.coinTransferInterpreterParams.limit._hex
           )
@@ -252,6 +263,10 @@ export class AppInstance {
 
   public get isVirtualApp() {
     return this.json.isVirtualApp;
+  }
+
+  public get tokenAddress() {
+    return this.json.tokenAddress;
   }
 
   public lockState(versionNumber: number) {
