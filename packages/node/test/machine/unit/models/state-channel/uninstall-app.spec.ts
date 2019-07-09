@@ -1,10 +1,13 @@
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHFreeBalance } from "../../../../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getETHFreeBalance
+} from "../../../../../src/models/free-balance";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -41,7 +44,7 @@ describe("StateChannel::uninstallApp", () => {
         [xkeyKthAddress(xpubs[0], 0)]: Zero,
         [xkeyKthAddress(xpubs[1], 0)]: Zero
       },
-      AddressZero
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
     );
   });
 

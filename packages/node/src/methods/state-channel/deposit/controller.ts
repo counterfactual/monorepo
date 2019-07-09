@@ -1,11 +1,11 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { AddressZero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -44,7 +44,7 @@ export default class DepositController extends NodeController {
 
     params.tokenAddress = params.tokenAddress
       ? params.tokenAddress
-      : AddressZero;
+      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -53,22 +53,22 @@ export default class DepositController extends NodeController {
         requestHandler.networkContext.CoinBalanceRefundApp
       )
     ) {
-      return Promise.reject(CANNOT_DEPOSIT);
+      throw new Error(`${CANNOT_DEPOSIT}`);
     }
 
     const address = await requestHandler.getSignerAddress();
 
-    if (params.tokenAddress !== AddressZero) {
+    if (params.tokenAddress !== CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
       const contract = new Contract(params.tokenAddress, ERC20.abi, provider);
       const balance: BigNumber = await contract.functions.balanceOf(address);
       if (balance.lt(amount)) {
-        return Promise.reject(INSUFFICIENT_ERC20_FUNDS(address));
+        throw new Error(`${INSUFFICIENT_ERC20_FUNDS(address)}`);
       }
     } else {
       const balanceOfSigner = await provider.getBalance(address);
 
       if (balanceOfSigner.lt(amount)) {
-        return Promise.reject(`${INSUFFICIENT_FUNDS}: ${address}`);
+        throw new Error(`${INSUFFICIENT_FUNDS}: ${address}`);
       }
     }
   }
@@ -88,7 +88,7 @@ export default class DepositController extends NodeController {
 
     params.tokenAddress = params.tokenAddress
       ? params.tokenAddress
-      : AddressZero;
+      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     await installBalanceRefundApp(requestHandler, params);
 

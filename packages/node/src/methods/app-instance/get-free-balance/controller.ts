@@ -1,8 +1,8 @@
 import { Node } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { jsonRpcMethod } from "rpc-server";
 
 import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertFreeBalanceStateFromSerializableObject,
   convertPartyBalancesToMap,
   HexFreeBalanceState
@@ -31,18 +31,21 @@ export default class GetFreeBalanceController extends NodeController {
     const { multisigAddress, tokenAddress } = params;
 
     if (!multisigAddress) {
-      Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+      throw new Error(`${NO_STATE_CHANNEL_FOR_MULTISIG_ADDR}`);
     }
 
-    const tokenAddr = tokenAddress ? tokenAddress : AddressZero;
+    const tokenAddr = tokenAddress
+      ? tokenAddress
+      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const fbState = convertFreeBalanceStateFromSerializableObject((stateChannel
-      .freeBalance.state as unknown) as HexFreeBalanceState);
+    const freeBalanceState = convertFreeBalanceStateFromSerializableObject(
+      (stateChannel.freeBalance.state as unknown) as HexFreeBalanceState
+    );
 
-    if (tokenAddr in fbState) {
-      return convertPartyBalancesToMap(fbState[tokenAddr]);
+    if (tokenAddr in freeBalanceState) {
+      return convertPartyBalancesToMap(freeBalanceState[tokenAddr]);
     }
 
     return Promise.reject(NO_FREE_BALANCE_EXISTS(tokenAddr));

@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { AddressZero, MaxUint256 } from "ethers/constants";
+import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
@@ -17,7 +17,10 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { FreeBalanceState } from "../models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../models/free-balance";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -228,7 +231,7 @@ function addUninstallRefundAppCommitmentToContext(
   const newStateChannel = stateChannel.uninstallApp(
     appIdentityHash,
     {},
-    AddressZero
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,

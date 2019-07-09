@@ -27,8 +27,8 @@ contract CoinBalanceRefundApp {
     if (appState.token == address(0x0)) {
       ret[0].amount = address(appState.multisig).balance - appState.threshold;
     } else {
-      // solium-disable-next-line max-len
-      ret[0].amount = ERC20(appState.token).balanceOf(appState.multisig) - appState.threshold;
+      ret[0].amount = ERC20(appState.token).balanceOf(appState.multisig) -
+        appState.threshold;
     }
     ret[0].to = appState.recipient;
 

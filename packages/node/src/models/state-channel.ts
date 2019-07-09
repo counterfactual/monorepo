@@ -1,5 +1,5 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { flip, merge } from "../ethereum/utils/funds-bucket";
@@ -7,6 +7,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertFreeBalanceStateFromSerializableObject,
   convertFreeBalanceStateToSerializableObject,
   createFreeBalance,
@@ -346,7 +347,7 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).incrementFreeBalance(flip(decrements), AddressZero);
+    ).incrementFreeBalance(flip(decrements), CONVENTION_FOR_ETH_TOKEN_ADDRESS);
   }
 
   public uninstallTwoPartyVirtualEthAsLumpInstance(
@@ -372,7 +373,7 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).incrementFreeBalance(increments, AddressZero);
+    ).incrementFreeBalance(increments, CONVENTION_FOR_ETH_TOKEN_ADDRESS);
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -426,7 +427,7 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).incrementFreeBalance(flip(decrements), AddressZero);
+    ).incrementFreeBalance(flip(decrements), CONVENTION_FOR_ETH_TOKEN_ADDRESS);
   }
 
   public uninstallApp(

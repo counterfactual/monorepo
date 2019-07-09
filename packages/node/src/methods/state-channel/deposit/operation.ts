@@ -8,7 +8,7 @@ import {
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import {
   BaseProvider,
   TransactionRequest,
@@ -18,6 +18,7 @@ import { bigNumberify } from "ethers/utils";
 
 import { InstallParams, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -101,7 +102,7 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  if (tokenAddress === AddressZero) {
+  if (tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
     let retryCount = 3;
     while (retryCount > 0) {
       try {
@@ -194,7 +195,7 @@ async function getDepositContext(
 ): Promise<DepositContext> {
   const { multisigAddress } = params;
   const threshold =
-    tokenAddress === AddressZero
+    tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS
       ? await provider.getBalance(multisigAddress)
       : await new Contract(
           tokenAddress!,

@@ -1,4 +1,3 @@
-import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 
 import { UninstallCommitment } from "../ethereum";
@@ -12,7 +11,10 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
-import { FreeBalanceState } from "../models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../models/free-balance";
 
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -131,7 +133,7 @@ async function proposeStateTransition(
     increments,
     // installing/uninstalling apps with ERC20 is not yet supported
     // so all installs/uninstalls default to ETH
-    tokenAddress ? tokenAddress : AddressZero
+    tokenAddress ? tokenAddress : CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
