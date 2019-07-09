@@ -53,5 +53,11 @@ export enum TwoPartyFixedOutcome {
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
 
-export const coinBalanceRefundStateEncoding =
-  "tuple(address recipient, address multisig, uint256 threshold, address token)";
+export const coinBalanceRefundStateEncoding = `
+  tuple(
+    address recipient,
+    address multisig,
+    uint256 threshold,
+    address token
+  )
+`;
