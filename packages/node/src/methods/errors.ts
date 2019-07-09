@@ -1,3 +1,5 @@
+import { BigNumber } from "ethers/utils";
+
 export const APP_ALREADY_UNINSTALLED = (id: string) =>
   `Cannot uninstall app ${id}, it has already been uninstalled`;
 
@@ -18,8 +20,21 @@ export const DEPOSIT_FAILED = "Failed to send funds to the multisig contract";
 export const ETH_BALANCE_REFUND_NOT_UNINSTALLED =
   "The ETH balance refund AppInstance is still installed when it's not supposed to be";
 
+export const FAILED_TO_GET_ERC20_BALANCE = (
+  tokenAddress: string,
+  address: string
+) =>
+  `Failed to get the balance of address: ${address} for ERC20 token: ${tokenAddress}`;
+
 export const IMPROPERLY_FORMATTED_STRUCT =
   "Improperly formatted ABIEncoderV2 struct";
+
+export const INSUFFICIENT_ERC20_FUNDS = (
+  address: string,
+  amount: BigNumber,
+  balance: BigNumber
+) =>
+  `Node's default signer has ${balance} and needs ${amount} of the specified ERC20 token ${address}`;
 
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
@@ -54,6 +69,9 @@ export const NO_APP_INSTANCE_ID_TO_UNINSTALL =
 
 export const NO_CHANNEL_BETWEEN_NODES = (nodeA: string, nodeB: string) =>
   `No channel exists between the current user ${nodeA} and the peer ${nodeB}`;
+
+export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
+  `No free balance exists for the specified token: ${tokenAddress}`;
 
 export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
   "No multisig address exists for the given appInstanceId";

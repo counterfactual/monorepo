@@ -1,10 +1,18 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import { getETHBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  convertFreeBalanceStateFromSerializableObject,
+  convertPartyBalancesToMap,
+  HexFreeBalanceState
+} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
+import {
+  NO_FREE_BALANCE_EXISTS,
+  NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
+} from "../../errors";
 
 /**
  * Handles the retrieval of a Channel's FreeBalance AppInstance.
@@ -20,14 +28,26 @@ export default class GetFreeBalanceController extends NodeController {
     params: Node.GetFreeBalanceStateParams
   ): Promise<Node.GetFreeBalanceStateResult> {
     const { store } = requestHandler;
-    const { multisigAddress } = params;
+    const { multisigAddress, tokenAddress } = params;
 
     if (!multisigAddress) {
-      Promise.reject(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR);
+      throw new Error(`${NO_STATE_CHANNEL_FOR_MULTISIG_ADDR}`);
     }
+
+    const tokenAddr = tokenAddress
+      ? tokenAddress
+      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    return getETHBalancesFromFreeBalanceAppInstance(stateChannel.freeBalance);
+    const freeBalanceState = convertFreeBalanceStateFromSerializableObject(
+      (stateChannel.freeBalance.state as unknown) as HexFreeBalanceState
+    );
+
+    if (tokenAddr in freeBalanceState) {
+      return convertPartyBalancesToMap(freeBalanceState[tokenAddr]);
+    }
+
+    return Promise.reject(NO_FREE_BALANCE_EXISTS(tokenAddr));
   }
 }

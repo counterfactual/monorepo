@@ -89,6 +89,7 @@ export type UninstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
   multisigAddress: string;
+  tokenAddress?: string;
 };
 
 export type InstallVirtualAppParams = {

@@ -10,9 +10,9 @@
     "transactionHash": "0xd7f2dc29b06de84a86a082a1721cb77158457df9a17b8543a40c732063ca7e77"
   },
   {
-    "contractName": "ETHBalanceRefundApp",
-    "address": "0x6da80698eA5c36431aBf56442d8c65bFbCF1e684",
-    "transactionHash": "0xf689355091a1e85c77a9fce59042b422ec73c66698ae2cc3f3e5c09e7409dc7d"
+    "contractName": "CoinBalanceRefundApp",
+    "address": "0xA9E1C5c4c950Eb5707b057D581b925349FFC71D4",
+    "transactionHash": "0x6e70e15af6f907c76359acbc650f83b73a1597f2fce65aa38e31748059fd4d21"
   },
   {
     "contractName": "ETHBucket",

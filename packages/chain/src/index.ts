@@ -26,12 +26,7 @@ export class Chain {
     const balance = parseEther(initialBalance).toString();
     this.fundedPrivateKey = Wallet.createRandom().privateKey;
 
-    const accounts: object[] = [
-      {
-        balance,
-        secretKey: this.fundedPrivateKey
-      }
-    ];
+    const accounts: object[] = [];
 
     mnemonics.forEach(mnemonic => {
       const entry = {
@@ -39,6 +34,10 @@ export class Chain {
         secretKey: fromMnemonic(mnemonic).derivePath(CF_PATH).privateKey
       };
       accounts.push(entry);
+    });
+    accounts.push({
+      balance,
+      secretKey: this.fundedPrivateKey
     });
 
     this.server = ganache.server({
