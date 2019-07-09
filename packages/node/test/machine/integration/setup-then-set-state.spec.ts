@@ -10,7 +10,7 @@ import { Interface, keccak256 } from "ethers/utils";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -69,7 +69,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         xkeys.map(x => x.neuter().extendedKey),
         1
       ).setFreeBalance(
-        createFundedFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           WeiPerEther
         )

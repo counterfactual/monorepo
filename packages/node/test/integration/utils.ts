@@ -652,7 +652,7 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
   });
 }
 
-export function createFundedFreeBalance(
+export function createFreeBalanceStateWithFundedETHAmounts(
   addresses: string[],
   amount: BigNumber
 ) {

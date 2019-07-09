@@ -12,7 +12,7 @@ import {
   convertFreeBalanceStateToSerializableObject,
   createFreeBalance,
   FreeBalanceState,
-  getETHFreeBalance,
+  getETHBalancesFromFreeBalanceAppInstance,
   HexFreeBalanceState,
   PartyBalance,
   PartyBalanceMap
@@ -193,7 +193,7 @@ export class StateChannel {
       fbState = addTokenBalanceToFreeBalance(
         fbState,
         tokenAddress,
-        getETHFreeBalance(this.freeBalance)
+        getETHBalancesFromFreeBalanceAppInstance(this.freeBalance)
       );
     }
 

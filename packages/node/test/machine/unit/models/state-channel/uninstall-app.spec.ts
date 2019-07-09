@@ -6,7 +6,7 @@ import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getETHFreeBalance
+  getETHBalancesFromFreeBalanceAppInstance
 } from "../../../../../src/models/free-balance";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
@@ -73,7 +73,7 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const ethFBState = getETHFreeBalance(fb);
+      const ethFBState = getETHBalancesFromFreeBalanceAppInstance(fb);
       for (const amount of Object.values(ethFBState)) {
         expect(amount).toEqual(Zero);
       }
