@@ -293,6 +293,7 @@ export namespace Node {
     multisigAddress: string;
     recipient?: string;
     amount: BigNumber;
+    tokenAddress?: string;
   };
 
   export type WithdrawResult = {
