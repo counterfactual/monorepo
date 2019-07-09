@@ -13,7 +13,8 @@ import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
   INSUFFICIENT_ERC20_FUNDS,
-  INSUFFICIENT_FUNDS
+  INSUFFICIENT_FUNDS,
+  FAILED_TO_GET_ERC20_BALANCE
 } from "../../errors";
 
 import {
@@ -60,9 +61,19 @@ export default class DepositController extends NodeController {
 
     if (params.tokenAddress !== CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
       const contract = new Contract(params.tokenAddress, ERC20.abi, provider);
-      const balance: BigNumber = await contract.functions.balanceOf(address);
+      let balance: BigNumber;
+      try {
+        balance = await contract.functions.balanceOf(address);
+      } catch (e) {
+        throw new Error(
+          FAILED_TO_GET_ERC20_BALANCE(params.tokenAddress, address)
+        );
+      }
+
       if (balance.lt(amount)) {
-        throw new Error(`${INSUFFICIENT_ERC20_FUNDS(address)}`);
+        throw new Error(
+          `${INSUFFICIENT_ERC20_FUNDS(address, amount, balance)}`
+        );
       }
     } else {
       const balanceOfSigner = await provider.getBalance(address);

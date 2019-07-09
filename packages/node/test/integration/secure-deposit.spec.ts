@@ -5,7 +5,8 @@ import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
-import { INSUFFICIENT_ERC20_FUNDS, Node } from "../../src";
+import { Node } from "../../src";
+import { INSUFFICIENT_ERC20_FUNDS } from "../../src/methods/errors";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -63,16 +64,9 @@ describe("Node method follows spec - deposit", () => {
       await erc20Contract.functions.balanceOf(await nodeA.signerAddress())
     ).toEqual(Zero);
 
-    let error;
-    try {
-      await nodeA.router.dispatch(depositReq);
-    } catch (e) {
-      error = e;
-    } finally {
-      expect(error).toEqual(
-        INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress())
-      );
-    }
+    await expect(nodeA.router.dispatch(depositReq)).rejects.toThrowError(
+      INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress(), One, Zero)
+    );
 
     await transferERC20Tokens(await nodeA.signerAddress());
     await transferERC20Tokens(await nodeB.signerAddress());
@@ -93,6 +87,7 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress,
       erc20ContractAddress
     );
+
     await confirmEthAndERC20FreeBalances(
       nodeB,
       multisigAddress,
@@ -112,9 +107,7 @@ describe("Node method follows spec - deposit", () => {
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    for (const key in freeBalanceState) {
-      expect(freeBalanceState[key]).toEqual(One);
-    }
+    expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 });
 
@@ -152,16 +145,13 @@ async function confirmEthAndERC20FreeBalances(
   erc20ContractAddress: string
 ) {
   const ethFreeBalanceState = await getFreeBalanceState(node, multisigAddress);
-  for (const key in ethFreeBalanceState) {
-    expect(ethFreeBalanceState[key]).toEqual(Zero);
-  }
+  expect(Object.values(ethFreeBalanceState)).toMatchObject([Zero, Zero]);
 
   const dolphinCoinFreeBalance = await getFreeBalanceState(
     node,
     multisigAddress,
     erc20ContractAddress
   );
-  for (const key in dolphinCoinFreeBalance) {
-    expect(dolphinCoinFreeBalance[key]).toEqual(One);
-  }
+
+  expect(Object.values(dolphinCoinFreeBalance)).toMatchObject([One, One]);
 }

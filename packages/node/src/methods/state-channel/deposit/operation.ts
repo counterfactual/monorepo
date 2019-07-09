@@ -102,44 +102,42 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  if (tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-    let retryCount = 3;
-    while (retryCount > 0) {
-      try {
+  let retryCount = 3;
+  while (retryCount > 0) {
+    try {
+      if (tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
         txResponse = await signer.sendTransaction(tx);
-        break;
-      } catch (e) {
-        if (
-          e.toString().includes("reject") ||
-          e.toString().includes("denied")
-        ) {
-          outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-          console.error(`${DEPOSIT_FAILED}: ${e}`);
-          return false;
-        }
+      } else {
+        const erc20Contract = new Contract(tokenAddress!, ERC20.abi, signer);
+        txResponse = await erc20Contract.functions.transfer(
+          multisigAddress,
+          bigNumberify(amount)
+        );
+      }
+      break;
+    } catch (e) {
+      if (e.toString().includes("reject") || e.toString().includes("denied")) {
+        outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
+        console.error(`${DEPOSIT_FAILED}: ${e}`);
+        return false;
+      }
 
-        retryCount -= 1;
+      retryCount -= 1;
 
-        if (retryCount === 0) {
-          console.error(`${DEPOSIT_FAILED}: ${e}`);
-          return false;
-        }
+      if (retryCount === 0) {
+        console.error(`${DEPOSIT_FAILED}: ${e}`);
+        return false;
       }
     }
-
-    outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
-      value: amount,
-      txHash: txResponse!.hash
-    });
-
-    await txResponse!.wait(blocksNeededForConfirmation);
-  } else {
-    const erc20Contract = new Contract(tokenAddress!, ERC20.abi, signer);
-    await erc20Contract.functions.transfer(
-      multisigAddress,
-      bigNumberify(amount)
-    );
   }
+
+  outgoing.emit(NODE_EVENTS.DEPOSIT_STARTED, {
+    value: amount,
+    txHash: txResponse!.hash
+  });
+
+  await txResponse!.wait(blocksNeededForConfirmation);
+
   return true;
 }
 

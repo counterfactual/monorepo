@@ -190,7 +190,7 @@ export class StateChannel {
       .freeBalance.state as unknown) as HexFreeBalanceState);
 
     if (!(tokenAddress in fbState)) {
-      fbState = addTokenBalancetoFreeBalance(
+      fbState = addTokenBalanceToFreeBalance(
         fbState,
         tokenAddress,
         getETHFreeBalance(this.freeBalance)
@@ -538,7 +538,7 @@ export class StateChannel {
   }
 }
 
-function addTokenBalancetoFreeBalance(
+function addTokenBalanceToFreeBalance(
   fbState: FreeBalanceState,
   tokenAddress: string,
   ethFreeBalanceMap: PartyBalanceMap
