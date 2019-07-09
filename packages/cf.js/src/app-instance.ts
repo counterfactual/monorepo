@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
   Node,
@@ -27,7 +26,7 @@ export class AppInstance {
   /**
    * Unique ID of this app instance.
    */
-  readonly identityHash: AppInstanceID;
+  readonly identityHash: string;
 
   // Application-specific fields
   readonly appDefinition: Address;

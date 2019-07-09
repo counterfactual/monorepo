@@ -51,7 +51,7 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  identityHash: Bytes32;
+  identityHash: string;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;

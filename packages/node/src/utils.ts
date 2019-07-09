@@ -48,12 +48,12 @@ export async function getPeersAddressFromChannel(
   return owners.filter(owner => owner !== myIdentifier);
 }
 
-export async function getPeersAddressFromAppInstanceID(
+export async function getPeersAddressFromstring(
   myIdentifier: Address,
   store: Store,
   appInstanceId: string
 ): Promise<Address[]> {
-  const multisigAddress = await store.getMultisigAddressFromAppInstanceID(
+  const multisigAddress = await store.getMultisigAddressFromstring(
     appInstanceId
   );
 

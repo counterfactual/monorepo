@@ -5,7 +5,6 @@ import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
 
 export type ABIEncoding = string;
-export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
 
@@ -17,7 +16,7 @@ export interface SignedStateHashUpdate {
 }
 
 export type AppInstanceInfo = {
-  identityHash: AppInstanceID;
+  identityHash: string;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
@@ -95,7 +94,7 @@ export namespace Node {
     initialState: SolidityABIEncoderV2Type;
   };
   export type ProposeInstallResult = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
@@ -104,12 +103,12 @@ export namespace Node {
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
   export type RejectInstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type RejectInstallResult = {};
 
   export type InstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type InstallResult = {
     appInstance: AppInstanceInfo;
@@ -121,21 +120,21 @@ export namespace Node {
   export type InstallVirtualResult = InstallResult;
 
   export type GetStateParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type GetStateResult = {
     state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type GetAppInstanceDetailsResult = {
     appInstance: AppInstanceInfo;
   };
 
   export type TakeActionParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     action: SolidityABIEncoderV2Type;
   };
   export type TakeActionResult = {
@@ -143,7 +142,7 @@ export namespace Node {
   };
 
   export type UninstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type UninstallResult = {};
 
@@ -189,13 +188,13 @@ export namespace Node {
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
-    appInstance: { id: AppInstanceID };
+    appInstance: { id: string };
   };
   export type RejectInstallEventData = {
     appInstance: AppInstanceInfo;
   };
   export type UpdateStateEventData = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     newState: SolidityABIEncoderV2Type;
     action?: SolidityABIEncoderV2Type;
   };
@@ -259,7 +258,7 @@ export namespace cf {
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
-    }): Promise<AppInstanceID>;
+    }): Promise<string>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
       myDeposit: BigNumberish;
@@ -267,7 +266,7 @@ export namespace cf {
       initialState: SolidityABIEncoderV2Type;
       intermediaries: Address[];
       timeout: number;
-    }): Promise<AppInstanceID>;
+    }): Promise<string>;
   };
 
   export type Provider = {

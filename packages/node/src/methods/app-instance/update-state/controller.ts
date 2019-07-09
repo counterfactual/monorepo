@@ -26,7 +26,7 @@ export default class UpdateStateController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+        await store.getMultisigAddressFromstring(appInstanceId)
       )
     ];
   }
@@ -61,7 +61,7 @@ export default class UpdateStateController extends NodeController {
     const { store, publicIdentifier, instructionExecutor } = requestHandler;
     const { appInstanceId, newState } = params;
 
-    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+    const sc = await store.getChannelFromstring(appInstanceId);
 
     const respondingXpub = getCounterpartyAddress(
       publicIdentifier,
@@ -89,7 +89,7 @@ async function runUpdateStateProtocol(
   respondingXpub: string,
   newState: SolidityABIEncoderV2Type
 ) {
-  const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
+  const stateChannel = await store.getChannelFromstring(appIdentityHash);
 
   const stateChannelsMap = await instructionExecutor.runUpdateProtocol(
     new Map<string, StateChannel>([

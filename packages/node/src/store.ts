@@ -92,7 +92,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  public async getMultisigAddressFromAppInstanceID(
+  public async getMultisigAddressFromstring(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -162,7 +162,7 @@ export class Store {
     appInstanceId: string,
     newState: SolidityABIEncoderV2Type
   ) {
-    const channel = await this.getChannelFromAppInstanceID(appInstanceId);
+    const channel = await this.getChannelFromstring(appInstanceId);
     const updatedChannel = await channel.setState(appInstanceId, newState);
     await this.saveStateChannel(updatedChannel);
   }
@@ -368,10 +368,10 @@ export class Store {
   /**
    * @param appInstanceId
    */
-  public async getChannelFromAppInstanceID(
+  public async getChannelFromstring(
     appInstanceId: string
   ): Promise<StateChannel> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
+    const multisigAddress = await this.getMultisigAddressFromstring(
       appInstanceId
     );
 
@@ -421,7 +421,7 @@ export class Store {
   }
 
   public async getAppInstance(appInstanceId: string): Promise<AppInstance> {
-    const channel = await this.getChannelFromAppInstanceID(appInstanceId);
+    const channel = await this.getChannelFromstring(appInstanceId);
     return channel.getAppInstance(appInstanceId);
   }
 }

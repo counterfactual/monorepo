@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   NetworkContext,
   networkContextProps,
@@ -352,7 +351,7 @@ export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
   {}
 ) as NetworkContext;
 
-export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -364,7 +363,7 @@ export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateTakeActionRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   action: any
 ): Rpc {
   return jsonRpcDeserialize({
@@ -378,7 +377,7 @@ export function generateTakeActionRequest(
   });
 }
 
-export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateUninstallRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -390,7 +389,7 @@ export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateUninstallVirtualRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({

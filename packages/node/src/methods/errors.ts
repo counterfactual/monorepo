@@ -56,10 +56,10 @@ export const NO_APP_INSTANCE_FOR_TAKE_ACTION =
   "No AppInstanceId specified to takeAction on";
 
 export const NO_APP_INSTANCE_ID_FOR_GET_STATE =
-  "No AppInstanceID specified to get state for";
+  "No string specified to get state for";
 
 export const NO_APP_INSTANCE_ID_TO_GET_DETAILS =
-  "No AppInstanceID specified to get details for";
+  "No string specified to get details for";
 
 export const NO_APP_INSTANCE_ID_TO_INSTALL =
   "No AppInstanceId specified to install";

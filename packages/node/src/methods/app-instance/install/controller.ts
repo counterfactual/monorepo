@@ -4,7 +4,7 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
-import { getPeersAddressFromAppInstanceID } from "../../../utils";
+import { getPeersAddressFromstring } from "../../../utils";
 import { NodeController } from "../../controller";
 
 import { install } from "./operation";
@@ -27,11 +27,11 @@ export default class InstallController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+    const sc = await store.getChannelFromstring(appInstanceId);
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+        await store.getMultisigAddressFromstring(sc.multisigAddress)
       )
     ];
   }
@@ -47,7 +47,7 @@ export default class InstallController extends NodeController {
       messagingService
     } = requestHandler;
 
-    const [respondingAddress] = await getPeersAddressFromAppInstanceID(
+    const [respondingAddress] = await getPeersAddressFromstring(
       requestHandler.publicIdentifier,
       requestHandler.store,
       params.appInstanceId
