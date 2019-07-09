@@ -470,10 +470,7 @@ export class StateChannel {
     );
   }
 
-  public installApp(
-    appInstance: AppInstance,
-    decrements: { [s: string]: BigNumber }
-  ) {
+  public installApp(appInstance: AppInstance, decrements: CoinTransferMap) {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {

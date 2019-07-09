@@ -69,6 +69,7 @@ export type WithdrawParams = {
   multisigAddress: string;
   recipient: string;
   amount: BigNumber;
+  tokenAddress: string;
 };
 
 export type InstallParams = {

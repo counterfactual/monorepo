@@ -38,6 +38,7 @@ describe("StateChannel::setState", () => {
       [xkeyKthAddress(xpubs[0], 0)]: Zero,
       [xkeyKthAddress(xpubs[1], 0)]: Zero
     });
+
     sc2 = sc1.setState(testApp.identityHash, APP_STATE);
   });
 

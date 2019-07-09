@@ -35,8 +35,8 @@
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
-    "@counterfactual/node": "0.2.14",
-    "@counterfactual/types": "0.0.20",
+    "@counterfactual/node": "0.2.15",
+    "@counterfactual/types": "0.0.21",
     "eventemitter3": "^4.0.0"
   },
   "devDependencies": {
