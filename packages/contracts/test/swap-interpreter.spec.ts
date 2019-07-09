@@ -18,10 +18,6 @@ function mkAddress(prefix: string = "0xa"): string {
     return prefix.padEnd(42, "0");
   }
 
-const DOLPHINCOIN_SUPPLY = bigNumberify(10)
-  .pow(18)
-  .mul(10000);
-
 describe("Swap Interpreter", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
@@ -35,14 +31,14 @@ describe("Swap Interpreter", () => {
       )
   }
 
-  function encodeParams(params: BigNumber[]) {
+  function encodeParams(params: {limit: BigNumber[]}) {
       return defaultAbiCoder.encode(
-          [`uint256[] limit`],
-          params,
+          [`tuple(uint256[] limit)`],
+          [params],
       )
   }
 
-  async function interpretOutcomeAndExecuteEffect(state: CoinBalances[], params: BigNumber[]) {
+  async function interpretOutcomeAndExecuteEffect(state: CoinBalances[], params: {limit: BigNumber[]}) {
       return await swapInterpreter.functions.interpretOutcomeAndExecuteEffect(encodeState(state), encodeParams(params))
   }
 
@@ -51,12 +47,13 @@ describe("Swap Interpreter", () => {
     wallet = (await waffle.getWallets(provider))[0];
     erc20 = await waffle.deployContract(wallet, DolphinCoin);
     swapInterpreter = await waffle.deployContract(wallet, SwapInterpreter);
+    await erc20.functions.transfer(swapInterpreter.address, erc20.functions.balanceOf(wallet.address))
   });
 
   describe("Interpret outcome and execute effect", () => {
     it("Eth + Token - distributes funds correctly", async () => {
-        const senderAddr = mkAddress("0xa");
-        const receiverAddr = mkAddress("0xb");
+        const senderAddr = wallet.address;
+        const receiverAddr = mkAddress("0xa")
         const tokenAddr = erc20.address;
         const state = [
             {
@@ -67,13 +64,17 @@ describe("Swap Interpreter", () => {
             {
               to: receiverAddr,
               coinAddress: [tokenAddr, AddressZero],
-              balance: [Zero, new BigNumber(2)],
+              balance: [Zero, Zero],
             }
           ]
-        const params = [new BigNumber(100000), new BigNumber(100000)]
+        const params = {
+          limit: [new BigNumber(100000), new BigNumber(100000)]
+        }
 
-        const ret = await interpretOutcomeAndExecuteEffect(state, params)
+        await interpretOutcomeAndExecuteEffect(state, params)
 
+        expect(await erc20.functions.balanceOf(senderAddr)).to.eq(500)
+        expect(await erc20.functions.balanceOf(receiverAddr)).to.eq(0)
     });
   });
 });
