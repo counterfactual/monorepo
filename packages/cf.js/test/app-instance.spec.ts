@@ -15,7 +15,7 @@ describe("CF.js AppInstance", () => {
   let appInstance: AppInstance;
 
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
-    id: "TEST_ID",
+    identityHash: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appDefinition: "0x1515151515151515151515151515151515151515",
     myDeposit: bigNumberify(1000),
@@ -29,7 +29,7 @@ describe("CF.js AppInstance", () => {
     nodeProvider = new TestNodeProvider();
     provider = new Provider(nodeProvider);
     appInstance = await provider.getOrCreateAppInstance(
-      TEST_APP_INSTANCE_INFO.id,
+      TEST_APP_INSTANCE_INFO.identityHash,
       TEST_APP_INSTANCE_INFO
     );
   });
@@ -134,7 +134,7 @@ describe("CF.js AppInstance", () => {
           data: {
             action: expectedAction,
             newState: expectedNewState,
-            appInstanceId: TEST_APP_INSTANCE_INFO.id
+            appInstanceId: TEST_APP_INSTANCE_INFO.identityHash
           }
         }
       });
@@ -152,7 +152,7 @@ describe("CF.js AppInstance", () => {
         result: {
           type: Node.EventName.UNINSTALL,
           data: {
-            appInstanceId: TEST_APP_INSTANCE_INFO.id
+            appInstanceId: TEST_APP_INSTANCE_INFO.identityHash
           }
         }
       });
@@ -177,7 +177,7 @@ describe("CF.js AppInstance", () => {
           data: {
             errorName: expectedErrorName,
             message: expectedMessage,
-            appInstanceId: TEST_APP_INSTANCE_INFO.id
+            appInstanceId: TEST_APP_INSTANCE_INFO.identityHash
           }
         }
       });
@@ -201,7 +201,7 @@ describe("CF.js AppInstance", () => {
           data: {
             action: "200",
             newState: "1200",
-            appInstanceId: TEST_APP_INSTANCE_INFO.id
+            appInstanceId: TEST_APP_INSTANCE_INFO.identityHash
           }
         }
       } as JsonRpcResponse;

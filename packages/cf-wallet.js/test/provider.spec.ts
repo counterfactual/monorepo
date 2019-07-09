@@ -24,7 +24,7 @@ describe("CF.js Provider", () => {
   let provider: Provider;
 
   const TEST_APP_INSTANCE_INFO: AppInstanceInfo = {
-    id: "TEST_ID",
+    identityHash: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appDefinition: "0x1515151515151515151515151515151515151515",
     myDeposit: Zero,
@@ -100,7 +100,7 @@ describe("CF.js Provider", () => {
           jsonRpcMethodNames[Node.MethodName.INSTALL]
         );
         expect((request.parameters as Node.InstallParams).appInstanceId).toBe(
-          TEST_APP_INSTANCE_INFO.id
+          TEST_APP_INSTANCE_INFO.identityHash
         );
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -113,8 +113,12 @@ describe("CF.js Provider", () => {
           id: request.id as number
         });
       });
-      const appInstance = await provider.install(TEST_APP_INSTANCE_INFO.id);
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      const appInstance = await provider.install(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -131,7 +135,7 @@ describe("CF.js Provider", () => {
           jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
         );
         const params = request.parameters as Node.InstallVirtualParams;
-        expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.identityHash);
         expect(params.intermediaries).toBe(expectedIntermediaries);
 
         nodeProvider.simulateMessageFromNode({
@@ -149,10 +153,12 @@ describe("CF.js Provider", () => {
         });
       });
       const appInstance = await provider.installVirtual(
-        TEST_APP_INSTANCE_INFO.id,
+        TEST_APP_INSTANCE_INFO.identityHash,
         expectedIntermediaries
       );
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -168,7 +174,7 @@ describe("CF.js Provider", () => {
         const {
           appInstanceId
         } = request.parameters as Node.RejectInstallParams;
-        expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.identityHash);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
@@ -178,7 +184,7 @@ describe("CF.js Provider", () => {
           id: request.id as number
         });
       });
-      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.id);
+      await provider.rejectInstall(TEST_APP_INSTANCE_INFO.identityHash);
     });
 
     it("can create a channel between two parties", async () => {
@@ -316,7 +322,9 @@ describe("CF.js Provider", () => {
       provider.once(EventType.REJECT_INSTALL, e => {
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
@@ -334,11 +342,13 @@ describe("CF.js Provider", () => {
       provider.once(EventType.INSTALL, e => {
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.id);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
 
       await provider.getOrCreateAppInstance(
-        TEST_APP_INSTANCE_INFO.id,
+        TEST_APP_INSTANCE_INFO.identityHash,
         TEST_APP_INSTANCE_INFO
       );
 
@@ -347,7 +357,7 @@ describe("CF.js Provider", () => {
         result: {
           type: Node.EventName.INSTALL,
           data: {
-            appInstanceId: TEST_APP_INSTANCE_INFO.id
+            appInstanceId: TEST_APP_INSTANCE_INFO.identityHash
           }
         }
       });

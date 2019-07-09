@@ -34,7 +34,7 @@ export default class InstallVirtualController extends NodeController {
     const queues = [requestHandler.getShardedQueue(multisigAddress)];
 
     try {
-      const metachannel = await store.getChannelFromAppInstanceID(
+      const metachannel = await store.getChannelFromstring(
         appInstanceId
       );
       queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));

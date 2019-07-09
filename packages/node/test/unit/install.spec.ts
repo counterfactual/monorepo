@@ -68,7 +68,7 @@ describe("Can handle correct & incorrect installs", () => {
       proposedAppInstanceInfo
     );
 
-    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
+    when(mockedStore.getChannelFromstring(appInstanceId)).thenReject(
       NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
 
@@ -120,7 +120,7 @@ describe("Can handle correct & incorrect installs", () => {
       proposedAppInstanceInfo
     );
 
-    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenResolve(
+    when(mockedStore.getChannelFromstring(appInstanceId)).thenResolve(
       stateChannel
     );
 

@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   NetworkContext,
   networkContextProps,
@@ -86,7 +85,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.identityHash === appInstanceId;
   })[0];
 }
 
@@ -344,7 +343,7 @@ export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
   {}
 ) as NetworkContext;
 
-export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -356,7 +355,7 @@ export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateTakeActionRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   action: any
 ): Rpc {
   return jsonRpcDeserialize({
@@ -370,7 +369,7 @@ export function generateTakeActionRequest(
   });
 }
 
-export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateUninstallRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -382,7 +381,7 @@ export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateUninstallVirtualRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({
@@ -522,7 +521,7 @@ export async function confirmAppInstanceInstallation(
 ) {
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.id;
+  delete appInstanceInfo.identityHash;
   expect(appInstanceInfo).toEqual(proposedParams);
 }
 
