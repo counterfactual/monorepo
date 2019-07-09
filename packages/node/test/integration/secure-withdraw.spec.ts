@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { Contract } from "ethers";
 import { One } from "ethers/constants";
@@ -56,13 +57,19 @@ describe("Node method follows spec - withdraw", () => {
 
   it("has the right balance for both parties after withdrawal of ERC20 tokens", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
-    const erc20ContractAddress = global["networkContext"]["DolphinCoin"];
+
+    const erc20ContractAddress = (global[
+      "networkContext"
+    ] as NetworkContextForTestSuite).DolphinCoin;
+
     const erc20Contract = new Contract(
       erc20ContractAddress,
       DolphinCoin.abi,
       new JsonRpcProvider(global["ganacheURL"])
     );
+
     expect(multisigAddress).toBeDefined();
+
     await transferERC20Tokens(await nodeA.signerAddress());
 
     const startingMultisigTokenBalance = await erc20Contract.functions.balanceOf(
@@ -85,7 +92,11 @@ describe("Node method follows spec - withdraw", () => {
       startingMultisigTokenBalance.toNumber() + 1
     );
 
-    const withdrawReq = makeWithdrawRequest(multisigAddress, One);
+    const withdrawReq = makeWithdrawRequest(
+      multisigAddress,
+      One,
+      erc20ContractAddress
+    );
 
     await nodeA.router.dispatch(withdrawReq);
 

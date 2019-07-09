@@ -32,9 +32,22 @@ export default class WithdrawController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Queue[]> {
-    const { store, getSignerAddress } = requestHandler;
+    return [requestHandler.getShardedQueue(params.multisigAddress)];
+  }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.WithdrawParams
+  ): Promise<void> {
+    const { store, publicIdentifier, networkContext } = requestHandler;
 
     const stateChannel = await store.getStateChannel(params.multisigAddress);
+
+    if (
+      stateChannel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)
+    ) {
+      throw new Error(CANNOT_WITHDRAW);
+    }
 
     const freeBalance = deserializeFreeBalanceState(stateChannel.freeBalance
       .state as FreeBalanceStateJSON);
@@ -42,14 +55,17 @@ export default class WithdrawController extends NodeController {
     const tokenAddress =
       params.tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    if (!(tokenAddress in freeBalance)) {
+    if (!(tokenAddress in freeBalance.balancesIndexedByToken)) {
       throw new Error(INVALID_WITHDRAW(tokenAddress));
     }
 
     const tokenFreeBalance = convertCoinTransfersToCoinTransfersMap(
-      freeBalance[tokenAddress]
+      freeBalance.balancesIndexedByToken[tokenAddress]
     );
-    const senderBalance = tokenFreeBalance[await getSignerAddress()];
+
+    const senderBalance =
+      tokenFreeBalance[stateChannel.getFreeBalanceAddrOf(publicIdentifier)];
+
     if (senderBalance.lt(params.amount)) {
       throw new Error(
         INSUFFICIENT_FUNDS_TO_WITHDRAW(
@@ -58,24 +74,6 @@ export default class WithdrawController extends NodeController {
           senderBalance
         )
       );
-    }
-
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
-  }
-
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {
-    const { store, networkContext } = requestHandler;
-    const { multisigAddress } = params;
-
-    const stateChannel = await store.getStateChannel(multisigAddress);
-
-    if (
-      stateChannel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)
-    ) {
-      throw new Error(CANNOT_WITHDRAW);
     }
   }
 
@@ -90,6 +88,7 @@ export default class WithdrawController extends NodeController {
       publicIdentifier,
       blocksNeededForConfirmation
     } = requestHandler;
+    
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);

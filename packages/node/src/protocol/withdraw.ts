@@ -1,4 +1,7 @@
-import { NetworkContext } from "@counterfactual/types";
+import {
+  coinBalanceRefundStateEncoding,
+  NetworkContext
+} from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
@@ -487,7 +490,13 @@ function addRefundAppToStateChannel(
   params: WithdrawParams,
   network: NetworkContext
 ): StateChannel {
-  const { recipient, amount, multisigAddress, initiatingXpub } = params;
+  const {
+    recipient,
+    amount,
+    multisigAddress,
+    initiatingXpub,
+    tokenAddress
+  } = params;
 
   const defaultTimeout = 1008;
 
@@ -498,13 +507,7 @@ function addRefundAppToStateChannel(
     defaultTimeout,
     {
       addr: network.CoinBalanceRefundApp,
-      stateEncoding: `
-        tuple(
-          address recipient,
-          address multisig,
-          uint256 threshold
-        )
-      `,
+      stateEncoding: coinBalanceRefundStateEncoding,
       actionEncoding: undefined
     },
     false,
@@ -517,8 +520,8 @@ function addRefundAppToStateChannel(
     0,
     defaultTimeout,
     undefined,
-    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    { tokenAddress, limit: MaxUint256 },
+    tokenAddress
   );
 
   return stateChannel.installApp(refundAppInstance, {
