@@ -13,7 +13,7 @@ import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
   FAILED_TO_GET_ERC20_BALANCE,
-  INSUFFICIENT_ERC20_FUNDS,
+  INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT,
   INSUFFICIENT_FUNDS
 } from "../../errors";
 
@@ -68,7 +68,9 @@ export default class DepositController extends NodeController {
       }
 
       if (balance.lt(amount)) {
-        throw new Error(INSUFFICIENT_ERC20_FUNDS(address, amount, balance));
+        throw new Error(
+          INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(address, amount, balance)
+        );
       }
     } else {
       const balanceOfSigner = await provider.getBalance(address);

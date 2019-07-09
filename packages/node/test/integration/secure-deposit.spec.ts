@@ -5,7 +5,7 @@ import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src";
-import { INSUFFICIENT_ERC20_FUNDS } from "../../src/methods/errors";
+import { INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT } from "../../src/methods/errors";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -70,7 +70,11 @@ describe("Node method follows spec - deposit", () => {
     await expect(
       nodeA.router.dispatch(erc20DepositRequest)
     ).rejects.toThrowError(
-      INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress(), One, Zero)
+      INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(
+        await nodeA.signerAddress(),
+        One,
+        Zero
+      )
     );
 
     await transferERC20Tokens(await nodeA.signerAddress());
