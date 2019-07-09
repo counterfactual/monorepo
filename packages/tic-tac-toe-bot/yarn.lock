@@ -933,10 +933,10 @@
     eventemitter3 "^3.1.2"
     rpc-server "0.0.1"
 
-"@counterfactual/contracts@0.1.5":
-  version "0.1.5"
-  resolved "https://registry.npmjs.org/@counterfactual/contracts/-/contracts-0.1.5.tgz#88a3278a46e6bba64e82a005efc6be323b6dacb3"
-  integrity sha512-fsMNpWmBvyi0oU2IJl8Q0LArdHX8dWqhIVE9VtkHCWmIO8T0Xam6Le4deH9BhQ8wrISBoVKzi7edJAxfDk40TA==
+"@counterfactual/contracts@0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.6.tgz#4ea07b8b0178a00188b6fa1e2c5ff336bcc79f3b"
+  integrity sha512-8l9QFf/lAwydHZkDLWOHBmwEU+cStbkqfHdQ3BzKFlQ1+Q79OLZPJ9KhKv70SJq+9wT4NZCkykFzUiKB28llQw==
 
 "@counterfactual/dapp-tic-tac-toe@0.1.2":
   version "0.1.2"
@@ -972,15 +972,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.14":
-  version "0.2.14"
-  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.2.14.tgz#5a06c79bc8d0d1ca9059262be734a959fd94edcc"
-  integrity sha512-fx6OyD51Ggkrnyt9ekf1Z7KJ13nxa0lr4TT0il02QrgZY6vFjeCy3hyxuS0tCBVc0USD6VoredlX6GTUviJG7Q==
+"@counterfactual/node@0.2.16":
+  version "0.2.16"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.16.tgz#47be7cfc341525352856765ba849db90cce05fa2"
+  integrity sha512-yZCpQPyX8dcul68qXaszSto8EIlglawq4GY999AiRE9M0TdAocmg1cOdoN8JYfh8o++Abzb70v+zBdJP7MXRag==
   dependencies:
     "@counterfactual/cf.js" "0.2.1"
-    "@counterfactual/contracts" "0.1.5"
+    "@counterfactual/contracts" "0.1.6"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.20"
+    "@counterfactual/types" "0.0.21"
     ethers "4.0.32"
     eventemitter3 "^4.0.0"
     loglevel "^1.6.1"
@@ -994,10 +994,10 @@
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
 
-"@counterfactual/types@0.0.20":
-  version "0.0.20"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.20.tgz#cb5cd9a9179c932b3f45ced9ff864b63f91942e9"
-  integrity sha512-SKCF9V46RKKpyVdw8DhKyZHAoaZtdHjm8D2qUFRuHTlJL6brLzc5RuD60jo35XVQHkwoQM9fThZNIzsKdR++ew==
+"@counterfactual/types@0.0.21":
+  version "0.0.21"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.21.tgz#bd0b9014818ad870f0615cd3d6d46f5dceffa823"
+  integrity sha512-hIqb69vBtdSkNHg6hxspsjr2sXbVVYjDj8CTYsVru4b8JuJM6zJh7B4q3AOunBmI1R0KJn22Itqny6ysXLLIXA==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
