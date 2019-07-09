@@ -26,8 +26,8 @@ contract SwapInterpreter is Interpreter {
   {
 
     LibOutcome.CoinBalances[] memory coinBalances = abi.decode(input, (LibOutcome.CoinBalances[]));
-
     Param memory params = abi.decode(encodedParams, (Param));
+
     uint256[] memory limitRemaining = params.limit;
 
     for (uint256 i = 0; i < coinBalances.length; i++) {
