@@ -17,7 +17,6 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
 
   struct AppState {
     LibOutcome.CoinBalances[] coinBalances; // [Alice, Bob]
-    bool finalized;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -26,24 +25,13 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
+    uint256[] memory balancesA = state.coinBalances[0].balance;
+    uint256[] memory balancesB = state.coinBalances[1].balance;
+
+    // apply swap
+    state.coinBalances[0].balance = balancesB;
+    state.coinBalances[1].balance = balancesA;
+
     return abi.encode(state.coinBalances);
   }
-
-  function isStateTerminal(bytes calldata encodedState)
-    external
-    pure
-    returns (bool)
-  {
-    AppState memory appState = abi.decode(encodedState, (AppState));
-    return appState.finalized;
-  }
-
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    return uint256(LibOutcome.CoinBalances[]);
-  }
-
 }
