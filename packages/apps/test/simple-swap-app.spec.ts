@@ -25,9 +25,20 @@ function mkAddress(prefix: string = "0xa"): string {
 }
 
 function decodeBytesToAppState(encodedAppState: string): SimpleSwapAppState {
-  console.log("-------------------------------------------------")
+  console.log("-------------------------------------------------");
   return defaultAbiCoder.decode(
-    [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
+    [
+      `tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`
+    ],
+    encodedAppState
+  )[0];
+}
+
+function decodeBytesToComputeOutcome(
+  encodedAppState: string
+): SimpleSwapAppState {
+  return defaultAbiCoder.decode(
+    [`tuple(address to, address[] coinAddress, uint256[] balance)[]`],
     encodedAppState
   )[0];
 }
@@ -37,7 +48,9 @@ describe("SimpleTwoPartySwapApp", () => {
 
   function encodeState(state: SimpleSwapAppState) {
     return defaultAbiCoder.encode(
-      [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
+      [
+        `tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`
+      ],
       [state]
     );
   }
@@ -55,8 +68,8 @@ describe("SimpleTwoPartySwapApp", () => {
   describe("update state", () => {
     it("can compute outcome with update", async () => {
       const senderAddr = mkAddress("0xa");
-      const receiverAddr = mkAddress("0xb");
-      const tokenAddr = mkAddress("0xc");
+      const receiverAddr = mkAddress("0xB");
+      const tokenAddr = mkAddress("0xC");
       const tokenAmt = new BigNumber(10000);
       const ethAmt = new BigNumber(500);
       const preState: SimpleSwapAppState = {
@@ -74,19 +87,26 @@ describe("SimpleTwoPartySwapApp", () => {
         ]
       };
 
-      const state = preState;
-
-      state.coinBalances[0].balance = [Zero, ethAmt]
-      state.coinBalances[1].balance = [tokenAmt, Zero]
+      const state: SimpleSwapAppState = {
+        coinBalances: [
+          {
+            to: senderAddr,
+            coinAddress: [tokenAddr, AddressZero],
+            balance: [Zero, ethAmt]
+          },
+          {
+            to: receiverAddr,
+            coinAddress: [tokenAddr, AddressZero],
+            balance: [tokenAmt, Zero]
+          }
+        ]
+      };
 
       const ret = await computeOutcome(preState);
-
-      // console.log(decodeBytesToAppState(ret))
-
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
-          [state]
+          [`tuple(address to, address[] coinAddress, uint256[] balance)[]`],
+          [state.coinBalances]
         )
       );
     });
