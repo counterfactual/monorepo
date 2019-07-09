@@ -17,8 +17,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.5",
-    "@counterfactual/types": "0.0.21",
+    "@counterfactual/contracts": "0.1.7",
+    "@counterfactual/types": "0.0.22",
     "ethers": "4.0.32",
     "ganache-core": "2.5.5",
     "truffle": "5.0.26",
