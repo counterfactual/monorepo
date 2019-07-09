@@ -23,31 +23,29 @@ import {
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  CoinBalanceRefundApp: string;
-  ETHBucket: string;
-  ETHInterpreter: string;
-  MinimumViableMultisig: string;
-  MultiSend: string;
-  ProxyFactory: string;
   ConditionalTransactionDelegateTarget: string;
-  TwoPartyEthAsLump: string;
-  TwoPartyVirtualEthAsLump: string;
-  UninstallKeyRegistry: string;
+  CoinBalanceRefundApp: string;
+  CoinTransferETHInterpreter: string;
+  FreeBalanceApp: string;
+  IdentityApp: string;
+  MinimumViableMultisig: string;
+  ProxyFactory: string;
+  TwoPartyFixedOutcomeETHInterpreter: string;
+  TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
 }
 
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "CoinBalanceRefundApp",
-  "ETHBucket",
-  "ETHInterpreter",
-  "MinimumViableMultisig",
-  "MultiSend",
-  "ProxyFactory",
   "ConditionalTransactionDelegateTarget",
-  "TwoPartyEthAsLump",
-  "TwoPartyVirtualEthAsLump",
-  "UninstallKeyRegistry"
+  "CoinBalanceRefundApp",
+  "CoinTransferETHInterpreter",
+  "IdentityApp",
+  "FreeBalanceApp",
+  "MinimumViableMultisig",
+  "ProxyFactory",
+  "TwoPartyFixedOutcomeETHInterpreter",
+  "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
 ];
 
 export interface ContractMigration {

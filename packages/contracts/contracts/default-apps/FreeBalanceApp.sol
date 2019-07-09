@@ -5,14 +5,15 @@ import "../interfaces/CounterfactualApp.sol";
 import "../libs/LibOutcome.sol";
 
 
-contract ETHBucket is CounterfactualApp {
+contract FreeBalanceApp is CounterfactualApp {
 
-  struct AppState {
+  struct FreeBalanceAppState {
     address[] tokens;
     // The inner array contains the list of CoinTransfers for a single asset type
     // The outer array contains the list of asset balances for respecitve assets
     // according to the indexing used in the `tokens` array above
     LibOutcome.CoinTransfer[][] balances;
+    bytes32[] activeApps;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -20,7 +21,7 @@ contract ETHBucket is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(abi.decode(encodedState, (AppState)).balances);
+    return encodedState;
   }
 
 }

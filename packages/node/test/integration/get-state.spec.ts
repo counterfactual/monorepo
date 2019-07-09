@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { v4 as generateUUID } from "uuid";
 
@@ -35,7 +36,7 @@ describe("Node method follows spec - getAppInstances", () => {
     const params = makeTTTProposalRequest(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
-      global["networkContext"].TicTacToe
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     ).parameters as NodeTypes.ProposeInstallParams;
     const appInstanceId = await installTTTApp(nodeA, nodeB);
     const state = await getState(nodeA, appInstanceId);

@@ -12,13 +12,13 @@ import {
   BigNumber,
   bigNumberify,
   defaultAbiCoder,
-  keccak256,
-  solidityPack
+  keccak256
 } from "ethers/utils";
-import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
+
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
 
 export type AppInstanceJson = {
   multisigAddress: string;
@@ -36,16 +36,19 @@ export type AppInstanceJson = {
    */
   twoPartyOutcomeInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyEthAsLump.sol#L10
+    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
   };
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/ETHInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
     limit: { _hex: string };
+    tokenAddress: string;
   };
+
+  tokenAddress: string;
 };
 
 /**
@@ -64,7 +67,7 @@ export type AppInstanceJson = {
 
  * @property isVirtualApp A flag indicating whether this AppInstance's state
  *           deposits come directly from a multisig or through a virtual app
- *           proxy agreement (TwoPartyVirtualEthAsLump.sol)
+ *           proxy agreement.
 
  * @property latestState The unencoded representation of the latest state.
 
@@ -94,7 +97,8 @@ export class AppInstance {
     latestVersionNumber: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
+    tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
   ) {
     this.json = {
       multisigAddress,
@@ -106,6 +110,7 @@ export class AppInstance {
       latestState,
       latestVersionNumber,
       latestTimeout,
+      tokenAddress,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -116,6 +121,7 @@ export class AppInstance {
         : undefined,
       coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
+            tokenAddress,
             limit: {
               _hex: coinTransferInterpreterParams.limit.toHexString()
             }
@@ -154,9 +160,11 @@ export class AppInstance {
         : undefined,
       json.coinTransferInterpreterParams
         ? {
+            tokenAddress: json.tokenAddress,
             limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
           }
-        : undefined
+        : undefined,
+      json.tokenAddress
     );
     return ret;
   }
@@ -196,30 +204,6 @@ export class AppInstance {
     );
   }
 
-  @Memoize()
-  public get uninstallKey() {
-    // The unique "key" in the UninstallKeyRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, hash(<app versionNumber>))
-    const ret = keccak256(
-      solidityPack(
-        ["address", "bytes32"],
-        [
-          this.json.multisigAddress,
-          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
-        ]
-      )
-    );
-
-    log.debug(`
-      app-instance: computed
-        uninstallKey = ${ret} using
-        sender = ${this.json.multisigAddress},
-        salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
-    `);
-
-    return ret;
-  }
-
   // TODO: All these getters seems a bit silly, would be nice to improve
   //       the implementation to make it cleaner.
 
@@ -234,6 +218,7 @@ export class AppInstance {
   public get coinTransferInterpreterParams() {
     return this.json.coinTransferInterpreterParams
       ? {
+          tokenAddress: this.json.tokenAddress,
           limit: bigNumberify(
             this.json.coinTransferInterpreterParams.limit._hex
           )
@@ -278,6 +263,10 @@ export class AppInstance {
 
   public get isVirtualApp() {
     return this.json.isVirtualApp;
+  }
+
+  public get tokenAddress() {
+    return this.json.tokenAddress;
   }
 
   public lockState(versionNumber: number) {

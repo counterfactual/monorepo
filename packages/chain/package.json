@@ -18,7 +18,7 @@
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.1.5",
-    "@counterfactual/types": "0.0.20",
+    "@counterfactual/types": "0.0.21",
     "ethers": "4.0.32",
     "ganache-core": "2.5.5",
     "truffle": "5.0.26",

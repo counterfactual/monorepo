@@ -1,14 +1,19 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
   Address,
   AppABIEncodings,
   AppInstanceInfo,
+  ContractABI,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import { Contract, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -24,13 +29,17 @@ import {
   Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../../src/models/free-balance";
 
 import {
   initialEmptyTTTState,
   tttActionEncoding,
   tttStateEncoding
 } from "./tic-tac-toe";
+
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -178,12 +187,14 @@ export function makeDepositRequest(
 
 export function makeWithdrawRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.WITHDRAW,
     params: {
+      tokenAddress,
       multisigAddress,
       amount
     } as NodeTypes.WithdrawParams,
@@ -445,7 +456,7 @@ export async function installTTTApp(
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
-      global["networkContext"].TicTacToe,
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
       initialTTTState
     );
 
@@ -557,7 +568,7 @@ export async function makeTTTVirtualProposal(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
     Zero
@@ -606,11 +617,13 @@ export async function makeVirtualProposeCall(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
   );
+
   const response = (await nodeA.router.dispatch(
     virtualAppInstanceProposalRequest
   )) as JsonRpcResponse;
+
   return {
     appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
       .appInstanceId,
@@ -628,7 +641,7 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     {},
     One,
     Zero
@@ -654,16 +667,42 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
 export function createFreeBalanceStateWithFundedETHAmounts(
   addresses: string[],
   amount: BigNumber
-) {
-  const ethFreeBalance = {};
-  const balances: {}[] = [];
-  for (let i = 0; i < addresses.length; i += 1) {
-    const balance = {};
-    balance["to"] = addresses[i];
-    balance["amount"] = amount;
-    balances.push(balance);
-  }
-  ethFreeBalance[CONVENTION_FOR_ETH_TOKEN_ADDRESS] = balances;
+): FreeBalanceState {
+  return {
+    activeAppsMap: {},
+    balancesIndexedByToken: {
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
+        to,
+        amount
+      }))
+    }
+  };
+}
 
-  return ethFreeBalance;
+/**
+ * @return the ERC20 token balance of the receiver
+ */
+export async function transferERC20Tokens(
+  toAddress: string,
+  tokenAddress: string = global["networkContext"]["DolphinCoin"],
+  contractABI: ContractABI = DolphinCoin.abi,
+  amount: BigNumber = One
+): Promise<BigNumber> {
+  const deployerAccount = new Wallet(
+    global["fundedPrivateKey"],
+    new JsonRpcProvider(global["ganacheURL"])
+  );
+
+  const contract = new Contract(tokenAddress, contractABI, deployerAccount);
+
+  const balanceBefore: BigNumber = await contract.functions.balanceOf(
+    toAddress
+  );
+
+  await contract.functions.transfer(toAddress, amount);
+  const balanceAfter: BigNumber = await contract.functions.balanceOf(toAddress);
+
+  expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
+
+  return balanceAfter;
 }

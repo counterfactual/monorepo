@@ -7,7 +7,7 @@ import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
-import { validateSignature } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
 
@@ -46,7 +46,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    validateSignature(
+    assertIsValidSignature(
       xkeyKthAddress(respondingXpub, appSeqNo),
       setStateCommitment,
       signature
@@ -69,7 +69,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
     const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
-    validateSignature(
+    assertIsValidSignature(
       xkeyKthAddress(initiatingXpub, appSeqNo),
       setStateCommitment,
       signature

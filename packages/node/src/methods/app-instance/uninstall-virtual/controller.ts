@@ -35,7 +35,7 @@ export default class UninstallVirtualController extends NodeController {
       ])
     );
 
-    const metachannel = await store.getChannelFromstring(appInstanceId);
+    const metachannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     return [
       requestHandler.getShardedQueue(metachannel.multisigAddress),
@@ -50,7 +50,7 @@ export default class UninstallVirtualController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const stateChannel = await store.getChannelFromstring(appInstanceId);
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
       throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
@@ -68,7 +68,7 @@ export default class UninstallVirtualController extends NodeController {
       return Promise.reject(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
-    const stateChannel = await store.getChannelFromstring(appInstanceId);
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
       throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));

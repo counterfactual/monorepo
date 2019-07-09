@@ -34,7 +34,7 @@ describe("SetupCommitment", () => {
 
   // State channel testing values
   const stateChannel = StateChannel.setupChannel(
-    networkContext.ETHBucket,
+    networkContext.FreeBalanceApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );
@@ -77,7 +77,9 @@ describe("SetupCommitment", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
-      expect(interpreterAddress).toBe(networkContext.ETHInterpreter);
+      expect(interpreterAddress).toBe(
+        networkContext.CoinTransferETHInterpreter
+      );
     });
   });
 });

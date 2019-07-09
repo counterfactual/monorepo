@@ -25,7 +25,7 @@ export class SetupCommitment extends MultisigCommitment {
       data: iface.functions.executeEffectOfFreeBalance.encode([
         this.networkContext.ChallengeRegistry,
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.ETHInterpreter
+        this.networkContext.CoinTransferETHInterpreter
       ]),
       operation: MultisigOperation.DelegateCall
     };

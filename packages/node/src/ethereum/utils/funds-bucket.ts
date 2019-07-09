@@ -3,11 +3,11 @@ import { Zero } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
-  convertPartyBalancesFromMap,
-  convertPartyBalancesToMap,
-  FreeBalanceState,
-  PartyBalance,
-  PartyBalanceMap
+  CoinTransfer,
+  CoinTransferMap,
+  convertCoinTransfersMapToCoinTransfers,
+  convertCoinTransfersToCoinTransfersMap,
+  FreeBalanceState
 } from "../../models/free-balance";
 
 const coinBucketsStateEncoding = `
@@ -16,7 +16,8 @@ const coinBucketsStateEncoding = `
     tuple(
       address to,
       uint256 amount
-    )[][] balances
+    )[][] balances,
+    bytes32[] activeApps
   )
 `;
 
@@ -35,7 +36,7 @@ export function encodeFreeBalanceAppState(state: FreeBalanceState) {
 /**
  * Returns a mapping with all values negated
  */
-export function flip(a: PartyBalanceMap) {
+export function flip(a: CoinTransferMap) {
   const ret = {};
   for (const key of Object.keys(a)) {
     ret[key] = Zero.sub(a[key]);
@@ -51,11 +52,11 @@ export function flip(a: PartyBalanceMap) {
  * unchanged.
  */
 export function merge(
-  base: PartyBalance[],
-  increments: PartyBalanceMap
-): PartyBalance[] {
-  const baseMap = convertPartyBalancesToMap(base);
-  const ret = {} as PartyBalanceMap;
+  base: CoinTransfer[],
+  increments: CoinTransferMap
+): CoinTransfer[] {
+  const baseMap = convertCoinTransfersToCoinTransfersMap(base);
+  const ret = {} as CoinTransferMap;
   for (const key of Object.keys(baseMap)) {
     if (increments[key]) {
       ret[key] = baseMap[key].add(increments[key]);
@@ -71,5 +72,5 @@ export function merge(
       throw Error(`mismatch ${Object.keys(base)} ${Object.keys(increments)}`);
     }
   }
-  return convertPartyBalancesFromMap(ret);
+  return convertCoinTransfersMapToCoinTransfers(ret);
 }

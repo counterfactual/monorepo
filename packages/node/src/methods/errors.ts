@@ -1,5 +1,7 @@
 import { BigNumber } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+
 export const APP_ALREADY_UNINSTALLED = (id: string) =>
   `Cannot uninstall app ${id}, it has already been uninstalled`;
 
@@ -29,17 +31,31 @@ export const FAILED_TO_GET_ERC20_BALANCE = (
 export const IMPROPERLY_FORMATTED_STRUCT =
   "Improperly formatted ABIEncoderV2 struct";
 
-export const INSUFFICIENT_ERC20_FUNDS = (
+export const INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT = (
   address: string,
   amount: BigNumber,
   balance: BigNumber
 ) =>
-  `Node's default signer has ${balance} and needs ${amount} of the specified ERC20 token ${address}`;
+  `Node's default signer has ${balance} and needs ${amount} of the specified ERC20 token ${address} to deposit`;
+
+export const INSUFFICIENT_FUNDS_TO_WITHDRAW = (
+  address: string,
+  amount: BigNumber,
+  balance: BigNumber
+) => {
+  if (address === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+    return `Node has ${balance} and needs ${amount} ETH to withdraw`;
+  }
+  return `Node has ${balance} and needs ${amount} of token ${address} to withdraw`;
+};
 
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
 
 export const INVALID_ACTION = "Invalid action taken";
+
+export const INVALID_WITHDRAW = (tokenAddress: string) =>
+  `Cannot withdraw the specified token (${tokenAddress}) as its balance in the channel is 0`;
 
 export const INVALID_NETWORK_NAME =
   "Invalid network name provided for initializing Node";
