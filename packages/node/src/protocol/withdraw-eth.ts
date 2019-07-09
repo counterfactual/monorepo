@@ -17,7 +17,10 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { FreeBalanceState } from "../models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../models/free-balance";
 
 import { validateSignature } from "./utils/signature-validator";
 
@@ -180,7 +183,7 @@ function addInstallRefundAppCommitmentToContext(
     stateChannel.getNextSigningKeys(),
     1008,
     {
-      addr: context.network.ETHBalanceRefundApp,
+      addr: context.network.CoinBalanceRefundApp,
       stateEncoding:
         "tuple(address recipient, address multisig,  uint256 threshold)",
       actionEncoding: undefined
@@ -225,7 +228,11 @@ function addUninstallRefundAppCommitmentToContext(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  const newStateChannel = stateChannel.uninstallApp(appIdentityHash, {});
+  const newStateChannel = stateChannel.uninstallApp(
+    appIdentityHash,
+    {},
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel

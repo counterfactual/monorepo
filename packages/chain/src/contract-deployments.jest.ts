@@ -1,7 +1,8 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
 import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
@@ -14,9 +15,15 @@ import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
-  const balanceRefundContract = await new ContractFactory(
-    BalanceRefundApp.abi,
-    BalanceRefundApp.bytecode,
+  const coinBalanceRefundContract = await new ContractFactory(
+    CoinBalanceRefundApp.abi,
+    CoinBalanceRefundApp.bytecode,
+    wallet
+  ).deploy();
+
+  const dolphinCoin = await new ContractFactory(
+    DolphinCoin.abi,
+    DolphinCoin.bytecode,
     wallet
   ).deploy();
 
@@ -87,7 +94,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   return {
-    ETHBalanceRefundApp: balanceRefundContract.address,
+    CoinBalanceRefundApp: coinBalanceRefundContract.address,
+    DolphinCoin: dolphinCoin.address,
     ETHBucket: ethBucketContract.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,

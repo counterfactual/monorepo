@@ -4,7 +4,10 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getETHBalancesFromFreeBalanceAppInstance
+} from "../../../../../src/models/free-balance";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -35,10 +38,14 @@ describe("StateChannel::uninstallApp", () => {
       [xkeyKthAddress(xpubs[1], 0)]: Zero
     });
 
-    sc2 = sc1.uninstallApp(testApp.identityHash, {
-      [xkeyKthAddress(xpubs[0], 0)]: Zero,
-      [xkeyKthAddress(xpubs[1], 0)]: Zero
-    });
+    sc2 = sc1.uninstallApp(
+      testApp.identityHash,
+      {
+        [xkeyKthAddress(xpubs[0], 0)]: Zero,
+        [xkeyKthAddress(xpubs[1], 0)]: Zero
+      },
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    );
   });
 
   it("should not alter any of the base properties", () => {

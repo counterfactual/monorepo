@@ -138,7 +138,9 @@ describe("CF.js Provider", () => {
 
       const instances = await provider.getAppInstances();
       expect(instances).toHaveLength(1);
-      expect(instances[0].id).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      expect(instances[0].identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
     });
 
     it("can install an app instance", async () => {
@@ -164,7 +166,9 @@ describe("CF.js Provider", () => {
       const appInstance = await provider.install(
         TEST_APP_INSTANCE_INFO.identityHash
       );
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -202,7 +206,9 @@ describe("CF.js Provider", () => {
         TEST_APP_INSTANCE_INFO.identityHash,
         expectedIntermediaries
       );
-      expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+      expect(appInstance.identityHash).toBe(
+        TEST_APP_INSTANCE_INFO.identityHash
+      );
       expect(appInstance.appDefinition).toBe(
         TEST_APP_INSTANCE_INFO.appDefinition
       );
@@ -257,7 +263,9 @@ describe("CF.js Provider", () => {
         expect(e.type).toBe(EventType.REJECT_INSTALL);
         const appInstance = (e.data as RejectInstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
@@ -276,7 +284,9 @@ describe("CF.js Provider", () => {
         expect(e.type).toBe(EventType.INSTALL);
         const appInstance = (e.data as InstallEventData).appInstance;
         expect(appInstance).toBeInstanceOf(AppInstance);
-        expect(appInstance.id).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+        expect(appInstance.identityHash).toBe(
+          TEST_APP_INSTANCE_INFO.identityHash
+        );
       });
 
       await provider.getOrCreateAppInstance(
@@ -329,7 +339,7 @@ describe("CF.js Provider", () => {
       expect.assertions(4);
 
       provider.on(EventType.UPDATE_STATE, e => {
-        expect((e.data as InstallEventData).appInstance.id).toBe(
+        expect((e.data as InstallEventData).appInstance.identityHash).toBe(
           TEST_APP_INSTANCE_INFO.identityHash
         );
       });

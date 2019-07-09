@@ -44,7 +44,7 @@ describe("CF.js AppInstance", () => {
           jsonRpcMethodNames[Node.MethodName.GET_STATE]
         );
         const params = request.parameters as Node.GetStateParams;
-        expect(params.appInstanceId).toBe(appInstance.id);
+        expect(params.appInstanceId).toBe(appInstance.identityHash);
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
@@ -70,7 +70,7 @@ describe("CF.js AppInstance", () => {
           jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
         );
         const params = request.parameters as Node.TakeActionParams;
-        expect(params.appInstanceId).toBe(appInstance.id);
+        expect(params.appInstanceId).toBe(appInstance.identityHash);
         expect(params.action).toBe(expectedAction);
 
         nodeProvider.simulateMessageFromNode({
@@ -97,7 +97,7 @@ describe("CF.js AppInstance", () => {
           jsonRpcMethodNames[Node.MethodName.UNINSTALL]
         );
         const params = request.parameters as Node.UninstallParams;
-        expect(params.appInstanceId).toBe(appInstance.id);
+        expect(params.appInstanceId).toBe(appInstance.identityHash);
 
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",

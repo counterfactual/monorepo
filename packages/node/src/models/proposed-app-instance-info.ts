@@ -27,7 +27,7 @@ export interface IProposedAppInstanceInfo {
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  identityHash: Bytes32;
+  identityHash: string;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };

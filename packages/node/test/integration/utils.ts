@@ -24,6 +24,7 @@ import {
   Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 import {
   initialEmptyTTTState,
@@ -113,13 +114,15 @@ export async function getProposedAppInstanceInfo(
 
 export async function getFreeBalanceState(
   node: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
     params: {
-      multisigAddress
+      multisigAddress,
+      tokenAddress
     },
     jsonrpc: "2.0"
   });
@@ -158,12 +161,17 @@ export async function getApps(
 
 export function makeDepositRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.DEPOSIT,
-    params: { multisigAddress, amount },
+    params: {
+      multisigAddress,
+      amount,
+      tokenAddress
+    } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
 }
@@ -655,7 +663,7 @@ export function createFreeBalanceStateWithFundedETHAmounts(
     balance["amount"] = amount;
     balances.push(balance);
   }
-  ethFreeBalance[AddressZero] = balances;
+  ethFreeBalance[CONVENTION_FOR_ETH_TOKEN_ADDRESS] = balances;
 
   return ethFreeBalance;
 }
