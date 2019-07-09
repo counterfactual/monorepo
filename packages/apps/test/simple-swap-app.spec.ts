@@ -1,8 +1,7 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { Zero, AddressZero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import SimpleTwoPartySwapApp from "../build/SimpleTwoPartySwapApp.json";
@@ -10,10 +9,10 @@ import SimpleTwoPartySwapApp from "../build/SimpleTwoPartySwapApp.json";
 chai.use(waffle.solidity);
 
 type CoinBalances = {
-    to: string
-    coinAddress: string[]
-    balance: BigNumber[]
-  }
+  to: string;
+  coinAddress: string[];
+  balance: BigNumber[];
+};
 
 type SimpleSwapAppState = {
   coinBalances: CoinBalances[];
@@ -50,10 +49,7 @@ describe("SimpleTwoPartySwapApp", () => {
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    simpleSwapApp = await waffle.deployContract(
-      wallet,
-      SimpleTwoPartySwapApp
-    );
+    simpleSwapApp = await waffle.deployContract(wallet, SimpleTwoPartySwapApp);
   });
 
   describe("update state", () => {
@@ -68,17 +64,17 @@ describe("SimpleTwoPartySwapApp", () => {
           {
             to: senderAddr,
             coinAddress: [tokenAddr, AddressZero],
-            balance: [tokenAmt, Zero],
+            balance: [tokenAmt, Zero]
           },
           {
             to: receiverAddr,
             coinAddress: [tokenAddr, AddressZero],
-            balance: [Zero, ethAmt],
+            balance: [Zero, ethAmt]
           }
         ]
       };
 
-      let state = preState;
+      const state = preState;
 
       state.coinBalances[0].balance = [Zero, ethAmt]
       state.coinBalances[1].balance = [tokenAmt, Zero]
@@ -92,7 +88,7 @@ describe("SimpleTwoPartySwapApp", () => {
           [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
           [state]
         )
-      );  
+      );
     });
   });
 });

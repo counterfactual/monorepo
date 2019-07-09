@@ -1,22 +1,22 @@
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import SwapInterpreter from "@counterfactual/contracts/build/SwapInterpreter.json"
+import SwapInterpreter from "@counterfactual/contracts/build/SwapInterpreter.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
+import { AddressZero, Zero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
-import { bigNumberify, BigNumber, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { expect } from "./utils/index";
-import { AddressZero, Zero } from "ethers/constants";
 
 type CoinBalances = {
-    to: string
-    coinAddress: string[]
-    balance: BigNumber[]
-  }
+  to: string;
+  coinAddress: string[];
+  balance: BigNumber[];
+};
 
 function mkAddress(prefix: string = "0xa"): string {
-    return prefix.padEnd(42, "0");
-  }
+  return prefix.padEnd(42, "0");
+}
 
 describe("Swap Interpreter", () => {
   let provider: Web3Provider;
@@ -25,10 +25,12 @@ describe("Swap Interpreter", () => {
   let swapInterpreter: Contract;
 
   function encodeState(state: CoinBalances[]) {
-      return defaultAbiCoder.encode(
-        [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
-        [state]    
-      )
+    return defaultAbiCoder.encode(
+      [
+        `tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`
+      ],
+      [state]
+    );
   }
 
   function encodeParams(params: {limit: BigNumber[]}) {
