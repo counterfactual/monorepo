@@ -17,7 +17,6 @@ type CoinBalances = {
 
 type SimpleSwapAppState = {
   coinBalances: CoinBalances[];
-  finalized: boolean;
 };
 
 const { expect } = chai;
@@ -27,8 +26,9 @@ function mkAddress(prefix: string = "0xa"): string {
 }
 
 function decodeBytesToAppState(encodedAppState: string): SimpleSwapAppState {
+  console.log("-------------------------------------------------")
   return defaultAbiCoder.decode(
-    [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
+    [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
     encodedAppState
   )[0];
 }
@@ -38,7 +38,7 @@ describe("SimpleTwoPartySwapApp", () => {
 
   function encodeState(state: SimpleSwapAppState) {
     return defaultAbiCoder.encode(
-      [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances, bool finalized)`],
+      [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
       [state]
     );
   }
@@ -63,8 +63,6 @@ describe("SimpleTwoPartySwapApp", () => {
       const tokenAddr = mkAddress("0xc");
       const tokenAmt = new BigNumber(10000);
       const ethAmt = new BigNumber(500);
-      const tokenSwapAmt = new BigNumber(10);
-      const ethSwapAmt = new BigNumber(20);
       const preState: SimpleSwapAppState = {
         coinBalances: [
           {
@@ -77,50 +75,22 @@ describe("SimpleTwoPartySwapApp", () => {
             coinAddress: [tokenAddr, AddressZero],
             balance: [Zero, ethAmt],
           }
-        ],
-        finalized: false
+        ]
       };
 
       let state = preState;
 
-      state.coinBalances[0].balance = [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)]
-      state.coinBalances[1].balance = [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)]
-      state.finalized = true;
+      state.coinBalances[0].balance = [Zero, ethAmt]
+      state.coinBalances[1].balance = [tokenAmt, Zero]
 
-      const ret = await computeOutcome(state);
+      const ret = await computeOutcome(preState);
 
-      console.log(decodeBytesToAppState(ret))
-      console.log(decodeBytesToAppState(defaultAbiCoder.encode(
-        [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
-        [
-          {
-            to: senderAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)],
-          },
-          {
-            to: receiverAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)],
-          }
-        ]
-      )))
+      // console.log(decodeBytesToAppState(ret))
 
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`],
-          [
-            {
-              to: senderAddr,
-              coinAddress: [tokenAddr, AddressZero],
-              balance: [tokenAmt.sub(tokenSwapAmt), Zero.add(ethSwapAmt)],
-            },
-            {
-              to: receiverAddr,
-              coinAddress: [tokenAddr, AddressZero],
-              balance: [Zero.add(tokenSwapAmt), ethAmt.sub(ethSwapAmt)],
-            }
-          ]
+          [`tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`],
+          [state]
         )
       );  
     });
