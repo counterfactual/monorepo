@@ -88,7 +88,7 @@ export default class WithdrawController extends NodeController {
       publicIdentifier,
       blocksNeededForConfirmation
     } = requestHandler;
-    
+
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
