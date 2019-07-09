@@ -14,7 +14,7 @@ contract SwapInterpreter is Interpreter {
 
   using LibOutcome for LibOutcome.CoinBalances;
 
-   struct Param {
+  struct Param {
     uint256[] limit;
   }
 
