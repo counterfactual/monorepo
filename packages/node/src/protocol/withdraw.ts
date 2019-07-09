@@ -1,4 +1,7 @@
-import { NetworkContext } from "@counterfactual/types";
+import {
+  coinBalanceRefundStateEncoding,
+  NetworkContext
+} from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
@@ -12,6 +15,7 @@ import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -473,6 +477,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
   }
 };
 
+<<<<<<< HEAD
 /**
  * Adds an ETHBalanceRefundApp to the StateChannel object passed in based on
  * parameters also passed in with recipient and amount information.
@@ -489,6 +494,30 @@ function addRefundAppToStateChannel(
   network: NetworkContext
 ): StateChannel {
   const { recipient, amount, multisigAddress, initiatingXpub } = params;
+||||||| merged common ancestors
+function addInstallRefundAppCommitmentToContext(
+  params: ProtocolParameters,
+  context: Context
+): [InstallCommitment, string] {
+  const {
+    recipient,
+    amount,
+    multisigAddress,
+    initiatingXpub
+  } = params as WithdrawParams;
+=======
+function addInstallRefundAppCommitmentToContext(
+  params: ProtocolParameters,
+  context: Context
+): [InstallCommitment, string] {
+  const {
+    recipient,
+    amount,
+    multisigAddress,
+    initiatingXpub,
+    tokenAddress
+  } = params as WithdrawParams;
+>>>>>>> Wire up token address to install and uninstall app functions
 
   const defaultTimeout = 1008;
 
@@ -498,6 +527,7 @@ function addRefundAppToStateChannel(
     stateChannel.getNextSigningKeys(),
     defaultTimeout,
     {
+<<<<<<< HEAD
       addr: network.CoinBalanceRefundApp,
       stateEncoding: `
         tuple(
@@ -506,6 +536,14 @@ function addRefundAppToStateChannel(
           uint256 threshold
         )
       `,
+||||||| merged common ancestors
+      addr: context.network.CoinBalanceRefundApp,
+      stateEncoding:
+        "tuple(address recipient, address multisig,  uint256 threshold)",
+=======
+      addr: context.network.CoinBalanceRefundApp,
+      stateEncoding: coinBalanceRefundStateEncoding,
+>>>>>>> Wire up token address to install and uninstall app functions
       actionEncoding: undefined
     },
     false,
@@ -513,7 +551,8 @@ function addRefundAppToStateChannel(
     {
       recipient,
       multisig: multisigAddress,
-      threshold: amount
+      threshold: amount,
+      token: tokenAddress
     },
     0,
     defaultTimeout,
@@ -522,11 +561,52 @@ function addRefundAppToStateChannel(
     CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
+<<<<<<< HEAD
   return stateChannel.installApp(refundAppInstance, {
     [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
   });
+||||||| merged common ancestors
+  const newStateChannel = stateChannel.installApp(refundAppInstance, {
+    [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
+  });
+
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
+
+  const installRefundCommitment = constructInstallOp(
+    context.network,
+    newStateChannel,
+    refundAppInstance.identityHash
+  );
+
+  return [installRefundCommitment, refundAppInstance.identityHash];
+=======
+  const newStateChannel = stateChannel.installApp(
+    refundAppInstance,
+    {
+      [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
+    },
+    tokenAddress
+  );
+
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
+
+  const installRefundCommitment = constructInstallOp(
+    context.network,
+    newStateChannel,
+    refundAppInstance.identityHash
+  );
+
+  return [installRefundCommitment, refundAppInstance.identityHash];
+>>>>>>> Wire up token address to install and uninstall app functions
 }
 
+<<<<<<< HEAD
 /**
  * Computes the ConditionalTransaction unsigned transaction pertaining to the
  * installation of the ETHBalanceRefundApp.
@@ -541,6 +621,121 @@ function addRefundAppToStateChannel(
  * @returns {ConditionalTransaction} A ConditionalTransaction object, ready to sign.
  */
 function constructConditionalTransactionForRefundApp(
+||||||| merged common ancestors
+function addUninstallRefundAppCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context,
+  appIdentityHash: string
+): UninstallCommitment {
+  const { multisigAddress } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  const newStateChannel = stateChannel.uninstallApp(
+    appIdentityHash,
+    {},
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  );
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
+
+  const freeBalance = stateChannel.freeBalance;
+
+  const uninstallCommitment = new UninstallCommitment(
+    context.network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    freeBalance.identity,
+    (freeBalance.state as unknown) as FreeBalanceState,
+    freeBalance.versionNumber,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
+  );
+
+  return uninstallCommitment;
+}
+
+function addMultisigSendCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
+  const {
+    recipient,
+    amount,
+    multisigAddress
+  } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  return new WithdrawETHCommitment(
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    recipient,
+    amount
+  );
+}
+
+function constructInstallOp(
+=======
+function addUninstallRefundAppCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context,
+  appIdentityHash: string
+): UninstallCommitment {
+  const { multisigAddress, tokenAddress } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  const newStateChannel = stateChannel.uninstallApp(
+    appIdentityHash,
+    {},
+    tokenAddress
+  );
+  context.stateChannelsMap.set(
+    newStateChannel.multisigAddress,
+    newStateChannel
+  );
+
+  const freeBalance = stateChannel.freeBalance;
+
+  const uninstallCommitment = new UninstallCommitment(
+    context.network,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    freeBalance.identity,
+    (freeBalance.state as unknown) as FreeBalanceState,
+    freeBalance.versionNumber,
+    freeBalance.timeout,
+    freeBalance.appSeqNo
+  );
+
+  return uninstallCommitment;
+}
+
+function addMultisigSendCommitmentToContext(
+  message: ProtocolMessage,
+  context: Context
+) {
+  const {
+    recipient,
+    amount,
+    multisigAddress
+  } = message.params as WithdrawParams;
+
+  const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
+
+  return new WithdrawETHCommitment(
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    recipient,
+    amount
+  );
+}
+
+function constructInstallOp(
+>>>>>>> Wire up token address to install and uninstall app functions
   network: NetworkContext,
   stateChannel: StateChannel
 ): ConditionalTransaction {

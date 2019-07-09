@@ -8,7 +8,7 @@ import { TAKE_ACTION_PROTOCOL } from "./take-action";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
 import { UNINSTALL_VIRTUAL_APP_PROTOCOL } from "./uninstall-virtual-app";
 import { UPDATE_PROTOCOL } from "./update";
-import { WITHDRAW_PROTOCOL } from "./withdraw-eth";
+import { WITHDRAW_PROTOCOL } from "./withdraw";
 
 const protocolsByName = {
   [Protocol.Install]: INSTALL_PROTOCOL,
