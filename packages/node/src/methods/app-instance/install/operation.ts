@@ -20,7 +20,7 @@ export async function install(
 
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
-  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+  const stateChannel = await store.getChannelFromstring(appInstanceId);
 
   const stateChannelsMap = await instructionExecutor.runInstallProtocol(
     new Map<string, StateChannel>([

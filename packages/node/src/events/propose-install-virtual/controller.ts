@@ -5,7 +5,7 @@ import {
 import { RequestHandler } from "../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../types";
 
-import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
+import { setstringForProposeInstallVirtual } from "./operation";
 
 /**
  *
@@ -16,7 +16,7 @@ export default async function proposeInstallVirtualEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {
-  await setAppInstanceIDForProposeInstallVirtual(
+  await setstringForProposeInstallVirtual(
     requestHandler.publicIdentifier,
     requestHandler.store,
     nodeMsg.data.params,

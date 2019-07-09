@@ -16,7 +16,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
 
   abstract getTransactionDetails(): MultisigTransaction;
 
-  public transaction(sigs: Signature[]): Transaction {
+  public getSignedTransaction(sigs: Signature[]): Transaction {
     const multisigInput = this.getTransactionDetails();
 
     const signatureBytes = signaturesToBytesSortedBySignerAddress(

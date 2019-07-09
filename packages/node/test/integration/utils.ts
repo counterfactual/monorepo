@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   NetworkContext,
   networkContextProps,
@@ -25,6 +24,7 @@ import {
   Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 import {
   initialEmptyTTTState,
@@ -86,7 +86,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.identityHash === appInstanceId;
   })[0];
 }
 
@@ -114,13 +114,15 @@ export async function getProposedAppInstanceInfo(
 
 export async function getFreeBalanceState(
   node: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
     params: {
-      multisigAddress
+      multisigAddress,
+      tokenAddress
     },
     jsonrpc: "2.0"
   });
@@ -159,12 +161,17 @@ export async function getApps(
 
 export function makeDepositRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.DEPOSIT,
-    params: { multisigAddress, amount },
+    params: {
+      multisigAddress,
+      amount,
+      tokenAddress
+    } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
 }
@@ -344,7 +351,7 @@ export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
   {}
 ) as NetworkContext;
 
-export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -356,7 +363,7 @@ export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateTakeActionRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   action: any
 ): Rpc {
   return jsonRpcDeserialize({
@@ -370,7 +377,7 @@ export function generateTakeActionRequest(
   });
 }
 
-export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateUninstallRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -382,7 +389,7 @@ export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateUninstallVirtualRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({
@@ -522,7 +529,7 @@ export async function confirmAppInstanceInstallation(
 ) {
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.id;
+  delete appInstanceInfo.identityHash;
   expect(appInstanceInfo).toEqual(proposedParams);
 }
 
@@ -644,7 +651,7 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
   });
 }
 
-export function createFundedFreeBalance(
+export function createFreeBalanceStateWithFundedETHAmounts(
   addresses: string[],
   amount: BigNumber
 ) {
@@ -656,7 +663,7 @@ export function createFundedFreeBalance(
     balance["amount"] = amount;
     balances.push(balance);
   }
-  ethFreeBalance[AddressZero] = balances;
+  ethFreeBalance[CONVENTION_FOR_ETH_TOKEN_ADDRESS] = balances;
 
   return ethFreeBalance;
 }

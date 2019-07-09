@@ -64,7 +64,7 @@ export class VirtualAppSetStateCommitment extends EthereumCommitment {
   }
 
   // overrides EthereumCommitment::Transaction
-  public transaction(
+  public getSignedTransaction(
     signatures: Signature[],
     intermediarySignature: Signature
   ): Transaction {

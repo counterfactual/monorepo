@@ -64,7 +64,7 @@ export function createAppInstance(stateChannel?: StateChannel) {
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
-    /* latestversionNumber */ 0,
+    /* latestVersionNumber */ 0,
     /* latestTimeout */ Math.ceil(1000 * Math.random()),
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],

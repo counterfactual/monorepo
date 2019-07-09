@@ -11,7 +11,10 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
-import { FreeBalanceState } from "../models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../models/free-balance";
 
 import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -49,7 +52,10 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     validateSignature(respondingAddress, uninstallCommitment, theirSig);
 
-    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = uninstallCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -74,7 +80,10 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    const finalCommitment = uninstallCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = uninstallCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -101,7 +110,11 @@ async function proposeStateTransition(
   context: Context,
   provider: BaseProvider
 ): Promise<[UninstallCommitment, string]> {
-  const { appIdentityHash, multisigAddress } = params as UninstallParams;
+  const {
+    appIdentityHash,
+    multisigAddress,
+    tokenAddress
+  } = params as UninstallParams;
   const { network, stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
@@ -115,7 +128,13 @@ async function proposeStateTransition(
     provider
   );
 
-  const newStateChannel = sc.uninstallApp(appIdentityHash, increments);
+  const newStateChannel = sc.uninstallApp(
+    appIdentityHash,
+    increments,
+    // installing/uninstalling apps with ERC20 is not yet supported
+    // so all installs/uninstalls default to ETH
+    tokenAddress ? tokenAddress : CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  );
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 

@@ -8,7 +8,7 @@ import mkdirp from "mkdirp";
 import os from "os";
 import path from "path";
 
-import { configureNetworkContext } from "./contract-deployments.jest";
+import { deployTestArtifactsToChain } from "./contract-deployments.jest";
 
 dotenvExtended.load();
 
@@ -63,7 +63,7 @@ export default async function() {
 
   const wallet = new Wallet(privateKeyA, provider);
 
-  const networkContext = await configureNetworkContext(wallet);
+  const networkContext = await deployTestArtifactsToChain(wallet);
   const data = {
     pgMnemonic,
     nodeAMnemonic,

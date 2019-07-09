@@ -37,7 +37,7 @@ describe("Set State Commitment", () => {
     // TODO: (question) Should there be a way to retrieve the version
     //       of this transaction sent to the multisig vs sent
     //       directly to the app registry?
-    tx = commitment.transaction([
+    tx = commitment.getSignedTransaction([
       /* NOTE: Passing in no signatures for test only */
     ]);
   });

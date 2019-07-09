@@ -1,7 +1,7 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { ABIEncoding, AppInstanceID } from "./simple-types";
+import { ABIEncoding } from "./simple-types";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -17,7 +17,7 @@ export type CoinTransferInterpreterParams = {
 };
 
 export type AppInstanceInfo = {
-  id: AppInstanceID;
+  identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
@@ -53,5 +53,11 @@ export enum TwoPartyFixedOutcome {
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
 
-export const ethBalanceRefundStateEncoding =
-  "tuple(address recipient, address multisig, uint256 threshold)";
+export const coinBalanceRefundStateEncoding = `
+  tuple(
+    address recipient,
+    address multisig,
+    uint256 threshold,
+    address token
+  )
+`;

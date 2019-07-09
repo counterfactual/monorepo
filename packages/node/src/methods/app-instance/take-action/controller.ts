@@ -32,7 +32,7 @@ export default class TakeActionController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+        await store.getMultisigAddressFromstring(appInstanceId)
       )
     ];
   }
@@ -67,7 +67,7 @@ export default class TakeActionController extends NodeController {
     const { store, publicIdentifier, instructionExecutor } = requestHandler;
     const { appInstanceId, action } = params;
 
-    const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+    const sc = await store.getChannelFromstring(appInstanceId);
 
     const respondingXpub = getCounterpartyAddress(
       publicIdentifier,
@@ -115,7 +115,7 @@ async function runTakeActionProtocol(
   respondingXpub: string,
   action: SolidityABIEncoderV2Type
 ) {
-  const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
+  const stateChannel = await store.getChannelFromstring(appIdentityHash);
 
   let stateChannelsMap: Map<string, StateChannel>;
 

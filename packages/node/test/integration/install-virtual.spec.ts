@@ -90,7 +90,9 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
             expect(proposedAppNodeC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
-            expect(proposedAppNodeA.id).toEqual(proposedAppNodeC.id);
+            expect(proposedAppNodeA.identityHash).toEqual(
+              proposedAppNodeC.identityHash
+            );
             installTTTVirtual(nodeC, appInstanceId, intermediaries);
           }
         );

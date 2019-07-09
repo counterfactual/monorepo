@@ -6,7 +6,7 @@ import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import ganache from "ganache-core";
 
-import { configureNetworkContext } from "./contract-deployments.jest";
+import { deployTestArtifactsToChain } from "./contract-deployments.jest";
 
 dotenvExtended.load();
 
@@ -26,12 +26,7 @@ export class Chain {
     const balance = parseEther(initialBalance).toString();
     this.fundedPrivateKey = Wallet.createRandom().privateKey;
 
-    const accounts: object[] = [
-      {
-        balance,
-        secretKey: this.fundedPrivateKey
-      }
-    ];
+    const accounts: object[] = [];
 
     mnemonics.forEach(mnemonic => {
       const entry = {
@@ -39,6 +34,10 @@ export class Chain {
         secretKey: fromMnemonic(mnemonic).derivePath(CF_PATH).privateKey
       };
       accounts.push(entry);
+    });
+    accounts.push({
+      balance,
+      secretKey: this.fundedPrivateKey
     });
 
     this.server = ganache.server({
@@ -53,7 +52,7 @@ export class Chain {
 
   async createConfiguredChain(): Promise<NetworkContext> {
     const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    this.networkContext = await configureNetworkContext(wallet);
+    this.networkContext = await deployTestArtifactsToChain(wallet);
     return this.networkContext;
   }
 }

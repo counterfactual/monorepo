@@ -12,7 +12,7 @@ import { SetStateCommitment } from "../../../src/ethereum";
 import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { createFundedFreeBalance } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -72,7 +72,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(
-        createFundedFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           parseEther("20")
         )
@@ -133,7 +133,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         targetAppInstance.timeout
       );
 
-      const setStateTx = setStateCommitment.transaction([
+      const setStateTx = setStateCommitment.getSignedTransaction([
         // TODO: Replace with k-th signing keys later
         multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
@@ -155,7 +155,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       });
 
       await wallet.sendTransaction({
-        ...commitment.transaction([
+        ...commitment.getSignedTransaction([
           multisigOwnerKeys[0].signDigest(commitment.hashToSign()),
           multisigOwnerKeys[1].signDigest(commitment.hashToSign())
         ]),
