@@ -6,9 +6,19 @@ import { MaxUint256 } from "ethers/constants";
 import { defaultAbiCoder } from "ethers/utils";
 
 import {
+<<<<<<< HEAD
   ConditionalTransaction,
   SetStateCommitment,
   WithdrawETHCommitment
+||||||| merged common ancestors
+  InstallCommitment,
+  UninstallCommitment,
+  WithdrawETHCommitment
+=======
+  InstallCommitment,
+  UninstallCommitment,
+  WithdrawCommitment
+>>>>>>> Remove ETH from names
 } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
@@ -62,10 +72,21 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       multisigAddress
     )!;
 
+<<<<<<< HEAD
     const respondingAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
       respondingXpub
+||||||| merged common ancestors
+    const withdrawETHCommitment = addMultisigSendCommitmentToContext(
+      context.message,
+      context
+=======
+    const withdrawCommitment = addMultisigSendCommitmentToContext(
+      context.message,
+      context
+>>>>>>> Remove ETH from names
     );
 
+<<<<<<< HEAD
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
       preInstallRefundAppStateChannel,
       params as WithdrawParams,
@@ -73,6 +94,13 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const refundApp = postInstallRefundAppStateChannel.mostRecentlyInstalledAppInstance();
+||||||| merged common ancestors
+    const s1 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s3 = yield [Opcode.OP_SIGN, withdrawETHCommitment];
+=======
+    const s1 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s3 = yield [Opcode.OP_SIGN, withdrawCommitment];
+>>>>>>> Remove ETH from names
 
     const conditionalTransactionData = constructConditionalTransactionForRefundApp(
       network,
@@ -150,6 +178,7 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
+<<<<<<< HEAD
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
@@ -213,6 +242,15 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
+||||||| merged common ancestors
+    validateSignature(respondingAddress, installRefundCommitment, s2);
+    validateSignature(respondingAddress, withdrawETHCommitment, s4);
+    validateSignature(respondingAddress, uninstallRefundCommitment, s6);
+=======
+    validateSignature(respondingAddress, installRefundCommitment, s2);
+    validateSignature(respondingAddress, withdrawCommitment, s4);
+    validateSignature(respondingAddress, uninstallRefundCommitment, s6);
+>>>>>>> Remove ETH from names
 
     const mySignatureOnUninstallCommitment = yield [
       Opcode.OP_SIGN,
@@ -230,12 +268,21 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       }
     ];
 
+<<<<<<< HEAD
     const signedWithdrawalCommitment = withdrawETHCommitment.getSignedTransaction(
       [
         mySignatureOnWithdrawalCommitment,
         counterpartySignatureOnWithdrawalCommitment
       ]
     );
+||||||| merged common ancestors
+    const finalCommitment = withdrawETHCommitment.getSignedTransaction([
+      s3,
+      s4
+    ]);
+=======
+    const finalCommitment = withdrawCommitment.getSignedTransaction([s3, s4]);
+>>>>>>> Remove ETH from names
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -297,10 +344,20 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       initiatingXpub
     );
 
+<<<<<<< HEAD
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
       preInstallRefundAppStateChannel,
       params as WithdrawParams,
       network
+||||||| merged common ancestors
+    const withdrawETHCommitment = addMultisigSendCommitmentToContext(
+      context.message,
+      context
+=======
+    const withdrawCommitment = addMultisigSendCommitmentToContext(
+      context.message,
+      context
+>>>>>>> Remove ETH from names
     );
 
     const refundApp = postInstallRefundAppStateChannel.mostRecentlyInstalledAppInstance();
@@ -321,18 +378,43 @@ export const WITHDRAW_ETH_PROTOCOL: ProtocolExecutionFlow = {
       conditionalTransactionData
     ];
 
+<<<<<<< HEAD
     const signedConditionalTransaction = conditionalTransactionData.getSignedTransaction(
       [
         mySignatureOnConditionalTransaction,
         counterpartySignatureOnConditionalTransaction
       ]
     );
+||||||| merged common ancestors
+    validateSignature(initiatingAddress, withdrawETHCommitment, s3);
+=======
+    validateSignature(initiatingAddress, withdrawCommitment, s3);
+>>>>>>> Remove ETH from names
 
+<<<<<<< HEAD
     context.stateChannelsMap.set(
       postInstallRefundAppStateChannel.multisigAddress,
       postInstallRefundAppStateChannel
     );
+||||||| merged common ancestors
+    const s2 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s4 = yield [Opcode.OP_SIGN, withdrawETHCommitment];
+    const s6 = yield [Opcode.OP_SIGN, uninstallRefundCommitment];
+=======
+    const s2 = yield [Opcode.OP_SIGN, installRefundCommitment];
+    const s4 = yield [Opcode.OP_SIGN, withdrawCommitment];
+    const s6 = yield [Opcode.OP_SIGN, uninstallRefundCommitment];
+>>>>>>> Remove ETH from names
 
+<<<<<<< HEAD
+||||||| merged common ancestors
+    const finalCommitment = withdrawETHCommitment.getSignedTransaction([
+      s3,
+      s4
+    ]);
+=======
+    const finalCommitment = withdrawCommitment.getSignedTransaction([s3, s4]);
+>>>>>>> Remove ETH from names
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
@@ -669,7 +751,7 @@ function addMultisigSendCommitmentToContext(
 
   const stateChannel = context.stateChannelsMap.get(multisigAddress)!;
 
-  return new WithdrawETHCommitment(
+  return new WithdrawCommitment(
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
     recipient,

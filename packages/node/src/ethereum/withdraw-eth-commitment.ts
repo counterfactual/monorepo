@@ -3,7 +3,7 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 
-export class WithdrawETHCommitment extends MultisigCommitment {
+export class WithdrawCommitment extends MultisigCommitment {
   public constructor(
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
