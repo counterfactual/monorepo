@@ -491,7 +491,10 @@ export class Provider {
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
-    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const appInstance = await this.getOrCreateAppInstance(
+      info.identityHash,
+      info
+    );
     const event = {
       type: EventType.REJECT_INSTALL,
       data: {

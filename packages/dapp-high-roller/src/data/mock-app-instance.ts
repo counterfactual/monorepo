@@ -34,7 +34,7 @@ export class AppInstance {
   //   private readonly eventEmitter: EventEmitter = new EventEmitter();
 
   constructor(info: AppInstanceInfo, readonly provider: cf.Provider) {
-    this.id = info.id;
+    this.id = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
     this.myDeposit = info.myDeposit;

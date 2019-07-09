@@ -1,7 +1,7 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { ABIEncoding, AppInstanceID } from "./simple-types";
+import { ABIEncoding } from "./simple-types";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -17,7 +17,7 @@ export type CoinTransferInterpreterParams = {
 };
 
 export type AppInstanceInfo = {
-  id: AppInstanceID;
+  identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;

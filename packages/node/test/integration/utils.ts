@@ -87,7 +87,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.identityHash === appInstanceId;
   })[0];
 }
 
@@ -530,7 +530,7 @@ export async function confirmAppInstanceInstallation(
 ) {
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.id;
+  delete appInstanceInfo.identityHash;
   expect(appInstanceInfo).toEqual(proposedParams);
 }
 

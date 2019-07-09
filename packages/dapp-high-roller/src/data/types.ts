@@ -17,7 +17,7 @@ export interface SignedStateHashUpdate {
 }
 
 export type AppInstanceInfo = {
-  id: AppInstanceID;
+  identityHash: AppInstanceID;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
