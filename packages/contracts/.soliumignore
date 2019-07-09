@@ -1,3 +1,4 @@
 node_modules
 coverageEnv
 contracts/interpreters/CoinTransferETHInterpreter.sol
+contracts/interpreters/SwapInterpreter.sol
