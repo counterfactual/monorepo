@@ -11,6 +11,7 @@ class NodeEnvironment extends NodeJSEnvironment {
 
   async setup() {
     await super.setup();
+
     const chain = global["chain"];
 
     this.global.networkContext = chain.networkContext;

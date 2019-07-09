@@ -5,7 +5,7 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
-contract TwoPartyEthAsLump is Interpreter {
+contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
 
   struct Params {
     address payable[2] playerAddrs;

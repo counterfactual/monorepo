@@ -42,6 +42,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       it("sends proposal with non-null initial state", async done => {
         await createChannel(nodeA, nodeB);
         await createChannel(nodeB, nodeC);
+
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
 
         nodeA.on(
@@ -56,6 +57,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           async (msg: ProposeVirtualMessage) => {
             const { appInstanceId } = msg.data;
+
             const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
@@ -63,6 +65,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
               proposalParams,
               proposedAppInstanceA
             );
+
             confirmProposedVirtualAppInstanceOnNode(
               proposalParams,
               proposedAppInstanceC
@@ -76,12 +79,15 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             );
 
             const rejectReq = makeRejectInstallRequest(appInstanceId);
+
             await nodeC.call(rejectReq.type, rejectReq);
+
             expect((await getProposedAppInstances(nodeC)).length).toEqual(0);
           }
         );
 
         const result = await makeVirtualProposeCall(nodeA, nodeC, nodeB);
+
         proposalParams = result.params;
       });
     }

@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { ContractABI } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
@@ -40,21 +41,24 @@ describe("Node method follows spec - deposit", () => {
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    for (const key in freeBalanceState) {
-      expect(freeBalanceState[key]).toEqual(One);
-    }
+
+    expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 
-  it("has the right balance for both parties after deposits of ERC20 tokens and ETH", async () => {
+  it("updates balances correctly when depositing both ERC20 tokens and ETH", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
-    const erc20ContractAddress = global["networkContext"]["DolphinCoin"];
+
+    const erc20ContractAddress = (global[
+      "networkContext"
+    ] as NetworkContextForTestSuite).DolphinCoin;
+
     const erc20Contract = new Contract(
       erc20ContractAddress,
       DolphinCoin.abi,
       new JsonRpcProvider(global["ganacheURL"])
     );
 
-    let depositReq = makeDepositRequest(
+    const erc20DepositRequest = makeDepositRequest(
       multisigAddress,
       One,
       erc20ContractAddress
@@ -64,7 +68,9 @@ describe("Node method follows spec - deposit", () => {
       await erc20Contract.functions.balanceOf(await nodeA.signerAddress())
     ).toEqual(Zero);
 
-    await expect(nodeA.router.dispatch(depositReq)).rejects.toThrowError(
+    await expect(
+      nodeA.router.dispatch(erc20DepositRequest)
+    ).rejects.toThrowError(
       INSUFFICIENT_ERC20_FUNDS(await nodeA.signerAddress(), One, Zero)
     );
 
@@ -72,12 +78,14 @@ describe("Node method follows spec - deposit", () => {
     await transferERC20Tokens(await nodeB.signerAddress());
 
     let preDepositBalance = await provider.getBalance(multisigAddress);
-    await nodeA.router.dispatch(depositReq);
-    await nodeB.router.dispatch(depositReq);
+
+    await nodeA.router.dispatch(erc20DepositRequest);
+    await nodeB.router.dispatch(erc20DepositRequest);
 
     expect(await provider.getBalance(multisigAddress)).toEqual(
       preDepositBalance
     );
+
     expect(await erc20Contract.functions.balanceOf(multisigAddress)).toEqual(
       Two
     );
@@ -96,17 +104,19 @@ describe("Node method follows spec - deposit", () => {
 
     // now deposits ETH
 
-    depositReq = makeDepositRequest(multisigAddress, One);
+    const ethDepositReq = makeDepositRequest(multisigAddress, One);
 
     preDepositBalance = await provider.getBalance(multisigAddress);
-    await nodeA.router.dispatch(depositReq);
-    await nodeB.router.dispatch(depositReq);
+
+    await nodeA.router.dispatch(ethDepositReq);
+    await nodeB.router.dispatch(ethDepositReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       preDepositBalance.add(2).toNumber()
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+
     expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 });
@@ -145,6 +155,7 @@ async function confirmEthAndERC20FreeBalances(
   erc20ContractAddress: string
 ) {
   const ethFreeBalanceState = await getFreeBalanceState(node, multisigAddress);
+
   expect(Object.values(ethFreeBalanceState)).toMatchObject([Zero, Zero]);
 
   const dolphinCoinFreeBalance = await getFreeBalanceState(

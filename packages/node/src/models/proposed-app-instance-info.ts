@@ -1,9 +1,7 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
-  Bytes32,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -13,8 +11,10 @@ import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
+
 export interface IProposedAppInstanceInfo {
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumberish;
   peerDeposit: BigNumberish;
@@ -28,7 +28,7 @@ export interface IProposedAppInstanceInfo {
 
 export interface ProposedAppInstanceInfoJSON {
   identityHash: string;
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };
   peerDeposit: { _hex: string };
@@ -52,7 +52,7 @@ export interface ProposedAppInstanceInfoJSON {
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
   identityHash: string;
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -66,7 +66,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   constructor(
     proposeParams: IProposedAppInstanceInfo,
     channel?: StateChannel,
-    overrideId?: Bytes32
+    overrideId?: string
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
@@ -126,7 +126,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       // computation
       undefined,
       {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit)
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
 

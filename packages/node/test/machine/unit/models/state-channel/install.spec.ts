@@ -4,7 +4,10 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getETHBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getBalancesFromFreeBalanceAppInstance
+} from "../../../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../../../integration/utils";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
@@ -25,7 +28,7 @@ describe("StateChannel::uninstallApp", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       xpubs
     );
@@ -71,7 +74,10 @@ describe("StateChannel::uninstallApp", () => {
 
     it("should have updated balances for Alice and Bob", () => {
       for (const amount of Object.values(
-        getETHBalancesFromFreeBalanceAppInstance(fb)
+        getBalancesFromFreeBalanceAppInstance(
+          fb,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
       )) {
         expect(amount).toEqual(Zero);
       }

@@ -13,7 +13,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { validateSignature } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -45,7 +45,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    validateSignature(
+    assertIsValidSignature(
       xkeyKthAddress(respondingXpub, appSeqNo),
       setStateCommitment,
       theirSig
@@ -74,7 +74,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.signature!;
 
-    validateSignature(
+    assertIsValidSignature(
       xkeyKthAddress(initiatingXpub, appSeqNo),
       setStateCommitment,
       theirSig

@@ -9,7 +9,7 @@ export async function uninstallAppInstanceFromChannel(
   respondingXpub: string,
   appInstanceId: string
 ): Promise<void> {
-  const stateChannel = await store.getChannelFromstring(appInstanceId);
+  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 

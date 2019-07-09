@@ -1,6 +1,6 @@
-import { Address, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 
-import { virtualChannelKey } from "../../../machine";
+import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
 import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { getChannelFromPeerAddress } from "../../../utils";
@@ -68,8 +68,8 @@ export function getNextNodeAddress(
 }
 
 export function isNodeIntermediary(
-  thisAddress: Address,
-  intermediaries: Address[]
+  thisAddress: string,
+  intermediaries: string[]
 ): boolean {
   return intermediaries.includes(thisAddress);
 }
@@ -94,10 +94,11 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
         .includes(NO_CHANNEL_BETWEEN_NODES(initiatingXpub, respondingXpub)) &&
       intermediaries !== undefined
     ) {
-      const key = virtualChannelKey(
+      const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
         [initiatingXpub, respondingXpub],
         intermediaries[0]
       );
+
       stateChannel = StateChannel.createEmptyChannel(key, [
         initiatingXpub,
         respondingXpub

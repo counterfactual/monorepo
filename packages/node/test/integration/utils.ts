@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import {
   Address,
   AppABIEncodings,
@@ -24,13 +25,17 @@ import {
   Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../../src/models/free-balance";
 
 import {
   initialEmptyTTTState,
   tttActionEncoding,
   tttStateEncoding
 } from "./tic-tac-toe";
+
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -445,7 +450,7 @@ export async function installTTTApp(
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
-      global["networkContext"].TicTacToe,
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
       initialTTTState
     );
 
@@ -557,7 +562,7 @@ export async function makeTTTVirtualProposal(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
     Zero
@@ -606,11 +611,13 @@ export async function makeVirtualProposeCall(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
   );
+
   const response = (await nodeA.router.dispatch(
     virtualAppInstanceProposalRequest
   )) as JsonRpcResponse;
+
   return {
     appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
       .appInstanceId,
@@ -628,7 +635,7 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     {},
     One,
     Zero
@@ -654,16 +661,14 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
 export function createFreeBalanceStateWithFundedETHAmounts(
   addresses: string[],
   amount: BigNumber
-) {
-  const ethFreeBalance = {};
-  const balances: {}[] = [];
-  for (let i = 0; i < addresses.length; i += 1) {
-    const balance = {};
-    balance["to"] = addresses[i];
-    balance["amount"] = amount;
-    balances.push(balance);
-  }
-  ethFreeBalance[CONVENTION_FOR_ETH_TOKEN_ADDRESS] = balances;
-
-  return ethFreeBalance;
+): FreeBalanceState {
+  return {
+    activeAppsMap: {},
+    balancesIndexedByToken: {
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
+        to,
+        amount
+      }))
+    }
+  };
 }

@@ -4,14 +4,17 @@ import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero, HashZero, Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber, Interface, parseEther } from "ethers/utils";
+import { defaultAbiCoder, Interface, parseEther } from "ethers/utils";
 
-import { SetStateCommitment } from "../../../src/ethereum";
-import { TwoPartyVirtualEthAsLumpCommitment } from "../../../src/ethereum/two-party-virtual-eth-as-lump-commitment";
+import {
+  ConditionalTransaction,
+  SetStateCommitment
+} from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -25,6 +28,29 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
+
+/**
+ * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
+ *
+ * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
+ *       know how to interpret it. However, the encoder encodes it the same way
+ *       without specifying it anyway, so that's why beneficiaries is address[2]
+ *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.
+ *
+ */
+const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
+  tuple(
+    uint256 capitalProvided,
+    uint256 expiryBlock,
+    address[2] beneficiaries
+  )
+`;
+
+const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
+  defaultAbiCoder.encode(
+    [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
+    [params]
+  );
 
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -67,8 +93,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
     );
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      const stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+      let stateChannel = StateChannel.setupChannel(
+        network.FreeBalanceApp,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(
@@ -89,12 +115,12 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         {
           // appInterface
           addr: twoPartyFixedOutcomeAppDefinition.address,
-          stateEncoding: "",
+          stateEncoding: "uint256",
           actionEncoding: undefined
         },
         true, // virtual
         0, // app sequence number
-        {}, // latest state
+        2, // latest state
         1, // latest versionNumber
         0, // latest timeout
         {
@@ -104,25 +130,25 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         undefined
       );
 
-      const beneficiaries = [
+      const beneficiaries: [string, string] = [
         Wallet.createRandom().address,
         Wallet.createRandom().address
       ];
 
-      const commitment = new TwoPartyVirtualEthAsLumpCommitment(
-        network, // network
-        proxyAddress, // multisigAddress
-        multisigOwnerKeys.map(x => x.address), // signing
-        targetAppInstance.identityHash, // target
-        freeBalanceETH.identity, // fb AI
-        freeBalanceETH.hashOfLatestState, // fb state hash
-        freeBalanceETH.versionNumber, // fb versionNumber
-        freeBalanceETH.timeout, // fb timeout
-        0, // dependency nonce
-        new BigNumber(0), // expiry
-        new BigNumber(10), // 10 wei
-        beneficiaries, // beneficiaries
-        HashZero
+      const agreement = {
+        beneficiaries,
+        capitalProvided: parseEther("10"),
+        expiryBlock: (await provider.getBlockNumber()) + 1000
+      };
+
+      stateChannel = stateChannel.addSingleAssetTwoPartyIntermediaryAgreement(
+        targetAppInstance.identityHash,
+        agreement,
+        {
+          [multisigOwnerKeys[0].address]: parseEther("5"),
+          [multisigOwnerKeys[1].address]: parseEther("5")
+        },
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
       const setStateCommitment = new SetStateCommitment(
@@ -144,9 +170,34 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
+      const setStateCommitmentForFreeBalance = new SetStateCommitment(
+        network,
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.hashOfLatestState,
+        stateChannel.freeBalance.versionNumber,
+        0 // make the timeout 0 so this ends without a challenge timeout
+      );
+
+      await wallet.sendTransaction({
+        ...setStateCommitmentForFreeBalance.getSignedTransaction([
+          multisigOwnerKeys[0].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          ),
+          multisigOwnerKeys[1].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          )
+        ]),
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
       await appRegistry.functions.setOutcome(
         targetAppInstance.identity,
         targetAppInstance.encodedLatestState
+      );
+
+      await appRegistry.functions.setOutcome(
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.encodedLatestState
       );
 
       await wallet.sendTransaction({
@@ -154,16 +205,31 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         value: parseEther("10")
       });
 
+      const commitment = new ConditionalTransaction(
+        network, // network
+        proxyAddress, // multisigAddress
+        multisigOwnerKeys.map(x => x.address), // signing
+        targetAppInstance.identityHash, // target
+        freeBalanceETH.identityHash, // fb
+        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+      );
+
       await wallet.sendTransaction({
         ...commitment.getSignedTransaction([
           multisigOwnerKeys[0].signDigest(commitment.hashToSign()),
           multisigOwnerKeys[1].signDigest(commitment.hashToSign())
         ]),
-        gasLimit: SETSTATE_COMMITMENT_GAS
+        gasLimit: 6e9
       });
 
-      expect(await provider.getBalance(beneficiaries[0])).toBeEq(5);
-      expect(await provider.getBalance(beneficiaries[1])).toBeEq(5);
+      expect(await provider.getBalance(beneficiaries[0])).toBeEq(
+        parseEther("5")
+      );
+
+      expect(await provider.getBalance(beneficiaries[1])).toBeEq(
+        parseEther("5")
+      );
 
       done();
     });

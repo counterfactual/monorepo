@@ -1,18 +1,22 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
+import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import ETHBucket from "@counterfactual/contracts/build/ETHBucket.json";
-import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
+import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
+import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import MultiSend from "@counterfactual/contracts/build/MultiSend.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyEthAsLump from "@counterfactual/contracts/build/TwoPartyEthAsLump.json";
-import TwoPartyVirtualEthAsLump from "@counterfactual/contracts/build/TwoPartyVirtualEthAsLump.json";
-import UninstallKeyRegistry from "@counterfactual/contracts/build/UninstallKeyRegistry.json";
+import TwoPartyFixedOutcomeETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeETHInterpreter.json";
+import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
+
+export type NetworkContextForTestSuite = NetworkContext & {
+  TicTacToeApp: string;
+  DolphinCoin: string;
+};
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
   const coinBalanceRefundContract = await new ContractFactory(
@@ -27,9 +31,15 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const ethBucketContract = await new ContractFactory(
-    ETHBucket.abi,
-    ETHBucket.bytecode,
+  const freeBalanceAppContract = await new ContractFactory(
+    FreeBalanceApp.abi,
+    FreeBalanceApp.bytecode,
+    wallet
+  ).deploy();
+
+  const identityApp = await new ContractFactory(
+    IdentityApp.abi,
+    IdentityApp.bytecode,
     wallet
   ).deploy();
 
@@ -45,39 +55,21 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const tttContract = await new ContractFactory(
-    TicTacToeApp.abi,
-    TicTacToeApp.bytecode,
+  const coinTransferETHInterpreter = await new ContractFactory(
+    CoinTransferETHInterpreter.abi,
+    CoinTransferETHInterpreter.bytecode,
     wallet
   ).deploy();
 
-  const ethInterpreter = await new ContractFactory(
-    ETHInterpreter.abi,
-    ETHInterpreter.bytecode,
+  const twoPartyFixedOutcomeETHInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeETHInterpreter.abi,
+    TwoPartyFixedOutcomeETHInterpreter.bytecode,
     wallet
   ).deploy();
 
-  const twoPartyEthAsLump = await new ContractFactory(
-    TwoPartyEthAsLump.abi,
-    TwoPartyEthAsLump.bytecode,
-    wallet
-  ).deploy();
-
-  const appRegistry = await new ContractFactory(
+  const challengeRegistry = await new ContractFactory(
     ChallengeRegistry.abi,
     ChallengeRegistry.bytecode,
-    wallet
-  ).deploy();
-
-  const multiSend = await new ContractFactory(
-    MultiSend.abi,
-    MultiSend.bytecode,
-    wallet
-  ).deploy();
-
-  const uninstallKeyRegistry = await new ContractFactory(
-    UninstallKeyRegistry.abi,
-    UninstallKeyRegistry.bytecode,
     wallet
   ).deploy();
 
@@ -87,26 +79,33 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const twoPartyVirtualEthAsLump = await new ContractFactory(
-    TwoPartyVirtualEthAsLump.abi,
-    TwoPartyVirtualEthAsLump.bytecode,
+  const twoPartyFixedOutcomeFromVirtualAppETHInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.abi,
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.bytecode,
+    wallet
+  ).deploy();
+
+  const tttContract = await new ContractFactory(
+    TicTacToeApp.abi,
+    TicTacToeApp.bytecode,
     wallet
   ).deploy();
 
   return {
-    CoinBalanceRefundApp: coinBalanceRefundContract.address,
-    DolphinCoin: dolphinCoin.address,
-    ETHBucket: ethBucketContract.address,
-    MinimumViableMultisig: mvmContract.address,
-    ProxyFactory: proxyFactoryContract.address,
-    TicTacToe: tttContract.address,
-    ETHInterpreter: ethInterpreter.address,
-    TwoPartyEthAsLump: twoPartyEthAsLump.address,
-    ChallengeRegistry: appRegistry.address,
-    MultiSend: multiSend.address,
-    UninstallKeyRegistry: uninstallKeyRegistry.address,
+    ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
-    TwoPartyVirtualEthAsLump: twoPartyVirtualEthAsLump.address
-  } as NetworkContext;
+    FreeBalanceApp: freeBalanceAppContract.address,
+    IdentityApp: identityApp.address,
+    CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    CoinBalanceRefundApp: coinBalanceRefundContract.address,
+    DolphinCoin: dolphinCoin.address,
+    MinimumViableMultisig: mvmContract.address,
+    ProxyFactory: proxyFactoryContract.address,
+    TicTacToeApp: tttContract.address,
+    TwoPartyFixedOutcomeETHInterpreter:
+      twoPartyFixedOutcomeETHInterpreter.address,
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+  } as NetworkContextForTestSuite;
 }

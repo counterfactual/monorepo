@@ -49,8 +49,9 @@ export async function installBalanceRefundApp(
     multisigAddress
   );
 
-  const stateChannel = await store.getStateChannel(params.multisigAddress);
-  const channelsMap = new Map<string, StateChannel>([
+  const stateChannel = await store.getStateChannel(multisigAddress);
+
+  const stateChannelsMap = new Map<string, StateChannel>([
     [stateChannel.multisigAddress, stateChannel]
   ]);
 
@@ -73,15 +74,16 @@ export async function installBalanceRefundApp(
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: OutcomeType.COIN_TRANSFER
+    outcomeType: OutcomeType.COIN_TRANSFER,
+    tokenAddress: tokenAddress! // params object is mutated in caller
   };
 
-  const stateChannelsMap = await instructionExecutor.runInstallProtocol(
-    channelsMap,
+  const updatedStateChannelsMap = await instructionExecutor.runInstallProtocol(
+    stateChannelsMap,
     installParams
   );
 
-  await store.saveStateChannel(stateChannelsMap.get(params.multisigAddress)!);
+  await store.saveStateChannel(updatedStateChannelsMap.get(multisigAddress)!);
 }
 
 export async function makeDeposit(
@@ -152,7 +154,8 @@ export async function uninstallBalanceRefundApp(
     networkContext
   } = requestHandler;
 
-  const { multisigAddress, tokenAddress } = params;
+  const { multisigAddress } = params;
+
   const { CoinBalanceRefundApp } = networkContext;
 
   const [peerAddress] = await getPeersAddressFromChannel(
@@ -171,7 +174,6 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      tokenAddress,
       initiatingXpub: publicIdentifier,
       respondingXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
@@ -192,6 +194,7 @@ async function getDepositContext(
   tokenAddress: string
 ): Promise<DepositContext> {
   const { multisigAddress } = params;
+
   const threshold =
     tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS
       ? await provider.getBalance(multisigAddress)

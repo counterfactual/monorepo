@@ -1,4 +1,3 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -18,30 +17,34 @@ import { HARD_CODED_ASSUMPTIONS } from "./state-channel";
  */
 export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
-export interface PartyBalanceMap {
+export type CoinTransferMap = {
   [to: string]: BigNumber;
-}
+};
 
-export interface PartyBalance {
+export type CoinTransfer = {
   to: string;
   amount: BigNumber;
-}
+};
 
-export interface HexPartyBalance {
+export type CoinTransferJSON = {
   to: string;
   amount: {
     _hex: string;
   };
-}
+};
 
-export interface FreeBalanceState {
-  [tokenAddress: string]: PartyBalance[];
-}
+export type ActiveAppsMap = { [appInstanceIdentityHash: string]: true };
 
-export interface HexFreeBalanceState {
+export type FreeBalanceState = {
+  activeAppsMap: ActiveAppsMap;
+  balancesIndexedByToken: { [tokenAddress: string]: CoinTransfer[] };
+};
+
+export type FreeBalanceStateJSON = {
   tokens: string[];
-  balances: HexPartyBalance[][];
-}
+  balances: CoinTransferJSON[][];
+  activeApps: string[];
+};
 
 /**
  * Note that the state of the Free Balance is held as plain types
@@ -58,20 +61,18 @@ export function createFreeBalance(
     0 // NOTE: We re-use 0 which is also used as the keys for `multisigOwners`
   );
 
-  // Making these values constants to be extremely explicit about
-  // the built-in assumption here.
-  const beneficiaryForPerson1 = sortedTopLevelKeys[0];
-  const beneficiaryForPerson2 = sortedTopLevelKeys[1];
-
-  const state: FreeBalanceState = {};
-  const ethBalances: PartyBalance[] = [];
-  for (const beneficiary of [beneficiaryForPerson1, beneficiaryForPerson2]) {
-    ethBalances.push({
-      to: beneficiary,
-      amount: Zero
-    });
-  }
-  state[AddressZero] = ethBalances;
+  const initialState: FreeBalanceState = {
+    activeAppsMap: {},
+    balancesIndexedByToken: {
+      // NOTE: Extremely important to understand that the default
+      // addresses of the recipients are the "top level keys" as defined
+      // as the 0th derived children of the xpubs.
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: [
+        { to: sortedTopLevelKeys[0], amount: Zero },
+        { to: sortedTopLevelKeys[1], amount: Zero }
+      ]
+    }
+  };
 
   return new AppInstance(
     multisigAddress,
@@ -80,92 +81,105 @@ export function createFreeBalance(
     getCoinBucketAppInterface(coinBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
-    convertFreeBalanceStateToSerializableObject(state),
+    serializeFreeBalanceState(initialState),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: MaxUint256 }
+    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS }
   );
 }
 
-export function convertPartyBalancesToMap(
-  partyBalances: PartyBalance[]
-): PartyBalanceMap {
-  const balances = {};
-  for (const balance of partyBalances) {
-    balances[balance.to] = balance.amount;
-  }
-  return balances;
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
 }
 
-export function convertPartyBalancesFromMap(
-  partyBalancesMap: PartyBalanceMap
-): PartyBalance[] {
-  const balances: PartyBalance[] = [];
-  for (const addr of Object.keys(partyBalancesMap)) {
+export function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  const balances: CoinTransfer[] = [];
+
+  for (const addr of Object.keys(coinTransfersMap)) {
     balances.push({
       to: addr,
-      amount: partyBalancesMap[addr]
+      amount: coinTransfersMap[addr]
     });
   }
+
   return balances;
 }
 
-export function convertFreeBalanceStateFromSerializableObject(
-  plainFreeBalanceState: HexFreeBalanceState
-): FreeBalanceState {
-  const state: FreeBalanceState = {};
-  for (
-    let tokenIndex = 0;
-    tokenIndex < plainFreeBalanceState.tokens.length;
-    tokenIndex += 1
-  ) {
-    const tokenAddress = plainFreeBalanceState.tokens[tokenIndex];
-    const balances = plainFreeBalanceState.balances[tokenIndex].map(
-      plainCoinBucket => {
-        return {
-          to: plainCoinBucket.to,
-          amount: bigNumberify(plainCoinBucket.amount._hex)
-        };
-      }
-    );
-    state[tokenAddress] = balances;
-  }
-
-  return state;
-}
-
-export function convertFreeBalanceStateToSerializableObject(
-  freeBalanceState: FreeBalanceState
-): SolidityABIEncoderV2Type {
-  const state: HexFreeBalanceState = {
-    tokens: [],
-    balances: []
-  };
-
-  for (const tokenAddress of Object.keys(freeBalanceState)) {
-    state["tokens"].push(tokenAddress);
-    const balances = freeBalanceState[tokenAddress].map(coinBucket => {
-      return {
-        to: coinBucket.to,
-        amount: {
-          _hex: coinBucket.amount.toHexString()
-        }
-      };
-    });
-    state["balances"].push(balances);
-  }
-
-  return (state as unknown) as SolidityABIEncoderV2Type;
-}
-
-export function getETHBalancesFromFreeBalanceAppInstance(
-  fb: AppInstance
-): PartyBalanceMap {
-  return convertPartyBalancesToMap(
-    convertFreeBalanceStateFromSerializableObject(
-      (fb.state as unknown) as HexFreeBalanceState
-    )[AddressZero]
+/**
+ * Given an AppInstance whose state is HexFreeBalanceState, convert the state
+ * into the locally more convenient data type CoinTransferMap and return that.
+ *
+ * Note that this function will also default the `to` addresses of a new token
+ * to the 0th signing keys of the FreeBalanceApp AppInstance.
+ *
+ * @export
+ * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
+ *
+ * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokens
+ */
+export function getBalancesFromFreeBalanceAppInstance(
+  freeBalanceAppInstance: AppInstance,
+  tokenAddress: string
+): CoinTransferMap {
+  const freeBalanceState = deserializeFreeBalanceState(
+    freeBalanceAppInstance.state as FreeBalanceStateJSON
   );
+
+  const coinTransfers = freeBalanceState.balancesIndexedByToken[
+    tokenAddress
+  ] || [
+    { to: freeBalanceAppInstance.signingKeys[0], amount: Zero },
+    { to: freeBalanceAppInstance.signingKeys[1], amount: Zero }
+  ];
+
+  return convertCoinTransfersToCoinTransfersMap(coinTransfers);
+}
+
+export function deserializeFreeBalanceState(
+  freeBalanceStateJSON: FreeBalanceStateJSON
+): FreeBalanceState {
+  const { activeApps, tokens, balances } = freeBalanceStateJSON;
+  return {
+    balancesIndexedByToken: (tokens || []).reduce(
+      (acc, token, idx) => ({
+        ...acc,
+        [token]: balances[idx].map(({ to, amount }) => ({
+          to,
+          amount: bigNumberify(amount._hex)
+        }))
+      }),
+      {}
+    ),
+    activeAppsMap: (activeApps || []).reduce(
+      (acc, identityHash) => ({ ...acc, [identityHash]: true }),
+      {}
+    )
+  };
+}
+
+export function serializeFreeBalanceState(
+  freeBalanceState: FreeBalanceState
+): FreeBalanceStateJSON {
+  return {
+    activeApps: Object.keys(freeBalanceState.activeAppsMap),
+    tokens: Object.keys(freeBalanceState.balancesIndexedByToken),
+    balances: Object.values(freeBalanceState.balancesIndexedByToken).map(
+      balances =>
+        balances.map(({ to, amount }) => ({
+          to,
+          amount: {
+            _hex: amount.toHexString()
+          }
+        }))
+    )
+  };
 }

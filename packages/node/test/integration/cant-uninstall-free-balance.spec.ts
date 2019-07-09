@@ -20,7 +20,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
 
       // channel to expose the FreeBalance appInstanceId
       const channel = StateChannel.setupChannel(
-        global["networkContext"].ETHBucket,
+        global["networkContext"].FreeBalanceApp,
         multisigAddress,
         [nodeA.publicIdentifier, nodeB.publicIdentifier]
       );

@@ -41,11 +41,9 @@ export default class DepositController extends NodeController {
     params: Node.DepositParams
   ): Promise<void> {
     const { store, provider } = requestHandler;
-    const { multisigAddress, amount } = params;
+    const { multisigAddress, amount, tokenAddress: tokenAddressParam } = params;
 
-    params.tokenAddress = params.tokenAddress
-      ? params.tokenAddress
-      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -54,26 +52,23 @@ export default class DepositController extends NodeController {
         requestHandler.networkContext.CoinBalanceRefundApp
       )
     ) {
-      throw new Error(`${CANNOT_DEPOSIT}`);
+      throw new Error(CANNOT_DEPOSIT);
     }
 
     const address = await requestHandler.getSignerAddress();
 
-    if (params.tokenAddress !== CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-      const contract = new Contract(params.tokenAddress, ERC20.abi, provider);
+    if (tokenAddress !== CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+      const contract = new Contract(tokenAddress, ERC20.abi, provider);
+
       let balance: BigNumber;
       try {
         balance = await contract.functions.balanceOf(address);
       } catch (e) {
-        throw new Error(
-          FAILED_TO_GET_ERC20_BALANCE(params.tokenAddress, address)
-        );
+        throw new Error(FAILED_TO_GET_ERC20_BALANCE(tokenAddress, address));
       }
 
       if (balance.lt(amount)) {
-        throw new Error(
-          `${INSUFFICIENT_ERC20_FUNDS(address, amount, balance)}`
-        );
+        throw new Error(INSUFFICIENT_ERC20_FUNDS(address, amount, balance));
       }
     } else {
       const balanceOfSigner = await provider.getBalance(address);
@@ -95,11 +90,10 @@ export default class DepositController extends NodeController {
       publicIdentifier,
       outgoing
     } = requestHandler;
-    const { multisigAddress } = params;
 
-    params.tokenAddress = params.tokenAddress
-      ? params.tokenAddress
-      : CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const { multisigAddress, tokenAddress } = params;
+
+    params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     await installBalanceRefundApp(requestHandler, params);
 

@@ -1,18 +1,6 @@
 graph LR
-    subgraph UninstallKeyRegistry
-        setKeyAsUninstalled
-        setKeyAsUninstalled.->salt
-    end
-    subgraph ChallengeRegistry-Free-Balance
+    subgraph ChallengeRegistry
         setState
-        setState-->appIdentity:AppIdentity
+        setState-->freeBalanceAppIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
-    end
-    subgraph MultiSend
-        multiSend
-        multiSend-->setState
-        multiSend-->setKeyAsUninstalled
-    end
-    subgraph Multisig
-        execTransaction-->multiSend
     end

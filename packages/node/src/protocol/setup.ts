@@ -13,7 +13,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { validateSignature } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -42,7 +42,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1
       } as ProtocolMessage
     ];
-    validateSignature(respondingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(respondingAddress, setupCommitment, theirSig);
 
     const finalCommitment = setupCommitment.getSignedTransaction([
       mySig,
@@ -68,7 +68,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const theirSig = context.message.signature!;
-    validateSignature(initiatingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(initiatingAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
@@ -111,7 +111,7 @@ function proposeStateTransition(
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network.ETHBucket,
+    context.network.FreeBalanceApp,
     multisigAddress,
     [initiatingXpub, respondingXpub]
   );

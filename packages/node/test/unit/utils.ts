@@ -13,6 +13,7 @@ import {
   ProposedAppInstanceInfo,
   StateChannel
 } from "../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
@@ -70,6 +71,7 @@ export function createAppInstance(stateChannel?: StateChannel) {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    /* coinTransferInterpreterParams */ undefined
+    /* coinTransferInterpreterParams */ undefined,
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 }
