@@ -12,9 +12,9 @@ import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
+  FAILED_TO_GET_ERC20_BALANCE,
   INSUFFICIENT_ERC20_FUNDS,
-  INSUFFICIENT_FUNDS,
-  FAILED_TO_GET_ERC20_BALANCE
+  INSUFFICIENT_FUNDS
 } from "../../errors";
 
 import {
