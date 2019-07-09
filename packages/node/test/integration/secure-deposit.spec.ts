@@ -1,10 +1,8 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import { ContractABI } from "@counterfactual/types";
-import { Contract, Wallet } from "ethers";
+import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
 
 import { Node } from "../../src";
 import { INSUFFICIENT_ERC20_FUNDS } from "../../src/methods/errors";
@@ -13,7 +11,8 @@ import { setup, SetupContext } from "./setup";
 import {
   createChannel,
   getFreeBalanceState,
-  makeDepositRequest
+  makeDepositRequest,
+  transferERC20Tokens
 } from "./utils";
 
 describe("Node method follows spec - deposit", () => {
@@ -120,34 +119,6 @@ describe("Node method follows spec - deposit", () => {
     expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 });
-
-/**
- * @return the ERC20 token balance of the receiver
- */
-async function transferERC20Tokens(
-  toAddress: string,
-  tokenAddress: string = global["networkContext"]["DolphinCoin"],
-  contractABI: ContractABI = DolphinCoin.abi,
-  amount: BigNumber = One
-): Promise<BigNumber> {
-  const deployerAccount = new Wallet(
-    global["fundedPrivateKey"],
-    new JsonRpcProvider(global["ganacheURL"])
-  );
-
-  const contract = new Contract(tokenAddress, contractABI, deployerAccount);
-
-  const balanceBefore: BigNumber = await contract.functions.balanceOf(
-    toAddress
-  );
-
-  await contract.functions.transfer(toAddress, amount);
-  const balanceAfter: BigNumber = await contract.functions.balanceOf(toAddress);
-
-  expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
-
-  return balanceAfter;
-}
 
 async function confirmEthAndERC20FreeBalances(
   node: Node,

@@ -1,15 +1,19 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
   Address,
   AppABIEncodings,
   AppInstanceInfo,
+  ContractABI,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import { Contract, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -671,4 +675,32 @@ export function createFreeBalanceStateWithFundedETHAmounts(
       }))
     }
   };
+}
+
+/**
+ * @return the ERC20 token balance of the receiver
+ */
+export async function transferERC20Tokens(
+  toAddress: string,
+  tokenAddress: string = global["networkContext"]["DolphinCoin"],
+  contractABI: ContractABI = DolphinCoin.abi,
+  amount: BigNumber = One
+): Promise<BigNumber> {
+  const deployerAccount = new Wallet(
+    global["fundedPrivateKey"],
+    new JsonRpcProvider(global["ganacheURL"])
+  );
+
+  const contract = new Contract(tokenAddress, contractABI, deployerAccount);
+
+  const balanceBefore: BigNumber = await contract.functions.balanceOf(
+    toAddress
+  );
+
+  await contract.functions.transfer(toAddress, amount);
+  const balanceAfter: BigNumber = await contract.functions.balanceOf(toAddress);
+
+  expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
+
+  return balanceAfter;
 }
