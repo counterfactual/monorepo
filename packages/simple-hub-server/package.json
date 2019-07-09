@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.2.15",
+    "@counterfactual/node": "0.2.16",
     "@counterfactual/types": "0.0.21",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
