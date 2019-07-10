@@ -60,7 +60,7 @@ describe("Virtual App Set State Commitment", () => {
       appInstance.hashOfLatestState,
       appInstance.versionNumber
     );
-    tx = commitment.transaction([], {
+    tx = commitment.getSignedTransaction([], {
       r: HashZero,
       s: HashZero,
       v: 0

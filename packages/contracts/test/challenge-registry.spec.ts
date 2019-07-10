@@ -40,7 +40,7 @@ describe("ChallengeRegistry", () => {
   let cancelChallenge: () => Promise<void>;
   let sendSignedFinalizationToChain: () => Promise<any>;
   let latestAppState: () => Promise<string>;
-  let latestversionNumber: () => Promise<number>;
+  let latestVersionNumber: () => Promise<number>;
   let isStateFinalized: () => Promise<boolean>;
 
   before(async () => {
@@ -65,7 +65,7 @@ describe("ChallengeRegistry", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
-    latestversionNumber = async () =>
+    latestVersionNumber = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .versionNumber;
 
@@ -122,14 +122,14 @@ describe("ChallengeRegistry", () => {
 
     sendSignedFinalizationToChain = async () =>
       appRegistry.functions.setState(appInstance.appIdentity, {
-        versionNumber: (await latestversionNumber()) + 1,
+        versionNumber: (await latestVersionNumber()) + 1,
         appStateHash: await latestAppState(),
         timeout: 0,
         signatures: await wallet.signMessage(
           computeAppChallengeHash(
             appInstance.identityHash,
             await latestAppState(),
-            await latestversionNumber(),
+            await latestVersionNumber(),
             0
           )
         )
@@ -139,75 +139,75 @@ describe("ChallengeRegistry", () => {
   describe("updating app state", () => {
     describe("with owner", () => {
       it("should work with higher versionNumber", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateAsOwner(1);
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
       });
 
       it("should work many times", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateAsOwner(1);
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
         await cancelChallenge();
         await setStateAsOwner(2);
-        expect(await latestversionNumber()).to.eq(2);
+        expect(await latestVersionNumber()).to.eq(2);
         await cancelChallenge();
         await setStateAsOwner(3);
-        expect(await latestversionNumber()).to.eq(3);
+        expect(await latestVersionNumber()).to.eq(3);
       });
 
       it("should work with much higher versionNumber", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateAsOwner(1000);
-        expect(await latestversionNumber()).to.eq(1000);
+        expect(await latestVersionNumber()).to.eq(1000);
       });
 
       it("shouldn't work with an equal versionNumber", async () => {
         await expect(setStateAsOwner(0)).to.be.reverted;
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
       });
 
       it("shouldn't work with an lower versionNumber", async () => {
         await setStateAsOwner(1);
         await expect(setStateAsOwner(0)).to.be.reverted;
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
       });
     });
 
     describe("with signing keys", async () => {
       it("should work with higher versionNumber", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateWithSignatures(1);
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
       });
 
       it("should work many times", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateWithSignatures(1);
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
         await cancelChallenge();
         await setStateWithSignatures(2);
-        expect(await latestversionNumber()).to.eq(2);
+        expect(await latestVersionNumber()).to.eq(2);
         await cancelChallenge();
         await setStateWithSignatures(3);
-        expect(await latestversionNumber()).to.eq(3);
+        expect(await latestVersionNumber()).to.eq(3);
       });
 
       it("should work with much higher versionNumber", async () => {
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
         await setStateWithSignatures(1000);
-        expect(await latestversionNumber()).to.eq(1000);
+        expect(await latestVersionNumber()).to.eq(1000);
       });
 
       it("shouldn't work with an equal versionNumber", async () => {
         await expect(setStateWithSignatures(0)).to.be.reverted;
-        expect(await latestversionNumber()).to.eq(0);
+        expect(await latestVersionNumber()).to.eq(0);
       });
 
       it("shouldn't work with a lower versionNumber", async () => {
         await setStateWithSignatures(1);
         await expect(setStateWithSignatures(0)).to.be.reverted;
-        expect(await latestversionNumber()).to.eq(1);
+        expect(await latestVersionNumber()).to.eq(1);
       });
     });
   });

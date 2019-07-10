@@ -1,12 +1,22 @@
-graph LR
-    subgraph ConditionalTransaction
-        executeEffectOfInterpretedAppOutcome
-        executeEffectOfInterpretedAppOutcome.->REGISTRY
-        executeEffectOfInterpretedAppOutcome.->NONCE_REGISTRY
-        executeEffectOfInterpretedAppOutcome.->uninstallKey
-        executeEffectOfInterpretedAppOutcome.->freeBalanceCfAddress
-        executeEffectOfInterpretedAppOutcome.->terms
+graph TB
+
+    subgraph Interpreter
+        interpretOutcomeAndExecuteEffect["interpretOutcomeAndExecuteEffect(outcome, params)"]
     end
+
+    subgraph ChallengeRegistry
+        getOutcome["getOutcome(freeBalanceAppIdentityHash)"]
+    end
+
+    subgraph ConditionalTransactionDelegateTarget
+        executeEffectOfFreeBalance
+        executeEffectOfFreeBalance
+          -->|DELEGATECALL - Pass outcome and params to interpreter| interpretOutcomeAndExecuteEffect
+        executeEffectOfFreeBalance
+          -->|STATICCALL - Fetch outcome for interpreter| getOutcome
+    end
+
     subgraph Multisig
-        execTransaction-->executeEffectOfInterpretedAppOutcome
+        execTransaction
+          -->|DELEGATECALL - Delegate to delegate target to control funds |executeEffectOfFreeBalance
     end

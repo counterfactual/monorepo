@@ -145,8 +145,8 @@ jobs:
       - run: jq -c 'del(.workspaces)' package.json > tmp.$$.json && mv tmp.$$.json package.json
 
       - run:
-          name: Check playground-server yarn.lock
-          command: cd packages/playground-server && yarn --frozen-lockfile
+          name: Check simple-hub-server yarn.lock
+          command: cd packages/simple-hub-server && yarn --frozen-lockfile
 
       - run:
           name: Check tic-tac-toe-bot yarn.lock
@@ -155,7 +155,6 @@ jobs:
       - run:
           name: Check high-roller-bot yarn.lock
           command: cd packages/high-roller-bot && yarn --frozen-lockfile
-
 
   publish-to-npm:
     <<: *defaults

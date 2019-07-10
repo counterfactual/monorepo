@@ -1,4 +1,3 @@
-import { NetworkContext } from "@counterfactual/types";
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
@@ -6,7 +5,10 @@ import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
 import ganache from "ganache-core";
 
-import { configureNetworkContext } from "./contract-deployments.jest";
+import {
+  deployTestArtifactsToChain,
+  NetworkContextForTestSuite
+} from "./contract-deployments.jest";
 
 dotenvExtended.load();
 
@@ -16,7 +18,7 @@ export class Chain {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
-  networkContext: NetworkContext = Object.create(null);
+  networkContext: NetworkContextForTestSuite = Object.create(null);
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
@@ -24,14 +26,10 @@ export class Chain {
     }
 
     const balance = parseEther(initialBalance).toString();
+
     this.fundedPrivateKey = Wallet.createRandom().privateKey;
 
-    const accounts: object[] = [
-      {
-        balance,
-        secretKey: this.fundedPrivateKey
-      }
-    ];
+    const accounts: object[] = [];
 
     mnemonics.forEach(mnemonic => {
       const entry = {
@@ -39,6 +37,10 @@ export class Chain {
         secretKey: fromMnemonic(mnemonic).derivePath(CF_PATH).privateKey
       };
       accounts.push(entry);
+    });
+    accounts.push({
+      balance,
+      secretKey: this.fundedPrivateKey
     });
 
     this.server = ganache.server({
@@ -48,12 +50,13 @@ export class Chain {
     });
 
     this.server.listen(parseInt(process.env.GANACHE_PORT!, 10));
+
     this.provider = new Web3Provider(this.server.provider);
   }
 
-  async createConfiguredChain(): Promise<NetworkContext> {
+  async createConfiguredChain(): Promise<NetworkContextForTestSuite> {
     const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    this.networkContext = await configureNetworkContext(wallet);
+    this.networkContext = await deployTestArtifactsToChain(wallet);
     return this.networkContext;
   }
 }

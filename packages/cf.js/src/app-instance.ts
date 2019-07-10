@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
   CoinTransferInterpreterParams,
   Node,
@@ -27,7 +26,7 @@ export class AppInstance {
   /**
    * Unique ID of this app instance.
    */
-  readonly id: AppInstanceID;
+  readonly identityHash: string;
 
   // Application-specific fields
   readonly appDefinition: Address;
@@ -51,7 +50,7 @@ export class AppInstance {
   );
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
-    this.id = info.id;
+    this.identityHash = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
     this.timeout = info.timeout;
@@ -80,7 +79,7 @@ export class AppInstance {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.GetStateResult;
@@ -103,7 +102,7 @@ export class AppInstance {
       Node.MethodName.TAKE_ACTION,
       {
         action,
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.TakeActionResult;
@@ -127,7 +126,7 @@ export class AppInstance {
         : Node.MethodName.UNINSTALL,
       {
         intermediaryIdentifier,
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
   }

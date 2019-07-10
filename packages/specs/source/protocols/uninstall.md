@@ -44,12 +44,11 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 
 **Commitment for `Uninstall` and `UninstallAck`**:
 
-There are two key operations required for a successful uninstall.
+There is one operation required for a successful uninstall.
 
 - Set a new state on the Free Balance. The outcome function defined in the application must be run to compute an update to the Free Balance that is based on the outcome of the application.
-- Set a new nonce on the UninstallKeyRegistry. As a result, the Conditional Transfer pointing at the original application will be invalidated and the application will be considered deleted.
 
-Specifically, the Conditional Transfer commitment created by the Install Protocol checks that the dependency nonce does not equal 1. _If the nonce is ever 1_, then the conditional transfer will fail. Hence setting the nonce to 1 invalidates the conditional transfer, which is desired behaviour.
+Specifically, the Conditional Transfer commitment created by the Uninstall Protocol updates the free balance state with the app removed from the list of active apps and its outcome folded into the new state of the free balance.
 
 ```eval_rst
 .. mermaid:: ../diagrams/uninstall-protocol-commitment.mmd

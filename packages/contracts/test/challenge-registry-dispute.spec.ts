@@ -66,7 +66,7 @@ describe("ChallengeRegistry Challenge", () => {
 
   let setStateAsOwner: (versionNumber: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
-  let latestversionNumber: () => Promise<number>;
+  let latestVersionNumber: () => Promise<number>;
   let respondToChallenge: (
     state: any,
     action: any,
@@ -96,7 +96,7 @@ describe("ChallengeRegistry Challenge", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
-    latestversionNumber = async () =>
+    latestVersionNumber = async () =>
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .versionNumber;
 
@@ -119,11 +119,11 @@ describe("ChallengeRegistry Challenge", () => {
   });
 
   it("Can call respondToChallenge", async () => {
-    expect(await latestversionNumber()).to.eq(0);
+    expect(await latestVersionNumber()).to.eq(0);
 
     await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
 
-    expect(await latestversionNumber()).to.eq(1);
+    expect(await latestVersionNumber()).to.eq(1);
 
     const signer = new SigningKey(BOB.privateKey);
     const thingToSign = keccak256(encodeAction(ACTION));

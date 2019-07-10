@@ -31,7 +31,7 @@ export default class InstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+        await store.getMultisigAddressFromstring(sc.multisigAddress)
       )
     ];
   }
@@ -53,13 +53,7 @@ export default class InstallController extends NodeController {
       params.appInstanceId
     );
 
-    const appInstanceInfo = await install(
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      respondingAddress,
-      params
-    );
+    const appInstanceInfo = await install(store, instructionExecutor, params);
 
     const installApprovalMsg: InstallMessage = {
       from: publicIdentifier,
