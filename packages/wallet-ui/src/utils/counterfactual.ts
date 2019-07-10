@@ -1,9 +1,4 @@
-import {
-  bigNumberify,
-  BigNumberish,
-  computeAddress,
-  parseEther
-} from "ethers/utils";
+import { bigNumberify, BigNumberish, computeAddress, parseEther } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import { BalanceRequest, Deposit, User } from "../store/types";
 import { CounterfactualEvent, CounterfactualMethod } from "../types";
@@ -106,6 +101,7 @@ export async function forFunds({
       return resolve(myBalance);
     }
 
+    // !TODO: This should die in a fire :-)
     await delay(1000);
     return forFunds({ multisigAddress, nodeAddress });
   });

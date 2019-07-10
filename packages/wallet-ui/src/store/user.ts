@@ -54,12 +54,10 @@ export const addUser = (
 
     // 2. Build the signable message
     const signableMessage = buildRegistrationSignaturePayload(userData);
-    // TODO: dispatch "check wallet"
     dispatch({ type: UserAddTransition.CheckWallet });
 
     // 3. Request the signature
     const signature = await signer.signMessage(signableMessage);
-    // TODO: dispatch "creating account"
     dispatch({ type: UserAddTransition.CreatingAccount });
 
     // 4. Send the API request.
