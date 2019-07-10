@@ -1,28 +1,38 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import ETHInterpreter from "@counterfactual/contracts/build/ETHInterpreter.json";
+import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
 import { ContractFactory, Wallet } from "ethers";
 
-export async function configureNetworkContext(wallet: Wallet) {
+export async function deployTestArtifactsToChain(wallet: Wallet) {
   const mvmContract = await new ContractFactory(
     MinimumViableMultisig.abi,
     MinimumViableMultisig.bytecode,
     wallet
   ).deploy();
+
   const proxyFactoryContract = await new ContractFactory(
     ProxyFactory.abi,
     ProxyFactory.bytecode,
     wallet
   ).deploy();
+
   const tttContract = await new ContractFactory(
     TicTacToeApp.interface,
     TicTacToeApp.bytecode,
     wallet
   ).deploy();
-  const ethInterpreter = await new ContractFactory(
-    ETHInterpreter.abi,
-    ETHInterpreter.bytecode,
+
+  const coinTransferETHInterpreter = await new ContractFactory(
+    CoinTransferETHInterpreter.abi,
+    CoinTransferETHInterpreter.bytecode,
+    wallet
+  ).deploy();
+
+  const twoPartyFixedOutcomeFromVirtualAppETHInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.abi,
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -30,6 +40,8 @@ export async function configureNetworkContext(wallet: Wallet) {
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToe: tttContract.address,
-    ETHInterpreter: ethInterpreter.address
+    CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   };
 }

@@ -1,6 +1,5 @@
 import {
   Address,
-  AppInstanceID,
   AppInstanceInfo,
   IRpcNodeProvider,
   Node
@@ -67,7 +66,7 @@ export class Provider {
    * @param appInstanceId ID of the app instance to be installed, generated using [[AppFactory.proposeInstall]]
    * @return Installed AppInstance
    */
-  async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
+  async install(appInstanceId: string): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(Node.RpcMethodName.INSTALL, {
       appInstanceId
     });
@@ -89,7 +88,7 @@ export class Provider {
    * @return Installed AppInstance
    */
   async installVirtual(
-    appInstanceId: AppInstanceID,
+    appInstanceId: string,
     intermediaries: Address[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
@@ -110,7 +109,7 @@ export class Provider {
    *
    * @param appInstanceId ID of the app instance to reject
    */
-  async rejectInstall(appInstanceId: AppInstanceID) {
+  async rejectInstall(appInstanceId: string) {
     await this.callRawNodeMethod(Node.RpcMethodName.REJECT_INSTALL, {
       appInstanceId
     });
@@ -354,7 +353,7 @@ export class Provider {
    * @return App instance
    */
   async getOrCreateAppInstance(
-    id: AppInstanceID,
+    id: string,
     info?: AppInstanceInfo
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
@@ -496,7 +495,10 @@ export class Provider {
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
-    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const appInstance = await this.getOrCreateAppInstance(
+      info.identityHash,
+      info
+    );
     const event = {
       type: EventType.REJECT_INSTALL,
       data: {

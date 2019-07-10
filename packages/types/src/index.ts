@@ -1,12 +1,12 @@
 import {
   AppIdentity,
   AppInterface,
-  ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
   OutcomeType,
   TwoPartyFixedOutcome,
@@ -16,38 +16,36 @@ import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
-  AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  ETHBalanceRefundApp: string;
-  ETHBucket: string;
-  ETHInterpreter: string;
-  MinimumViableMultisig: string;
-  MultiSend: string;
-  ProxyFactory: string;
   ConditionalTransactionDelegateTarget: string;
-  TwoPartyEthAsLump: string;
-  TwoPartyVirtualEthAsLump: string;
-  UninstallKeyRegistry: string;
+  CoinBalanceRefundApp: string;
+  CoinTransferETHInterpreter: string;
+  FreeBalanceApp: string;
+  IdentityApp: string;
+  MinimumViableMultisig: string;
+  ProxyFactory: string;
+  TwoPartyFixedOutcomeETHInterpreter: string;
+  TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
 }
 
 // Keep in sync with above
 export const networkContextProps = [
   "ChallengeRegistry",
-  "ETHBalanceRefundApp",
-  "ETHBucket",
-  "ETHInterpreter",
-  "MinimumViableMultisig",
-  "MultiSend",
-  "ProxyFactory",
   "ConditionalTransactionDelegateTarget",
-  "TwoPartyEthAsLump",
-  "TwoPartyVirtualEthAsLump",
-  "UninstallKeyRegistry"
+  "CoinBalanceRefundApp",
+  "CoinTransferETHInterpreter",
+  "IdentityApp",
+  "FreeBalanceApp",
+  "MinimumViableMultisig",
+  "ProxyFactory",
+  "TwoPartyFixedOutcomeETHInterpreter",
+  "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
 ];
 
 export interface ContractMigration {
@@ -61,13 +59,13 @@ export {
   Address,
   AppABIEncodings,
   AppIdentity,
-  AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  ContractABI,
   SolidityABIEncoderV2Type,
   Bytes32,
-  ETHBucketAppState,
   INodeProvider,
   IRpcNodeProvider,
   Node,

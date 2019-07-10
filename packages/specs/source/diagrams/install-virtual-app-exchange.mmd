@@ -1,9 +1,39 @@
 sequenceDiagram
-    participant Initiating
-    participant Intermediary
-    participant Responding
-    Initiating->>Intermediary: M1
-    Intermediary->>Responding: M2
-    Responding->>Intermediary: M3
-    Intermediary->>Responding: M4
-    Intermediary->>Initiating: M5
+
+  participant A as Initiating (A)
+  participant I as Intermediary (I)
+  participant B as Responding (B)
+
+  Note over A: Sign AB <br> VirtualAppAgreement
+
+  A->>I: M1
+
+  Note over I: Sign BC <br> VirtualAppAgreement
+
+  I->>B: M2
+
+  Note over B: Countersign BC <br> VirtualAppAgreement <br> and sign BC <br> FreeBalanceActivation
+
+  B->>I: M3
+
+  Note over I: Countersign AB <br> VirtualAppAgreement <br> and sign AB <br> FreeBalanceActivation
+
+  I->>A: M4
+
+  Note over A: Countersign AB <br> FreeBalanceActivation <br> and sign ABC <br> VirtualAppSetState
+
+  A->>I: M5
+
+  Note over I: Countersign BC <br> FreeBalanceActivation <br> and sign ABC <br> VirtualAppSetState
+
+  I->>B: M6
+
+  Note over B: Countersign ABC <br> VirtualAppSetState
+
+  B->>I: M7
+
+  Note over I: Verify signatures
+
+  I->>A: M8
+
+  Note over A: Verify signatures

@@ -1,3 +1,7 @@
+import { BigNumber } from "ethers/utils";
+
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+
 export const APP_ALREADY_UNINSTALLED = (id: string) =>
   `Cannot uninstall app ${id}, it has already been uninstalled`;
 
@@ -18,13 +22,40 @@ export const DEPOSIT_FAILED = "Failed to send funds to the multisig contract";
 export const ETH_BALANCE_REFUND_NOT_UNINSTALLED =
   "The ETH balance refund AppInstance is still installed when it's not supposed to be";
 
+export const FAILED_TO_GET_ERC20_BALANCE = (
+  tokenAddress: string,
+  address: string
+) =>
+  `Failed to get the balance of address: ${address} for ERC20 token: ${tokenAddress}`;
+
 export const IMPROPERLY_FORMATTED_STRUCT =
   "Improperly formatted ABIEncoderV2 struct";
+
+export const INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT = (
+  address: string,
+  amount: BigNumber,
+  balance: BigNumber
+) =>
+  `Node's default signer has ${balance} and needs ${amount} of the specified ERC20 token ${address} to deposit`;
+
+export const INSUFFICIENT_FUNDS_TO_WITHDRAW = (
+  address: string,
+  amount: BigNumber,
+  balance: BigNumber
+) => {
+  if (address === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+    return `Node has ${balance} and needs ${amount} ETH to withdraw`;
+  }
+  return `Node has ${balance} and needs ${amount} of token ${address} to withdraw`;
+};
 
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
 
 export const INVALID_ACTION = "Invalid action taken";
+
+export const INVALID_WITHDRAW = (tokenAddress: string) =>
+  `Cannot withdraw the specified token (${tokenAddress}) as its balance in the channel is 0`;
 
 export const INVALID_NETWORK_NAME =
   "Invalid network name provided for initializing Node";
@@ -41,10 +72,10 @@ export const NO_APP_INSTANCE_FOR_TAKE_ACTION =
   "No AppInstanceId specified to takeAction on";
 
 export const NO_APP_INSTANCE_ID_FOR_GET_STATE =
-  "No AppInstanceID specified to get state for";
+  "No string specified to get state for";
 
 export const NO_APP_INSTANCE_ID_TO_GET_DETAILS =
-  "No AppInstanceID specified to get details for";
+  "No string specified to get details for";
 
 export const NO_APP_INSTANCE_ID_TO_INSTALL =
   "No AppInstanceId specified to install";
@@ -54,6 +85,9 @@ export const NO_APP_INSTANCE_ID_TO_UNINSTALL =
 
 export const NO_CHANNEL_BETWEEN_NODES = (nodeA: string, nodeB: string) =>
   `No channel exists between the current user ${nodeA} and the peer ${nodeB}`;
+
+export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
+  `No free balance exists for the specified token: ${tokenAddress}`;
 
 export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
   "No multisig address exists for the given appInstanceId";

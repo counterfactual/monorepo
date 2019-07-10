@@ -17,10 +17,3 @@ export type SignedStateHashUpdate = {
   timeout: number;
   signatures: string;
 };
-
-export type ETHBucketAppState = [
-  {
-    amount: { _hex: string };
-    to: string;
-  }[]
-];

@@ -32,7 +32,7 @@ export default class TakeActionController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+        await store.getMultisigAddressFromstring(appInstanceId)
       )
     ];
   }
@@ -135,7 +135,7 @@ async function runTakeActionProtocol(
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
-      throw new Error(`${INVALID_ACTION}`);
+      throw new Error(`${INVALID_ACTION}: ${e}`);
     }
     throw e;
   }

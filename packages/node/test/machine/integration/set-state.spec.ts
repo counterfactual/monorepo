@@ -6,6 +6,7 @@ import { AddressZero, WeiPerEther } from "ethers/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -46,13 +47,15 @@ describe("set state on free balance", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      network.ETHBucket,
+      network.FreeBalanceApp,
       AddressZero,
       xkeys.map(x => x.neuter().extendedKey)
-    ).setFreeBalance({
-      [multisigOwnerKeys[0].address]: WeiPerEther,
-      [multisigOwnerKeys[1].address]: WeiPerEther
-    });
+    ).setFreeBalance(
+      createFreeBalanceStateWithFundedETHAmounts(
+        multisigOwnerKeys.map<string>(key => key.address),
+        WeiPerEther
+      )
+    );
 
     const freeBalanceETH = stateChannel.freeBalance;
 
@@ -64,7 +67,7 @@ describe("set state on free balance", () => {
       freeBalanceETH.timeout
     );
 
-    const setStateTx = setStateCommitment.transaction([
+    const setStateTx = setStateCommitment.getSignedTransaction([
       multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
       multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
     ]);
@@ -79,7 +82,7 @@ describe("set state on free balance", () => {
     );
 
     expect(contractAppState.versionNumber).toBeEq(
-      setStateCommitment.appversionNumber
+      setStateCommitment.appVersionNumber
     );
 
     done();

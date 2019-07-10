@@ -2,6 +2,7 @@ import { AppInstanceInfo, Node } from "@counterfactual/types";
 
 import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -22,6 +23,7 @@ export async function installVirtual(
   const appInstanceInfo = await store.getProposedAppInstanceInfo(appInstanceId);
 
   let updatedStateChannelsMap: Map<string, StateChannel>;
+
   try {
     updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
       new Map(Object.entries(await store.getAllChannels())),
@@ -36,11 +38,15 @@ export async function installVirtual(
         },
         initialState: appInstanceInfo.initialState,
         initiatingBalanceDecrement: appInstanceInfo.myDeposit,
-        respondingBalanceDecrement: appInstanceInfo.peerDeposit
+        respondingBalanceDecrement: appInstanceInfo.peerDeposit,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
   } catch (e) {
-    return Promise.reject(`${VIRTUAL_APP_INSTALLATION_FAIL}: ${e}`);
+    throw new Error(
+      // TODO: We should generalize this error handling style everywhere
+      `Node Error: ${VIRTUAL_APP_INSTALLATION_FAIL}\nStack Trace: ${e.stack}`
+    );
   }
 
   updatedStateChannelsMap.forEach(

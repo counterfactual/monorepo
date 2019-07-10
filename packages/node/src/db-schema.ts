@@ -45,7 +45,7 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH =
  * Namespace providing a lookup table from AppInstanceIdentityHash to appInstanceId.
  */
 export const DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID =
-  "appInstanceIdentityHashToAppInstanceID";
+  "appInstanceIdentityHashTostring";
 
 /**
  * Namespace providing a lookup table from a appInstanceId to the AppInstance

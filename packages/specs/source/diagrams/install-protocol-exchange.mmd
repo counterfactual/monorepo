@@ -1,3 +1,15 @@
 sequenceDiagram
-    Alice->>+Bob: Install
-    Bob-->>-Alice: InstallAck
+
+    Note over Initiating: Sign <br> ConditionalTransaction
+
+    Initiating->>Responding: M1
+
+    Note over Responding: Verify then <br> sign both
+
+    Responding->>Initiating: M2
+
+    Note over Initiating: Verify then sign <br> FreeBalanceSetState
+
+    Initiating->>+Responding: M3
+
+    Note over Responding: Verify

@@ -14,8 +14,6 @@ jest.setTimeout(50000);
 
 Log.setOutputLevel(LogLevel.ERROR);
 
-const NETWORK_CONTEXT = global["networkContext"];
-
 describe("ttt-bot", () => {
   let playgroundNode: Node;
   let nodeAlice: Node;
@@ -33,9 +31,11 @@ describe("ttt-bot", () => {
       process.env.FIREBASE_DEV_SERVER_HOST!,
       process.env.FIREBASE_DEV_SERVER_PORT!
     );
+
     messagingService = firebaseServiceFactory.createMessagingService(
       process.env.FIREBASE_MESSAGING_SERVER_KEY!
     );
+
     nodeConfig = {
       STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
     };
@@ -45,9 +45,11 @@ describe("ttt-bot", () => {
     storeServiceA = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
     storeServiceA.set([
       { key: MNEMONIC_PATH, value: global["playgroundMnemonic"] }
     ]);
+
     playgroundNode = await Node.create(
       messagingService,
       storeServiceA,
@@ -59,7 +61,9 @@ describe("ttt-bot", () => {
     storeServiceB = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
     storeServiceB.set([{ key: MNEMONIC_PATH, value: global["aliceMnemonic"] }]);
+
     nodeAlice = await Node.create(
       messagingService,
       storeServiceB,
@@ -71,7 +75,9 @@ describe("ttt-bot", () => {
     storeServiceC = firebaseServiceFactory.createStoreService(
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
+
     storeServiceC.set([{ key: MNEMONIC_PATH, value: global["botMnemonic"] }]);
+
     nodeBot = await Node.create(
       messagingService,
       storeServiceC,
@@ -138,12 +144,14 @@ describe("ttt-bot", () => {
               .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
               .length
           ).toBe(1);
+
           expect(
             board
               .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
               .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
               .length
           ).toBe(1);
+
           expect(message.data.appInstanceId).toBe(appInstanceId);
 
           done();
@@ -161,10 +169,17 @@ describe("ttt-bot", () => {
             winner: 0,
             board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
           },
-          appDefinition: NETWORK_CONTEXT["TicTacToe"],
+          appDefinition: global["networkContext"]["TicTacToeApp"],
           abiEncodings: {
-            actionEncoding:
-              "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
+            actionEncoding: `tuple(
+                uint8 actionType,
+                uint256 playX,
+                uint256 playY,
+                tuple(
+                  uint8 winClaimType,
+                  uint256 idx
+                ) winClaim
+              )`,
             stateEncoding:
               "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"
           },

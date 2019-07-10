@@ -9,7 +9,7 @@ export abstract class EthereumCommitment {
   // `install-virtual-app protocol`. `intermediarySignature` in `transaction`
   // is the same kind of hack.
   public abstract hashToSign(signerIsIntermediary?: boolean): string;
-  public abstract transaction(
+  public abstract getSignedTransaction(
     signatures: Signature[],
     intermediarySignature?: Signature
   ): Transaction;

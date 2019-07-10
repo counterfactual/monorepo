@@ -25,7 +25,9 @@ import {
   xkeysToSortedKthSigningKeys
 } from "./xkeys";
 
-export { virtualChannelKey } from "./virtual-app-key";
+export {
+  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp
+} from "./virtual-app-unique-identifier";
 export {
   appIdentityToHash,
   InstructionExecutor,

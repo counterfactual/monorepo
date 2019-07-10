@@ -1,9 +1,9 @@
 import { Application, jsonApiKoa } from "@ebryn/jsonapi-ts";
 import cors from "@koa/cors";
 import Koa from "koa";
-// import { KoaLoggingMiddleware as logs } from "logepi";
+import { KoaLoggingMiddleware as logs } from "logepi";
 
-import validateSignature from "./middlewares/validate-signature";
+import assertIsValidSignature from "./middlewares/validate-signature";
 import AppProcessor from "./resources/app/processor";
 import AppResource from "./resources/app/resource";
 import HeartbeatProcessor from "./resources/heartbeat/processor";
@@ -44,20 +44,20 @@ export default function mountApi() {
   const api = new Koa();
 
   // @joel: Move this to logepi.
-  // const isUrlExcluded = (url: string, excludeList: string[]) =>
-  //   excludeList.some(endpoint => url.endsWith(endpoint));
+  const isUrlExcluded = (url: string, excludeList: string[]) =>
+    excludeList.some(endpoint => url.endsWith(endpoint));
 
-  // const conditionalLogs = ({ exclude }) => (ctx, next) =>
-  //   isUrlExcluded(ctx.req.url as string, exclude) ? next() : logs()(ctx, next);
+  const conditionalLogs = ({ exclude }) => (ctx, next) =>
+    isUrlExcluded(ctx.req.url as string, exclude) ? next() : logs()(ctx, next);
 
   api
     .use(cors({ keepHeadersOnError: false }))
-    .use(jsonApiKoa(app, validateSignature(app)));
-  // .use(
-  //   conditionalLogs({
-  //     exclude: ["/heartbeats", "/apps"]
-  //   })
-  // );
+    .use(jsonApiKoa(app, assertIsValidSignature(app)))
+    .use(
+      conditionalLogs({
+        exclude: ["/heartbeats", "/apps"]
+      })
+    );
 
   return api;
 }

@@ -1,95 +1,59 @@
 # Install Virtual App Protocol
 
-This is the Install Virtual App Protocol.
+The **Install Virtual App Protocol** can be followed to allocate some funds inside of a `StateChannel` to a new `AppInstance` where the counterparty on the `AppInstance` does not have an existing on-chain multisignature wallet with funds inside of it. Instead, funds are "guaranteed" to the `AppInstance` via agreements on both ends of two `StateChannels` with an intermediary.
 
-## Roles
-
-Three users run the protocol. They are designated as `initiating`, `responding`, and `intermediary`. The first two parties are the users wishing to interact together in a virtual app, who do not necessarily have a direct channel between them. It is required that `initiating` and `intermediary` have a direct channel together, and that `responding` and `intermediary` have a direct channel together.
-
-## The `InstallVirtualAppParams` type
-
-|            Field             |      type      |                      description                      |
-| ---------------------------- | -------------- | ----------------------------------------------------- |
-| `initiatingXpub`             | `xpub`         | xpub of `initiating`                                  |
-| `respondingXpub`             | `xpub`         | xpub of `responding`                                  |
-| `intermediaryXpub`           | `xpub`         | xpub of `intermediary`                                |
-| `defaultTimeout`             | `uint256`      |                                                       |
-| `appInterface`               | `AppInterface` |                                                       |
-| `initialState`               | `JSON`         | Encoded initial app state                             |
-| `initiatingBalanceDecrement` | `uint256`      | `initiating`'s deposit into the installed application |
-| `respondingBalanceDecrement` | `uint256`      | `responding`'s deposit into the installed application |
-| `expiry`                     | `uint256`      | Not implemented in machine yet                        |
-
-## Derived fields
-
-These fields are not included in `InstallVirtualAppParams` but are computed from existing information known to a user.
-
-|       Field        |    type     |                                 description                                  |
-| ------------------ | ----------- | ---------------------------------------------------------------------------- |
-| `multisig1Address` | `address`   | State deposit holder for the channel between `initiating` and `intermediary` |
-| `multisig2Address` | `address`   | State deposit holder for the channel between `intermediary` and `responding` |
-| `signingKeys`      | `address[]` | See below                                                                    |
-
-`{initiating,responding,intermediary}`, together with the target app sequence number, are used to derive the app-specific signing keys. `signingKeys[0]` is the intermediary signing key, while `signingKeys[1:2]` are the signing keys used by `initiating` and `responding`, sorted lexicographically by public key.
+One way of thinking about this protocol is that it is essentially comprised of two Install Protocol executions. The first installation is between the initiator and the intermediary and the second between the intermediary and the responder. The installation produces `ConditionalTransaction` commitments which are signed but the distinction is that the `appIdentityHash` that is being pointed to is actually one where the `participants` are the initiator and the responder in both cases, and never the intermediary. Of course, then, the _interpreter_ parameters that are used then become unique each installation and interpret the outcome of the "virtual app" differently. The purpose of the setup is to ensure that no matter the outcome, the intermediary will receive the same amount of funds so that they take on no risk.
 
 ## Commitments
 
-### leftETHVirtualAppAgreement
+As mentioned above, there are `ConditionalTransaction` commitments that get signed which we label as a "VirtualAppAgreement". This agreement checks the outcome of the `AppInstance` being installed virtually and distributes the funds to the intermediary and the counterparty accordingly.
 
-A commitment to call `ETHVirtualAppAgreement::delegateTarget` with an `Agreement` argument with the following fields
+There is one additional commitment that is unique to this protocol, however, which is the `VirtualAppSetState` commitment. Since the `participants` of the `AppInstance` _include_ the intermediary, we need a way of removing the requirement that every state must be signed by them. So, the `VirtualAppSetState` is exactly that; it commits on behalf of the intermediary that all state signed up until some `expiryVersionNumber` do not require the intermediaries signature to be valid.
 
-|       Field       |     type     |                   description                   |
-| ----------------- | ------------ | ----------------------------------------------- |
-| `registry`        | `address`    | From network context                            |
-| `terms`           | `Terms`      | See below                                       |
-| `expiry`          | `address`    | `expiry`                                        |
-| `appIdentityHash` | `bytes32`    | Hash of appIdentity of target virtual app       |
-| `capitalProvided` | `uint256`    | `aliceBalanceDecrement` + `bobBalanceDecrement` |
-| `beneficiaries`   | `address[2]` | `[initiatingAddress, intermediaryAddress]`      |
+### VirtualAppSetState
 
-### rightETHVirtualAppAgreement
-
-A commitment to call `ETHVirtualAppAgreement::delegateTarget`
-
-|       Field       |     type     |                   description                   |
-| ----------------- | ------------ | ----------------------------------------------- |
-| `registry`        | `address`    | From network context                            |
-| `terms`           | `Terms`      | See below                                       |
-| `expiry`          | `address`    | `expiry`                                        |
-| `appIdentityHash` | `bytes32`    | Hash of appIdentity of target virtual app       |
-| `capitalProvided` | `uint256`    | `aliceBalanceDecrement` + `bobBalanceDecrement` |
-| `beneficiaries`   | `address[2]` | `[intermediaryAddress, respondingAddress]`      |
-
-
-### targetVirtualAppSetState
-
-The protocol produces a commitment to call `virtualAppSetState` with the initial state. Note that `intermediary` produces a "type 2" signature while the others produce a "type 1" signature. This ensures that the intermediary's signature can be reused for calling `virtualAppSetState` with other app state hash values, i.e., that the intermediary does not need to be part of the update-virtual-app protocol.
+There are two digests for this commitment. The first is for the initiating and responding parties to sign:
 
 ```typescript
-d1 = keccak256(
-  ["bytes1", "bytes32", "bytes32", "uint256",
-  [
-    0x19,
-    keccak256(identity),
-    0,
-    TIMEOUT
-  ]
+keccak256(
+  abi.encodePacked(
+    byte(0x19),
+    identityHash, // The identity hash for the virtual app
+    versionNumber, // The intial version number (will be 0)
+    timeout, // The timeout for this state (will be the default)
+    appStateHash // The hash of the initial state
+  )
 );
 ```
 
+This is identical to any normal signed digest for a state update as you would see in the Update Protocol.
+
+The second is for the intermediary to sign:
+
 ```typescript
-d2 = keccak256(
-  ["bytes1", "bytes32", "uint256", "uint256", "bytes1"],
-  [
-    0x19,
-    keccak256(identity),
-    65536,
-    TIMEOUT,
+keccak256(
+  abi.encodePacked(
+    byte(0x19),
+    identityHash, // The identity hash for the virtual app
+    req.versionNumberExpiry, // Block up until which intermediary signature is not required
+    req.timeout, // The timeout for this state (will be default)
     byte(0x01)
+  )
 );
 ```
 
-The signatures `s5` and `s7` are the signatures of `initiating` and `responding` respectively on `d1` while the signature `s6` is the signature of `intermediary` on `d2`.
+## The `InstallVirtualAppParams` type
+
+| Field                        | type                       | description                                           |
+| ---------------------------- | -------------------------- | ----------------------------------------------------- |
+| `initiatingXpub`             | `xpub`                     | xpub of `initiating`                                  |
+| `respondingXpub`             | `xpub`                     | xpub of `responding`                                  |
+| `intermediaryXpub`           | `xpub`                     | xpub of `intermediary`                                |
+| `defaultTimeout`             | `uint256`                  | Timeout in case of challenge                          |
+| `appInterface`               | `AppInterface`             | The interface of the virtual app being installed      |
+| `initialState`               | `SolidityABIEncoderV2Type` | The initial state of the virtual app                  |
+| `initiatingBalanceDecrement` | `uint256`                  | `initiating`'s deposit into the installed application |
+| `respondingBalanceDecrement` | `uint256`                  | `responding`'s deposit into the installed application |
 
 ## Messages
 
@@ -97,83 +61,90 @@ The signatures `s5` and `s7` are the signatures of `initiating` and `responding`
 .. mermaid:: ../diagrams/install-virtual-app-exchange.mmd
 ```
 
-### M1
+### M1 - Initiator signs AB VirtualAppAgreement
 
-|     Field     |           Type            |       Description       |
-| ------------- | ------------------------- | ----------------------- |
-| `protocol`    | `string`                  | `"install-virtual-app"` |
-| `multisig`    | `address`                 | `multisig1Address`      |
-| `params`      | `InstallVirtualAppParams` |                         |
-| `fromAddress` | `address`                 | `initiatingAddress`     |
-| `toAddress`   | `address`                 | `intermediaryAddress`   |
-| `seq`         | `number`                  | `1`                     |
-| `signature1`  | `signature`               | The S1 signature        |
-| `signature2`  | `signature`               | The S5 signature        |
+| Field        | Type                      | Description             |
+| ------------ | ------------------------- | ----------------------- |
+| `protocol`   | `string`                  | `"install-virtual-app"` |
+| `params`     | `InstallVirtualAppParams` |                         |
+| `toXpub`     | `address`                 | `intermediaryXpub`   |
+| `seq`        | `number`                  | `1`                     |
+| `signature`  | `signature`               | Initiating signature on   AB VirtualAppAgreement      |
 
-### M2
+### M2 - Intermediary signs BC VirtualAppAgreement
 
-|     Field     |          Description          |
-| ------------- | ----------------------------- |
-| `protocol`    | `"install-virtual-app"`       |
-| `multisig`    | `multisig2Address`            |
-| `params`      | `InstallVirtualAppParams`     |
-| `fromAddress` | `intermediaryAddress`         |
-| `toAddress`   | `respondingAddress`           |
-| `seq`         | `2`                           |
-| `signature1`  | The S5 signature (forwarded). |
-| `signature2`  | The S3 signature              |
+| Field        | Description                   |
+| ------------ | ----------------------------- |
+| `protocol`   | `"install-virtual-app"`       |
+| `params`     | `InstallVirtualAppParams`     |
+| `toXpub`     | `respondingXpub`           |
+| `seq`        | `2`                           |
+| `signature`  | Intermediary signature on BC VirtualAppAgreement|
 
-### M3
 
-|     Field     |       Description       |
-| ------------- | ----------------------- |
-| `protocol`    | `"install-virtual-app"` |
-| `multisig`    | `multisig2Address`      |
-| `fromAddress` | `respondingAddress`     |
-| `toAddress`   | `intermediaryAddress`   |
-| `seq`         | `3`                     |
-| `signature1`  | The S4 signature.       |
-| `signature2`  | The S7 signature.       |
-### M4
+### M3 - Responding signs BC VirtualAppAgreement and BC FreeBalanceActivation
 
-|     Field     |       Description       |
-| ------------- | ----------------------- |
-| `protocol`    | `"install-virtual-app"` |
-| `multisig`    | `multisig2Address`      |
-| `fromAddress` | `intermediaryAddress`   |
-| `toAddress`   | `respondingAddress`     |
-| `seq`         | `4`                     |
-| `signature1`  | The S6 signature.       |
+| Field        | Description             |
+| ------------ | ----------------------- |
+| `protocol`   | `"install-virtual-app"` |
+| `toXpub`     | `intermediaryXpub`   |
+| `seq`        | `-1`                    |
+| `signature`  | Responding signature on BC VirtualAppAgreement|
+| `signature2`  | Responding signature on BC FreeBalanceActivation|
 
-### M5
+### M4 - Intermediary signs AB VirtualAppAgreement and AB FreeBalanceActivation
 
-|     Field     |       Description       |
-| ------------- | ----------------------- |
-| `protocol`    | `"install-virtual-app"` |
-| `multisig`    | `multisig1Address`      |
-| `fromAddress` | `intermediaryAddress`   |
-| `toAddress`   | `initiatingAddress`     |
-| `seq`         | `5`                     |
-| `signature1`  | The S6 signature.       |
-| `signature2`  | The S2 signature.       |
-| `signature3`  | The S7 signature.       |
+| Field       | Description             |
+| ----------- | ----------------------- |
+| `protocol`  | `"install-virtual-app"` |
+| `toXpub`    | `initiatingXpub`     |
+| `seq`       | `-1`                    |
+| `signature`  | Intermediary signature on AB VirtualAppAgreement|
+| `signature2`  | Intermediary signature on AB FreeBalanceActivation|
 
-### Summary
+### M5 - Initiating signs AB FreeBalanceActivation and ABC VirtualAppSetState
 
-| Signature |         Commitment          | Signed By |
-| --------- | --------------------------- | --------- |
-| s1        | leftETHVirtualAppAgreement  | A         |
-| s2        | leftETHVirtualAppAgreement  | I         |
-| s3        | rightETHVirtualAppAgreement | I         |
-| s4        | rightETHVirtualAppAgreement | B         |
-| s5        | targetVirtualAppSetState    | A         |
-| s6        | targetVirtualAppSetState    | I         |
-| s7        | targetVirtualAppSetState    | B         |
+| Field        | Description             |
+| ------------ | ----------------------- |
+| `protocol`   | `"install-virtual-app"` |
+| `toXpub`     | `intermediaryXpub`        |
+| `seq`        | `-1`                    |
+| `signature`  | Initiating signature on AB FreeBalanceActivation|
+| `signature2`  | Initiating signature on ABC VirtualAppSetState|
 
-| Message | Signatures |
-| ------- | ---------- |
-| m1      | s1, s5     |
-| m2      | s5, s3     |
-| m3      | s4, s7     |
-| m4      | s6         |
-| m5      | s6, s2, s7 |
+
+### M6 - Intermediary signs BC FreeBalanceActivation and ABC VirtualAppSetState
+
+Note that in this message the intermediary is *forwarding* the initiating's signature on the ABC VirtualAppSetState commitment.
+
+| Field        | Description             |
+| ------------ | ----------------------- |
+| `protocol`   | `"install-virtual-app"` |
+| `toXpub`     | `respondingXpub`        |
+| `seq`        | `-1`                    |
+| `signature`  | Intermediary signature on BC FreeBalanceActivation|
+| `signature2`  | Intermediary signature on ABC VirtualAppSetState |
+| `signature3`  | Initiating signature on ABC VirtualAppSetState |
+
+
+### M7 - Responding signs ABC VirtualAppSetState
+
+| Field        | Description             |
+| ------------ | ----------------------- |
+| `protocol`   | `"install-virtual-app"` |
+| `toXpub`     | `intermediaryXpub`        |
+| `seq`        | `-1`                    |
+| `signature`  | Responding signature on ABC VirtualAppSetState|
+
+
+### M8 - Intermediary sends initiating ABC VirtualAppSetState
+
+Note that in this message the intermediary is *forwarding* the responding's signature on the ABC VirtualAppSetState commitment.
+
+| Field        | Description             |
+| ------------ | ----------------------- |
+| `protocol`   | `"install-virtual-app"` |
+| `toXpub`     | `initiatingXpub`        |
+| `seq`        | `-1`                    |
+| `signature`  | Intermediary signature on ABC VirtualAppSetState|
+| `signature2`  | Responding signature on ABC VirtualAppSetState|

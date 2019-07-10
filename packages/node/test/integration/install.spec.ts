@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
@@ -68,7 +69,7 @@ describe("Node method follows spec - proposeInstall", () => {
         const appInstanceProposalReq = makeTTTProposalRequest(
           nodeA.publicIdentifier,
           nodeB.publicIdentifier,
-          global["networkContext"].TicTacToe
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
         expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(

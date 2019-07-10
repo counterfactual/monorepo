@@ -33,7 +33,7 @@ export default class UninstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+        await store.getMultisigAddressFromstring(sc.multisigAddress)
       )
     ];
   }

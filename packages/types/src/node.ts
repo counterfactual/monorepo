@@ -3,7 +3,7 @@ import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
 import { AppABIEncodings, AppInstanceInfo } from "./data-types";
-import { AppInstanceID, SolidityABIEncoderV2Type } from "./simple-types";
+import { SolidityABIEncoderV2Type } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -151,6 +151,7 @@ export namespace Node {
   export type DepositParams = {
     multisigAddress: string;
     amount: BigNumber;
+    tokenAddress?: string;
     notifyCounterparty?: boolean;
   };
 
@@ -159,7 +160,7 @@ export namespace Node {
   };
 
   export type GetAppInstanceDetailsParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type GetAppInstanceDetailsResult = {
@@ -188,6 +189,7 @@ export namespace Node {
 
   export type GetFreeBalanceStateParams = {
     multisigAddress: string;
+    tokenAddress?: string;
   };
 
   export type GetFreeBalanceStateResult = {
@@ -209,7 +211,7 @@ export namespace Node {
   };
 
   export type GetStateParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type GetStateResult = {
@@ -217,7 +219,7 @@ export namespace Node {
   };
 
   export type InstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type InstallResult = {
@@ -248,17 +250,17 @@ export namespace Node {
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
   export type ProposeInstallResult = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type RejectInstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type RejectInstallResult = {};
 
   export type TakeActionParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     action: SolidityABIEncoderV2Type;
   };
 
@@ -267,7 +269,7 @@ export namespace Node {
   };
 
   export type UninstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type UninstallResult = {};
@@ -279,7 +281,7 @@ export namespace Node {
   export type UninstallVirtualResult = UninstallResult;
 
   export type UpdateStateParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     newState: SolidityABIEncoderV2Type;
   };
 
@@ -291,6 +293,7 @@ export namespace Node {
     multisigAddress: string;
     recipient?: string;
     amount: BigNumber;
+    tokenAddress?: string;
   };
 
   export type WithdrawResult = {
@@ -333,7 +336,7 @@ export namespace Node {
   };
 
   export type InstallEventData = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type RejectInstallEventData = {
@@ -345,7 +348,7 @@ export namespace Node {
   };
 
   export type UpdateStateEventData = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     newState: SolidityABIEncoderV2Type;
     action?: SolidityABIEncoderV2Type;
   };
