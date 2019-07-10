@@ -18,19 +18,14 @@ import {
 import { addUser, UserAddTransition } from "../../store/user";
 import "./AccountRegistration.scss";
 
-type AccountRegistrationProps = RouteComponentProps & {
+export type AccountRegistrationProps = RouteComponentProps & {
   wallet: WalletState;
   error: ErrorData;
   registrationStatus: string;
   addUser: (data: User, signer: JsonRpcSigner, history: History) => void;
 };
 
-const AlreadyHaveAnAccount: React.FC = () => (
-  <React.Fragment>
-    Already have an account? <Link to="/login">Login here</Link>
-  </React.Fragment>
-);
-type AccountRegistrationState = User & { loading: boolean };
+export type AccountRegistrationState = User & { loading: boolean };
 class AccountRegistration extends React.Component<
   AccountRegistrationProps,
   AccountRegistrationState
@@ -67,7 +62,11 @@ class AccountRegistration extends React.Component<
     return (
       <WidgetScreen
         header={"Create a Counterfactual Account"}
-        post={<AlreadyHaveAnAccount />}
+        post={
+          <React.Fragment>
+            Already have an account? <Link to="/login">Login here</Link>
+          </React.Fragment>
+        }
         exitable={false}
       >
         <form>
