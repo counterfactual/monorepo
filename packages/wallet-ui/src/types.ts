@@ -1,5 +1,5 @@
+import { AsyncSendable, JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { IpcProvider, JsonRPCResponse } from "web3/providers";
-import { AsyncSendable, Web3Provider, JsonRpcSigner } from "ethers/providers";
 
 export enum RoutePath {
   Root = "/",
@@ -31,16 +31,14 @@ export enum CounterfactualEvent {
 declare global {
   interface Window {
     ethereum: IpcProvider &
-      AsyncSendable & {
-        enable: () => Promise<void>;
-        selectedAddress: string;
-        networkVersion: string;
-        send: (
-          eventOrMethod: CounterfactualMethod | CounterfactualEvent,
-          data?: any[]
-        ) => Promise<JsonRPCResponse>;
-      };
-
-    __REDUX_DEVTOOLS_EXTENSION_COMPOSE__: (...args: any[]) => any;
+    AsyncSendable & {
+      enable: () => Promise<void>;
+      selectedAddress: string;
+      networkVersion: string;
+      send: (
+        eventOrMethod: CounterfactualMethod | CounterfactualEvent,
+        data?: any[]
+      ) => Promise<JsonRPCResponse>;
+    };
   }
 }
