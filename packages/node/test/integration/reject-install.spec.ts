@@ -15,7 +15,8 @@ import {
   getProposedAppInstanceInfo,
   getProposedAppInstances,
   makeProposeCall,
-  makeRejectInstallRequest
+  makeRejectInstallRequest,
+  collateralizeChannel
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
@@ -33,7 +34,9 @@ describe("Node method follows spec - rejectInstall", () => {
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
       it("sends proposal with non-null initial state", async done => {
-        await createChannel(nodeA, nodeB);
+        const multisigAddress = await createChannel(nodeA, nodeB);
+        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
         let appInstanceId: string;
