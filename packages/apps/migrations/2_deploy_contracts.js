@@ -4,7 +4,8 @@ const ARTIFACTS = [
   artifacts.require("HighRollerApp"),
   artifacts.require("NimApp"),
   artifacts.require("TicTacToeApp"),
-  artifacts.require("ETHUnidirectionalTransferApp")
+  artifacts.require("ETHUnidirectionalTransferApp"),
+  artifacts.require("SimpleTwoPartySwapApp")
 ];
 
 module.exports = (deployer, network) => {
