@@ -115,7 +115,7 @@ export function convertCoinTransfersMapToCoinTransfers(
 }
 
 /**
- * Given an AppInstance whose state is HexFreeBalanceState, convert the state
+ * Given an AppInstance whose state is FreeBalanceState, convert the state
  * into the locally more convenient data type CoinTransferMap and return that.
  *
  * Note that this function will also default the `to` addresses of a new token

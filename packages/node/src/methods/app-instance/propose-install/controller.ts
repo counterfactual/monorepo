@@ -2,13 +2,19 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { xkeyKthAddress } from "../../../machine";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getBalancesFromFreeBalanceAppInstance
+} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
-  NULL_INITIAL_STATE_FOR_PROPOSAL,
-  NO_CHANNEL_BETWEEN_NODES
+  INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
+  NO_CHANNEL_BETWEEN_NODES,
+  NULL_INITIAL_STATE_FOR_PROPOSAL
 } from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
@@ -30,7 +36,11 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
     const { store } = requestHandler;
-    const { proposedToIdentifier } = params;
+    const {
+      proposedToIdentifier,
+      myDeposit,
+      myDepositTokenAddress: myDepositTokenAddressParam
+    } = params;
 
     const myIdentifier = requestHandler.publicIdentifier;
 
@@ -45,6 +55,26 @@ export default class ProposeInstallController extends NodeController {
       );
     }
 
+    const myDepositTokenAddress =
+      myDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+
+    const channel = await store.getStateChannel(multisigAddress);
+    const myFreeBalanceForToken = getBalancesFromFreeBalanceAppInstance(
+      channel.freeBalance,
+      myDepositTokenAddress
+    )[xkeyKthAddress(myIdentifier, 0)];
+
+    if (myFreeBalanceForToken.lt(myDeposit)) {
+      throw new Error(
+        INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
+          myIdentifier,
+          multisigAddress,
+          myDepositTokenAddress,
+          myFreeBalanceForToken,
+          myDeposit
+        )
+      );
+    }
     return [requestHandler.getShardedQueue(multisigAddress)];
   }
 
