@@ -36,12 +36,21 @@ export namespace Node {
     onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
   }
 
+  /**
+   * An interface for a stateful storage service with an API very similar to Firebase's API.
+   * Values are addressed by paths, which are separated by the forward slash separator `/`.
+   * `get` must return values whose paths have prefixes that match the provided path,
+   * keyed by the remaining path.
+   * `set` allows multiple values and paths to be atomically set. In Firebase, passing `null`
+   * as `value` deletes the entry at the given prefix, and passing objects with null subvalues
+   * deletes entries at the path extended by the subvalue's path within the object. `set` must
+   * have the same behaviour if the `allowDelete` flag is passed; otherwise, any null values or
+   * subvalues throws an error.
+   */
   export interface IStoreService {
-    get(key: string): Promise<any>;
-    // Multiple pairs could be written simultaneously if an atomic write
-    // among multiple records is required
+    get(path: string): Promise<any>;
     set(
-      pairs: { key: string; value: any }[],
+      pairs: { path: string; value: any }[],
       allowDelete?: Boolean
     ): Promise<void>;
     reset?(): Promise<void>;
