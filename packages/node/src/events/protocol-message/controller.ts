@@ -2,7 +2,6 @@ import {
   Protocol,
   SetupParams,
   TakeActionParams,
-  UninstallParams,
   UninstallVirtualAppParams,
   WithdrawParams
 } from "../../machine";
@@ -12,7 +11,6 @@ import {
   CreateChannelMessage,
   NODE_EVENTS,
   NodeMessageWrappedProtocolMessage,
-  UninstallMessage,
   UninstallVirtualMessage,
   UpdateStateMessage,
   WithdrawMessage
@@ -31,7 +29,7 @@ export default async function protocolMessageEventController(
     publicIdentifier,
     instructionExecutor,
     store,
-    router
+    outgoing
   } = requestHandler;
 
   const {
@@ -55,7 +53,62 @@ export default async function protocolMessageEventController(
       );
 
       // TODO: Follow this pattern for all machine related events
-      if (protocol === Protocol.UninstallVirtualApp) {
+      if (protocol === Protocol.Setup) {
+        const { multisigAddress, initiatingXpub } = params as SetupParams;
+        const setupMsg: CreateChannelMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.CREATE_CHANNEL,
+          data: {
+            multisigAddress,
+            owners: (stateChannelsMap.get(multisigAddress) as StateChannel)
+              .multisigOwners,
+            counterpartyXpub: initiatingXpub
+          }
+        };
+
+        outgoing.emit(setupMsg.type, setupMsg);
+      } else if (protocol === Protocol.Update) {
+        console.log(
+          "NOTE: Update protocol was run based on received message but no event was thrown"
+        );
+      } else if (protocol === Protocol.TakeAction) {
+        const { multisigAddress, appIdentityHash } = params as TakeActionParams;
+
+        const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+
+        const takeAction: UpdateStateMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.UPDATE_STATE,
+          data: {
+            newState: sc.getAppInstance(appIdentityHash).state,
+            appInstanceId: appIdentityHash
+          }
+        };
+
+        outgoing.emit(takeAction.type, takeAction);
+      } else if (protocol === Protocol.Install) {
+        console.log(
+          "NOTE: Install protocol was run based on received message but no event was thrown"
+        );
+      } else if (protocol === Protocol.Uninstall) {
+        console.log(
+          "NOTE: Uninstall protocol was run based on received message but no event was thrown"
+        );
+      } else if (protocol === Protocol.Withdraw) {
+        const withdrawMsg: WithdrawMessage = {
+          from: publicIdentifier,
+          type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
+          data: {
+            amount: (params as WithdrawParams).amount
+          }
+        };
+
+        outgoing.emit(withdrawMsg.type, withdrawMsg);
+      } else if (protocol === Protocol.InstallVirtualApp) {
+        console.log(
+          "NOTE: Install virtual protocol was run based on received message but no event was thrown"
+        );
+      } else if (protocol === Protocol.UninstallVirtualApp) {
         const {
           targetAppIdentityHash,
           intermediaryXpub
@@ -69,59 +122,7 @@ export default async function protocolMessageEventController(
           }
         };
 
-        await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
-      } else if (protocol === Protocol.Uninstall) {
-        const uninstallMsg: UninstallMessage = {
-          from: publicIdentifier,
-          type: NODE_EVENTS.UNINSTALL,
-          data: {
-            appInstanceId: (params as UninstallParams).appIdentityHash
-          }
-        };
-
-        await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
-      } else if (protocol === Protocol.Withdraw) {
-        const withdrawMsg: WithdrawMessage = {
-          from: publicIdentifier,
-          type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
-          data: {
-            amount: (params as WithdrawParams).amount
-          }
-        };
-
-        await router.emit(withdrawMsg.type, withdrawMsg, "outgoing");
-      } else if (protocol === Protocol.Setup) {
-        const { multisigAddress, initiatingXpub } = params as SetupParams;
-        const setupMsg: CreateChannelMessage = {
-          from: publicIdentifier,
-          type: NODE_EVENTS.CREATE_CHANNEL,
-          data: {
-            multisigAddress,
-            owners: (stateChannelsMap.get(multisigAddress) as StateChannel)
-              .multisigOwners,
-            counterpartyXpub: initiatingXpub
-          }
-        };
-
-        await router.emit(setupMsg.type, setupMsg, "outgoing");
-      } else if (
-        protocol === Protocol.TakeAction ||
-        protocol === Protocol.Update
-      ) {
-        const { multisigAddress, appIdentityHash } = params as TakeActionParams;
-
-        const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-
-        const updateMsg: UpdateStateMessage = {
-          from: publicIdentifier,
-          type: NODE_EVENTS.UPDATE_STATE,
-          data: {
-            newState: sc.getAppInstance(appIdentityHash).state,
-            appInstanceId: appIdentityHash
-          }
-        };
-
-        await router.emit(updateMsg.type, updateMsg, "outgoing");
+        outgoing.emit(uninstallMsg.type, uninstallMsg);
       }
     });
 }
