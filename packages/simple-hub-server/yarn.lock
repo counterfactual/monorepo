@@ -10,13 +10,13 @@
     "@babel/highlight" "^7.0.0"
 
 "@babel/core@^7.1.0":
-  version "7.5.0"
-  resolved "https://registry.npmjs.org/@babel/core/-/core-7.5.0.tgz#6ed6a2881ad48a732c5433096d96d1b0ee5eb734"
-  integrity sha512-6Isr4X98pwXqHvtigw71CKgmhL1etZjPs5A67jL/w0TkLM9eqmFR40YrnJvEc1WnMZFsskjsmid8bHZyxKEAnw==
+  version "7.5.4"
+  resolved "https://registry.npmjs.org/@babel/core/-/core-7.5.4.tgz#4c32df7ad5a58e9ea27ad025c11276324e0b4ddd"
+  integrity sha512-+DaeBEpYq6b2+ZmHx3tHspC+ZRflrvLqwfv8E3hNr5LVQoyBnL8RPKSBCg+rK2W2My9PWlujBiqd0ZPsR9Q6zQ==
   dependencies:
     "@babel/code-frame" "^7.0.0"
     "@babel/generator" "^7.5.0"
-    "@babel/helpers" "^7.5.0"
+    "@babel/helpers" "^7.5.4"
     "@babel/parser" "^7.5.0"
     "@babel/template" "^7.4.4"
     "@babel/traverse" "^7.5.0"
@@ -68,10 +68,10 @@
   dependencies:
     "@babel/types" "^7.4.4"
 
-"@babel/helpers@^7.5.0":
-  version "7.5.2"
-  resolved "https://registry.npmjs.org/@babel/helpers/-/helpers-7.5.2.tgz#97424dc82fc0041f4c751119b4d2b1ec68cdb5ba"
-  integrity sha512-NDkkTqDvgFUeo8djXBOiwO/mFjownznOWvmP9hvNdfiFUmx0nwNOqxuaTTbxjH744eQsD9M5ubC7gdANBvIWPw==
+"@babel/helpers@^7.5.4":
+  version "7.5.4"
+  resolved "https://registry.npmjs.org/@babel/helpers/-/helpers-7.5.4.tgz#2f00608aa10d460bde0ccf665d6dcf8477357cf0"
+  integrity sha512-6LJ6xwUEJP51w0sIgKyfvFMJvIb9mWAfohJp0+m6eHJigkFdcH8duZ1sfhn0ltJRzwUIT/yqqhdSfRpCpL7oow==
   dependencies:
     "@babel/template" "^7.4.4"
     "@babel/traverse" "^7.5.0"
@@ -158,10 +158,10 @@
     eventemitter3 "^3.1.2"
     rpc-server "0.0.1"
 
-"@counterfactual/contracts@0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@counterfactual/contracts/-/contracts-0.1.6.tgz#4ea07b8b0178a00188b6fa1e2c5ff336bcc79f3b"
-  integrity sha512-8l9QFf/lAwydHZkDLWOHBmwEU+cStbkqfHdQ3BzKFlQ1+Q79OLZPJ9KhKv70SJq+9wT4NZCkykFzUiKB28llQw==
+"@counterfactual/contracts@0.1.7":
+  version "0.1.7"
+  resolved "https://registry.npmjs.org/@counterfactual/contracts/-/contracts-0.1.7.tgz#7cee2e5badf3895bff74a146c37c3e69bdf3c5fb"
+  integrity sha512-Q+Gk+xpAqSdQ6Ox+skr7SCmYkk82Yaqbobkjrz52ZZbiRDi8+IR3o3ZzlX2R1/LXVFn9iHXEHuxJUVwhC4JH2A==
 
 "@counterfactual/firebase-client@0.0.3":
   version "0.0.3"
@@ -186,15 +186,15 @@
   dependencies:
     eventemitter3 "^3.1.0"
 
-"@counterfactual/node@0.2.16":
-  version "0.2.16"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.16.tgz#47be7cfc341525352856765ba849db90cce05fa2"
-  integrity sha512-yZCpQPyX8dcul68qXaszSto8EIlglawq4GY999AiRE9M0TdAocmg1cOdoN8JYfh8o++Abzb70v+zBdJP7MXRag==
+"@counterfactual/node@0.2.17":
+  version "0.2.17"
+  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.2.17.tgz#394fcd6ddfa33e7b0a60ab15f962af33988f9d4d"
+  integrity sha512-BbmAf0ltR46piAS//R1tR+zH0I4npS2IXhDchNl7k/WMt17sVHrHrJPZ+WszNVowGxSMgehPc1wL8J++Kh7Y8w==
   dependencies:
     "@counterfactual/cf.js" "0.2.1"
-    "@counterfactual/contracts" "0.1.6"
+    "@counterfactual/contracts" "0.1.7"
     "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.21"
+    "@counterfactual/types" "0.0.22"
     ethers "4.0.32"
     eventemitter3 "^4.0.0"
     loglevel "^1.6.1"
@@ -208,10 +208,10 @@
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
   integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
 
-"@counterfactual/types@0.0.21":
-  version "0.0.21"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.21.tgz#bd0b9014818ad870f0615cd3d6d46f5dceffa823"
-  integrity sha512-hIqb69vBtdSkNHg6hxspsjr2sXbVVYjDj8CTYsVru4b8JuJM6zJh7B4q3AOunBmI1R0KJn22Itqny6ysXLLIXA==
+"@counterfactual/types@0.0.22":
+  version "0.0.22"
+  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.22.tgz#481760e1e4c9454789488c6477456c2e00d14581"
+  integrity sha512-fNQGb4ZYbUl6VgXcTL1HLkHto9lzymHTwMzKHqXFThi5pU/Q3Ete/WQgKVskFv8tjeKaitxWmOdRIG1gBCpNqw==
 
 "@counterfactual/typescript-typings@0.1.0":
   version "0.1.0"
