@@ -1,9 +1,8 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
-  BlockchainAsset,
   Node,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
@@ -38,12 +37,12 @@ function parseBigNumber(val: BigNumberish, paramName: string): BigNumber {
 export class AppFactory {
   /**
    * Constructs a new instance
-   * @param appId Address of the on-chain contract containing the app logic.
+   * @param appDefinition Address of the on-chain contract containing the app logic.
    * @param encodings ABI encodings to encode and decode the app's state and actions
    * @param provider CFjs provider
    */
   constructor(
-    readonly appId: Address,
+    readonly appDefinition: Address,
     readonly encodings: AppABIEncodings,
     readonly provider: Provider
   ) {}
@@ -58,8 +57,6 @@ export class AppFactory {
   async proposeInstall(params: {
     /** Xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
-    /** Asset to use for deposit */
-    asset: BlockchainAsset;
     /** Amount to be deposited by you */
     myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
@@ -68,7 +65,9 @@ export class AppFactory {
     timeout: BigNumberish;
     /** Initial state of app instance */
     initialState: SolidityABIEncoderV2Type;
-  }): Promise<AppInstanceID> {
+    /** The outcome type of the app instance */
+    outcomeType: OutcomeType;
+  }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
@@ -79,11 +78,11 @@ export class AppFactory {
         timeout,
         peerDeposit,
         myDeposit,
-        asset: params.asset,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
-        appId: this.appId,
-        abiEncodings: this.encodings
+        appDefinition: this.appDefinition,
+        abiEncodings: this.encodings,
+        outcomeType: params.outcomeType
       }
     );
     const { appInstanceId } = response.result as Node.ProposeInstallResult;
@@ -100,8 +99,6 @@ export class AppFactory {
   async proposeInstallVirtual(params: {
     /** xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
-    /** Asset to use for deposit */
-    asset: BlockchainAsset;
     /** Amount to be deposited by you */
     myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
@@ -112,7 +109,7 @@ export class AppFactory {
     initialState: SolidityABIEncoderV2Type;
     /** List of intermediary peers to route installation through */
     intermediaries: string[];
-  }): Promise<AppInstanceID> {
+  }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
@@ -123,12 +120,13 @@ export class AppFactory {
         timeout,
         peerDeposit,
         myDeposit,
-        asset: params.asset,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         intermediaries: params.intermediaries,
-        appId: this.appId,
-        abiEncodings: this.encodings
+        appDefinition: this.appDefinition,
+        abiEncodings: this.encodings,
+        // FIXME: Hard-coded temporarily
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
     const {

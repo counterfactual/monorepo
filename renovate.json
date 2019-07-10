@@ -2,9 +2,14 @@
   "extends": [
     "config:base"
   ],
+  "schedule": ["every weekend"],
+  "baseBranches": ["next"],
+  "automerge": true,
   "ignoreDeps": [
+    "firebase",
     "@stencil/core",
     "@stencil/router",
+    "@stencil/sass",
     "@types/jest",
     "jest-cli",
     "jest",

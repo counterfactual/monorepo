@@ -5,7 +5,7 @@ import {
 import { RequestHandler } from "../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../types";
 
-import { setAppInstanceIDForProposeInstallVirtual } from "./operation";
+import { setstringForProposeInstallVirtual } from "./operation";
 
 /**
  *
@@ -16,7 +16,7 @@ export default async function proposeInstallVirtualEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeVirtualMessage
 ) {
-  await setAppInstanceIDForProposeInstallVirtual(
+  await setstringForProposeInstallVirtual(
     requestHandler.publicIdentifier,
     requestHandler.store,
     nodeMsg.data.params,
@@ -46,6 +46,7 @@ export default async function proposeInstallVirtualEventController(
     nodeMsg.data.params.proposedToIdentifier
   );
 
+  // TODO: Remove this and add a handler in protocolMessageEventController
   await requestHandler.messagingService.send(
     nextNodeAddress,
     relayedProposalMsg

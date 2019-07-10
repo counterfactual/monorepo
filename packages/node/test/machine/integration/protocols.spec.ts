@@ -1,12 +1,17 @@
 import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-import { xkeyKthAddress } from "../../../src/machine";
+import {
+  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp,
+  xkeyKthAddress
+} from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
+import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -19,6 +24,11 @@ let wallet: Wallet;
 let appDefinition: Contract;
 
 expect.extend({ toBeEq });
+
+enum ActionType {
+  SUBMIT_COUNTER_INCREMENT,
+  ACCEPT_INCREMENT
+}
 
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
@@ -37,12 +47,24 @@ describe("Three mininodes", () => {
     const mininodeB = new MiniNode(network, provider);
     const mininodeC = new MiniNode(network, provider);
 
+    const multisigAB = getCreate2MultisigAddress(
+      [mininodeA.xpub, mininodeB.xpub],
+      network.ProxyFactory,
+      network.MinimumViableMultisig
+    );
+
+    const multisigBC = getCreate2MultisigAddress(
+      [mininodeB.xpub, mininodeC.xpub],
+      network.ProxyFactory,
+      network.MinimumViableMultisig
+    );
+
     const mr = new MessageRouter([mininodeA, mininodeB, mininodeC]);
 
     mininodeA.scm = await mininodeA.ie.runSetupProtocol({
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeB.xpub,
-      multisigAddress: AddressZero
+      multisigAddress: multisigAB
     });
 
     // todo: if nodeB/nodeC is still busy doing stuff, we should wait for it
@@ -53,53 +75,49 @@ describe("Three mininodes", () => {
       xkeyKthAddress(mininodeA.xpub, 1),
       xkeyKthAddress(mininodeB.xpub, 1)
     ]);
+
     await mininodeA.ie.runInstallProtocol(mininodeA.scm, {
       signingKeys,
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeB.xpub,
-      multisigAddress: AddressZero,
+      multisigAddress: multisigAB,
       initiatingBalanceDecrement: Zero,
       respondingBalanceDecrement: Zero,
       initialState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 0
       },
       appInterface: {
         addr: appDefinition.address,
-        stateEncoding:
-          "tuple(address player1, address player2, uint256 counter)",
-        actionEncoding: "tuple(uint256 increment)"
+        stateEncoding: "tuple(uint256 counter)",
+        actionEncoding: "tuple(uint8 actionType, uint256 increment)"
       },
-      defaultTimeout: 40
+      defaultTimeout: 40,
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
-    const appInstances = mininodeA.scm.get(AddressZero)!.appInstances;
+    const appInstances = mininodeA.scm.get(multisigAB)!.appInstances;
+
     const [key] = [...appInstances.keys()].filter(key => {
-      return (
-        key !==
-        mininodeA.scm.get(AddressZero)!.toJson().freeBalanceAppIndexes[0][1]
-      );
+      return key !== mininodeA.scm.get(multisigAB)!.freeBalance.identityHash;
     });
 
     await mininodeA.ie.runUninstallProtocol(mininodeA.scm, {
       appIdentityHash: key,
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeB.xpub,
-      multisigAddress: AddressZero
+      multisigAddress: multisigAB
     });
 
     mr.assertNoPending();
 
-    const addressOne = "0x0000000000000000000000000000000000000001";
-
     mininodeB.scm.set(
-      addressOne,
+      multisigBC,
       (await mininodeB.ie.runSetupProtocol({
         initiatingXpub: mininodeB.xpub,
         respondingXpub: mininodeC.xpub,
-        multisigAddress: "0x0000000000000000000000000000000000000001"
-      })).get(addressOne)!
+        multisigAddress: multisigBC
+      })).get(multisigBC)!
     );
 
     mr.assertNoPending();
@@ -115,27 +133,28 @@ describe("Three mininodes", () => {
       defaultTimeout: 100,
       appInterface: {
         addr: appDefinition.address,
-        stateEncoding:
-          "tuple(address player1, address player2, uint256 counter)",
-        actionEncoding: "tuple(uint256 increment)"
+        stateEncoding: "tuple(uint256 counter)",
+        actionEncoding: "tuple(uint8 actionType, uint256 increment)"
       },
       initialState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 0
       },
       initiatingBalanceDecrement: bigNumberify(0),
-      respondingBalanceDecrement: bigNumberify(0)
+      respondingBalanceDecrement: bigNumberify(0),
+      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
     expect(mininodeA.scm.size).toBe(2);
 
-    const [virtualKey] = [...mininodeA.scm.keys()].filter(key => {
-      return key !== AddressZero;
-    });
+    const unqiueIdentifierForStateChannelWrappingVirtualApp = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
+      [mininodeA.xpub, mininodeC.xpub],
+      mininodeB.xpub
+    );
 
     const [appInstance] = [
-      ...mininodeA.scm.get(virtualKey)!.appInstances.values()
+      ...mininodeA.scm
+        .get(unqiueIdentifierForStateChannelWrappingVirtualApp)!
+        .appInstances.values()
     ];
 
     expect(appInstance.isVirtualApp);
@@ -143,11 +162,9 @@ describe("Three mininodes", () => {
     await mininodeA.ie.runUpdateProtocol(mininodeA.scm, {
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeC.xpub,
-      multisigAddress: virtualKey,
+      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       newState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 1
       }
     });
@@ -155,9 +172,10 @@ describe("Three mininodes", () => {
     await mininodeA.ie.runTakeActionProtocol(mininodeA.scm, {
       initiatingXpub: mininodeA.xpub,
       respondingXpub: mininodeC.xpub,
-      multisigAddress: virtualKey,
+      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       action: {
+        actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
         increment: 1
       }
     });
@@ -168,8 +186,6 @@ describe("Three mininodes", () => {
       respondingXpub: mininodeC.xpub,
       targetAppIdentityHash: appInstance.identityHash,
       targetAppState: {
-        player1: AddressZero,
-        player2: AddressZero,
         counter: 2
       }
     });

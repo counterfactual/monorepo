@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import {
@@ -16,6 +17,9 @@ import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL_VIRTUAL;
+
+  @jsonRpcMethod(Node.RpcMethodName.UNINSTALL_VIRTUAL)
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

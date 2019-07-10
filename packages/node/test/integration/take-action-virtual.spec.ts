@@ -1,18 +1,15 @@
-import {
-  Node as NodeTypes,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import { bigNumberify } from "ethers/utils";
+import { Node as NodeTypes } from "@counterfactual/types";
+import { One, Zero } from "ethers/constants";
 
 import {
+  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
   UpdateStateMessage
 } from "../../src";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
@@ -23,21 +20,15 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
+    const context: SetupContext = await setup(global, true, true);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
   describe(
@@ -47,7 +38,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.call(takeActionReq.type, takeActionReq)).rejects.toEqual(
+        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
@@ -55,32 +46,57 @@ describe("Node method follows spec - takeAction virtual", () => {
       it("can take action", async done => {
         const multisigAddressAB = await createChannel(nodeA, nodeB);
         const multisigAddressBC = await createChannel(nodeB, nodeC);
+
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
         const appInstanceId = await installTTTAppVirtual(nodeA, nodeB, nodeC);
 
-        let newState: SolidityABIEncoderV2Type;
+        const expectedNewState = {
+          board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],
+          versionNumber: One,
+          winner: Zero
+        };
 
-        nodeC.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
-          const getStateReq = generateGetStateRequest(msg.data.appInstanceId);
-          const response = await nodeC.call(getStateReq.type, getStateReq);
-          const updatedState = (response.result as NodeTypes.GetStateResult)
-            .state;
-          expect(updatedState).toEqual(newState);
-          done();
-        });
+        nodeC.once(
+          NODE_EVENTS.UPDATE_STATE,
+          async (msg: UpdateStateMessage) => {
+            /**
+             * TEST #1
+             * The event emitted by Node C after an action is taken by A
+             * sends the appInstanceId and the newState correctly.
+             */
+            expect(msg.data.appInstanceId).toEqual(appInstanceId);
+            expect(msg.data.newState).toEqual(expectedNewState);
+
+            /**
+             * TEST #3
+             * The database of Node C is correctly updated and querying it works
+             */
+            const { state } = ((await nodeC.router.dispatch(
+              generateGetStateRequest(appInstanceId)
+            )) as JsonRpcResponse).result as NodeTypes.GetStateResult;
+
+            expect(state).toEqual(expectedNewState);
+
+            done();
+          }
+        );
 
         const takeActionReq = generateTakeActionRequest(
           appInstanceId,
           validAction
         );
 
-        const response = await nodeA.call(takeActionReq.type, takeActionReq);
-        newState = (response.result as NodeTypes.TakeActionResult).newState;
+        /**
+         * TEST #2
+         * The return value from the call to Node A includes the new state
+         */
+        const { newState } = ((await nodeA.router.dispatch(
+          takeActionReq
+        )) as JsonRpcResponse).result as NodeTypes.TakeActionResult;
 
-        expect(newState["board"][0][0]).toEqual(bigNumberify(1));
-        expect(newState["turnNum"]).toEqual(bigNumberify(1));
+        expect(newState).toEqual(expectedNewState);
       });
     }
   );

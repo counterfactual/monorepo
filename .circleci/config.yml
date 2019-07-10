@@ -6,7 +6,7 @@ orbs:
 defaults: &defaults
   working_directory: /home/circleci/project
   docker:
-    - image: circleci/node:10
+    - image: counterfactual/circleci-environment:latest
 
 save_code: &save_code
   save_cache:
@@ -30,10 +30,7 @@ restore_dep: &restore_dep
 
 jobs:
   build:
-    working_directory: /home/circleci/project
-    # use customized docker (ubuntu, yarn 1.15, node10, solc binary)
-    docker:
-      - image: counterfactual/circleci-environment:latest
+    <<: *defaults
     steps:
       - <<: *restore_code
       - checkout
@@ -55,12 +52,25 @@ jobs:
             - packages/*/build
 
   run-non-playground-tests:
-    <<: *defaults
+    docker:
+      - image: circleci/node:10.15.3
+        environment:
+          POSTGRES_HOST: 127.0.0.1
+          POSTGRES_USER: postgres
+          POSTGRES_DATABASE: postgres
+          POSTGRES_PORT: 5432
+
+      - image: circleci/postgres:9.6.14-alpine
+        environment:
+          POSTGRES_USER: postgres
+
     steps:
       - <<: *restore_code
       - checkout
 
       - <<: *restore_dep
+      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
@@ -73,19 +83,23 @@ jobs:
   run-playground-tests:
     <<: *defaults
     docker:
-      - image: circleci/node:10-browsers
+      - image: circleci/node:10.15.3-browsers
     steps:
       - <<: *restore_code
+
       - checkout
 
       - <<: *restore_dep
+
+      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
       - run:
-          name: Run Playground Server tests
-          command: cd packages/playground-server && yarn test:ci
+          name: Run Simple Hub Server tests
+          command: cd packages/simple-hub-server && yarn test:ci
       - run:
           name: Run High Roller tests
           command: cd packages/dapp-high-roller && yarn test
@@ -104,7 +118,43 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
 
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
       - run: yarn lint
+
+  ensure-updated-lockfiles:
+    <<: *defaults
+    steps:
+      - <<: *restore_code
+
+      - checkout
+
+      - <<: *restore_dep
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run: apt-get install -y jq # using this to mutate package.json
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run:
+          name: Check root yarn.lock
+          command: yarn --frozen-lockfile
+
+      - run: jq -c 'del(.workspaces)' package.json > tmp.$$.json && mv tmp.$$.json package.json
+
+      - run:
+          name: Check simple-hub-server yarn.lock
+          command: cd packages/simple-hub-server && yarn --frozen-lockfile
+
+      - run:
+          name: Check tic-tac-toe-bot yarn.lock
+          command: cd packages/tic-tac-toe-bot && yarn --frozen-lockfile
+
+      - run:
+          name: Check high-roller-bot yarn.lock
+          command: cd packages/high-roller-bot && yarn --frozen-lockfile
 
   publish-to-npm:
     <<: *defaults
@@ -143,9 +193,14 @@ workflows:
           requires:
             - build
 
+      - ensure-updated-lockfiles:
+          requires:
+            - build
+
       - publish-to-npm:
           requires:
             - build
+            - ensure-updated-lockfiles
             - run-non-playground-tests
             - run-playground-tests
             - run-tslint
@@ -154,7 +209,7 @@ workflows:
               only: master
 
       - heroku/deploy-via-git:
-          app-name: playground-server-staging
+          app-name: simple-hub-server-staging
           requires:
             - publish-to-npm
           filters:
@@ -176,5 +231,3 @@ workflows:
           filters:
             branches:
               only: master
-
-

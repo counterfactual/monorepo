@@ -1,9 +1,9 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, WeiPerEther, Zero } from "ethers/constants";
+import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import {
   defaultAbiCoder,
@@ -12,9 +12,14 @@ import {
   parseEther
 } from "ethers/utils";
 
-import { InstallCommitment, SetStateCommitment } from "../../../src/ethereum";
+import {
+  ConditionalTransaction,
+  SetStateCommitment
+} from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -24,7 +29,7 @@ import { getRandomHDNodes } from "./random-signing-keys";
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 
-// The AppRegistry.setState call _could_ be estimated but we haven't
+// The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -44,19 +49,22 @@ beforeAll(async () => {
 
   network = global["networkContext"];
 
-  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**
  * @summary Set up a StateChannel and then install a new AppInstance into it.
  *
- * @description We re-use the ETHBucket App (which is the app ETH Free Balance uses)
+ * @description We re-use the FreeBalanceApp App (which is the app ETH Free Balance uses)
  * as the test app being installed. We then set the values to [1, 1] in that app
  * and trigger the InstallCommitment on-chain to resolve that app and verify
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
-  jest.setTimeout(20000);
   it("returns the funds the app had locked up", async done => {
     const xkeys = getRandomHDNodes(2);
 
@@ -73,91 +81,126 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       let stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.FreeBalanceApp,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey),
         1
-      ).setFreeBalance(AssetType.ETH, {
-        [multisigOwnerKeys[0].address]: WeiPerEther,
-        [multisigOwnerKeys[1].address]: WeiPerEther
-      });
+      ).setFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
+          multisigOwnerKeys.map(key => key.address),
+          WeiPerEther
+        )
+      );
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
         xkeys.map(x => x.extendedKey),
         stateChannel.numInstalledApps
       );
 
-      let freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-      const state = freeBalanceETH.state;
-
       // todo(xuanji): don't reuse state
       // todo(xuanji): use createAppInstance
-      const appInstance = new AppInstance(
+      const identityAppInstance = new AppInstance(
         stateChannel.multisigAddress,
         uniqueAppSigningKeys.map(x => x.address),
-        freeBalanceETH.defaultTimeout, // Re-use ETH FreeBalance timeout
-        freeBalanceETH.appInterface, // Re-use the ETHBucket App
+        stateChannel.freeBalance.defaultTimeout, // Re-use ETH FreeBalance timeout
+        {
+          addr: network.IdentityApp,
+          stateEncoding: "tuple(address to, uint256 amount)[][]",
+          actionEncoding: undefined
+        },
         false,
         stateChannel.numInstalledApps,
-        stateChannel.rootNonceValue,
-        state,
+        [
+          [
+            { to: multisigOwnerKeys[0].address, amount: WeiPerEther },
+            { to: multisigOwnerKeys[1].address, amount: WeiPerEther }
+          ]
+        ],
         0,
-        freeBalanceETH.timeout, // Re-use ETH FreeBalance timeout
-        [AddressZero, AddressZero],
-        Zero
+        stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
+        undefined,
+        {
+          limit: parseEther("2"),
+          tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        },
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
-      stateChannel = stateChannel.installApp(appInstance, {
+      stateChannel = stateChannel.installApp(identityAppInstance, {
         [multisigOwnerKeys[0].address]: WeiPerEther,
         [multisigOwnerKeys[1].address]: WeiPerEther
       });
 
-      freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
-
       const setStateCommitment = new SetStateCommitment(
         network,
-        appInstance.identity,
-        keccak256(appInstance.encodedLatestState),
-        appInstance.nonce + 1,
-        appInstance.timeout
+        identityAppInstance.identity,
+        keccak256(identityAppInstance.encodedLatestState),
+        identityAppInstance.versionNumber + 1,
+        identityAppInstance.timeout
       );
 
       await wallet.sendTransaction({
-        ...setStateCommitment.transaction([
+        ...setStateCommitment.getSignedTransaction([
           uniqueAppSigningKeys[0].signDigest(setStateCommitment.hashToSign()),
           uniqueAppSigningKeys[1].signDigest(setStateCommitment.hashToSign())
         ]),
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
-      for (const _ of Array(appInstance.timeout)) {
+      const setStateCommitmentForFreeBalance = new SetStateCommitment(
+        network,
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.hashOfLatestState,
+        stateChannel.freeBalance.versionNumber,
+        stateChannel.freeBalance.timeout
+      );
+
+      await wallet.sendTransaction({
+        ...setStateCommitmentForFreeBalance.getSignedTransaction([
+          multisigOwnerKeys[0].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          ),
+          multisigOwnerKeys[1].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          )
+        ]),
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      // tslint:disable-next-line:prefer-array-literal
+      for (const _ of Array(identityAppInstance.timeout)) {
         await provider.send("evm_mine", []);
       }
 
       await appRegistry.functions.setOutcome(
-        appInstance.identity,
-        appInstance.encodedLatestState
+        identityAppInstance.identity,
+        identityAppInstance.encodedLatestState
       );
 
-      const installCommitment = new InstallCommitment(
+      await appRegistry.functions.setOutcome(
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.encodedLatestState
+      );
+
+      const conditionalTransaction = new ConditionalTransaction(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        appInstance.identity,
-        freeBalanceETH.identity,
-        freeBalanceETH.hashOfLatestState,
-        freeBalanceETH.nonce,
-        freeBalanceETH.timeout,
-        appInstance.appSeqNo,
-        stateChannel.rootNonceValue,
-        network.ETHInterpreter,
-        defaultAbiCoder.encode(["uint256"], [freeBalanceETH.limitOrTotal])
+        identityAppInstance.identityHash,
+        stateChannel.freeBalance.identityHash,
+        network.CoinTransferETHInterpreter,
+        defaultAbiCoder.encode(
+          ["tuple(uint256 limit, address tokenAddress)"],
+          [identityAppInstance.coinTransferInterpreterParams!]
+        )
       );
 
-      const installTx = installCommitment.transaction([
-        multisigOwnerKeys[0].signDigest(installCommitment.hashToSign()),
-        multisigOwnerKeys[1].signDigest(installCommitment.hashToSign())
-      ]);
+      const multisigDelegateCallTx = conditionalTransaction.getSignedTransaction(
+        [
+          multisigOwnerKeys[0].signDigest(conditionalTransaction.hashToSign()),
+          multisigOwnerKeys[1].signDigest(conditionalTransaction.hashToSign())
+        ]
+      );
 
       await wallet.sendTransaction({
         to: proxyAddress,
@@ -165,7 +208,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       });
 
       await wallet.sendTransaction({
-        ...installTx,
+        ...multisigDelegateCallTx,
         gasLimit: INSTALL_COMMITMENT_GAS
       });
 

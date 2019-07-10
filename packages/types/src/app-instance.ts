@@ -1,8 +1,3 @@
-export enum AssetType {
-  ETH = 0,
-  ERC20 = 1
-}
-
 export type AppIdentity = {
   owner: string;
   signingKeys: string[];
@@ -18,12 +13,7 @@ export type AppInterface = {
 
 export type SignedStateHashUpdate = {
   appStateHash: string;
-  nonce: number;
+  versionNumber: number;
   timeout: number;
   signatures: string;
 };
-
-export type ETHBucketAppState = {
-  amount: { _hex: string };
-  to: string;
-}[];

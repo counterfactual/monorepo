@@ -1,53 +1,51 @@
 import {
   AppIdentity,
   AppInterface,
-  AssetType,
-  ETHBucketAppState,
   SignedStateHashUpdate
 } from "./app-instance";
 import {
   AppABIEncodings,
   AppInstanceInfo,
-  BlockchainAsset,
+  coinBalanceRefundStateEncoding,
+  CoinTransferInterpreterParams,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
-import { INodeProvider, Node } from "./node";
+import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
-  AppInstanceID,
   Bytes32,
+  ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
 
 export interface NetworkContext {
-  AppRegistry: string;
-  ETHBalanceRefundApp: string;
-  ETHBucket: string;
-  MultiSend: string;
-  NonceRegistry: string;
-  StateChannelTransaction: string;
-  TwoPartyVirtualEthAsLump: string;
+  ChallengeRegistry: string;
+  ConditionalTransactionDelegateTarget: string;
+  CoinBalanceRefundApp: string;
+  CoinTransferETHInterpreter: string;
+  FreeBalanceApp: string;
+  IdentityApp: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
-  ETHInterpreter: string;
-  TwoPartyEthAsLump: string;
+  TwoPartyFixedOutcomeETHInterpreter: string;
+  TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
 }
 
 // Keep in sync with above
 export const networkContextProps = [
-  "AppRegistry",
-  "ETHBalanceRefundApp",
-  "ETHBucket",
-  "MultiSend",
-  "NonceRegistry",
-  "StateChannelTransaction",
-  "TwoPartyVirtualEthAsLump",
+  "ChallengeRegistry",
+  "ConditionalTransactionDelegateTarget",
+  "CoinBalanceRefundApp",
+  "CoinTransferETHInterpreter",
+  "IdentityApp",
+  "FreeBalanceApp",
   "MinimumViableMultisig",
   "ProxyFactory",
-  "ETHInterpreter",
-  "TwoPartyEthAsLump"
+  "TwoPartyFixedOutcomeETHInterpreter",
+  "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
 ];
 
 export interface ContractMigration {
@@ -61,17 +59,18 @@ export {
   Address,
   AppABIEncodings,
   AppIdentity,
-  AppInstanceID,
   AppInstanceInfo,
   AppInterface,
+  coinBalanceRefundStateEncoding,
+  CoinTransferInterpreterParams,
+  ContractABI,
   SolidityABIEncoderV2Type,
-  AssetType,
-  BlockchainAsset,
   Bytes32,
-  ETHBucketAppState,
   INodeProvider,
+  IRpcNodeProvider,
   Node,
   SignedStateHashUpdate,
   OutcomeType,
-  TwoPartyOutcome
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 };

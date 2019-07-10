@@ -1,0 +1,34 @@
+{
+  "name": "@counterfactual/postgresql-node-connector",
+  "version": "0.0.3",
+  "main": "src/index.ts",
+  "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
+  "license": "MIT",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
+  "scripts": {
+    "prepublish": "tsc -b .",
+    "build": "tsc -b .",
+    "build:watch": "tsc -b .",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "lint:fix": "tslint -c tslint.json -p . --fix",
+    "lint": "tslint -c tslint.json -p ."
+  },
+  "dependencies": {
+    "@counterfactual/types": "0.0.21",
+    "pg": "7.11.0",
+    "reflect-metadata": "0.1.13",
+    "typeorm": "0.2.18"
+  },
+  "devDependencies": {
+    "@types/jest": "24.0.13",
+    "@types/node": "12.0.12",
+    "@types/pg": "7.4.14",
+    "dotenv-extended": "2.4.0",
+    "jest": "24.8.0",
+    "tslint": "5.18.0",
+    "typescript": "3.5.1"
+  }
+}

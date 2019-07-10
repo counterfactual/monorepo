@@ -1,6 +1,7 @@
 import {
   AppInterface,
   NetworkContext,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
@@ -68,11 +69,13 @@ export type WithdrawParams = {
   multisigAddress: string;
   recipient: string;
   amount: BigNumber;
+  tokenAddress: string;
 };
 
 export type InstallParams = {
   initiatingXpub: string;
   respondingXpub: string;
+  tokenAddress: string;
   multisigAddress: string;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
@@ -80,6 +83,7 @@ export type InstallParams = {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
+  outcomeType: OutcomeType;
 };
 
 export type UninstallParams = {
@@ -98,6 +102,7 @@ export type InstallVirtualAppParams = {
   initialState: SolidityABIEncoderV2Type;
   initiatingBalanceDecrement: BigNumber;
   respondingBalanceDecrement: BigNumber;
+  tokenAddress: string;
 };
 
 export type UninstallVirtualAppParams = {

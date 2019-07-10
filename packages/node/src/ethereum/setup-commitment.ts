@@ -1,20 +1,12 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
-import { MaxUint256 } from "ethers/constants";
-import {
-  defaultAbiCoder,
-  Interface,
-  keccak256,
-  solidityPack
-} from "ethers/utils";
-
-import { DependencyValue } from "../models/app-instance";
+import { Interface } from "ethers/utils";
 
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
-const iface = new Interface(StateChannelTransaction.abi);
+const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
 
 export class SetupCommitment extends MultisigCommitment {
   public constructor(
@@ -28,40 +20,14 @@ export class SetupCommitment extends MultisigCommitment {
 
   public getTransactionDetails(): MultisigTransaction {
     return {
-      to: this.networkContext.StateChannelTransaction,
+      to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
-      data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
-        this.networkContext.AppRegistry,
-        this.networkContext.NonceRegistry,
-        this.getUninstallKeyForNonceRegistry(),
-        // NOTE: We *assume* here that the root nonce value will be 0
-        //       when creating the setup commitment
-        0,
+      data: iface.functions.executeEffectOfFreeBalance.encode([
+        this.networkContext.ChallengeRegistry,
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.ETHInterpreter,
-        defaultAbiCoder.encode(["uint256"], [MaxUint256])
+        this.networkContext.CoinTransferETHInterpreter
       ]),
       operation: MultisigOperation.DelegateCall
     };
-  }
-
-  private getUninstallKeyForNonceRegistry() {
-    return keccak256(
-      solidityPack(
-        ["address", "uint256", "bytes32"],
-        [
-          this.multisigAddress,
-          // The timeout is hard-coded to be 0 as is defined by the protocol
-          0,
-          this.getSaltForDependencyNonce()
-        ]
-      )
-    );
-  }
-
-  private getSaltForDependencyNonce() {
-    return keccak256(
-      defaultAbiCoder.encode(["uint256"], [DependencyValue.NOT_CANCELLED])
-    );
   }
 }

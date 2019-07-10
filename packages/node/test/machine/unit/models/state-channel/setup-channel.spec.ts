@@ -1,9 +1,12 @@
-import { AssetType, ETHBucketAppState } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { AppInstance, StateChannel } from "../../../../../src/models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getBalancesFromFreeBalanceAppInstance
+} from "../../../../../src/models/free-balance";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
@@ -19,7 +22,7 @@ describe("StateChannel::setupChannel", () => {
 
   beforeAll(() => {
     sc = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       userNeuteredExtendedKeys
     );
@@ -38,7 +41,7 @@ describe("StateChannel::setupChannel", () => {
     let fb: AppInstance;
 
     beforeAll(() => {
-      fb = sc.getFreeBalanceFor(AssetType.ETH);
+      fb = sc.freeBalance;
     });
 
     it("should exist", () => {
@@ -53,8 +56,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.isVirtualApp).toBe(false);
     });
 
-    it("should have nonce 0 to start", () => {
-      expect(fb.nonce).toBe(0);
+    it("should have versionNumber 0 to start", () => {
+      expect(fb.versionNumber).toBe(0);
     });
 
     it("should have a default timeout defined by the hard-coded assumption", () => {
@@ -70,8 +73,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.signingKeys).toEqual(sc.multisigOwners);
     });
 
-    it("should use the ETHBucketApp as the app target", () => {
-      expect(fb.appInterface.addr).toBe(networkContext.ETHBucket);
+    it("should use the FreeBalanceAppApp as the app target", () => {
+      expect(fb.appInterface.addr).toBe(networkContext.FreeBalanceApp);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 
@@ -82,8 +85,12 @@ describe("StateChannel::setupChannel", () => {
     it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
-      const fbState = fb.state as ETHBucketAppState;
-      for (const { amount } of fbState) {
+      for (const amount of Object.values(
+        getBalancesFromFreeBalanceAppInstance(
+          fb,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
+      )) {
         expect(amount).toEqual(Zero);
       }
     });

@@ -3,9 +3,10 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
-import * as log from "loglevel";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
+import { createRpcRouter } from "./api-router";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import {
@@ -14,15 +15,11 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { configureNetworkContext } from "./network-configuration";
+import { deployTestArtifactsToChain } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
-import { IMessagingService, IStoreService } from "./services";
+import NodeRouter from "./rpc-router";
 import { getHDNode } from "./signer";
-import {
-  NODE_EVENTS,
-  NodeMessage,
-  NodeMessageWrappedProtocolMessage
-} from "./types";
+import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
 export interface NodeConfig {
@@ -54,10 +51,11 @@ export class Node {
   // initialized in the `asynchronouslySetupUsingRemoteServices` function
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
+  public router: NodeRouter = {} as NodeRouter;
 
   static async create(
-    messagingService: IMessagingService,
-    storeService: IStoreService,
+    messagingService: NodeTypes.IMessagingService,
+    storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: string | NetworkContext,
@@ -76,8 +74,8 @@ export class Node {
   }
 
   private constructor(
-    private readonly messagingService: IMessagingService,
-    private readonly storeService: IStoreService,
+    private readonly messagingService: NodeTypes.IMessagingService,
+    private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,
@@ -87,7 +85,7 @@ export class Node {
     this.outgoing = new EventEmitter();
     this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
     if (typeof networkContext === "string") {
-      this.networkContext = configureNetworkContext(networkContext);
+      this.networkContext = deployTestArtifactsToChain(networkContext);
 
       if (
         blocksNeededForConfirmation &&
@@ -124,12 +122,20 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
+    this.router = createRpcRouter(this.requestHandler);
+    this.requestHandler.injectRouter(this.router);
+
     return this;
   }
 
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  @Memoize()
+  async signerAddress(): Promise<string> {
+    return await this.requestHandler.getSignerAddress();
   }
 
   @Memoize()
@@ -208,7 +214,7 @@ export class Node {
 
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
-        if (!msg || !("data" in msg)) {
+        if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
           throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
               data.protocol
@@ -222,7 +228,7 @@ export class Node {
         // per counterparty at the moment.
         this.ioSendDeferrals.delete(data.protocolExecutionID);
 
-        return msg.data;
+        return (msg as NodeMessageWrappedProtocolMessage).data;
       }
     );
 
@@ -256,7 +262,7 @@ export class Node {
    * @param callback
    */
   on(event: string, callback: (res: any) => void) {
-    this.outgoing.on(event, callback);
+    this.router.subscribe(event, async (res: any) => callback(res));
   }
 
   /**
@@ -267,7 +273,10 @@ export class Node {
    * @param [callback]
    */
   off(event: string, callback?: (res: any) => void) {
-    this.outgoing.off(event, callback);
+    this.router.unsubscribe(
+      event,
+      callback ? async (res: any) => callback(res) : undefined
+    );
   }
 
   /**
@@ -279,7 +288,7 @@ export class Node {
    * @param [callback]
    */
   once(event: string, callback: (res: any) => void) {
-    this.outgoing.once(event, callback);
+    this.router.subscribeOnce(event, async (res: any) => callback(res));
   }
 
   /**
@@ -288,7 +297,7 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeTypes.MethodRequest) {
-    this.incoming.emit(event, req);
+    this.router.emit(event, req);
   }
 
   /**
@@ -312,9 +321,9 @@ export class Node {
   private registerMessagingConnection() {
     this.messagingService.onReceive(
       this.publicIdentifier,
-      async (msg: NodeMessage) => {
+      async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        this.outgoing.emit(msg.type, msg);
+        this.router.emit(msg.type, msg, "outgoing");
       }
     );
   }
@@ -335,12 +344,12 @@ export class Node {
    *     _does have_ an _ioSendDeferral_, in which case the message is dispatched
    *     solely to the deffered promise's resolve callback.
    */
-  private async handleReceivedMessage(msg: NodeMessage) {
+  private async handleReceivedMessage(msg: NodeTypes.NodeMessage) {
     if (!Object.values(NODE_EVENTS).includes(msg.type)) {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
-    const isProtocolMessage = (msg: NodeMessage) =>
+    const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>

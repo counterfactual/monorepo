@@ -1,20 +1,6 @@
 graph LR
-    subgraph NonceRegistry
-        setNonce
-        setNonce.->0
-        setNonce.->salt
-        setNonce.->1
-    end
-    subgraph AppRegistry-Free-Balance
+    subgraph ChallengeRegistry
         setState
-        setState-->appIdentity:AppIdentity
+        setState-->freeBalanceAppIdentity:AppIdentity
         setState-->req:SignedStateHashUpdate
-    end
-    subgraph MultiSend
-        multiSend
-        multiSend-->setState
-        multiSend-->setNonce
-    end
-    subgraph Multisig
-        execTransaction-->multiSend
     end

@@ -3,8 +3,8 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import {
-  ActionType,
   GameState,
+  HighRollerActionType,
   HighRollerAppState,
   HighRollerStage
 } from "../../data/game-types";
@@ -82,15 +82,23 @@ export class AppProvider {
     this.cfProvider.on("installVirtual", this.onInstall.bind(this));
 
     const highRollerAppDefinitionAddr =
-      "0x91907355C59BA005843E791c88aAB80b779446c9";
+      "0x144F1A5C2db59B58f2c73d09A2acb27a57E47618";
     this.appFactory = new cf.AppFactory(
       // TODO: This probably should be in a configuration, somewhere.
       highRollerAppDefinitionAddr,
       {
         actionEncoding:
           "tuple(uint8 actionType, uint256 number, bytes32 actionHash)",
-        stateEncoding:
-          "tuple(address[2] playerAddrs, uint8 stage, bytes32 salt, bytes32 commitHash, uint256 playerFirstNumber, uint256 playerSecondNumber)"
+        stateEncoding: `
+          tuple(
+            uint8 stage,
+            bytes32 salt,
+            bytes32 commitHash,
+            uint256 playerFirstNumber,
+            uint256 playerSecondNumber,
+            uint256 versionNumber
+          )
+        `
       },
       this.cfProvider
     );
@@ -103,7 +111,7 @@ export class AppProvider {
     return (
       bn(state.playerFirstNumber).toNumber() &&
       bn(state.playerSecondNumber).toNumber() &&
-      state.stage === HighRollerStage.DONE
+      state.stage === HighRollerStage.P1_REVEALED_NUM
     );
   }
 
@@ -123,11 +131,11 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    if (state.stage === HighRollerStage.REVEALING) {
+    if (state.stage === HighRollerStage.P2_COMMITTED_TO_NUM) {
       return await this.appInstance.takeAction({
-        actionType: ActionType.REVEAL,
+        actionType: HighRollerActionType.REVEAL_NUM,
         actionHash: this.highRollerState.salt,
-        number: state.playerFirstNumber.toString()
+        number: state.playerFirstNumber
       });
     }
 
@@ -145,11 +153,8 @@ export class AppProvider {
       state.playerSecondNumber
     );
 
-    const isProposing = state.stage === HighRollerStage.DONE;
-    const myRoll = isProposing ? rolls.playerFirstRoll : rolls.playerSecondRoll;
-    const opponentRoll = isProposing
-      ? rolls.playerSecondRoll
-      : rolls.playerFirstRoll;
+    const myRoll = rolls.playerSecondRoll;
+    const opponentRoll = rolls.playerFirstRoll;
 
     const totalMyRoll = myRoll[0] + myRoll[1];
     const totalOpponentRoll = opponentRoll[0] + opponentRoll[1];
@@ -176,7 +181,8 @@ export class AppProvider {
 
     this.updateUIState(newUIState);
 
-    if (state.stage === HighRollerStage.DONE) {
+    // @ts-ignore - no idea why this causes an error...
+    if (state.stage === HighRollerStage.P1_REVEALED_NUM) {
       await this.appInstance.uninstall(this.intermediary);
     }
   }

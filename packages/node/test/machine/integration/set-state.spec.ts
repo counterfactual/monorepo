@@ -1,17 +1,18 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
 import { getRandomHDNodes } from "./random-signing-keys";
 
-// The AppRegistry.setState call _could_ be estimated but we haven't
+// The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -26,14 +27,18 @@ beforeAll(async () => {
 
   network = global["networkContext"];
 
-  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**
  * @summary Setup a StateChannel then set state on ETH Free Balance
  */
 describe("set state on free balance", () => {
-  it("should have the correct nonce", async done => {
+  it("should have the correct versionNumber", async done => {
     const xkeys = getRandomHDNodes(2);
 
     const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
@@ -42,25 +47,27 @@ describe("set state on free balance", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      network.ETHBucket,
+      network.FreeBalanceApp,
       AddressZero,
       xkeys.map(x => x.neuter().extendedKey)
-    ).setFreeBalance(AssetType.ETH, {
-      [multisigOwnerKeys[0].address]: WeiPerEther,
-      [multisigOwnerKeys[1].address]: WeiPerEther
-    });
+    ).setFreeBalance(
+      createFreeBalanceStateWithFundedETHAmounts(
+        multisigOwnerKeys.map<string>(key => key.address),
+        WeiPerEther
+      )
+    );
 
-    const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+    const freeBalanceETH = stateChannel.freeBalance;
 
     const setStateCommitment = new SetStateCommitment(
       network,
       freeBalanceETH.identity,
       freeBalanceETH.hashOfLatestState,
-      freeBalanceETH.nonce,
+      freeBalanceETH.versionNumber,
       freeBalanceETH.timeout
     );
 
-    const setStateTx = setStateCommitment.transaction([
+    const setStateTx = setStateCommitment.getSignedTransaction([
       multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
       multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
     ]);
@@ -74,7 +81,9 @@ describe("set state on free balance", () => {
       freeBalanceETH.identityHash
     );
 
-    expect(contractAppState.nonce).toBeEq(setStateCommitment.appLocalNonce);
+    expect(contractAppState.versionNumber).toBeEq(
+      setStateCommitment.appVersionNumber
+    );
 
     done();
   });

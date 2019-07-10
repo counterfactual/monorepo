@@ -12,7 +12,7 @@ import { INVALID_NETWORK_NAME } from "./methods/errors";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
-export function configureNetworkContext(network: string): NetworkContext {
+export function deployTestArtifactsToChain(network: string): NetworkContext {
   log.info(`Configuring Node to use contracts on network: ${network}`);
 
   switch (network.toLocaleLowerCase()) {

@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
@@ -16,6 +17,9 @@ import { install } from "./operation";
 export default class InstallController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL;
 
+  @jsonRpcMethod("chan_install")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.InstallParams
@@ -27,7 +31,7 @@ export default class InstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+        await store.getMultisigAddressFromstring(sc.multisigAddress)
       )
     ];
   }
@@ -49,13 +53,7 @@ export default class InstallController extends NodeController {
       params.appInstanceId
     );
 
-    const appInstanceInfo = await install(
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      respondingAddress,
-      params
-    );
+    const appInstanceInfo = await install(store, instructionExecutor, params);
 
     const installApprovalMsg: InstallMessage = {
       from: publicIdentifier,
@@ -63,6 +61,7 @@ export default class InstallController extends NodeController {
       data: { params }
     };
 
+    // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(respondingAddress, installApprovalMsg);
 
     return {

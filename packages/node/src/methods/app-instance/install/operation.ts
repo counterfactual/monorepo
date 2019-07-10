@@ -2,14 +2,13 @@ import { Node } from "@counterfactual/types";
 
 import { InstructionExecutor } from "../../../machine";
 import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
 export async function install(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingAddress: string,
-  respondingAddress: string,
   params: Node.InstallParams
 ): Promise<ProposedAppInstanceInfo> {
   const { appInstanceId } = params;
@@ -39,9 +38,11 @@ export async function install(
       initialState: appInstanceInfo.initialState,
       appInterface: {
         ...appInstanceInfo.abiEncodings,
-        addr: appInstanceInfo.appId
+        addr: appInstanceInfo.appDefinition
       },
-      defaultTimeout: appInstanceInfo.timeout.toNumber()
+      defaultTimeout: appInstanceInfo.timeout.toNumber(),
+      outcomeType: appInstanceInfo.outcomeType,
+      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     }
   );
 

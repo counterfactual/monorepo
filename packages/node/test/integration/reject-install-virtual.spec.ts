@@ -6,9 +6,8 @@ import {
   ProposeVirtualMessage,
   RejectProposalMessage
 } from "../../src/types";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   confirmProposedVirtualAppInstanceOnNode,
   createChannel,
@@ -18,22 +17,17 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
+    const context: SetupContext = await setup(global, true, false);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
-  });
   describe(
     "Node A makes a proposal through an intermediary Node B to install a " +
       "Virtual AppInstance with Node C. Node C rejects proposal. Node A confirms rejection",
@@ -70,7 +64,9 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
-            expect(proposedAppInstanceA.id).toEqual(proposedAppInstanceC.id);
+            expect(proposedAppInstanceA.identityHash).toEqual(
+              proposedAppInstanceC.identityHash
+            );
 
             const rejectReq = makeRejectInstallRequest(appInstanceId);
             await nodeC.call(rejectReq.type, rejectReq);

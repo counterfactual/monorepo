@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import {
   bigNumberify,
@@ -29,25 +29,27 @@ describe("Virtual App Set State Commitment", () => {
   const networkContext = generateRandomNetworkContext();
 
   const appInstance = new AppInstance(
-    getAddress(hexlify(randomBytes(20))),
-    [
+    /* multisigAddress */ getAddress(hexlify(randomBytes(20))),
+    /* signingKeys */ [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ],
-    Math.ceil(1000 * Math.random()),
-    {
+    /* defaultTimeout */ Math.ceil(1000 * Math.random()),
+    /* appInterface */ {
       addr: getAddress(hexlify(randomBytes(20))),
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     },
-    false,
-    Math.ceil(1000 * Math.random()),
-    0,
+    /* isVirtualApp */ false,
+    /* appSeqNo */ Math.ceil(1000 * Math.random()),
     { foo: AddressZero, bar: 0 },
     0,
     Math.ceil(1000 * Math.random()),
-    [AddressZero, AddressZero],
-    Zero
+    {
+      playerAddrs: [AddressZero, AddressZero],
+      amount: Zero
+    },
+    undefined
   );
 
   beforeAll(() => {
@@ -56,17 +58,17 @@ describe("Virtual App Set State Commitment", () => {
       appInstance.identity,
       appInstance.timeout,
       appInstance.hashOfLatestState,
-      appInstance.nonce
+      appInstance.versionNumber
     );
-    tx = commitment.transaction([], {
+    tx = commitment.getSignedTransaction([], {
       r: HashZero,
       s: HashZero,
       v: 0
     });
   });
 
-  it("should be to AppRegistry", () => {
-    expect(tx.to).toBe(networkContext.AppRegistry);
+  it("should be to ChallengeRegistry", () => {
+    expect(tx.to).toBe(networkContext.ChallengeRegistry);
   });
 
   it("should have no value", () => {
@@ -74,7 +76,7 @@ describe("Virtual App Set State Commitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(AppRegistry.abi);
+    const iface = new Interface(ChallengeRegistry.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -97,9 +99,9 @@ describe("Virtual App Set State Commitment", () => {
     });
 
     it("should contain expected SignedStateHashUpdate argument", () => {
-      const [stateHash, nonce, timeout, []] = desc.args[1];
+      const [stateHash, versionNumber, timeout, []] = desc.args[1];
       expect(stateHash).toBe(appInstance.hashOfLatestState);
-      expect(nonce).toEqual(bigNumberify(appInstance.nonce));
+      expect(versionNumber).toEqual(bigNumberify(appInstance.versionNumber));
       expect(timeout).toEqual(bigNumberify(appInstance.timeout));
     });
   });
@@ -107,14 +109,14 @@ describe("Virtual App Set State Commitment", () => {
   it("should produce the correct hash to sign", () => {
     const hashToSign = commitment.hashToSign(false);
 
-    // Based on MAppRegistryCore::computeStateHash
+    // Based on MChallengeRegistryCore::computeStateHash
     const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
         [
           "0x19",
           appIdentityToHash(appInstance.identity),
-          appInstance.nonce,
+          appInstance.versionNumber,
           appInstance.timeout,
           appInstance.hashOfLatestState
         ]

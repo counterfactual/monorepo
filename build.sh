@@ -10,22 +10,32 @@ if [ "$PLAYGROUND_SCOPE" = "server" ]
 then
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
+    chain \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
-    playground-server \
+    firebase-client \
+    firebase-server \
+    simple-hub-server \
   "
 else
   packages=" \
     types \
+    postgresql-node-connector \
     apps \
     contracts \
+    chain \
     node-provider \
     cf.js \
+    cf-wallet.js \
     node \
-    playground-server \
+    firebase-client \
+    firebase-server \
+    simple-hub-server \
     playground \
     dapp-high-roller \
     dapp-tic-tac-toe \

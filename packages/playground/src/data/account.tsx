@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 import { createProviderConsumer } from "@stencil/state-tunnel";
+import { BigNumber } from "ethers/utils";
 
 import { ErrorMessage, UserSession } from "../types";
 

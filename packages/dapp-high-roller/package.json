@@ -1,6 +1,10 @@
 {
   "name": "@counterfactual/dapp-high-roller",
   "version": "0.1.0",
+  "engines": {
+    "yarn": "1.12.3",
+    "node": "10.15.3"
+  },
   "scripts": {
     "netlify": "sh netlify.sh",
     "build": "stencil build && cp src/_redirects www/_redirects",
@@ -25,13 +29,13 @@
   },
   "homepage": "https://counterfactual.com",
   "devDependencies": {
-    "@stencil/sass": "0.2.3",
+    "@stencil/sass": "0.1.1",
     "@types/jest": "23.3.14",
     "@types/puppeteer": "1.12.4",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
-    "puppeteer": "1.17.0",
-    "typescript": "3.4.5",
+    "puppeteer": "1.18.1",
+    "typescript": "3.5.1",
     "workbox-build": "3.4.1"
   }
 }

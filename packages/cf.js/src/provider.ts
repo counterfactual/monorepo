@@ -1,11 +1,16 @@
 import {
   Address,
-  AppInstanceID,
   AppInstanceInfo,
-  INodeProvider,
+  IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import {
+  jsonRpcDeserialize,
+  JsonRpcNotification,
+  JsonRpcResponse,
+  jsonRpcSerializeAsResponse
+} from "rpc-server";
 
 import { AppInstance, AppInstanceEventType } from "./app-instance";
 import {
@@ -15,6 +20,21 @@ import {
   UninstallEventData,
   UpdateStateEventData
 } from "./types";
+
+export const jsonRpcMethodNames = {
+  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
+  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
+  [Node.MethodName.GET_PROPOSED_APP_INSTANCES]: "chan_getProposedAppInstances",
+  [Node.MethodName.GET_STATE]: "chan_getState",
+  [Node.MethodName.INSTALL]: "chan_install",
+  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
+  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
+  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
+  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
+  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
+  [Node.MethodName.UNINSTALL]: "chan_uninstall",
+  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
+};
 
 /**
  * Milliseconds until a method request to the Node is considered timed out.
@@ -27,7 +47,7 @@ export const NODE_REQUEST_TIMEOUT = 20000;
 export class Provider {
   /** @ignore */
   private readonly requestListeners: {
-    [requestId: string]: (msg: Node.Message) => void;
+    [requestId: string]: (msg: JsonRpcResponse) => void;
   } = {};
   /** @ignore */
   private readonly eventEmitter = new EventEmitter();
@@ -41,7 +61,7 @@ export class Provider {
    * Construct a new instance
    * @param nodeProvider NodeProvider instance that enables communication with the Counterfactual node
    */
-  constructor(readonly nodeProvider: INodeProvider) {
+  constructor(readonly nodeProvider: IRpcNodeProvider) {
     this.nodeProvider.onMessage(this.onNodeMessage.bind(this));
     this.setupAppInstanceEventListeners();
   }
@@ -60,7 +80,7 @@ export class Provider {
     const result = response.result as Node.GetAppInstancesResult;
     return Promise.all(
       result.appInstances.map(info =>
-        this.getOrCreateAppInstance(info.id, info)
+        this.getOrCreateAppInstance(info.identityHash, info)
       )
     );
   }
@@ -77,7 +97,7 @@ export class Provider {
    * @param appInstanceId ID of the app instance to be installed, generated using [[AppFactory.proposeInstall]]
    * @return Installed AppInstance
    */
-  async install(appInstanceId: AppInstanceID): Promise<AppInstance> {
+  async install(appInstanceId: string): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
       appInstanceId
     });
@@ -99,7 +119,7 @@ export class Provider {
    * @return Installed AppInstance
    */
   async installVirtual(
-    appInstanceId: AppInstanceID,
+    appInstanceId: string,
     intermediaries: Address[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
@@ -120,7 +140,7 @@ export class Provider {
    *
    * @param appInstanceId ID of the app instance to reject
    */
-  async rejectInstall(appInstanceId: AppInstanceID) {
+  async rejectInstall(appInstanceId: string) {
     await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
       appInstanceId
     });
@@ -171,33 +191,59 @@ export class Provider {
     methodName: Node.MethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
-    const requestId = new Date().valueOf().toString();
+    const requestId = new Date().valueOf();
     return new Promise<Node.MethodResponse>((resolve, reject) => {
-      const request: Node.MethodRequest = {
-        requestId,
+      const request = jsonRpcDeserialize({
         params,
-        type: methodName
-      };
-      this.requestListeners[requestId] = response => {
-        if (response.type === Node.ErrorType.ERROR) {
-          return reject({
-            type: EventType.ERROR,
-            data: response.data
-          });
-        }
-        if (response.type !== methodName) {
-          return reject({
+        jsonrpc: "2.0",
+        method: jsonRpcMethodNames[methodName],
+        id: requestId
+      });
+
+      if (!request.methodName) {
+        return this.handleNodeError({
+          jsonrpc: "2.0",
+          result: {
             type: EventType.ERROR,
             data: {
-              errorName: "unexpected_message_type",
-              message: `Unexpected response type. Expected ${methodName}, got ${
-                response.type
-              }`
+              errorName: "unexpected_event_type"
             }
-          });
+          },
+          id: requestId
+        });
+      }
+
+      this.requestListeners[requestId] = response => {
+        if (response.result.type === Node.ErrorType.ERROR) {
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                ...response.result,
+                type: EventType.ERROR
+              },
+              requestId
+            )
+          );
         }
-        resolve(response as Node.MethodResponse);
+        if (response.result.type !== methodName) {
+          return reject(
+            jsonRpcSerializeAsResponse(
+              {
+                type: EventType.ERROR,
+                data: {
+                  errorName: "unexpected_message_type",
+                  message: `Unexpected response type. Expected ${methodName}, got ${
+                    response.result.type
+                  }`
+                }
+              },
+              requestId
+            )
+          );
+        }
+        resolve(response.result);
       };
+
       setTimeout(() => {
         if (this.requestListeners[requestId] !== undefined) {
           reject({
@@ -210,6 +256,7 @@ export class Provider {
           delete this.requestListeners[requestId];
         }
       }, NODE_REQUEST_TIMEOUT);
+
       this.nodeProvider.sendMessage(request);
     });
   }
@@ -223,7 +270,7 @@ export class Provider {
    * @return App instance
    */
   async getOrCreateAppInstance(
-    id: AppInstanceID,
+    id: string,
     info?: AppInstanceInfo
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
@@ -254,55 +301,67 @@ export class Provider {
   /**
    * @ignore
    */
-  private onNodeMessage(message: Node.Message) {
-    const type = message.type;
+  private onNodeMessage(
+    message: JsonRpcNotification | JsonRpcResponse | Node.Event
+  ) {
+    const type = message["jsonrpc"]
+      ? (message as JsonRpcNotification | JsonRpcResponse).result.type
+      : (message as Node.Event).type;
+
     if (Object.values(Node.ErrorType).indexOf(type) !== -1) {
-      this.handleNodeError(message as Node.Error);
-    } else if ((message as Node.MethodResponse).requestId) {
-      this.handleNodeMethodResponse(message as Node.MethodResponse);
+      this.handleNodeError(message as JsonRpcResponse);
+    } else if ("id" in message) {
+      this.handleNodeMethodResponse(message as JsonRpcResponse);
     } else {
-      this.handleNodeEvent(message as Node.Event);
+      this.handleNodeEvent(message as JsonRpcNotification | Node.Event);
     }
   }
 
   /**
    * @ignore
    */
-  private handleNodeError(error: Node.Error) {
-    const requestId = error.requestId;
+  private handleNodeError(error: JsonRpcResponse) {
+    const requestId = error.id;
     if (requestId && this.requestListeners[requestId]) {
       this.requestListeners[requestId](error);
       delete this.requestListeners[requestId];
     }
-    this.eventEmitter.emit(error.type, error);
+    this.eventEmitter.emit(error.result.type, error.result);
   }
 
   /**
    * @ignore
    */
-  private handleNodeMethodResponse(response: Node.MethodResponse) {
-    const { requestId } = response;
-    if (requestId in this.requestListeners) {
-      this.requestListeners[requestId](response);
-      delete this.requestListeners[requestId];
+  private handleNodeMethodResponse(response: JsonRpcResponse) {
+    const { id } = response;
+    if (id in this.requestListeners) {
+      this.requestListeners[id](response);
+      delete this.requestListeners[id];
     } else {
-      const error = {
-        type: EventType.ERROR,
-        data: {
-          errorName: "orphaned_response",
-          message: `Response has no corresponding inflight request: ${JSON.stringify(
-            response
-          )}`
-        }
-      };
-      this.eventEmitter.emit(error.type, error);
+      const error = jsonRpcSerializeAsResponse(
+        {
+          type: EventType.ERROR,
+          data: {
+            errorName: "orphaned_response",
+            message: `Response has no corresponding inflight request: ${JSON.stringify(
+              response
+            )}`
+          }
+        },
+        Number(id)
+      );
+      this.eventEmitter.emit(error.result.type, error.result);
     }
   }
 
   /**
    * @ignore
    */
-  private async handleNodeEvent(nodeEvent: Node.Event) {
+  private async handleNodeEvent(event: JsonRpcNotification | Node.Event) {
+    const nodeEvent = event["jsonrpc"]
+      ? (event as JsonRpcNotification | JsonRpcResponse).result
+      : (event as Node.Event);
+
     switch (nodeEvent.type) {
       case Node.EventName.REJECT_INSTALL:
         return this.handleRejectInstallEvent(nodeEvent);
@@ -412,7 +471,10 @@ export class Provider {
   private async handleRejectInstallEvent(nodeEvent: Node.Event) {
     const data = nodeEvent.data as Node.RejectInstallEventData;
     const info = data.appInstance;
-    const appInstance = await this.getOrCreateAppInstance(info.id, info);
+    const appInstance = await this.getOrCreateAppInstance(
+      info.identityHash,
+      info
+    );
     const event = {
       type: EventType.REJECT_INSTALL,
       data: {

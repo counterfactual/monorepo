@@ -1,19 +1,18 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
-import "../libs/LibStaticCall.sol";
+import "../libs/LibAppCaller.sol";
 
-import "./MAppRegistryCore.sol";
-import "./MAppCaller.sol";
+import "./MChallengeRegistryCore.sol";
 
 
 contract MixinRespondToChallenge is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// @notice Respond to a challenge with a valid action
@@ -24,7 +23,7 @@ contract MixinRespondToChallenge is
   /// signing key for which it is their turn to take the submitted `action`
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
-  /// @dev This function is only callable when the state channel is in a IN_CHALLENGE state
+  /// @dev This function is only callable when the application has an open challenge
   function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
@@ -40,8 +39,10 @@ contract MixinRespondToChallenge is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.IN_CHALLENGE && challenge.finalizesAt >= block.number,
-      "respondToChallenge called on app not in IN_CHALLENGE state"
+      (
+        challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE
+      ) && challenge.finalizesAt >= block.number,
+      "respondToChallenge called on app not in FINALIZES_AFTER_DEADLINE state"
     );
 
     require(
@@ -71,20 +72,17 @@ contract MixinRespondToChallenge is
       action
     );
 
-    challenge.appStateHash = keccak256(newAppState);
-    challenge.challengeNonce += 1;
-    challenge.latestSubmitter = msg.sender;
-
     if (claimFinal) {
       require(
         isStateTerminal(appIdentity.appDefinition, newAppState),
         "Attempted to claimFinal on a non-terminal state"
       );
+      challenge.appStateHash = keccak256(newAppState);
+      challenge.latestSubmitter = msg.sender;
       challenge.finalizesAt = block.number;
-      challenge.status = AppStatus.OFF;
+      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
-      challenge.status = AppStatus.IN_CHALLENGE;
-      challenge.finalizesAt = block.number + appIdentity.defaultTimeout;
+      delete appChallenges[identityHash];
     }
 
   }

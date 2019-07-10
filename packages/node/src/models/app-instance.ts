@@ -2,7 +2,9 @@ import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp
 import {
   AppIdentity,
   AppInterface,
-  SolidityABIEncoderV2Type
+  CoinTransferInterpreterParams,
+  SolidityABIEncoderV2Type,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
@@ -10,21 +12,13 @@ import {
   BigNumber,
   bigNumberify,
   defaultAbiCoder,
-  keccak256,
-  solidityPack
+  keccak256
 } from "ethers/utils";
-import * as log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
-/**
- * Representation of the values a dependency nonce can take on.
- */
-export enum DependencyValue {
-  NOT_CANCELLED = 0,
-  CANCELLED = 1
-}
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
 
 export type AppInstanceJson = {
   multisigAddress: string;
@@ -33,14 +27,28 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   isVirtualApp: boolean;
   appSeqNo: number;
-  rootNonceValue: number;
   latestState: SolidityABIEncoderV2Type;
-  latestNonce: number;
+  latestVersionNumber: number;
   latestTimeout: number;
-  beneficiaries: [string, string];
-  limitOrTotal: {
-    _hex: string;
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
+    playerAddrs: [string, string];
+    amount: { _hex: string };
   };
+
+  coinTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
+    limit: { _hex: string };
+    tokenAddress: string;
+  };
+
+  tokenAddress: string;
 };
 
 /**
@@ -59,24 +67,22 @@ export type AppInstanceJson = {
 
  * @property isVirtualApp A flag indicating whether this AppInstance's state
  *           deposits come directly from a multisig or through a virtual app
- *           proxy agreement (TwoPartyVirtualEthAsLump.sol)
+ *           proxy agreement.
 
  * @property latestState The unencoded representation of the latest state.
 
- * @property latestNonce The nonce of the latest signed state update.
+ * @property latestVersionNumber The versionNumber of the latest signed state update.
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
- * @property beneficiaries The free balance addresses of the two beneficiaries
- *           of the app (the two addresses who could potentially have money
- *           sent to them)
+ * @property coinTransferInterpreterParams The limit / maximum amount of funds
+ *           to be distributed for an app where the interpreter type is COIN_TRANSFER
 
- * @property limitOrTotal If the outcome type is TwoPartyOutcome, the total
- *           amount of ETH in wei allocated to the app; if the outcome type
- *           is ETHTransfer, the static upper bound on the total amount of ETH
- *           allowed to be transfered by this app
+ * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
+ *           and the amount that is to be distributed for an app
+ *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
-// TODO: dont forget dependnecy nonce docstring
+// TODO: dont forget dependnecy versionNumber docstring
 export class AppInstance {
   private readonly json: AppInstanceJson;
 
@@ -87,12 +93,12 @@ export class AppInstance {
     appInterface: AppInterface,
     isVirtualApp: boolean,
     appSeqNo: number,
-    rootNonceValue: number,
     latestState: any,
-    latestNonce: number,
+    latestVersionNumber: number,
     latestTimeout: number,
-    beneficiaries: [string, string],
-    limitOrTotal: BigNumber
+    twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
+    tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
   ) {
     this.json = {
       multisigAddress,
@@ -101,14 +107,26 @@ export class AppInstance {
       appInterface,
       isVirtualApp,
       appSeqNo,
-      rootNonceValue,
       latestState,
-      latestNonce,
+      latestVersionNumber,
       latestTimeout,
-      beneficiaries,
-      limitOrTotal: {
-        _hex: limitOrTotal.toHexString()
-      }
+      tokenAddress,
+      twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
+        ? {
+            playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
+            amount: {
+              _hex: twoPartyOutcomeInterpreterParams.amount.toHexString()
+            }
+          }
+        : undefined,
+      coinTransferInterpreterParams: coinTransferInterpreterParams
+        ? {
+            tokenAddress,
+            limit: {
+              _hex: coinTransferInterpreterParams.limit.toHexString()
+            }
+          }
+        : undefined
     };
   }
 
@@ -129,12 +147,24 @@ export class AppInstance {
       json.appInterface,
       json.isVirtualApp,
       json.appSeqNo,
-      json.rootNonceValue,
       latestState,
-      json.latestNonce,
+      json.latestVersionNumber,
       json.latestTimeout,
-      json.beneficiaries,
-      bigNumberify(json.limitOrTotal._hex)
+      json.twoPartyOutcomeInterpreterParams
+        ? {
+            playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,
+            amount: bigNumberify(
+              json.twoPartyOutcomeInterpreterParams.amount._hex
+            )
+          }
+        : undefined,
+      json.coinTransferInterpreterParams
+        ? {
+            tokenAddress: json.tokenAddress,
+            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
+          }
+        : undefined,
+      json.tokenAddress
     );
     return ret;
   }
@@ -174,32 +204,6 @@ export class AppInstance {
     );
   }
 
-  @Memoize()
-  public get uninstallKey() {
-    // The unique "key" in the NonceRegistry is computed to be:
-    // hash(<stateChannel.multisigAddress address>, <timeout = 0>, hash(<app nonce>))
-    const ret = keccak256(
-      solidityPack(
-        ["address", "uint256", "bytes32"],
-        [
-          this.json.multisigAddress,
-          0,
-          keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))
-        ]
-      )
-    );
-
-    log.debug(`
-      app-instance: computed
-        uninstallKey = ${ret} using
-        sender = ${this.json.multisigAddress},
-        timeout = 0,
-        salt = ${keccak256(solidityPack(["uint256"], [this.json.appSeqNo]))}
-    `);
-
-    return ret;
-  }
-
   // TODO: All these getters seems a bit silly, would be nice to improve
   //       the implementation to make it cleaner.
 
@@ -207,16 +211,30 @@ export class AppInstance {
     return this.json.latestState;
   }
 
-  public get nonce() {
-    return this.json.latestNonce;
+  public get versionNumber() {
+    return this.json.latestVersionNumber;
   }
 
-  public get limitOrTotal() {
-    return bigNumberify(this.json.limitOrTotal._hex);
+  public get coinTransferInterpreterParams() {
+    return this.json.coinTransferInterpreterParams
+      ? {
+          tokenAddress: this.json.tokenAddress,
+          limit: bigNumberify(
+            this.json.coinTransferInterpreterParams.limit._hex
+          )
+        }
+      : undefined;
   }
 
-  public get beneficiaries() {
-    return this.json.beneficiaries;
+  public get twoPartyOutcomeInterpreterParams() {
+    return this.json.twoPartyOutcomeInterpreterParams
+      ? {
+          playerAddrs: this.json.twoPartyOutcomeInterpreterParams.playerAddrs,
+          amount: bigNumberify(
+            this.json.twoPartyOutcomeInterpreterParams.amount._hex
+          )
+        }
+      : undefined;
   }
 
   public get timeout() {
@@ -247,15 +265,15 @@ export class AppInstance {
     return this.json.isVirtualApp;
   }
 
-  public get rootNonceValue() {
-    return this.json.rootNonceValue;
+  public get tokenAddress() {
+    return this.json.tokenAddress;
   }
 
-  public lockState(nonce: number) {
+  public lockState(versionNumber: number) {
     return AppInstance.fromJson({
       ...this.json,
       latestState: this.json.latestState,
-      latestNonce: nonce
+      latestVersionNumber: versionNumber
     });
   }
 
@@ -279,7 +297,7 @@ export class AppInstance {
     return AppInstance.fromJson({
       ...this.json,
       latestState: newState,
-      latestNonce: this.nonce + 1,
+      latestVersionNumber: this.versionNumber + 1,
       latestTimeout: timeout
     });
   }

@@ -1,18 +1,7 @@
 // This is a copy of what was implemented on the Node's integration tests
 // to provider support for a Firebase layer.
 // TODO: IMPORT THIS FROM THE NODE!
-
-export interface IMessagingService {
-  send(to: string, msg: any): Promise<void>;
-  onReceive(address: string, callback: (msg: any) => void);
-}
-
-export interface IStoreService {
-  get(key: string): Promise<any>;
-  // Multiple pairs could be written simultaneously if an atomic write
-  // among multiple records is required
-  set(pairs: { key: string; value: any }[]): Promise<boolean>;
-}
+import { Node } from "@counterfactual/types";
 
 export interface FirebaseAppConfiguration {
   databaseURL: string;
@@ -40,14 +29,14 @@ export default class FirebaseService {
 
   static createMessagingService(
     messagingServiceKey: string
-  ): IMessagingService {
+  ): Node.IMessagingService {
     return new FirebaseMessagingService(
       FirebaseService.app.database(),
       messagingServiceKey
     );
   }
 
-  static createStoreService(storeServiceKey: string): IStoreService {
+  static createStoreService(storeServiceKey: string): Node.IStoreService {
     return new FirebaseStoreService(
       FirebaseService.app.database(),
       storeServiceKey
@@ -55,7 +44,7 @@ export default class FirebaseService {
   }
 }
 
-class FirebaseMessagingService implements IMessagingService {
+class FirebaseMessagingService implements Node.IMessagingService {
   constructor(
     private readonly firebase: any,
     private readonly messagingServerKey: string
@@ -120,7 +109,7 @@ class FirebaseMessagingService implements IMessagingService {
   }
 }
 
-class FirebaseStoreService implements IStoreService {
+class FirebaseStoreService implements Node.IStoreService {
   constructor(
     private readonly firebase: any,
     private readonly storeServiceKey: string
@@ -143,11 +132,11 @@ class FirebaseStoreService implements IStoreService {
     return result;
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<any> {
+  async set(pairs: { key: string; value: any }[]): Promise<void> {
     const updates = {};
     for (const pair of pairs) {
       updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
     }
-    return await this.firebase.ref(this.storeServiceKey).update(updates);
+    await this.firebase.ref(this.storeServiceKey).update(updates);
   }
 }

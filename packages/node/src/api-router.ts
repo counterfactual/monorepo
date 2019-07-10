@@ -17,7 +17,9 @@ import {
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
+  GetProposedAppInstanceController,
   GetProposedAppInstancesController,
+  GetStateDepositHolderAddressController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
   ProposeInstallAppInstanceController,
@@ -29,6 +31,8 @@ import {
   UpdateStateController,
   WithdrawController
 } from "./methods";
+import { RequestHandler } from "./request-handler";
+import NodeRouter from "./rpc-router";
 import { NODE_EVENTS } from "./types";
 
 const controllers = [
@@ -56,7 +60,9 @@ const controllers = [
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
-  GetProposedAppInstancesController
+  GetProposedAppInstanceController,
+  GetProposedAppInstancesController,
+  GetStateDepositHolderAddressController
 ];
 
 /**
@@ -68,6 +74,12 @@ const controllers = [
  */
 export const methodNameToImplementation = controllers.reduce(
   (acc, controller) => {
+    if (!controller.methodName) {
+      throw new Error(
+        `Fatal: Every controller must have a "methodName" property`
+      );
+    }
+
     if (acc[controller.methodName]) {
       throw new Error(
         `Fatal: Multiple controllers connected to ${controller.methodName}`
@@ -77,10 +89,14 @@ export const methodNameToImplementation = controllers.reduce(
     const handler = new controller();
 
     acc[controller.methodName] = handler.executeMethod.bind(handler);
+
     return acc;
   },
   {}
 );
+
+export const createRpcRouter = (requestHandler: RequestHandler) =>
+  new NodeRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
   [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,

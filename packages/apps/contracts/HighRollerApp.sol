@@ -1,8 +1,8 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /// @title High Roller App
@@ -14,18 +14,17 @@ import "@counterfactual/contracts/contracts/interfaces/TwoPartyOutcome.sol";
 contract HighRollerApp is CounterfactualApp {
 
   enum ActionType {
-    START_GAME,
     COMMIT_TO_HASH,
     COMMIT_TO_NUM,
-    REVEAL
+    REVEAL_NUM
   }
 
   enum Stage {
-    PRE_GAME,
-    COMMITTING_HASH,
-    COMMITTING_NUM,
-    REVEALING,
-    DONE
+    WAITING_FOR_P1_COMMITMENT,
+    P1_COMMITTED_TO_HASH,
+    P2_COMMITTED_TO_NUM,
+    P1_REVEALED_NUM,
+    P1_TRIED_TO_SUBMIT_ZERO
   }
 
   enum Player {
@@ -39,6 +38,7 @@ contract HighRollerApp is CounterfactualApp {
     bytes32 commitHash;
     uint256 playerFirstNumber;
     uint256 playerSecondNumber;
+    uint256 versionNumber; // NOTE: This field is mandatory, do not modify!
   }
 
   struct Action {
@@ -53,25 +53,28 @@ contract HighRollerApp is CounterfactualApp {
     returns (bool)
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
-    return appState.stage == Stage.DONE;
+    return (
+      appState.stage == Stage.P1_REVEALED_NUM ||
+      appState.stage == Stage.P1_TRIED_TO_SUBMIT_ZERO
+    );
   }
 
+  // NOTE: Function is being deprecated soon, do not modify!
   function getTurnTaker(
-    bytes calldata encodedState, address[] calldata signingKeys
+    bytes calldata encodedState,
+    address[] calldata signingKeys
   )
     external
     pure
     returns (address)
   {
-    AppState memory appState = abi.decode(encodedState, (AppState));
-
-    return appState.stage == Stage.COMMITTING_NUM ?
-      signingKeys[uint8(Player.SECOND)] :
-      signingKeys[uint8(Player.FIRST)];
+    AppState memory state = abi.decode(encodedState, (AppState));
+    return signingKeys[state.versionNumber % 2];
   }
 
   function applyAction(
-    bytes calldata encodedState, bytes calldata encodedAction
+    bytes calldata encodedState,
+    bytes calldata encodedAction
   )
     external
     pure
@@ -82,40 +85,62 @@ contract HighRollerApp is CounterfactualApp {
 
     AppState memory nextState = appState;
 
-    if (action.actionType == ActionType.START_GAME) {
-      require(
-        appState.stage == Stage.PRE_GAME,
-        "Must apply START_GAME to PRE_GAME"
-      );
-      nextState.stage = Stage.COMMITTING_HASH;
-    } else if (action.actionType == ActionType.COMMIT_TO_HASH) {
-      require(
-        appState.stage == Stage.COMMITTING_HASH,
-        "Must apply COMMIT_TO_HASH to COMMITTING_HASH"
-      );
-      nextState.stage = Stage.COMMITTING_NUM;
+    if (action.actionType == ActionType.COMMIT_TO_HASH) {
 
+      require(
+        appState.stage == Stage.WAITING_FOR_P1_COMMITMENT,
+        "Must apply COMMIT_TO_HASH to WAITING_FOR_P1_COMMITMENT"
+      );
+
+      nextState.stage = Stage.P1_COMMITTED_TO_HASH;
       nextState.commitHash = action.actionHash;
+
     } else if (action.actionType == ActionType.COMMIT_TO_NUM) {
-      require(
-        appState.stage == Stage.COMMITTING_NUM,
-        "Must apply COMMIT_TO_NUM to COMMITTING_NUM"
-      );
-      nextState.stage = Stage.REVEALING;
 
+      require(
+        appState.stage == Stage.P1_COMMITTED_TO_HASH,
+        "Must apply COMMIT_TO_NUM to P1_COMMITTED_TO_HASH"
+      );
+
+      require(
+        action.number != 0,
+        "It is considered invalid to use 0 as the number."
+      );
+
+      nextState.stage = Stage.P2_COMMITTED_TO_NUM;
       nextState.playerSecondNumber = action.number;
-    } else if (action.actionType == ActionType.REVEAL) {
-      require(
-        appState.stage == Stage.REVEALING,
-        "Must apply REVEAL to REVEALING"
-      );
-      nextState.stage = Stage.DONE;
 
-      nextState.playerFirstNumber = action.number;
-      nextState.salt = action.actionHash;
+    } else if (action.actionType == ActionType.REVEAL_NUM) {
+
+      require(
+        appState.stage == Stage.P2_COMMITTED_TO_NUM,
+        "Must apply REVEAL_NUM to P2_COMMITTED_TO_NUM"
+      );
+
+      bytes32 expectedCommitHash = keccak256(
+        abi.encodePacked(action.actionHash, action.number)
+      );
+
+      require(
+        expectedCommitHash == appState.commitHash,
+        "Number presented by P1 was not what was previously committed to."
+      );
+
+      if (action.number == 0) {
+        nextState.stage = Stage.P1_TRIED_TO_SUBMIT_ZERO;
+      } else {
+        nextState.stage = Stage.P1_REVEALED_NUM;
+        nextState.playerFirstNumber = action.number;
+        nextState.salt = action.actionHash;
+      }
+
     } else {
+
       revert("Invalid action type");
+
     }
+
+    nextState.versionNumber += 1;
 
     return abi.encode(nextState);
   }
@@ -127,43 +152,68 @@ contract HighRollerApp is CounterfactualApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    bytes32 expectedCommitHash = keccak256(
-      abi.encodePacked(appState.salt, appState.playerFirstNumber)
-    );
-    if (expectedCommitHash == appState.commitHash) {
-      return abi.encode(getWinningAmounts(
-        appState.playerFirstNumber, appState.playerSecondNumber
-      ));
-    } else {
-      return abi.encode(TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO);
+    // If P1 goes offline...
+    if (appState.stage == Stage.WAITING_FOR_P1_COMMITMENT) {
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
+
+    // If P2 goes offline...
+    if (appState.stage == Stage.P1_COMMITTED_TO_HASH) {
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+    }
+
+    // If P1 goes offline...
+    if (appState.stage == Stage.P2_COMMITTED_TO_NUM) {
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+    }
+
+    // If P1 tried to cheat...
+    if (appState.stage == Stage.P1_TRIED_TO_SUBMIT_ZERO) {
+      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+    }
+
+    // Co-operative case
+    return abi.encode(
+      getWinningAmounts(
+        appState.playerFirstNumber,
+        appState.playerSecondNumber
+      )
+    );
+
+  }
+
+  function highRoller(bytes32 randomness)
+    public // NOTE: This is used in app-root.tsx for the clientside dapp
+    pure
+    returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
+  {
+    (
+      bytes8 hash1,
+      bytes8 hash2,
+      bytes8 hash3,
+      bytes8 hash4
+    ) = cutBytes32(randomness);
+    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
+    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
   }
 
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (TwoPartyOutcome.Outcome)
+    returns (LibOutcome.TwoPartyFixedOutcome)
   {
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
-    (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
-    if (playerFirstTotal > playerSecondTotal) {
-      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_ONE;
-    } else if (playerFirstTotal < playerSecondTotal) {
-      return TwoPartyOutcome.Outcome.SEND_TO_ADDR_TWO;
-    } else {
-      return TwoPartyOutcome.Outcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
-    }
-  }
 
-  function highRoller(bytes32 randomness)
-    internal
-    pure
-    returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
-  {
-    (bytes8 hash1, bytes8 hash2,
-    bytes8 hash3, bytes8 hash4) = cutBytes32(randomness);
-    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
-    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
+    (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
+
+    if (playerFirstTotal > playerSecondTotal)
+      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE;
+
+    if (playerFirstTotal < playerSecondTotal)
+      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO;
+
+    return LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
+
   }
 
   function calculateRandomSalt(uint256 num1, uint256 num2)
@@ -171,10 +221,6 @@ contract HighRollerApp is CounterfactualApp {
     pure
     returns (bytes32)
   {
-    require(
-      num1 != 0 && num2 != 0,
-      "Numbers passed in cannot equal 0"
-      );
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
@@ -208,4 +254,5 @@ contract HighRollerApp is CounterfactualApp {
   {
     return uint8(uint64(q) % 6);
   }
+
 }

@@ -1,14 +1,19 @@
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolParameters, SetupParams } from "../machine/types";
+import {
+  Context,
+  ProtocolMessage,
+  ProtocolParameters,
+  SetupParams
+} from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
-import { validateSignature } from "./utils/signature-validator";
+import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
  * @description This exchange is described at the following URL:
@@ -29,15 +34,20 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const { signature: theirSig } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        ...context.message,
+        protocol: Protocol.Setup,
+        protocolExecutionID: context.message.protocolExecutionID,
+        params: context.message.params,
         toXpub: respondingXpub,
         signature: mySig,
         seq: 1
-      }
+      } as ProtocolMessage
     ];
-    validateSignature(respondingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(respondingAddress, setupCommitment, theirSig);
 
-    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setupCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -58,11 +68,14 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const theirSig = context.message.signature!;
-    validateSignature(initiatingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(initiatingAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    const finalCommitment = setupCommitment.transaction([mySig, theirSig]);
+    const finalCommitment = setupCommitment.getSignedTransaction([
+      mySig,
+      theirSig
+    ]);
     yield [
       Opcode.WRITE_COMMITMENT,
       Protocol.Setup,
@@ -73,11 +86,12 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        ...context.message,
+        protocol: Protocol.Setup,
+        protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatingXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
-      }
+      } as ProtocolMessage
     ];
   }
 };
@@ -97,7 +111,7 @@ function proposeStateTransition(
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network.ETHBucket,
+    context.network.FreeBalanceApp,
     multisigAddress,
     [initiatingXpub, respondingXpub]
   );
@@ -118,7 +132,7 @@ export function constructSetupCommitment(
   network: NetworkContext,
   stateChannel: StateChannel
 ) {
-  const freeBalance = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalance = stateChannel.freeBalance;
 
   return new SetupCommitment(
     network,

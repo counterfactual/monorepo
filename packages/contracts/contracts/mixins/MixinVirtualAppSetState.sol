@@ -1,30 +1,29 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibSignature.sol";
-import "../libs/LibStaticCall.sol";
+import "../libs/LibAppCaller.sol";
 
-import "./MAppRegistryCore.sol";
-import "./MAppCaller.sol";
+import "./MChallengeRegistryCore.sol";
 
 
 contract MixinVirtualAppSetState is
   LibSignature,
   LibStateChannelApp,
-  MAppRegistryCore,
-  MAppCaller
+  LibAppCaller,
+  MChallengeRegistryCore
 {
 
   /// signatures[0], instead of signing a message that authorizes
   /// a state update with a given stateHash, signs a message that authorizes all
-  /// updates with nonce < nonceExpiry
+  /// updates with versionNumber < versionNumberExpiry
   struct VirtualAppSignedAppChallengeUpdate {
     bytes32 appStateHash;
-    uint256 nonce;
+    uint256 versionNumber;
     uint256 timeout;
     bytes signatures;
-    uint256 nonceExpiry;
+    uint256 versionNumberExpiry;
   }
 
   function virtualAppSetState(
@@ -38,8 +37,8 @@ contract MixinVirtualAppSetState is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      challenge.status == AppStatus.ON,
-      "setState was called on a virtual app that is either in IN_CHALLENGE or OFF"
+      challenge.status == ChallengeStatus.NO_CHALLENGE,
+      "setState can only be called on applications without any challenges on-chain"
     );
 
     require(
@@ -52,19 +51,21 @@ contract MixinVirtualAppSetState is
     );
 
     require(
-      req.nonce > challenge.nonce,
-      "Tried to call setState with an outdated nonce version"
+      req.versionNumber > challenge.versionNumber,
+      "Tried to call virtualAppSetState with an outdated versionNumber version"
     );
 
     require(
-      req.nonce < req.nonceExpiry,
-      "Tried to call setState with nonce greater than intermediary nonce expiry");
+      req.versionNumber < req.versionNumberExpiry,
+      "Tried to call virtualAppSetState with versionNumber greater than intermediary versionNumber expiry");
 
-    challenge.status = req.timeout > 0 ? AppStatus.IN_CHALLENGE : AppStatus.OFF;
+    challenge.status = req.timeout > 0 ?
+      ChallengeStatus.FINALIZES_AFTER_DEADLINE :
+      ChallengeStatus.EXPLICITLY_FINALIZED;
+
     challenge.appStateHash = req.appStateHash;
-    challenge.nonce = req.nonce;
+    challenge.versionNumber = req.versionNumber;
     challenge.finalizesAt = block.number + req.timeout;
-    challenge.challengeNonce = 0;
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
@@ -81,7 +82,7 @@ contract MixinVirtualAppSetState is
     bytes32 digest1 = computeAppChallengeHash(
       identityHash,
       req.appStateHash,
-      req.nonce,
+      req.versionNumber,
       req.timeout
     );
 
@@ -89,7 +90,7 @@ contract MixinVirtualAppSetState is
       abi.encodePacked(
         byte(0x19),
         identityHash,
-        req.nonceExpiry,
+        req.versionNumberExpiry,
         req.timeout,
         byte(0x01)
       )

@@ -90,11 +90,11 @@ function respond(
   nodeAddress: Address,
   { data: { appInstanceId, newState } }
 ) {
-  const { board, turnNum, winner } = newState;
+  const { board, versionNumber, winner } = newState;
   // in test and prod, bot is always the second player
   const botPlayerNumber = 2;
   const isBotTurn =
-    bigNumberify(turnNum).toNumber() % 2 === botPlayerNumber - 1;
+    bigNumberify(versionNumber).toNumber() % 2 === botPlayerNumber - 1;
   const noWinnerYet =
     bigNumberify(winner).toNumber() === Winner.GAME_IN_PROGRESS;
 

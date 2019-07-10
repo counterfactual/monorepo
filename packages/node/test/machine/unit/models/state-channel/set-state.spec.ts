@@ -27,7 +27,7 @@ describe("StateChannel::setState", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       xpubs
     );
@@ -38,6 +38,7 @@ describe("StateChannel::setState", () => {
       [xkeyKthAddress(xpubs[0], 0)]: Zero,
       [xkeyKthAddress(xpubs[1], 0)]: Zero
     });
+
     sc2 = sc1.setState(testApp.identityHash, APP_STATE);
   });
 
@@ -61,8 +62,8 @@ describe("StateChannel::setState", () => {
       expect(app.state).toEqual(APP_STATE);
     });
 
-    it("should have bumped the nonce", () => {
-      expect(app.nonce).toBe(testApp.nonce + 1);
+    it("should have bumped the versionNumber", () => {
+      expect(app.versionNumber).toBe(testApp.versionNumber + 1);
     });
 
     it("should have used the default timeout", () => {

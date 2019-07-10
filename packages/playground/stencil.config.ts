@@ -41,5 +41,5 @@ export const config: Config = {
       "ENV:FIREBASE_STORAGE_BUCKET": process.env.FIREBASE_STORAGE_BUCKET || ""
     })
   ],
-  excludeSrc: ["node_modules/playground-server/src"]
+  excludeSrc: ["node_modules/simple-hub-server/src"]
 };

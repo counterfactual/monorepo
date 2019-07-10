@@ -1,15 +1,7 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
-import {
-  Address,
-  AppABIEncodings,
-  AppInstanceID,
-  AppInstanceInfo,
-  BlockchainAsset,
-  cf,
-  Node
-} from "./types";
+import { Address, AppABIEncodings, AppInstanceInfo, cf, Node } from "./types";
 
 export enum AppInstanceEventType {
   UPDATE_STATE = "updateState",
@@ -24,11 +16,10 @@ export class AppInstance {
   /**
    * Unique ID of this app instance.
    */
-  readonly id: AppInstanceID;
+  readonly identityHash: string;
 
-  readonly appId: Address;
+  readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
-  readonly asset: BlockchainAsset;
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
   readonly timeout: BigNumber;
@@ -36,10 +27,9 @@ export class AppInstance {
   //   private readonly eventEmitter: EventEmitter = new EventEmitter();
 
   constructor(info: AppInstanceInfo, readonly provider: cf.Provider) {
-    this.id = info.id;
-    this.appId = info.appId;
+    this.identityHash = info.identityHash;
+    this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
-    this.asset = info.asset;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
@@ -63,7 +53,7 @@ export class AppInstance {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.GetStateResult;
@@ -86,7 +76,7 @@ export class AppInstance {
       Node.MethodName.TAKE_ACTION,
       {
         action,
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.TakeActionResult;
@@ -105,7 +95,7 @@ export class AppInstance {
         ? Node.MethodName.UNINSTALL_VIRTUAL
         : Node.MethodName.UNINSTALL,
       {
-        appInstanceId: this.id,
+        appInstanceId: this.identityHash,
         intermediaryIdentifier: intermediary
       }
     );

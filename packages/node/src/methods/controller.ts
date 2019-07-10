@@ -1,9 +1,10 @@
 import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { Controller } from "rpc-server";
 
 import { RequestHandler } from "../request-handler";
 
-export abstract class NodeController {
+export abstract class NodeController extends Controller {
   public static readonly methodName: Node.MethodName;
 
   public async executeMethod(

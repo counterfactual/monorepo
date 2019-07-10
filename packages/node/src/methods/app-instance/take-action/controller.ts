@@ -1,6 +1,7 @@
 import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { InstructionExecutor } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -19,6 +20,9 @@ import {
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
 
+  @jsonRpcMethod("chan_takeAction")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
@@ -28,7 +32,7 @@ export default class TakeActionController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(appInstanceId)
+        await store.getMultisigAddressFromstring(appInstanceId)
       )
     ];
   }
@@ -88,20 +92,8 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<void> {
-    const {
-      store,
-      publicIdentifier,
-      messagingService,
-      outgoing
-    } = requestHandler;
+    const { store, outgoing } = requestHandler;
     const { appInstanceId, action } = params;
-
-    const appInstanceInfo = await store.getAppInstanceInfo(appInstanceId);
-
-    const to = getCounterpartyAddress(publicIdentifier, [
-      appInstanceInfo.proposedByIdentifier,
-      appInstanceInfo.proposedToIdentifier
-    ]);
 
     const appInstance = await store.getAppInstance(appInstanceId);
 
@@ -110,8 +102,6 @@ export default class TakeActionController extends NodeController {
       type: NODE_EVENTS.UPDATE_STATE,
       data: { appInstanceId, action, newState: appInstance.state }
     } as UpdateStateMessage;
-
-    await messagingService.send(to, msg);
 
     outgoing.emit(msg.type, msg);
   }
@@ -145,7 +135,7 @@ async function runTakeActionProtocol(
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
-      throw new Error(`${INVALID_ACTION}`);
+      throw new Error(`${INVALID_ACTION}: ${e}`);
     }
     throw e;
   }
@@ -153,4 +143,6 @@ async function runTakeActionProtocol(
   const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
 
   await store.saveStateChannel(sc);
+
+  return {};
 }

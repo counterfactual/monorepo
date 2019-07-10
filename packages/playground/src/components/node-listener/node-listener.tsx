@@ -3,6 +3,8 @@ declare var uuid: () => string;
 import { Node } from "@counterfactual/types";
 import { Component, Element, Prop, State } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { Web3Provider } from "ethers/providers";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../data/account";
 import AppRegistryTunnel from "../../data/app-registry";
@@ -29,7 +31,7 @@ export class NodeListener {
   @Prop() web3Detected: boolean = false;
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() provider: Web3Provider = {} as Web3Provider;
-  @Prop() ethMultisigBalance: BigNumber = ethers.constants.Zero;
+  @Prop() ethMultisigBalance: BigNumber = window["ethers"].constants.Zero;
 
   private nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
@@ -37,12 +39,12 @@ export class NodeListener {
     rejectInstallVirtualEvent: this.onRejectInstall.bind(this)
   };
 
-  get node() {
+  get cfProvider() {
     if (window.parent !== window) {
       // Inside iFrame
       throw new Error("Don't get Node when in iFrame");
     }
-    return CounterfactualNode.getInstance();
+    return CounterfactualNode.getCfProvider();
   }
 
   async componentWillLoad() {
@@ -57,8 +59,11 @@ export class NodeListener {
 
   bindNodeEvents() {
     Object.keys(this.nodeMessageResolver).forEach(eventName => {
-      this.node.off(eventName);
-      this.node.on(eventName, this.nodeMessageResolver[eventName].bind(this));
+      this.cfProvider.off(eventName);
+      this.cfProvider.on(
+        eventName,
+        this.nodeMessageResolver[eventName].bind(this)
+      );
     });
   }
 
@@ -78,7 +83,7 @@ export class NodeListener {
         .params as Node.ProposeInstallParams;
 
       const currentEthBalance = this.ethMultisigBalance;
-      const minimumEthBalance = ethers.utils.bigNumberify(
+      const minimumEthBalance = window["ethers"].utils.bigNumberify(
         proposeInstallParams.myDeposit
       );
 
@@ -89,22 +94,17 @@ export class NodeListener {
         return;
       }
 
-      const request = {
-        type: Node.MethodName.INSTALL_VIRTUAL,
-        params: {
-          appInstanceId: this.currentMessage.data.appInstanceId,
-          intermediaries: this.currentMessage.data.params.intermediaries
-        } as Node.InstallVirtualParams,
-        requestId: uuid()
-      };
-
-      const installedApp = (await this.node.call(
-        Node.MethodName.INSTALL_VIRTUAL,
-        request
-      )).result as Node.InstallVirtualResult;
+      const { appInstanceId, intermediaries } = this.currentMessage.data;
+      const [intermediaryIdentifier] = intermediaries;
+      const installedApp = await this.cfProvider.installVirtual(
+        appInstanceId,
+        intermediaryIdentifier
+      );
 
       const app: AppDefinition = this.apps.find(app => {
-        return app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appId;
+        return (
+          app.id[KOVAN_NETWORK_ID] === installedApp.appInstance.appDefinition
+        );
       })!;
 
       if (!app) {
@@ -132,13 +132,7 @@ export class NodeListener {
   }
 
   async rejectProposeInstall() {
-    await this.node.call(Node.MethodName.REJECT_INSTALL, {
-      type: Node.MethodName.REJECT_INSTALL,
-      params: {
-        appInstanceId: this.currentMessage.data.appInstanceId
-      } as Node.RejectInstallParams,
-      requestId: uuid()
-    });
+    await this.cfProvider.rejectInstall(this.currentMessage.data.appInstanceId);
     this.hideModal();
   }
 

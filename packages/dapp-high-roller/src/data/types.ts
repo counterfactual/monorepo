@@ -5,42 +5,20 @@ import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
 
 export type ABIEncoding = string;
-export type AppInstanceID = string;
 export type Address = string;
 export type Bytes32 = string;
 
-export enum AssetType {
-  ETH = 0,
-  ERC20 = 1
-}
-
-export interface Terms {
-  assetType: AssetType;
-  limit: BigNumber;
-  token: Address;
-}
-
-export interface Transaction {
-  assetType: AssetType;
-  limit: BigNumber;
-  token?: Address;
-  to: Address[];
-  value: BigNumber[];
-  data: string[];
-}
-
 export interface SignedStateHashUpdate {
   stateHash: string;
-  nonce: number;
+  versionNumber: number;
   timeout: number;
   signatures: string;
 }
 
 export type AppInstanceInfo = {
-  id: AppInstanceID;
-  appId: Address;
+  identityHash: string;
+  appDefinition: Address;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -52,26 +30,12 @@ export type AppABIEncodings = {
   actionEncoding?: ABIEncoding;
 };
 
-export type BlockchainAsset = {
-  assetType: AssetType;
-  token?: Address;
-};
-
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
   sendMessage(message: Node.Message);
 }
 
 export namespace Node {
-  export type NetworkContext = {
-    // Protocol
-    MultiSend: Address;
-    NonceRegistry: Address;
-    AppRegistry: Address;
-    // App-specific
-    ETHBalanceRefundApp: Address;
-  };
-
   export enum ErrorType {
     ERROR = "error"
   }
@@ -122,16 +86,15 @@ export namespace Node {
 
   export type ProposeInstallParams = {
     respondingAddress: Address;
-    appId: Address;
+    appDefinition: Address;
     abiEncodings: AppABIEncodings;
-    asset: BlockchainAsset;
     myDeposit: BigNumber;
     peerDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
   };
   export type ProposeInstallResult = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
@@ -140,12 +103,12 @@ export namespace Node {
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
   export type RejectInstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type RejectInstallResult = {};
 
   export type InstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type InstallResult = {
     appInstance: AppInstanceInfo;
@@ -157,21 +120,21 @@ export namespace Node {
   export type InstallVirtualResult = InstallResult;
 
   export type GetStateParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type GetStateResult = {
     state: SolidityABIEncoderV2Type;
   };
 
   export type GetAppInstanceDetailsParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type GetAppInstanceDetailsResult = {
     appInstance: AppInstanceInfo;
   };
 
   export type TakeActionParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     action: SolidityABIEncoderV2Type;
   };
   export type TakeActionResult = {
@@ -179,7 +142,7 @@ export namespace Node {
   };
 
   export type UninstallParams = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
   };
   export type UninstallResult = {};
 
@@ -225,13 +188,13 @@ export namespace Node {
     | GetChannelAddressesResult;
 
   export type InstallEventData = {
-    appInstance: { id: AppInstanceID };
+    appInstance: { id: string };
   };
   export type RejectInstallEventData = {
     appInstance: AppInstanceInfo;
   };
   export type UpdateStateEventData = {
-    appInstanceId: AppInstanceID;
+    appInstanceId: string;
     newState: SolidityABIEncoderV2Type;
     action?: SolidityABIEncoderV2Type;
   };
@@ -292,20 +255,18 @@ export namespace cf {
     ): AppFactory;
     proposeInstall(parameters: {
       proposedToIdentifier: Address;
-      asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
-    }): Promise<AppInstanceID>;
+    }): Promise<string>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
-      asset: BlockchainAsset;
       myDeposit: BigNumberish;
       peerDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
       intermediaries: Address[];
       timeout: number;
-    }): Promise<AppInstanceID>;
+    }): Promise<string>;
   };
 
   export type Provider = {

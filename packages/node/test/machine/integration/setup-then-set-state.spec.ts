@@ -1,7 +1,7 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { AssetType, NetworkContext } from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -10,6 +10,7 @@ import { Interface, keccak256 } from "ethers/utils";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -22,7 +23,7 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // Similarly, the SetupCommitment is a `delegatecall`, so we estimate
 const SETUP_COMMITMENT_GAS = 6e9;
 
-// The AppRegistry.setState call _could_ be estimated but we haven't
+// The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -36,7 +37,11 @@ expect.extend({ toBeEq });
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
-  appRegistry = new Contract(network.AppRegistry, AppRegistry.abi, wallet);
+  appRegistry = new Contract(
+    network.ChallengeRegistry,
+    ChallengeRegistry.abi,
+    wallet
+  );
 });
 
 /**
@@ -59,25 +64,28 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.ETHBucket,
+        network.FreeBalanceApp,
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1
-      ).setFreeBalance(AssetType.ETH, {
-        [multisigOwnerKeys[0].address]: WeiPerEther,
-        [multisigOwnerKeys[1].address]: WeiPerEther
-      });
-      const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+      ).setFreeBalance(
+        createFreeBalanceStateWithFundedETHAmounts(
+          multisigOwnerKeys.map<string>(key => key.address),
+          WeiPerEther
+        )
+      );
+
+      const freeBalanceETH = stateChannel.freeBalance;
 
       const setStateCommitment = new SetStateCommitment(
         network,
         freeBalanceETH.identity,
         keccak256(freeBalanceETH.encodedLatestState),
-        freeBalanceETH.nonce,
+        freeBalanceETH.versionNumber,
         freeBalanceETH.timeout
       );
 
-      const setStateTx = setStateCommitment.transaction([
+      const setStateTx = setStateCommitment.getSignedTransaction([
         multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
       ]);
@@ -87,6 +95,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         gasLimit: SETSTATE_COMMITMENT_GAS
       });
 
+      // tslint:disable-next-line:prefer-array-literal
       for (const _ of Array(freeBalanceETH.timeout)) {
         await provider.send("evm_mine", []);
       }
@@ -100,10 +109,10 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.getFreeBalanceFor(AssetType.ETH).identity
+        stateChannel.freeBalance.identity
       );
 
-      const setupTx = setupCommitment.transaction([
+      const setupTx = setupCommitment.getSignedTransaction([
         multisigOwnerKeys[0].signDigest(setupCommitment.hashToSign()),
         multisigOwnerKeys[1].signDigest(setupCommitment.hashToSign())
       ]);
@@ -116,9 +125,11 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       });
 
       expect(await provider.getBalance(proxy)).toBeEq(Zero);
+
       expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
         WeiPerEther
       );
+
       expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
         WeiPerEther
       );

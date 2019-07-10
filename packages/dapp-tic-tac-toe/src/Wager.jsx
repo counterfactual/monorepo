@@ -101,7 +101,7 @@ class Wager extends Component {
         actionEncoding:
           "tuple(uint8 actionType, uint256 playX, uint256 playY, tuple(uint8 winClaimType, uint256 idx) winClaim)",
         stateEncoding:
-          "tuple(address[2] players, uint256 turnNum, uint256 winner, uint256[3][3] board)"
+          "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"
       },
       this.props.cfProvider
     );
@@ -139,9 +139,6 @@ class Wager extends Component {
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
         peerDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
@@ -150,15 +147,7 @@ class Wager extends Component {
         ),
         timeout: 172800,
         initialState: {
-          players: [
-            window.ethers.utils.HDNode.fromExtendedKey(
-              user.nodeAddress
-            ).derivePath("0").address,
-            window.ethers.utils.HDNode.fromExtendedKey(
-              opponent.nodeAddress
-            ).derivePath("0").address
-          ],
-          turnNum: 0,
+          versionNumber: 0,
           winner: 0,
           board: [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
         },

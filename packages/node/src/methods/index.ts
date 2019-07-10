@@ -12,20 +12,24 @@ import UninstallVirtualController from "./app-instance/uninstall-virtual/control
 import UninstallController from "./app-instance/uninstall/controller";
 import UpdateStateController from "./app-instance/update-state/controller";
 import GetProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
+import GetProposedAppInstanceController from "./proposed-app-instance/get/controller";
 import CreateChannelController from "./state-channel/create/controller";
 import DepositController from "./state-channel/deposit/controller";
 import GetAllChannelAddressesController from "./state-channel/get-all/controller";
+import GetStateDepositHolderAddressController from "./state-channel/get-state-deposit-holder-address/controller";
 import WithdrawController from "./state-channel/withdraw/controller";
 
 export {
   CreateChannelController,
   DepositController,
   GetAllChannelAddressesController,
+  GetStateDepositHolderAddressController,
   GetAppInstanceController,
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
   GetInstalledAppInstancesController,
   GetProposedAppInstancesController,
+  GetProposedAppInstanceController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
   ProposeInstallAppInstanceController,

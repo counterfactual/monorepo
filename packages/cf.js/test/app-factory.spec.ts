@@ -1,14 +1,14 @@
-import { AssetType, Node } from "@counterfactual/types";
+import { Node, OutcomeType } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
-import { Provider } from "../src/provider";
+import { jsonRpcMethodNames, Provider } from "../src/provider";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
 const TEST_APP = {
   abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
-  appId: "0x1515151515151515151515151515151515151515"
+  appDefinition: "0x1515151515151515151515151515151515151515"
 };
 
 describe("CF.js AppFactory", () => {
@@ -20,7 +20,7 @@ describe("CF.js AppFactory", () => {
     nodeProvider = new TestNodeProvider();
     provider = new Provider(nodeProvider);
     appFactory = new AppFactory(
-      TEST_APP.appId,
+      TEST_APP.appDefinition,
       TEST_APP.abiEncodings,
       provider
     );
@@ -35,28 +35,36 @@ describe("CF.js AppFactory", () => {
       const expectedAppInstanceId = "TEST_ID";
 
       nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
-        expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL);
-        const params = request.params as Node.ProposeInstallParams;
+        expect(request.methodName).toBe(
+          jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
+        );
+
+        const params = request.parameters as Node.ProposeInstallParams;
+
         expect(params.initialState).toBe(expectedState);
         expect(params.myDeposit).toEqual(expectedDeposit);
+
         nodeProvider.simulateMessageFromNode({
-          type: Node.MethodName.PROPOSE_INSTALL,
-          requestId: request.requestId,
+          jsonrpc: "2.0",
           result: {
-            appInstanceId: expectedAppInstanceId
-          }
+            type: Node.MethodName.PROPOSE_INSTALL,
+            result: {
+              appInstanceId: expectedAppInstanceId
+            }
+          },
+          id: request.id as number
         });
       });
+
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
-        asset: {
-          assetType: AssetType.ETH
-        },
         peerDeposit: expectedDeposit,
         myDeposit: expectedDeposit,
         timeout: "100",
-        initialState: expectedState
+        initialState: expectedState,
+        outcomeType: OutcomeType.COIN_TRANSFER
       });
+
       expect(appInstanceId).toBe(expectedAppInstanceId);
     });
 
@@ -71,25 +79,27 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
-          expect(request.type).toBe(Node.MethodName.PROPOSE_INSTALL_VIRTUAL);
-          const params = request.params as Node.ProposeInstallVirtualParams;
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
+          );
+          const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaries).toBe(expectedIntermediaries);
           expect(params.myDeposit).toEqual(expectedDeposit);
           nodeProvider.simulateMessageFromNode({
-            type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
-            requestId: request.requestId,
+            jsonrpc: "2.0",
             result: {
-              appInstanceId: expectedAppInstanceId
-            }
+              type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+              result: {
+                appInstanceId: expectedAppInstanceId
+              }
+            },
+            id: request.id as number
           });
         }
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
         proposedToIdentifier: TEST_XPUBS[0],
-        asset: {
-          assetType: AssetType.ETH
-        },
         peerDeposit: expectedDeposit,
         myDeposit: expectedDeposit,
         timeout: "100",
@@ -103,13 +113,11 @@ describe("CF.js AppFactory", () => {
       try {
         await appFactory.proposeInstall({
           proposedToIdentifier: TEST_XPUBS[0],
-          asset: {
-            assetType: AssetType.ETH
-          },
           peerDeposit: parseEther("0.5"),
           myDeposit: "$%GARBAGE$%",
           timeout: "100",
-          initialState: { val: "4000" }
+          initialState: { val: "4000" },
+          outcomeType: OutcomeType.COIN_TRANSFER
         });
         done.fail("Expected an error for invalid myDeposit");
       } catch (e) {

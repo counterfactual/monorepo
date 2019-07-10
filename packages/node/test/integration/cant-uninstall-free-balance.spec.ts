@@ -1,26 +1,17 @@
-import { AssetType } from "@counterfactual/types";
-
 import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import { createChannel, generateUninstallRequest } from "./utils";
 
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;
   let nodeB: Node;
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
 
   beforeAll(async () => {
-    const result = await setup(global);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
+    const context: SetupContext = await setup(global);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
   });
 
   describe("Node A and B open channel, attempt to uninstall FreeBalance", () => {
@@ -29,17 +20,17 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
 
       // channel to expose the FreeBalance appInstanceId
       const channel = StateChannel.setupChannel(
-        global["networkContext"].ETHBucket,
+        global["networkContext"].FreeBalanceApp,
         multisigAddress,
         [nodeA.publicIdentifier, nodeB.publicIdentifier]
       );
 
       const fbUninstallReq = generateUninstallRequest(
-        channel.getFreeBalanceFor(AssetType.ETH).identityHash
+        channel.freeBalance.identityHash
       );
 
       try {
-        await nodeA.call(fbUninstallReq.type, fbUninstallReq);
+        await nodeA.router.dispatch(fbUninstallReq);
       } catch (e) {
         expect(e.toString()).toMatch(
           CANNOT_UNINSTALL_FREE_BALANCE(multisigAddress)

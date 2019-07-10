@@ -1,36 +1,79 @@
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { xkeyKthAddress } from "../../../machine";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  convertCoinTransfersToCoinTransfersMap,
+  deserializeFreeBalanceState,
+  FreeBalanceStateJSON
+} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
-import { CANNOT_WITHDRAW, WITHDRAWAL_FAILED } from "../../errors";
+import {
+  CANNOT_WITHDRAW,
+  INSUFFICIENT_FUNDS_TO_WITHDRAW,
+  INVALID_WITHDRAW,
+  WITHDRAWAL_FAILED
+} from "../../errors";
 
 import { runWithdrawProtocol } from "./operation";
 
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
 
+  @jsonRpcMethod("chan_withdraw")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
-    params: Node.DepositParams
+    params: Node.WithdrawParams
   ): Promise<Queue[]> {
     return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
 
   protected async beforeExecution(
     requestHandler: RequestHandler,
-    params: Node.DepositParams
+    params: Node.WithdrawParams
   ): Promise<void> {
-    const { store, networkContext } = requestHandler;
-    const { multisigAddress } = params;
+    const { store, publicIdentifier, networkContext } = requestHandler;
 
-    const channel = await store.getStateChannel(multisigAddress);
+    const stateChannel = await store.getStateChannel(params.multisigAddress);
 
-    if (channel.hasAppInstanceOfKind(networkContext.ETHBalanceRefundApp)) {
-      return Promise.reject(CANNOT_WITHDRAW);
+    if (
+      stateChannel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)
+    ) {
+      throw new Error(CANNOT_WITHDRAW);
+    }
+
+    const freeBalance = deserializeFreeBalanceState(stateChannel.freeBalance
+      .state as FreeBalanceStateJSON);
+
+    const tokenAddress =
+      params.tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+
+    if (!(tokenAddress in freeBalance.balancesIndexedByToken)) {
+      throw new Error(INVALID_WITHDRAW(tokenAddress));
+    }
+
+    const tokenFreeBalance = convertCoinTransfersToCoinTransfersMap(
+      freeBalance.balancesIndexedByToken[tokenAddress]
+    );
+
+    const senderBalance =
+      tokenFreeBalance[stateChannel.getFreeBalanceAddrOf(publicIdentifier)];
+
+    if (senderBalance.lt(params.amount)) {
+      throw new Error(
+        INSUFFICIENT_FUNDS_TO_WITHDRAW(
+          tokenAddress,
+          params.amount,
+          senderBalance
+        )
+      );
     }
   }
 
@@ -45,6 +88,7 @@ export default class WithdrawController extends NodeController {
       publicIdentifier,
       blocksNeededForConfirmation
     } = requestHandler;
+
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);

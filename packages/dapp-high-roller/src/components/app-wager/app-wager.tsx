@@ -10,9 +10,6 @@ import { Address, AppInstanceInfo, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;
 
-// FIXME: Figure out how to import @counterfactual-types
-// const { AssetType } = commonTypes;
-
 /**
  * User Story
  * 0.1 ETH is staked hard coded
@@ -65,11 +62,12 @@ export class AppWager {
 
     try {
       const initialState: HighRollerAppState = {
-        stage: HighRollerStage.PRE_GAME,
+        stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
         salt: HashZero,
         commitHash: HashZero,
         playerFirstNumber: 0,
-        playerSecondNumber: 0
+        playerSecondNumber: 0,
+        versionNumber: 0
       };
 
       const currentEthBalance = ethers.utils.parseEther(this.account.balance);
@@ -93,9 +91,6 @@ export class AppWager {
       await this.appFactory.proposeInstallVirtual({
         initialState,
         proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        asset: {
-          assetType: 0 /* AssetType.ETH */
-        },
         peerDeposit: ethers.utils.parseEther(this.betAmount),
         myDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 172800,

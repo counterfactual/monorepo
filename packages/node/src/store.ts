@@ -1,7 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
-  AssetType,
+  Node,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
@@ -30,7 +30,6 @@ import {
   StateChannelJSON
 } from "./models";
 import { debugLog } from "./node";
-import { IStoreService } from "./services";
 import { hashOfOrderedPublicIdentifiers } from "./utils";
 
 /**
@@ -39,7 +38,7 @@ import { hashOfOrderedPublicIdentifiers } from "./utils";
  */
 export class Store {
   constructor(
-    private readonly storeService: IStoreService,
+    private readonly storeService: Node.IStoreService,
     private readonly storeKeyPrefix: string
   ) {}
 
@@ -93,7 +92,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  public async getMultisigAddressFromAppInstanceID(
+  public async getMultisigAddressFromstring(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -124,6 +123,7 @@ export class Store {
     );
 
     debugLog("Saving channel: ", stateChannel);
+
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
@@ -140,11 +140,8 @@ export class Store {
     ]);
   }
 
-  public async saveFreeBalance(
-    channel: StateChannel,
-    assetType: AssetType = AssetType.ETH
-  ) {
-    const freeBalance = channel.getFreeBalanceFor(assetType);
+  public async saveFreeBalance(channel: StateChannel) {
+    const freeBalance = channel.freeBalance;
     await this.storeService.set([
       {
         key: `${
@@ -187,7 +184,7 @@ export class Store {
           key: `${
             this.storeKeyPrefix
           }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-            appInstanceInfo.id
+            appInstanceInfo.identityHash
           }`,
           value: null
         },
@@ -195,7 +192,7 @@ export class Store {
           key: `${
             this.storeKeyPrefix
           }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
-            appInstanceInfo.id
+            appInstanceInfo.identityHash
           }`,
           value: appInstanceInfo
         }
@@ -219,7 +216,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: proposedAppInstance.toJson()
       },
@@ -227,7 +224,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: stateChannel.multisigAddress
       }
@@ -246,7 +243,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: proposedAppInstance.toJson()
       },
@@ -254,7 +251,7 @@ export class Store {
         key: `${
           this.storeKeyPrefix
         }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.id
+          proposedAppInstance.identityHash
         }`,
         value: keccak256(
           defaultAbiCoder.encode(
@@ -330,13 +327,16 @@ export class Store {
    */
   public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
     const proposedAppInstancesJson = (await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}`
+      [
+        this.storeKeyPrefix,
+        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE
+      ].join("/")
     )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+
     if (!proposedAppInstancesJson) {
       return [];
     }
+
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
         return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
@@ -371,7 +371,7 @@ export class Store {
   public async getChannelFromAppInstanceID(
     appInstanceId: string
   ): Promise<StateChannel> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstanceID(
+    const multisigAddress = await this.getMultisigAddressFromstring(
       appInstanceId
     );
 

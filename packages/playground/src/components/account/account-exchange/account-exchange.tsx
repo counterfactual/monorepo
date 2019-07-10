@@ -1,5 +1,6 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
@@ -94,7 +95,9 @@ export class AccountExchange {
 
   async onDepositClicked(e) {
     try {
-      await this.deposit(ethers.utils.parseEther(e.target.value).toHexString());
+      await this.deposit(
+        window["ethers"].utils.parseEther(e.target.value).toHexString()
+      );
     } catch (e) {
       if (e.toString().includes("Cannot deposit while another deposit")) {
         window.alert(HUB_IS_DEPOSITING_ALERT);
@@ -107,7 +110,7 @@ export class AccountExchange {
   async onWithdrawClicked(e) {
     try {
       await this.withdraw(
-        ethers.utils.parseEther(e.target.value).toHexString()
+        window["ethers"].utils.parseEther(e.target.value).toHexString()
       );
     } catch (e) {
       if (e.toString().includes("Cannot withdraw while another deposit")) {
@@ -137,7 +140,7 @@ export class AccountExchange {
   }
 
   getPendingDepositEtherscanLink() {
-    const Zero = ethers.constants.Zero;
+    const Zero = window["ethers"].constants.Zero;
     const ethPendingDepositAmountWei = this.ethPendingDepositAmountWei || Zero;
 
     return this.isDepositPending ? (
@@ -146,13 +149,13 @@ export class AccountExchange {
         target="_blank"
       >
         💰 Pending Deposit of{" "}
-        {ethers.utils.formatEther(ethPendingDepositAmountWei)} ETH
+        {window["ethers"].utils.formatEther(ethPendingDepositAmountWei)} ETH
       </a>
     ) : null;
   }
 
   getPendingWithdrawalEtherscanLink() {
-    const Zero = ethers.constants.Zero;
+    const Zero = window["ethers"].constants.Zero;
     const ethPendingWithdrawalAmountWei =
       this.ethPendingWithdrawalAmountWei || Zero;
 
@@ -162,14 +165,14 @@ export class AccountExchange {
         target="_blank"
       >
         💸 Pending Withdrawal of{" "}
-        {ethers.utils.formatEther(ethPendingWithdrawalAmountWei)}
+        {window["ethers"].utils.formatEther(ethPendingWithdrawalAmountWei)}
         ETH
       </a>
     ) : null;
   }
 
   render() {
-    const Zero = ethers.constants.Zero;
+    const Zero = window["ethers"].constants.Zero;
     const ethFreeBalanceWei = this.ethFreeBalanceWei || Zero;
 
     return [
@@ -184,7 +187,9 @@ export class AccountExchange {
             loading={this.isDepositPending ? true : false}
             provideFaucetLink={true}
             error={this.depositError}
-            available={ethers.utils.bigNumberify(this.ethWeb3WalletBalance)}
+            available={window["ethers"].utils.bigNumberify(
+              this.ethWeb3WalletBalance
+            )}
             min={0.1}
             max={1}
           />
@@ -200,9 +205,9 @@ export class AccountExchange {
             disabled={this.isWithdrawalPending ? true : false}
             loading={this.isWithdrawalPending ? true : false}
             error={this.withdrawalError}
-            available={ethers.utils.bigNumberify(ethFreeBalanceWei)}
+            available={window["ethers"].utils.bigNumberify(ethFreeBalanceWei)}
             min={0}
-            max={Number(ethers.utils.formatEther(ethFreeBalanceWei))}
+            max={Number(window["ethers"].utils.formatEther(ethFreeBalanceWei))}
           />
         </div>
         <div class="container">

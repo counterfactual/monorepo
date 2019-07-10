@@ -1,8 +1,8 @@
-import { AssetType, Node } from "@counterfactual/types";
+import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, UninstallMessage } from "../../../types";
 import { getCounterpartyAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -16,6 +16,9 @@ import { uninstallAppInstanceFromChannel } from "./operation";
 export default class UninstallController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL;
 
+  @jsonRpcMethod("chan_uninstall")
+  public executeMethod = super.executeMethod;
+
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
@@ -24,13 +27,13 @@ export default class UninstallController extends NodeController {
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
-    if (sc.getFreeBalanceFor(AssetType.ETH).identityHash === appInstanceId) {
+    if (sc.freeBalance.identityHash === appInstanceId) {
       return Promise.reject(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(sc.multisigAddress)
+        await store.getMultisigAddressFromstring(sc.multisigAddress)
       )
     ];
   }
@@ -53,16 +56,11 @@ export default class UninstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallParams
   ): Promise<Node.UninstallResult> {
-    const {
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      messagingService
-    } = requestHandler;
+    const { store, instructionExecutor, publicIdentifier } = requestHandler;
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -84,16 +82,6 @@ export default class UninstallController extends NodeController {
       appInstanceId
     );
 
-    const uninstallMsg: UninstallMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.UNINSTALL,
-      data: {
-        appInstanceId
-      }
-    };
-
-    await messagingService.send(to, uninstallMsg);
-
-    return {};
+    return { appInstanceId };
   }
 }

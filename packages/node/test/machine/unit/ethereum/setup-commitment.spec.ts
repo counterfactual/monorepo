@@ -1,7 +1,5 @@
-import StateChannelTransaction from "@counterfactual/contracts/build/StateChannelTransaction.json";
-import { AssetType } from "@counterfactual/types";
+import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import {
-  bigNumberify,
   getAddress,
   hexlify,
   Interface,
@@ -21,9 +19,6 @@ import { generateRandomNetworkContext } from "../../mocks";
  * to the specifications defined by Counterfactual as can be found here:
  * https://specs.counterfactual.com/04-setup-protocol#commitments
  *
- * TODO: This test suite _only_ covers the conditional transaction from the specs
- *       above. This is because the root nonce setNonce transaction has not been
- *       implemented in OpSetuptup yet.
  */
 describe("SetupCommitment", () => {
   let tx: MultisigTransaction;
@@ -39,12 +34,12 @@ describe("SetupCommitment", () => {
 
   // State channel testing values
   const stateChannel = StateChannel.setupChannel(
-    networkContext.ETHBucket,
+    networkContext.FreeBalanceApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.getFreeBalanceFor(AssetType.ETH);
+  const freeBalanceETH = stateChannel.freeBalance;
 
   beforeAll(() => {
     tx = new SetupCommitment(
@@ -55,8 +50,8 @@ describe("SetupCommitment", () => {
     ).getTransactionDetails();
   });
 
-  it("should be to StateChannelTransaction", () => {
-    expect(tx.to).toBe(networkContext.StateChannelTransaction);
+  it("should be to ConditionalTransactionDelegateTarget", () => {
+    expect(tx.to).toBe(networkContext.ConditionalTransactionDelegateTarget);
   });
 
   it("should have no value", () => {
@@ -64,7 +59,7 @@ describe("SetupCommitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(StateChannelTransaction.abi);
+    const iface = new Interface(ConditionalTransactionDelegateTarget.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -72,29 +67,19 @@ describe("SetupCommitment", () => {
       desc = iface.parseTransaction({ data });
     });
 
-    it("should be to the executeEffectOfInterpretedAppOutcome method", () => {
+    it("should be to the executeEffectOfFreeBalance method", () => {
       expect(desc.sighash).toBe(
-        iface.functions.executeEffectOfInterpretedAppOutcome.sighash
+        iface.functions.executeEffectOfFreeBalance.sighash
       );
     });
 
     it("should contain expected arguments", () => {
-      const [
-        appRegistry,
-        nonceRegistry,
-        uninstallKey,
-        rootNonceValue,
-        appIdentityHash,
-        {},
-        {}
-      ] = desc.args;
-      expect(appRegistry).toBe(networkContext.AppRegistry);
-      expect(nonceRegistry).toEqual(networkContext.NonceRegistry);
-      expect(uninstallKey).toBe(freeBalanceETH.uninstallKey);
-      expect(rootNonceValue).toEqual(
-        bigNumberify(freeBalanceETH.rootNonceValue)
-      );
+      const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
+      expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(interpreterAddress).toBe(
+        networkContext.CoinTransferETHInterpreter
+      );
     });
   });
 });

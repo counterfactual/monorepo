@@ -1,4 +1,4 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 
@@ -34,15 +34,6 @@ contract CounterfactualApp {
     returns (bytes memory)
   {
     revert("The computeOutcome method has no implementation for this App");
-  }
-
-  // a hack
-  function outcomeType()
-    external
-    pure
-    returns (uint256)
-  {
-    revert("The outcomeType method has no implementation for this App");
   }
 
 }

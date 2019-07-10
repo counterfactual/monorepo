@@ -1,7 +1,6 @@
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
-import { LocalFirebaseServiceFactory } from "../services/firebase-server";
 
-import { setup } from "./setup";
+import { setup, SetupContext } from "./setup";
 import {
   confirmChannelCreation,
   getChannelAddresses,
@@ -9,21 +8,15 @@ import {
 } from "./utils";
 
 describe("Node can create multisig, other owners get notified", () => {
-  let firebaseServiceFactory: LocalFirebaseServiceFactory;
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
 
   beforeAll(async () => {
-    const result = await setup(global, true);
-    nodeA = result.nodeA;
-    nodeB = result.nodeB;
-    nodeC = result.nodeC!;
-    firebaseServiceFactory = result.firebaseServiceFactory;
-  });
-
-  afterAll(() => {
-    firebaseServiceFactory.closeServiceConnections();
+    const context: SetupContext = await setup(global, true, true);
+    nodeA = context["A"].node;
+    nodeB = context["B"].node;
+    nodeC = context["C"].node;
   });
 
   describe("Queued channel creation", () => {

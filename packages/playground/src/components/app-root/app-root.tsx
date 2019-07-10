@@ -6,6 +6,8 @@ import { Component, State } from "@stencil/core";
 // @ts-ignore
 // Needed due to https://github.com/ionic-team/stencil-router/issues/62
 import { MatchResults } from "@stencil/router";
+import { Signer } from "ethers";
+import { BigNumber } from "ethers/utils";
 
 import AccountTunnel, { AccountState } from "../../data/account";
 import AppRegistryTunnel, { AppRegistryState } from "../../data/app-registry";
@@ -121,7 +123,7 @@ export class AppRoot {
     // TODO: This comparison might need changes if the user's doing
     // deposits beyond the registration flow.
     if (
-      ethBalance.eq(ethers.constants.Zero) &&
+      ethBalance.eq(window["ethers"].constants.Zero) &&
       this.accountState.ethPendingDepositAmountWei
     ) {
       return;
@@ -221,11 +223,10 @@ export class AppRoot {
           key: string;
           value: any;
         }[]
-      ): Promise<boolean> {
+      ): Promise<void> {
         pairs.forEach(({ key, value }) => {
           window.localStorage.setItem(key, JSON.stringify(value) as string);
         });
-        return true;
       }
     };
 
@@ -360,31 +361,58 @@ export class AppRoot {
     ethFreeBalanceWei: BigNumber;
     ethMultisigBalance: BigNumber;
   }> {
-    const MINIMUM_EXPECTED_FREE_BALANCE = ethers.utils.parseEther("0.01");
+    const MINIMUM_EXPECTED_FREE_BALANCE = window["ethers"].utils.parseEther(
+      "0.01"
+    );
 
     const {
       user: { multisigAddress, ethAddress, nodeAddress }
     } = this.accountState;
     const { provider } = this.walletState;
+    // <<<<<<< HEAD
+    // =======
+    //     const cfProvider = CounterfactualNode.getCfProvider();
+    // >>>>>>> master
 
     if (!multisigAddress || !ethAddress) {
       return {
-        ethFreeBalanceWei: ethers.constants.Zero,
-        ethMultisigBalance: ethers.constants.Zero
+        ethFreeBalanceWei: window["ethers"].constants.Zero,
+        ethMultisigBalance: window["ethers"].constants.Zero
       };
     }
 
+    // <<<<<<< HEAD
     const data = await ethereum.send("counterfactual:request:balances", [
       multisigAddress
     ]);
     const freeBalance = data.result;
     console.log("received getBalances response", freeBalance);
+    // =======
+    //     let freeBalance;
+
+    //     try {
+    //       freeBalance = await cfProvider.getFreeBalanceState(multisigAddress);
+    //     } catch (e) {
+    //       // TODO: Use better typed error messages with error codes
+    //       if (e.toString().includes("Call to getFreeBalanceState failed")) {
+    //         await this.updateAccount({ hasCorruptStateChannelState: true });
+    //         return {
+    //           ethFreeBalanceWei: window["ethers"].constants.Zero,
+    //           ethMultisigBalance: window["ethers"].constants.Zero
+    //         };
+    //       }
+
+    //       throw e;
+    //     }
+
+    // >>>>>>> master
     // Had to reimplement this on the frontend because the method can't be imported
-    // due to ethers not playing nice with ES Modules in this context.
+    // due to window["ethers"] not playing nice with ES Modules in this context.
     const getAddress = (xkey: string, k: number) =>
-      ethers.utils.computeAddress(
-        ethers.utils.HDNode.fromExtendedKey(xkey).derivePath(String(k))
-          .publicKey
+      window["ethers"].utils.computeAddress(
+        window["ethers"].utils.HDNode.fromExtendedKey(xkey).derivePath(
+          String(k)
+        ).publicKey
       );
 
     const myFreeBalanceAddress = getAddress(nodeAddress, 0);
@@ -392,12 +420,12 @@ export class AppRoot {
       addr => addr !== myFreeBalanceAddress
     );
 
-    const myBalance = ethers.utils.bigNumberify((freeBalance[
+    const myBalance = window["ethers"].utils.bigNumberify((freeBalance[
       myFreeBalanceAddress
     ] as unknown) as BigNumber);
-    const counterpartyBalance = ethers.utils.bigNumberify((freeBalance[
-      counterpartyFreeBalanceAddress
-    ] as unknown) as BigNumber);
+    const counterpartyBalance = window["ethers"].utils.bigNumberify(
+      (freeBalance[counterpartyFreeBalanceAddress] as unknown) as BigNumber
+    );
 
     const vals = {
       ethFreeBalanceWei: myBalance,
@@ -456,7 +484,13 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
+    // <<<<<<< HEAD
     ethereum.send("counterfactual:request:deposit_start").then(data => {
+      // =======
+      //     const provider = CounterfactualNode.getCfProvider();
+
+      //     provider.once(Node.EventName.DEPOSIT_STARTED, args =>
+      // >>>>>>> master
       this.updateAccount({
         ethPendingDepositTxHash: data.txHash,
         ethPendingDepositAmountWei: data.value
@@ -466,12 +500,18 @@ export class AppRoot {
     let ret;
 
     try {
-      const amount = ethers.utils.bigNumberify(valueInWei);
+      // <<<<<<< HEAD
+      const amount = window["ethers"].utils.bigNumberify(valueInWei);
 
       ret = (await ethereum.send("counterfactual:request:deposit", [
         amount,
         multisigAddress
       ])) as Node.DepositParams;
+      // =======
+      //       const amount = window["ethers"].utils.bigNumberify(valueInWei);
+
+      //       ret = await provider.deposit(multisigAddress, amount);
+      // >>>>>>> master
     } catch (e) {
       console.error(e);
     }
@@ -486,9 +526,9 @@ export class AppRoot {
       user: { multisigAddress }
     } = this.accountState;
 
-    const node = CounterfactualNode.getInstance();
+    const provider = CounterfactualNode.getCfProvider();
 
-    node.once(Node.EventName.WITHDRAWAL_STARTED, args => {
+    provider.once(Node.EventName.WITHDRAWAL_STARTED, args => {
       this.updateAccount({
         ethPendingWithdrawalTxHash: args.txHash,
         ethPendingWithdrawalAmountWei: valueInWei
@@ -498,15 +538,12 @@ export class AppRoot {
     let ret;
 
     try {
-      ret = await node.call(Node.MethodName.WITHDRAW, {
-        type: Node.MethodName.WITHDRAW,
-        requestId: window["uuid"](),
-        params: {
-          multisigAddress,
-          recipient: this.accountState.user.ethAddress,
-          amount: ethers.utils.bigNumberify(valueInWei)
-        } as Node.WithdrawParams
-      });
+      const amount = window["ethers"].utils.bigNumberify(valueInWei);
+      ret = await provider.withdraw(
+        multisigAddress,
+        amount,
+        this.accountState.user.ethAddress
+      );
     } catch (e) {
       console.error(e);
     }
@@ -518,9 +555,17 @@ export class AppRoot {
   }
 
   waitForMultisig() {
+    // <<<<<<< HEAD
     ethereum.send("counterfactual:listen:createChannel").then(data => {
       this.setMultisigAddress(data.result);
     });
+    // =======
+    //     const provider = CounterfactualNode.getCfProvider();
+    //     provider.once(
+    //       Node.EventName.CREATE_CHANNEL,
+    //       this.setMultisigAddress.bind(this)
+    //     );
+    // >>>>>>> master
   }
 
   async setMultisigAddress(createChannelMsg: CreateChannelMessage) {

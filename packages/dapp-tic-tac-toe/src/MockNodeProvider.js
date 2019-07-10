@@ -5,7 +5,7 @@ export default class NodeProvider {
     this.isConnected = false;
     this.activeState = {
       address: ["888", "777"],
-      turnNum: 0,
+      versionNumber: 0,
       winner: 0,
       board: [
         [0, 0, 0],
@@ -114,7 +114,7 @@ export default class NodeProvider {
 
   takeAction(x, y, playerNumber) {
     this.activeState.board[x][y] = playerNumber;
-    this.activeState.turnNum += 1;
+    this.activeState.versionNumber += 1;
   }
 
   sendActionEvent(appInstanceId) {
@@ -134,7 +134,7 @@ export default class NodeProvider {
       const { x, y } = this.determineOpponentAction();
       const boardCopy = JSON.parse(JSON.stringify(this.activeState.board));
       boardCopy[x][y] = 2;
-  
+
       const winClaim = checkVictory(boardCopy, 2);
       const draw = checkDraw(boardCopy);
 
@@ -177,13 +177,10 @@ export default class NodeProvider {
   generateAppInstanceDetail(params = {}) {
     return Object.assign({
       id: "0x60504030201",
-      appId: "0x123123456456",
+      appDefinition: "0x123123456456",
       abiEncodings: {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
-        stateEncoding: "tuple(address[2] players, uint256 turnName, uint256 winner, uint256[3][3] board)"
-      },
-      asset: {
-        assetType: 0
+        stateEncoding: "tuple(uint256 turnName, uint256 winner, uint256[3][3] board)"
       },
       myDeposit: window.ethers.utils.parseEther("0.1"),
       peerDeposit: window.ethers.utils.parseEther("0.1"),

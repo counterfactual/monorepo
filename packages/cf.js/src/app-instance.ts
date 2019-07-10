@@ -1,11 +1,11 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
-  BlockchainAsset,
+  CoinTransferInterpreterParams,
   Node,
-  SolidityABIEncoderV2Type
+  SolidityABIEncoderV2Type,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 import EventEmitter from "eventemitter3";
@@ -26,28 +26,39 @@ export class AppInstance {
   /**
    * Unique ID of this app instance.
    */
-  readonly id: AppInstanceID;
+  readonly identityHash: string;
 
-  readonly appId: Address;
+  // Application-specific fields
+  readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
-  readonly asset: BlockchainAsset;
+  readonly timeout: BigNumber;
+
+  // Funding-related fields
   readonly myDeposit: BigNumber;
   readonly peerDeposit: BigNumber;
-  readonly timeout: BigNumber;
   readonly intermediaries?: Address[];
+
+  /**
+   * Interpreter-related Fields
+   */
+  readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(
     key => AppInstanceEventType[key]
   );
 
   constructor(info: AppInstanceInfo, readonly provider: Provider) {
-    this.id = info.id;
-    this.appId = info.appId;
+    this.identityHash = info.identityHash;
+    this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
-    this.asset = info.asset;
+    this.timeout = info.timeout;
     this.myDeposit = info.myDeposit;
     this.peerDeposit = info.peerDeposit;
-    this.timeout = info.timeout;
+    this.twoPartyOutcomeInterpreterParams =
+      info.twoPartyOutcomeInterpreterParams;
+    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
     this.intermediaries = info.intermediaries;
   }
 
@@ -68,7 +79,7 @@ export class AppInstance {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.GetStateResult;
@@ -91,7 +102,7 @@ export class AppInstance {
       Node.MethodName.TAKE_ACTION,
       {
         action,
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
     const result = response.result as Node.TakeActionResult;
@@ -115,7 +126,7 @@ export class AppInstance {
         : Node.MethodName.UNINSTALL,
       {
         intermediaryIdentifier,
-        appInstanceId: this.id
+        appInstanceId: this.identityHash
       }
     );
   }

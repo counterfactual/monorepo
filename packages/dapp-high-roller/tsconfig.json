@@ -3,19 +3,13 @@
   "compilerOptions": {
     "allowUnreachableCode": false,
     "declaration": false,
-    "lib": [
-      "dom",
-      "es2017"
-    ],
+    "lib": ["dom", "es2017"],
     "jsx": "react",
     "jsxFactory": "h",
     // @types/mocha has a duplicate conflict, this is the suggested temp fix.
     "skipLibCheck": true,
+    "types": ["node"]
   },
-  "references": [
-    { "path": "../types" }
-  ],
-  "include": [
-    "src"
-  ]
+  "references": [{ "path": "../types" }],
+  "include": ["src"]
 }

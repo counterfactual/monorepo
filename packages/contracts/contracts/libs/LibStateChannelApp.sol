@@ -1,16 +1,16 @@
-pragma solidity 0.5.8;
+pragma solidity 0.5.10;
 
 
 /// @title LibStateChannelApp
 /// @author Liam Horne - <liam@l4v.io>
-/// @notice Contains the structures and enums needed for the AppRegistry
+/// @notice Contains the structures and enums needed for the ChallengeRegistry
 contract LibStateChannelApp {
 
-  // The mode that the App is currently in from POV of the blockchain
-  enum AppStatus {
-    ON,
-    IN_CHALLENGE,
-    OFF
+  // The status of a challenge in the ChallengeRegistry
+  enum ChallengeStatus {
+    NO_CHALLENGE,
+    FINALIZES_AFTER_DEADLINE,
+    EXPLICITLY_FINALIZED
   }
 
   // A minimal structure that uniquely identifies a single instance of an App
@@ -25,13 +25,12 @@ contract LibStateChannelApp {
   // NOTE: AppChallenge is the overall state of a channelized app instance,
   // appStateHash is the hash of a state specific to the CounterfactualApp (e.g. chess position)
   struct AppChallenge {
-    AppStatus status;
+    ChallengeStatus status;
     address latestSubmitter;
     bytes32 appStateHash;
     uint256 challengeCounter;
-    uint256 challengeNonce;
     uint256 finalizesAt;
-    uint256 nonce;
+    uint256 versionNumber;
   }
 
 }

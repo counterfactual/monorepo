@@ -1,4 +1,4 @@
-import AppRegistry from "@counterfactual/contracts/build/AppRegistry.json";
+import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import {
   bigNumberify,
   Interface,
@@ -31,19 +31,19 @@ describe("Set State Commitment", () => {
       networkContext,
       appInstance.identity,
       appInstance.hashOfLatestState,
-      appInstance.nonce,
+      appInstance.versionNumber,
       appInstance.timeout
     );
     // TODO: (question) Should there be a way to retrieve the version
     //       of this transaction sent to the multisig vs sent
     //       directly to the app registry?
-    tx = commitment.transaction([
+    tx = commitment.getSignedTransaction([
       /* NOTE: Passing in no signatures for test only */
     ]);
   });
 
-  it("should be to AppRegistry", () => {
-    expect(tx.to).toBe(networkContext.AppRegistry);
+  it("should be to ChallengeRegistry", () => {
+    expect(tx.to).toBe(networkContext.ChallengeRegistry);
   });
 
   it("should have no value", () => {
@@ -51,7 +51,7 @@ describe("Set State Commitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(AppRegistry.abi);
+    const iface = new Interface(ChallengeRegistry.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -74,9 +74,9 @@ describe("Set State Commitment", () => {
     });
 
     it("should contain expected SignedStateHashUpdate argument", () => {
-      const [stateHash, nonce, timeout, []] = desc.args[1];
+      const [stateHash, versionNumber, timeout, []] = desc.args[1];
       expect(stateHash).toBe(appInstance.hashOfLatestState);
-      expect(nonce).toEqual(bigNumberify(appInstance.nonce));
+      expect(versionNumber).toEqual(bigNumberify(appInstance.versionNumber));
       expect(timeout).toEqual(bigNumberify(appInstance.timeout));
     });
   });
@@ -84,16 +84,16 @@ describe("Set State Commitment", () => {
   it("should produce the correct hash to sign", () => {
     const hashToSign = commitment.hashToSign();
 
-    // Based on MAppRegistryCore::computeStateHash
+    // Based on MChallengeRegistryCore::computeStateHash
     // TODO: Probably should be able to compute this from some helper
-    //       function ... maybe an AppRegistry class or something
+    //       function ... maybe an ChallengeRegistry class or something
     const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
         [
           "0x19",
           appIdentityToHash(appInstance.identity),
-          appInstance.nonce,
+          appInstance.versionNumber,
           appInstance.timeout,
           appInstance.hashOfLatestState
         ]

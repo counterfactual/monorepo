@@ -1,7 +1,6 @@
 import {
   AppABIEncodings,
-  AssetType,
-  BlockchainAsset,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -14,6 +13,7 @@ import {
   ProposedAppInstanceInfo,
   StateChannel
 } from "../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
@@ -24,21 +24,19 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
     {
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
-      appId: AddressZero,
+      appDefinition: AddressZero,
       abiEncodings: {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      asset: {
-        assetType: AssetType.ETH
-      } as BlockchainAsset,
       myDeposit: Zero,
       peerDeposit: Zero,
       timeout: One,
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Type
+      } as SolidityABIEncoderV2Type,
+      outcomeType: OutcomeType.COIN_TRANSFER
     },
     undefined,
     appInstanceId
@@ -66,11 +64,14 @@ export function createAppInstance(stateChannel?: StateChannel) {
     /* appSeqNo */ stateChannel
       ? stateChannel.numInstalledApps
       : Math.ceil(1000 * Math.random()),
-    0,
-    { foo: AddressZero, bar: bigNumberify(0) },
-    0,
-    Math.ceil(1000 * Math.random()),
-    [AddressZero, AddressZero],
-    Zero
+    /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
+    /* latestVersionNumber */ 0,
+    /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* twoPartyOutcomeInterpreterParams */ {
+      playerAddrs: [AddressZero, AddressZero],
+      amount: Zero
+    },
+    /* coinTransferInterpreterParams */ undefined,
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 }

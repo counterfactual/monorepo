@@ -1,37 +1,35 @@
 import { AppIdentity } from "@counterfactual/types";
 import * as chai from "chai";
 import { solidity } from "ethereum-waffle";
-import { HashZero } from "ethers/constants";
 import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
 
-// TS version of MAppRegistryCore::computeAppChallengeHash
+// TS version of MChallengeRegistryCore::computeAppChallengeHash
 export const computeAppChallengeHash = (
   id: string,
   appStateHash: string,
-  nonce: number,
+  versionNumber: number,
   timeout: number
 ) =>
   keccak256(
     solidityPack(
       ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
-      ["0x19", id, nonce, timeout, appStateHash]
+      ["0x19", id, versionNumber, timeout, appStateHash]
     )
   );
 
-// TS version of MAppRegistryCore::computeActionHash
+// TS version of MChallengeRegistryCore::computeActionHash
 export const computeActionHash = (
   turnTaker: string,
   previousState: string,
   action: string,
-  setStateNonce: number,
-  challengeNonce: number
+  versionNumber: number
 ) =>
   keccak256(
     solidityPack(
-      ["bytes1", "address", "bytes", "bytes", "uint256", "uint256"],
-      ["0x19", turnTaker, previousState, action, setStateNonce, challengeNonce]
+      ["bytes1", "address", "bytes", "bytes", "uint256"],
+      ["0x19", turnTaker, previousState, action, versionNumber]
     )
   );
 

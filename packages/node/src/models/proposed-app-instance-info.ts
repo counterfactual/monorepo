@@ -1,43 +1,43 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
-  BlockchainAsset,
-  Bytes32,
+  OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
+
 export interface IProposedAppInstanceInfo {
-  appId: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
-  timeout: BigNumber;
+  myDeposit: BigNumberish;
+  peerDeposit: BigNumberish;
+  timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: Bytes32;
-  appId: Address;
+  identityHash: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
-  myDeposit: string;
-  peerDeposit: string;
-  timeout: string;
+  myDeposit: { _hex: string };
+  peerDeposit: { _hex: string };
+  timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 }
 
 /**
@@ -51,10 +51,9 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  id: Bytes32;
-  appId: Address;
+  identityHash: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
-  asset: BlockchainAsset;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
   timeout: BigNumber;
@@ -62,29 +61,30 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
+  outcomeType: OutcomeType;
 
   constructor(
     proposeParams: IProposedAppInstanceInfo,
     channel?: StateChannel,
-    overrideId?: Bytes32
+    overrideId?: string
   ) {
-    this.appId = proposeParams.appId;
+    this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.asset = proposeParams.asset;
-    this.myDeposit = proposeParams.myDeposit;
-    this.peerDeposit = proposeParams.peerDeposit;
-    this.timeout = proposeParams.timeout;
+    this.myDeposit = bigNumberify(proposeParams.myDeposit);
+    this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
+    this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
-    this.id = overrideId || this.getIdentityHashFor(channel!);
+    this.outcomeType = proposeParams.outcomeType;
+    this.identityHash = overrideId || this.getIdentityHashFor(channel!);
   }
 
   // TODO: Note the construction of this is duplicated from the machine
   getIdentityHashFor(stateChannel: StateChannel) {
     const proposedAppInterface: AppInterface = {
-      addr: this.appId,
+      addr: this.appDefinition,
       ...this.abiEncodings
     };
 
@@ -119,48 +119,55 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       proposedAppInterface,
       isVirtualApp,
       isVirtualApp ? 1337 : stateChannel.numInstalledApps,
-      stateChannel.rootNonceValue,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
-      [AddressZero, AddressZero],
-      bigNumberify(this.myDeposit).add(this.peerDeposit)
+      undefined,
+      {
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      }
     );
 
     return proposedAppInstance.identityHash;
   }
 
-  toJson() {
+  toJson(): ProposedAppInstanceInfoJSON {
     return {
-      id: this.id,
-      appId: this.appId,
+      identityHash: this.identityHash,
+      appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      asset: this.asset,
-      myDeposit: this.myDeposit,
-      peerDeposit: this.peerDeposit,
+      myDeposit: { _hex: this.myDeposit.toHexString() },
+      peerDeposit: { _hex: this.peerDeposit.toHexString() },
       initialState: this.initialState,
-      timeout: this.timeout,
+      timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
-      intermediaries: this.intermediaries
+      intermediaries: this.intermediaries,
+      outcomeType: this.outcomeType
     };
   }
 
   static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
     const proposeParams: IProposedAppInstanceInfo = {
-      appId: json.appId,
+      appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
-      asset: json.asset,
-      myDeposit: bigNumberify(json.myDeposit),
-      peerDeposit: bigNumberify(json.peerDeposit),
-      timeout: bigNumberify(json.timeout),
+      myDeposit: bigNumberify(json.myDeposit._hex),
+      peerDeposit: bigNumberify(json.peerDeposit._hex),
+      timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
-      intermediaries: json.intermediaries
+      intermediaries: json.intermediaries,
+      outcomeType: json.outcomeType
     };
-    return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
+
+    return new ProposedAppInstanceInfo(
+      proposeParams,
+      undefined,
+      json.identityHash
+    );
   }
 }
