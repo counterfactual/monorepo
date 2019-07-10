@@ -1,8 +1,10 @@
 import { Node } from "@counterfactual/types";
+import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { xkeyKthAddress } from "../../../machine";
+import { StateChannel } from "../../../models";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   getBalancesFromFreeBalanceAppInstance
@@ -39,7 +41,9 @@ export default class ProposeInstallController extends NodeController {
     const {
       proposedToIdentifier,
       myDeposit,
-      myDepositTokenAddress: myDepositTokenAddressParam
+      myDepositTokenAddress: myDepositTokenAddressParam,
+      peerDeposit,
+      peerDepositTokenAddress: peerDepositTokenAddressParam
     } = params;
 
     const myIdentifier = requestHandler.publicIdentifier;
@@ -58,23 +62,27 @@ export default class ProposeInstallController extends NodeController {
     const myDepositTokenAddress =
       myDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const channel = await store.getStateChannel(multisigAddress);
-    const myFreeBalanceForToken = getBalancesFromFreeBalanceAppInstance(
-      channel.freeBalance,
-      myDepositTokenAddress
-    )[xkeyKthAddress(myIdentifier, 0)];
+    const peerDepositTokenAddress =
+      peerDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    if (myFreeBalanceForToken.lt(myDeposit)) {
-      throw new Error(
-        INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
-          myIdentifier,
-          multisigAddress,
-          myDepositTokenAddress,
-          myFreeBalanceForToken,
-          myDeposit
-        )
-      );
-    }
+    const channel = await store.getStateChannel(multisigAddress);
+
+    confirmSufficientBalanceForToken(
+      channel,
+      multisigAddress,
+      myIdentifier,
+      myDepositTokenAddress,
+      myDeposit
+    );
+
+    confirmSufficientBalanceForToken(
+      channel,
+      multisigAddress,
+      proposedToIdentifier,
+      peerDepositTokenAddress,
+      peerDeposit
+    );
+
     return [requestHandler.getShardedQueue(multisigAddress)];
   }
 
@@ -106,5 +114,30 @@ export default class ProposeInstallController extends NodeController {
     return {
       appInstanceId
     };
+  }
+}
+
+function confirmSufficientBalanceForToken(
+  channel: StateChannel,
+  multisigAddress: string,
+  publicIdentifier: string,
+  tokenAddress: string,
+  depositAmount: BigNumber
+) {
+  const freeBalanceForToken = getBalancesFromFreeBalanceAppInstance(
+    channel.freeBalance,
+    tokenAddress
+  )[xkeyKthAddress(publicIdentifier, 0)];
+
+  if (freeBalanceForToken.lt(depositAmount)) {
+    throw new Error(
+      INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
+        publicIdentifier,
+        multisigAddress,
+        tokenAddress,
+        freeBalanceForToken,
+        depositAmount
+      )
+    );
   }
 }
