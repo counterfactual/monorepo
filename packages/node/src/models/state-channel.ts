@@ -1,33 +1,29 @@
-import {
-  ETHBucketAppState,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
-import { MaxUint256, Zero } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
-import {
-  flip,
-  fromAppState,
-  getETHBucketAppInterface,
-  merge
-} from "../ethereum/utils/eth-bucket";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { flip, merge } from "../ethereum/utils/free-balance-app";
+import { xkeyKthAddress } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
-  TwoPartyVirtualEthAsLumpInstance,
-  TwoPartyVirtualEthAsLumpInstanceJson
-} from "./two-party-virtual-eth-as-lump-instance";
+  CoinTransferMap,
+  createFreeBalance,
+  deserializeFreeBalanceState,
+  FreeBalanceState,
+  FreeBalanceStateJSON,
+  getBalancesFromFreeBalanceAppInstance,
+  serializeFreeBalanceState
+} from "./free-balance";
 
 // TODO: Hmmm this code should probably be somewhere else?
-const HARD_CODED_ASSUMPTIONS = {
+export const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 172800,
   freeBalanceInitialStateTimeout: 172800,
   // We assume the Free Balance is the first app ever installed
   appSequenceNumberForFreeBalance: 0
 };
 
-const NONCE_EXPIRY = 65536;
+const VERSION_NUMBER_EXPIRY = 65536;
 
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
@@ -47,60 +43,30 @@ function sortAddresses(addrs: string[]) {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));
 }
 
+export type SingleAssetTwoPartyIntermediaryAgreement = {
+  capitalProvided: BigNumber;
+  expiryBlock: number;
+  beneficiaries: [string, string];
+};
+
+type SingleAssetTwoPartyIntermediaryAgreementJSON = {
+  capitalProvided: { _hex: string };
+  expiryBlock: number;
+  beneficiaries: [string, string];
+};
+
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly userNeuteredExtendedKeys: string[];
   readonly appInstances: [string, AppInstanceJson][];
-  readonly twoPartyVirtualEthAsLumpInstances: [
+  readonly singleAssetTwoPartyIntermediaryAgreements: [
     string,
-    TwoPartyVirtualEthAsLumpInstanceJson
+    SingleAssetTwoPartyIntermediaryAgreementJSON
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumInstalledApps: number;
   readonly createdAt: number;
 };
-
-function createFreeBalance(
-  multisigAddress: string,
-  userNeuteredExtendedKeys: string[],
-  ethBucketAddress: string,
-  freeBalanceTimeout: number
-) {
-  const sortedTopLevelKeys = xkeysToSortedKthAddresses(
-    userNeuteredExtendedKeys,
-    0 // NOTE: We re-use 0 which is also used as the keys for `multisigOwners`
-  );
-
-  // Making these values constants to be extremely explicit about
-  // the built-in assumption here.
-  const beneficiaryForPerson1 = sortedTopLevelKeys[0];
-  const beneficiaryForPerson2 = sortedTopLevelKeys[1];
-
-  return new AppInstance(
-    multisigAddress,
-    sortedTopLevelKeys,
-    freeBalanceTimeout,
-    getETHBucketAppInterface(ethBucketAddress),
-    false,
-    HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
-    [
-      [
-        {
-          to: beneficiaryForPerson1,
-          amount: Zero
-        },
-        {
-          to: beneficiaryForPerson2,
-          amount: Zero
-        }
-      ]
-    ],
-    0,
-    HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    undefined,
-    { limit: MaxUint256 }
-  );
-}
 
 export class StateChannel {
   constructor(
@@ -110,10 +76,10 @@ export class StateChannel {
       string,
       AppInstance
     >([]),
-    readonly twoPartyVirtualEthAsLumpInstances: ReadonlyMap<
+    readonly singleAssetTwoPartyIntermediaryAgreements: ReadonlyMap<
       string,
-      TwoPartyVirtualEthAsLumpInstance
-    > = new Map<string, TwoPartyVirtualEthAsLumpInstance>([]),
+      SingleAssetTwoPartyIntermediaryAgreement
+    > = new Map<string, SingleAssetTwoPartyIntermediaryAgreement>([]),
     private readonly freeBalanceAppInstance?: AppInstance,
     private readonly monotonicNumInstalledApps: number = 0,
     public readonly createdAt: number = Date.now()
@@ -160,6 +126,17 @@ export class StateChannel {
     );
   }
 
+  public mostRecentlyInstalledAppInstance(): AppInstance {
+    if (this.appInstances.size === 0) {
+      throw new Error(
+        "There are no installed AppInstances in this StateChannel"
+      );
+    }
+    return [...this.appInstances.values()].reduce((prev, current) =>
+      current.appSeqNo > prev.appSeqNo ? current : prev
+    );
+  }
+
   public getAppInstanceOfKind(address: string) {
     const appInstances = Array.from(this.appInstances.values()).filter(
       (appInstance: AppInstance) => {
@@ -202,6 +179,20 @@ export class StateChannel {
     );
   }
 
+  public getMultisigOwnerAddrOf(xpub: string): string {
+    const [alice, bob] = this.multisigOwners;
+
+    const topLevelKey = xkeyKthAddress(xpub, 0);
+
+    if (topLevelKey !== alice && topLevelKey !== bob) {
+      throw Error(
+        `getMultisigOwnerAddrOf received invalid xpub not in multisigOwners: ${xpub}`
+      );
+    }
+
+    return topLevelKey;
+  }
+
   public getFreeBalanceAddrOf(xpub: string): string {
     const [alice, bob] = this.freeBalanceAppInstance!.signingKeys;
 
@@ -216,41 +207,84 @@ export class StateChannel {
     return topLevelKey;
   }
 
-  public incrementETHFreeBalance(increments: { [addr: string]: BigNumber }) {
-    const freeBalance = this.freeBalanceAppInstance;
-    const freeBalanceState = freeBalance!.state as ETHBucketAppState;
+  public addActiveAppAndIncrementFreeBalance(
+    activeApp: string,
+    increments: CoinTransferMap,
+    tokenAddress: string
+  ) {
+    const json = this.freeBalance.state as FreeBalanceStateJSON;
 
-    return this.setFreeBalance(
-      merge(fromAppState(freeBalanceState), increments)
-    );
-  }
+    const freeBalanceState = deserializeFreeBalanceState(json);
 
-  public setFreeBalance(newState: { [addr: string]: BigNumber }) {
-    const freeBalance = this.freeBalance;
-    const ret = [] as any;
+    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+      merge(
+        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+        increments
+      )
+    ).map(([to, amount]) => ({ to, amount }));
 
-    for (const beneficiaryAddr in newState) {
-      ret.push({
-        to: beneficiaryAddr,
-        amount: {
-          _hex: newState[beneficiaryAddr].toHexString()
-        }
-      });
-    }
+    freeBalanceState.activeAppsMap[activeApp] = true;
 
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       this.appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
-      freeBalance.setState([ret]),
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(freeBalanceState)),
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
+  }
+
+  public removeActiveAppAndIncrementFreeBalance(
+    activeApp: string,
+    increments: CoinTransferMap,
+    tokenAddress: string
+  ) {
+    const json = this.freeBalance.state as FreeBalanceStateJSON;
+
+    const freeBalanceState = deserializeFreeBalanceState(json);
+
+    if (!freeBalanceState.activeAppsMap[activeApp]) {
+      throw new Error(
+        "Cannot uninstall app that is not installed in the first place"
+      );
+    }
+
+    delete freeBalanceState.activeAppsMap[activeApp];
+
+    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+      merge(
+        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+        increments
+      )
+    ).map(([to, amount]) => ({ to, amount }));
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(freeBalanceState)),
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
+  }
+
+  public setFreeBalance(newState: FreeBalanceState) {
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(newState)),
       this.monotonicNumInstalledApps,
       this.createdAt
     );
   }
 
   public static setupChannel(
-    ethBucketAddress: string,
+    freeBalanceAppAddress: string,
     multisigAddress: string,
     userNeuteredExtendedKeys: string[],
     freeBalanceTimeout?: number
@@ -259,11 +293,11 @@ export class StateChannel {
       multisigAddress,
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>([]),
-      new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
+      new Map<string, SingleAssetTwoPartyIntermediaryAgreement>(),
       createFreeBalance(
         multisigAddress,
         userNeuteredExtendedKeys,
-        ethBucketAddress,
+        freeBalanceAppAddress,
         freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
       ),
       1
@@ -278,7 +312,7 @@ export class StateChannel {
       multisigAddress,
       userNeuteredExtendedKeys,
       new Map<string, AppInstance>(),
-      new Map<string, TwoPartyVirtualEthAsLumpInstance>(),
+      new Map<string, SingleAssetTwoPartyIntermediaryAgreement>(),
       // Note that this FreeBalance is undefined because a channel technically
       // does not have a FreeBalance before the `setup` protocol gets run
       undefined,
@@ -304,7 +338,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
@@ -327,7 +361,7 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
@@ -343,30 +377,32 @@ export class StateChannel {
 
     appInstances.set(
       appInstanceIdentityHash,
-      appInstance.lockState(NONCE_EXPIRY)
+      appInstance.lockState(VERSION_NUMBER_EXPIRY)
     );
 
     return new StateChannel(
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
     );
   }
 
-  public installTwoPartyVirtualEthAsLumpInstances(
-    evaaInstance: TwoPartyVirtualEthAsLumpInstance,
+  public addSingleAssetTwoPartyIntermediaryAgreement(
     targetIdentityHash: string,
-    decrements: { [s: string]: BigNumber }
+    evaaInstance: SingleAssetTwoPartyIntermediaryAgreement,
+    decrements: { [s: string]: BigNumber },
+    tokenAddress: string
   ) {
-    // Add to twoPartyVirtualEthAsLumpInstances
+    // Add to singleAssetTwoPartyIntermediaryAgreements
 
-    const evaaInstances = new Map<string, TwoPartyVirtualEthAsLumpInstance>(
-      this.twoPartyVirtualEthAsLumpInstances.entries()
-    );
+    const evaaInstances = new Map<
+      string,
+      SingleAssetTwoPartyIntermediaryAgreement
+    >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
     evaaInstances.set(targetIdentityHash, evaaInstance);
 
@@ -378,19 +414,24 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).incrementETHFreeBalance(flip(decrements));
+    ).addActiveAppAndIncrementFreeBalance(
+      targetIdentityHash,
+      flip(decrements),
+      tokenAddress
+    );
   }
 
-  public uninstallTwoPartyVirtualEthAsLumpInstance(
+  public removeSingleAssetTwoPartyIntermediaryAgreement(
     targetIdentityHash: string,
-    increments: { [addr: string]: BigNumber }
+    increments: { [addr: string]: BigNumber },
+    tokenAddress: string
   ) {
-    const twoPartyVirtualEthAsLumpInstances = new Map<
+    const singleAssetTwoPartyIntermediaryAgreements = new Map<
       string,
-      TwoPartyVirtualEthAsLumpInstance
-    >(this.twoPartyVirtualEthAsLumpInstances.entries());
+      SingleAssetTwoPartyIntermediaryAgreement
+    >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
-    if (!twoPartyVirtualEthAsLumpInstances.delete(targetIdentityHash)) {
+    if (!singleAssetTwoPartyIntermediaryAgreements.delete(targetIdentityHash)) {
       throw Error(
         `cannot find agreement with target hash ${targetIdentityHash}`
       );
@@ -400,11 +441,15 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       this.appInstances,
-      twoPartyVirtualEthAsLumpInstances,
+      singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).incrementETHFreeBalance(increments);
+    ).removeActiveAppAndIncrementFreeBalance(
+      targetIdentityHash,
+      increments,
+      tokenAddress
+    );
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -418,17 +463,14 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
     );
   }
 
-  public installApp(
-    appInstance: AppInstance,
-    decrements: { [s: string]: BigNumber }
-  ) {
+  public installApp(appInstance: AppInstance, decrements: CoinTransferMap) {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
@@ -454,16 +496,20 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).incrementETHFreeBalance(flip(decrements));
+    ).addActiveAppAndIncrementFreeBalance(
+      appInstance.identityHash,
+      flip(decrements),
+      appInstance.tokenAddress
+    );
   }
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    increments: { [s: string]: BigNumber }
+    increments: CoinTransferMap
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
@@ -489,24 +535,29 @@ export class StateChannel {
       this.multisigAddress,
       this.userNeuteredExtendedKeys,
       appInstances,
-      this.twoPartyVirtualEthAsLumpInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).incrementETHFreeBalance(increments);
+    ).removeActiveAppAndIncrementFreeBalance(
+      appInstanceIdentityHash,
+      increments,
+      appToBeUninstalled.tokenAddress
+    );
   }
 
-  public getTwoPartyVirtualEthAsLumpFromTarget(
-    target: string
-  ): TwoPartyVirtualEthAsLumpInstance {
-    for (const [{}, instance] of this.twoPartyVirtualEthAsLumpInstances) {
-      if (instance.targetAppIdentityHash === target) {
-        return instance;
-      }
+  public getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
+    key: string
+  ): SingleAssetTwoPartyIntermediaryAgreement {
+    const ret = this.singleAssetTwoPartyIntermediaryAgreements.get(key);
+
+    if (!ret) {
+      throw Error(
+        `Could not find any eth virtual app agreements with for virtual app ${key}`
+      );
     }
-    throw Error(
-      `Could not find any eth virtual app agreements with target ${target}`
-    );
+
+    return ret;
   }
 
   toJson(): StateChannelJSON {
@@ -524,13 +575,16 @@ export class StateChannel {
           // does not have a FreeBalance before the `setup` protocol gets run
           undefined,
       monotonicNumInstalledApps: this.monotonicNumInstalledApps,
-      twoPartyVirtualEthAsLumpInstances: [
-        ...this.twoPartyVirtualEthAsLumpInstances.entries()
-      ].map(
-        (appInstanceEntry): [string, TwoPartyVirtualEthAsLumpInstanceJson] => {
-          return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
+      singleAssetTwoPartyIntermediaryAgreements: [
+        ...this.singleAssetTwoPartyIntermediaryAgreements.entries()
+      ].map(([key, val]) => [
+        key,
+        {
+          capitalProvided: { _hex: val.capitalProvided.toHexString() },
+          expiryBlock: val.expiryBlock,
+          beneficiaries: val.beneficiaries
         }
-      ),
+      ]),
       createdAt: this.createdAt
     };
   }
@@ -550,13 +604,15 @@ export class StateChannel {
         )
       ),
       new Map(
-        [...Object.values(json.twoPartyVirtualEthAsLumpInstances || [])].map(
-          (appInstanceEntry): [string, TwoPartyVirtualEthAsLumpInstance] => {
-            return [
-              appInstanceEntry[0],
-              TwoPartyVirtualEthAsLumpInstance.fromJson(appInstanceEntry[1])
-            ];
-          }
+        (json.singleAssetTwoPartyIntermediaryAgreements || []).map(
+          ([key, val]) => [
+            key,
+            {
+              capitalProvided: bigNumberify(val.capitalProvided._hex),
+              expiryBlock: val.expiryBlock,
+              beneficiaries: val.beneficiaries
+            }
+          ]
         )
       ),
       json.freeBalanceAppInstance

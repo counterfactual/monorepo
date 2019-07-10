@@ -1,7 +1,6 @@
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   Node,
   OutcomeType,
   SolidityABIEncoderV2Type
@@ -68,7 +67,7 @@ export class AppFactory {
     initialState: SolidityABIEncoderV2Type;
     /** The outcome type of the app instance */
     outcomeType: OutcomeType;
-  }): Promise<AppInstanceID> {
+  }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
@@ -110,7 +109,7 @@ export class AppFactory {
     initialState: SolidityABIEncoderV2Type;
     /** List of intermediary peers to route installation through */
     intermediaries: string[];
-  }): Promise<AppInstanceID> {
+  }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
     const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");

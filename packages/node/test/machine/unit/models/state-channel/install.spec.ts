@@ -1,10 +1,14 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  getBalancesFromFreeBalanceAppInstance
+} from "../../../../../src/models/free-balance";
+import { createFreeBalanceStateWithFundedETHAmounts } from "../../../../integration/utils";
 import { createAppInstance } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -24,7 +28,7 @@ describe("StateChannel::uninstallApp", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.ETHBucket,
+      networkContext.FreeBalanceApp,
       multisigAddress,
       xpubs
     );
@@ -35,10 +39,12 @@ describe("StateChannel::uninstallApp", () => {
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
 
-    sc1 = sc1.setFreeBalance({
-      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
-      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
-    });
+    sc1 = sc1.setFreeBalance(
+      createFreeBalanceStateWithFundedETHAmounts(
+        [xkeyKthAddress(xpubs[0], 0), xkeyKthAddress(xpubs[1], 0)],
+        WeiPerEther
+      )
+    );
 
     sc2 = sc1.installApp(appInstance, {
       [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
@@ -67,8 +73,12 @@ describe("StateChannel::uninstallApp", () => {
     });
 
     it("should have updated balances for Alice and Bob", () => {
-      const fbState = fb.state as ETHBucketAppState;
-      for (const { amount } of fbState[0]) {
+      for (const amount of Object.values(
+        getBalancesFromFreeBalanceAppInstance(
+          fb,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
+      )) {
         expect(amount).toEqual(Zero);
       }
     });

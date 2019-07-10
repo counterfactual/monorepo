@@ -18,10 +18,10 @@ import { AuthenticatedRequest, JsonApiResource } from "../types";
  * `signature_required` error.
  */
 export default function(app: Application) {
-  return validateSignature(app);
+  return assertIsValidSignature(app);
 }
 
-function validateSignature(app: Application) {
+function assertIsValidSignature(app: Application) {
   const validatedEndpoints = {
     users: {
       POST: async (data: { [key: string]: any }) =>
@@ -84,7 +84,7 @@ async function validate(
     Log.info("Cancelling request, signature is required", {
       tags: {
         resourceName,
-        middleware: "validateSignature"
+        middleware: "assertIsValidSignature"
       }
     });
     throw Errors.SignatureRequired();
@@ -94,7 +94,7 @@ async function validate(
     Log.info("Cancelling request, signature is invalid", {
       tags: {
         resourceName,
-        middleware: "validateSignature"
+        middleware: "assertIsValidSignature"
       }
     });
     throw Errors.InvalidSignature();
@@ -113,7 +113,7 @@ async function validate(
     Log.info("Cancelling request, signature is not valid", {
       tags: {
         resourceName,
-        middleware: "validateSignature"
+        middleware: "assertIsValidSignature"
       }
     });
     throw Errors.InvalidSignature();

@@ -40,9 +40,9 @@ contract MixinRespondToChallenge is
 
     require(
       (
-        challenge.status == ChallengeStatus.CHALLENGE_IS_OPEN
+        challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE
       ) && challenge.finalizesAt >= block.number,
-      "respondToChallenge called on app not in CHALLENGE_IS_OPEN state"
+      "respondToChallenge called on app not in FINALIZES_AFTER_DEADLINE state"
     );
 
     require(
@@ -80,7 +80,7 @@ contract MixinRespondToChallenge is
       challenge.appStateHash = keccak256(newAppState);
       challenge.latestSubmitter = msg.sender;
       challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.CHALLENGE_WAS_FINALIZED;
+      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
       delete appChallenges[identityHash];
     }

@@ -15,7 +15,7 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { configureNetworkContext } from "./network-configuration";
+import { deployTestArtifactsToChain } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import NodeRouter from "./rpc-router";
 import { getHDNode } from "./signer";
@@ -85,7 +85,7 @@ export class Node {
     this.outgoing = new EventEmitter();
     this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
     if (typeof networkContext === "string") {
-      this.networkContext = configureNetworkContext(networkContext);
+      this.networkContext = deployTestArtifactsToChain(networkContext);
 
       if (
         blocksNeededForConfirmation &&
@@ -131,6 +131,11 @@ export class Node {
   @Memoize()
   get publicIdentifier(): string {
     return this.signer.neuter().extendedKey;
+  }
+
+  @Memoize()
+  async signerAddress(): Promise<string> {
+    return await this.requestHandler.getSignerAddress();
   }
 
   @Memoize()

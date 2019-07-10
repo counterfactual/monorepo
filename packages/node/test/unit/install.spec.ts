@@ -1,4 +1,3 @@
-import { ETHBucketAppState } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -11,13 +10,18 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
-import { fromAppState } from "../../src/ethereum/utils/eth-bucket";
 import {
   InstructionExecutor,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  convertCoinTransfersToCoinTransfersMap,
+  deserializeFreeBalanceState,
+  FreeBalanceStateJSON
+} from "../../src/models/free-balance";
 import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
@@ -35,19 +39,19 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
-      install(store, ie, "a", "b", { appInstanceId: undefined! })
+      install(store, ie, { appInstanceId: undefined! })
     ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
-    await expect(
-      install(store, ie, "a", "b", { appInstanceId: "" })
-    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
+    await expect(install(store, ie, { appInstanceId: "" })).rejects.toEqual(
+      NO_APP_INSTANCE_ID_TO_INSTALL
+    );
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
-      install(store, ie, "a", "b", { appInstanceId: HashZero })
+      install(store, ie, { appInstanceId: HashZero })
     ).rejects.toEqual(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero));
   });
 
@@ -70,7 +74,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     await expect(
-      install(instance(mockedStore), ie, "a", "b", { appInstanceId })
+      install(instance(mockedStore), ie, { appInstanceId })
     ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
@@ -94,16 +98,20 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK.ETHBucket,
+      EMPTY_NETWORK.FreeBalanceApp,
       multisigAddress,
       hdnodes.map(x => x.neuter().extendedKey)
     );
 
-    const fbState = fromAppState(stateChannel.freeBalance
-      .state as ETHBucketAppState);
+    const balancesForETHToken = convertCoinTransfersToCoinTransfersMap(
+      deserializeFreeBalanceState(stateChannel.freeBalance
+        .state as FreeBalanceStateJSON).balancesIndexedByToken[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ]
+    );
 
-    expect(fbState[signingKeys[0]]).toEqual(Zero);
-    expect(fbState[signingKeys[1]]).toEqual(Zero);
+    expect(balancesForETHToken[signingKeys[0]]).toEqual(Zero);
+    expect(balancesForETHToken[signingKeys[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 
@@ -129,7 +137,7 @@ describe("Can handle correct & incorrect installs", () => {
     // The AppInstanceInfo that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
-      install(store, ie, "a", "b", {
+      install(store, ie, {
         appInstanceId
       })
     ).resolves.toEqual(proposedAppInstanceInfo);

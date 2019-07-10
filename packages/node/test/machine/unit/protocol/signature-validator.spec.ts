@@ -8,7 +8,7 @@ import {
 } from "ethers/utils";
 
 import { EthereumCommitment } from "../../../../src/ethereum/types";
-import { validateSignature } from "../../../../src/protocol/utils/signature-validator";
+import { assertIsValidSignature } from "../../../../src/protocol/utils/signature-validator";
 
 describe("Signature Validator Helper", () => {
   let signer: SigningKey;
@@ -27,20 +27,20 @@ describe("Signature Validator Helper", () => {
 
   it("validates signatures correctly", () => {
     expect(() =>
-      validateSignature(signer.address, commitment, signature)
+      assertIsValidSignature(signer.address, commitment, signature)
     ).not.toThrow();
   });
 
   it("throws if signature is undefined", () => {
     expect(() =>
-      validateSignature(signer.address, commitment, undefined)
-    ).toThrow("validateSignature received an undefined signature");
+      assertIsValidSignature(signer.address, commitment, undefined)
+    ).toThrow("assertIsValidSignature received an undefined signature");
   });
 
   it("throws if commitment is undefined", () => {
     expect(() =>
-      validateSignature(signer.address, undefined, signature)
-    ).toThrow("validateSignature received an undefined commitment");
+      assertIsValidSignature(signer.address, undefined, signature)
+    ).toThrow("assertIsValidSignature received an undefined commitment");
   });
 
   it("throws if the signature is wrong", () => {
@@ -49,7 +49,7 @@ describe("Signature Validator Helper", () => {
     const signature = signer.signDigest(wrongHash);
     const wrongSigner = recoverAddress(rightHash, signature);
     expect(() =>
-      validateSignature(signer.address, commitment, signature)
+      assertIsValidSignature(signer.address, commitment, signature)
     ).toThrow(
       `Validating a signature with expected signer ${
         signer.address

@@ -1,9 +1,7 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
-  Bytes32,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -13,8 +11,10 @@ import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
+
 export interface IProposedAppInstanceInfo {
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumberish;
   peerDeposit: BigNumberish;
@@ -27,8 +27,8 @@ export interface IProposedAppInstanceInfo {
 }
 
 export interface ProposedAppInstanceInfoJSON {
-  id: Bytes32;
-  appDefinition: Address;
+  identityHash: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };
   peerDeposit: { _hex: string };
@@ -51,8 +51,8 @@ export interface ProposedAppInstanceInfoJSON {
  * the respecting `AppInstance` is installed.
  */
 export class ProposedAppInstanceInfo implements AppInstanceInfo {
-  id: Bytes32;
-  appDefinition: Address;
+  identityHash: string;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
   peerDeposit: BigNumber;
@@ -66,7 +66,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   constructor(
     proposeParams: IProposedAppInstanceInfo,
     channel?: StateChannel,
-    overrideId?: Bytes32
+    overrideId?: string
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
@@ -78,7 +78,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.initialState = proposeParams.initialState;
     this.intermediaries = proposeParams.intermediaries;
     this.outcomeType = proposeParams.outcomeType;
-    this.id = overrideId || this.getIdentityHashFor(channel!);
+    this.identityHash = overrideId || this.getIdentityHashFor(channel!);
   }
 
   // TODO: Note the construction of this is duplicated from the machine
@@ -126,7 +126,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       // computation
       undefined,
       {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit)
+        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
 
@@ -135,7 +136,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
 
   toJson(): ProposedAppInstanceInfoJSON {
     return {
-      id: this.id,
+      identityHash: this.identityHash,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
       myDeposit: { _hex: this.myDeposit.toHexString() },
@@ -163,6 +164,10 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       outcomeType: json.outcomeType
     };
 
-    return new ProposedAppInstanceInfo(proposeParams, undefined, json.id);
+    return new ProposedAppInstanceInfo(
+      proposeParams,
+      undefined,
+      json.identityHash
+    );
   }
 }

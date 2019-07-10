@@ -1,0 +1,25 @@
+graph TB
+
+    subgraph Interpreter
+        interpretOutcomeAndExecuteEffect["interpretOutcomeAndExecuteEffect(outcome, params)"]
+    end
+
+    subgraph ChallengeRegistry
+        getOutcome["getOutcome(freeBalanceAppIdentityHash)"]
+        getOutcome2["getOutcome(appIdentityHash)"]
+    end
+
+    subgraph ConditionalTransactionDelegateTarget
+        executeEffectOfInterpretedAppOutcome
+        executeEffectOfInterpretedAppOutcome
+          -->|DELEGATECALL - Pass outcome and params to interpreter| interpretOutcomeAndExecuteEffect
+        executeEffectOfInterpretedAppOutcome
+          -->|STATICCALL - Fetch outcome for interpreter| getOutcome2
+        executeEffectOfInterpretedAppOutcome
+          -->|STATICCALL - Verify appIdentityHash in activeApps| getOutcome
+    end
+
+    subgraph Multisig
+        execTransaction
+          -->|DELEGATECALL - Delegate to delegate target to control funds |executeEffectOfInterpretedAppOutcome
+    end

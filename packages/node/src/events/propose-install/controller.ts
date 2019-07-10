@@ -1,13 +1,13 @@
 import { RequestHandler } from "../../request-handler";
 import { ProposeMessage } from "../../types";
 
-import { setAppInstanceIDForProposeInstall } from "./operation";
+import { setstringForProposeInstall } from "./operation";
 
 export default async function proposeInstallEventController(
   requestHandler: RequestHandler,
   nodeMsg: ProposeMessage
 ) {
-  await setAppInstanceIDForProposeInstall(
+  await setstringForProposeInstall(
     requestHandler.publicIdentifier,
     requestHandler.store,
     nodeMsg.data.params,

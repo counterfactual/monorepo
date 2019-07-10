@@ -1,15 +1,19 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
   Address,
   AppABIEncodings,
-  AppInstanceID,
   AppInstanceInfo,
+  ContractABI,
   NetworkContext,
   networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
+import { Contract, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
+import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -25,12 +29,17 @@ import {
   Rpc
 } from "../../src";
 import { APP_INSTANCE_STATUS } from "../../src/db-schema";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  FreeBalanceState
+} from "../../src/models/free-balance";
 
 import {
   initialEmptyTTTState,
   tttActionEncoding,
   tttStateEncoding
 } from "./tic-tac-toe";
+
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -86,7 +95,7 @@ export async function getInstalledAppInstanceInfo(
     APP_INSTANCE_STATUS.INSTALLED
   );
   return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.id === appInstanceId;
+    return appInstanceInfo.identityHash === appInstanceId;
   })[0];
 }
 
@@ -114,13 +123,15 @@ export async function getProposedAppInstanceInfo(
 
 export async function getFreeBalanceState(
   node: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
   const req = jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
     params: {
-      multisigAddress
+      multisigAddress,
+      tokenAddress
     },
     jsonrpc: "2.0"
   });
@@ -159,24 +170,31 @@ export async function getApps(
 
 export function makeDepositRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.DEPOSIT,
-    params: { multisigAddress, amount },
+    params: {
+      multisigAddress,
+      amount,
+      tokenAddress
+    } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
 }
 
 export function makeWithdrawRequest(
   multisigAddress: string,
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.WITHDRAW,
     params: {
+      tokenAddress,
       multisigAddress,
       amount
     } as NodeTypes.WithdrawParams,
@@ -344,7 +362,7 @@ export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
   {}
 ) as NetworkContext;
 
-export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -356,7 +374,7 @@ export function generateGetStateRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateTakeActionRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   action: any
 ): Rpc {
   return jsonRpcDeserialize({
@@ -370,7 +388,7 @@ export function generateTakeActionRequest(
   });
 }
 
-export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
+export function generateUninstallRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId
@@ -382,7 +400,7 @@ export function generateUninstallRequest(appInstanceId: AppInstanceID): Rpc {
 }
 
 export function generateUninstallVirtualRequest(
-  appInstanceId: AppInstanceID,
+  appInstanceId: string,
   intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({
@@ -438,7 +456,7 @@ export async function installTTTApp(
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
-      global["networkContext"].TicTacToe,
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
       initialTTTState
     );
 
@@ -522,7 +540,7 @@ export async function confirmAppInstanceInstallation(
 ) {
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.id;
+  delete appInstanceInfo.identityHash;
   expect(appInstanceInfo).toEqual(proposedParams);
 }
 
@@ -550,7 +568,7 @@ export async function makeTTTVirtualProposal(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
     Zero
@@ -599,11 +617,13 @@ export async function makeVirtualProposeCall(
     nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    global["networkContext"].TicTacToe
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
   );
+
   const response = (await nodeA.router.dispatch(
     virtualAppInstanceProposalRequest
   )) as JsonRpcResponse;
+
   return {
     appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
       .appInstanceId,
@@ -621,7 +641,7 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    global["networkContext"].TicTacToe,
+    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     {},
     One,
     Zero
@@ -642,4 +662,47 @@ export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
     delete appInstance.myDeposit;
     delete appInstance.peerDeposit;
   });
+}
+
+export function createFreeBalanceStateWithFundedETHAmounts(
+  addresses: string[],
+  amount: BigNumber
+): FreeBalanceState {
+  return {
+    activeAppsMap: {},
+    balancesIndexedByToken: {
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
+        to,
+        amount
+      }))
+    }
+  };
+}
+
+/**
+ * @return the ERC20 token balance of the receiver
+ */
+export async function transferERC20Tokens(
+  toAddress: string,
+  tokenAddress: string = global["networkContext"]["DolphinCoin"],
+  contractABI: ContractABI = DolphinCoin.abi,
+  amount: BigNumber = One
+): Promise<BigNumber> {
+  const deployerAccount = new Wallet(
+    global["fundedPrivateKey"],
+    new JsonRpcProvider(global["ganacheURL"])
+  );
+
+  const contract = new Contract(tokenAddress, contractABI, deployerAccount);
+
+  const balanceBefore: BigNumber = await contract.functions.balanceOf(
+    toAddress
+  );
+
+  await contract.functions.transfer(toAddress, amount);
+  const balanceAfter: BigNumber = await contract.functions.balanceOf(toAddress);
+
+  expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
+
+  return balanceAfter;
 }

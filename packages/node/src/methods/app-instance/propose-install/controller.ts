@@ -38,7 +38,7 @@ export default class ProposeInstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstanceID(multisigAddress)
+        await store.getMultisigAddressFromstring(multisigAddress)
       )
     ];
   }
