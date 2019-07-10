@@ -1,14 +1,14 @@
-import React from "react";
 import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { MemoryRouter as Router } from "react-router-dom";
-import { createMemoryHistory } from "history";
-
-import { AccountContext, AccountContextProps } from "./AccountContext";
-
-import mock from "./AccountContext.mock.json";
-import { FormButton } from "../../form";
 import { formatEther } from "ethers/utils";
+import { createMemoryHistory } from "history";
+import React from "react";
+import { Provider } from "react-redux";
+import { MemoryRouter as Router } from "react-router-dom";
+import { FormButton } from "../../form";
+import store from "./../../../store/store";
+import { AccountContext, AccountContextProps } from "./AccountContext";
+import mock from "./AccountContext.mock.json";
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -22,9 +22,11 @@ function setup(scenario: keyof typeof mock.scenarios) {
   };
 
   const component = mount(
-    <Router>
-      <AccountContext {...props} />
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AccountContext {...props} />
+      </Router>
+    </Provider>
   );
 
   return { props, component };
