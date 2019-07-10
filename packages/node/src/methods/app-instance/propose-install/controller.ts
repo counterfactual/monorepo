@@ -6,7 +6,10 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
-import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
+import {
+  NULL_INITIAL_STATE_FOR_PROPOSAL,
+  NO_CHANNEL_BETWEEN_NODES
+} from "../../errors";
 
 import { createProposedAppInstance } from "./operation";
 
@@ -29,18 +32,20 @@ export default class ProposeInstallController extends NodeController {
     const { store } = requestHandler;
     const { proposedToIdentifier } = params;
 
+    const myIdentifier = requestHandler.publicIdentifier;
+
     const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([
-        requestHandler.publicIdentifier,
-        proposedToIdentifier
-      ])
+      hashOfOrderedPublicIdentifiers([myIdentifier, proposedToIdentifier])
     );
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(multisigAddress)
-      )
-    ];
+    // TODO: DRY this at top level of most calls that query a channel
+    if (!multisigAddress) {
+      throw new Error(
+        NO_CHANNEL_BETWEEN_NODES(myIdentifier, proposedToIdentifier)
+      );
+    }
+
+    return [requestHandler.getShardedQueue(multisigAddress)];
   }
 
   protected async executeMethodImplementation(

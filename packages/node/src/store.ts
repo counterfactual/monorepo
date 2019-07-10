@@ -92,7 +92,7 @@ export class Store {
    * belongs to.
    * @param appInstanceId
    */
-  public async getMultisigAddressFromstring(
+  public async getMultisigAddressFromAppInstance(
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
@@ -371,7 +371,7 @@ export class Store {
   public async getChannelFromAppInstanceID(
     appInstanceId: string
   ): Promise<StateChannel> {
-    const multisigAddress = await this.getMultisigAddressFromstring(
+    const multisigAddress = await this.getMultisigAddressFromAppInstance(
       appInstanceId
     );
 

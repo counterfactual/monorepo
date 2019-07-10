@@ -26,7 +26,7 @@ export default class UpdateStateController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(appInstanceId)
+        await store.getMultisigAddressFromAppInstance(appInstanceId)
       )
     ];
   }
