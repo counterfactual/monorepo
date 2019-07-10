@@ -1,3 +1,3 @@
 export default function log(...args: any[]) {
-  console.log("persilogs:", ...args);
+  console.log("wallet-ui log:", ...args);
 }
