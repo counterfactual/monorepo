@@ -39,7 +39,7 @@ describe("CF.js AppInstance", () => {
       expect.assertions(3);
 
       const expectedState = { someState: "4000" };
-      nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.GET_STATE, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.GET_STATE]
         );
@@ -48,7 +48,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.GET_STATE,
+            type: Node.RpcMethodName.GET_STATE,
             result: {
               state: expectedState
             }
@@ -65,7 +65,7 @@ describe("CF.js AppInstance", () => {
       expect.assertions(4);
       const expectedAction = { action: "1337" };
       const expectedNewState = { val: "5337" };
-      nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.TAKE_ACTION, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
         );
@@ -76,7 +76,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.TAKE_ACTION,
+            type: Node.RpcMethodName.TAKE_ACTION,
             result: {
               newState: expectedNewState
             }
@@ -92,7 +92,7 @@ describe("CF.js AppInstance", () => {
     it("can be uninstalled", async () => {
       expect.assertions(2);
 
-      nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.UNINSTALL, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.UNINSTALL]
         );
@@ -102,7 +102,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.UNINSTALL,
+            type: Node.RpcMethodName.UNINSTALL,
             result: {}
           },
           id: request.id as number
