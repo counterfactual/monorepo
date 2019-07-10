@@ -24,7 +24,7 @@ describe("Node method follows spec - getStateDepositHolderAddress", () => {
         params: { owners },
         jsonrpc: "2.0"
       })
-    )) as JsonRpcResponse)
+    )) as JsonRpcResponse).result
       .result as NodeTypes.GetStateDepositHolderAddressResult;
 
     expect(address.length).toBe(42);
