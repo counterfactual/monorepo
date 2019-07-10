@@ -46,11 +46,12 @@ export namespace Node {
    * deletes entries at the path extended by the subvalue's path within the object. `set` must
    * have the same behaviour if the `allowDelete` flag is passed; otherwise, any null values or
    * subvalues throws an error.
+   * todo(xuanji): rename `key` to `path`
    */
   export interface IStoreService {
-    get(path: string): Promise<any>;
+    get(key: string): Promise<any>;
     set(
-      pairs: { path: string; value: any }[],
+      pairs: { key: string; value: any }[],
       allowDelete?: Boolean
     ): Promise<void>;
     reset?(): Promise<void>;
