@@ -31,11 +31,6 @@ export interface NodeConfig {
 const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
 export class Node {
-  /**
-   * Because the Node receives and sends out messages based on Event type
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
-   * incoming and outgoing emitters need to be used.
-   **/
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
@@ -47,11 +42,16 @@ export class Node {
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
 
-  // These properties don't have initializers in the constructor and get
-  // initialized in the `asynchronouslySetupUsingRemoteServices` function
+  /**
+   * These properties don't have initializers in the constructor, since they must be initialized
+   * asynchronously. This is done via the `asynchronouslySetupUsingRemoteServices` function.
+   * Since we have a private constructor and only allow instances of the Node to be created
+   * via `create` which immediately calls `asynchronouslySetupUsingRemoteServices`, these are
+   * always non-null when the Node is being used.
+   */
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
-  public router: NodeRouter = {} as NodeRouter;
+  public router!: NodeRouter;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
