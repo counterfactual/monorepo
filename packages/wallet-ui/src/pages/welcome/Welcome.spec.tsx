@@ -2,13 +2,13 @@ import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
 import { createMemoryHistory } from "history";
 import React from "react";
-import { Provider } from "react-redux";
 import { MemoryRouter as Router, RouteComponentProps } from "react-router-dom";
-import store from "./../../../store/store";
-import { LayoutHeader } from "./LayoutHeader";
+import { RoutePath } from "../../types";
+import Welcome from "./Welcome";
+
+Enzyme.configure({ adapter: new Adapter() });
 
 function setup() {
-  Enzyme.configure({ adapter: new Adapter() });
   const history = createMemoryHistory();
   const props: RouteComponentProps = {
     history,
@@ -20,31 +20,33 @@ function setup() {
       url: "http://localhost/"
     }
   };
+
   const component = mount(
-    <Provider store={store}>
-      <Router>
-        <LayoutHeader {...props} />
-      </Router>
-    </Provider>
+    <Router initialEntries={["/"]}>
+      <Welcome {...props} />
+    </Router>
   );
 
   return { props, component };
 }
 
-describe("<LayoutHeader />", () => {
+describe("<Welcome />", () => {
   let component: Enzyme.ReactWrapper;
+  let props: RouteComponentProps;
 
   beforeEach(() => {
     const mock = setup();
     component = mock.component;
+    props = mock.props;
   });
 
-  it("renders without crashing", () => {});
+  it("should render a Setup button", () => {
+    const button = component.find("button");
+    expect(button.text()).toBe("Setup Counterfactual");
+  });
 
-  it("renders the header with the logo and the account context", () => {
-    expect(component.find(".logo-container > .logo")).not.toBeNull();
-    expect(
-      component.find(".context-container > .account-context")
-    ).not.toBeNull();
+  it("should re-route to Account Creation upon Setup Button click", () => {
+    component.find("button").simulate("click");
+    expect(props.history.location.pathname).toBe(RoutePath.SetupRegister);
   });
 });

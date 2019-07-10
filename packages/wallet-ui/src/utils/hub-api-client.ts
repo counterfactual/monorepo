@@ -54,6 +54,69 @@ enum ErrorCode {
   UsernameAlreadyExists = "username_already_exists"
 }
 
+export const CounterfactualErrorCodeDetail = {
+  signature_required: {
+    code: "signature_required",
+    message: "A Signature is required",
+    field: ""
+  },
+  invalid_signature: {
+    code: "invalid_signature",
+    message: "Ups, something is wrong with the signature",
+    field: ""
+  },
+  address_already_registered: {
+    code: "address_already_registered",
+    message: "The address has already been registered",
+    field: "email"
+  },
+  app_registry_not_available: {
+    code: "app_registry_not_available",
+    message: "The registry is not available right now",
+    field: ""
+  },
+  user_address_required: {
+    code: "user_address_required",
+    message: "The user address is required for this operation",
+    field: "email"
+  },
+  no_users_available: {
+    code: "no_users_available",
+    message: "No users are available",
+    field: ""
+  },
+  unhandled_error: {
+    code: "unhandled_error",
+    message: "Something broke! Error not handled",
+    field: ""
+  },
+  user_not_found: {
+    code: "user_not_found",
+    message: "The user is just not there",
+    field: ""
+  },
+  token_required: {
+    code: "token_required",
+    message: "A token is required",
+    field: ""
+  },
+  invalid_token: {
+    code: "invalid_token",
+    message: "Something is wrong with that token",
+    field: ""
+  },
+  username_already_exists: {
+    code: "username_already_exists",
+    message: "That username already exists, sorry",
+    field: "username"
+  }
+};
+
+export const ErrorDetail = {
+  "-32603": CounterfactualErrorCodeDetail.signature_required,
+  ...CounterfactualErrorCodeDetail
+};
+
 enum HttpStatusCode {
   OK = 200,
   Created = 201,
@@ -246,17 +309,15 @@ export default class PlaygroundAPIClient {
     try {
       const data = toAPIResource<User, User>(user);
       const json = (await post("users", data, signature)) as APIResponse;
-      // const resource = json.data as APIResource<User>;
+      const resource = json.data as APIResource<User>;
 
-      // const jsonMultisig = (await post("multisig-deploys", {
-      //   type: "multisigDeploy",
-      //   attributes: { ethAddress: user.ethAddress }
-      // })) as APIResponse;
-      // const resourceMultisig = jsonMultisig.data as APIResource<
-      //   Partial<UserAttributes>
-      // >;
+      const jsonMultisig = (await post("multisig-deploys", {
+        type: "multisigDeploy",
+        attributes: { ethAddress: user.ethAddress }
+      })) as APIResponse;
+      const resourceMultisig = jsonMultisig.data as APIResource<Partial<User>>;
 
-      // resource.attributes.transactionHash = resourceMultisig.id as string;
+      resource.attributes.transactionHash = resourceMultisig.id as string;
 
       return {
         ...user,
@@ -292,29 +353,30 @@ export default class PlaygroundAPIClient {
   //   }
   // }
 
-  // public static async login(
-  //   user: SessionAttributes,
-  //   signature: string
-  // ): Promise<UserSession> {
-  //   try {
-  //     const json = (await post(
-  //       "session-requests",
-  //       {
-  //         type: "session",
-  //         id: "",
-  //         attributes: {
-  //           ethAddress: user.ethAddress
-  //         } as SessionAttributes
-  //       } as APIResource,
-  //       signature
-  //     )) as APIResponse;
-  //     const resource = json.data as APIResource<UserAttributes>;
-
-  //     return fromAPIResource<UserSession, UserAttributes>(resource);
-  //   } catch (e) {
-  //     return Promise.reject(e);
-  //   }
-  // }
+  public static async login(
+    ethAddress: string,
+    signature: string
+  ): Promise<User> {
+    try {
+      const json = (await post(
+        "session-requests",
+        {
+          type: "session",
+          id: "",
+          attributes: {
+            ethAddress
+          }
+        } as APIResource,
+        signature
+      )) as APIResponse;
+      return {
+        id: (json.data as APIResource).id,
+        ...((json.data as APIResource).attributes as User)
+      };
+    } catch (e) {
+      return Promise.reject(e);
+    }
+  }
 
   // public static async getUser(token: string): Promise<UserSession> {
   //   if (!token) {

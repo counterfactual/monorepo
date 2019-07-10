@@ -1,7 +1,6 @@
 import React from "react";
-
-import "./FormButton.scss";
 import { WidgetSpinner } from "../../widget";
+import "./FormButton.scss";
 
 export type FormButtonProps = {
   className?: string;
@@ -29,7 +28,7 @@ const FormButton: React.FC<FormButtonProps> = ({
       className={className}
       type={type}
     >
-      {spinner ? <WidgetSpinner /> : null}
+      {spinner ? <WidgetSpinner visible={spinner} color="white" /> : false}
       {children}
     </button>
   );

@@ -1,19 +1,18 @@
 import { Node } from "@counterfactual/types";
 
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
-export default class GetAllChannelAddressesController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_CHANNEL_ADDRESSES;
+export default class GetStateChannelController extends NodeController {
+  public static readonly methodName = Node.MethodName.GET_STATE_CHANNEL;
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
-    params: Node.GetChannelAddressesParams
-  ): Promise<Node.GetChannelAddressesResult> {
+    params: { multisigAddress: string }
+  ): Promise<{ data: StateChannel }> {
     return {
-      multisigAddresses: Object.keys(
-        await requestHandler.store.getAllChannels()
-      )
+      data: await requestHandler.store.getStateChannel(params.multisigAddress)
     };
   }
 }

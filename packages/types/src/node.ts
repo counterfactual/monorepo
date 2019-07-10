@@ -64,6 +64,7 @@ export namespace Node {
     GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
+    GET_STATE_CHANNEL = "getStateChannel",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
     PROPOSE_INSTALL = "proposeInstall",

@@ -1,10 +1,27 @@
+import { JsonRpcSigner } from "ethers/providers";
+import { BigNumberish, formatEther } from "ethers/utils";
+import { History } from "history";
 import React from "react";
+import { connect } from "react-redux";
+import { Link, RouteComponentProps } from "react-router-dom";
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import { EthereumService } from "../../../providers/EthereumService";
+import { ActionType, ApplicationState, UserState } from "../../../store/types";
+import { loginUser } from "../../../store/user";
+import { RoutePath } from "../../../types";
 import { FormButton } from "../../form";
-
 import "./AccountContext.scss";
 
-type AccountContextProps = {
-  isAuthenticated?: boolean;
+export type AccountContextProps = RouteComponentProps & {
+  userState: UserState;
+  counterfactualBalance: BigNumberish;
+  ethAddress: string;
+  loginUser: (
+    ethAddress: string,
+    signer: JsonRpcSigner,
+    history: History
+  ) => void;
 };
 
 type AccountInformationProps = AccountBalanceProps & AccountUserProps;
@@ -17,31 +34,20 @@ type AccountUserProps = {
   username?: string;
 };
 
-const UnauthenticatedCommands: React.FC = () => (
-  <div className="btn-container">
-    <FormButton className="btn">
-      <img alt="" className="icon" src="/assets/icon/login.svg" />
-      Login
-    </FormButton>
-    <FormButton className="btn btn-alternate">
-      <img alt="" className="icon" src="/assets/icon/register.svg" />
-      Register
-    </FormButton>
-  </div>
-);
-
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
-  <div className="info">
+  <div className="info" data-js="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
-    <div className="info-text">
-      <div className="info-header">Balance</div>
-      <div className="info-content">{balance}</div>
-    </div>
+    <Link to={RoutePath.SetupDeposit}>
+      <div className="info-text">
+        <div className="info-header">Balance</div>
+        <div className="info-content">{balance} ETH</div>
+      </div>
+    </Link>
   </div>
 );
 
 const AccountUser: React.FC<AccountUserProps> = ({ username }) => (
-  <div className="info">
+  <div className="info" data-js="info-user">
     <img alt="" className="info-img" src="/assets/icon/account.svg" />
     <div className="info-text">
       <div className="info-header">Account</div>
@@ -63,19 +69,66 @@ const AccountInformation: React.FC<AccountInformationProps> = ({
 );
 
 export class AccountContext extends React.Component<AccountContextProps> {
+  static contextType = EthereumService;
+  context!: React.ContextType<typeof EthereumService>;
+
+  componentWillReceiveProps(props: AccountContextProps) {
+    const { userState, history } = props;
+
+    if (userState.user.id && history.location.pathname === RoutePath.Root) {
+      history.push(RoutePath.Channels);
+    } else if (
+      !userState.user.id &&
+      history.location.pathname !== RoutePath.Root
+    ) {
+      history.push(RoutePath.Root);
+    }
+  }
+
   render() {
-    const { isAuthenticated } = this.props;
+    const { user } = this.props.userState;
+    const {
+      counterfactualBalance,
+      loginUser,
+      ethAddress,
+      history
+    } = this.props;
+    const { signer } = this.context;
+
     return (
       <div className="account-context">
-        {!isAuthenticated ? (
-          <UnauthenticatedCommands />
+        {!user.id ? (
+          <div className="btn-container">
+            <FormButton
+              className="btn"
+              data-js="btn-login"
+              onClick={() => {
+                loginUser(ethAddress, signer, history);
+              }}
+            >
+              <img alt="" className="icon" src="/assets/icon/login.svg" />
+              Login
+            </FormButton>
+          </div>
         ) : (
           <AccountInformation
-            username="JoelAlejandroVillarrealBertoldiDeLasColinasDeAzeroth"
-            balance="1.23 ETH"
+            username={user.username}
+            balance={formatEther(counterfactualBalance)}
           />
         )}
       </div>
     );
   }
 }
+
+export default connect(
+  (state: ApplicationState) => ({
+    ethAddress: state.WalletState.ethAddress,
+    userState: state.UserState,
+    counterfactualBalance: state.WalletState.counterfactualBalance
+  }),
+  (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
+    loginUser: (ethAddress: string, signer: JsonRpcSigner, history: History) =>
+      dispatch(loginUser(ethAddress, signer, history))
+  })
+)(AccountContext);
