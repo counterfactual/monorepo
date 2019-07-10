@@ -1,0 +1,87 @@
+graph LR
+
+  subgraph MessagingService
+    onReceive
+    send
+  end
+
+  subgraph RequestHandler
+    callMethod
+  end
+
+  subgraph RpcRouter
+    dispatch
+
+  end
+
+  subgraph NodeController["NodeController (RPC)"]
+    rpcExecute["executeMethod"]
+
+    dispatch-->rpcExecute
+    callMethod-->rpcExecute
+
+  end
+
+  subgraph Middleware
+    IO_SEND_AND_WAIT
+    IO_SEND
+    OP_SIGN
+    WRITE_COMMITMENT
+    IO_SEND_AND_WAIT-->send
+    IO_SEND-->send
+  end
+
+  subgraph Deferral
+    ioSendDeferrals["resolve"]
+    deferralCtor["constructor"]
+  end
+
+  subgraph Signer
+    someFn
+  end
+
+  subgraph Node
+
+    onReceivedMessage
+    onReceive-->onReceivedMessage
+
+    onReceivedMessage-->ioSendDeferrals
+
+    outgoing["Outgoing (EventEmitter)"]
+    protocolMessageEventController-->|sends out events <br>after protocol finishes|outgoing
+
+    OP_SIGN-->someFn
+
+  end
+
+  subgraph EventController["NodeController (Event)"]
+
+    eventExecute["executeMethod"]
+    onReceivedMessage-->eventExecute
+
+  end
+
+  subgraph InstructionExecutor
+
+    initiateProtocol
+
+    runProtocolWithMessage
+    protocolMessageEventController-->runProtocolWithMessage
+    rpcExecute-->initiateProtocol
+
+    runProtocol
+
+    initiateProtocol-->runProtocol
+    runProtocolWithMessage-->runProtocol
+
+    ioSendDeferrals-->|resume|runProtocol
+
+    IO_SEND_AND_WAIT-->deferralCtor
+
+    runProtocol-->IO_SEND_AND_WAIT
+    runProtocol-->IO_SEND
+    runProtocol-->OP_SIGN
+    runProtocol-->WRITE_COMMITMENT
+
+  end
+
