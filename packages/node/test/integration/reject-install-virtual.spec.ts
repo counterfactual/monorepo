@@ -69,7 +69,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             );
 
             const rejectReq = makeRejectInstallRequest(appInstanceId);
-            await nodeC.call(rejectReq.type, rejectReq);
+            await nodeC.router.dispatch(rejectReq);
             expect((await getProposedAppInstances(nodeC)).length).toEqual(0);
           }
         );
