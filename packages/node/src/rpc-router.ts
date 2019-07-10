@@ -34,13 +34,6 @@ export default class NodeRouter extends Router {
       return;
     }
 
-    console.log(
-      "Received RPC to dispatch",
-      rpc,
-      " with controller ",
-      controller.type
-    );
-
     const result = jsonRpcSerializeAsResponse(
       {
         result: await new controller.type()[controller.callback](
@@ -76,8 +69,6 @@ export default class NodeRouter extends Router {
       // It's a legacy message. Reformat it to JSONRPC.
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }
-
-    console.log("RpcRouter#emit(", event, eventData, emitter, ")");
 
     this.requestHandler[emitter].emit(event, eventData.result);
   }

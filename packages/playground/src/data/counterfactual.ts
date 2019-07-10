@@ -155,8 +155,6 @@ export default class CounterfactualNode {
 
     this.port = channel.port1;
     this.port.addEventListener("message", (event: MessageEvent) => {
-      console.log("MessagePort#message triggered with", event.data);
-
       const jsonrpcData = event.data as Rpc;
 
       if (jsonrpcData.methodName && jsonrpcData.parameters) {
@@ -177,12 +175,10 @@ export default class CounterfactualNode {
    * @param event {MessageEvent}
    */
   private static relayMessage(event: MessageEvent): void {
-    console.log("Relaying legacy message", event.data);
     this.node.emit(event.data.methodName, event.data);
   }
 
   private static relayJsonRpcMessage(event: Rpc): void {
-    console.log("Relaying JSONRPC message", event);
     this.node.router.dispatch(event);
   }
 
@@ -194,12 +190,10 @@ export default class CounterfactualNode {
    * @param message {any}
    */
   private static postToPort(message: any): void {
-    console.log("Posting via legacy router", message);
     this.port.postMessage(message);
   }
 
   private static postToJsonRpcPort(message: any): void {
-    console.log("Posting via JSONRPC router", message);
     this.port.postMessage(message);
   }
 

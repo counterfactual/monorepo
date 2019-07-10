@@ -80,7 +80,6 @@ class FirebaseMessagingService implements Node.IMessagingService {
   ) {}
 
   async send(to: string, msg: Node.NodeMessage) {
-    console.log("Sending message to ", to, msg);
     await this.firebase
       .ref(`${this.messagingServerKey}/${to}/${msg.from}`)
       .set(JSON.parse(JSON.stringify(msg)));
@@ -119,7 +118,6 @@ class FirebaseMessagingService implements Node.IMessagingService {
         .remove();
 
       try {
-        console.log("Receiving message from", address, msg);
         callback(msg);
       } catch (error) {
         console.error(

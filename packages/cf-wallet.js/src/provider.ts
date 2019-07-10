@@ -455,7 +455,6 @@ export class Provider {
    * @ignore
    */
   private handleGenericEvent(nodeEvent: Node.Event) {
-    console.log("CFWallet#handleGenericEvent", nodeEvent);
     return this.eventEmitter.emit(nodeEvent.type, nodeEvent);
   }
 
