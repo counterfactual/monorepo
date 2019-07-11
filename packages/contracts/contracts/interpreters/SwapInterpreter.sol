@@ -12,7 +12,7 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
  */
 contract SwapInterpreter is Interpreter {
 
-  using LibOutcome for LibOutcome.CoinBalances;
+  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct Param {
     uint256[] limit;
@@ -35,19 +35,19 @@ contract SwapInterpreter is Interpreter {
 
     for (uint256 i = 0; i < coinBalances.length; i++) {
       address payable to = address(uint160(coinBalances[i].to));
-      address[] memory coinAddress = coinBalances[i].coinAddress;
+      address[] memory tokenAddress = coinBalances[i].tokenAddress;
       uint256[] memory balance = coinBalances[i].balance;
 
       for (uint256 j = 0; j < coinBalances[i].balance.length; j++) {
         require(balance[j] <= limitRemaining[j], "Hit the transfer limit.");
         limitRemaining[j] -= balance[j];
 
-        if (coinAddress[j] == address(0x0)) {
+        if (tokenAddress[j] == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
           // note: send() is deliberately used instead of transfer() here
           // so that a revert does not stop the rest of the sends
           to.send(balance[j]);
         } else {
-          ERC20(coinAddress[j]).transfer(to, balance[j]);
+          ERC20(tokenAddress[j]).transfer(to, balance[j]);
         }
       }
     }

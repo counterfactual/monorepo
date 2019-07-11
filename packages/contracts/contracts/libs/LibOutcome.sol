@@ -11,7 +11,7 @@ library LibOutcome {
 
   struct CoinBalances {
     address to;
-    address[] coinAddress;
+    address[] tokenAddress;
     uint256[] balance;
   }
 

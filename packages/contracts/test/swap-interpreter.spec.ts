@@ -10,7 +10,7 @@ import { expect } from "./utils/index";
 
 type CoinBalances = {
   to: string;
-  coinAddress: string[];
+  tokenAddress: string[];
   balance: BigNumber[];
 };
 
@@ -27,7 +27,7 @@ describe("Swap Interpreter", () => {
   function encodeState(state: CoinBalances[]) {
     return defaultAbiCoder.encode(
       [
-        `tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances`
+        `tuple(address to, address[] tokenAddress, uint256[] balance)[] coinBalances`
       ],
       [state]
     );
@@ -66,12 +66,12 @@ describe("Swap Interpreter", () => {
       const state = [
         {
           to: senderAddr,
-          coinAddress: [tokenAddr, AddressZero],
+          tokenAddress: [tokenAddr, AddressZero],
           balance: [new BigNumber(500), Zero]
         },
         {
           to: receiverAddr,
-          coinAddress: [tokenAddr, AddressZero],
+          tokenAddress: [tokenAddr, AddressZero],
           balance: [Zero, Zero]
         }
       ];
