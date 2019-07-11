@@ -19,13 +19,16 @@ contract SwapInterpreter is Interpreter {
   }
 
   function interpretOutcomeAndExecuteEffect(
-    bytes calldata input,
+    bytes calldata encodedOutputFromApp,
     bytes calldata encodedParams
   )
     external
   {
+    LibOutcome.CoinBalances[] memory coinBalances = abi.decode(
+      encodedOutputFromApp,
+      (LibOutcome.CoinBalances[])
+    );
 
-    LibOutcome.CoinBalances[] memory coinBalances = abi.decode(input, (LibOutcome.CoinBalances[]));
     Param memory params = abi.decode(encodedParams, (Param));
 
     uint256[] memory limitRemaining = params.limit;
