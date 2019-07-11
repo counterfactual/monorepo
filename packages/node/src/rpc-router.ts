@@ -34,13 +34,20 @@ export default class NodeRouter extends Router {
       return;
     }
 
-    return jsonRpcSerializeAsResponse(
-      await new controller.type()[controller.callback](
-        this.requestHandler,
-        rpc.parameters
-      ),
-      rpc.parameters["id"]
+    const result = jsonRpcSerializeAsResponse(
+      {
+        result: await new controller.type()[controller.callback](
+          this.requestHandler,
+          rpc.parameters
+        ),
+        type: rpc.methodName
+      },
+      rpc.id as number
     );
+
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
+
+    return result;
   }
 
   async subscribe(event: string, callback: AsyncCallback) {

@@ -57,11 +57,13 @@ export class RequestHandler {
     method: Node.MethodName,
     req: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
-    return {
+    const result = {
       type: req.type,
       requestId: req.requestId,
       result: await this.methods.get(method)(this, req.params)
     };
+
+    return result;
   }
 
   /**
@@ -78,7 +80,9 @@ export class RequestHandler {
           requestId: req.requestId,
           result: await this.methods.get(methodName)(this, req.params)
         };
-        this.router.emit(req.type, res, "outgoing");
+
+        // @ts-ignore
+        this.router.emit(req.methodName, res, "outgoing");
       });
     }
   }

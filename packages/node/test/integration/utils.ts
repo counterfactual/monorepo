@@ -136,7 +136,7 @@ export async function getFreeBalanceState(
     jsonrpc: "2.0"
   });
   const response = (await node.router.dispatch(req)) as JsonRpcResponse;
-  return response.result as NodeTypes.GetFreeBalanceStateResult;
+  return response.result.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
 export async function getApps(
@@ -154,7 +154,7 @@ export async function getApps(
       params: {} as NodeTypes.GetAppInstancesParams
     });
     response = (await node.router.dispatch(request)) as JsonRpcResponse;
-    result = response.result as NodeTypes.GetAppInstancesResult;
+    result = response.result.result as NodeTypes.GetAppInstancesResult;
     return result.appInstances;
   }
   request = jsonRpcDeserialize({
@@ -164,7 +164,7 @@ export async function getApps(
     params: {} as NodeTypes.GetProposedAppInstancesParams
   });
   response = (await node.router.dispatch(request)) as JsonRpcResponse;
-  result = response.result as NodeTypes.GetProposedAppInstancesResult;
+  result = response.result.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
 
@@ -202,28 +202,26 @@ export function makeWithdrawRequest(
   });
 }
 
-export function makeInstallRequest(
-  appInstanceId: string
-): NodeTypes.MethodRequest {
-  return {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.INSTALL,
+export function makeInstallRequest(appInstanceId: string): Rpc {
+  return jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.INSTALL,
     params: {
       appInstanceId
-    } as NodeTypes.InstallParams
-  };
+    } as NodeTypes.InstallParams,
+    jsonrpc: "2.0"
+  });
 }
 
-export function makeRejectInstallRequest(
-  appInstanceId: string
-): NodeTypes.MethodRequest {
-  return {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.REJECT_INSTALL,
+export function makeRejectInstallRequest(appInstanceId: string): Rpc {
+  return jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.REJECT_INSTALL,
     params: {
       appInstanceId
-    } as NodeTypes.RejectInstallParams
-  };
+    } as NodeTypes.RejectInstallParams,
+    jsonrpc: "2.0"
+  });
 }
 
 export function makeTTTProposalRequest(
@@ -262,15 +260,16 @@ export function makeTTTProposalRequest(
 export function makeInstallVirtualRequest(
   appInstanceId: string,
   intermediaries: Address[]
-): NodeTypes.MethodRequest {
-  return {
+): Rpc {
+  return jsonRpcDeserialize({
     params: {
       appInstanceId,
       intermediaries
     } as NodeTypes.InstallVirtualParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.INSTALL_VIRTUAL
-  };
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.INSTALL_VIRTUAL,
+    jsonrpc: "2.0"
+  });
 }
 
 export function makeTTTVirtualProposalRequest(
@@ -467,7 +466,7 @@ export async function installTTTApp(
       );
 
       const installRequest = makeInstallRequest(msg.data.appInstanceId);
-      nodeB.emit(installRequest.type, installRequest);
+      await nodeB.router.dispatch(installRequest);
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
@@ -487,7 +486,8 @@ export async function installTTTApp(
       appInstanceInstallationProposalRequest
     )) as JsonRpcResponse;
 
-    const { appInstanceId } = response.result as NodeTypes.ProposeInstallResult;
+    const { appInstanceId } = response.result
+      .result as NodeTypes.ProposeInstallResult;
   });
 }
 
@@ -507,12 +507,12 @@ export async function installTTTAppVirtual(
 
     nodeC.on(
       NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      (msg: ProposeVirtualMessage) => {
+      async (msg: ProposeVirtualMessage) => {
         const installReq = makeInstallVirtualRequest(
           msg.data.appInstanceId,
           msg.data.params.intermediaries
         );
-        nodeC.emit(installReq.type, installReq);
+        await nodeC.router.dispatch(installReq);
       }
     );
 
@@ -552,7 +552,7 @@ export async function getState(
   const getStateResult = (await nodeA.router.dispatch(
     getStateReq
   )) as JsonRpcResponse;
-  return (getStateResult.result as NodeTypes.GetStateResult).state;
+  return (getStateResult.result.result as NodeTypes.GetStateResult).state;
 }
 
 export async function makeTTTVirtualProposal(
@@ -582,8 +582,8 @@ export async function makeTTTVirtualProposal(
       id: Date.now()
     })
   )) as JsonRpcResponse;
-  const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-    .appInstanceId;
+  const appInstanceId = (response.result
+    .result as NodeTypes.ProposeInstallVirtualResult).appInstanceId;
   expect(appInstanceId).toBeDefined();
   return { appInstanceId, params };
 }
@@ -597,12 +597,12 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaries
   );
-  node.router.emit(installVirtualReq.type, installVirtualReq);
+  node.router.dispatch(installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
   const installRequest = makeInstallRequest(appInstanceId);
-  node.emit(installRequest.type, installRequest);
+  node.router.dispatch(installRequest);
 }
 
 export async function makeVirtualProposeCall(
@@ -651,7 +651,7 @@ export async function makeProposeCall(
     appInstanceProposalReq
   )) as JsonRpcResponse;
   return {
-    appInstanceId: (response.result as NodeTypes.ProposeInstallResult)
+    appInstanceId: (response.result.result as NodeTypes.ProposeInstallResult)
       .appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
   };

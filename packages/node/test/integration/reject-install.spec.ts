@@ -56,7 +56,7 @@ describe("Node method follows spec - rejectInstall", () => {
 
           const rejectReq = makeRejectInstallRequest(msg.data.appInstanceId);
           expect((await getProposedAppInstances(nodeA)).length).toEqual(1);
-          await nodeB.call(rejectReq.type, rejectReq);
+          await nodeB.router.dispatch(rejectReq);
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 

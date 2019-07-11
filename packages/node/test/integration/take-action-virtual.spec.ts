@@ -75,7 +75,7 @@ describe("Node method follows spec - takeAction virtual", () => {
              */
             const { state } = ((await nodeC.router.dispatch(
               generateGetStateRequest(appInstanceId)
-            )) as JsonRpcResponse).result as NodeTypes.GetStateResult;
+            )) as JsonRpcResponse).result.result as NodeTypes.GetStateResult;
 
             expect(state).toEqual(expectedNewState);
 
@@ -94,7 +94,7 @@ describe("Node method follows spec - takeAction virtual", () => {
          */
         const { newState } = ((await nodeA.router.dispatch(
           takeActionReq
-        )) as JsonRpcResponse).result as NodeTypes.TakeActionResult;
+        )) as JsonRpcResponse).result.result as NodeTypes.TakeActionResult;
 
         expect(newState).toEqual(expectedNewState);
       });

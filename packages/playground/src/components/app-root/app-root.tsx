@@ -450,12 +450,18 @@ export class AppRoot {
 
     const provider = CounterfactualNode.getCfProvider();
 
-    provider.once(Node.EventName.DEPOSIT_STARTED, args =>
-      this.updateAccount({
+    provider.once(Node.EventName.DEPOSIT_STARTED, async args => {
+      console.log("Playground#deposit: DEPOSIT_STARTED");
+      await this.updateAccount({
         ethPendingDepositTxHash: args.txHash,
         ethPendingDepositAmountWei: valueInWei
-      })
-    );
+      });
+    });
+
+    provider.once(Node.EventName.DEPOSIT_CONFIRMED, async args => {
+      await this.getBalances();
+      await this.resetPendingDepositState();
+    });
 
     let ret;
 
@@ -466,9 +472,6 @@ export class AppRoot {
     } catch (e) {
       console.error(e);
     }
-
-    await this.getBalances({ poll: true });
-    await this.resetPendingDepositState();
 
     return ret;
   }

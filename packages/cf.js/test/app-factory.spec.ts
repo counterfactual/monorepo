@@ -34,27 +34,30 @@ describe("CF.js AppFactory", () => {
       const expectedState = { val: "4000" };
       const expectedAppInstanceId = "TEST_ID";
 
-      nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
-        );
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.PROPOSE_INSTALL,
+        request => {
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
+          );
 
-        const params = request.parameters as Node.ProposeInstallParams;
+          const params = request.parameters as Node.ProposeInstallParams;
 
-        expect(params.initialState).toBe(expectedState);
-        expect(params.myDeposit).toEqual(expectedDeposit);
+          expect(params.initialState).toBe(expectedState);
+          expect(params.myDeposit).toEqual(expectedDeposit);
 
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
-            type: Node.MethodName.PROPOSE_INSTALL,
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
             result: {
-              appInstanceId: expectedAppInstanceId
-            }
-          },
-          id: request.id as number
-        });
-      });
+              type: Node.RpcMethodName.PROPOSE_INSTALL,
+              result: {
+                appInstanceId: expectedAppInstanceId
+              }
+            },
+            id: request.id as number
+          });
+        }
+      );
 
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
@@ -77,7 +80,7 @@ describe("CF.js AppFactory", () => {
       const expectedIntermediaries = [TEST_XPUBS[1]];
 
       nodeProvider.onMethodRequest(
-        Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+        Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
           expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
@@ -89,7 +92,7 @@ describe("CF.js AppFactory", () => {
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
-              type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+              type: Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
               result: {
                 appInstanceId: expectedAppInstanceId
               }

@@ -77,7 +77,7 @@ export class AppInstance {
    */
   async getState(): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.GET_STATE,
+      Node.RpcMethodName.GET_STATE,
       {
         appInstanceId: this.identityHash
       }
@@ -99,7 +99,7 @@ export class AppInstance {
     action: SolidityABIEncoderV2Type
   ): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.TAKE_ACTION,
+      Node.RpcMethodName.TAKE_ACTION,
       {
         action,
         appInstanceId: this.identityHash
@@ -122,8 +122,8 @@ export class AppInstance {
 
     await this.provider.callRawNodeMethod(
       intermediaryIdentifier
-        ? Node.MethodName.UNINSTALL_VIRTUAL
-        : Node.MethodName.UNINSTALL,
+        ? Node.RpcMethodName.UNINSTALL_VIRTUAL
+        : Node.RpcMethodName.UNINSTALL,
       {
         intermediaryIdentifier,
         appInstanceId: this.identityHash
