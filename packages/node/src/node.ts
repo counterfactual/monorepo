@@ -6,7 +6,7 @@ import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
-import { createRpcRouter } from "./api-router";
+import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import {

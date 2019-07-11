@@ -7,7 +7,7 @@ import Queue from "p-queue";
 import {
   eventNameToImplementation,
   methodNameToImplementation
-} from "./api-router";
+} from "./api";
 import { InstructionExecutor } from "./machine";
 import NodeRouter from "./rpc-router";
 import { Store } from "./store";
