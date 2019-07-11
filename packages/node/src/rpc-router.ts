@@ -9,7 +9,7 @@ import { RequestHandler } from "./request-handler";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
-export default class NodeRouter extends Router {
+export default class RpcRouter extends Router {
   private requestHandler: RequestHandler;
 
   constructor({

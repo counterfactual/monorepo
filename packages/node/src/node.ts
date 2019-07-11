@@ -17,7 +17,7 @@ import {
 } from "./machine";
 import { deployTestArtifactsToChain } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
-import NodeRouter from "./rpc-router";
+import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
@@ -51,7 +51,7 @@ export class Node {
    */
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
-  public router!: NodeRouter;
+  public router!: RpcRouter;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
