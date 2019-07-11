@@ -170,8 +170,14 @@ export class AppRoot {
       "messaging"
     );
 
+    /**
+     * This implements the IStoreService API using localStorage, by
+     * using the path as the localStorage key. Since localStorage
+     * does not treat the path separator `/` in keys as having any
+     * special meaning, we must implement prefix lookups here by
+     * iterating through all localStorage keys.
+     */
     const storeService = {
-      // This implements partial path look ups for localStorage
       async get(desiredKey: string): Promise<any> {
         const entries = {};
         const allKeys = Object.keys(window.localStorage);
@@ -180,8 +186,6 @@ export class AppRoot {
             const val = JSON.parse(window.localStorage.getItem(key) as string);
             if (key === desiredKey) return val;
             entries[key] = val;
-          } else if (key === desiredKey) {
-            return JSON.parse(window.localStorage.getItem(key) as string);
           }
         }
         for (const key of Object.keys(entries)) {
