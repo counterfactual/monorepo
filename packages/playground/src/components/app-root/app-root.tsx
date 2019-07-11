@@ -170,7 +170,6 @@ export class AppRoot {
       "messaging"
     );
 
-
     /**
      * This implements the IStoreService API using localStorage, by
      * using the path as the localStorage key. Since localStorage
