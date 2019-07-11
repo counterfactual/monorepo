@@ -24,8 +24,8 @@ import {
 } from "./methods/errors";
 import {
   AppInstance,
-  ProposedAppInstanceInfo,
-  ProposedAppInstanceInfoJSON,
+  AppInstanceProposal,
+  AppInstanceProposalJSON,
   StateChannel,
   StateChannelJSON
 } from "./models";
@@ -176,7 +176,7 @@ export class Store {
    * @param appInstanceInfo
    */
   public async saveRealizedProposedAppInstance(
-    appInstanceInfo: ProposedAppInstanceInfo
+    appInstanceInfo: AppInstanceProposal
   ) {
     await this.storeService.set(
       [
@@ -209,7 +209,7 @@ export class Store {
    */
   public async addAppInstanceProposal(
     stateChannel: StateChannel,
-    proposedAppInstance: ProposedAppInstanceInfo
+    proposedAppInstance: AppInstanceProposal
   ) {
     await this.storeService.set([
       {
@@ -232,7 +232,7 @@ export class Store {
   }
 
   public async addVirtualAppInstanceProposal(
-    proposedAppInstance: ProposedAppInstanceInfo
+    proposedAppInstance: AppInstanceProposal
   ) {
     const sortedXpubs = [
       proposedAppInstance.proposedToIdentifier,
@@ -332,7 +332,7 @@ export class Store {
         this.storeKeyPrefix,
         DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE
       ].join("/")
-    )) as { [appInstanceId: string]: ProposedAppInstanceInfoJSON };
+    )) as { [appInstanceId: string]: AppInstanceProposalJSON };
 
     if (!proposedAppInstancesJson) {
       return [];
@@ -340,7 +340,7 @@ export class Store {
 
     return Array.from(Object.values(proposedAppInstancesJson)).map(
       proposedAppInstanceJson => {
-        return ProposedAppInstanceInfo.fromJson(proposedAppInstanceJson);
+        return AppInstanceProposal.fromJson(proposedAppInstanceJson);
       }
     );
   }
@@ -348,22 +348,22 @@ export class Store {
   /**
    * Returns the proposed AppInstance with the specified appInstanceId.
    */
-  public async getProposedAppInstanceInfo(
+  public async getAppInstanceProposal(
     appInstanceId: string
-  ): Promise<ProposedAppInstanceInfo> {
-    const proposedAppInstanceInfo = await this.storeService.get(
+  ): Promise<AppInstanceProposal> {
+    const appInstanceProposal = await this.storeService.get(
       `${
         this.storeKeyPrefix
       }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
 
-    if (!proposedAppInstanceInfo) {
+    if (!appInstanceProposal) {
       return Promise.reject(
         NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
 
-    return ProposedAppInstanceInfo.fromJson(proposedAppInstanceInfo);
+    return AppInstanceProposal.fromJson(appInstanceProposal);
   }
 
   /**

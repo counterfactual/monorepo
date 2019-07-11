@@ -27,7 +27,7 @@ import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
 
-import { createProposedAppInstanceInfo } from "./utils";
+import { createAppInstanceProposalForTest } from "./utils";
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
@@ -62,12 +62,10 @@ describe("Can handle correct & incorrect installs", () => {
     const mockedStore = mock(Store);
 
     const appInstanceId = hexlify(randomBytes(32));
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
@@ -116,12 +114,10 @@ describe("Can handle correct & incorrect installs", () => {
 
     await store.saveStateChannel(stateChannel);
 
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenResolve(
@@ -145,6 +141,6 @@ describe("Can handle correct & incorrect installs", () => {
       install(store, ie, {
         appInstanceId
       })
-    ).resolves.toEqual(proposedAppInstanceInfo);
+    ).resolves.toEqual(appInstanceProposal);
   });
 });

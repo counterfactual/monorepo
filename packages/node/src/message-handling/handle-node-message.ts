@@ -4,7 +4,7 @@ import {
   isNodeIntermediary
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
-import { ProposedAppInstanceInfo } from "../models";
+import { AppInstanceProposal } from "../models";
 import { RequestHandler } from "../request-handler";
 import {
   InstallMessage,
@@ -41,7 +41,7 @@ export async function handleReceivedInstallMessage(
     throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
-  const proposal = await store.getProposedAppInstanceInfo(appInstanceId);
+  const proposal = await store.getAppInstanceProposal(appInstanceId);
 
   await store.saveRealizedProposedAppInstance(proposal);
 
@@ -77,7 +77,7 @@ export async function handleReceivedProposalMessage(
 
   await store.addAppInstanceProposal(
     stateChannel,
-    new ProposedAppInstanceInfo(
+    new AppInstanceProposal(
       {
         ...params,
         proposedByIdentifier,
@@ -125,7 +125,7 @@ export async function handleReceivedProposeVirtualMessage(
   );
 
   await store.addVirtualAppInstanceProposal(
-    new ProposedAppInstanceInfo(
+    new AppInstanceProposal(
       {
         ...params,
         proposedByIdentifier,

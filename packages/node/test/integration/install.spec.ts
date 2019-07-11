@@ -10,8 +10,8 @@ import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
   createChannel,
+  getAppInstanceProposal,
   getInstalledAppInstances,
-  getProposedAppInstanceInfo,
   makeInstallCall,
   makeProposeCall,
   makeTTTProposalRequest,
@@ -41,7 +41,7 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           await confirmProposedAppInstanceOnNode(
             proposalParams,
-            await getProposedAppInstanceInfo(nodeA, appInstanceId)
+            await getAppInstanceProposal(nodeA, appInstanceId)
           );
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });

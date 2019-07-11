@@ -1,15 +1,15 @@
 import { AppInstance, AppInstanceJson } from "./app-instance";
 import {
-  ProposedAppInstanceInfo,
-  ProposedAppInstanceInfoJSON
+  AppInstanceProposal,
+  AppInstanceProposalJSON
 } from "./proposed-app-instance-info";
 import { StateChannel, StateChannelJSON } from "./state-channel";
 
 export {
   AppInstance,
   AppInstanceJson,
-  ProposedAppInstanceInfo,
-  ProposedAppInstanceInfoJSON,
+  AppInstanceProposal,
+  AppInstanceProposalJSON,
   StateChannel,
   StateChannelJSON
 };
