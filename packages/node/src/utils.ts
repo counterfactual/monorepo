@@ -27,7 +27,7 @@ export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
  * @param theirXpub - second xpub
  * @param store - store to search within
  */
-export async function getStateChannelBasedOnTwoXpubs(
+export async function getStateChannelWithOwners(
   myXpub: string,
   theirXpub: string,
   store: Store

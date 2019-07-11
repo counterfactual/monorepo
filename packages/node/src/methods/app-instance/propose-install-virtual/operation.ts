@@ -3,7 +3,7 @@ import { Node } from "@counterfactual/types";
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
 import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getStateChannelBasedOnTwoXpubs } from "../../../utils";
+import { getStateChannelWithOwners } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
@@ -82,7 +82,7 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
-    stateChannel = await getStateChannelBasedOnTwoXpubs(
+    stateChannel = await getStateChannelWithOwners(
       initiatingXpub,
       respondingXpub,
       store

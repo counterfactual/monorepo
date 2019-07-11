@@ -14,7 +14,7 @@ import {
   ProposeVirtualMessage,
   RejectProposalMessage
 } from "../types";
-import { getStateChannelBasedOnTwoXpubs } from "../utils";
+import { getStateChannelWithOwners } from "../utils";
 
 /**
  * This function responds to a installation proposal approval from a peer Node
@@ -67,7 +67,7 @@ export async function handleReceivedProposalMessage(
     from: proposedByIdentifier
   } = receivedProposeMessage;
 
-  const stateChannel = await getStateChannelBasedOnTwoXpubs(
+  const stateChannel = await getStateChannelWithOwners(
     publicIdentifier,
     proposedByIdentifier,
     store
