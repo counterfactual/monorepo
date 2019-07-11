@@ -41,9 +41,11 @@ export async function handleReceivedInstallMessage(
     throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
-  return await store.saveRealizedProposedAppInstance(
-    await store.getProposedAppInstanceInfo(appInstanceId)
-  );
+  const proposal = await store.getProposedAppInstanceInfo(appInstanceId);
+
+  await store.saveRealizedProposedAppInstance(proposal);
+
+  return proposal;
 }
 
 export async function handleReceivedInstallVirtualMessage(

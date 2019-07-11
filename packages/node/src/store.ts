@@ -177,7 +177,7 @@ export class Store {
    */
   public async saveRealizedProposedAppInstance(
     appInstanceInfo: ProposedAppInstanceInfo
-  ): Promise<ProposedAppInstanceInfo> {
+  ) {
     await this.storeService.set(
       [
         {
@@ -199,8 +199,6 @@ export class Store {
       ],
       true
     );
-
-    return appInstanceInfo;
   }
 
   /**
