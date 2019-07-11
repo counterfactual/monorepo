@@ -1,4 +1,4 @@
-import { networkContextProps } from "@counterfactual/types";
+import { NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
 import { Chain } from "../src";
@@ -16,7 +16,9 @@ describe("Contracts get deployed as expected", () => {
     delete networkContext["DolphinCoin"];
 
     const contractNames = new Set(Object.keys(networkContext));
-    const expectedContracts = new Set(networkContextProps);
+    const expectedContracts = new Set(
+      NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL
+    );
     expect(contractNames).toEqual(expectedContracts);
   });
 });
