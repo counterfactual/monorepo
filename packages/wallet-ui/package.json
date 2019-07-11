@@ -7,6 +7,7 @@
     "@types/node": "12.0.12",
     "@types/react": "16.8.23",
     "@types/react-dom": "16.8.4",
+    "ethers": "4.0.30",
     "node-sass": "4.12.0",
     "react": "16.8.6",
     "react-dom": "16.8.6",
@@ -39,6 +40,12 @@
     ]
   },
   "devDependencies": {
-    "@types/react-router-dom": "4.3.4"
+    "@types/enzyme": "^3.9.4",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/react-redux": "^7.1.0",
+    "@types/react-router-dom": "^4.3.4",
+    "@types/web3": "^1.0.19",
+    "enzyme": "^3.10.0",
+    "enzyme-adapter-react-16": "^1.14.0"
   }
 }

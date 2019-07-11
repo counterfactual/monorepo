@@ -5,7 +5,8 @@
 
   .channel-node-wrapper {
     display: flex;
-    padding-bottom: $rhythm * 2;
+    padding-top: $rhythm;
+    padding-bottom: $rhythm;
 
     &:hover {
       background: $c-lightgrey;
@@ -38,24 +39,33 @@
   .channel-icon,
   .channel-control-toggle-placeholder,
   .channel-control-toggle {
-    width: 32px;
-    height: 32px;
+    width: 18px;
+    height: 18px;
+    margin-right: 10px;
   }
 
   .channel-control-menu {
     justify-self: flex-end;
+    height: 28px;
+    width: 15px;
+    &:focus {
+      outline: none;
+    }
   }
 
   .channel-name {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 400;
     margin-top: 0;
-    margin-bottom: $rhythm;
+    margin-bottom: $rhythm * 0.5;
   }
 
   .channel-address {
     font-size: 0.8rem;
     color: $c-darkgrey;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 360px;
   }
 
   .channel-menu {
@@ -65,9 +75,9 @@
     margin: 0;
     background: $c-white;
     box-shadow: 0px 2px 10px $c-mediumgrey;
-    right: 120px;
+    right: 50px;
     width: auto;
-    min-width: 120px;
+    min-width: 100px;
 
     &.channel-menu--visible {
       position: absolute;

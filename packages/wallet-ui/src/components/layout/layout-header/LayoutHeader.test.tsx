@@ -1,43 +1,50 @@
-import React, { ReactElement } from "react";
-import ReactDOM from "react-dom";
-
+import Enzyme, { mount } from "enzyme";
+import Adapter from "enzyme-adapter-react-16";
+import { createMemoryHistory } from "history";
+import React from "react";
+import { Provider } from "react-redux";
+import { MemoryRouter as Router, RouteComponentProps } from "react-router-dom";
+import store from "./../../../store/store";
 import { LayoutHeader } from "./LayoutHeader";
-import { MemoryRouter as Router } from "react-router-dom";
+
+function setup() {
+  Enzyme.configure({ adapter: new Adapter() });
+  const history = createMemoryHistory();
+  const props: RouteComponentProps = {
+    history,
+    location: history.location,
+    match: {
+      isExact: true,
+      params: {},
+      path: "/",
+      url: "http://localhost/"
+    }
+  };
+  const component = mount(
+    <Provider store={store}>
+      <Router>
+        <LayoutHeader {...props} />
+      </Router>
+    </Provider>
+  );
+
+  return { props, component };
+}
 
 describe("<LayoutHeader />", () => {
-  let container: HTMLDivElement;
-  let header: Element;
-
-  const render = (element: ReactElement) => {
-    ReactDOM.render(element, container);
-    header = container.querySelector("header.header")!;
-  };
+  let component: Enzyme.ReactWrapper;
 
   beforeEach(() => {
-    container = document.createElement("div");
+    const mock = setup();
+    component = mock.component;
   });
 
-  it("renders without crashing", () => {
-    render(
-      <Router>
-        <LayoutHeader />
-      </Router>
-    );
-  });
+  it("renders without crashing", () => {});
 
   it("renders the header with the logo and the account context", () => {
-    render(
-      <Router>
-        <LayoutHeader />
-      </Router>
-    );
-    expect(header.querySelector(".logo-container > .logo")).not.toBeNull();
+    expect(component.find(".logo-container > .logo")).not.toBeNull();
     expect(
-      header.querySelector(".context-container > .account-context")
+      component.find(".context-container > .account-context")
     ).not.toBeNull();
-  });
-
-  afterEach(() => {
-    ReactDOM.unmountComponentAtNode(container);
   });
 });
