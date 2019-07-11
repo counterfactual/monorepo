@@ -35,7 +35,7 @@ describe("Node method follows spec - takeAction", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
+        expect(nodeA.rpcRouter.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
       });
@@ -64,7 +64,7 @@ describe("Node method follows spec - takeAction", () => {
            * TEST #3
            * The database of Node C is correctly updated and querying it works
            */
-          const { state } = ((await nodeB.router.dispatch(
+          const { state } = ((await nodeB.rpcRouter.dispatch(
             generateGetStateRequest(appInstanceId)
           )) as JsonRpcResponse).result.result as NodeTypes.GetStateResult;
 
@@ -82,7 +82,7 @@ describe("Node method follows spec - takeAction", () => {
          * TEST #2
          * The return value from the call to Node A includes the new state
          */
-        const { newState } = ((await nodeA.router.dispatch(
+        const { newState } = ((await nodeA.rpcRouter.dispatch(
           takeActionReq
         )) as JsonRpcResponse).result.result as NodeTypes.TakeActionResult;
 

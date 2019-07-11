@@ -72,9 +72,9 @@ describe("Node method follows spec - proposeInstall", () => {
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
-        expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(
-          NULL_INITIAL_STATE_FOR_PROPOSAL
-        );
+        expect(
+          nodeA.rpcRouter.dispatch(appInstanceProposalReq)
+        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

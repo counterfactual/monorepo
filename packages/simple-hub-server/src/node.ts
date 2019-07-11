@@ -256,7 +256,7 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = (await node.router.dispatch(
+    const multisigResponse = (await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: "chan_create",
@@ -291,7 +291,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 
   try {
-    await NodeWrapper.getInstance().router.dispatch(
+    await NodeWrapper.getInstance().rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: "chan_deposit",

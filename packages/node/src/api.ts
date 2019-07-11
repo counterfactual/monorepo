@@ -30,7 +30,7 @@ import {
   WithdrawController
 } from "./methods";
 import { RequestHandler } from "./request-handler";
-import NodeRouter from "./rpc-router";
+import RpcRouter from "./rpc-router";
 import { NODE_EVENTS } from "./types";
 
 const controllers = [
@@ -95,7 +95,7 @@ export const methodNameToImplementation = controllers.reduce(
 );
 
 export const createRpcRouter = (requestHandler: RequestHandler) =>
-  new NodeRouter({ controllers, requestHandler });
+  new RpcRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
   [NODE_EVENTS.INSTALL]: handleReceivedInstallMessage,
