@@ -8,7 +8,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { expect } from "./utils/index";
 
-type CoinBalances = {
+type MultiCoinTransfer = {
   to: string;
   tokenAddress: string[];
   balance: BigNumber[];
@@ -24,10 +24,16 @@ describe("Swap Interpreter", () => {
   let erc20: Contract;
   let swapInterpreter: Contract;
 
-  function encodeState(state: CoinBalances[]) {
+  function encodeState(state: MultiCoinTransfer[]) {
     return defaultAbiCoder.encode(
       [
-        `tuple(address to, address[] tokenAddress, uint256[] balance)[] coinBalances`
+        `tuple(
+          tuple(
+            address to,
+            address[] tokenAddresses,
+            uint256[] amounts
+          )[] multiCoinTransfers
+        )`
       ],
       [state]
     );
@@ -38,7 +44,7 @@ describe("Swap Interpreter", () => {
   }
 
   async function interpretOutcomeAndExecuteEffect(
-    state: CoinBalances[],
+    state: MultiCoinTransfer[],
     params: { limit: BigNumber[] }
   ) {
     return await swapInterpreter.functions.interpretOutcomeAndExecuteEffect(

@@ -24,30 +24,30 @@ contract SwapInterpreter is Interpreter {
   )
     external
   {
-    LibOutcome.CoinBalances[] memory coinBalances = abi.decode(
+    LibOutcome.MultiCoinTransfer[] memory multiCoinTransfers = abi.decode(
       encodedOutputFromApp,
-      (LibOutcome.CoinBalances[])
+      (LibOutcome.MultiCoinTransfer[])
     );
 
     Param memory params = abi.decode(encodedParams, (Param));
 
     uint256[] memory limitRemaining = params.limit;
 
-    for (uint256 i = 0; i < coinBalances.length; i++) {
-      address payable to = address(uint160(coinBalances[i].to));
-      address[] memory tokenAddress = coinBalances[i].tokenAddress;
-      uint256[] memory balance = coinBalances[i].balance;
+    for (uint256 i = 0; i < multiCoinTransfers.length; i++) {
+      address payable to = address(uint160(multiCoinTransfers[i].to));
+      address[] memory tokenAddresses = multiCoinTransfers[i].tokenAddresses;
+      uint256[] memory amounts = multiCoinTransfers[i].amounts;
 
-      for (uint256 j = 0; j < coinBalances[i].balance.length; j++) {
-        require(balance[j] <= limitRemaining[j], "Hit the transfer limit.");
-        limitRemaining[j] -= balance[j];
+      for (uint256 j = 0; j < multiCoinTransfers[i].amounts.length; j++) {
+        require(amounts[j] <= limitRemaining[j], "Hit the transfer limit.");
+        limitRemaining[j] -= amounts[j];
 
-        if (tokenAddress[j] == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+        if (tokenAddresses[j] == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
           // note: send() is deliberately used instead of transfer() here
           // so that a revert does not stop the rest of the sends
-          to.send(balance[j]);
+          to.send(amounts[j]);
         } else {
-          ERC20(tokenAddress[j]).transfer(to, balance[j]);
+          ERC20(tokenAddresses[j]).transfer(to, amounts[j]);
         }
       }
     }
