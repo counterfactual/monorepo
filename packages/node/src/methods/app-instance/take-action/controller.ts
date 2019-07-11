@@ -3,7 +3,7 @@ import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
@@ -120,7 +120,8 @@ async function runTakeActionProtocol(
   let stateChannelsMap: Map<string, StateChannel>;
 
   try {
-    stateChannelsMap = await instructionExecutor.runTakeActionProtocol(
+    stateChannelsMap = await instructionExecutor.initiateProtocol(
+      Protocol.TakeAction,
       new Map<string, StateChannel>([
         [stateChannel.multisigAddress, stateChannel]
       ]),

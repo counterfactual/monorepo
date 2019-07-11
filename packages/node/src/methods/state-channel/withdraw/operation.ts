@@ -1,5 +1,6 @@
 import { Node } from "@counterfactual/types";
 
+import { Protocol } from "../../../machine";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { getPeersAddressFromChannel } from "../../../utils";
@@ -21,8 +22,9 @@ export async function runWithdrawProtocol(
 
   const stateChannel = await store.getStateChannel(multisigAddress);
 
-  const stateChannelsMap = await instructionExecutor.runWithdrawProtocol(
-    stateChannel,
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Withdraw,
+    new Map([[stateChannel.multisigAddress, stateChannel]]),
     {
       amount,
       tokenAddress,

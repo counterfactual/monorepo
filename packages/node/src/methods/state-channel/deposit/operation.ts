@@ -16,7 +16,7 @@ import {
 } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-import { InstallParams, xkeyKthAddress } from "../../../machine";
+import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
@@ -78,7 +78,8 @@ export async function installBalanceRefundApp(
     tokenAddress: tokenAddress! // params object is mutated in caller
   };
 
-  const updatedStateChannelsMap = await instructionExecutor.runInstallProtocol(
+  const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Install,
     stateChannelsMap,
     installParams
   );
@@ -168,7 +169,8 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(CoinBalanceRefundApp);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Uninstall,
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]

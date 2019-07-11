@@ -1,6 +1,6 @@
 import { AppInstanceInfo, Node } from "@counterfactual/types";
 
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
@@ -25,7 +25,8 @@ export async function installVirtual(
   let updatedStateChannelsMap: Map<string, StateChannel>;
 
   try {
-    updatedStateChannelsMap = await instructionExecutor.runInstallVirtualAppProtocol(
+    updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+      Protocol.InstallVirtualApp,
       new Map(Object.entries(await store.getAllChannels())),
       {
         initiatingXpub: appInstanceInfo.proposedToIdentifier,

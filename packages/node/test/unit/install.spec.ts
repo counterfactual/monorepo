@@ -12,6 +12,7 @@ import {
 } from "../../src";
 import {
   InstructionExecutor,
+  Protocol,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
@@ -131,7 +132,11 @@ describe("Can handle correct & incorrect installs", () => {
     // and just returns a basic <string, StateChannel> map with the
     // expected multisigAddress in it.
     when(
-      mockedInstructionExecutor.runInstallProtocol(anything(), anything())
+      mockedInstructionExecutor.initiateProtocol(
+        Protocol.Install,
+        anything(),
+        anything()
+      )
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
     // The AppInstanceInfo that's returned is the one that was installed, which
