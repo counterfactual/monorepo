@@ -1,4 +1,7 @@
-import { DeployedContractNetworksFileEntry, NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL } from "@counterfactual/types";
+import {
+  DeployedContractNetworksFileEntry,
+  EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT
+} from "@counterfactual/types";
 import { readFileSync } from "fs";
 import path from "path";
 
@@ -19,14 +22,16 @@ describe("Checks that all the needed contracts have been deployed on each test n
       const networkDeployments = extractContractNamesFromDeployments(
         networkName
       );
-      NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL.forEach((contractName: string) => {
-        if (
-          !CONTRACTS_TO_SKIP.has(contractName) &&
-          !networkDeployments.has(contractName)
-        ) {
-          throw Error(contractNotDeployed(contractName, networkName));
+      EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.forEach(
+        (contractName: string) => {
+          if (
+            !CONTRACTS_TO_SKIP.has(contractName) &&
+            !networkDeployments.has(contractName)
+          ) {
+            throw Error(contractNotDeployed(contractName, networkName));
+          }
         }
-      });
+      );
     });
   });
 });

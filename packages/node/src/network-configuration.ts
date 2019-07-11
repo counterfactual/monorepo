@@ -3,7 +3,7 @@ import RinkebyContracts from "@counterfactual/contracts/networks/4.json";
 import KovanContracts from "@counterfactual/contracts/networks/42.json";
 import {
   DeployedContractNetworksFileEntry,
-  NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL,
+  EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT,
   NetworkContext
 } from "@counterfactual/types";
 import log from "loglevel";
@@ -42,7 +42,7 @@ export function getNetworkContextForNetworkName(
 function getNetworkContextFromNetworksFile(
   listOfDeployedContractsFromNetworkFile: DeployedContractNetworksFileEntry[]
 ): NetworkContext {
-  return NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL.reduce(
+  return EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
     (acc, contractName) => ({
       ...acc,
       [contractName]: getContractAddressFromNetworksFile(

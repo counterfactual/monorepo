@@ -1,4 +1,4 @@
-import { NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL } from "@counterfactual/types";
+import { EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
 import { Chain } from "../src";
@@ -17,7 +17,7 @@ describe("Contracts get deployed as expected", () => {
 
     const contractNames = new Set(Object.keys(networkContext));
     const expectedContracts = new Set(
-      NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL
+      EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT
     );
     expect(contractNames).toEqual(expectedContracts);
   });

@@ -1,5 +1,5 @@
 import {
-  NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL,
+  EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT,
   NetworkContext
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
@@ -32,7 +32,7 @@ import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createProposedAppInstanceInfo } from "./utils";
 
-const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL.reduce(
+const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
   (acc, contractName) => ({
     ...acc,
     [contractName]: AddressZero

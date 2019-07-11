@@ -35,7 +35,7 @@ export interface NetworkContext {
 }
 
 // Keep in sync with above
-export const NAMES_OF_DEPLOYED_CONTRACTS_REQUIRED_FOR_COUNTERFACTUAL = [
+export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
