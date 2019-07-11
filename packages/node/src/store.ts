@@ -1,14 +1,9 @@
-import {
-  Address,
-  AppInstanceInfo,
-  Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { Address, Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
-  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO,
+  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
@@ -17,7 +12,6 @@ import {
 } from "./db-schema";
 import { Transaction } from "./machine";
 import {
-  NO_APP_INSTANCE_FOR_GIVEN_ID,
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID,
   NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
@@ -103,16 +97,6 @@ export class Store {
   }
 
   /**
-   * Returns an AppInstanceInfo from the DB based on an AppInstance object
-   * @param appInstance
-   */
-  public async getAppInstanceInfoFromAppInstance(
-    appInstance: AppInstance
-  ): Promise<AppInstanceInfo> {
-    return await this.getAppInstanceInfo(appInstance.identityHash);
-  }
-
-  /**
    * This persists the state of a channel.
    * @param channel
    * @param ownersHash
@@ -173,10 +157,10 @@ export class Store {
    * atomicity of moving an app instance from being proposed to installed.
    *
    * @param appInstance
-   * @param appInstanceInfo
+   * @param proposedAppInstance
    */
   public async saveRealizedProposedAppInstance(
-    appInstanceInfo: AppInstanceProposal
+    proposedAppInstance: AppInstanceProposal
   ) {
     await this.storeService.set(
       [
@@ -184,17 +168,17 @@ export class Store {
           key: `${
             this.storeKeyPrefix
           }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-            appInstanceInfo.identityHash
+            proposedAppInstance.identityHash
           }`,
           value: null
         },
         {
           key: `${
             this.storeKeyPrefix
-          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${
-            appInstanceInfo.identityHash
+          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${
+            proposedAppInstance.identityHash
           }`,
-          value: appInstanceInfo
+          value: proposedAppInstance
         }
       ],
       true
@@ -290,24 +274,6 @@ export class Store {
     );
   }
 
-  public async getAppInstanceInfo(
-    appInstanceId: string
-  ): Promise<AppInstanceInfo> {
-    const appInstanceInfo = (await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO}/${appInstanceId}`
-    )) as AppInstanceInfo;
-
-    if (!appInstanceInfo) {
-      return Promise.reject(
-        `${NO_APP_INSTANCE_FOR_GIVEN_ID}: ${appInstanceId}`
-      );
-    }
-
-    return appInstanceInfo;
-  }
-
   /**
    * Returns the address of the multisig belonging to a specified set of owners
    * via the hash of the owners
@@ -324,9 +290,9 @@ export class Store {
   }
 
   /**
-   * Returns a list of proposed `AppInstanceInfo`s.
+   * Returns a list of proposed `AppInstanceProposals`s.
    */
-  public async getProposedAppInstances(): Promise<AppInstanceInfo[]> {
+  public async getProposedAppInstances(): Promise<AppInstanceProposal[]> {
     const proposedAppInstancesJson = (await this.storeService.get(
       [
         this.storeKeyPrefix,

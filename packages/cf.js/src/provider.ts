@@ -2,7 +2,8 @@ import {
   Address,
   AppInstanceInfo,
   IRpcNodeProvider,
-  Node
+  Node,
+  AppInstanceJson
 } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
 import {
@@ -271,7 +272,7 @@ export class Provider {
    */
   async getOrCreateAppInstance(
     id: string,
-    info?: AppInstanceInfo
+    info?: AppInstanceInfo | AppInstanceJson
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
       let newInfo;

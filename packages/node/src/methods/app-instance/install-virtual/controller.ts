@@ -94,7 +94,7 @@ export default class InstallVirtualController extends NodeController {
       appInstanceId
     );
 
-    const appInstanceInfo = await installVirtual(
+    const appInstance = await installVirtual(
       requestHandler.store,
       requestHandler.instructionExecutor,
       params
@@ -117,7 +117,7 @@ export default class InstallVirtualController extends NodeController {
     );
 
     return {
-      appInstance: appInstanceInfo
+      appInstance
     };
   }
 }

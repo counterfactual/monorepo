@@ -2,6 +2,7 @@ import {
   Address,
   AppABIEncodings,
   AppInstanceInfo,
+  AppInstanceJson,
   CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -32,17 +33,28 @@ export class AppInstance {
 
   readonly intermediaries?: Address[];
 
-  constructor(info: AppInstanceInfo, readonly provider: Provider) {
+  constructor(
+    info: AppInstanceInfo | AppInstanceJson,
+    readonly provider: Provider
+  ) {
     this.identityHash = info.identityHash;
-    this.appDefinition = info.appDefinition;
-    this.abiEncodings = info.abiEncodings;
-    this.myDeposit = info.myDeposit;
-    this.peerDeposit = info.peerDeposit;
-    this.timeout = info.timeout;
-    this.twoPartyOutcomeInterpreterParams =
-      info.twoPartyOutcomeInterpreterParams;
-    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
-    this.intermediaries = info.intermediaries;
+
+    if (info["appInterface"] !== undefined) {
+      this.appDefinition = info["appInterface"].addr;
+      this.abiEncodings = {
+        stateEncoding: info["appInterface"].stateEncoding,
+        actionEncoding: info["appInterface"].actionEncoding
+      };
+      this.timeout = info["defaultTimeout"];
+    } else {
+      this.appDefinition = info["appDefinition"];
+      this.abiEncodings = info["abiEncodings"];
+      this.timeout = info["timeout"];
+    }
+
+    this.myDeposit = info["myDeposit"];
+    this.peerDeposit = info["peerDeposit"];
+    this.intermediaries = info["intermediaries"];
   }
 
   /**
