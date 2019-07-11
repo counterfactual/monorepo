@@ -48,7 +48,7 @@ describe("Node method follows spec - uninstall", () => {
         done();
       });
 
-      await nodeA.router.dispatch(generateUninstallRequest(appInstanceId));
+      await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
 
       expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
     });

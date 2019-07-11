@@ -58,7 +58,7 @@ export async function getMultisigCreationTransactionHash(
       owners: xpubs
     }
   });
-  const response = (await node.router.dispatch(req)) as JsonRpcResponse;
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
   const result = response.result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
@@ -135,7 +135,7 @@ export async function getFreeBalanceState(
     },
     jsonrpc: "2.0"
   });
-  const response = (await node.router.dispatch(req)) as JsonRpcResponse;
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
   return response.result.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
@@ -153,7 +153,7 @@ export async function getApps(
       method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
       params: {} as NodeTypes.GetAppInstancesParams
     });
-    response = (await node.router.dispatch(request)) as JsonRpcResponse;
+    response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
     result = response.result.result as NodeTypes.GetAppInstancesResult;
     return result.appInstances;
   }
@@ -163,7 +163,7 @@ export async function getApps(
     method: NodeTypes.RpcMethodName.GET_PROPOSED_APP_INSTANCES,
     params: {} as NodeTypes.GetProposedAppInstancesParams
   });
-  response = (await node.router.dispatch(request)) as JsonRpcResponse;
+  response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
   result = response.result.result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
@@ -423,8 +423,8 @@ export async function collateralizeChannel(
   multisigAddress: string
 ): Promise<void> {
   const depositReq = makeDepositRequest(multisigAddress, One);
-  await node1.router.dispatch(depositReq);
-  await node2.router.dispatch(depositReq);
+  await node1.rpcRouter.dispatch(depositReq);
+  await node2.rpcRouter.dispatch(depositReq);
 }
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
@@ -466,7 +466,7 @@ export async function installTTTApp(
       );
 
       const installRequest = makeInstallRequest(msg.data.appInstanceId);
-      await nodeB.router.dispatch(installRequest);
+      await nodeB.rpcRouter.dispatch(installRequest);
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
@@ -482,7 +482,7 @@ export async function installTTTApp(
       resolve(appInstanceId);
     });
 
-    const response = (await nodeA.router.dispatch(
+    const response = (await nodeA.rpcRouter.dispatch(
       appInstanceInstallationProposalRequest
     )) as JsonRpcResponse;
 
@@ -512,7 +512,7 @@ export async function installTTTAppVirtual(
           msg.data.appInstanceId,
           msg.data.params.intermediaries
         );
-        await nodeC.router.dispatch(installReq);
+        await nodeC.rpcRouter.dispatch(installReq);
       }
     );
 
@@ -549,7 +549,7 @@ export async function getState(
   appInstanceId: string
 ): Promise<SolidityABIEncoderV2Type> {
   const getStateReq = generateGetStateRequest(appInstanceId);
-  const getStateResult = (await nodeA.router.dispatch(
+  const getStateResult = (await nodeA.rpcRouter.dispatch(
     getStateReq
   )) as JsonRpcResponse;
   return (getStateResult.result.result as NodeTypes.GetStateResult).state;
@@ -574,7 +574,7 @@ export async function makeTTTVirtualProposal(
     Zero
   );
   const params = virtualAppInstanceProposalRequest.parameters as NodeTypes.ProposeInstallVirtualParams;
-  const response = (await nodeA.router.dispatch(
+  const response = (await nodeA.rpcRouter.dispatch(
     jsonRpcDeserialize({
       params,
       jsonrpc: "2.0",
@@ -597,12 +597,12 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaries
   );
-  node.router.dispatch(installVirtualReq);
+  node.rpcRouter.dispatch(installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
   const installRequest = makeInstallRequest(appInstanceId);
-  node.router.dispatch(installRequest);
+  node.rpcRouter.dispatch(installRequest);
 }
 
 export async function makeVirtualProposeCall(
@@ -620,7 +620,7 @@ export async function makeVirtualProposeCall(
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
   );
 
-  const response = (await nodeA.router.dispatch(
+  const response = (await nodeA.rpcRouter.dispatch(
     virtualAppInstanceProposalRequest
   )) as JsonRpcResponse;
 
@@ -647,7 +647,7 @@ export async function makeProposeCall(
     Zero
   );
 
-  const response = (await nodeA.router.dispatch(
+  const response = (await nodeA.rpcRouter.dispatch(
     appInstanceProposalReq
   )) as JsonRpcResponse;
   return {

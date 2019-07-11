@@ -63,7 +63,7 @@ describe("Node method follows spec - uninstall virtual", () => {
           }
         );
 
-        await nodeA.router.dispatch(
+        await nodeA.rpcRouter.dispatch(
           generateUninstallVirtualRequest(appInstanceId, nodeB.publicIdentifier)
         );
 
