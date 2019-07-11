@@ -238,6 +238,7 @@ export class Store {
       proposedAppInstance.proposedToIdentifier,
       proposedAppInstance.proposedByIdentifier
     ].sort();
+
     await this.storeService.set([
       {
         key: `${

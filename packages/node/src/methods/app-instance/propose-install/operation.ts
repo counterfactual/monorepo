@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../../models";
 import { Store } from "../../../store";
-import { getChannelFromPeerAddress } from "../../../utils";
+import { getStateChannelWithOwners } from "../../../utils";
 
 /**
  * Creates a ProposedAppInstanceInfo to reflect the proposal received from
@@ -16,7 +16,7 @@ export async function createProposedAppInstance(
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const channel = await getChannelFromPeerAddress(
+  const channel = await getStateChannelWithOwners(
     myIdentifier,
     params.proposedToIdentifier,
     store

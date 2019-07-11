@@ -1,14 +1,11 @@
 import {
-  addChannelController,
-  depositEventController,
-  installEventController,
-  installVirtualEventController,
-  proposeInstallEventController,
-  proposeInstallVirtualEventController,
-  protocolMessageEventController,
-  rejectInstallEventController,
-  rejectInstallVirtualEventController
-} from "./events";
+  handleReceivedInstallMessage,
+  handleReceivedInstallVirtualMessage,
+  handleReceivedProposalMessage,
+  handleReceivedProposeVirtualMessage,
+  handleRejectProposalMessage
+} from "./message-handling/handle-node-message";
+import { handleReceivedProtocolMessage } from "./message-handling/handle-protocol-message";
 import {
   CreateChannelController,
   DepositController,
@@ -101,20 +98,11 @@ export const createRpcRouter = (requestHandler: RequestHandler) =>
   new NodeRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
-  [NODE_EVENTS.CREATE_CHANNEL]: addChannelController,
-  [NODE_EVENTS.DEPOSIT_CONFIRMED]: depositEventController,
-  [NODE_EVENTS.INSTALL]: installEventController,
-  [NODE_EVENTS.INSTALL_VIRTUAL]: installVirtualEventController,
-  [NODE_EVENTS.PROPOSE_INSTALL]: proposeInstallEventController,
-  [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: proposeInstallVirtualEventController,
-  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: protocolMessageEventController,
-  [NODE_EVENTS.REJECT_INSTALL]: rejectInstallEventController,
-  [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: rejectInstallVirtualEventController,
-  // TODO: Remove no-ops of obsolete functions
-  [NODE_EVENTS.UPDATE_STATE]: () => {},
-  [NODE_EVENTS.UNINSTALL]: () => {},
-  [NODE_EVENTS.UNINSTALL_VIRTUAL]: () => {},
-  [NODE_EVENTS.PROPOSE_STATE]: () => {},
-  [NODE_EVENTS.REJECT_STATE]: () => {},
-  [NODE_EVENTS.WITHDRAWAL_CONFIRMED]: () => {}
+  [NODE_EVENTS.INSTALL]: handleReceivedInstallMessage,
+  [NODE_EVENTS.INSTALL_VIRTUAL]: handleReceivedInstallVirtualMessage,
+  [NODE_EVENTS.PROPOSE_INSTALL]: handleReceivedProposalMessage,
+  [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: handleReceivedProposeVirtualMessage,
+  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: handleReceivedProtocolMessage,
+  [NODE_EVENTS.REJECT_INSTALL]: handleRejectProposalMessage,
+  [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: handleRejectProposalMessage
 };
