@@ -1,11 +1,11 @@
 import { Node } from "@counterfactual/types";
 
-import { ProposedAppInstanceInfo } from "../../../models";
+import { AppInstanceProposal } from "../../../models";
 import { Store } from "../../../store";
 import { getStateChannelWithOwners } from "../../../utils";
 
 /**
- * Creates a ProposedAppInstanceInfo to reflect the proposal received from
+ * Creates a AppInstanceProposal to reflect the proposal received from
  * the client.
  * @param myIdentifier
  * @param store
@@ -22,7 +22,7 @@ export async function createProposedAppInstance(
     store
   );
 
-  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+  const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
       proposedByIdentifier: myIdentifier
@@ -30,7 +30,7 @@ export async function createProposedAppInstance(
     channel
   );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
+  await store.addAppInstanceProposal(channel, appInstanceProposal);
 
-  return proposedAppInstanceInfo.identityHash;
+  return appInstanceProposal.identityHash;
 }

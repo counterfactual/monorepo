@@ -90,7 +90,7 @@ export default class InstallVirtualController extends NodeController {
   ): Promise<Node.InstallVirtualResult> {
     const { appInstanceId } = params;
 
-    const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
+    const appInstanceProposal = await requestHandler.store.getAppInstanceProposal(
       appInstanceId
     );
 
@@ -112,7 +112,7 @@ export default class InstallVirtualController extends NodeController {
 
     // TODO: Remove this and add a handler in protocolMessageEventController
     await requestHandler.messagingService.send(
-      proposedAppInstanceInfo.proposedByIdentifier,
+      appInstanceProposal.proposedByIdentifier,
       installVirtualApprovalMsg
     );
 

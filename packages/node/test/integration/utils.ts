@@ -105,7 +105,7 @@ export async function getProposedAppInstances(
   return getApps(node, APP_INSTANCE_STATUS.PROPOSED);
 }
 
-export async function getProposedAppInstanceInfo(
+export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceInfo> {
@@ -304,35 +304,27 @@ export function makeTTTVirtualProposalRequest(
 
 /**
  * @param proposalParams The parameters of the installation proposal.
- * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
+ * @param appInstanceProposal The proposed app instance contained in the Node.
  */
 export async function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstanceInfo: AppInstanceInfo,
+  appInstanceProposal: AppInstanceInfo,
   nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
-  expect(proposalParams.abiEncodings).toEqual(
-    proposedAppInstanceInfo.abiEncodings
-  );
+  expect(proposalParams.abiEncodings).toEqual(appInstanceProposal.abiEncodings);
   expect(proposalParams.appDefinition).toEqual(
-    proposedAppInstanceInfo.appDefinition
+    appInstanceProposal.appDefinition
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.myDeposit).toEqual(
-      proposedAppInstanceInfo.peerDeposit
-    );
-    expect(proposalParams.peerDeposit).toEqual(
-      proposedAppInstanceInfo.myDeposit
-    );
+    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.peerDeposit);
+    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.myDeposit);
   } else {
-    expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
-    expect(proposalParams.peerDeposit).toEqual(
-      proposedAppInstanceInfo.peerDeposit
-    );
+    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.myDeposit);
+    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.peerDeposit);
   }
-  expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
+  expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
@@ -462,7 +454,7 @@ export async function installTTTApp(
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
       confirmProposedAppInstanceOnNode(
         appInstanceInstallationProposalRequest.parameters,
-        await getProposedAppInstanceInfo(nodeA, appInstanceId)
+        await getAppInstanceProposal(nodeA, appInstanceId)
       );
 
       const installRequest = makeInstallRequest(msg.data.appInstanceId);
