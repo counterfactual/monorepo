@@ -18,8 +18,6 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-
 export type AppInstanceJson = {
   multisigAddress: string;
   signingKeys: string[];
@@ -44,11 +42,9 @@ export type AppInstanceJson = {
   coinTransferInterpreterParams?: {
     // Derived from:
     // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string };
-    tokenAddress: string;
+    limit: { _hex: string }[];
+    tokens: string[];
   };
-
-  tokenAddress: string;
 };
 
 /**
@@ -97,8 +93,7 @@ export class AppInstance {
     latestVersionNumber: number,
     latestTimeout: number,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
-    tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    coinTransferInterpreterParams?: CoinTransferInterpreterParams
   ) {
     this.json = {
       multisigAddress,
@@ -110,7 +105,6 @@ export class AppInstance {
       latestState,
       latestVersionNumber,
       latestTimeout,
-      tokenAddress,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -121,10 +115,12 @@ export class AppInstance {
         : undefined,
       coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
-            tokenAddress,
-            limit: {
-              _hex: coinTransferInterpreterParams.limit.toHexString()
-            }
+            tokens: coinTransferInterpreterParams.tokens,
+            limit: coinTransferInterpreterParams.limit.map(limit => {
+              return {
+                _hex: limit.toHexString()
+              };
+            })
           }
         : undefined
     };
@@ -160,11 +156,12 @@ export class AppInstance {
         : undefined,
       json.coinTransferInterpreterParams
         ? {
-            tokenAddress: json.tokenAddress,
-            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
+            limit: json.coinTransferInterpreterParams.limit.map(limit => {
+              return bigNumberify(limit._hex);
+            }),
+            tokens: json.coinTransferInterpreterParams.tokens
           }
-        : undefined,
-      json.tokenAddress
+        : undefined
     );
     return ret;
   }
@@ -215,13 +212,15 @@ export class AppInstance {
     return this.json.latestVersionNumber;
   }
 
-  public get coinTransferInterpreterParams() {
+  public get coinTransferInterpreterParams():
+    | CoinTransferInterpreterParams
+    | undefined {
     return this.json.coinTransferInterpreterParams
       ? {
-          tokenAddress: this.json.tokenAddress,
-          limit: bigNumberify(
-            this.json.coinTransferInterpreterParams.limit._hex
-          )
+          limit: this.json.coinTransferInterpreterParams.limit.map(limit => {
+            return bigNumberify(limit._hex);
+          }),
+          tokens: this.json.coinTransferInterpreterParams.tokens
         }
       : undefined;
   }
@@ -263,10 +262,6 @@ export class AppInstance {
 
   public get isVirtualApp() {
     return this.json.isVirtualApp;
-  }
-
-  public get tokenAddress() {
-    return this.json.tokenAddress;
   }
 
   public lockState(versionNumber: number) {

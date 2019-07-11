@@ -7,40 +7,64 @@ import {
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TokenIndexedBalanceMap
+} from "../../models/free-balance";
 
-function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
+/**
+ * Note that this is only used with `CoinBalanceRefundApp.sol`
+ */
+function computeCoinTransferIncrement(
+  tokens: string[],
+  outcome
+): TokenIndexedBalanceMap {
   const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address,uint256)[]"],
+    ["tuple(address to, uint256 amount)[][]"],
     outcome
   );
 
-  const ret = {} as any;
+  if ((decoded as []).length !== tokens.length) {
+    throw new Error(
+      "Mismatch between expected number of tokens and actual number of tokens incremented"
+    );
+  }
 
-  for (const pair of decoded) {
-    const [address, to] = pair;
-    ret[address] = to;
+  const ret: TokenIndexedBalanceMap = {};
+
+  // tslint:disable-next-line:prefer-array-literal
+  for (const tokenIndex of Array(tokens.length)) {
+    ret[tokens[tokenIndex]] = {};
+    const balances = decoded[tokenIndex];
+
+    for (const pair of balances) {
+      const [address, amount] = pair;
+      ret[tokens[tokenIndex]][address] = amount;
+    }
   }
   return ret;
 }
 
-function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
-  for (const key in arr) {
-    if (arr[key].gt(Zero)) {
-      return true;
+function anyNonzeroValues(map: TokenIndexedBalanceMap): Boolean {
+  for (const tokenAddress of Object.keys(map)) {
+    for (const address in Object.keys(map[tokenAddress])) {
+      if (map[tokenAddress][address].gt(Zero)) {
+        return true;
+      }
     }
   }
   return false;
 }
 
-export async function computeFreeBalanceIncrements(
+export async function computeTokenIndexedFreeBalanceIncrements(
   networkContext: NetworkContext,
   stateChannel: StateChannel,
   appInstanceId: string,
   provider: BaseProvider
-): Promise<{ [x: string]: BigNumber }> {
+): Promise<TokenIndexedBalanceMap> {
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
   const appDefinition = new Contract(
@@ -76,7 +100,10 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const increments = computeCoinTransferIncrement(outcome);
+        const increments = computeCoinTransferIncrement(
+          appInstance.coinTransferInterpreterParams!.tokens,
+          outcome
+        );
 
         if (anyNonzeroValues(increments)) {
           return increments;
@@ -98,13 +125,19 @@ export async function computeFreeBalanceIncrements(
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[0]]: total
+          }
         };
       }
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[1]]: total
+          }
         };
       }
 
@@ -112,8 +145,10 @@ export async function computeFreeBalanceIncrements(
       const i1 = total.sub(i0);
 
       return {
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        }
       };
     }
     default: {

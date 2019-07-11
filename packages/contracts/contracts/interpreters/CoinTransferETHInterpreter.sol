@@ -2,18 +2,21 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
+import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
 
-import "../interfaces/Interpreter.sol";
-import "../libs/LibOutcome.sol";
 
-
+/**
+ * This file is excluded from ethlint/solium because of this issue:
+ * https://github.com/duaraghav8/Ethlint/issues/261
+ */
 contract CoinTransferETHInterpreter is Interpreter {
 
-  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
+  using LibOutcome for LibOutcome.CoinTransfer;
 
-  struct Params {
-    uint256 limit;
-    address tokenAddress;
+  struct Param {
+    uint256[] limit;
+    address[] tokens;
   }
 
   function interpretOutcomeAndExecuteEffect(
@@ -23,31 +26,32 @@ contract CoinTransferETHInterpreter is Interpreter {
     external
   {
 
-    // NOTE: We expect `input` to be of type CoinTransfer[][]
-    // and so we pull the 0th indexed value from it for ETH.
-    // This adds an assumption that input will have ETH values
-    // at its 0th index.
-    LibOutcome.CoinTransfer[] memory transfers = abi.decode(
-      input,
-      (LibOutcome.CoinTransfer[][])
-    )[0];
+    Param memory params = abi.decode(encodedParams, (Param));
+    uint256[] memory limitsRemaining = params.limit;
+    address[] memory tokens = params.tokens;
 
-    Params memory params = abi.decode(encodedParams, (Params));
+    LibOutcome.CoinTransfer[][] memory assetTransfers = abi.decode(input, (LibOutcome.CoinTransfer[][]));
 
-    for (uint256 i = 0; i < transfers.length; i++) {
-      address payable to = address(uint160(transfers[i].to));
-      uint256 amount = transfers[i].amount;
+    for (uint256 tokenIndex = 0; tokenIndex < assetTransfers.length; tokenIndex++) {
+      address token = tokens[tokenIndex];
+      uint256 limitRemaining = limitsRemaining[tokenIndex];
+      LibOutcome.CoinTransfer[] memory transfers = assetTransfers[tokenIndex];
 
-      require(amount <= params.limit, "hit the limit");
+      for (uint256 transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
+        LibOutcome.CoinTransfer memory transfer = transfers[transferIndex];
+        address payable to = address(uint160(transfer.to));
+        uint256 amount = transfer.amount;
 
-      params.limit -= amount;
+        require(amount <= limitRemaining, "Hit the transfer limit.");
+        limitRemaining -= amount;
 
-      // note: send() is deliberately used instead of transfer() here
-      // so that a revert does not stop the rest of the sends
-      if (params.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-        to.send(amount);
-      } else {
-        ERC20(params.tokenAddress).transfer(to, amount);
+        if (token == address(0x0)) {
+          // note: send() is deliberately used instead of transfer() here
+          // so that a revert does not stop the rest of the sends
+          to.send(amount);
+        } else {
+          ERC20(token).transfer(to, amount);
+        }
       }
     }
   }

@@ -1,7 +1,11 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { flip, merge } from "../ethereum/utils/free-balance-app";
+import {
+  flip,
+  flipTokenIndexedBalances,
+  merge
+} from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 
 import { AppInstance, AppInstanceJson } from "./app-instance";
@@ -12,7 +16,8 @@ import {
   FreeBalanceState,
   FreeBalanceStateJSON,
   getBalancesFromFreeBalanceAppInstance,
-  serializeFreeBalanceState
+  serializeFreeBalanceState,
+  TokenIndexedBalanceMap
 } from "./free-balance";
 
 // TODO: Hmmm this code should probably be somewhere else?
@@ -209,19 +214,20 @@ export class StateChannel {
 
   public addActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    increments: CoinTransferMap,
-    tokenAddress: string
+    tokenIndexedIncrements: TokenIndexedBalanceMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
     const freeBalanceState = deserializeFreeBalanceState(json);
 
-    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
-      merge(
-        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-        increments
-      )
-    ).map(([to, amount]) => ({ to, amount }));
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
+      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+        merge(
+          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+          tokenIndexedIncrements[tokenAddress]
+        )
+      ).map(([to, amount]) => ({ to, amount }));
+    }
 
     freeBalanceState.activeAppsMap[activeApp] = true;
 
@@ -238,8 +244,7 @@ export class StateChannel {
 
   public removeActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    increments: CoinTransferMap,
-    tokenAddress: string
+    tokenIndexedIncrements: TokenIndexedBalanceMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
@@ -253,12 +258,14 @@ export class StateChannel {
 
     delete freeBalanceState.activeAppsMap[activeApp];
 
-    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
-      merge(
-        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-        increments
-      )
-    ).map(([to, amount]) => ({ to, amount }));
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
+      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+        merge(
+          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+          tokenIndexedIncrements[tokenAddress]
+        )
+      ).map(([to, amount]) => ({ to, amount }));
+    }
 
     return new StateChannel(
       this.multisigAddress,
@@ -394,7 +401,7 @@ export class StateChannel {
   public addSingleAssetTwoPartyIntermediaryAgreement(
     targetIdentityHash: string,
     evaaInstance: SingleAssetTwoPartyIntermediaryAgreement,
-    decrements: { [s: string]: BigNumber },
+    decrements: CoinTransferMap,
     tokenAddress: string
   ) {
     // Add to singleAssetTwoPartyIntermediaryAgreements
@@ -414,11 +421,9 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).addActiveAppAndIncrementFreeBalance(
-      targetIdentityHash,
-      flip(decrements),
-      tokenAddress
-    );
+    ).addActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+      [tokenAddress]: flip(decrements)
+    } as TokenIndexedBalanceMap);
   }
 
   public removeSingleAssetTwoPartyIntermediaryAgreement(
@@ -445,11 +450,9 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).removeActiveAppAndIncrementFreeBalance(
-      targetIdentityHash,
-      increments,
-      tokenAddress
-    );
+    ).removeActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+      [tokenAddress]: increments
+    });
   }
 
   public removeVirtualApp(targetIdentityHash: string) {
@@ -470,7 +473,10 @@ export class StateChannel {
     );
   }
 
-  public installApp(appInstance: AppInstance, decrements: CoinTransferMap) {
+  public installApp(
+    appInstance: AppInstance,
+    tokenIndexedDecrements: TokenIndexedBalanceMap
+  ) {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
@@ -502,14 +508,13 @@ export class StateChannel {
       this.createdAt
     ).addActiveAppAndIncrementFreeBalance(
       appInstance.identityHash,
-      flip(decrements),
-      appInstance.tokenAddress
+      flipTokenIndexedBalances(tokenIndexedDecrements)
     );
   }
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    increments: CoinTransferMap
+    tokenIndexedIncrements: TokenIndexedBalanceMap
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
@@ -541,8 +546,7 @@ export class StateChannel {
       this.createdAt
     ).removeActiveAppAndIncrementFreeBalance(
       appInstanceIdentityHash,
-      increments,
-      appToBeUninstalled.tokenAddress
+      tokenIndexedIncrements
     );
   }
 

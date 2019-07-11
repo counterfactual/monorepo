@@ -520,12 +520,13 @@ function addRefundAppToStateChannel(
     0,
     defaultTimeout,
     undefined,
-    { tokenAddress, limit: MaxUint256 },
-    tokenAddress
+    { tokens: [tokenAddress], limit: [MaxUint256] }
   );
 
   return stateChannel.installApp(refundAppInstance, {
-    [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
+    [tokenAddress]: {
+      [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
+    }
   });
 }
 

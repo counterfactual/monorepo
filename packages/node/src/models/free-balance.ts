@@ -21,6 +21,10 @@ export type CoinTransferMap = {
   [to: string]: BigNumber;
 };
 
+export type TokenIndexedBalanceMap = {
+  [tokenAddress: string]: CoinTransferMap;
+};
+
 export type CoinTransfer = {
   to: string;
   amount: BigNumber;
@@ -86,7 +90,7 @@ export function createFreeBalance(
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS }
+    { limit: [MaxUint256], tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
   );
 }
 

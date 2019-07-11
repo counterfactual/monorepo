@@ -2,6 +2,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   AppInterface,
+  CoinTransferInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -11,13 +12,13 @@ import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-
 export interface IProposedAppInstanceInfo {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumberish;
+  myDepositTokenAddress: string;
   peerDeposit: BigNumberish;
+  peerDepositTokenAddress: string;
   timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -31,7 +32,9 @@ export interface ProposedAppInstanceInfoJSON {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: { _hex: string };
+  myDepositTokenAddress: string;
   peerDeposit: { _hex: string };
+  peerDepositTokenAddress: string;
   timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -55,7 +58,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
+  myDepositTokenAddress: string;
   peerDeposit: BigNumber;
+  peerDepositTokenAddress: string;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -71,7 +76,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
     this.myDeposit = bigNumberify(proposeParams.myDeposit);
+    this.myDepositTokenAddress = proposeParams.myDepositTokenAddress;
     this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
+    this.peerDepositTokenAddress = proposeParams.peerDepositTokenAddress;
     this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
@@ -125,10 +132,15 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       // the below two arguments are not currently used in app identity
       // computation
       undefined,
+      // this is not relevant here as it gets set properly later in the context
+      // of the channel during an install, and it's not used to calculate
+      // the AppInstance ID so there won't be a possible mismatch between
+      // a proposed AppInstance ID and an installed AppInstance ID
       {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      }
+        limit: [],
+        tokens: [],
+        transferTokenIndexes: []
+      } as CoinTransferInterpreterParams
     );
 
     return proposedAppInstance.identityHash;
@@ -140,7 +152,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
       myDeposit: { _hex: this.myDeposit.toHexString() },
+      myDepositTokenAddress: this.myDepositTokenAddress,
       peerDeposit: { _hex: this.peerDeposit.toHexString() },
+      peerDepositTokenAddress: this.peerDepositTokenAddress,
       initialState: this.initialState,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
@@ -155,7 +169,9 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       myDeposit: bigNumberify(json.myDeposit._hex),
+      myDepositTokenAddress: json.myDepositTokenAddress,
       peerDeposit: bigNumberify(json.peerDeposit._hex),
+      peerDepositTokenAddress: json.peerDepositTokenAddress,
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,

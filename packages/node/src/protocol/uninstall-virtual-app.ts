@@ -17,7 +17,7 @@ import { StateChannel } from "../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
-import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
+import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
@@ -379,7 +379,7 @@ async function addRightUninstallAgreementToContext(
 
   const metachannel = context.stateChannelsMap.get(key) as StateChannel;
 
-  const increments = await computeFreeBalanceIncrements(
+  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     context.network,
     metachannel,
     targetAppIdentityHash,
@@ -395,8 +395,13 @@ async function addRightUninstallAgreementToContext(
   const newStateChannel = sc.removeSingleAssetTwoPartyIntermediaryAgreement(
     targetAppIdentityHash,
     {
-      [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
-      [zA(respondingXpub)]: increments[zA(respondingXpub)]
+      [zA(intermediaryXpub)]: tokenIndexedIncrements[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ][zA(initiatingXpub)],
+
+      [zA(respondingXpub)]: tokenIndexedIncrements[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ][zA(respondingXpub)]
     },
     CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
@@ -427,7 +432,7 @@ async function addLeftUninstallAgreementToContext(
 
   const metachannel = context.stateChannelsMap.get(key) as StateChannel;
 
-  const increments = await computeFreeBalanceIncrements(
+  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     context.network,
     metachannel,
     targetAppIdentityHash,
@@ -443,8 +448,13 @@ async function addLeftUninstallAgreementToContext(
   const newStateChannel = sc.removeSingleAssetTwoPartyIntermediaryAgreement(
     targetAppIdentityHash,
     {
-      [zA(intermediaryXpub)]: increments[zA(respondingXpub)],
-      [zA(initiatingXpub)]: increments[zA(initiatingXpub)]
+      [zA(intermediaryXpub)]: tokenIndexedIncrements[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ][zA(respondingXpub)],
+
+      [zA(initiatingXpub)]: tokenIndexedIncrements[
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      ][zA(initiatingXpub)]
     },
     CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );

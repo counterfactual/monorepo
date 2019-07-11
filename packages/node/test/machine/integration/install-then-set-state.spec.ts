@@ -1,7 +1,10 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { NetworkContext } from "@counterfactual/types";
+import {
+  CoinTransferInterpreterParams,
+  NetworkContext
+} from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -111,6 +114,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         false,
         stateChannel.numInstalledApps,
         [
+          // ETH token index
           [
             { to: multisigOwnerKeys[0].address, amount: WeiPerEther },
             { to: multisigOwnerKeys[1].address, amount: WeiPerEther }
@@ -120,15 +124,18 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
         undefined,
         {
-          limit: parseEther("2"),
-          tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        },
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+          // total limit of ETH that can be transferred
+          limit: [parseEther("2")],
+          // The only "token" that's being transferred is ETH
+          tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
+        } as CoinTransferInterpreterParams
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {
-        [multisigOwnerKeys[0].address]: WeiPerEther,
-        [multisigOwnerKeys[1].address]: WeiPerEther
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [multisigOwnerKeys[0].address]: WeiPerEther,
+          [multisigOwnerKeys[1].address]: WeiPerEther
+        }
       });
 
       const setStateCommitment = new SetStateCommitment(

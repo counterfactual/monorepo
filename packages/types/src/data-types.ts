@@ -13,8 +13,8 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 export type CoinTransferInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-  limit: BigNumber;
-  tokenAddress: string;
+  limit: BigNumber[];
+  tokens: string[];
 };
 
 export type AppInstanceInfo = {
@@ -22,7 +22,9 @@ export type AppInstanceInfo = {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumber;
+  myDepositTokenAddress: string;
   peerDeposit: BigNumber;
+  peerDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub

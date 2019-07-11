@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { ProposedAppInstanceInfo } from "../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../models/free-balance";
 import { Store } from "../../store";
 import { getChannelFromPeerAddress } from "../../utils";
 
@@ -26,7 +27,11 @@ export async function setstringForProposeInstall(
   const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
     {
       ...fixedDepositsParams,
-      proposedByIdentifier
+      proposedByIdentifier,
+      myDepositTokenAddress:
+        params.myDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      peerDepositTokenAddress:
+        params.peerDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );
