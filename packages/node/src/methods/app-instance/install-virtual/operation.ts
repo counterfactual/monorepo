@@ -1,7 +1,7 @@
-import { Node } from "@counterfactual/types";
+import { AppInstanceJson, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
-import { AppInstanceProposal, StateChannel } from "../../../models";
+import { AppInstance, StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
@@ -13,7 +13,7 @@ export async function installVirtual(
   store: Store,
   instructionExecutor: InstructionExecutor,
   params: Node.InstallParams
-): Promise<AppInstanceProposal> {
+): Promise<AppInstanceJson> {
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
@@ -50,11 +50,13 @@ export async function installVirtual(
     );
   }
 
-  updatedStateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
-  );
+  let appInstance: AppInstance;
+  updatedStateChannelsMap.forEach(async stateChannel => {
+    await store.saveStateChannel(stateChannel);
+    appInstance = stateChannel.getAppInstance(appInstanceId);
+  });
 
   await store.saveRealizedProposedAppInstance(proposal);
 
-  return proposal;
+  return appInstance!.toJson();
 }
