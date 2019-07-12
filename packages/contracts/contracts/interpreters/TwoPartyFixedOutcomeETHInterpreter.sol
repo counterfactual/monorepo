@@ -5,6 +5,11 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
+/*
+Asset: ETH
+OutcomeType: TwoPartyFixedOutcome
+Behaviour: The committed ETH is sent to on of params.playerAddrs or split according to the outcome
+*/
 contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
 
   struct Params {
@@ -34,7 +39,13 @@ contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
       return;
     }
 
-    /* SPLIT_AND_SEND_TO_BOTH_ADDRS or fallback case */
+    /* 
+    A functioning app should return SPLIT_AND_SEND_TO_BOTH_ADDRS
+    to indicate that the committed asset should be split, hence by right
+    we can revert here if the outcome is something other than that, since we 
+    would have handled all cases; instead we choose to handle all other outcomes
+    as if they were SPLIT.
+    */
 
     params.playerAddrs[0].transfer(params.amount / 2);
     params.playerAddrs[1].transfer(params.amount - params.amount / 2);
