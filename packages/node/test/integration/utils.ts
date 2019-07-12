@@ -522,7 +522,7 @@ export async function confirmAppInstanceInstallation(
   expect(appInstance.appInterface.actionEncoding).toEqual(
     proposedParams.abiEncodings.actionEncoding
   );
-  expect(appInstance.defaultTimeout).toEqual(proposedParams.timeout);
+  expect(appInstance.defaultTimeout).toEqual(proposedParams.timeout.toNumber());
   expect(appInstance.latestState).toEqual(proposedParams.initialState);
 }
 

@@ -1,4 +1,4 @@
-import { AppInstanceJson, Node } from "@counterfactual/types";
+import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -10,7 +10,7 @@ export async function install(
   store: Store,
   instructionExecutor: InstructionExecutor,
   params: Node.InstallParams
-): Promise<AppInstanceJson> {
+): Promise<AppInstanceProposal> {
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
@@ -53,8 +53,5 @@ export async function install(
 
   await store.saveRealizedProposedAppInstance(proposal);
 
-  return stateChannelsMap
-    .get(stateChannel.multisigAddress)!
-    .getAppInstance(appInstanceId)
-    .toJson();
+  return proposal;
 }
