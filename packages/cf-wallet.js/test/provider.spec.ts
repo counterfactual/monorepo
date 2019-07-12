@@ -17,7 +17,12 @@ import {
   RejectInstallEventData
 } from "../src/types";
 
-import { TEST_OWNERS, TEST_XPUBS, TestNodeProvider } from "./fixture";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TEST_OWNERS,
+  TEST_XPUBS,
+  TestNodeProvider
+} from "./fixture";
 
 describe("CF.js Provider", () => {
   let nodeProvider: TestNodeProvider;
@@ -31,7 +36,9 @@ describe("CF.js Provider", () => {
     peerDeposit: Zero,
     timeout: Zero,
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    myDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    peerDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   beforeEach(() => {
