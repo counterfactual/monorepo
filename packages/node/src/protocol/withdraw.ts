@@ -1,5 +1,6 @@
 import {
   coinBalanceRefundStateEncoding,
+  coinTransferInterpreterParamsStateEncoding,
   NetworkContext
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
@@ -557,7 +558,7 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.freeBalance.identityHash,
     network.CoinTransferETHInterpreter,
     defaultAbiCoder.encode(
-      ["tuple(uint256 limit, address tokenAddress)"],
+      [coinTransferInterpreterParamsStateEncoding],
       [appInstance.coinTransferInterpreterParams]
     )
   );

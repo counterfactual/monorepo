@@ -9,6 +9,7 @@ import {
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -65,6 +66,7 @@ export {
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   ContractABI,
   SolidityABIEncoderV2Type,
   Bytes32,

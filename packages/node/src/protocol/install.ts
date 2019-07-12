@@ -1,5 +1,6 @@
 import {
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcomeInterpreterParams
@@ -466,8 +467,7 @@ function constructConditionalTransactionData(
     case OutcomeType.COIN_TRANSFER: {
       interpreterAddress = network.CoinTransferETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        // TODO: define this encoding state elsewhere
-        ["tuple(uint256[] limit, address[] tokens)"],
+        [coinTransferInterpreterParamsStateEncoding],
         [appInstance.coinTransferInterpreterParams]
       );
       break;

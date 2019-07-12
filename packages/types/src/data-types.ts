@@ -17,6 +17,13 @@ export type CoinTransferInterpreterParams = {
   tokens: string[];
 };
 
+export const coinTransferInterpreterParamsStateEncoding = `
+  tuple(
+    uint256[] limit,
+    address[] tokens
+  )
+`;
+
 export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: string;
