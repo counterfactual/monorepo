@@ -1,11 +1,12 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
+import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
 import {
+  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
   randomBytes,
-  TransactionDescription,
-  defaultAbiCoder
+  TransactionDescription
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
@@ -14,7 +15,6 @@ import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
-import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
 
 /**
  * This test suite decodes a constructed SetupCommitment transaction object according

@@ -9,14 +9,14 @@ import {
 
 import { setup, SetupContext } from "./setup";
 import {
+  collateralizeChannel,
   confirmProposedAppInstanceOnNode,
   createChannel,
   getInstalledAppInstances,
   getProposedAppInstanceInfo,
   getProposedAppInstances,
   makeProposeCall,
-  makeRejectInstallRequest,
-  collateralizeChannel
+  makeRejectInstallRequest
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
