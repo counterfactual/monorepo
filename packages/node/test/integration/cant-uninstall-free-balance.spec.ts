@@ -30,7 +30,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
       );
 
       try {
-        await nodeA.router.dispatch(fbUninstallReq);
+        await nodeA.rpcRouter.dispatch(fbUninstallReq);
       } catch (e) {
         expect(e.toString()).toMatch(
           CANNOT_UNINSTALL_FREE_BALANCE(multisigAddress)

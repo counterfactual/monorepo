@@ -53,9 +53,9 @@ export class Provider {
   private readonly eventEmitter = new EventEmitter();
   /** @ignore */
   private readonly appInstances: { [appInstanceId: string]: AppInstance } = {};
-  private readonly validEventTypes = Object.keys(EventType).map(
-    key => EventType[key]
-  );
+  // private readonly validEventTypes = Object.keys(EventType).map(
+  //   key => EventType[key]
+  // );
 
   /**
    * Construct a new instance
@@ -74,7 +74,7 @@ export class Provider {
    */
   async getAppInstances(): Promise<AppInstance[]> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.GET_APP_INSTANCES,
+      Node.RpcMethodName.GET_APP_INSTANCES,
       {}
     );
     const result = response.result as Node.GetAppInstancesResult;
@@ -98,7 +98,7 @@ export class Provider {
    * @return Installed AppInstance
    */
   async install(appInstanceId: string): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
+    const response = await this.callRawNodeMethod(Node.RpcMethodName.INSTALL, {
       appInstanceId
     });
     const { appInstance } = response.result as Node.InstallResult;
@@ -123,7 +123,7 @@ export class Provider {
     intermediaries: Address[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.INSTALL_VIRTUAL,
+      Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
         intermediaries
@@ -141,7 +141,7 @@ export class Provider {
    * @param appInstanceId ID of the app instance to reject
    */
   async rejectInstall(appInstanceId: string) {
-    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
+    await this.callRawNodeMethod(Node.RpcMethodName.REJECT_INSTALL, {
       appInstanceId
     });
   }
@@ -188,7 +188,7 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    methodName: Node.MethodName,
+    methodName: Node.RpcMethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
@@ -196,7 +196,7 @@ export class Provider {
       const request = jsonRpcDeserialize({
         params,
         jsonrpc: "2.0",
-        method: jsonRpcMethodNames[methodName],
+        method: methodName,
         id: requestId
       });
 
@@ -279,7 +279,7 @@ export class Provider {
         newInfo = info;
       } else {
         const { result } = await this.callRawNodeMethod(
-          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          Node.RpcMethodName.GET_APP_INSTANCE_DETAILS,
           { appInstanceId: id }
         );
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;
@@ -293,9 +293,9 @@ export class Provider {
    * @ignore
    */
   private validateEventType(eventType: EventType) {
-    if (!this.validEventTypes.includes(eventType)) {
-      throw new Error(`"${eventType}" is not a valid event`);
-    }
+    // if (!this.validEventTypes.includes(eventType)) {
+    //   throw new Error(`"${eventType}" is not a valid event`);
+    // }
   }
 
   /**

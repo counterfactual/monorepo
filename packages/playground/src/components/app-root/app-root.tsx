@@ -196,8 +196,14 @@ export class AppRoot {
       "messaging"
     );
 
+    /**
+     * This implements the IStoreService API using localStorage, by
+     * using the path as the localStorage key. Since localStorage
+     * does not treat the path separator `/` in keys as having any
+     * special meaning, we must implement prefix lookups here by
+     * iterating through all localStorage keys.
+     */
     const storeService = {
-      // This implements partial path look ups for localStorage
       async get(desiredKey: string): Promise<any> {
         const entries = {};
         const allKeys = Object.keys(window.localStorage);
@@ -206,8 +212,6 @@ export class AppRoot {
             const val = JSON.parse(window.localStorage.getItem(key) as string);
             if (key === desiredKey) return val;
             entries[key] = val;
-          } else if (key === desiredKey) {
-            return JSON.parse(window.localStorage.getItem(key) as string);
           }
         }
         for (const key of Object.keys(entries)) {
@@ -484,18 +488,32 @@ export class AppRoot {
     const token = localStorage.getItem("playground:user:token")!;
     const { multisigAddress } = await PlaygroundAPIClient.getUser(token);
 
-    // <<<<<<< HEAD
-    ethereum.send("counterfactual:request:deposit_start").then(data => {
-      // =======
-      //     const provider = CounterfactualNode.getCfProvider();
-
-      //     provider.once(Node.EventName.DEPOSIT_STARTED, args =>
-      // >>>>>>> master
-      this.updateAccount({
+    ethereum.send("counterfactual:request:deposit_start").then(async data => {
+      console.log("Playground#deposit: DEPOSIT_STARTED");
+      await this.updateAccount({
         ethPendingDepositTxHash: data.txHash,
         ethPendingDepositAmountWei: data.value
       });
     });
+    ethereum
+      .send("counterfactual:request:deposit_confirmed")
+      .then(async data => {
+        console.log("Playground#deposit: DEPOSIT_CONFIRMED");
+        await this.getBalances();
+        await this.resetPendingDepositState();
+      });
+    // provider.once(Node.EventName.DEPOSIT_STARTED, async args => {
+    //   console.log("Playground#deposit: DEPOSIT_STARTED");
+    //   await this.updateAccount({
+    //     ethPendingDepositTxHash: args.txHash,
+    //     ethPendingDepositAmountWei: valueInWei
+    //   });
+    // });
+
+    // provider.once(Node.EventName.DEPOSIT_CONFIRMED, async args => {
+    //   await this.getBalances();
+    //   await this.resetPendingDepositState();
+    // });
 
     let ret;
 
@@ -515,8 +533,6 @@ export class AppRoot {
     } catch (e) {
       console.error(e);
     }
-    await this.getBalances({ poll: true });
-    await this.resetPendingDepositState();
 
     return ret;
   }

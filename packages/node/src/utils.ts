@@ -21,29 +21,23 @@ export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
 }
 
 /**
+ * Finds a StateChannel based on two xpubs in a store.
  *
- * @param myIdentifier
- * @param peerAddress Peer Address could either be an intermediary or a
- *        `respondingAddress` which is the targeted peer in a Virtual AppInstance
- *        operation.
- * @param store
+ * @param myXpub - first xpub
+ * @param theirXpub - second xpub
+ * @param store - store to search within
  */
-export async function getChannelFromPeerAddress(
-  myIdentifier: string,
-  peerAddress: string,
+export async function getStateChannelWithOwners(
+  myXpub: string,
+  theirXpub: string,
   store: Store
 ): Promise<StateChannel> {
-  const ownersHash = hashOfOrderedPublicIdentifiers([
-    myIdentifier,
-    peerAddress
-  ]);
-
   const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-    ownersHash
+    hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
   );
 
   if (!multisigAddress) {
-    return Promise.reject(NO_CHANNEL_BETWEEN_NODES(myIdentifier, peerAddress));
+    throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
   }
 
   return await store.getStateChannel(multisigAddress);

@@ -9,7 +9,7 @@ import {
   getBalancesFromFreeBalanceAppInstance
 } from "../../../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../../../integration/utils";
-import { createAppInstance } from "../../../../unit/utils";
+import { createAppInstanceForTest } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -33,7 +33,7 @@ describe("StateChannel::uninstallApp", () => {
       xpubs
     );
 
-    const appInstance = createAppInstance(sc1);
+    const appInstance = createAppInstanceForTest(sc1);
 
     appIdentityHash = appInstance.identityHash;
 

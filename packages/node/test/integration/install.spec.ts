@@ -10,8 +10,8 @@ import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
   createChannel,
+  getAppInstanceProposal,
   getInstalledAppInstances,
-  getProposedAppInstanceInfo,
   makeInstallCall,
   makeProposeCall,
   makeTTTProposalRequest,
@@ -41,7 +41,7 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           await confirmProposedAppInstanceOnNode(
             proposalParams,
-            await getProposedAppInstanceInfo(nodeA, appInstanceId)
+            await getAppInstanceProposal(nodeA, appInstanceId)
           );
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
@@ -72,9 +72,9 @@ describe("Node method follows spec - proposeInstall", () => {
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
-        expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(
-          NULL_INITIAL_STATE_FOR_PROPOSAL
-        );
+        expect(
+          nodeA.rpcRouter.dispatch(appInstanceProposalReq)
+        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

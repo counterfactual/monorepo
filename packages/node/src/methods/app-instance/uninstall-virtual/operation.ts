@@ -1,4 +1,4 @@
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(
@@ -15,7 +15,8 @@ export async function uninstallAppInstanceFromChannel(
 
   const currentChannels = new Map(Object.entries(await store.getAllChannels()));
 
-  const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.UninstallVirtualApp,
     currentChannels,
     {
       initiatingXpub,

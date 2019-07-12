@@ -12,6 +12,7 @@ import {
 } from "../../src";
 import {
   InstructionExecutor,
+  Protocol,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
@@ -26,7 +27,7 @@ import { Store } from "../../src/store";
 import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
 
-import { createProposedAppInstanceInfo } from "./utils";
+import { createAppInstanceProposalForTest } from "./utils";
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
@@ -61,12 +62,10 @@ describe("Can handle correct & incorrect installs", () => {
     const mockedStore = mock(Store);
 
     const appInstanceId = hexlify(randomBytes(32));
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
@@ -115,12 +114,10 @@ describe("Can handle correct & incorrect installs", () => {
 
     await store.saveStateChannel(stateChannel);
 
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenResolve(
@@ -131,7 +128,11 @@ describe("Can handle correct & incorrect installs", () => {
     // and just returns a basic <string, StateChannel> map with the
     // expected multisigAddress in it.
     when(
-      mockedInstructionExecutor.runInstallProtocol(anything(), anything())
+      mockedInstructionExecutor.initiateProtocol(
+        Protocol.Install,
+        anything(),
+        anything()
+      )
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
     // The AppInstanceInfo that's returned is the one that was installed, which
@@ -140,6 +141,6 @@ describe("Can handle correct & incorrect installs", () => {
       install(store, ie, {
         appInstanceId
       })
-    ).resolves.toEqual(proposedAppInstanceInfo);
+    ).resolves.toEqual(appInstanceProposal);
   });
 });

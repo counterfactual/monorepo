@@ -5,9 +5,9 @@ import {
   UninstallParams,
   UninstallVirtualAppParams,
   WithdrawParams
-} from "../../machine";
-import { StateChannel } from "../../models";
-import { RequestHandler } from "../../request-handler";
+} from "../machine";
+import { StateChannel } from "../models";
+import { RequestHandler } from "../request-handler";
 import {
   CreateChannelMessage,
   NODE_EVENTS,
@@ -16,14 +16,14 @@ import {
   UninstallVirtualMessage,
   UpdateStateMessage,
   WithdrawMessage
-} from "../../types";
+} from "../types";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
  * protocol execution directly to the instructionExecutor's message handler:
  * `runProtocolWithMessage`
  */
-export default async function protocolMessageEventController(
+export async function handleReceivedProtocolMessage(
   requestHandler: RequestHandler,
   nodeMsg: NodeMessageWrappedProtocolMessage
 ) {

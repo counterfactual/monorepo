@@ -4,12 +4,9 @@ import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import Queue from "p-queue";
 
-import {
-  eventNameToImplementation,
-  methodNameToImplementation
-} from "./api-router";
+import { eventNameToImplementation, methodNameToImplementation } from "./api";
 import { InstructionExecutor } from "./machine";
-import NodeRouter from "./rpc-router";
+import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
 
@@ -23,7 +20,7 @@ export class RequestHandler {
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
-  router: NodeRouter = {} as NodeRouter;
+  router!: RpcRouter;
 
   constructor(
     readonly publicIdentifier: string,
@@ -41,7 +38,7 @@ export class RequestHandler {
     this.store = new Store(storeService, storeKeyPrefix);
   }
 
-  injectRouter(router: NodeRouter) {
+  injectRouter(router: RpcRouter) {
     this.router = router;
     this.mapPublicApiMethods();
     this.mapEventHandlers();
@@ -57,11 +54,13 @@ export class RequestHandler {
     method: Node.MethodName,
     req: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
-    return {
+    const result = {
       type: req.type,
       requestId: req.requestId,
       result: await this.methods.get(method)(this, req.params)
     };
+
+    return result;
   }
 
   /**
@@ -78,7 +77,9 @@ export class RequestHandler {
           requestId: req.requestId,
           result: await this.methods.get(methodName)(this, req.params)
         };
-        this.router.emit(req.type, res, "outgoing");
+
+        // @ts-ignore
+        this.router.emit(req.methodName, res, "outgoing");
       });
     }
   }
