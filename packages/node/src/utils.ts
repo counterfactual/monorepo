@@ -16,7 +16,7 @@ import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
 import { Store } from "./store";
 
-export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
+export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
   return hashMessage(addresses.sort().join(""));
 }
 
