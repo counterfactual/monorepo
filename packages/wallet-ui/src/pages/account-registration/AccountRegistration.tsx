@@ -26,7 +26,7 @@ export type AccountRegistrationProps = RouteComponentProps & {
 };
 
 export type AccountRegistrationState = User & { loading: boolean };
-class AccountRegistration extends React.Component<
+export class AccountRegistration extends React.Component<
   AccountRegistrationProps,
   AccountRegistrationState
 > {

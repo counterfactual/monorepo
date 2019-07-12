@@ -1,12 +1,18 @@
 import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { createMemoryHistory } from "history";
+import { JsonRpcSigner } from "ethers/providers";
+import { createMemoryHistory, History } from "history";
 import React from "react";
-import { Provider } from "react-redux";
+import { connect, Provider } from "react-redux";
 import { MemoryRouter as Router, RouteComponentProps } from "react-router-dom";
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import { ActionType, ApplicationState, User } from "../../store/types";
+import { addUser } from "../../store/user.mock";
 import store from "./../../store/store";
-import AccountRegistration from "./AccountRegistration";
+import { AccountRegistration as Component } from "./AccountRegistration";
 import mock from "./AccountRegistration.context.json";
+
 Enzyme.configure({ adapter: new Adapter() });
 
 function setup() {
@@ -22,6 +28,18 @@ function setup() {
       url: "http://localhost/"
     }
   };
+
+  const AccountRegistration = connect(
+    (state: ApplicationState) => ({
+      wallet: state.WalletState,
+      error: state.UserState.error,
+      registrationStatus: state.UserState.status
+    }),
+    (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
+      addUser: (data: User, signer: JsonRpcSigner, history: History) =>
+        dispatch(addUser(data, signer, props.history))
+    })
+  )(Component);
 
   const component = mount(
     <Provider store={store}>

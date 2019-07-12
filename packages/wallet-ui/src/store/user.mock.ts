@@ -2,41 +2,12 @@ import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { parseEther } from "ethers/utils";
 import { History } from "history";
 import { Action } from "redux";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
+import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../types";
 import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
-import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
-import { ActionType, ApplicationState, StoreAction, User, UserState } from "./types";
-
-const initialState = {
-  user: {},
-  error: {},
-  status: ""
-} as UserState;
-
-export const dispatchError = (
-  dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>,
-  error: any
-) => {
-  const { message, code, field } = ErrorDetail[error.code] || error;
-
-  dispatch({
-    data: {
-      error: {
-        message,
-        code,
-        field
-      }
-    },
-    type: ActionType.UserError
-  });
-};
-
-export enum UserAddTransition {
-  CheckWallet = "USER_ADD_CHECK_WALLET",
-  CreatingAccount = "USER_ADD_CREATING_ACCOUNT",
-  DeployingContract = "USER_ADD_DEPLOYING_CONTRACT"
-}
+import PlaygroundAPIClient from "../utils/hub-api-client";
+import { ActionType, ApplicationState, User } from "./types";
+import { dispatchError, UserAddTransition } from "./user";
 
 export const addUser = (
   userData: User,
@@ -143,27 +114,5 @@ export const getUser = (
     });
   } catch (error) {
     dispatchError(dispatch, error);
-  }
-};
-
-export const reducers = function(
-  state = initialState,
-  action: StoreAction<User, UserAddTransition>
-) {
-  switch (action.type) {
-    case ActionType.UserAdd:
-    case ActionType.UserGet:
-    case ActionType.UserLogin:
-    case ActionType.UserError:
-      return {
-        ...state,
-        ...action.data,
-        status: action.type
-      };
-    default:
-      return {
-        ...state,
-        status: action.type
-      };
   }
 };
