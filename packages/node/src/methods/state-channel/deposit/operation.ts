@@ -1,6 +1,7 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import {
   AppInterface,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   NetworkContext,
   Node,
@@ -210,7 +211,7 @@ async function getDepositContext(
     token: tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
-  };
+  } as CoinBalanceRefundState;
 
   return {
     initialState,

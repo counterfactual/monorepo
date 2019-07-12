@@ -6,6 +6,7 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
   OutcomeType,
@@ -61,6 +62,7 @@ export {
   AppIdentity,
   AppInstanceInfo,
   AppInterface,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
   ContractABI,

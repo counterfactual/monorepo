@@ -56,6 +56,13 @@ export enum TwoPartyFixedOutcome {
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
 
+export type CoinBalanceRefundState = {
+  recipient: string;
+  multisig: string;
+  threshold: BigNumber;
+  token: string;
+};
+
 export const coinBalanceRefundStateEncoding = `
   tuple(
     address recipient,

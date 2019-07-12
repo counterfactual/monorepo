@@ -466,7 +466,8 @@ function constructConditionalTransactionData(
     case OutcomeType.COIN_TRANSFER: {
       interpreterAddress = network.CoinTransferETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit, address tokenAddress)"],
+        // TODO: define this encoding state elsewhere
+        ["tuple(uint256[] limit, address[] tokens)"],
         [appInstance.coinTransferInterpreterParams]
       );
       break;

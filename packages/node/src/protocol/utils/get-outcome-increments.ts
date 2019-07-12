@@ -1,5 +1,6 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
+  CoinBalanceRefundState,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcome
@@ -19,38 +20,29 @@ import {
  * Note that this is only used with `CoinBalanceRefundApp.sol`
  */
 function computeCoinTransferIncrement(
-  tokens: string[],
-  outcome
+  token: string,
+  outcome: string
 ): TokenIndexedBalanceMap {
   const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[][]"],
+    ["tuple(address to, uint256 amount)[1][1]"],
     outcome
   );
 
-  if ((decoded as []).length !== tokens.length) {
-    throw new Error(
-      "Mismatch between expected number of tokens and actual number of tokens incremented"
-    );
-  }
-
   const ret: TokenIndexedBalanceMap = {};
 
-  // tslint:disable-next-line:prefer-array-literal
-  for (const tokenIndex of Array(tokens.length)) {
-    ret[tokens[tokenIndex]] = {};
-    const balances = decoded[tokenIndex];
+  ret[token] = {};
+  const balances = decoded[0];
 
-    for (const pair of balances) {
-      const [address, amount] = pair;
-      ret[tokens[tokenIndex]][address] = amount;
-    }
+  for (const pair of balances) {
+    const [address, amount] = pair;
+    ret[token][address] = amount;
   }
   return ret;
 }
 
 function anyNonzeroValues(map: TokenIndexedBalanceMap): Boolean {
   for (const tokenAddress of Object.keys(map)) {
-    for (const address in Object.keys(map[tokenAddress])) {
+    for (const address of Object.keys(map[tokenAddress])) {
       if (map[tokenAddress][address].gt(Zero)) {
         return true;
       }
@@ -101,7 +93,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         );
 
         const increments = computeCoinTransferIncrement(
-          appInstance.coinTransferInterpreterParams!.tokens,
+          (appInstance.state as CoinBalanceRefundState).token,
           outcome
         );
 

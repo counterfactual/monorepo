@@ -24,7 +24,7 @@ contract CoinBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    LibOutcome.CoinTransfer[][] memory ret = new LibOutcome.CoinTransfer[][](1);
+    LibOutcome.CoinTransfer[1][1] memory ret;
 
     if (appState.token == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 

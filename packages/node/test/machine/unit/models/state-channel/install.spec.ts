@@ -47,8 +47,10 @@ describe("StateChannel::uninstallApp", () => {
     );
 
     sc2 = sc1.installApp(appInstance, {
-      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
-      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
+        [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
+      }
     });
   });
 
