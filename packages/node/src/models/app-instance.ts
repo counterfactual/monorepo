@@ -8,6 +8,7 @@ import {
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -20,7 +21,6 @@ import { Memoize } from "typescript-memoize";
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-import { AddressZero } from "ethers/constants";
 
 /**
  * Representation of an AppInstance.

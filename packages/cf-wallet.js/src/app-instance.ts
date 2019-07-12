@@ -6,7 +6,7 @@ import {
   CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { Provider } from "./provider";
 
@@ -39,17 +39,19 @@ export class AppInstance {
   ) {
     this.identityHash = info.identityHash;
 
-    if (info["appInterface"] !== undefined) {
-      this.appDefinition = info["appInterface"].addr;
+    if ("appInterface" in info) {
+      const { appInterface, defaultTimeout } = <AppInstanceJson>info;
+      this.appDefinition = appInterface.addr;
       this.abiEncodings = {
-        stateEncoding: info["appInterface"].stateEncoding,
-        actionEncoding: info["appInterface"].actionEncoding
+        stateEncoding: appInterface.stateEncoding,
+        actionEncoding: appInterface.actionEncoding
       };
-      this.timeout = info["defaultTimeout"];
+      this.timeout = bigNumberify(defaultTimeout);
     } else {
-      this.appDefinition = info["appDefinition"];
-      this.abiEncodings = info["abiEncodings"];
-      this.timeout = info["timeout"];
+      const { appDefinition, abiEncodings, timeout } = <AppInstanceInfo>info;
+      this.appDefinition = appDefinition;
+      this.abiEncodings = abiEncodings;
+      this.timeout = timeout;
     }
 
     this.myDeposit = info["myDeposit"];
