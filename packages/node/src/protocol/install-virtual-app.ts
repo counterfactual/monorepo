@@ -5,9 +5,14 @@
  *        is quite computationally expensive. Refactor to use it less.
  */
 
-import { NetworkContext } from "@counterfactual/types";
+import {
+  CoinTransferInterpreterParams,
+  NetworkContext,
+  OutcomeType,
+  TwoPartyFixedOutcomeInterpreterParams
+} from "@counterfactual/types";
 import { AddressZero } from "ethers/constants";
-import { bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
 import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
@@ -49,6 +54,7 @@ export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = para
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
   );
+};
 
 const protocol = Protocol.InstallVirtualApp;
 
@@ -787,6 +793,53 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   }
 };
 
+// todo(xuanji): make this more consistent with the function
+// with the same name from install.ts. This involves refactoring
+// the callers.
+function computeInterpreterParameters(
+  outcomeType: OutcomeType,
+  initiatingAddress: string,
+  respondingAddress: string,
+  initiatingBalanceDecrement: BigNumber,
+  respondingBalanceDecrement: BigNumber
+) {
+  const coinTransferInterpreterParams:
+    | CoinTransferInterpreterParams
+    | undefined = undefined;
+
+  let twoPartyOutcomeInterpreterParams:
+    | TwoPartyFixedOutcomeInterpreterParams
+    | undefined = undefined;
+
+  // debug
+  if (outcomeType === undefined) {
+    throw Error("This really should have been caught earlier");
+  }
+
+  switch (outcomeType) {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+      twoPartyOutcomeInterpreterParams = {
+        playerAddrs: [initiatingAddress, respondingAddress],
+        amount: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
+      break;
+    }
+    case OutcomeType.COIN_TRANSFER: {
+      throw Error("Not supported: COIN_TRANSFER");
+      break;
+    }
+    default: {
+      throw Error(`Not supported, and weird outcome type: ${outcomeType}`);
+    }
+  }
+  return {
+    coinTransferInterpreterParams,
+    twoPartyOutcomeInterpreterParams
+  };
+}
+
 /**
  * Creates a shared AppInstance that represents the Virtual App being installed.
  *
@@ -819,7 +872,8 @@ function constructVirtualAppInstance(
     appInterface,
     initialState,
     initiatorBalanceDecrement,
-    responderBalanceDecrement
+    responderBalanceDecrement,
+    outcomeType
   } = params;
 
   const seqNo = stateChannelThatWrapsVirtualApp.numInstalledApps;
@@ -827,6 +881,17 @@ function constructVirtualAppInstance(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, seqNo);
   const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
   const responderAddress = xkeyKthAddress(responderXpub, seqNo);
+
+  const {
+    coinTransferInterpreterParams,
+    twoPartyOutcomeInterpreterParams
+  } = computeInterpreterParameters(
+    outcomeType,
+    initiatorAddress,
+    responderAddress,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement
+  );
 
   return new AppInstance(
     /* multisigAddress */ AddressZero,
@@ -842,14 +907,8 @@ function constructVirtualAppInstance(
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
-    /* twoPartyOutcomeInterpreterParams */
-    {
-      playerAddrs: [initiatorAddress, responderAddress],
-      amount: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      )
-    },
-    /* coinTransferInterpreterParams */ undefined
+    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 }
 

@@ -1,4 +1,4 @@
-import { AppInstanceProposal, Node } from "@counterfactual/types";
+import { AppInstanceProposal, Node, OutcomeType } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -40,7 +40,9 @@ export async function installVirtual(
         initialState: proposal.initialState,
         initiatorBalanceDecrement: proposal.initiatorDeposit,
         responderBalanceDecrement: proposal.responderDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        // todo(xuanji): switch statement
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
   } catch (e) {

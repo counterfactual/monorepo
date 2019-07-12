@@ -104,6 +104,9 @@ export type InstallVirtualAppParams = {
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
+
+  // outcomeType returned by the app instance, as defined by the app definition `appInterface`
+  outcomeType: OutcomeType;
 };
 
 export type UninstallVirtualAppParams = {
