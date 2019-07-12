@@ -1,10 +1,13 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import {
+  AppInstanceJson,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { flip, merge } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 
-import { AppInstance, AppInstanceJson } from "./app-instance";
+import { AppInstance } from "./app-instance";
 import {
   CoinTransferMap,
   createFreeBalance,

@@ -1,6 +1,5 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { One, Zero } from "ethers/constants";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
@@ -14,8 +13,7 @@ import {
   getInstalledAppInstances,
   makeInstallCall,
   makeProposeCall,
-  makeTTTProposalRequest,
-  sanitizeAppInstances
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -49,13 +47,6 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
-
-          expect(appInstanceNodeA.myDeposit).toEqual(One);
-          expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
-          expect(appInstanceNodeB.myDeposit).toEqual(Zero);
-          expect(appInstanceNodeB.peerDeposit).toEqual(One);
-
-          sanitizeAppInstances([appInstanceNodeA, appInstanceNodeB]);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
           done();
         });

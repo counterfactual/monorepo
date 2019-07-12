@@ -1,6 +1,5 @@
 import {
   AppABIEncodings,
-  AppInstanceInfo,
   AppInterface,
   OutcomeType,
   SolidityABIEncoderV2Type
@@ -50,7 +49,7 @@ export interface AppInstanceProposalJSON {
  * This class captures said state for the duration of the proposal being made and
  * the respecting `AppInstance` is installed.
  */
-export class AppInstanceProposal implements AppInstanceInfo {
+export class AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;

@@ -1,5 +1,4 @@
 import { Node } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
@@ -7,7 +6,7 @@ import {
   collateralizeChannel,
   createChannel,
   generateUninstallVirtualRequest,
-  getApps,
+  getInstalledAppInstances,
   installTTTAppVirtual
 } from "./utils";
 
@@ -55,9 +54,7 @@ describe("Node method follows spec - uninstall virtual", () => {
               nodeB.publicIdentifier
             );
 
-            expect(await getApps(nodeC, APP_INSTANCE_STATUS.INSTALLED)).toEqual(
-              []
-            );
+            expect(await getInstalledAppInstances(nodeC)).toEqual([]);
 
             done();
           }
@@ -67,7 +64,7 @@ describe("Node method follows spec - uninstall virtual", () => {
           generateUninstallVirtualRequest(appInstanceId, nodeB.publicIdentifier)
         );
 
-        expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
+        expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       });
     }
   );
