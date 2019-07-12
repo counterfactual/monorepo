@@ -541,7 +541,15 @@ export async function confirmAppInstanceInstallation(
   delete appInstanceInfo.proposedByIdentifier;
   delete appInstanceInfo.intermediaries;
   delete appInstanceInfo.identityHash;
-  expect(appInstanceInfo).toEqual(proposedParams);
+
+  proposedParams.myDepositTokenAddress =
+    proposedParams.myDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+  proposedParams.peerDepositTokenAddress =
+    proposedParams.peerDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+
+  expect(JSON.parse(JSON.stringify(appInstanceInfo))).toEqual(
+    JSON.parse(JSON.stringify(proposedParams))
+  );
 }
 
 export async function getState(

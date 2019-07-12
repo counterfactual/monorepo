@@ -1,4 +1,8 @@
-import { NetworkContext } from "@counterfactual/types";
+import {
+  coinTransferInterpreterParamsStateEncoding,
+  NetworkContext
+} from "@counterfactual/types";
+import { defaultAbiCoder } from "ethers/utils";
 
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -138,6 +142,10 @@ export function constructSetupCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
-    freeBalance.identity
+    freeBalance.identity,
+    defaultAbiCoder.encode(
+      [coinTransferInterpreterParamsStateEncoding],
+      [freeBalance.coinTransferInterpreterParams]
+    )
   );
 }

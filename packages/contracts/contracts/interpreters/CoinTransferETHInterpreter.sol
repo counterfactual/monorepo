@@ -30,7 +30,8 @@ contract CoinTransferETHInterpreter is Interpreter {
     uint256[] memory limitsRemaining = params.limit;
     address[] memory tokens = params.tokens;
 
-    LibOutcome.CoinTransfer[][] memory assetTransfers = abi.decode(input, (LibOutcome.CoinTransfer[][]));
+    LibOutcome.CoinTransfer[][] memory assetTransfers =
+      abi.decode(input, (LibOutcome.CoinTransfer[][]));
 
     for (uint256 tokenIndex = 0; tokenIndex < assetTransfers.length; tokenIndex++) {
       address token = tokens[tokenIndex];

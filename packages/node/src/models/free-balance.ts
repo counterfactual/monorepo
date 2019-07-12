@@ -1,7 +1,7 @@
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { getCoinBucketAppInterface } from "../ethereum/utils/funds-bucket";
+import { getFreeBalanceAppInterface } from "../ethereum/utils/funds-bucket";
 import { xkeysToSortedKthAddresses } from "../machine";
 
 import { AppInstance } from ".";
@@ -82,7 +82,7 @@ export function createFreeBalance(
     multisigAddress,
     sortedTopLevelKeys,
     freeBalanceTimeout,
-    getCoinBucketAppInterface(coinBucketAddress),
+    getFreeBalanceAppInterface(coinBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     serializeFreeBalanceState(initialState),

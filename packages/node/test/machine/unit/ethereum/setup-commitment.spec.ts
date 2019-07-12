@@ -4,7 +4,8 @@ import {
   hexlify,
   Interface,
   randomBytes,
-  TransactionDescription
+  TransactionDescription,
+  defaultAbiCoder
 } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
@@ -13,6 +14,7 @@ import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
 import { generateRandomNetworkContext } from "../../mocks";
+import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
 
 /**
  * This test suite decodes a constructed SetupCommitment transaction object according
@@ -39,14 +41,18 @@ describe("SetupCommitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.freeBalance;
+  const freeBalance = stateChannel.freeBalance;
 
   beforeAll(() => {
     tx = new SetupCommitment(
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalanceETH.identity
+      freeBalance.identity,
+      defaultAbiCoder.encode(
+        [coinTransferInterpreterParamsStateEncoding],
+        [freeBalance.coinTransferInterpreterParams]
+      )
     ).getTransactionDetails();
   });
 
@@ -76,7 +82,7 @@ describe("SetupCommitment", () => {
     it("should contain expected arguments", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
+      expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
       expect(interpreterAddress).toBe(
         networkContext.CoinTransferETHInterpreter
       );

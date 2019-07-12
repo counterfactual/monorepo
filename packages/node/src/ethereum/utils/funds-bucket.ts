@@ -10,7 +10,7 @@ import {
   FreeBalanceState
 } from "../../models/free-balance";
 
-const coinBucketsStateEncoding = `
+const freeBalanceAppStateEncoding = `
   tuple(
     address[] tokens,
     tuple(
@@ -21,16 +21,16 @@ const coinBucketsStateEncoding = `
   )
 `;
 
-export function getCoinBucketAppInterface(addr: string): AppInterface {
+export function getFreeBalanceAppInterface(addr: string): AppInterface {
   return {
     addr,
-    stateEncoding: coinBucketsStateEncoding,
+    stateEncoding: freeBalanceAppStateEncoding,
     actionEncoding: undefined // because no actions exist for CoinBucket
   };
 }
 
 export function encodeFreeBalanceAppState(state: FreeBalanceState) {
-  return defaultAbiCoder.encode([coinBucketsStateEncoding], [state]);
+  return defaultAbiCoder.encode([freeBalanceAppStateEncoding], [state]);
 }
 
 /**

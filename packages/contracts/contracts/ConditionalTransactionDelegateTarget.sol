@@ -13,8 +13,8 @@ contract ConditionalTransactionDelegateTarget {
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
   struct CoinTransferParams {
-    uint256 limit;
-    address tokenAddress;
+    uint256[] limit;
+    address[] tokens;
   }
 
   struct FreeBalanceAppState {
@@ -29,7 +29,8 @@ contract ConditionalTransactionDelegateTarget {
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address coinTransferETHInterpreterAddress
+    address coinTransferETHInterpreterAddress,
+    bytes memory coinTransferETHInterpreterParams
   )
     public
   {
@@ -46,14 +47,7 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      abi.encode(
-        CoinTransferParams(
-          // This is the `limit` param, which for the case of the
-          // FreeBalance is set to the max amount.
-          MAX_UINT256,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        )
-      )
+      coinTransferETHInterpreterParams
     );
 
     (

@@ -3,6 +3,7 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   NetworkContext
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
@@ -197,7 +198,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.identityHash,
         network.CoinTransferETHInterpreter,
         defaultAbiCoder.encode(
-          ["tuple(uint256 limit, address tokenAddress)"],
+          [coinTransferInterpreterParamsStateEncoding],
           [identityAppInstance.coinTransferInterpreterParams!]
         )
       );

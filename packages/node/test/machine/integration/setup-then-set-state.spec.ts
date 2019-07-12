@@ -1,11 +1,14 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { NetworkContext } from "@counterfactual/types";
+import {
+  coinTransferInterpreterParamsStateEncoding,
+  NetworkContext
+} from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { Interface, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
 
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
@@ -75,14 +78,14 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         )
       );
 
-      const freeBalanceETH = stateChannel.freeBalance;
+      const freeBalance = stateChannel.freeBalance;
 
       const setStateCommitment = new SetStateCommitment(
         network,
-        freeBalanceETH.identity,
-        keccak256(freeBalanceETH.encodedLatestState),
-        freeBalanceETH.versionNumber,
-        freeBalanceETH.timeout
+        freeBalance.identity,
+        keccak256(freeBalance.encodedLatestState),
+        freeBalance.versionNumber,
+        freeBalance.timeout
       );
 
       const setStateTx = setStateCommitment.getSignedTransaction([
@@ -96,20 +99,24 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       });
 
       // tslint:disable-next-line:prefer-array-literal
-      for (const _ of Array(freeBalanceETH.timeout)) {
+      for (const _ of Array(freeBalance.timeout)) {
         await provider.send("evm_mine", []);
       }
 
       await appRegistry.functions.setOutcome(
-        freeBalanceETH.identity,
-        freeBalanceETH.encodedLatestState
+        freeBalance.identity,
+        freeBalance.encodedLatestState
       );
 
       const setupCommitment = new SetupCommitment(
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.freeBalance.identity
+        stateChannel.freeBalance.identity,
+        defaultAbiCoder.encode(
+          [coinTransferInterpreterParamsStateEncoding],
+          [stateChannel.freeBalance.coinTransferInterpreterParams]
+        )
       );
 
       const setupTx = setupCommitment.getSignedTransaction([
