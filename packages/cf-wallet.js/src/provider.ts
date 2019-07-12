@@ -1,9 +1,9 @@
 import {
   Address,
   AppInstanceInfo,
+  AppInstanceJson,
   IRpcNodeProvider,
-  Node,
-  AppInstanceJson
+  Node
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import EventEmitter from "eventemitter3";
