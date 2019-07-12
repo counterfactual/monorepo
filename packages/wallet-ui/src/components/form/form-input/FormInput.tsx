@@ -1,6 +1,6 @@
 import React from "react";
-
 import "./FormInput.scss";
+
 export type InputChangeProps = {
   validity: { valid: boolean; error?: string };
   inputName: string;
@@ -106,6 +106,7 @@ class FormInput extends React.Component<
           className={disabled ? "input-container disabled" : "input-container"}
         >
           <input
+            data-test-selector={name || "input"}
             name={name || "input"}
             className="input"
             autoFocus={autofocus || false}
@@ -121,7 +122,14 @@ class FormInput extends React.Component<
           />
           {unit ? <div className="unit">{unit}</div> : null}
         </div>
-        {error ? <div className="error">{error}</div> : null}
+        {error ? (
+          <div
+            className="error"
+            data-test-selector={`error-${name || "input"}`}
+          >
+            {error}
+          </div>
+        ) : null}
       </label>
     );
   }
