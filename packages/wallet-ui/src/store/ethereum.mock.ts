@@ -29,6 +29,18 @@ export type EthereumMockBehaviors = {
   rejectDeposit: boolean;
 };
 
+export const enableEthereumMockBehavior = (
+  behaviorName: keyof EthereumMockBehaviors
+) => {
+  (window.ethereum as EthereumMock).mockBehaviors[behaviorName] = true;
+};
+
+export const disableEthereumMockBehavior = (
+  behaviorName: keyof EthereumMockBehaviors
+) => {
+  (window.ethereum as EthereumMock).mockBehaviors[behaviorName] = false;
+};
+
 export default class EthereumMock implements EthereumGlobal {
   responseCallbacks: undefined;
   notificationCallbacks: undefined;

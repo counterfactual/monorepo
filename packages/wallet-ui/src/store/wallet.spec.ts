@@ -5,7 +5,7 @@ import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../types";
 import EthereumMock, {
-  EthereumMockBehaviors,
+  enableEthereumMockBehavior,
   ETHEREUM_MOCK_ADDRESS,
   MULTISIG_MOCK_ADDRESS,
   NODE_MOCK_ADDRESS
@@ -51,18 +51,6 @@ const callAction = async (
     );
   });
 };
-
-const enableEthereumMockBehavior = (
-  behaviorName: keyof EthereumMockBehaviors
-) => {
-  (window.ethereum as EthereumMock).mockBehaviors[behaviorName] = true;
-};
-
-// const disableEthereumMockBehavior = (
-//   behaviorName: keyof EthereumMockBehaviors
-// ) => {
-//   (window.ethereum as EthereumMock).mockBehaviors[behaviorName] = false;
-// };
 
 describe("Store > Wallet", () => {
   beforeEach(() => {
