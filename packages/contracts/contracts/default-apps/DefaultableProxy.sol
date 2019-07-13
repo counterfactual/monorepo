@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../interfaces/CounterfactualApp.sol";
 import "../ChallengeRegistry.sol";
 
+
 /*
 Before `switchesOutcomeAt`, this contract should return the exact
 same outcome as the outcome `targetAppIdentityHash` returns. However,
