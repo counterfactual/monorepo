@@ -57,7 +57,7 @@ export class AccountRegistration extends React.Component<
 
   render() {
     const { wallet, addUser, error, history, registrationStatus } = this.props;
-    const { loading, username } = this.state;
+    const { loading, ...userData } = this.state;
     const { signer } = this.context;
     return (
       <WidgetScreen
@@ -99,10 +99,10 @@ export class AccountRegistration extends React.Component<
           <FormButton
             type="button"
             spinner={loading}
-            disabled={loading || !username}
+            disabled={loading || !userData.username}
             onClick={() => {
               this.setState({ loading: true });
-              addUser(this.state, signer, history);
+              addUser(userData, signer, history);
             }}
           >
             {!loading ? "Create account" : this.buttonText[registrationStatus]}
