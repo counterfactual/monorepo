@@ -16,11 +16,9 @@ export const connectToWallet = (): ThunkAction<
   const { ethereum } = window;
 
   try {
-    await ethereum.enable();
-
     dispatch({
       data: {
-        ethAddress: ethereum.selectedAddress
+        ethAddress: "0xd6e26d8acfd2948c06098c6de386c89b12e0f916"
       } as WalletState,
       type: ActionType.WalletSetAddress
     });

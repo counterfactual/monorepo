@@ -4,10 +4,26 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../types";
-import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
+import { buildSignatureMessageForLogin, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
 import PlaygroundAPIClient from "../utils/hub-api-client";
 import { ActionType, ApplicationState, User } from "./types";
 import { dispatchError, UserAddTransition } from "./user";
+
+const mockUser = {
+  username: "TEST",
+  email: "TEST@gmail.com",
+  ethAddress: "0xd6e26d8acfd2948c06098c6de386c89b12e0f916",
+  nodeAddress:
+    "xpub6Ez36RzBrEtACXjzJG6JtThRvY3cYdEmi4MthSM3jSCZGzWTgRXaTMcFVYyzc9eJ9HTpzRaofX7Cp3yQGZkYwLszJw45JG49JpY4KqVmePg",
+  loading: false,
+  token:
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImYxYjEzNzVkLWNlYWItNGRkYS1iMzI4LTAxNWE1N2E1OTM1ZiIsInR5cGUiOiJ1c2V" +
+    "yIiwiYXR0cmlidXRlcyI6eyJ1c2VybmFtZSI6IlRFU1QiLCJlbWFpbCI6IlRFU1RAZ21haWwuY29tIiwiZXRoQWRkcmVzcyI6IjB4ZDZlMjZkOGFjZ" +
+    "mQyOTQ4YzA2MDk4YzZkZTM4NmM4OWIxMmUwZjkxNiIsIm5vZGVBZGRyZXNzIjoieHB1YjZFejM2UnpCckV0QUNYanpKRzZKdFRoUnZZM2NZZEVtaTR" +
+    "NdGhTTTNqU0NaR3pXVGdSWGFUTWNGVll5emM5ZUo5SFRwelJhb2ZYN0NwM3lRR1prWXdMc3pKdzQ1Skc0OUpwWTRLcVZtZVBnIiwibG9hZGluZyI6ZmF" +
+    "sc2V9LCJyZWxhdGlvbnNoaXBzIjp7fSwiaWF0IjoxNTYyOTc2OTc1LCJleHAiOjE1OTQ1MzQ1NzV9.3nD0T46Jd5jayHcsbJpC9F3fg2gBPssJLlT2FUizwpo",
+  multisigAddress: "0x09aBD1F0dcAD6D0925a1BeF09cb88b149063E541"
+};
 
 export const addUser = (
   userData: User,
@@ -20,31 +36,7 @@ export const addUser = (
   Action<ActionType | UserAddTransition>
 > => async dispatch => {
   try {
-    // 1. Get the node address
-    userData.nodeAddress = await getNodeAddress();
-
-    // 2. Build the signable message
-    const signableMessage = buildRegistrationSignaturePayload(userData);
-    dispatch({ type: UserAddTransition.CheckWallet });
-
-    // 3. Request the signature
-    const signature = await signer.signMessage(signableMessage);
-    dispatch({ type: UserAddTransition.CreatingAccount });
-
-    // 4. Send the API request.
-    const user = await PlaygroundAPIClient.createAccount(userData, signature);
-
-    // 5. Store the token.
-    await storeTokenFromUser(user);
-
-    dispatch({ type: UserAddTransition.DeployingContract });
-    // 6. Wait for multisig and store it into the user.
-    user.multisigAddress = await forMultisig();
-
-    // 7. Dispatch.
-    dispatch({ data: { user }, type: ActionType.UserAdd });
-
-    // 8. Go to the next screen!
+    dispatch({ data: { mockUser }, type: ActionType.UserAdd });
     history.push(RoutePath.SetupDeposit);
   } catch (error) {
     dispatchError(dispatch, error);
