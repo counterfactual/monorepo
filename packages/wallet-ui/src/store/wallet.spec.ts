@@ -13,6 +13,8 @@ import { ActionType, StoreAction, WalletState } from "./types";
 import { connectToWallet, deposit, WalletDepositTransition } from "./wallet";
 import Web3ProviderMock from "./web3provider.mock";
 
+// TODO: Test store states after implementing reducers in CallAction.
+
 describe("Store > Wallet", () => {
   beforeEach(() => {
     window.ethereum = new EthereumMock();

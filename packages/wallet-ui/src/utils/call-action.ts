@@ -8,6 +8,7 @@ const callAction = async (
   ) => ThunkAction<void, ApplicationState, null, Action<ActionType>>,
   actionParameters: any[] = [],
   finalActionType?: ActionType
+  // TODO: Inject reducers here!
 ): Promise<StoreAction<any>[]> => {
   return new Promise((resolve, reject) => {
     const dispatchedActions: StoreAction<any>[] = [];
@@ -17,6 +18,7 @@ const callAction = async (
         reject([action]);
       } else {
         dispatchedActions.push(action);
+        // TODO: Inject reducers here!
         if (
           !finalActionType ||
           (finalActionType && action.type === finalActionType)
