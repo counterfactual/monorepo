@@ -6,7 +6,6 @@
  */
 
 import { NetworkContext } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
