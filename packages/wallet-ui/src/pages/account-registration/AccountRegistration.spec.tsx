@@ -9,6 +9,7 @@ import { Action } from "redux";
 import { ThunkDispatch } from "redux-thunk";
 import { ActionType, ApplicationState, User } from "../../store/types";
 import { addUser } from "../../store/user.mock";
+import { RoutePath } from "../../types";
 import { testSelector } from "../../utils/testSelector";
 import store from "./../../store/store";
 import {
@@ -85,12 +86,19 @@ describe("<AccountRegistration />", () => {
 
   it("should enable button upon username input", () => {
     component.find(testSelector("username")).simulate("change", {
-      target: {
-        name: "username",
-        value: "testUsername",
-        validity: { valid: true }
-      }
+      target: { value: "TEST", validity: { valid: true } }
     });
     expect(component.find(testSelector("button")).prop("disabled")).toBe(false);
+  });
+
+  it("should trigger User Creation upon click", () => {
+    component.find(testSelector("username")).simulate("change", {
+      target: { value: "TEST", validity: { valid: true } }
+    });
+    component.find(testSelector("email")).simulate("change", {
+      target: { value: "TEST@gmail.com", validity: { valid: true } }
+    });
+    component.find(testSelector("button")).simulate("click");
+    expect(props.history.location.pathname).toBe(RoutePath.SetupDeposit);
   });
 });
