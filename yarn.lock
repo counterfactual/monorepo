@@ -3372,7 +3372,7 @@ abbrev@1.0.x:
 
 abi-decoder@^2.0.1:
   version "2.0.1"
-  resolved "https://registry.npmjs.org/abi-decoder/-/abi-decoder-2.0.1.tgz#fd3c1ca79eedb3e663bb88f34f146f112d4ee59e"
+  resolved "https://registry.yarnpkg.com/abi-decoder/-/abi-decoder-2.0.1.tgz#fd3c1ca79eedb3e663bb88f34f146f112d4ee59e"
   integrity sha512-hkcSuzQJJFSht4wDAcLn6cfFVx/1qddfV0wG+VCmZBP0h7iZqbHPpmNOmt7nb2oxPSA0cn3Lfmoi6iselvvwCQ==
   dependencies:
     web3 "1.0.0-beta.37"
@@ -7969,7 +7969,7 @@ eth-ens-namehash@2.0.8:
 
 eth-gas-reporter@0.2.4:
   version "0.2.4"
-  resolved "https://registry.npmjs.org/eth-gas-reporter/-/eth-gas-reporter-0.2.4.tgz#6f288746fafb6f6d637d36ff7dd98538c9290275"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.4.tgz#6f288746fafb6f6d637d36ff7dd98538c9290275"
   integrity sha512-uEIf6WcpXIEe2oYkZA4QMaJn0I8GpXaUeNX1+1hu470wjY3VyRVHuBIU/nv629FzbkTAvNQtTV44C42Mh59WuA==
   dependencies:
     abi-decoder "^2.0.1"
@@ -21892,7 +21892,7 @@ yargs-parser@^11.1.1:
     camelcase "^5.0.0"
     decamelize "^1.2.0"
 
-yargs-parser@^13.0.0, yargs-parser@^13.1.1:
+yargs-parser@^13.0.0, yargs-parser@^13.1.0:
   version "13.1.1"
   resolved "https://registry.npmjs.org/yargs-parser/-/yargs-parser-13.1.1.tgz#d26058532aa06d365fe091f6a1fc06b2f7e5eca0"
   integrity sha512-oVAVsHz6uFrg3XQheFII8ESO2ssAf9luWuAd6Wexsu4F3OtIW0o8IribPXYrD4WC24LWtPrJlGy87y5udK+dxQ==
