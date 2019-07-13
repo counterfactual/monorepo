@@ -6,7 +6,7 @@ import { reducers as UserState } from "./user";
 import { reducers as WalletState } from "./wallet";
 
 export default createStore(
-  combineReducers<ApplicationState, StoreAction<any>>({
+  combineReducers<ApplicationState, StoreAction<any, any>>({
     UserState,
     WalletState,
     ChannelsState

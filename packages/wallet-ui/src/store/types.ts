@@ -78,6 +78,8 @@ export type ApplicationState = {
   ChannelsState: ChannelsState;
 };
 
-export type StoreAction<DataType extends AppState> = Action<ActionType> & {
+export type StoreAction<DataType, ActionEnumType = ActionType> = Action<
+  ActionType | ActionEnumType
+> & {
   data: DataType;
 };

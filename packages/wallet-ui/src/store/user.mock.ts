@@ -4,12 +4,16 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../types";
-import { buildSignatureMessageForLogin, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
+import {
+  buildSignatureMessageForLogin,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../utils/counterfactual";
 import PlaygroundAPIClient from "../utils/hub-api-client";
 import { ActionType, ApplicationState, User } from "./types";
 import { dispatchError, UserAddTransition } from "./user";
 
-const mockUser = {
+export const USER_MOCK_DATA = {
   username: "TEST",
   email: "TEST@gmail.com",
   ethAddress: "0xd6e26d8acfd2948c06098c6de386c89b12e0f916",
@@ -36,7 +40,10 @@ export const addUser = (
   Action<ActionType | UserAddTransition>
 > => async dispatch => {
   try {
-    dispatch({ data: { mockUser }, type: ActionType.UserAdd });
+    dispatch({
+      data: { user: userData || USER_MOCK_DATA },
+      type: ActionType.UserAdd
+    });
     history.push(RoutePath.SetupDeposit);
   } catch (error) {
     dispatchError(dispatch, error);

@@ -4,9 +4,22 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../types";
-import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../utils/counterfactual";
+import {
+  buildRegistrationSignaturePayload,
+  buildSignatureMessageForLogin,
+  forMultisig,
+  getNodeAddress,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../utils/counterfactual";
 import PlaygroundAPIClient, { ErrorDetail } from "../utils/hub-api-client";
-import { ActionType, ApplicationState, StoreAction, User, UserState } from "./types";
+import {
+  ActionType,
+  ApplicationState,
+  StoreAction,
+  User,
+  UserState
+} from "./types";
 
 const initialState = {
   user: {},
