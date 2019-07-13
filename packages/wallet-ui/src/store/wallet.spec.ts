@@ -10,8 +10,7 @@ import EthereumMock, {
   NODE_MOCK_ADDRESS
 } from "./ethereum.mock";
 import { ActionType, StoreAction, WalletState } from "./types";
-import { WalletDepositTransition } from "./wallet";
-import { connectToWallet, deposit } from "./wallet.mock";
+import { connectToWallet, deposit, WalletDepositTransition } from "./wallet";
 import Web3ProviderMock from "./web3provider.mock";
 
 describe("Store > Wallet", () => {
@@ -25,10 +24,12 @@ describe("Store > Wallet", () => {
 
       try {
         await callAction(connectToWallet);
-        fail("Should have thrown `access_denied` error code");
+        fail("Should have thrown error message");
       } catch (e) {
         const [{ data }] = e as StoreAction<WalletState>[];
-        expect(data.error.code).toBe("access_denied");
+        expect(data.error.message).toBe(
+          "You must allow Counterfactual to connect with Metamask in order to use it."
+        );
       }
     });
     it("should dispatch a WALLET_SET_ADDRESS action with the expected information when user allows access to the wallet", async () => {
