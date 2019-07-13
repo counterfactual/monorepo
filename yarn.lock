@@ -8264,6 +8264,7 @@ ethereumjs-wallet@0.6.2:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
+<<<<<<< HEAD
 ethereumjs-wallet@0.6.3:
   version "0.6.3"
   resolved "https://registry.npmjs.org/ethereumjs-wallet/-/ethereumjs-wallet-0.6.3.tgz#b0eae6f327637c2aeb9ccb9047b982ac542e6ab1"
@@ -8279,6 +8280,24 @@ ethereumjs-wallet@0.6.3:
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
+||||||| merged common ancestors
+=======
+ethereumjs-wallet@0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/ethereumjs-wallet/-/ethereumjs-wallet-0.6.3.tgz#b0eae6f327637c2aeb9ccb9047b982ac542e6ab1"
+  integrity sha512-qiXPiZOsStem+Dj/CQHbn5qex+FVkuPmGH7SvSnA9F3tdRDt8dLMyvIj3+U05QzVZNPYh4HXEdnzoYI4dZkr9w==
+  dependencies:
+    aes-js "^3.1.1"
+    bs58check "^2.1.2"
+    ethereumjs-util "^6.0.0"
+    hdkey "^1.1.0"
+    randombytes "^2.0.6"
+    safe-buffer "^5.1.2"
+    scrypt.js "^0.3.0"
+    utf8 "^3.0.0"
+    uuid "^3.3.2"
+
+>>>>>>> chore(deps): update dependency ganache-core to v2.5.7
 ethers@4.0.0-beta.1:
   version "4.0.0-beta.1"
   resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.0-beta.1.tgz#0648268b83e0e91a961b1af971c662cdf8cbab6d"
@@ -9313,10 +9332,22 @@ ganache-core@2.5.6-beta.0:
     ethereumjs-wallet "0.6.2"
     web3 "1.0.0-beta.35"
 
+<<<<<<< HEAD
 ganache-core@2.5.7:
   version "2.5.7"
   resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
   integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
+||||||| merged common ancestors
+ganache-core@2.5.6-beta.0:
+  version "2.5.6-beta.0"
+  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.6-beta.0.tgz#34e0b7d97369dde857b4d2617befc1c1a18c6afd"
+  integrity sha512-25GzUbk2Ul6VcjEgykPr6jyq8W9EH+pVY87mU347EBDHv8f7KnnqerNyniEefJfQX5WcWGnl4QKf2PPfJMCfAw==
+=======
+ganache-core@2.5.7:
+  version "2.5.7"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
+  integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
+>>>>>>> chore(deps): update dependency ganache-core to v2.5.7
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
@@ -10064,7 +10095,65 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
+<<<<<<< HEAD
 hdkey@^1.0.0, hdkey@^1.1.0:
+||||||| merged common ancestors
+hast-util-from-parse5@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.npmjs.org/hast-util-from-parse5/-/hast-util-from-parse5-5.0.1.tgz#7da8841d707dcf7be73715f7f3b14e021c4e469a"
+  integrity sha512-UfPzdl6fbxGAxqGYNThRUhRlDYY7sXu6XU9nQeX4fFZtV+IHbyEJtd+DUuwOqNV4z3K05E/1rIkoVr/JHmeWWA==
+  dependencies:
+    ccount "^1.0.3"
+    hastscript "^5.0.0"
+    property-information "^5.0.0"
+    web-namespaces "^1.1.2"
+    xtend "^4.0.1"
+
+hast-util-parse-selector@^2.2.0:
+  version "2.2.2"
+  resolved "https://registry.npmjs.org/hast-util-parse-selector/-/hast-util-parse-selector-2.2.2.tgz#66aabccb252c47d94975f50a281446955160380b"
+  integrity sha512-jIMtnzrLTjzqgVEQqPEmwEZV+ea4zHRFTP8Z2Utw0I5HuBOXHzUPPQWr6ouJdJqDKLbFU/OEiYwZ79LalZkmmw==
+
+hastscript@^5.0.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/hastscript/-/hastscript-5.1.0.tgz#a19b3cca6a26a2bcd0f1b1eac574af9427c1c7df"
+  integrity sha512-7mOQX5VfVs/gmrOGlN8/EDfp1GqV6P3gTNVt+KnX4gbYhpASTM8bklFdFQCbFRAadURXAmw0R1QQdBdqp7jswQ==
+  dependencies:
+    comma-separated-tokens "^1.0.0"
+    hast-util-parse-selector "^2.2.0"
+    property-information "^5.0.1"
+    space-separated-tokens "^1.0.0"
+
+hdkey@^1.0.0:
+=======
+hast-util-from-parse5@^5.0.0:
+  version "5.0.1"
+  resolved "https://registry.npmjs.org/hast-util-from-parse5/-/hast-util-from-parse5-5.0.1.tgz#7da8841d707dcf7be73715f7f3b14e021c4e469a"
+  integrity sha512-UfPzdl6fbxGAxqGYNThRUhRlDYY7sXu6XU9nQeX4fFZtV+IHbyEJtd+DUuwOqNV4z3K05E/1rIkoVr/JHmeWWA==
+  dependencies:
+    ccount "^1.0.3"
+    hastscript "^5.0.0"
+    property-information "^5.0.0"
+    web-namespaces "^1.1.2"
+    xtend "^4.0.1"
+
+hast-util-parse-selector@^2.2.0:
+  version "2.2.2"
+  resolved "https://registry.npmjs.org/hast-util-parse-selector/-/hast-util-parse-selector-2.2.2.tgz#66aabccb252c47d94975f50a281446955160380b"
+  integrity sha512-jIMtnzrLTjzqgVEQqPEmwEZV+ea4zHRFTP8Z2Utw0I5HuBOXHzUPPQWr6ouJdJqDKLbFU/OEiYwZ79LalZkmmw==
+
+hastscript@^5.0.0:
+  version "5.1.0"
+  resolved "https://registry.npmjs.org/hastscript/-/hastscript-5.1.0.tgz#a19b3cca6a26a2bcd0f1b1eac574af9427c1c7df"
+  integrity sha512-7mOQX5VfVs/gmrOGlN8/EDfp1GqV6P3gTNVt+KnX4gbYhpASTM8bklFdFQCbFRAadURXAmw0R1QQdBdqp7jswQ==
+  dependencies:
+    comma-separated-tokens "^1.0.0"
+    hast-util-parse-selector "^2.2.0"
+    property-information "^5.0.1"
+    space-separated-tokens "^1.0.0"
+
+hdkey@^1.0.0, hdkey@^1.1.0:
+>>>>>>> chore(deps): update dependency ganache-core to v2.5.7
   version "1.1.1"
   resolved "https://registry.npmjs.org/hdkey/-/hdkey-1.1.1.tgz#c2b3bfd5883ff9529b72f2f08b28be0972a9f64a"
   integrity sha512-DvHZ5OuavsfWs5yfVJZestsnc3wzPvLWNk6c2nRUfo6X+OtxypGt20vDDf7Ba+MJzjL3KS1og2nw2eBbLCOUTA==
@@ -17846,6 +17935,7 @@ scrypt.js@^0.2.0:
     scrypt "^6.0.2"
     scryptsy "^1.2.1"
 
+<<<<<<< HEAD
 scrypt.js@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmjs.org/scrypt.js/-/scrypt.js-0.3.0.tgz#6c62d61728ad533c8c376a2e5e3e86d41a95c4c0"
@@ -17855,6 +17945,18 @@ scrypt.js@^0.3.0:
   optionalDependencies:
     scrypt "^6.0.2"
 
+||||||| merged common ancestors
+=======
+scrypt.js@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/scrypt.js/-/scrypt.js-0.3.0.tgz#6c62d61728ad533c8c376a2e5e3e86d41a95c4c0"
+  integrity sha512-42LTc1nyFsyv/o0gcHtDztrn+aqpkaCNt5Qh7ATBZfhEZU7IC/0oT/qbBH+uRNoAPvs2fwiOId68FDEoSRA8/A==
+  dependencies:
+    scryptsy "^1.2.1"
+  optionalDependencies:
+    scrypt "^6.0.2"
+
+>>>>>>> chore(deps): update dependency ganache-core to v2.5.7
 scrypt@^6.0.2:
   version "6.0.3"
   resolved "https://registry.npmjs.org/scrypt/-/scrypt-6.0.3.tgz#04e014a5682b53fa50c2d5cce167d719c06d870d"
