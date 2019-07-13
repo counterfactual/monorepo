@@ -24,7 +24,7 @@
     "ethers": "4.0.32",
     "ganache-core": "2.5.5",
     "rollup": "1.16.6",
-    "rollup-plugin-typescript2": "0.21.2",
+    "rollup-plugin-typescript2": "0.22.0",
     "truffle": "5.0.26",
     "typescript": "3.5.1"
   },
