@@ -832,7 +832,7 @@ function constructVirtualAppInstance(
   const respondingAddress = xkeyKthAddress(respondingXpub, seqNo);
 
   return new AppInstance(
-    /* multisigAddress */ AddressZero,
+    /* multisigAddress */ stateChannelThatWrapsVirtualApp.multisigAddress,
     /* signingKeys */
     [
       intermediaryAddress,
