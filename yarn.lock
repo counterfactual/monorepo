@@ -7552,14 +7552,6 @@ eth-query@^2.0.2, eth-query@^2.1.0, eth-query@^2.1.2:
     json-rpc-random-id "^1.0.0"
     xtend "^4.0.1"
 
-eth-sig-util@2.0.2:
-  version "2.0.2"
-  resolved "https://registry.npmjs.org/eth-sig-util/-/eth-sig-util-2.0.2.tgz#bfdb274293620404b7631019dc3d7f17bb2e06f4"
-  integrity sha512-tB6E8jf/aZQ943bo3+iojl8xRe3Jzcl+9OT6v8K7kWis6PdIX19SB2vYvN849cB9G9m/XLjYFK381SgdbsnpTA==
-  dependencies:
-    ethereumjs-abi "0.6.5"
-    ethereumjs-util "^5.1.1"
-
 eth-sig-util@2.1.2:
   version "2.1.2"
   resolved "https://registry.npmjs.org/eth-sig-util/-/eth-sig-util-2.1.2.tgz#9b357395b5ca07fae6b430d3e534cf0a0f1df118"
@@ -7764,6 +7756,21 @@ ethereumjs-wallet@0.6.2:
     hdkey "^1.0.0"
     safe-buffer "^5.1.2"
     scrypt.js "^0.2.0"
+    utf8 "^3.0.0"
+    uuid "^3.3.2"
+
+ethereumjs-wallet@0.6.3:
+  version "0.6.3"
+  resolved "https://registry.yarnpkg.com/ethereumjs-wallet/-/ethereumjs-wallet-0.6.3.tgz#b0eae6f327637c2aeb9ccb9047b982ac542e6ab1"
+  integrity sha512-qiXPiZOsStem+Dj/CQHbn5qex+FVkuPmGH7SvSnA9F3tdRDt8dLMyvIj3+U05QzVZNPYh4HXEdnzoYI4dZkr9w==
+  dependencies:
+    aes-js "^3.1.1"
+    bs58check "^2.1.2"
+    ethereumjs-util "^6.0.0"
+    hdkey "^1.1.0"
+    randombytes "^2.0.6"
+    safe-buffer "^5.1.2"
+    scrypt.js "^0.3.0"
     utf8 "^3.0.0"
     uuid "^3.3.2"
 
@@ -8707,41 +8714,6 @@ ganache-cli@6.4.5:
     source-map-support "0.5.9"
     yargs "11.1.0"
 
-ganache-core@2.5.5:
-  version "2.5.5"
-  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.5.tgz#84da56de1957b6200a2d02934853fe7af89d260b"
-  integrity sha512-mrvPCtDjFLWmqygCx6LngWfA1hv6DH+iisEVYxRmCujstcMgzqi5UQdcKprxoO2Jx9st1fWVvDLi/tc6WHPGoA==
-  dependencies:
-    abstract-leveldown "3.0.0"
-    async "2.6.1"
-    bip39 "2.5.0"
-    bn.js "4.11.8"
-    cachedown "1.0.0"
-    clone "2.1.2"
-    debug "3.1.0"
-    encoding-down "5.0.4"
-    eth-sig-util "2.0.2"
-    ethereumjs-abi "0.6.5"
-    ethereumjs-account "2.0.5"
-    ethereumjs-block "2.1.0"
-    ethereumjs-tx "1.3.7"
-    ethereumjs-util "5.2.0"
-    ethereumjs-vm "2.6.0"
-    heap "0.2.6"
-    level-sublevel "6.6.4"
-    levelup "3.1.1"
-    lodash "4.17.11"
-    merkle-patricia-tree "2.3.1"
-    rlp "2.1.0"
-    seedrandom "2.4.4"
-    source-map-support "0.5.9"
-    tmp "0.0.33"
-    web3-provider-engine "14.1.0"
-    websocket "1.0.26"
-  optionalDependencies:
-    ethereumjs-wallet "0.6.2"
-    web3 "1.0.0-beta.35"
-
 ganache-core@2.5.6-beta.0:
   version "2.5.6-beta.0"
   resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.6-beta.0.tgz#34e0b7d97369dde857b4d2617befc1c1a18c6afd"
@@ -8775,6 +8747,41 @@ ganache-core@2.5.6-beta.0:
     websocket "1.0.26"
   optionalDependencies:
     ethereumjs-wallet "0.6.2"
+    web3 "1.0.0-beta.35"
+
+ganache-core@2.5.7:
+  version "2.5.7"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
+  integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
+  dependencies:
+    abstract-leveldown "3.0.0"
+    async "2.6.1"
+    bip39 "2.5.0"
+    bn.js "4.11.8"
+    cachedown "1.0.0"
+    clone "2.1.2"
+    debug "3.1.0"
+    encoding-down "5.0.4"
+    eth-sig-util "2.1.2"
+    ethereumjs-abi "0.6.5"
+    ethereumjs-account "2.0.5"
+    ethereumjs-block "2.1.0"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "5.2.0"
+    ethereumjs-vm "2.6.0"
+    heap "0.2.6"
+    level-sublevel "6.6.4"
+    levelup "3.1.1"
+    lodash "4.17.11"
+    merkle-patricia-tree "2.3.1"
+    rlp "2.1.0"
+    seedrandom "2.4.4"
+    source-map-support "0.5.9"
+    tmp "0.0.33"
+    web3-provider-engine "14.1.0"
+    websocket "1.0.26"
+  optionalDependencies:
+    ethereumjs-wallet "0.6.3"
     web3 "1.0.0-beta.35"
 
 gauge@~2.7.3:
@@ -9372,7 +9379,7 @@ hastscript@^5.0.0:
     property-information "^5.0.1"
     space-separated-tokens "^1.0.0"
 
-hdkey@^1.0.0:
+hdkey@^1.0.0, hdkey@^1.1.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/hdkey/-/hdkey-1.1.1.tgz#c2b3bfd5883ff9529b72f2f08b28be0972a9f64a"
   integrity sha512-DvHZ5OuavsfWs5yfVJZestsnc3wzPvLWNk6c2nRUfo6X+OtxypGt20vDDf7Ba+MJzjL3KS1og2nw2eBbLCOUTA==
@@ -15497,7 +15504,7 @@ randomatic@^3.0.0:
     kind-of "^6.0.0"
     math-random "^1.0.1"
 
-randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5:
+randombytes@^2.0.0, randombytes@^2.0.1, randombytes@^2.0.5, randombytes@^2.0.6:
   version "2.1.0"
   resolved "https://registry.npmjs.org/randombytes/-/randombytes-2.1.0.tgz#df6f84372f0270dc65cdf6291349ab7a473d4f2a"
   integrity sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==
@@ -16624,6 +16631,15 @@ scrypt.js@^0.2.0:
   dependencies:
     scrypt "^6.0.2"
     scryptsy "^1.2.1"
+
+scrypt.js@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/scrypt.js/-/scrypt.js-0.3.0.tgz#6c62d61728ad533c8c376a2e5e3e86d41a95c4c0"
+  integrity sha512-42LTc1nyFsyv/o0gcHtDztrn+aqpkaCNt5Qh7ATBZfhEZU7IC/0oT/qbBH+uRNoAPvs2fwiOId68FDEoSRA8/A==
+  dependencies:
+    scryptsy "^1.2.1"
+  optionalDependencies:
+    scrypt "^6.0.2"
 
 scrypt@^6.0.2:
   version "6.0.3"
