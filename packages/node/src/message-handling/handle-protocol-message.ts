@@ -17,6 +17,7 @@ import {
   UpdateStateMessage,
   WithdrawMessage
 } from "../types";
+import { hashOfOrderedPublicIdentifiers } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
@@ -40,10 +41,56 @@ export async function handleReceivedProtocolMessage(
 
   if (seq === -1) return;
 
-  await requestHandler
-    .getShardedQueue("instructionExecutorCoreQueue")
-    .add(async () => {
-      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+  let stateChannelsMap;
+  let uninstallMsg;
+  let multisigAddress;
+
+  if (protocol === Protocol.UninstallVirtualApp) {
+    const {
+      initiatingXpub,
+      intermediaryXpub,
+      respondingXpub,
+      targetAppIdentityHash
+    } = params as UninstallVirtualAppParams;
+    let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([initiatingXpub, intermediaryXpub])
+    );
+
+    if (channelWithIntermediary === null) {
+      channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
+        hashOfOrderedPublicIdentifiers([respondingXpub, intermediaryXpub])
+      );
+    }
+
+    await requestHandler
+      .getShardedQueue(channelWithIntermediary)
+      .add(async () => {
+        stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+          nodeMsg.data,
+          new Map<string, StateChannel>(
+            Object.entries(await store.getAllChannels())
+          )
+        );
+
+        stateChannelsMap.forEach(
+          async stateChannel => await store.saveStateChannel(stateChannel)
+        );
+      });
+
+    uninstallMsg = {
+      from: publicIdentifier,
+      type: NODE_EVENTS.UNINSTALL_VIRTUAL,
+      data: {
+        appInstanceId: targetAppIdentityHash,
+        intermediaryIdentifier: intermediaryXpub
+      }
+    } as UninstallVirtualMessage;
+
+    await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
+  } else {
+    multisigAddress = params as UninstallParams;
+    await requestHandler.getShardedQueue(multisigAddress).add(async () => {
+      stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         nodeMsg.data,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
@@ -53,34 +100,22 @@ export async function handleReceivedProtocolMessage(
       stateChannelsMap.forEach(
         async stateChannel => await store.saveStateChannel(stateChannel)
       );
+    });
 
-      // TODO: Follow this pattern for all machine related events
-      if (protocol === Protocol.UninstallVirtualApp) {
-        const {
-          targetAppIdentityHash,
-          intermediaryXpub
-        } = params as UninstallVirtualAppParams;
-        const uninstallMsg: UninstallVirtualMessage = {
-          from: publicIdentifier,
-          type: NODE_EVENTS.UNINSTALL_VIRTUAL,
-          data: {
-            appInstanceId: targetAppIdentityHash,
-            intermediaryIdentifier: intermediaryXpub
-          }
-        };
-
-        await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
-      } else if (protocol === Protocol.Uninstall) {
-        const uninstallMsg: UninstallMessage = {
+    switch (protocol) {
+      case Protocol.Uninstall:
+        uninstallMsg = {
           from: publicIdentifier,
           type: NODE_EVENTS.UNINSTALL,
           data: {
             appInstanceId: (params as UninstallParams).appIdentityHash
           }
-        };
+        } as UninstallMessage;
 
         await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
-      } else if (protocol === Protocol.Withdraw) {
+        break;
+
+      case Protocol.Withdraw:
         const withdrawMsg: WithdrawMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
@@ -90,8 +125,11 @@ export async function handleReceivedProtocolMessage(
         };
 
         await router.emit(withdrawMsg.type, withdrawMsg, "outgoing");
-      } else if (protocol === Protocol.Setup) {
-        const { multisigAddress, initiatingXpub } = params as SetupParams;
+        break;
+
+      case Protocol.Setup:
+        multisigAddress = (params as SetupParams).multisigAddress;
+        const { initiatingXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.CREATE_CHANNEL,
@@ -104,11 +142,12 @@ export async function handleReceivedProtocolMessage(
         };
 
         await router.emit(setupMsg.type, setupMsg, "outgoing");
-      } else if (
-        protocol === Protocol.TakeAction ||
-        protocol === Protocol.Update
-      ) {
-        const { multisigAddress, appIdentityHash } = params as TakeActionParams;
+        break;
+
+      case Protocol.TakeAction:
+      case Protocol.Update:
+        multisigAddress = (params as TakeActionParams).multisigAddress;
+        const { appIdentityHash } = params as TakeActionParams;
 
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
@@ -122,6 +161,6 @@ export async function handleReceivedProtocolMessage(
         };
 
         await router.emit(updateMsg.type, updateMsg, "outgoing");
-      }
-    });
+    }
+  }
 }

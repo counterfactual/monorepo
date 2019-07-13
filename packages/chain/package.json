@@ -10,7 +10,7 @@
   },
   "scripts": {
     "build": "tsc -b .",
-    "build:contracts": "cd ../contracts && yarn build && cd - && tsc -b . && rollup -c",
+    "build:contracts": "cd ../contracts && yarn build && cd - && tsc -b .",
     "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
