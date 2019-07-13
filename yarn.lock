@@ -1326,6 +1326,13 @@
   dependencies:
     tslib "1.9.3"
 
+"@firebase/util@0.2.21":
+  version "0.2.21"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.21.tgz#b9a592d6381efbc526ea8b07ec94875800935f64"
+  integrity sha512-80ZblYuorX4Udr4wPzht1upQzk99xS2SIRfl4gvTNiu5WXKTSKKk5WbpiR8IL2bYVSo/dd634B2L7BOTEjHcqA==
+  dependencies:
+    tslib "1.9.3"
+
 "@firebase/webchannel-wrapper@0.2.20":
   version "0.2.20"
   resolved "https://registry.npmjs.org/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.2.20.tgz#d8b25b23e532c67bd56c614025b24cb2a65e25db"
