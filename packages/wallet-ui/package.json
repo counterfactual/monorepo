@@ -22,6 +22,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
+    "test:coverage": "CI=true react-scripts test --coverage --collectCoverageFrom=src/**/*.ts* --collectCoverageFrom=!src/**/*.mock.ts --collectCoverageFrom=!src/**/*.d.ts --collectCoverageFrom=!src/**/types.ts --collectCoverageFrom=!src/**/index.ts --collectCoverageFrom=!src/**/call-action.ts --collectCoverageFrom=!src/**/log.ts",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
