@@ -1,56 +1,18 @@
 import { One } from "ethers/constants";
 import { parseEther } from "ethers/utils";
 import { createMemoryHistory } from "history";
-import { Action } from "redux";
-import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../types";
+import callAction from "../utils/call-action";
 import EthereumMock, {
   enableEthereumMockBehavior,
   ETHEREUM_MOCK_ADDRESS,
   MULTISIG_MOCK_ADDRESS,
   NODE_MOCK_ADDRESS
 } from "./ethereum.mock";
-import {
-  ActionType,
-  ApplicationState,
-  StoreAction,
-  WalletState
-} from "./types";
+import { ActionType, StoreAction, WalletState } from "./types";
 import { WalletDepositTransition } from "./wallet";
 import { connectToWallet, deposit } from "./wallet.mock";
 import Web3ProviderMock from "./web3provider.mock";
-
-const callAction = async (
-  actionCreator: (
-    ...args: any[]
-  ) => ThunkAction<void, ApplicationState, null, Action<ActionType>>,
-  actionParameters: any[] = [],
-  finalActionType?: ActionType
-): Promise<StoreAction<any>[]> => {
-  return new Promise((resolve, reject) => {
-    const dispatchedActions: StoreAction<any>[] = [];
-
-    const dispatch = (action: StoreAction<any>) => {
-      if (action.data && action.data["error"]) {
-        reject([action]);
-      } else {
-        dispatchedActions.push(action);
-        if (
-          !finalActionType ||
-          (finalActionType && action.type === finalActionType)
-        ) {
-          resolve(dispatchedActions);
-        }
-      }
-    };
-
-    actionCreator(...actionParameters)(
-      dispatch as ThunkDispatch<ApplicationState, null, Action<ActionType>>,
-      () => ({} as ApplicationState),
-      null
-    );
-  });
-};
 
 describe("Store > Wallet", () => {
   beforeEach(() => {
