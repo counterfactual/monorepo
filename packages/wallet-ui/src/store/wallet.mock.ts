@@ -7,14 +7,14 @@ import { forFunds, requestDeposit } from "../utils/counterfactual";
 import { ActionType, ApplicationState, Deposit, WalletState } from "./types";
 import { WalletDepositTransition } from "./wallet";
 
-const { ethereum } = window;
-
 export const connectToWallet = (): ThunkAction<
   void,
   ApplicationState,
   null,
   Action<ActionType>
 > => async dispatch => {
+  const { ethereum } = window;
+
   try {
     await ethereum.enable();
 
@@ -28,6 +28,7 @@ export const connectToWallet = (): ThunkAction<
     dispatch({
       data: {
         error: {
+          code: "access_denied",
           message:
             "You must allow Counterfactual to connect with Metamask in order to use it."
         }
@@ -48,11 +49,11 @@ export const deposit = (
   Action<ActionType | WalletDepositTransition>
 > => async dispatch => {
   try {
-    // 1. Ask Metamask to do the deposit. !
+    // 1. Ask Metamask to do the deposit.
     dispatch({ type: WalletDepositTransition.CheckWallet });
     await requestDeposit(transaction);
 
-    // 2. Wait until the deposit is completed in both sides. !
+    // 2. Wait until the deposit is completed in both sides.
     dispatch({ type: WalletDepositTransition.WaitForFunds });
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
