@@ -10,7 +10,7 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
  * This file is excluded from ethlint/solium because of this issue:
  * https://github.com/duaraghav8/Ethlint/issues/261
  */
-contract CoinTransferETHInterpreter is Interpreter {
+contract CoinTransferInterpreter is Interpreter {
 
   using LibOutcome for LibOutcome.CoinTransfer;
 

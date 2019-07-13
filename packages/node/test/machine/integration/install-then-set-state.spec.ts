@@ -197,7 +197,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigOwners,
         identityAppInstance.identityHash,
         stateChannel.freeBalance.identityHash,
-        network.CoinTransferETHInterpreter,
+        network.CoinTransferInterpreter,
         defaultAbiCoder.encode(
           [coinTransferInterpreterParamsStateEncoding],
           [identityAppInstance.coinTransferInterpreterParams!]

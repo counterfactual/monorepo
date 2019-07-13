@@ -13,7 +13,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
   limit: BigNumber[];
   tokens: string[];
 };
@@ -49,7 +49,7 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
     tokens: string[];
   };

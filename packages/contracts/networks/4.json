@@ -60,7 +60,7 @@
     "transactionHash": "0x5f1f8029e853e20ac9cc8263327287f70704d86416b51b3a64cac90b9cd863f3"
   },
   {
-    "contractName": "CoinTransferETHInterpreter",
+    "contractName": "CoinTransferInterpreter",
     "address": "0x32B3F90D78Fd76eBEAE104da3663ecc6ba4e5792",
     "transactionHash": "0xddcacc3e5d688f67ac6f27d9db38985d388d0e8e2250ff5b397bcce6c1acfccc"
   }

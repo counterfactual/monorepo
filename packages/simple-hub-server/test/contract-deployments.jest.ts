@@ -1,5 +1,5 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
+import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
@@ -25,8 +25,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferETHInterpreter.abi,
-    CoinTransferETHInterpreter.bytecode,
+    CoinTransferInterpreter.abi,
+    CoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -40,7 +40,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToe: tttContract.address,
-    CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    CoinTransferInterpreter: coinTransferETHInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   };

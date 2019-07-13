@@ -29,7 +29,7 @@ export interface NetworkContext {
   ChallengeRegistry: string;
   ConditionalTransactionDelegateTarget: string;
   CoinBalanceRefundApp: string;
-  CoinTransferETHInterpreter: string;
+  CoinTransferInterpreter: string;
   FreeBalanceApp: string;
   IdentityApp: string;
   MinimumViableMultisig: string;
@@ -43,7 +43,7 @@ export const networkContextProps = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
-  "CoinTransferETHInterpreter",
+  "CoinTransferInterpreter",
   "IdentityApp",
   "FreeBalanceApp",
   "MinimumViableMultisig",
