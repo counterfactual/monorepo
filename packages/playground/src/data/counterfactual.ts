@@ -15,7 +15,7 @@ export declare class Node {
     networkContext?: NetworkContext
   ): Promise<Node>;
   readonly publicIdentifier: string;
-  router: {
+  rpcRouter: {
     dispatch: ({
       methodName,
       parameters
@@ -179,7 +179,7 @@ export default class CounterfactualNode {
   }
 
   private static relayJsonRpcMessage(event: Rpc): void {
-    this.node.router.dispatch(event);
+    this.node.rpcRouter.dispatch(event);
   }
 
   /**
