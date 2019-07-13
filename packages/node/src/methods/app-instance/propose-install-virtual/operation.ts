@@ -1,14 +1,14 @@
 import { Node } from "@counterfactual/types";
 
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
+import { AppInstanceProposal, StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import { getChannelFromPeerAddress } from "../../../utils";
+import { getStateChannelWithOwners } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
- * Creates a ProposedAppInstanceInfo to reflect the proposal received from
+ * Creates a AppInstanceProposal to reflect the proposal received from
  * the client.
  * @param myIdentifier
  * @param store
@@ -28,7 +28,7 @@ export async function createProposedVirtualAppInstance(
     store
   );
 
-  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+  const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
@@ -40,9 +40,9 @@ export async function createProposedVirtualAppInstance(
     channel
   );
 
-  await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
+  await store.addVirtualAppInstanceProposal(appInstanceProposal);
 
-  return proposedAppInstanceInfo.identityHash;
+  return appInstanceProposal.identityHash;
 }
 
 /**
@@ -87,7 +87,7 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
-    stateChannel = await getChannelFromPeerAddress(
+    stateChannel = await getStateChannelWithOwners(
       initiatingXpub,
       respondingXpub,
       store

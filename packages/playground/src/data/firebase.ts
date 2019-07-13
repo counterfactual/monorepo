@@ -91,6 +91,13 @@ class FirebaseMessagingService implements Node.IMessagingService {
         .remove();
 
       try {
+        console.log(
+          "Received message from",
+          address,
+          msg,
+          "Handling via",
+          callback
+        );
         callback(msg);
       } catch (error) {
         console.error(

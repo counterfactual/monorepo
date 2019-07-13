@@ -75,9 +75,9 @@ export class AppProvider {
   setupCfProvider() {
     this.cfProvider = new cf.Provider(this.nodeProvider);
 
-    this.cfProvider.on("updateState", this.onUpdateState.bind(this));
-    this.cfProvider.on("uninstall", this.onUninstall.bind(this));
-    this.cfProvider.on("installVirtual", this.onInstall.bind(this));
+    this.cfProvider.on("chan_updateState", this.onUpdateState.bind(this));
+    this.cfProvider.on("chan_uninstall", this.onUninstall.bind(this));
+    this.cfProvider.on("chan_installVirtual", this.onInstall.bind(this));
 
     const highRollerAppDefinitionAddr =
       "0x144F1A5C2db59B58f2c73d09A2acb27a57E47618";

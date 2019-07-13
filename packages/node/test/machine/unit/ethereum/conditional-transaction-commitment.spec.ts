@@ -14,7 +14,7 @@ import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
 import { createFreeBalanceStateWithFundedETHAmounts } from "../../../integration/utils";
-import { createAppInstance } from "../../../unit/utils";
+import { createAppInstanceForTest } from "../../../unit/utils";
 import { generateRandomNetworkContext } from "../../mocks";
 
 describe("ConditionalTransaction", () => {
@@ -46,7 +46,7 @@ describe("ConditionalTransaction", () => {
 
   const freeBalanceETH = stateChannel.freeBalance;
 
-  const appInstance = createAppInstance(stateChannel);
+  const appInstance = createAppInstanceForTest(stateChannel);
 
   beforeAll(() => {
     tx = new ConditionalTransaction(

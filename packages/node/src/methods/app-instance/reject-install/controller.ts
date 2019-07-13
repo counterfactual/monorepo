@@ -31,11 +31,11 @@ export default class RejectInstallController extends NodeController {
   ): Promise<Node.RejectInstallResult> {
     const { appInstanceId } = params;
 
-    const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
+    const appInstanceProposal = await requestHandler.store.getAppInstanceProposal(
       appInstanceId
     );
 
-    if (proposedAppInstanceInfo.intermediaries) {
+    if (appInstanceProposal.intermediaries) {
       return rejectInstallVirtualController(requestHandler, params);
     }
 
@@ -50,7 +50,7 @@ export default class RejectInstallController extends NodeController {
     };
 
     await requestHandler.messagingService.send(
-      proposedAppInstanceInfo.proposedByIdentifier,
+      appInstanceProposal.proposedByIdentifier,
       rejectProposalMsg
     );
 

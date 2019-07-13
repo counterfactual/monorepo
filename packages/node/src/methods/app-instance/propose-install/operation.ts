@@ -1,12 +1,12 @@
 import { Node } from "@counterfactual/types";
 
-import { ProposedAppInstanceInfo } from "../../../models";
+import { AppInstanceProposal } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import { getChannelFromPeerAddress } from "../../../utils";
+import { getStateChannelWithOwners } from "../../../utils";
 
 /**
- * Creates a ProposedAppInstanceInfo to reflect the proposal received from
+ * Creates a AppInstanceProposal to reflect the proposal received from
  * the client.
  * @param myIdentifier
  * @param store
@@ -17,13 +17,13 @@ export async function createProposedAppInstance(
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const channel = await getChannelFromPeerAddress(
+  const channel = await getStateChannelWithOwners(
     myIdentifier,
     params.proposedToIdentifier,
     store
   );
 
-  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+  const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
@@ -35,7 +35,7 @@ export async function createProposedAppInstance(
     channel
   );
 
-  await store.addAppInstanceProposal(channel, proposedAppInstanceInfo);
+  await store.addAppInstanceProposal(channel, appInstanceProposal);
 
-  return proposedAppInstanceInfo.identityHash;
+  return appInstanceProposal.identityHash;
 }

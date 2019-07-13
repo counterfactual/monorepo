@@ -50,7 +50,7 @@ describe("CF.js Provider", () => {
     expect.assertions(1);
 
     nodeProvider.onMethodRequest(
-      Node.MethodName.GET_FREE_BALANCE_STATE,
+      Node.RpcMethodName.GET_FREE_BALANCE_STATE,
       request => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
@@ -80,7 +80,7 @@ describe("CF.js Provider", () => {
       jsonrpc: "2.0",
       id: 123,
       result: {
-        type: Node.MethodName.INSTALL,
+        type: Node.RpcMethodName.INSTALL,
         appInstanceId: ""
       }
     });
@@ -102,7 +102,7 @@ describe("CF.js Provider", () => {
   describe("Node methods", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
-      nodeProvider.onMethodRequest(Node.MethodName.INSTALL, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.INSTALL, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.INSTALL]
         );
@@ -115,7 +115,7 @@ describe("CF.js Provider", () => {
             result: {
               appInstance: TEST_APP_INSTANCE_INFO
             },
-            type: Node.MethodName.INSTALL
+            type: Node.RpcMethodName.INSTALL
           },
           id: request.id as number
         });
@@ -137,28 +137,33 @@ describe("CF.js Provider", () => {
         "0x6001600160016001600160016001600160016001"
       ];
 
-      nodeProvider.onMethodRequest(Node.MethodName.INSTALL_VIRTUAL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
-        );
-        const params = request.parameters as Node.InstallVirtualParams;
-        expect(params.appInstanceId).toBe(TEST_APP_INSTANCE_INFO.identityHash);
-        expect(params.intermediaries).toBe(expectedIntermediaries);
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.INSTALL_VIRTUAL,
+        request => {
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
+          );
+          const params = request.parameters as Node.InstallVirtualParams;
+          expect(params.appInstanceId).toBe(
+            TEST_APP_INSTANCE_INFO.identityHash
+          );
+          expect(params.intermediaries).toBe(expectedIntermediaries);
 
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
             result: {
-              appInstance: {
-                intermediaries: expectedIntermediaries,
-                ...TEST_APP_INSTANCE_INFO
-              }
+              result: {
+                appInstance: {
+                  intermediaries: expectedIntermediaries,
+                  ...TEST_APP_INSTANCE_INFO
+                }
+              },
+              type: Node.RpcMethodName.INSTALL_VIRTUAL
             },
-            type: Node.MethodName.INSTALL_VIRTUAL
-          },
-          id: request.id as number
-        });
-      });
+            id: request.id as number
+          });
+        }
+      );
       const appInstance = await provider.installVirtual(
         TEST_APP_INSTANCE_INFO.identityHash,
         expectedIntermediaries
@@ -174,23 +179,26 @@ describe("CF.js Provider", () => {
     });
 
     it("can reject installation proposals", async () => {
-      nodeProvider.onMethodRequest(Node.MethodName.REJECT_INSTALL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
-        );
-        const {
-          appInstanceId
-        } = request.parameters as Node.RejectInstallParams;
-        expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.identityHash);
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
-            type: Node.MethodName.REJECT_INSTALL,
-            result: {}
-          },
-          id: request.id as number
-        });
-      });
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.REJECT_INSTALL,
+        request => {
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
+          );
+          const {
+            appInstanceId
+          } = request.parameters as Node.RejectInstallParams;
+          expect(appInstanceId).toBe(TEST_APP_INSTANCE_INFO.identityHash);
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
+            result: {
+              type: Node.RpcMethodName.REJECT_INSTALL,
+              result: {}
+            },
+            id: request.id as number
+          });
+        }
+      );
       await provider.rejectInstall(TEST_APP_INSTANCE_INFO.identityHash);
     });
 
@@ -200,23 +208,26 @@ describe("CF.js Provider", () => {
       const transactionHash =
         "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
 
-      nodeProvider.onMethodRequest(Node.MethodName.CREATE_CHANNEL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.CREATE_CHANNEL]
-        );
-        const { owners } = request.parameters as Node.CreateChannelParams;
-        expect(owners).toBe(TEST_OWNERS);
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.CREATE_CHANNEL,
+        request => {
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.CREATE_CHANNEL]
+          );
+          const { owners } = request.parameters as Node.CreateChannelParams;
+          expect(owners).toBe(TEST_OWNERS);
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
             result: {
-              transactionHash
+              result: {
+                transactionHash
+              },
+              type: Node.RpcMethodName.CREATE_CHANNEL
             },
-            type: Node.MethodName.CREATE_CHANNEL
-          },
-          id: request.id
-        });
-      });
+            id: request.id
+          });
+        }
+      );
 
       const response = await provider.createChannel(TEST_OWNERS);
       expect(response).toEqual(transactionHash);
@@ -228,7 +239,7 @@ describe("CF.js Provider", () => {
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
-      nodeProvider.onMethodRequest(Node.MethodName.DEPOSIT, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.DEPOSIT, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.DEPOSIT]
         );
@@ -239,7 +250,7 @@ describe("CF.js Provider", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.DEPOSIT
+            type: Node.RpcMethodName.DEPOSIT
           },
           id: request.id
         });
@@ -254,7 +265,7 @@ describe("CF.js Provider", () => {
       const multisigAddress = "0x931d387731bbbc988b312206c74f77d004d6b84b";
       const amount = bigNumberify(1);
 
-      nodeProvider.onMethodRequest(Node.MethodName.WITHDRAW, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.WITHDRAW, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.WITHDRAW]
         );
@@ -266,7 +277,7 @@ describe("CF.js Provider", () => {
           jsonrpc: "2.0",
           id: request.id,
           result: {
-            type: Node.MethodName.WITHDRAW
+            type: Node.RpcMethodName.WITHDRAW
           }
         });
       });
@@ -281,7 +292,7 @@ describe("CF.js Provider", () => {
       const amount = bigNumberify(1);
 
       nodeProvider.onMethodRequest(
-        Node.MethodName.GET_FREE_BALANCE_STATE,
+        Node.RpcMethodName.GET_FREE_BALANCE_STATE,
         request => {
           expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.GET_FREE_BALANCE_STATE]
@@ -293,7 +304,7 @@ describe("CF.js Provider", () => {
             jsonrpc: "2.0",
             id: request["id"],
             result: {
-              type: Node.MethodName.GET_FREE_BALANCE_STATE,
+              type: Node.RpcMethodName.GET_FREE_BALANCE_STATE,
               result: {
                 [TEST_OWNERS[0]]: amount
               }
@@ -317,7 +328,7 @@ describe("CF.js Provider", () => {
       nodeProvider.simulateMessageFromNode({
         jsonrpc: "2.0",
         result: {
-          type: Node.MethodName.REJECT_INSTALL,
+          type: Node.RpcMethodName.REJECT_INSTALL,
           appInstanceId: "TEST"
         }
       });

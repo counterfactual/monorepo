@@ -1,10 +1,17 @@
 import React from "react";
 
 import "./FormInput.scss";
+export type InputChangeProps = {
+  validity: { valid: boolean; error?: string };
+  inputName: string;
+  event?: React.ChangeEvent<HTMLInputElement>;
+  value?: number | string | boolean;
+};
 
 export type FormInputProps = {
   className?: string;
   label: string | React.ReactNode;
+  name?: string;
   max?: number;
   min?: number;
   step?: number;
@@ -15,12 +22,7 @@ export type FormInputProps = {
   disabled?: boolean;
   value?: string | number;
   autofocus?: boolean;
-  change?:
-    | ((
-        validity: { valid: boolean; error?: string },
-        event?: React.ChangeEvent<HTMLInputElement>
-      ) => void)
-    | undefined;
+  change?: ((props: InputChangeProps) => void) | undefined;
 };
 
 class FormInput extends React.Component<
@@ -40,12 +42,20 @@ class FormInput extends React.Component<
     };
   }
 
-  handleChange(event) {
-    const { type, disabled, error, change } = this.props;
+  handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const { type, disabled, error, change, name } = this.props;
     const inputError =
       error || this.getError(event.target.validity, type, disabled);
     if (change) {
-      change({ error, valid: !inputError }, event);
+      change({
+        event,
+        validity: {
+          error: error as string,
+          valid: !inputError
+        },
+        inputName: name as string,
+        value: event.target.value
+      });
     }
     this.setState({
       error: inputError,
@@ -76,6 +86,7 @@ class FormInput extends React.Component<
   render() {
     const {
       className,
+      name,
       label,
       max,
       min,
@@ -95,6 +106,7 @@ class FormInput extends React.Component<
           className={disabled ? "input-container disabled" : "input-container"}
         >
           <input
+            name={name || "input"}
             className="input"
             autoFocus={autofocus || false}
             disabled={disabled || false}

@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  AppInstanceJson,
   IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
@@ -67,7 +68,7 @@ export class Provider {
    * @return Installed AppInstance
    */
   async install(appInstanceId: string): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
+    const response = await this.callRawNodeMethod(Node.RpcMethodName.INSTALL, {
       appInstanceId
     });
     const { appInstance } = response.result as Node.InstallResult;
@@ -92,7 +93,7 @@ export class Provider {
     intermediaries: Address[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.INSTALL_VIRTUAL,
+      Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
         intermediaries
@@ -110,7 +111,7 @@ export class Provider {
    * @param appInstanceId ID of the app instance to reject
    */
   async rejectInstall(appInstanceId: string) {
-    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
+    await this.callRawNodeMethod(Node.RpcMethodName.REJECT_INSTALL, {
       appInstanceId
     });
   }
@@ -125,7 +126,7 @@ export class Provider {
    */
   async createChannel(owners: Address[]): Promise<string> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.CREATE_CHANNEL,
+      Node.RpcMethodName.CREATE_CHANNEL,
       {
         owners
       }
@@ -165,7 +166,7 @@ export class Provider {
     amount: BigNumber,
     notifyCounterparty: boolean = true
   ) {
-    await this.callRawNodeMethod(Node.MethodName.DEPOSIT, {
+    await this.callRawNodeMethod(Node.RpcMethodName.DEPOSIT, {
       multisigAddress,
       amount,
       notifyCounterparty
@@ -187,7 +188,7 @@ export class Provider {
     amount: BigNumber,
     recipient: Address
   ) {
-    await this.callRawNodeMethod(Node.MethodName.WITHDRAW, {
+    await this.callRawNodeMethod(Node.RpcMethodName.WITHDRAW, {
       multisigAddress,
       recipient,
       amount
@@ -207,7 +208,7 @@ export class Provider {
     multisigAddress: Address
   ): Promise<Node.GetFreeBalanceStateResult> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.GET_FREE_BALANCE_STATE,
+      Node.RpcMethodName.GET_FREE_BALANCE_STATE,
       {
         multisigAddress
       }
@@ -264,7 +265,7 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    methodName: Node.MethodName,
+    methodName: Node.RpcMethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
@@ -273,9 +274,13 @@ export class Provider {
       const request = jsonRpcDeserialize({
         params,
         jsonrpc: "2.0",
-        method: jsonRpcMethodNames[methodName],
+        method: methodName,
         id: requestId
       });
+      // // @ts-ignore
+      // request.params = request.parameters;
+      // // @ts-ignore
+      // request.type = jsonRpcMethodNames[methodName];
 
       if (!request.methodName) {
         return this.handleNodeError({
@@ -350,7 +355,7 @@ export class Provider {
    */
   async getOrCreateAppInstance(
     id: string,
-    info?: AppInstanceInfo
+    info?: AppInstanceInfo | AppInstanceJson
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
       let newInfo;
@@ -358,7 +363,7 @@ export class Provider {
         newInfo = info;
       } else {
         const { result } = await this.callRawNodeMethod(
-          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          Node.RpcMethodName.GET_APP_INSTANCE_DETAILS,
           { appInstanceId: id }
         );
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;

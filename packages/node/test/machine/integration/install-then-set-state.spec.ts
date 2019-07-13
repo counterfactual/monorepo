@@ -49,6 +49,7 @@ let appRegistry: Contract;
 expect.extend({ toBeEq });
 
 beforeAll(async () => {
+  jest.setTimeout(10000);
   [provider, wallet, {}] = await connectToGanache();
 
   network = global["networkContext"];

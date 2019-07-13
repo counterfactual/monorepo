@@ -1,12 +1,14 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
   AppIdentity,
+  AppInstanceJson,
   AppInterface,
   CoinTransferInterpreterParams,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -17,35 +19,6 @@ import {
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
-
-export type AppInstanceJson = {
-  multisigAddress: string;
-  signingKeys: string[];
-  defaultTimeout: number;
-  appInterface: AppInterface;
-  isVirtualApp: boolean;
-  appSeqNo: number;
-  latestState: SolidityABIEncoderV2Type;
-  latestVersionNumber: number;
-  latestTimeout: number;
-
-  /**
-   * Interpreter-related Fields
-   */
-  twoPartyOutcomeInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
-    playerAddrs: [string, string];
-    amount: { _hex: string };
-  };
-
-  coinTransferInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string }[];
-    tokens: string[];
-  };
-};
 
 /**
  * Representation of an AppInstance.
@@ -105,6 +78,7 @@ export class AppInstance {
       latestState,
       latestVersionNumber,
       latestTimeout,
+      identityHash: AddressZero,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -170,7 +144,9 @@ export class AppInstance {
     // removes any fields which have an `undefined` value, as that's invalid JSON
     // an example would be having an `undefined` value for the `actionEncoding`
     // of an AppInstance that's not turn based
-    return JSON.parse(JSON.stringify(this.json));
+    return JSON.parse(
+      JSON.stringify({ ...this.json, identityHash: this.identityHash })
+    );
   }
 
   @Memoize()

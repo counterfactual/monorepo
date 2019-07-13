@@ -2,7 +2,7 @@ import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
@@ -91,7 +91,8 @@ async function runUpdateStateProtocol(
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  const stateChannelsMap = await instructionExecutor.runUpdateProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Update,
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]
     ]),

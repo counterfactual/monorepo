@@ -254,7 +254,7 @@ export class DappContainer {
    * @param event {MessageEvent}
    */
   private relayMessage(event: MessageEvent): void {
-    this.node.emit(event.data.type, event.data);
+    this.node.router.dispatch({ ...event.data });
   }
 
   /**

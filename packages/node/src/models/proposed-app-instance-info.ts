@@ -1,6 +1,5 @@
 import {
   AppABIEncodings,
-  AppInstanceInfo,
   AppInterface,
   CoinTransferInterpreterParams,
   OutcomeType,
@@ -12,7 +11,7 @@ import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
-export interface IProposedAppInstanceInfo {
+export interface IAppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   myDeposit: BigNumberish;
@@ -27,7 +26,7 @@ export interface IProposedAppInstanceInfo {
   outcomeType: OutcomeType;
 }
 
-export interface ProposedAppInstanceInfoJSON {
+export interface AppInstanceProposalJSON {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
@@ -53,7 +52,7 @@ export interface ProposedAppInstanceInfoJSON {
  * This class captures said state for the duration of the proposal being made and
  * the respecting `AppInstance` is installed.
  */
-export class ProposedAppInstanceInfo implements AppInstanceInfo {
+export class AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
@@ -69,7 +68,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   outcomeType: OutcomeType;
 
   constructor(
-    proposeParams: IProposedAppInstanceInfo,
+    proposeParams: IAppInstanceProposal,
     channel?: StateChannel,
     overrideId?: string
   ) {
@@ -146,7 +145,7 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     return proposedAppInstance.identityHash;
   }
 
-  toJson(): ProposedAppInstanceInfoJSON {
+  toJson(): AppInstanceProposalJSON {
     return {
       identityHash: this.identityHash,
       appDefinition: this.appDefinition,
@@ -164,8 +163,8 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     };
   }
 
-  static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
-    const proposeParams: IProposedAppInstanceInfo = {
+  static fromJson(json: AppInstanceProposalJSON): AppInstanceProposal {
+    const proposeParams: IAppInstanceProposal = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       myDeposit: bigNumberify(json.myDeposit._hex),
@@ -180,10 +179,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       outcomeType: json.outcomeType
     };
 
-    return new ProposedAppInstanceInfo(
-      proposeParams,
-      undefined,
-      json.identityHash
-    );
+    return new AppInstanceProposal(proposeParams, undefined, json.identityHash);
   }
 }

@@ -83,6 +83,9 @@ export default class ProposeInstallController extends NodeController {
       peerDeposit
     );
 
+    params.myDepositTokenAddress = myDepositTokenAddress;
+    params.peerDepositTokenAddress = peerDepositTokenAddress;
+
     return [requestHandler.getShardedQueue(multisigAddress)];
   }
 

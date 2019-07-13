@@ -22,7 +22,6 @@ export default class NodeProvider implements INodeProvider {
   }
 
   public onMessage(callback: (message: Node.Message) => void) {
-    console.log("NodeProvider#onMessage called with", callback);
     this.callback = callback;
   }
 

@@ -1,1 +1,3 @@
-export * from "./account-context/AccountContext";
+import AccountContext from "./account-context/AccountContext";
+
+export { AccountContext };

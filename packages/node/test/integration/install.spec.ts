@@ -1,6 +1,5 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { One, Zero } from "ethers/constants";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
@@ -10,12 +9,11 @@ import {
   collateralizeChannel,
   confirmProposedAppInstanceOnNode,
   createChannel,
+  getAppInstanceProposal,
   getInstalledAppInstances,
-  getProposedAppInstanceInfo,
   makeInstallCall,
   makeProposeCall,
-  makeTTTProposalRequest,
-  sanitizeAppInstances
+  makeTTTProposalRequest
 } from "./utils";
 
 describe("Node method follows spec - proposeInstall", () => {
@@ -41,7 +39,7 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           await confirmProposedAppInstanceOnNode(
             proposalParams,
-            await getProposedAppInstanceInfo(nodeA, appInstanceId)
+            await getAppInstanceProposal(nodeA, appInstanceId)
           );
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
@@ -49,13 +47,6 @@ describe("Node method follows spec - proposeInstall", () => {
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
-
-          expect(appInstanceNodeA.myDeposit).toEqual(One);
-          expect(appInstanceNodeA.peerDeposit).toEqual(Zero);
-          expect(appInstanceNodeB.myDeposit).toEqual(Zero);
-          expect(appInstanceNodeB.peerDeposit).toEqual(One);
-
-          sanitizeAppInstances([appInstanceNodeA, appInstanceNodeB]);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
           done();
         });
@@ -72,9 +63,9 @@ describe("Node method follows spec - proposeInstall", () => {
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
-        expect(nodeA.router.dispatch(appInstanceProposalReq)).rejects.toEqual(
-          NULL_INITIAL_STATE_FOR_PROPOSAL
-        );
+        expect(
+          nodeA.rpcRouter.dispatch(appInstanceProposalReq)
+        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );
