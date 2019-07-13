@@ -50,25 +50,26 @@ export enum ActionType {
   ChannelsError = "CHANNELS_ERROR"
 }
 
-export type UserState = {
-  user: User;
+export type AppState = {
   error: ErrorData;
+};
+
+export type UserState = AppState & {
+  user: User;
   status: string;
 };
 
-export type WalletState = {
+export type WalletState = AppState & {
   ethAddress: string;
   counterfactualBalance: BigNumberish;
   ethereumBalance: BigNumberish;
-  error: ErrorData;
   status: string;
 };
 
 export type ChannelsMap = { [key: string]: Connection };
 
-export type ChannelsState = {
+export type ChannelsState = AppState & {
   channels: ChannelsMap;
-  error: ErrorData;
 };
 
 export type ApplicationState = {
@@ -77,8 +78,6 @@ export type ApplicationState = {
   ChannelsState: ChannelsState;
 };
 
-export type StoreAction<DataType, ActionEnumType = ActionType> = Action<
-  ActionEnumType | ActionType
-> & {
+export type StoreAction<DataType extends AppState> = Action<ActionType> & {
   data: DataType;
 };
