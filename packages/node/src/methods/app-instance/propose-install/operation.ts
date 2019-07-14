@@ -27,10 +27,10 @@ export async function createProposedAppInstance(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
-      myDepositTokenAddress:
-        params.myDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-      peerDepositTokenAddress:
-        params.peerDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress:
+        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      respondingDepositTokenAddress:
+        params.respondingDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );

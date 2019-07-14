@@ -14,10 +14,10 @@ import { AppInstance, StateChannel } from "../models";
 export interface IAppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumberish;
-  myDepositTokenAddress: string;
-  peerDeposit: BigNumberish;
-  peerDepositTokenAddress: string;
+  initiatorDeposit: BigNumberish;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumberish;
+  responderDepositTokenAddress: string;
   timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -30,10 +30,10 @@ export interface AppInstanceProposalJSON {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: { _hex: string };
-  myDepositTokenAddress: string;
-  peerDeposit: { _hex: string };
-  peerDepositTokenAddress: string;
+  initiatorDeposit: { _hex: string };
+  initiatorDepositTokenAddress: string;
+  responderDeposit: { _hex: string };
+  responderDepositTokenAddress: string;
   timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -56,10 +56,10 @@ export class AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  myDepositTokenAddress: string;
-  peerDeposit: BigNumber;
-  peerDepositTokenAddress: string;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -74,10 +74,12 @@ export class AppInstanceProposal {
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.myDeposit = bigNumberify(proposeParams.myDeposit);
-    this.myDepositTokenAddress = proposeParams.myDepositTokenAddress;
-    this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
-    this.peerDepositTokenAddress = proposeParams.peerDepositTokenAddress;
+    this.initiatorDeposit = bigNumberify(proposeParams.initiatorDeposit);
+    this.initiatorDepositTokenAddress =
+      proposeParams.initiatorDepositTokenAddress;
+    this.responderDeposit = bigNumberify(proposeParams.responderDeposit);
+    this.responderDepositTokenAddress =
+      proposeParams.responderDepositTokenAddress;
     this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
@@ -150,10 +152,10 @@ export class AppInstanceProposal {
       identityHash: this.identityHash,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      myDeposit: { _hex: this.myDeposit.toHexString() },
-      myDepositTokenAddress: this.myDepositTokenAddress,
-      peerDeposit: { _hex: this.peerDeposit.toHexString() },
-      peerDepositTokenAddress: this.peerDepositTokenAddress,
+      initiatorDeposit: { _hex: this.initiatorDeposit.toHexString() },
+      initiatorDepositTokenAddress: this.initiatorDepositTokenAddress,
+      responderDeposit: { _hex: this.responderDeposit.toHexString() },
+      responderDepositTokenAddress: this.responderDepositTokenAddress,
       initialState: this.initialState,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
@@ -167,10 +169,10 @@ export class AppInstanceProposal {
     const proposeParams: IAppInstanceProposal = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
-      myDeposit: bigNumberify(json.myDeposit._hex),
-      myDepositTokenAddress: json.myDepositTokenAddress,
-      peerDeposit: bigNumberify(json.peerDeposit._hex),
-      peerDepositTokenAddress: json.peerDepositTokenAddress,
+      initiatorDeposit: bigNumberify(json.initiatorDeposit._hex),
+      initiatorDepositTokenAddress: json.initiatorDepositTokenAddress,
+      responderDeposit: bigNumberify(json.responderDeposit._hex),
+      responderDepositTokenAddress: json.responderDepositTokenAddress,
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,

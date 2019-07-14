@@ -81,10 +81,10 @@ export async function handleReceivedProposalMessage(
       {
         ...params,
         proposedByIdentifier,
-        myDeposit: params.peerDeposit,
-        myDepositTokenAddress: params.myDepositTokenAddress!,
-        peerDeposit: params.myDeposit!,
-        peerDepositTokenAddress: params.peerDepositTokenAddress!
+        initiatorDeposit: params.responderDeposit,
+        initiatorDepositTokenAddress: params.initiatorDepositTokenAddress!,
+        responderDeposit: params.initiatorDeposit!,
+        responderDepositTokenAddress: params.responderDepositTokenAddress!
       },
       stateChannel
     )
@@ -115,10 +115,10 @@ export async function handleReceivedProposeVirtualMessage(
   const {
     intermediaries,
     proposedToIdentifier,
-    peerDeposit,
-    peerDepositTokenAddress,
-    myDeposit,
-    myDepositTokenAddress
+    responderDeposit,
+    responderDepositTokenAddress,
+    initiatorDeposit,
+    initiatorDepositTokenAddress
   } = params;
 
   const stateChannel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
@@ -133,10 +133,10 @@ export async function handleReceivedProposeVirtualMessage(
       {
         ...params,
         proposedByIdentifier,
-        myDeposit: peerDeposit,
-        myDepositTokenAddress: peerDepositTokenAddress!,
-        peerDeposit: myDeposit,
-        peerDepositTokenAddress: myDepositTokenAddress!
+        initiatorDeposit: responderDeposit,
+        initiatorDepositTokenAddress: responderDepositTokenAddress!,
+        responderDeposit: initiatorDeposit,
+        responderDepositTokenAddress: initiatorDepositTokenAddress!
       },
       stateChannel
     )

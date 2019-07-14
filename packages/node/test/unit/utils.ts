@@ -29,16 +29,16 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      myDeposit: Zero,
-      peerDeposit: Zero,
+      initiatorDeposit: Zero,
+      responderDeposit: Zero,
       timeout: One,
       initialState: {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
       outcomeType: OutcomeType.COIN_TRANSFER,
-      myDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-      peerDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     undefined,
     appInstanceId

@@ -22,13 +22,13 @@ describe("CF.js AppInstance", () => {
     identityHash: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appDefinition: "0x1515151515151515151515151515151515151515",
-    myDeposit: bigNumberify(1000),
-    peerDeposit: bigNumberify(1000),
+    initiatorDeposit: bigNumberify(1000),
+    responderDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),
     proposedByIdentifier: TEST_XPUBS[0],
     proposedToIdentifier: TEST_XPUBS[1],
-    myDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-    peerDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   beforeEach(async () => {

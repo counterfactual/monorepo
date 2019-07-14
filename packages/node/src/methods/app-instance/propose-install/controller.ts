@@ -40,10 +40,10 @@ export default class ProposeInstallController extends NodeController {
     const { store } = requestHandler;
     const {
       proposedToIdentifier,
-      myDeposit,
-      myDepositTokenAddress: myDepositTokenAddressParam,
-      peerDeposit,
-      peerDepositTokenAddress: peerDepositTokenAddressParam
+      initiatorDeposit,
+      initiatorDepositTokenAddress: initiatorDepositTokenAddressParam,
+      respondingDeposit,
+      respondingDepositTokenAddress: respondingDepositTokenAddressParam
     } = params;
 
     const myIdentifier = requestHandler.publicIdentifier;
@@ -59,11 +59,11 @@ export default class ProposeInstallController extends NodeController {
       );
     }
 
-    const myDepositTokenAddress =
-      myDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const initiatorDepositTokenAddress =
+      initiatorDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const peerDepositTokenAddress =
-      peerDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const respondingDepositTokenAddress =
+      respondingDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -71,20 +71,20 @@ export default class ProposeInstallController extends NodeController {
       channel,
       multisigAddress,
       myIdentifier,
-      myDepositTokenAddress,
-      myDeposit
+      initiatorDepositTokenAddress,
+      initiatorDeposit
     );
 
     confirmSufficientBalanceForToken(
       channel,
       multisigAddress,
       proposedToIdentifier,
-      peerDepositTokenAddress,
-      peerDeposit
+      respondingDepositTokenAddress,
+      respondingDeposit
     );
 
-    params.myDepositTokenAddress = myDepositTokenAddress;
-    params.peerDepositTokenAddress = peerDepositTokenAddress;
+    params.initiatorDepositTokenAddress = initiatorDepositTokenAddress;
+    params.respondingDepositTokenAddress = respondingDepositTokenAddress;
 
     return [requestHandler.getShardedQueue(multisigAddress)];
   }

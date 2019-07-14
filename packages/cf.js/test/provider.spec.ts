@@ -30,13 +30,13 @@ describe("CF.js Provider", () => {
     identityHash: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appDefinition: "0x1515151515151515151515151515151515151515",
-    myDeposit: Zero,
-    peerDeposit: Zero,
+    initiatorDeposit: Zero,
+    responderDeposit: Zero,
     timeout: Zero,
     proposedByIdentifier: TEST_XPUBS[0],
     proposedToIdentifier: TEST_XPUBS[1],
-    myDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-    peerDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   beforeEach(() => {

@@ -88,8 +88,8 @@ export class AppWager {
       await this.appFactory.proposeInstallVirtual({
         initialState,
         proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        peerDeposit: ethers.utils.parseEther(this.betAmount),
-        myDeposit: ethers.utils.parseEther(this.betAmount),
+        respondingDeposit: ethers.utils.parseEther(this.betAmount),
+        initiatorDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 172800,
         intermediaries: [this.intermediary]
       });
