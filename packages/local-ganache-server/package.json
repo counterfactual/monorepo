@@ -20,7 +20,6 @@
     "@counterfactual/contracts": "0.1.13",
     "@counterfactual/types": "0.0.27",
     "ethers": "4.0.33",
-    "truffle": "5.0.27",
     "typescript": "3.5.3"
   },
   "dependencies": {
