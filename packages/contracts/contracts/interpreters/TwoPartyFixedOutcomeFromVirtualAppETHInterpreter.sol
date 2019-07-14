@@ -5,16 +5,12 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
-/*
-Asset: ETH
-OutcomeType: TwoPartyFixedOutcome
-Note: This is expected to be used for a virtual app in a simple hub topology, hence
-two different commitments to this interpreter are to be made in the two direct channels, 
-where the commitments differ in the params.beneficiaries field. In order to allow the
-intermediary to get their ETH back, there must be an expiry beyond which this interpreter
-treats the outcome as having a certain value, even if the app instance has not produced
-an outcome yet. (Otherwise the app could forever not finalize to an outcome).
-*/
+/// @notice
+/// Asset: ETH
+/// OutcomeType: TwoPartyFixedOutcome
+/// This is expected to be used for a virtual app in a simple hub topology, hence
+/// two different commitments to this interpreter are to be made in the two direct channels,
+/// where the commitments differ in the params.beneficiaries field.
 contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   Interpreter
 {

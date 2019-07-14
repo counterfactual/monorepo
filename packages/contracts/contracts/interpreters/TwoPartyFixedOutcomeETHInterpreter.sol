@@ -5,11 +5,10 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
-/*
-Asset: ETH
-OutcomeType: TwoPartyFixedOutcome
-Behaviour: The committed ETH is sent to on of params.playerAddrs or split according to the outcome
-*/
+/// @notice
+/// Asset: ETH
+/// OutcomeType: TwoPartyFixedOutcome
+/// The committed ETH is sent to on of params.playerAddrs or split according to the outcome
 contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
 
   struct Params {
