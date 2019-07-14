@@ -22,7 +22,7 @@
     "ethers": "4.0.32",
     "ganache-core": "2.5.7",
     "truffle": "5.0.27",
-    "typescript": "3.5.1"
+    "typescript": "3.5.3"
   },
   "dependencies": {
     "ganache-core": "2.5.7"
