@@ -30,7 +30,7 @@ import {
 import { Store } from "../../src/store";
 import { MemoryStoreService } from "../services/memory-store-service";
 
-import { createProposedAppInstanceInfo } from "./utils";
+import { createAppInstanceProposalForTest } from "./utils";
 
 const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
   (acc, contractName) => ({
@@ -76,12 +76,10 @@ describe("Can handle correct & incorrect installs", () => {
     const mockedStore = mock(Store);
 
     const appInstanceId = hexlify(randomBytes(32));
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
@@ -130,12 +128,10 @@ describe("Can handle correct & incorrect installs", () => {
 
     await store.saveStateChannel(stateChannel);
 
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenResolve(
@@ -153,12 +149,12 @@ describe("Can handle correct & incorrect installs", () => {
       )
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
-    // The AppInstanceInfo that's returned is the one that was installed, which
+    // The AppInstanceProposal that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
       install(store, ie, {
         appInstanceId
       })
-    ).resolves.toEqual(proposedAppInstanceInfo);
+    ).resolves.toEqual(appInstanceProposal);
   });
 });

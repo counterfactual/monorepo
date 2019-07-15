@@ -7,7 +7,7 @@ import { setup, SetupContext } from "./setup";
 import {
   confirmAppInstanceInstallation,
   createChannel,
-  getInstalledAppInstanceInfo,
+  getInstalledAppInstance,
   installTTTApp,
   makeTTTProposalRequest
 } from "./utils";
@@ -32,16 +32,19 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     ).parameters as NodeTypes.ProposeInstallParams;
 
     const appInstanceId = await installTTTApp(nodeA, nodeB);
-    const appInstanceNodeA = await getInstalledAppInstanceInfo(
+
+    const appInstanceNodeA = await getInstalledAppInstance(
       nodeA,
       appInstanceId
     );
+
     confirmAppInstanceInstallation(proposedParams, appInstanceNodeA);
 
-    const appInstanceNodeB = await getInstalledAppInstanceInfo(
+    const appInstanceNodeB = await getInstalledAppInstance(
       nodeB,
       appInstanceId
     );
+
     confirmAppInstanceInstallation(proposedParams, appInstanceNodeB);
   });
 });

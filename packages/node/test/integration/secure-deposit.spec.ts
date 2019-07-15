@@ -32,8 +32,8 @@ describe("Node method follows spec - deposit", () => {
     const depositReq = makeDepositRequest(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
-    await nodeA.router.dispatch(depositReq);
-    await nodeB.router.dispatch(depositReq);
+    await nodeA.rpcRouter.dispatch(depositReq);
+    await nodeB.rpcRouter.dispatch(depositReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       preDepositBalance.add(2).toNumber()
@@ -68,7 +68,7 @@ describe("Node method follows spec - deposit", () => {
     ).toEqual(Zero);
 
     await expect(
-      nodeA.router.dispatch(erc20DepositRequest)
+      nodeA.rpcRouter.dispatch(erc20DepositRequest)
     ).rejects.toThrowError(
       INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(
         await nodeA.signerAddress(),
@@ -82,8 +82,8 @@ describe("Node method follows spec - deposit", () => {
 
     let preDepositBalance = await provider.getBalance(multisigAddress);
 
-    await nodeA.router.dispatch(erc20DepositRequest);
-    await nodeB.router.dispatch(erc20DepositRequest);
+    await nodeA.rpcRouter.dispatch(erc20DepositRequest);
+    await nodeB.rpcRouter.dispatch(erc20DepositRequest);
 
     expect(await provider.getBalance(multisigAddress)).toEqual(
       preDepositBalance
@@ -111,8 +111,8 @@ describe("Node method follows spec - deposit", () => {
 
     preDepositBalance = await provider.getBalance(multisigAddress);
 
-    await nodeA.router.dispatch(ethDepositReq);
-    await nodeB.router.dispatch(ethDepositReq);
+    await nodeA.rpcRouter.dispatch(ethDepositReq);
+    await nodeB.rpcRouter.dispatch(ethDepositReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       preDepositBalance.add(2).toNumber()

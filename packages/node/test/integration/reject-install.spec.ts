@@ -11,8 +11,8 @@ import { setup, SetupContext } from "./setup";
 import {
   confirmProposedAppInstanceOnNode,
   createChannel,
+  getAppInstanceProposal,
   getInstalledAppInstances,
-  getProposedAppInstanceInfo,
   getProposedAppInstances,
   makeProposeCall,
   makeRejectInstallRequest
@@ -51,12 +51,12 @@ describe("Node method follows spec - rejectInstall", () => {
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
           await confirmProposedAppInstanceOnNode(
             params,
-            await getProposedAppInstanceInfo(nodeA, appInstanceId)
+            await getAppInstanceProposal(nodeA, appInstanceId)
           );
 
           const rejectReq = makeRejectInstallRequest(msg.data.appInstanceId);
           expect((await getProposedAppInstances(nodeA)).length).toEqual(1);
-          await nodeB.router.dispatch(rejectReq);
+          await nodeB.rpcRouter.dispatch(rejectReq);
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
