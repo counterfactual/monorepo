@@ -10,7 +10,7 @@ import {
 import { SetStateCommitment } from "../../../../src/ethereum";
 import { Transaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
-import { createAppInstance } from "../../../unit/utils";
+import { createAppInstanceForTest } from "../../../unit/utils";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -24,7 +24,7 @@ describe("Set State Commitment", () => {
 
   const networkContext = generateRandomNetworkContext();
 
-  const appInstance = createAppInstance();
+  const appInstance = createAppInstanceForTest();
 
   beforeAll(() => {
     commitment = new SetStateCommitment(

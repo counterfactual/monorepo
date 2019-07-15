@@ -8,7 +8,7 @@ import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   getBalancesFromFreeBalanceAppInstance
 } from "../../../../../src/models/free-balance";
-import { createAppInstance } from "../../../../unit/utils";
+import { createAppInstanceForTest } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -31,7 +31,7 @@ describe("StateChannel::uninstallApp", () => {
       xpubs
     );
 
-    testApp = createAppInstance(sc1);
+    testApp = createAppInstanceForTest(sc1);
 
     sc1 = sc1.installApp(testApp, {
       [xkeyKthAddress(xpubs[0], 0)]: Zero,

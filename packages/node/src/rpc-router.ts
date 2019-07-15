@@ -9,7 +9,7 @@ import { RequestHandler } from "./request-handler";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
-export default class NodeRouter extends Router {
+export default class RpcRouter extends Router {
   private requestHandler: RequestHandler;
 
   constructor({
@@ -34,13 +34,20 @@ export default class NodeRouter extends Router {
       return;
     }
 
-    return jsonRpcSerializeAsResponse(
-      await new controller.type()[controller.callback](
-        this.requestHandler,
-        rpc.parameters
-      ),
-      rpc.parameters["id"]
+    const result = jsonRpcSerializeAsResponse(
+      {
+        result: await new controller.type()[controller.callback](
+          this.requestHandler,
+          rpc.parameters
+        ),
+        type: rpc.methodName
+      },
+      rpc.id as number
     );
+
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
+
+    return result;
   }
 
   async subscribe(event: string, callback: AsyncCallback) {

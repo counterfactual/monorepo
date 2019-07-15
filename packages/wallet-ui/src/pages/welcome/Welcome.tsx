@@ -1,11 +1,10 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
+import { RouteComponentProps } from "react-router-dom";
 import { FormButton } from "../../components/form";
-
+import { RoutePath } from "../../types";
 import "./Welcome.scss";
 
-const Welcome: React.FC = () => {
+const Welcome: React.FC<RouteComponentProps> = ({ history }) => {
   return (
     <section className="section fill">
       <h1 className="f-heading centered">
@@ -38,11 +37,11 @@ const Welcome: React.FC = () => {
           for more.
         </p>
       </div>
-      <Link to="/setup/register">
-        <FormButton>Setup Counterfactual</FormButton>
-      </Link>
+      <FormButton onClick={() => history.push(RoutePath.SetupRegister)}>
+        Setup Counterfactual
+      </FormButton>
     </section>
   );
 };
 
-export { Welcome };
+export default Welcome;

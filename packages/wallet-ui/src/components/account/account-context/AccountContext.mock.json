@@ -1,0 +1,60 @@
+{
+  "scenarios": {
+    "unauthenticated": {
+      "props": {
+        "userState": {
+          "user": {
+            "id": "",
+            "ethAddress": "0x0",
+            "multisigAddress": "",
+            "nodeAddress": "",
+            "username": "",
+            "email": ""
+          },
+          "error": {
+            "message": "",
+            "code": "",
+            "field": ""
+          },
+          "status": ""
+        },
+        "counterfactualBalance": "0x0000000000000000",
+        "ethAddress": "0x0",
+        "match": {
+          "isExact": true,
+          "params": {},
+          "path": "/",
+          "url": "http://localhost/"
+        }
+      }
+    },
+    "authenticated": {
+      "props": {
+        "userState": {
+          "user": {
+            "id": "id",
+            "ethAddress": "0x0",
+            "multisigAddress": "0x0",
+            "nodeAddress": "xpub1",
+            "username": "foo",
+            "email": "foo@bar.co"
+          },
+          "error": {
+            "message": "",
+            "code": "",
+            "field": ""
+          },
+          "status": ""
+        },
+        "counterfactualBalance": "0x0de0b6b3a7640000",
+        "ethAddress": "0x0",
+        "match": {
+          "isExact": true,
+          "params": {},
+          "path": "/",
+          "url": "http://localhost/"
+        }
+      }
+    }
+  }
+}

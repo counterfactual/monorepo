@@ -18,7 +18,7 @@ export class TestNodeProvider implements IRpcNodeProvider {
   readonly messageEmitter: EventEmitter = new EventEmitter();
 
   public onMethodRequest(
-    methodName: Node.MethodName,
+    methodName: Node.RpcMethodName,
     callback: (message: Rpc) => void
   ) {
     this.messageEmitter.on(

@@ -10,7 +10,7 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 
 import {
   AppInstance,
-  ProposedAppInstanceInfo,
+  AppInstanceProposal,
   StateChannel
 } from "../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
@@ -19,8 +19,8 @@ export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
 }
 
-export function createProposedAppInstanceInfo(appInstanceId: string) {
-  return new ProposedAppInstanceInfo(
+export function createAppInstanceProposalForTest(appInstanceId: string) {
+  return new AppInstanceProposal(
     {
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
@@ -43,7 +43,7 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
   );
 }
 
-export function createAppInstance(stateChannel?: StateChannel) {
+export function createAppInstanceForTest(stateChannel?: StateChannel) {
   return new AppInstance(
     /* multisigAddress */ stateChannel
       ? stateChannel.multisigAddress

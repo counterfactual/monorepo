@@ -116,8 +116,7 @@ export default class DepositController extends NodeController {
           type: NODE_EVENTS.DEPOSIT_CONFIRMED,
           data: {
             ...params,
-            // This party shouldn't get notified by the peer node
-            notifyCounterparty: false
+            notifyCounterparty: true
           }
         } as DepositConfirmationMessage);
       }

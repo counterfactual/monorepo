@@ -26,7 +26,7 @@ export default class GetAppInstanceDetailsController extends NodeController {
     }
 
     return {
-      appInstance: await store.getAppInstanceInfo(appInstanceId)
+      appInstance: (await store.getAppInstance(appInstanceId)).toJson()
     };
   }
 }

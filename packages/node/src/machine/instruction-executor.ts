@@ -21,6 +21,47 @@ import {
   WithdrawParams
 } from "./types";
 
+/**
+Type-level mapping from Protocol to Protocol Param
+For e.g., ParamTypeOf<Protocol.Install> = InstallParams
+This syntax is preferred according to https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#conditional-types
+**/
+// tslint:disable
+type ParamTypeOf<T extends Protocol> =
+  T extends Protocol.Install ? InstallParams :
+  T extends Protocol.Update ? UpdateParams :
+  T extends Protocol.Uninstall ? UninstallParams :
+  T extends Protocol.InstallVirtualApp ? InstallVirtualAppParams :
+  T extends Protocol.UninstallVirtualApp ? UninstallVirtualAppParams :
+  T extends Protocol.TakeAction ? TakeActionParams :
+  T extends Protocol.Withdraw ? WithdrawParams :
+  never;
+// tslint:enable
+
+function firstRecipientFromProtocolName(protocolName: Protocol) {
+  if (
+    [Protocol.UninstallVirtualApp, Protocol.InstallVirtualApp].indexOf(
+      protocolName
+    ) !== -1
+  ) {
+    return "intermediaryXpub";
+  }
+  if (
+    [
+      Protocol.Update,
+      Protocol.Uninstall,
+      Protocol.TakeAction,
+      Protocol.Install,
+      Protocol.Withdraw
+    ].indexOf(protocolName) !== -1
+  ) {
+    return "respondingXpub";
+  }
+  throw Error(
+    `Unknown protocolName ${protocolName} passed to firstRecipientFromProtocolName`
+  );
+}
+
 export class InstructionExecutor {
   public middlewares: MiddlewareContainer;
 
@@ -52,59 +93,17 @@ export class InstructionExecutor {
     return this.runProtocol(sc, step, msg);
   }
 
-  public async runUpdateProtocol(
+  public async initiateProtocol<T extends Protocol>(
+    protocolName: T,
     sc: Map<string, StateChannel>,
-    params: UpdateParams
+    params: ParamTypeOf<T>
   ) {
-    const protocol = Protocol.Update;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
+    return this.runProtocol(sc, getProtocolFromName(protocolName)[0], {
       params,
-      protocol,
+      protocol: protocolName,
       protocolExecutionID: uuid.v1(),
       seq: 0,
-      toXpub: params.respondingXpub
-    });
-  }
-
-  public async runTakeActionProtocol(
-    sc: Map<string, StateChannel>,
-    params: TakeActionParams
-  ) {
-    const protocol = Protocol.TakeAction;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      protocolExecutionID: uuid.v1(),
-      seq: 0,
-      toXpub: params.respondingXpub
-    });
-  }
-
-  public async runUninstallProtocol(
-    sc: Map<string, StateChannel>,
-    params: UninstallParams
-  ) {
-    const protocol = Protocol.Uninstall;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      protocolExecutionID: uuid.v1(),
-      seq: 0,
-      toXpub: params.respondingXpub
-    });
-  }
-
-  public async runInstallProtocol(
-    sc: Map<string, StateChannel>,
-    params: InstallParams
-  ) {
-    const protocol = Protocol.Install;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      protocolExecutionID: uuid.v1(),
-      seq: 0,
-      toXpub: params.respondingXpub
+      toXpub: params[firstRecipientFromProtocolName(protocolName)]
     });
   }
 
@@ -121,49 +120,6 @@ export class InstructionExecutor {
         toXpub: params.respondingXpub
       }
     );
-  }
-
-  public async runWithdrawProtocol(sc: StateChannel, params: WithdrawParams) {
-    const protocol = Protocol.Withdraw;
-    return this.runProtocol(
-      new Map<string, StateChannel>([[sc.multisigAddress, sc]]),
-      getProtocolFromName(protocol)[0],
-      {
-        protocol,
-        params,
-        protocolExecutionID: uuid.v1(),
-        seq: 0,
-        toXpub: params.respondingXpub
-      }
-    );
-  }
-
-  public async runInstallVirtualAppProtocol(
-    sc: Map<string, StateChannel>,
-    params: InstallVirtualAppParams
-  ) {
-    const protocol = Protocol.InstallVirtualApp;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      protocolExecutionID: uuid.v1(),
-      seq: 0,
-      toXpub: params.intermediaryXpub
-    });
-  }
-
-  public async runUninstallVirtualAppProtocol(
-    sc: Map<string, StateChannel>,
-    params: UninstallVirtualAppParams
-  ) {
-    const protocol = Protocol.UninstallVirtualApp;
-    return this.runProtocol(sc, getProtocolFromName(protocol)[0], {
-      params,
-      protocol,
-      protocolExecutionID: uuid.v1(),
-      seq: 0,
-      toXpub: params.intermediaryXpub
-    });
   }
 
   private async runProtocol(

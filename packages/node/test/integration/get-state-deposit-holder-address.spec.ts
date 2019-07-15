@@ -17,14 +17,14 @@ describe("Node method follows spec - getStateDepositHolderAddress", () => {
   it("can accept a valid call and return correctly formatted address", async () => {
     const owners = [nodeA.publicIdentifier, nodeB.publicIdentifier];
 
-    const { address } = ((await nodeA.router.dispatch(
+    const { address } = ((await nodeA.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: NodeTypes.RpcMethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS,
         params: { owners },
         jsonrpc: "2.0"
       })
-    )) as JsonRpcResponse)
+    )) as JsonRpcResponse).result
       .result as NodeTypes.GetStateDepositHolderAddressResult;
 
     expect(address.length).toBe(42);

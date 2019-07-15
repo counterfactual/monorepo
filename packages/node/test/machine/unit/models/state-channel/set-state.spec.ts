@@ -4,7 +4,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { createAppInstance } from "../../../../unit/utils";
+import { createAppInstanceForTest } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 const APP_STATE = {
@@ -32,7 +32,7 @@ describe("StateChannel::setState", () => {
       xpubs
     );
 
-    testApp = createAppInstance(sc1);
+    testApp = createAppInstanceForTest(sc1);
 
     sc1 = sc1.installApp(testApp, {
       [xkeyKthAddress(xpubs[0], 0)]: Zero,

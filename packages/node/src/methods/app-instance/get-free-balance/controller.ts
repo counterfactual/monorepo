@@ -18,6 +18,8 @@ export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
 
   @jsonRpcMethod("chan_getFreeBalanceState")
+  public executeMethod = super.executeMethod;
+
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetFreeBalanceStateParams

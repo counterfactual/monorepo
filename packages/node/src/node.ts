@@ -6,7 +6,7 @@ import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
-import { createRpcRouter } from "./api-router";
+import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import {
@@ -17,7 +17,7 @@ import {
 } from "./machine";
 import { deployTestArtifactsToChain } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
-import NodeRouter from "./rpc-router";
+import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
@@ -31,11 +31,6 @@ export interface NodeConfig {
 const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
 export class Node {
-  /**
-   * Because the Node receives and sends out messages based on Event type
-   * https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
-   * incoming and outgoing emitters need to be used.
-   **/
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
@@ -47,11 +42,16 @@ export class Node {
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
 
-  // These properties don't have initializers in the constructor and get
-  // initialized in the `asynchronouslySetupUsingRemoteServices` function
+  /**
+   * These properties don't have initializers in the constructor, since they must be initialized
+   * asynchronously. This is done via the `asynchronouslySetupUsingRemoteServices` function.
+   * Since we have a private constructor and only allow instances of the Node to be created
+   * via `create` which immediately calls `asynchronouslySetupUsingRemoteServices`, these are
+   * always non-null when the Node is being used.
+   */
   private signer!: HDNode;
   protected requestHandler!: RequestHandler;
-  public router: NodeRouter = {} as NodeRouter;
+  public rpcRouter!: RpcRouter;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
@@ -122,8 +122,8 @@ export class Node {
       this.blocksNeededForConfirmation!
     );
     this.registerMessagingConnection();
-    this.router = createRpcRouter(this.requestHandler);
-    this.requestHandler.injectRouter(this.router);
+    this.rpcRouter = createRpcRouter(this.requestHandler);
+    this.requestHandler.injectRouter(this.rpcRouter);
 
     return this;
   }
@@ -262,7 +262,7 @@ export class Node {
    * @param callback
    */
   on(event: string, callback: (res: any) => void) {
-    this.router.subscribe(event, async (res: any) => callback(res));
+    this.rpcRouter.subscribe(event, async (res: any) => callback(res));
   }
 
   /**
@@ -273,7 +273,7 @@ export class Node {
    * @param [callback]
    */
   off(event: string, callback?: (res: any) => void) {
-    this.router.unsubscribe(
+    this.rpcRouter.unsubscribe(
       event,
       callback ? async (res: any) => callback(res) : undefined
     );
@@ -288,7 +288,7 @@ export class Node {
    * @param [callback]
    */
   once(event: string, callback: (res: any) => void) {
-    this.router.subscribeOnce(event, async (res: any) => callback(res));
+    this.rpcRouter.subscribeOnce(event, async (res: any) => callback(res));
   }
 
   /**
@@ -297,7 +297,7 @@ export class Node {
    * @param req
    */
   emit(event: string, req: NodeTypes.MethodRequest) {
-    this.router.emit(event, req);
+    this.rpcRouter.emit(event, req);
   }
 
   /**
@@ -323,7 +323,7 @@ export class Node {
       this.publicIdentifier,
       async (msg: NodeTypes.NodeMessage) => {
         await this.handleReceivedMessage(msg);
-        this.router.emit(msg.type, msg, "outgoing");
+        this.rpcRouter.emit(msg.type, msg, "outgoing");
       }
     );
   }

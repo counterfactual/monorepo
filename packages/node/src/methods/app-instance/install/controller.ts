@@ -53,7 +53,11 @@ export default class InstallController extends NodeController {
       params.appInstanceId
     );
 
-    const appInstanceInfo = await install(store, instructionExecutor, params);
+    const appInstanceProposal = await install(
+      store,
+      instructionExecutor,
+      params
+    );
 
     const installApprovalMsg: InstallMessage = {
       from: publicIdentifier,
@@ -65,7 +69,9 @@ export default class InstallController extends NodeController {
     await messagingService.send(respondingAddress, installApprovalMsg);
 
     return {
-      appInstance: appInstanceInfo
+      appInstance: (await store.getAppInstance(
+        appInstanceProposal.identityHash
+      )).toJson()
     };
   }
 }

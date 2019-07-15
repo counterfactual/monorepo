@@ -1,11 +1,12 @@
 import React from "react";
 
 import { WidgetLogo } from "../../widget";
-
-import "./LayoutHeader.scss";
 import { AccountContext } from "../../account";
 
-const LayoutHeader: React.FC = () => {
+import "./LayoutHeader.scss";
+import { RouteComponentProps } from "react-router-dom";
+
+const LayoutHeader: React.FC<RouteComponentProps> = props => {
   return (
     <header className="header">
       <nav className="header-content">
@@ -14,7 +15,7 @@ const LayoutHeader: React.FC = () => {
           {/* <widget-dev-flags /> */}
         </div>
         <div className="context-container">
-          <AccountContext isAuthenticated={true} />
+          <AccountContext {...props} />
         </div>
         {/* <header-account
           onAuthenticationChanged={e => this.updateConnectionWidget(e)}

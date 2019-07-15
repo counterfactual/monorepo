@@ -36,7 +36,7 @@ describe("Node method follows spec - withdraw", () => {
 
     const depositReq = makeDepositRequest(multisigAddress, One);
 
-    await nodeA.router.dispatch(depositReq);
+    await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigBalance = await provider.getBalance(
       multisigAddress
@@ -48,7 +48,7 @@ describe("Node method follows spec - withdraw", () => {
 
     const withdrawReq = makeWithdrawRequest(multisigAddress, One);
 
-    await nodeA.router.dispatch(withdrawReq);
+    await nodeA.rpcRouter.dispatch(withdrawReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()
@@ -82,7 +82,7 @@ describe("Node method follows spec - withdraw", () => {
       erc20ContractAddress
     );
 
-    await nodeA.router.dispatch(depositReq);
+    await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigTokenBalance = await erc20Contract.functions.balanceOf(
       multisigAddress
@@ -98,7 +98,7 @@ describe("Node method follows spec - withdraw", () => {
       erc20ContractAddress
     );
 
-    await nodeA.router.dispatch(withdrawReq);
+    await nodeA.rpcRouter.dispatch(withdrawReq);
 
     expect(
       (await erc20Contract.functions.balanceOf(multisigAddress)).toNumber()
