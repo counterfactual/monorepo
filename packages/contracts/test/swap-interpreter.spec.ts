@@ -10,7 +10,7 @@ import { expect } from "./utils/index";
 
 type MultiCoinTransfer = {
   to: string;
-  tokenAddress: string[];
+  tokenAddresses: string[];
   balance: BigNumber[];
 };
 
@@ -27,13 +27,13 @@ describe("Swap Interpreter", () => {
   function encodeState(state: MultiCoinTransfer[]) {
     return defaultAbiCoder.encode(
       [
-        `tuple(
+        `
           tuple(
             address to,
             address[] tokenAddresses,
             uint256[] amounts
-          )[] multiCoinTransfers
-        )`
+          )[]
+        `
       ],
       [state]
     );
@@ -72,15 +72,16 @@ describe("Swap Interpreter", () => {
       const state = [
         {
           to: senderAddr,
-          tokenAddress: [tokenAddr, AddressZero],
-          balance: [new BigNumber(500), Zero]
+          tokenAddresses: [tokenAddr, AddressZero],
+          amounts: [new BigNumber(500), Zero]
         },
         {
           to: receiverAddr,
-          tokenAddress: [tokenAddr, AddressZero],
-          balance: [Zero, Zero]
+          tokenAddresses: [tokenAddr, AddressZero],
+          amounts: [Zero, Zero]
         }
       ];
+
       const params = {
         limit: [new BigNumber(100000), new BigNumber(100000)]
       };
