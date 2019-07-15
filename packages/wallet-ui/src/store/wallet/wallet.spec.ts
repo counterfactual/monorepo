@@ -19,8 +19,6 @@ import {
   WalletDepositTransition
 } from "./wallet";
 
-// TODO: Test store states after implementing reducers in CallAction.
-
 describe("Store > Wallet", () => {
   beforeEach(() => {
     window.ethereum = new EthereumMock();

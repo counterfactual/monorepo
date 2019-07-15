@@ -6,37 +6,41 @@ export type ActionCreator = (
   ...args: any[]
 ) => ThunkAction<void, ApplicationState, null, Action<ActionType>>;
 
-export type ActionSettings<T> = {
+export type ActionSettings<T, S, AT> = {
   actionParameters?: any[];
-  reducers?: (state: T, action: StoreAction<T>) => T;
+  reducers?: (state: S, action: StoreAction<T, AT>) => S;
   initialState?: any;
   finalActionType?: ActionType;
 };
 
-export type ActionResult<T> = {
-  dispatchedActions: StoreAction<T>[];
-  reducedStates: T[];
+export type ActionResult<T, S = T, AT = ActionType> = {
+  dispatchedActions: StoreAction<T, AT>[];
+  reducedStates: S[];
 };
 
-const callAction = async <T>(
+const callAction = async <T, S = T, AT = ActionType>(
   actionCreator: ActionCreator,
   {
     actionParameters = [],
-    reducers = () => ({} as T),
+    reducers = () => ({} as S),
     initialState = {},
     finalActionType = undefined
-  }: ActionSettings<T> = {} as ActionSettings<T>
-): Promise<ActionResult<T>> => {
+  }: ActionSettings<T, S, AT> = {} as ActionSettings<T, S, AT>
+): Promise<ActionResult<T, S, AT>> => {
   return new Promise((resolve, reject) => {
-    const dispatchedActions: StoreAction<T>[] = [];
-    const reducedStates: T[] = [];
+    const dispatchedActions: StoreAction<T, AT>[] = [];
+    const reducedStates: S[] = [];
 
-    const dispatch = (action: StoreAction<T>) => {
+    const dispatch = (action: StoreAction<T, AT>) => {
       const previousAction = dispatchedActions[dispatchedActions.length - 1];
       reducedStates.push(
         reducers(
           previousAction
-            ? { ...previousAction.data, status: previousAction.type }
+            ? {
+                ...initialState,
+                ...previousAction.data,
+                status: previousAction.type
+              }
             : initialState,
           action
         )
@@ -60,7 +64,7 @@ const callAction = async <T>(
         () => ({} as ApplicationState),
         null
       );
-    } catch {
+    } catch (e) {
       reject({ dispatchedActions, reducedStates });
     }
   });

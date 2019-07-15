@@ -12,7 +12,7 @@ import {
   getUserFromStoredToken,
   storeTokenFromUser
 } from "../../utils/counterfactual";
-import PlaygroundAPIClient, { ErrorDetail } from "../../utils/hub-api-client";
+import Hub, { ErrorDetail } from "../../utils/hub-api-client";
 import {
   ActionType,
   ApplicationState,
@@ -21,7 +21,7 @@ import {
   UserState
 } from "../types";
 
-const initialState = {
+export const initialState = {
   user: {},
   error: {},
   status: ""
@@ -74,7 +74,7 @@ export const addUser = (
     dispatch({ type: UserAddTransition.CreatingAccount });
 
     // 4. Send the API request.
-    const user = await PlaygroundAPIClient.createAccount(userData, signature);
+    const user = await Hub.createAccount(userData, signature);
 
     // 5. Store the token.
     await storeTokenFromUser(user);
@@ -111,7 +111,7 @@ export const loginUser = (
     const signature = await signer.signMessage(signableMessage);
 
     // 3. Send the API request.
-    const user = await PlaygroundAPIClient.login(ethAddress, signature);
+    const user = await Hub.login(ethAddress, signature);
 
     // 4. Store the token.
     await storeTokenFromUser(user);
@@ -168,6 +168,9 @@ export const reducers = function(
     case ActionType.UserGet:
     case ActionType.UserLogin:
     case ActionType.UserError:
+    case UserAddTransition.CheckWallet:
+    case UserAddTransition.CreatingAccount:
+    case UserAddTransition.DeployingContract:
       return {
         ...state,
         ...action.data,
