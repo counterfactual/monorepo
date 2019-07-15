@@ -4,6 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "./ChallengeRegistry.sol";
 import "./libs/LibOutcome.sol";
 
+
 /// @title ConditionalTransactionDelegateTarget
 /// @author Liam Horne - <liam@l4v.io>
 contract ConditionalTransactionDelegateTarget {
