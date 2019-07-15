@@ -47,7 +47,7 @@
     "escape-string-regexp": "^2.0.0",
     "firebase-server": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.18.0",
+    "knex": "^0.19.0",
     "koa": "^2.6.2",
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
@@ -68,10 +68,10 @@
     "env-cmd": "9.0.3",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
-    "sqlite3": "4.0.8",
+    "sqlite3": "4.0.9",
     "ts-jest": "24.0.2",
-    "ts-node": "8.2.0",
+    "ts-node": "8.3.0",
     "tslint": "5.18.0",
-    "typescript": "3.5.1"
+    "typescript": "3.5.3"
   }
 }

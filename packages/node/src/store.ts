@@ -90,9 +90,7 @@ export class Store {
     appInstanceId: string
   ): Promise<Address> {
     return this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`
+      `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`
     );
   }
 
@@ -110,15 +108,11 @@ export class Store {
 
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${
-          stateChannel.multisigAddress
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
         value: stateChannel.toJson()
       },
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
         value: stateChannel.multisigAddress
       }
     ]);
@@ -128,11 +122,7 @@ export class Store {
     const freeBalance = channel.freeBalance;
     await this.storeService.set([
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          freeBalance.identityHash
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${freeBalance.identityHash}`,
         value: channel.multisigAddress
       }
     ]);
@@ -165,19 +155,11 @@ export class Store {
     await this.storeService.set(
       [
         {
-          key: `${
-            this.storeKeyPrefix
-          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-            proposedAppInstance.identityHash
-          }`,
+          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
           value: null
         },
         {
-          key: `${
-            this.storeKeyPrefix
-          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${
-            proposedAppInstance.identityHash
-          }`,
+          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
           value: proposedAppInstance
         }
       ],
@@ -197,19 +179,11 @@ export class Store {
   ) {
     await this.storeService.set([
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.identityHash
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
         value: proposedAppInstance.toJson()
       },
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.identityHash
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
         value: stateChannel.multisigAddress
       }
     ]);
@@ -225,19 +199,11 @@ export class Store {
 
     await this.storeService.set([
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${
-          proposedAppInstance.identityHash
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
         value: proposedAppInstance.toJson()
       },
       {
-        key: `${
-          this.storeKeyPrefix
-        }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${
-          proposedAppInstance.identityHash
-        }`,
+        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
         value: keccak256(
           defaultAbiCoder.encode(
             ["string", "string", "string"],
@@ -258,15 +224,11 @@ export class Store {
     await this.storeService.set(
       [
         {
-          key: `${
-            this.storeKeyPrefix
-          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
           value: null
         },
         {
-          key: `${
-            this.storeKeyPrefix
-          }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
           value: null
         }
       ],
@@ -283,9 +245,7 @@ export class Store {
     ownersHash: string
   ): Promise<string> {
     return await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
+      `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
     );
   }
 
@@ -318,9 +278,7 @@ export class Store {
     appInstanceId: string
   ): Promise<AppInstanceProposal> {
     const appInstanceProposal = await this.storeService.get(
-      `${
-        this.storeKeyPrefix
-      }/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
+      `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
     );
 
     if (!appInstanceProposal) {

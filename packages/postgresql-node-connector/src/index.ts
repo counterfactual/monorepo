@@ -172,9 +172,7 @@ export function confirmPostgresConfigurationEnvVars() {
   for (const [key, value] of Object.entries(POSTGRES_CONFIGURATION_ENV_KEYS)) {
     if (!process.env[value]) {
       throw Error(
-        `Postgres ${key} is not set via env var ${
-          POSTGRES_CONFIGURATION_ENV_KEYS[key]
-        }`
+        `Postgres ${key} is not set via env var ${POSTGRES_CONFIGURATION_ENV_KEYS[key]}`
       );
     }
   }

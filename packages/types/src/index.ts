@@ -39,7 +39,7 @@ export interface NetworkContext {
 }
 
 // Keep in sync with above
-export const networkContextProps = [
+export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
@@ -52,7 +52,7 @@ export const networkContextProps = [
   "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
 ];
 
-export interface ContractMigration {
+export interface DeployedContractNetworksFileEntry {
   contractName: string;
   address: string;
   transactionHash: string;
