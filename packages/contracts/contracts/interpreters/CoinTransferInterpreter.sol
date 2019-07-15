@@ -43,6 +43,10 @@ contract CoinTransferInterpreter is Interpreter {
         address payable to = address(uint160(transfer.to));
         uint256 amount = transfer.amount;
 
+        if (amount == 0) {
+          continue;
+        }
+
         require(amount <= limitRemaining, "Hit the transfer limit.");
         limitRemaining -= amount;
 
