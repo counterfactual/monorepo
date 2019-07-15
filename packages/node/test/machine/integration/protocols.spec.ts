@@ -63,8 +63,8 @@ describe("Three mininodes", () => {
     const mr = new MessageRouter([mininodeA, mininodeB, mininodeC]);
 
     mininodeA.scm = await mininodeA.ie.runSetupProtocol({
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -79,11 +79,11 @@ describe("Three mininodes", () => {
 
     await mininodeA.ie.initiateProtocol(Protocol.Install, mininodeA.scm, {
       signingKeys,
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB,
-      initiatingBalanceDecrement: Zero,
-      respondingBalanceDecrement: Zero,
+      initiatorBalanceDecrement: Zero,
+      responderBalanceDecrement: Zero,
       initialState: {
         counter: 0
       },
@@ -105,8 +105,8 @@ describe("Three mininodes", () => {
 
     await mininodeA.ie.initiateProtocol(Protocol.Uninstall, mininodeA.scm, {
       appIdentityHash: key,
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -115,8 +115,8 @@ describe("Three mininodes", () => {
     mininodeB.scm.set(
       multisigBC,
       (await mininodeB.ie.runSetupProtocol({
-        initiatingXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        initiatorXpub: mininodeB.xpub,
+        responderXpub: mininodeC.xpub,
         multisigAddress: multisigBC
       })).get(multisigBC)!
     );
@@ -131,9 +131,9 @@ describe("Three mininodes", () => {
       Protocol.InstallVirtualApp,
       mininodeA.scm,
       {
-        initiatingXpub: mininodeA.xpub,
+        initiatorXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         defaultTimeout: 100,
         appInterface: {
           addr: appDefinition.address,
@@ -143,8 +143,8 @@ describe("Three mininodes", () => {
         initialState: {
           counter: 0
         },
-        initiatingBalanceDecrement: bigNumberify(0),
-        respondingBalanceDecrement: bigNumberify(0),
+        initiatorBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
@@ -152,9 +152,9 @@ describe("Three mininodes", () => {
       Protocol.InstallVirtualApp,
       mininodeA.scm,
       {
-        initiatingXpub: mininodeA.xpub,
+        initiatorXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         defaultTimeout: 100,
         appInterface: {
           addr: appDefinition.address,
@@ -164,8 +164,8 @@ describe("Three mininodes", () => {
         initialState: {
           counter: 0
         },
-        initiatingBalanceDecrement: bigNumberify(0),
-        respondingBalanceDecrement: bigNumberify(0),
+        initiatorBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
@@ -186,8 +186,8 @@ describe("Three mininodes", () => {
     expect(appInstance.isVirtualApp);
 
     await mininodeA.ie.initiateProtocol(Protocol.Update, mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeC.xpub,
       multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       newState: {
@@ -196,8 +196,8 @@ describe("Three mininodes", () => {
     });
 
     await mininodeA.ie.initiateProtocol(Protocol.TakeAction, mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeC.xpub,
       multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       action: {
@@ -210,9 +210,9 @@ describe("Three mininodes", () => {
       Protocol.UninstallVirtualApp,
       mininodeA.scm,
       {
-        initiatingXpub: mininodeA.xpub,
+        initiatorXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         targetAppIdentityHash: appInstance.identityHash,
         targetAppState: {
           counter: 2

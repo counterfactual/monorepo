@@ -4,8 +4,8 @@ import { Store } from "../../../store";
 export async function uninstallAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   intermediaryXpub: string,
   appInstanceId: string
 ): Promise<void> {
@@ -19,8 +19,8 @@ export async function uninstallAppInstanceFromChannel(
     Protocol.UninstallVirtualApp,
     currentChannels,
     {
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       intermediaryXpub,
       targetAppState: appInstance.state,
       targetAppIdentityHash: appInstance.identityHash

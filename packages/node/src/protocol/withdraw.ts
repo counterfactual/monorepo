@@ -52,7 +52,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = context;
 
     const {
-      respondingXpub,
+      responderXpub,
       multisigAddress,
       recipient,
       amount,
@@ -63,8 +63,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       multisigAddress
     )!;
 
-    const respondingAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
-      respondingXpub
+    const responderAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
+      responderXpub
     );
 
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
@@ -94,14 +94,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID,
         params,
         protocol: Protocol.Withdraw,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnConditionalTransaction,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -134,7 +134,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -178,7 +178,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnFreeBalanceStateUpdate,
         signature2: mySignatureOnWithdrawalCommitment,
         seq: UNASSIGNED_SEQ_NO
@@ -186,7 +186,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       withdrawCommitment,
       counterpartySignatureOnWithdrawalCommitment
     );
@@ -210,7 +210,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
@@ -225,7 +225,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
       }
@@ -261,7 +261,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
   /**
    * Sequence 1 of the WITHDRAW_PROTOCOL looks very similar but the inverse:
    *
-   * 1. Countersign the received `ConditionalTransaction` from the initiating
+   * 1. Countersign the received `ConditionalTransaction` from the initiator
    * 2. Sign the free balance state update to install the AppInstance and send
    * 3. Countersign the WithdrawETHCommitment you receive back
    * 4. Sign and send the FreeBalance state update and wait for the countersignature
@@ -282,7 +282,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     const counterpartySignatureOnConditionalTransaction = signature;
 
     const {
-      initiatingXpub,
+      initiatorXpub,
       multisigAddress,
       recipient,
       amount,
@@ -293,8 +293,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       multisigAddress
     )!;
 
-    const initiatingAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
-      initiatingXpub
+    const initiatorAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
+      initiatorXpub
     );
 
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
@@ -311,7 +311,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      initiatingAddress,
+      initiatorAddress,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -361,7 +361,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySignatureOnConditionalTransaction,
         signature2: mySignatureOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
@@ -369,7 +369,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      initiatingAddress,
+      initiatorAddress,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -396,7 +396,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      initiatingAddress,
+      initiatorAddress,
       withdrawCommitment,
       counterpartySignatureOnWithdrawalCommitment
     );
@@ -446,7 +446,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySignatureOnWithdrawalCommitment,
         signature2: mySignatureOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
@@ -454,7 +454,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      initiatingAddress,
+      initiatorAddress,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
@@ -494,7 +494,7 @@ function addRefundAppToStateChannel(
     recipient,
     amount,
     multisigAddress,
-    initiatingXpub,
+    initiatorXpub,
     tokenAddress
   } = params;
 
@@ -525,7 +525,7 @@ function addRefundAppToStateChannel(
   );
 
   return stateChannel.installApp(refundAppInstance, {
-    [stateChannel.getFreeBalanceAddrOf(initiatingXpub)]: amount
+    [stateChannel.getFreeBalanceAddrOf(initiatorXpub)]: amount
   });
 }
 

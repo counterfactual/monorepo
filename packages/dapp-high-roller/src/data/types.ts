@@ -85,7 +85,7 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    respondingAddress: Address;
+    responderAddress: Address;
     appDefinition: Address;
     abiEncodings: AppABIEncodings;
     myDeposit: BigNumber;
