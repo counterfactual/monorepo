@@ -26,11 +26,11 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   </div>
 );
 
-type AccountDepositProps = RouteComponentProps & {
+export type AccountDepositProps = RouteComponentProps & {
   deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
   user: User;
   walletState: WalletState;
-  initialAmount: number;
+  initialAmount?: number;
 };
 
 type AccountDepositState = {
@@ -38,7 +38,7 @@ type AccountDepositState = {
   amount: BigNumberish;
 };
 
-class AccountDeposit extends React.Component<
+export class AccountDeposit extends React.Component<
   AccountDepositProps,
   AccountDepositState
 > {
@@ -97,6 +97,7 @@ class AccountDeposit extends React.Component<
             className="input--balance"
             type="number"
             unit="ETH"
+            name="amount"
             min={0.02}
             max={Number(ethereumBalance)}
             value={formatEther(amount)}

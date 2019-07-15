@@ -29,7 +29,7 @@ function setup() {
     match: {
       isExact: true,
       params: {},
-      path: "/",
+      path: RoutePath.Root,
       url: "http://localhost/"
     }
   };
