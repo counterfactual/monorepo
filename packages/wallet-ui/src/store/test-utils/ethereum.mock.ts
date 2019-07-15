@@ -1,11 +1,11 @@
-import { parseEther } from "ethers/utils";
+import { formatEther, parseEther } from "ethers/utils";
 import { JsonRPCResponse } from "web3/providers";
 import {
   CounterfactualEvent,
   CounterfactualMethod,
   EthereumGlobal
 } from "../../types";
-import { USER_MOCK_DATA } from "../user/user.mock";
+import { USER_MOCK_BALANCE, USER_MOCK_DATA } from "../user/user.mock";
 
 export const ETHEREUM_MOCK_ADDRESS =
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE";
@@ -28,11 +28,18 @@ export const COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS =
 export const TRANSACTION_MOCK_HASH =
   "0xf86c258502540be40083035b609482e041e84074fc5f5947d4d27e3c44f824b7a1a187b1a2bc2ec500008078a04a7db627266fa9a4116e3f6b33f5d245db40983234eb356261f36808909d2848a0166fa098a2ce3bda87af6000ed0083e3bf7cc31c6686b670bd85cbc6da2d6e85";
 
+export const ETHEREUM_MOCK_BALANCE = parseEther("2.0");
+
+export const FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
+
+export const COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
+
 export type EthereumMockBehaviors = {
   failOnEnable: boolean;
   rejectDeposit: boolean;
   nodeAddressFromUserMock: boolean;
   multisigAddressFromUserMock: boolean;
+  returnEmptyUserOnRequestUser: boolean;
 };
 
 export const enableEthereumMockBehavior = (
@@ -66,7 +73,8 @@ export default class EthereumMock implements EthereumGlobal {
     failOnEnable: false,
     rejectDeposit: false,
     nodeAddressFromUserMock: false,
-    multisigAddressFromUserMock: false
+    multisigAddressFromUserMock: false,
+    returnEmptyUserOnRequestUser: false
   };
 
   constructor(private readonly events: { [key: string]: Function[] } = {}) {}
@@ -104,12 +112,26 @@ export default class EthereumMock implements EthereumGlobal {
       }
     }
 
+    if (
+      eventOrMethod === CounterfactualMethod.RequestUser &&
+      !this.mockBehaviors.returnEmptyUserOnRequestUser
+    ) {
+      return {
+        jsonrpc: "2.0",
+        result: {
+          balance: formatEther(USER_MOCK_BALANCE),
+          user: USER_MOCK_DATA
+        },
+        id: Date.now()
+      };
+    }
+
     if (eventOrMethod === CounterfactualMethod.RequestBalances) {
       return {
         jsonrpc: "2.0",
         result: {
-          [FREE_BALANCE_MOCK_ADDRESS]: parseEther("1.0"),
-          [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: parseEther("1.0")
+          [FREE_BALANCE_MOCK_ADDRESS]: FREE_BALANCE_MOCK_AMOUNT,
+          [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT
         },
         id: Date.now()
       };

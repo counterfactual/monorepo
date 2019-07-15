@@ -3,6 +3,7 @@ import { RoutePath } from "../../types";
 import callAction, { ActionResult } from "../test-utils/call-action";
 import EthereumMock, {
   enableEthereumMockBehavior,
+  ETHEREUM_MOCK_BALANCE,
   TRANSACTION_MOCK_HASH
 } from "../test-utils/ethereum.mock";
 import {
@@ -16,12 +17,13 @@ import Web3ProviderMock from "../test-utils/web3provider.mock";
 import { ActionType, User, UserState } from "../types";
 import {
   addUser,
+  getUser,
   initialState,
   loginUser,
   reducers,
   UserAddTransition
 } from "./user";
-import { USER_MOCK_DATA } from "./user.mock";
+import { USER_MOCK_BALANCE, USER_MOCK_DATA } from "./user.mock";
 
 describe("Store > User", () => {
   let history: MemoryHistory;
@@ -235,6 +237,69 @@ describe("Store > User", () => {
           }
         ]);
       }
+    });
+  });
+
+  describe("getUser()", () => {
+    it("should not dispatch anything if there is no user logged in", async () => {
+      enableEthereumMockBehavior("returnEmptyUserOnRequestUser");
+
+      try {
+        await callAction<User, UserState, UserAddTransition>(getUser, {
+          reducers,
+          initialState,
+          actionParameters: [provider],
+          finalActionType: ActionType.WalletSetBalance
+        });
+        fail(
+          "Actions were dispateched without a user, this should not happen."
+        );
+      } catch (e) {
+        expect(e).toEqual("TEST_TIMEOUT");
+      }
+    });
+
+    it("should get the logged in user and their balance", async () => {
+      const { dispatchedActions, reducedStates } = await callAction<
+        User,
+        UserState,
+        UserAddTransition
+      >(getUser, {
+        reducers,
+        initialState,
+        actionParameters: [provider],
+        finalActionType: ActionType.WalletSetBalance
+      });
+
+      expect(dispatchedActions.length).toBe(2);
+      expect(reducedStates.length).toBe(2);
+
+      expect(dispatchedActions).toEqual([
+        {
+          data: { user: USER_MOCK_DATA },
+          type: ActionType.UserGet
+        },
+        {
+          data: {
+            counterfactualBalance: USER_MOCK_BALANCE,
+            ethereumBalance: ETHEREUM_MOCK_BALANCE
+          },
+          type: ActionType.WalletSetBalance
+        }
+      ]);
+
+      expect(reducedStates).toEqual([
+        {
+          user: USER_MOCK_DATA,
+          error: {},
+          status: ActionType.UserGet
+        },
+        {
+          user: USER_MOCK_DATA,
+          error: {},
+          status: ActionType.WalletSetBalance
+        }
+      ]);
     });
   });
 });

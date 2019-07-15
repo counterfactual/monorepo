@@ -1,4 +1,3 @@
-import { One } from "ethers/constants";
 import { parseEther } from "ethers/utils";
 import { createMemoryHistory } from "history";
 import { RoutePath } from "../../types";
@@ -6,11 +5,13 @@ import callAction, { ActionResult } from "../test-utils/call-action";
 import EthereumMock, {
   enableEthereumMockBehavior,
   ETHEREUM_MOCK_ADDRESS,
+  ETHEREUM_MOCK_BALANCE,
   MULTISIG_MOCK_ADDRESS,
   NODE_MOCK_ADDRESS
 } from "../test-utils/ethereum.mock";
 import Web3ProviderMock from "../test-utils/web3provider.mock";
 import { ActionType, WalletState } from "../types";
+import { USER_MOCK_BALANCE } from "../user/user.mock";
 import {
   connectToWallet,
   deposit,
@@ -134,8 +135,8 @@ describe("Store > Wallet", () => {
         { type: WalletDepositTransition.WaitForFunds },
         {
           data: {
-            ethereumBalance: One,
-            counterfactualBalance: parseEther("1.0")
+            counterfactualBalance: USER_MOCK_BALANCE,
+            ethereumBalance: ETHEREUM_MOCK_BALANCE
           },
           type: ActionType.WalletSetBalance
         }
@@ -146,8 +147,8 @@ describe("Store > Wallet", () => {
         { status: WalletDepositTransition.WaitForFunds },
         {
           status: ActionType.WalletSetBalance,
-          ethereumBalance: One,
-          counterfactualBalance: parseEther("1.0")
+          counterfactualBalance: USER_MOCK_BALANCE,
+          ethereumBalance: ETHEREUM_MOCK_BALANCE
         }
       ]);
     });

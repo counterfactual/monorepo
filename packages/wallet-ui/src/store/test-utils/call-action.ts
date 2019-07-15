@@ -31,6 +31,8 @@ const callAction = async <T, S = T, AT = ActionType>(
     const dispatchedActions: StoreAction<T, AT>[] = [];
     const reducedStates: S[] = [];
 
+    setTimeout(() => reject("TEST_TIMEOUT"), 50);
+
     const dispatch = (action: StoreAction<T, AT>) => {
       const previousAction = dispatchedActions[dispatchedActions.length - 1];
       reducedStates.push(
