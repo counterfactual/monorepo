@@ -3,6 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "./ChallengeRegistry.sol";
 import "./libs/LibOutcome.sol";
+import "./interpreters/CoinTransferETHInterpreter.sol";
 
 
 /// @title ConditionalTransactionDelegateTarget
@@ -11,11 +12,6 @@ contract ConditionalTransactionDelegateTarget {
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
-
-  struct CoinTransferParams {
-    uint256 limit;
-    address tokenAddress;
-  }
 
   struct FreeBalanceAppState {
     address[] tokens;
@@ -47,7 +43,7 @@ contract ConditionalTransactionDelegateTarget {
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
       abi.encode(
-        CoinTransferParams(
+        CoinTransferETHInterpreter.Params(
           // This is the `limit` param, which for the case of the
           // FreeBalance is set to the max amount.
           MAX_UINT256,
