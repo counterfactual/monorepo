@@ -60,6 +60,8 @@ export default class EthereumMock implements EthereumGlobal {
   host?: string;
   path?: string;
 
+  token?: string;
+
   mockBehaviors: EthereumMockBehaviors = {
     failOnEnable: false,
     rejectDeposit: false,
@@ -94,7 +96,7 @@ export default class EthereumMock implements EthereumGlobal {
 
   async send(
     eventOrMethod: CounterfactualMethod | CounterfactualEvent,
-    data?: any[]
+    data: any[] = []
   ): Promise<JsonRPCResponse> {
     if (eventOrMethod === CounterfactualMethod.RequestDeposit) {
       if (this.mockBehaviors.rejectDeposit) {
@@ -121,6 +123,10 @@ export default class EthereumMock implements EthereumGlobal {
           : NODE_MOCK_ADDRESS,
         id: Date.now()
       };
+    }
+
+    if (eventOrMethod === CounterfactualMethod.SetUser) {
+      this.token = data[0];
     }
 
     if (eventOrMethod === CounterfactualEvent.CreateChannel) {

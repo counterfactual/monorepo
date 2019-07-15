@@ -141,6 +141,7 @@ export const getUser = (
     if (!user) {
       return;
     }
+
     // 2. Get the balances.
     const counterfactualBalance = parseEther(balance);
     const ethereumBalance = await provider.getBalance(user.ethAddress);

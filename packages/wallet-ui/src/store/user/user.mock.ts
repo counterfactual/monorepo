@@ -13,7 +13,10 @@ import PlaygroundAPIClient from "../../utils/hub-api-client";
 import { ActionType, ApplicationState, User } from "../types";
 import { dispatchError, UserAddTransition } from "./user";
 
+export const USER_ID_MOCK = "e20d298b-1000-4013-9445-a3ce0a21d618";
+
 export const USER_MOCK_DATA = {
+  id: USER_ID_MOCK,
   username: "TEST",
   email: "TEST@gmail.com",
   ethAddress: "0xd6e26d8acfd2948c06098c6de386c89b12e0f916",
