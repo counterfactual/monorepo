@@ -1,3 +1,4 @@
+import { Zero } from "ethers/constants";
 import { formatEther, parseEther } from "ethers/utils";
 import { JsonRPCResponse } from "web3/providers";
 import {
@@ -34,12 +35,28 @@ export const FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
 
 export const COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
 
+export const HDNODE_MOCK = {
+  privateKey: null,
+  publicKey:
+    "0x03314a7e4890cacb7098ae6bc0f716a2818cba7354df7269a28ab92d4ffe0d8581",
+  parentFingerprint: "0x77421f11",
+  fingerprint: "0x388f1f6b",
+  address: "0xDe214c9409962811C8b7522a663710Bf334D6260",
+  chainCode:
+    "0x55ce8411daaeeb61f047aa5714a4634e59090980ebb8ddd44cd0689a606356b9",
+  index: 0,
+  depth: 5,
+  mnemonic: null,
+  path: null
+};
+
 export type EthereumMockBehaviors = {
   failOnEnable: boolean;
   rejectDeposit: boolean;
   nodeAddressFromUserMock: boolean;
   multisigAddressFromUserMock: boolean;
   returnEmptyUserOnRequestUser: boolean;
+  forceRetryOnWaitForFunds: boolean;
 };
 
 export const enableEthereumMockBehavior = (
@@ -74,7 +91,8 @@ export default class EthereumMock implements EthereumGlobal {
     rejectDeposit: false,
     nodeAddressFromUserMock: false,
     multisigAddressFromUserMock: false,
-    returnEmptyUserOnRequestUser: false
+    returnEmptyUserOnRequestUser: false,
+    forceRetryOnWaitForFunds: false
   };
 
   constructor(private readonly events: { [key: string]: Function[] } = {}) {}
@@ -130,8 +148,24 @@ export default class EthereumMock implements EthereumGlobal {
       return {
         jsonrpc: "2.0",
         result: {
-          [FREE_BALANCE_MOCK_ADDRESS]: FREE_BALANCE_MOCK_AMOUNT,
-          [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT
+          [FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
+            .forceRetryOnWaitForFunds
+            ? Zero
+            : FREE_BALANCE_MOCK_AMOUNT,
+          [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
+            .forceRetryOnWaitForFunds
+            ? Zero
+            : COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT
+        },
+        id: Date.now()
+      };
+    }
+
+    if (eventOrMethod === CounterfactualMethod.RequestChannels) {
+      return {
+        jsonrpc: "2.0",
+        result: {
+          multisigAddresses: [MULTISIG_MOCK_ADDRESS]
         },
         id: Date.now()
       };
