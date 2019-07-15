@@ -111,7 +111,7 @@ async function runTakeActionProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
+  initiatorXpub: string,
   responderXpub: string,
   action: SolidityABIEncoderV2Type
 ) {
@@ -126,7 +126,7 @@ async function runTakeActionProtocol(
         [stateChannel.multisigAddress, stateChannel]
       ]),
       {
-        initiatingXpub,
+        initiatorXpub,
         responderXpub,
         appIdentityHash,
         action,

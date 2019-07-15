@@ -77,7 +77,7 @@ export default class CreateChannelController extends NodeController {
     const channel = (await instructionExecutor.runSetupProtocol({
       multisigAddress,
       responderXpub,
-      initiatingXpub: publicIdentifier
+      initiatorXpub: publicIdentifier
     })).get(multisigAddress)!;
 
     await store.saveStateChannel(channel);

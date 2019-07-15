@@ -85,7 +85,7 @@ async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
+  initiatorXpub: string,
   responderXpub: string,
   newState: SolidityABIEncoderV2Type
 ) {
@@ -97,7 +97,7 @@ async function runUpdateStateProtocol(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub,
+      initiatorXpub,
       responderXpub,
       appIdentityHash,
       newState,

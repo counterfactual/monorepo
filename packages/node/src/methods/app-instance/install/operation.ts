@@ -30,9 +30,9 @@ export async function install(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: proposal.proposedToIdentifier,
+      initiatorXpub: proposal.proposedToIdentifier,
       responderXpub: proposal.proposedByIdentifier,
-      initiatingBalanceDecrement: proposal.myDeposit,
+      initiatorBalanceDecrement: proposal.myDeposit,
       responderBalanceDecrement: proposal.peerDeposit,
       multisigAddress: stateChannel.multisigAddress,
       signingKeys: stateChannel.getNextSigningKeys(),

@@ -23,7 +23,7 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   /**
-   * Sequence 0 of the INSTALL_PROTOCOL requires the initiating party
+   * Sequence 0 of the INSTALL_PROTOCOL requires the initiator party
    * to sign the ConditionalTransactionCommitment for the as-yet un-funded
    * newly proposed AppInstance, wait for a countersignature, and then when
    * received countersign the _also received_ free balance state update to
@@ -171,7 +171,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const counterpartySignatureOnConditionalTransaction = signature;
 
     const {
-      initiatingXpub,
+      initiatorXpub,
       multisigAddress,
       outcomeType
     } = params as InstallParams;
@@ -192,7 +192,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -239,7 +239,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Install,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySignatureOnConditionalTransaction,
         signature2: mySignatureOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
@@ -247,7 +247,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -282,10 +282,10 @@ function computeStateChannelTransition(
   params: InstallParams
 ): StateChannel {
   const {
-    initiatingBalanceDecrement,
+    initiatorBalanceDecrement,
     responderBalanceDecrement,
     tokenAddress,
-    initiatingXpub,
+    initiatorXpub,
     responderXpub,
     signingKeys,
     initialState,
@@ -295,7 +295,7 @@ function computeStateChannelTransition(
     outcomeType
   } = params;
 
-  const initiatingFbAddress = stateChannel.getFreeBalanceAddrOf(initiatingXpub);
+  const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
   const responderFbAddress = stateChannel.getFreeBalanceAddrOf(responderXpub);
 
   const {
@@ -304,9 +304,9 @@ function computeStateChannelTransition(
   } = computeInterpreterParameters(
     outcomeType,
     tokenAddress,
-    initiatingBalanceDecrement,
+    initiatorBalanceDecrement,
     responderBalanceDecrement,
-    initiatingFbAddress,
+    initiatorFbAddress,
     responderFbAddress
   );
 
@@ -326,7 +326,7 @@ function computeStateChannelTransition(
   );
 
   return stateChannel.installApp(appInstanceToBeInstalled, {
-    [initiatingFbAddress]: initiatingBalanceDecrement,
+    [initiatorFbAddress]: initiatorBalanceDecrement,
     [responderFbAddress]: responderBalanceDecrement
   });
 }
@@ -343,9 +343,9 @@ function computeStateChannelTransition(
  * is a simplification of the actual decision a developer has to make with their app.
  *
  * @param {OutcomeType} outcomeType - either COIN_TRANSFER or TWO_PARTY_FIXED_OUTCOME
- * @param {BigNumber} initiatingBalanceDecrement - amount Wei initiating deposits
+ * @param {BigNumber} initiatorBalanceDecrement - amount Wei initiator deposits
  * @param {BigNumber} responderBalanceDecrement - amount Wei responder deposits
- * @param {string} initiatingFbAddress - the address of the recipient of initiating
+ * @param {string} initiatorFbAddress - the address of the recipient of initiator
  * @param {string} responderFbAddress - the address of the recipient of responder
  *
  * @returns An object with the required parameters for both interpreter types, one
@@ -355,9 +355,9 @@ function computeStateChannelTransition(
 function computeInterpreterParameters(
   outcomeType: OutcomeType,
   tokenAddress: string,
-  initiatingBalanceDecrement: BigNumber,
+  initiatorBalanceDecrement: BigNumber,
   responderBalanceDecrement: BigNumber,
-  initiatingFbAddress: string,
+  initiatorFbAddress: string,
   responderFbAddress: string
 ) {
   let coinTransferInterpreterParams: CoinTransferInterpreterParams | undefined;
@@ -370,7 +370,7 @@ function computeInterpreterParameters(
     case OutcomeType.COIN_TRANSFER: {
       coinTransferInterpreterParams = {
         tokenAddress,
-        limit: bigNumberify(initiatingBalanceDecrement).add(
+        limit: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         )
       };
@@ -378,8 +378,8 @@ function computeInterpreterParameters(
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       twoPartyOutcomeInterpreterParams = {
-        playerAddrs: [initiatingFbAddress, responderFbAddress],
-        amount: bigNumberify(initiatingBalanceDecrement).add(
+        playerAddrs: [initiatorFbAddress, responderFbAddress],
+        amount: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         )
       };

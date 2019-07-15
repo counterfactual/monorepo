@@ -70,12 +70,12 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appSeqNo
     ] = proposeStateTransition(context.message.params, context);
 
-    const { initiatingXpub } = context.message.params;
+    const { initiatorXpub } = context.message.params;
 
     const theirSig = context.message.signature!;
 
     assertIsValidSignature(
-      xkeyKthAddress(initiatingXpub, appSeqNo),
+      xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
       theirSig
     );
@@ -98,7 +98,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Update,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage

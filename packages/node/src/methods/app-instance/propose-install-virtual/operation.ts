@@ -75,7 +75,7 @@ export function isNodeIntermediary(
 }
 
 export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
-  initiatingXpub: string,
+  initiatorXpub: string,
   responderXpub: string,
   intermediaries: string[],
   store: Store
@@ -83,7 +83,7 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
   let stateChannel: StateChannel;
   try {
     stateChannel = await getStateChannelWithOwners(
-      initiatingXpub,
+      initiatorXpub,
       responderXpub,
       store
     );
@@ -91,16 +91,16 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
     if (
       e
         .toString()
-        .includes(NO_CHANNEL_BETWEEN_NODES(initiatingXpub, responderXpub)) &&
+        .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
       intermediaries !== undefined
     ) {
       const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-        [initiatingXpub, responderXpub],
+        [initiatorXpub, responderXpub],
         intermediaries[0]
       );
 
       stateChannel = StateChannel.createEmptyChannel(key, [
-        initiatingXpub,
+        initiatorXpub,
         responderXpub
       ]);
 

@@ -42,13 +42,13 @@ export type ProtocolMessage = {
 };
 
 export type SetupParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
 };
 
 export type UpdateParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
@@ -56,7 +56,7 @@ export type UpdateParams = {
 };
 
 export type TakeActionParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
@@ -64,7 +64,7 @@ export type TakeActionParams = {
 };
 
 export type WithdrawParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
   recipient: string;
@@ -73,11 +73,11 @@ export type WithdrawParams = {
 };
 
 export type InstallParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   tokenAddress: string;
   multisigAddress: string;
-  initiatingBalanceDecrement: BigNumber;
+  initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   signingKeys: string[];
   initialState: SolidityABIEncoderV2Type;
@@ -88,25 +88,25 @@ export type InstallParams = {
 
 export type UninstallParams = {
   appIdentityHash: string;
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
 };
 
 export type InstallVirtualAppParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: SolidityABIEncoderV2Type;
-  initiatingBalanceDecrement: BigNumber;
+  initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
 };
 
 export type UninstallVirtualAppParams = {
-  initiatingXpub: string;
+  initiatorXpub: string;
   responderXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;

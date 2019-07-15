@@ -65,10 +65,10 @@ export async function installBalanceRefundApp(
 
   const installParams: InstallParams = {
     initialState: depositContext.initialState,
-    initiatingXpub: publicIdentifier,
+    initiatorXpub: publicIdentifier,
     responderXpub: peerAddress,
     multisigAddress: stateChannel.multisigAddress,
-    initiatingBalanceDecrement: Zero,
+    initiatorBalanceDecrement: Zero,
     responderBalanceDecrement: Zero,
     signingKeys: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
@@ -176,7 +176,7 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: publicIdentifier,
+      initiatorXpub: publicIdentifier,
       responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash

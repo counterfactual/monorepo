@@ -63,14 +63,14 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     const {
       appIdentityHash,
       multisigAddress,
-      initiatingXpub
+      initiatorXpub
     } = params as TakeActionParams;
 
     const sc = context.stateChannelsMap.get(multisigAddress) as StateChannel;
     const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
     assertIsValidSignature(
-      xkeyKthAddress(initiatingXpub, appSeqNo),
+      xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
       signature
     );
@@ -82,7 +82,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.TakeAction,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         seq: -1,
         signature: mySig
       }

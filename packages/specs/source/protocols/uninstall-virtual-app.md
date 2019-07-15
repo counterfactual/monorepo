@@ -4,18 +4,18 @@ This is the Uninstall Virtual App Protocol.
 
 ## Roles
 
-Three users run the protocol. They are designated as `initiating`, `responder`, and `intermediary`. It is required that `initiating` and `responder` have run the `install-virtual-app` protocol previously with the same `intermediary`; however it is allowed to swap the roles of `initiating` and `responder`.
+Three users run the protocol. They are designated as `initiator`, `responder`, and `intermediary`. It is required that `initiator` and `responder` have run the `install-virtual-app` protocol previously with the same `intermediary`; however it is allowed to swap the roles of `initiator` and `responder`.
 
 ## The `UninstallVirtualAppParams` type
 
 
 |            Field             |   type    |                         description                         |
 | ---------------------------- | --------- | ----------------------------------------------------------- |
-| `initiatingXpub`             | `xpub`    | xpub of `initiating`                                        |
+| `initiatorXpub`             | `xpub`    | xpub of `initiator`                                        |
 | `responderXpub`             | `xpub`    | xpub of `responder`                                        |
 | `intermediaryXpub`           | `xpub`    | xpub of `intermediary`                                      |
 | `targetAppIdentityHash`      | `bytes32` | app identity hash of app instance to uninstall              |
-| `initiatingBalanceIncrement` | `uint256` | `initiating`'s resulting share of the installed application |
+| `initiatorBalanceIncrement` | `uint256` | `initiator`'s resulting share of the installed application |
 | `responderBalanceIncrement` | `uint256` | `responder`'s resulting share of the installed application |
 
 At the end of this protocol the commitments `{left,right}ETHVirtualAppAgreement` defined in the `install-virtual-app` protocol are cancelled, and the free balances are updated.
@@ -28,7 +28,7 @@ The protocol produces a commitment to call `virtualAppSetState` with the final s
 
 ### uninstallLeft
 
-A commitment to cancel the `leftETHVirtualAppAgreement` commitment produced by `install-virtual-app` and simultaneously update the free balance in the `initiating`-`intermediary` free balance.
+A commitment to cancel the `leftETHVirtualAppAgreement` commitment produced by `install-virtual-app` and simultaneously update the free balance in the `initiator`-`intermediary` free balance.
 
 ### uninstallRight
 
@@ -38,10 +38,10 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 
 | Signature |   Commitment   |   Signed By    |
 | --------- | -------------- | -------------- |
-| s1        | lockCommitment | `initiating`   |
+| s1        | lockCommitment | `initiator`   |
 | s2        | lockCommitment | `intermediary` |
 | s3        | lockCommitment | `responder`   |
-| s4        | uninstallLeft  | `initiating`   |
+| s4        | uninstallLeft  | `initiator`   |
 | s5        | uninstallLeft  | `intermediary` |
 | s6        | uninstallright | `intermediary` |
 | s7        | uninstallright | `responder`   |
@@ -70,7 +70,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | `protocol`    | `string`                    | `"uninstall-virtual-app"` |
 | `multisig`    | `address`                   | `multisig1Address`        |
 | `params`      | `UninstallVirtualAppParams` |                           |
-| `fromAddress` | `address`                   | `initiatingAddress`       |
+| `fromAddress` | `address`                   | `initiatorAddress`       |
 | `toAddress`   | `address`                   | `intermediaryAddress`     |
 | `seq`         | `number`                    | `1`                       |
 | `signature1`  | `signature`                 | The S1 signature          |
@@ -108,7 +108,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | `multisig`    | `address`                   | `multisig1Address`        |
 | `params`      | `UninstallVirtualAppParams` |                           |
 | `fromAddress` | `address`                   | `intermediaryAddress`     |
-| `toAddress`   | `address`                   | `initiatingAddress`       |
+| `toAddress`   | `address`                   | `initiatorAddress`       |
 | `seq`         | `number`                    | `-1`                      |
 | `signature`   | `signature`                 | The S3 signature          |
 | `signature2`  | `signature`                 | The S2 signature          |
@@ -120,7 +120,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | `protocol`    | `string`                    | `"uninstall-virtual-app"` |
 | `multisig`    | `address`                   | `multisig1Address`        |
 | `params`      | `UninstallVirtualAppParams` |                           |
-| `fromAddress` | `address`                   | `initiatingAddress`       |
+| `fromAddress` | `address`                   | `initiatorAddress`       |
 | `toAddress`   | `address`                   | `intermediaryAddress`     |
 | `seq`         | `number`                    | `-1`                      |
 | `signature`   | `signature`                 | The S4 signature          |
@@ -133,7 +133,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 | `multisig`    | `address`                   | `multisig1Address`        |
 | `params`      | `UninstallVirtualAppParams` |                           |
 | `fromAddress` | `address`                   | `intermediaryAddress`     |
-| `toAddress`   | `address`                   | `initiatingAddress`       |
+| `toAddress`   | `address`                   | `initiatorAddress`       |
 | `seq`         | `number`                    | `-1`                      |
 | `signature`   | `signature`                 | The S5 signature          |
 

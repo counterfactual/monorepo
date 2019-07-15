@@ -119,7 +119,7 @@ First we introduce a new type which we label `InstallParams`.
 | ------------ | --------------------------------------------------------------- |
 | `protocol`   | `"install"`                                                     |
 | `multisig`   | The address of the on-chain Alice-Bob multisignature wallet     |
-| `toXpub`     | The extended public key of the initiating party                 |
+| `toXpub`     | The extended public key of the initiator party                 |
 | `seq`        | `-1`                                                            |
 | `signature`  | Signed copy of the `ConditionalTransaction` digest by responder |
 | `signature2` | Signed copy of the `FreeBalanceSetState` digest by responder    |
