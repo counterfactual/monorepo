@@ -637,18 +637,22 @@ export async function makeProposeCall(
   };
 }
 
-export function createFreeBalanceStateWithFundedETHAmounts(
+export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
-  amount: BigNumber
+  amount: BigNumber,
+  tokens: string[]
 ): FreeBalanceState {
+  const balancesIndexedByToken = {};
+  tokens.forEach(token => {
+    balancesIndexedByToken[token] = addresses.map(to => ({
+      to,
+      amount
+    }));
+  });
+
   return {
-    activeAppsMap: {},
-    balancesIndexedByToken: {
-      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
-        to,
-        amount
-      }))
-    }
+    balancesIndexedByToken,
+    activeAppsMap: {}
   };
 }
 
