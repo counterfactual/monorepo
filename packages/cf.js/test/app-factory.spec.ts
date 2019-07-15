@@ -44,7 +44,7 @@ describe("CF.js AppFactory", () => {
           const params = request.parameters as Node.ProposeInstallParams;
 
           expect(params.initialState).toBe(expectedState);
-          expect(params.myDeposit).toEqual(expectedDeposit);
+          expect(params.initiatorDeposit).toEqual(expectedDeposit);
 
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
@@ -61,8 +61,8 @@ describe("CF.js AppFactory", () => {
 
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
-        peerDeposit: expectedDeposit,
-        myDeposit: expectedDeposit,
+        responderDeposit: expectedDeposit,
+        initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
         outcomeType: OutcomeType.COIN_TRANSFER
@@ -88,7 +88,7 @@ describe("CF.js AppFactory", () => {
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaries).toBe(expectedIntermediaries);
-          expect(params.myDeposit).toEqual(expectedDeposit);
+          expect(params.initiatorDeposit).toEqual(expectedDeposit);
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
@@ -103,8 +103,8 @@ describe("CF.js AppFactory", () => {
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
         proposedToIdentifier: TEST_XPUBS[0],
-        peerDeposit: expectedDeposit,
-        myDeposit: expectedDeposit,
+        responderDeposit: expectedDeposit,
+        initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
         intermediaries: expectedIntermediaries
@@ -116,16 +116,16 @@ describe("CF.js AppFactory", () => {
       try {
         await appFactory.proposeInstall({
           proposedToIdentifier: TEST_XPUBS[0],
-          peerDeposit: parseEther("0.5"),
-          myDeposit: "$%GARBAGE$%",
+          responderDeposit: parseEther("0.5"),
+          initiatorDeposit: "$%GARBAGE$%",
           timeout: "100",
           initialState: { val: "4000" },
           outcomeType: OutcomeType.COIN_TRANSFER
         });
-        done.fail("Expected an error for invalid myDeposit");
+        done.fail("Expected an error for invalid initiatorDeposit");
       } catch (e) {
         expect(e.data.errorName).toBe("invalid_param");
-        expect(e.data.extra.paramName).toBe("myDeposit");
+        expect(e.data.extra.paramName).toBe("initiatorDeposit");
         done();
       }
     });
