@@ -39,11 +39,11 @@
   },
   "devDependencies": {
     "env-cmd": "9.0.3",
-    "ethers": "4.0.32",
+    "ethers": "4.0.33",
     "jest": "24.8.0",
-    "ts-node": "8.2.0",
+    "ts-node": "8.3.0",
     "tslint": "5.18.0",
-    "typescript": "3.5.1",
+    "typescript": "3.5.3",
     "uuid": "3.3.2"
   }
 }
