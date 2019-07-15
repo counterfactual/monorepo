@@ -72,7 +72,7 @@ export type APIResourceType =
   | "multisigDeploy";
 
 export type APIResourceRelationships = {
-  [key in APIResourceType]?: APIDataContainer
+  [key in APIResourceType]?: APIDataContainer;
 };
 
 export type APIDataContainer<T = APIResourceAttributes> = {

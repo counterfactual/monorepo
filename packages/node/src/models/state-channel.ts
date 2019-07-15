@@ -148,9 +148,7 @@ export class StateChannel {
     );
     if (appInstances.length !== 1) {
       throw Error(
-        `No AppInstance of addr ${address} exists on channel: ${
-          this.multisigAddress
-        }`
+        `No AppInstance of addr ${address} exists on channel: ${this.multisigAddress}`
       );
     }
     return appInstances[0];
@@ -326,9 +324,7 @@ export class StateChannel {
   public addVirtualAppInstance(appInstance: AppInstance) {
     if (appInstance.appSeqNo !== this.numInstalledApps) {
       throw Error(
-        `Tried to install app with sequence number ${
-          appInstance.appSeqNo
-        } into channel with ${this.numInstalledApps} active apps`
+        `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
       );
     }
     const appInstances = new Map<string, AppInstance>(
@@ -518,9 +514,7 @@ export class StateChannel {
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
       throw Error(
-        `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${
-          appToBeUninstalled.identityHash
-        }`
+        `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${appToBeUninstalled.identityHash}`
       );
     }
 
@@ -567,11 +561,12 @@ export class StateChannel {
     return {
       multisigAddress: this.multisigAddress,
       userNeuteredExtendedKeys: this.userNeuteredExtendedKeys,
-      appInstances: [...this.appInstances.entries()].map(
-        (appInstanceEntry): [string, AppInstanceJson] => {
-          return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
-        }
-      ),
+      appInstances: [...this.appInstances.entries()].map((appInstanceEntry): [
+        string,
+        AppInstanceJson
+      ] => {
+        return [appInstanceEntry[0], appInstanceEntry[1].toJson()];
+      }),
       freeBalanceAppInstance: !!this.freeBalanceAppInstance
         ? this.freeBalanceAppInstance.toJson()
         : // Note that this FreeBalance is undefined because a channel technically
@@ -597,14 +592,15 @@ export class StateChannel {
       json.multisigAddress,
       json.userNeuteredExtendedKeys,
       new Map(
-        [...Object.values(json.appInstances || [])].map(
-          (appInstanceEntry): [string, AppInstance] => {
-            return [
-              appInstanceEntry[0],
-              AppInstance.fromJson(appInstanceEntry[1])
-            ];
-          }
-        )
+        [...Object.values(json.appInstances || [])].map((appInstanceEntry): [
+          string,
+          AppInstance
+        ] => {
+          return [
+            appInstanceEntry[0],
+            AppInstance.fromJson(appInstanceEntry[1])
+          ];
+        })
       ),
       new Map(
         (json.singleAssetTwoPartyIntermediaryAgreements || []).map(

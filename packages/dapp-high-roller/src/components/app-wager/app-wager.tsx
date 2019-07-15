@@ -71,9 +71,7 @@ export class AppWager {
       const bet = ethers.utils.parseEther(this.betAmount);
 
       if (currentEthBalance.lt(bet)) {
-        this.error = `Insufficient funds: You need at least ${
-          this.betAmount
-        } ETH to play.`;
+        this.error = `Insufficient funds: You need at least ${this.betAmount} ETH to play.`;
         return;
       }
 
