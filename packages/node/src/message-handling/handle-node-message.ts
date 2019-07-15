@@ -82,9 +82,9 @@ export async function handleReceivedProposalMessage(
         ...params,
         proposedByIdentifier,
         initiatorDeposit: params.responderDeposit,
-        initiatorDepositTokenAddress: params.initiatorDepositTokenAddress!,
+        initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
         responderDeposit: params.initiatorDeposit!,
-        responderDepositTokenAddress: params.responderDepositTokenAddress!
+        responderDepositTokenAddress: params.initiatorDepositTokenAddress!
       },
       stateChannel
     )
