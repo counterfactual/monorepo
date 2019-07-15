@@ -21,7 +21,7 @@ export type CoinTransferMap = {
   [to: string]: BigNumber;
 };
 
-export type TokenIndexedBalanceMap = {
+export type TokenIndexedCoinTransferMap = {
   [tokenAddress: string]: CoinTransferMap;
 };
 

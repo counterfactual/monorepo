@@ -39,7 +39,7 @@ export async function installVirtual(
         },
         initialState: proposal.initialState,
         initiatingBalanceDecrement: proposal.initiatorDeposit,
-        respondingBalanceDecrement: proposal.respondingDeposit,
+        respondingBalanceDecrement: proposal.responderDeposit,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );

@@ -42,8 +42,8 @@ export default class ProposeInstallController extends NodeController {
       proposedToIdentifier,
       initiatorDeposit,
       initiatorDepositTokenAddress: initiatorDepositTokenAddressParam,
-      respondingDeposit,
-      respondingDepositTokenAddress: respondingDepositTokenAddressParam
+      responderDeposit,
+      responderDepositTokenAddress: responderDepositTokenAddressParam
     } = params;
 
     const myIdentifier = requestHandler.publicIdentifier;
@@ -62,29 +62,27 @@ export default class ProposeInstallController extends NodeController {
     const initiatorDepositTokenAddress =
       initiatorDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const respondingDepositTokenAddress =
-      respondingDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const responderDepositTokenAddress =
+      responderDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const channel = await store.getStateChannel(multisigAddress);
+    const stateChannel = await store.getStateChannel(multisigAddress);
 
-    confirmSufficientBalanceForToken(
-      channel,
-      multisigAddress,
+    assertSufficientFundsWithinFreeBalance(
+      stateChannel,
       myIdentifier,
       initiatorDepositTokenAddress,
       initiatorDeposit
     );
 
-    confirmSufficientBalanceForToken(
-      channel,
-      multisigAddress,
+    assertSufficientFundsWithinFreeBalance(
+      stateChannel,
       proposedToIdentifier,
-      respondingDepositTokenAddress,
-      respondingDeposit
+      responderDepositTokenAddress,
+      responderDeposit
     );
 
     params.initiatorDepositTokenAddress = initiatorDepositTokenAddress;
-    params.respondingDepositTokenAddress = respondingDepositTokenAddress;
+    params.responderDepositTokenAddress = responderDepositTokenAddress;
 
     return [requestHandler.getShardedQueue(multisigAddress)];
   }
@@ -120,9 +118,8 @@ export default class ProposeInstallController extends NodeController {
   }
 }
 
-function confirmSufficientBalanceForToken(
+function assertSufficientFundsWithinFreeBalance(
   channel: StateChannel,
-  multisigAddress: string,
   publicIdentifier: string,
   tokenAddress: string,
   depositAmount: BigNumber
@@ -136,7 +133,7 @@ function confirmSufficientBalanceForToken(
     throw new Error(
       INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
         publicIdentifier,
-        multisigAddress,
+        channel.multisigAddress,
         tokenAddress,
         freeBalanceForToken,
         depositAmount

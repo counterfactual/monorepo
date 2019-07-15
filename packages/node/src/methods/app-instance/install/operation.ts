@@ -32,7 +32,7 @@ export async function install(
       initiatingXpub: proposal.proposedToIdentifier,
       respondingXpub: proposal.proposedByIdentifier,
       initiatingBalanceDecrement: proposal.initiatorDeposit,
-      respondingBalanceDecrement: proposal.respondingDeposit,
+      respondingBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
       signingKeys: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,
@@ -43,7 +43,7 @@ export async function install(
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
       initiatingDepositTokenAddress: proposal.initiatorDepositTokenAddress,
-      respondingDepositTokenAddress: proposal.respondingDepositTokenAddress
+      respondingDepositTokenAddress: proposal.responderDepositTokenAddress
     }
   );
 

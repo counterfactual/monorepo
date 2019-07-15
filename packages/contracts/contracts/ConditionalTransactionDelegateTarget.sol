@@ -4,18 +4,12 @@ pragma experimental "ABIEncoderV2";
 import "./ChallengeRegistry.sol";
 import "./libs/LibOutcome.sol";
 
-
 /// @title ConditionalTransactionDelegateTarget
 /// @author Liam Horne - <liam@l4v.io>
 contract ConditionalTransactionDelegateTarget {
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
-
-  struct CoinTransferParams {
-    uint256[] limit;
-    address[] tokens;
-  }
 
   struct FreeBalanceAppState {
     address[] tokens;

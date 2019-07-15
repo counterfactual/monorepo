@@ -34,8 +34,8 @@ export async function createProposedVirtualAppInstance(
       proposedByIdentifier: myIdentifier,
       initiatorDepositTokenAddress:
         params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-      respondingDepositTokenAddress:
-        params.respondingDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      responderDepositTokenAddress:
+        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );

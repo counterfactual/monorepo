@@ -13,7 +13,7 @@ import { defaultAbiCoder } from "ethers/utils";
 import { StateChannel } from "../../models";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  TokenIndexedBalanceMap
+  TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
 
 /**
@@ -22,13 +22,13 @@ import {
 function computeCoinTransferIncrement(
   token: string,
   outcome: string
-): TokenIndexedBalanceMap {
+): TokenIndexedCoinTransferMap {
   const [decoded] = defaultAbiCoder.decode(
     ["tuple(address to, uint256 amount)[1][1]"],
     outcome
   );
 
-  const ret: TokenIndexedBalanceMap = {};
+  const ret: TokenIndexedCoinTransferMap = {};
 
   ret[token] = {};
   const balances = decoded[0];
@@ -40,7 +40,7 @@ function computeCoinTransferIncrement(
   return ret;
 }
 
-function anyNonzeroValues(map: TokenIndexedBalanceMap): Boolean {
+function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
   for (const tokenAddress of Object.keys(map)) {
     for (const address of Object.keys(map[tokenAddress])) {
       if (map[tokenAddress][address].gt(Zero)) {
@@ -56,7 +56,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
   stateChannel: StateChannel,
   appInstanceId: string,
   provider: BaseProvider
-): Promise<TokenIndexedBalanceMap> {
+): Promise<TokenIndexedCoinTransferMap> {
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
   const appDefinition = new Contract(

@@ -120,6 +120,11 @@ export class AppInstanceProposal {
 
     const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
 
+    const interpreterParams: CoinTransferInterpreterParams = {
+      limit: [],
+      tokens: []
+    };
+
     const proposedAppInstance = new AppInstance(
       owner,
       signingKeys,
@@ -137,11 +142,7 @@ export class AppInstanceProposal {
       // of the channel during an install, and it's not used to calculate
       // the AppInstance ID so there won't be a possible mismatch between
       // a proposed AppInstance ID and an installed AppInstance ID
-      {
-        limit: [],
-        tokens: [],
-        transferTokenIndexes: []
-      } as CoinTransferInterpreterParams
+      interpreterParams
     );
 
     return proposedAppInstance.identityHash;

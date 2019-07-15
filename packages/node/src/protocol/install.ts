@@ -13,7 +13,7 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, InstallParams, ProtocolMessage } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
-import { TokenIndexedBalanceMap } from "../models/free-balance";
+import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -329,7 +329,7 @@ function computeStateChannelTransition(
     /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 
-  let tokenIndexedBalanceDecrement: TokenIndexedBalanceMap;
+  let tokenIndexedBalanceDecrement: TokenIndexedCoinTransferMap;
   if (initiatingDepositTokenAddress !== respondingDepositTokenAddress) {
     tokenIndexedBalanceDecrement = {
       [initiatingDepositTokenAddress]: {

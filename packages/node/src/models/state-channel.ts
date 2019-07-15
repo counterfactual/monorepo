@@ -20,7 +20,7 @@ import {
   FreeBalanceStateJSON,
   getBalancesFromFreeBalanceAppInstance,
   serializeFreeBalanceState,
-  TokenIndexedBalanceMap
+  TokenIndexedCoinTransferMap
 } from "./free-balance";
 
 // TODO: Hmmm this code should probably be somewhere else?
@@ -217,7 +217,7 @@ export class StateChannel {
 
   public addActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    tokenIndexedIncrements: TokenIndexedBalanceMap
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
@@ -247,7 +247,7 @@ export class StateChannel {
 
   public removeActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    tokenIndexedIncrements: TokenIndexedBalanceMap
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
@@ -403,7 +403,7 @@ export class StateChannel {
 
   public addSingleAssetTwoPartyIntermediaryAgreement(
     targetIdentityHash: string,
-    evaaInstance: SingleAssetTwoPartyIntermediaryAgreement,
+    agreement: SingleAssetTwoPartyIntermediaryAgreement,
     decrements: CoinTransferMap,
     tokenAddress: string
   ) {
@@ -414,7 +414,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
-    evaaInstances.set(targetIdentityHash, evaaInstance);
+    evaaInstances.set(targetIdentityHash, agreement);
 
     return new StateChannel(
       this.multisigAddress,
@@ -426,7 +426,7 @@ export class StateChannel {
       this.createdAt
     ).addActiveAppAndIncrementFreeBalance(targetIdentityHash, {
       [tokenAddress]: flip(decrements)
-    } as TokenIndexedBalanceMap);
+    });
   }
 
   public removeSingleAssetTwoPartyIntermediaryAgreement(
@@ -478,7 +478,7 @@ export class StateChannel {
 
   public installApp(
     appInstance: AppInstance,
-    tokenIndexedDecrements: TokenIndexedBalanceMap
+    tokenIndexedDecrements: TokenIndexedCoinTransferMap
   ) {
     // Verify appInstance has expected signingkeys
 
@@ -517,7 +517,7 @@ export class StateChannel {
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    tokenIndexedIncrements: TokenIndexedBalanceMap
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 

@@ -5,7 +5,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import {
   CoinTransferMap,
   FreeBalanceStateJSON,
-  TokenIndexedBalanceMap
+  TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
 
 const freeBalanceAppStateEncoding = `
@@ -32,8 +32,8 @@ export function encodeFreeBalanceAppState(state: FreeBalanceStateJSON) {
 }
 
 export function flipTokenIndexedBalances(
-  tokenIndexedBalances: TokenIndexedBalanceMap
-): TokenIndexedBalanceMap {
+  tokenIndexedBalances: TokenIndexedCoinTransferMap
+): TokenIndexedCoinTransferMap {
   // TODO: make functional
   const flippedTokenBalances = {};
   for (const tokenAddress of Object.keys(tokenIndexedBalances)) {
