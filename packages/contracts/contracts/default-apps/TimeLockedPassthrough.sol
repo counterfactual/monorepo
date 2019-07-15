@@ -5,19 +5,24 @@ import "../interfaces/CounterfactualApp.sol";
 import "../ChallengeRegistry.sol";
 
 
-/// @notice Before `switchesOutcomeAt`, this contract should return the exact
-/// same outcome as the outcome `targetAppIdentityHash` returns, allowing
-/// it to "pass through" unaltered.
+/// @notice TimeLockedPassThrough - Before `switchesOutcomeAt`, this contract
+/// should return the exact same outcome as the outcome `targetAppIdentityHash`
+///  returns, allowing it to "pass through" unaltered.
+///
 /// However, after `switchesOutcomeAt`, it should return `defaultOutcome`.
 /// `challengeRegistryAddress` is used to look up the outcome.
+///
 /// This contract is applied to virtual apps for two reasons:
+/// 
 /// 1. After the pre-agreed intermediation period elapses, the outcome
-/// must be fixed to the default (cannot be changed without
-/// the intermediary's consent) to allow them to safely get back their
-/// collateral
+///    must be fixed to the default (cannot be changed without
+///    the intermediary's consent) to allow them to safely get back their
+///    collateral.
+///
 /// 2. During the installation and uninstallation of the virtual app,
-/// this contract must be set to the default outcome, so that if funding
-/// fails halfway, the intermediary can dispute both channels safely
+///    this contract must be set to the default outcome, so that if funding
+///    fails halfway, the intermediary can dispute both channels safely
+///
 contract TimeLockedPassThrough {
 
   struct AppState {
