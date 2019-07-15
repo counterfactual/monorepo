@@ -12,7 +12,7 @@ There is one additional commitment that is unique to this protocol, however, whi
 
 ### VirtualAppSetState
 
-There are two digests for this commitment. The first is for the initiating and responding parties to sign:
+There are two digests for this commitment. The first is for the initiator and responder parties to sign:
 
 ```typescript
 keccak256(
@@ -46,14 +46,14 @@ keccak256(
 
 | Field                        | type                       | description                                           |
 | ---------------------------- | -------------------------- | ----------------------------------------------------- |
-| `initiatingXpub`             | `xpub`                     | xpub of `initiating`                                  |
-| `respondingXpub`             | `xpub`                     | xpub of `responding`                                  |
+| `initiatorXpub`             | `xpub`                     | xpub of `initiator`                                  |
+| `responderXpub`             | `xpub`                     | xpub of `responder`                                  |
 | `intermediaryXpub`           | `xpub`                     | xpub of `intermediary`                                |
 | `defaultTimeout`             | `uint256`                  | Timeout in case of challenge                          |
 | `appInterface`               | `AppInterface`             | The interface of the virtual app being installed      |
 | `initialState`               | `SolidityABIEncoderV2Type` | The initial state of the virtual app                  |
-| `initiatingBalanceDecrement` | `uint256`                  | `initiating`'s deposit into the installed application |
-| `respondingBalanceDecrement` | `uint256`                  | `responding`'s deposit into the installed application |
+| `initiatorBalanceDecrement` | `uint256`                  | `initiator`'s deposit into the installed application |
+| `responderBalanceDecrement` | `uint256`                  | `responder`'s deposit into the installed application |
 
 ## Messages
 
@@ -77,7 +77,7 @@ keccak256(
 | ------------ | ----------------------------- |
 | `protocol`   | `"install-virtual-app"`       |
 | `params`     | `InstallVirtualAppParams`     |
-| `toXpub`     | `respondingXpub`           |
+| `toXpub`     | `responderXpub`           |
 | `seq`        | `2`                           |
 | `signature`  | Intermediary signature on BC VirtualAppAgreement|
 
@@ -97,7 +97,7 @@ keccak256(
 | Field       | Description             |
 | ----------- | ----------------------- |
 | `protocol`  | `"install-virtual-app"` |
-| `toXpub`    | `initiatingXpub`     |
+| `toXpub`    | `initiatorXpub`     |
 | `seq`       | `-1`                    |
 | `signature`  | Intermediary signature on AB VirtualAppAgreement|
 | `signature2`  | Intermediary signature on AB FreeBalanceActivation|
@@ -115,12 +115,12 @@ keccak256(
 
 ### M6 - Intermediary signs BC FreeBalanceActivation and ABC VirtualAppSetState
 
-Note that in this message the intermediary is *forwarding* the initiating's signature on the ABC VirtualAppSetState commitment.
+Note that in this message the intermediary is *forwarding* the initiator's signature on the ABC VirtualAppSetState commitment.
 
 | Field        | Description             |
 | ------------ | ----------------------- |
 | `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `respondingXpub`        |
+| `toXpub`     | `responderXpub`        |
 | `seq`        | `-1`                    |
 | `signature`  | Intermediary signature on BC FreeBalanceActivation|
 | `signature2`  | Intermediary signature on ABC VirtualAppSetState |
@@ -137,14 +137,14 @@ Note that in this message the intermediary is *forwarding* the initiating's sign
 | `signature`  | Responding signature on ABC VirtualAppSetState|
 
 
-### M8 - Intermediary sends initiating ABC VirtualAppSetState
+### M8 - Intermediary sends initiator ABC VirtualAppSetState
 
-Note that in this message the intermediary is *forwarding* the responding's signature on the ABC VirtualAppSetState commitment.
+Note that in this message the intermediary is *forwarding* the responder's signature on the ABC VirtualAppSetState commitment.
 
 | Field        | Description             |
 | ------------ | ----------------------- |
 | `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `initiatingXpub`        |
+| `toXpub`     | `initiatorXpub`        |
 | `seq`        | `-1`                    |
 | `signature`  | Intermediary signature on ABC VirtualAppSetState|
 | `signature2`  | Responding signature on ABC VirtualAppSetState|

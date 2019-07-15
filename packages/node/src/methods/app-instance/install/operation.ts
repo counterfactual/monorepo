@@ -29,10 +29,10 @@ export async function install(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: proposal.proposedToIdentifier,
-      respondingXpub: proposal.proposedByIdentifier,
-      initiatingBalanceDecrement: proposal.initiatorDeposit,
-      respondingBalanceDecrement: proposal.responderDeposit,
+      initiatorXpub: proposal.proposedToIdentifier,
+      responderXpub: proposal.proposedByIdentifier,
+      initiatorBalanceDecrement: proposal.initiatorDeposit,
+      responderBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
       signingKeys: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,
@@ -42,8 +42,8 @@ export async function install(
       },
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
-      initiatingDepositTokenAddress: proposal.initiatorDepositTokenAddress,
-      respondingDepositTokenAddress: proposal.responderDepositTokenAddress
+      initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
+      responderDepositTokenAddress: proposal.responderDepositTokenAddress
     }
   );
 

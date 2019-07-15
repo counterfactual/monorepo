@@ -26,9 +26,9 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { respondingXpub, multisigAddress } = context.message
+    const { responderXpub, multisigAddress } = context.message
       .params as SetupParams;
-    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
     const setupCommitment = proposeStateTransition(
       context.message.params,
       context
@@ -41,12 +41,12 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySig,
         seq: 1
       } as ProtocolMessage
     ];
-    assertIsValidSignature(respondingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(responderAddress, setupCommitment, theirSig);
 
     const finalCommitment = setupCommitment.getSignedTransaction([
       mySig,
@@ -62,9 +62,9 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   },
 
   1: async function*(context: Context) {
-    const { initiatingXpub, multisigAddress } = context.message
+    const { initiatorXpub, multisigAddress } = context.message
       .params as SetupParams;
-    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const setupCommitment = proposeStateTransition(
       context.message.params,
@@ -72,7 +72,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const theirSig = context.message.signature!;
-    assertIsValidSignature(initiatingAddress, setupCommitment, theirSig);
+    assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
@@ -92,7 +92,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
@@ -106,8 +106,8 @@ function proposeStateTransition(
 ): SetupCommitment {
   const {
     multisigAddress,
-    initiatingXpub,
-    respondingXpub
+    initiatorXpub,
+    responderXpub
   } = params as SetupParams;
 
   if (context.stateChannelsMap.has(multisigAddress)) {
@@ -117,7 +117,7 @@ function proposeStateTransition(
   const newStateChannel = StateChannel.setupChannel(
     context.network.FreeBalanceApp,
     multisigAddress,
-    [initiatingXpub, respondingXpub]
+    [initiatorXpub, responderXpub]
   );
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,

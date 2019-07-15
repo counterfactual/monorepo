@@ -63,7 +63,7 @@ export default class UpdateStateController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const respondingXpub = getCounterpartyAddress(
+    const responderXpub = getCounterpartyAddress(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
@@ -73,7 +73,7 @@ export default class UpdateStateController extends NodeController {
       store,
       instructionExecutor,
       publicIdentifier,
-      respondingXpub,
+      responderXpub,
       newState
     );
 
@@ -85,8 +85,8 @@ async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   newState: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
@@ -97,8 +97,8 @@ async function runUpdateStateProtocol(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       appIdentityHash,
       newState,
       multisigAddress: stateChannel.multisigAddress

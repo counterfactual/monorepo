@@ -13,7 +13,7 @@ export default class NodeProvider {
         [0, 0, 0]
       ]
     };
-    this.callback = () => {};
+    this.callback = () => { };
   }
 
   onMessage(callback) {
@@ -156,7 +156,7 @@ export default class NodeProvider {
     let x = 0;
     let y = 0;
 
-    while(this.activeState.board[x][y] !== 0) {
+    while (this.activeState.board[x][y] !== 0) {
       y += 1;
       if (y >= 3) {
         y = 0;

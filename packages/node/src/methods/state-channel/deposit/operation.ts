@@ -66,18 +66,18 @@ export async function installBalanceRefundApp(
 
   const installParams: InstallParams = {
     initialState: depositContext.initialState,
-    initiatingXpub: publicIdentifier,
-    respondingXpub: peerAddress,
+    initiatorXpub: publicIdentifier,
+    responderXpub: peerAddress,
     multisigAddress: stateChannel.multisigAddress,
-    initiatingBalanceDecrement: Zero,
-    respondingBalanceDecrement: Zero,
+    initiatorBalanceDecrement: Zero,
+    responderBalanceDecrement: Zero,
     signingKeys: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
     outcomeType: OutcomeType.COIN_TRANSFER,
-    initiatingDepositTokenAddress: tokenAddress!, // params object is mutated in caller
-    respondingDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
@@ -178,8 +178,8 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
+      initiatorXpub: publicIdentifier,
+      responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }

@@ -210,7 +210,7 @@ export class Store {
             [
               proposedAppInstance.intermediaries![0],
               // Ordered as [0: to, 1: by] because when executed, it is "to"
-              // that becomes initiatingAddress / the idx 0 in compute-virtual-key
+              // that becomes initiatorAddress / the idx 0 in compute-virtual-key
               sortedXpubs[0],
               sortedXpubs[1]
             ]

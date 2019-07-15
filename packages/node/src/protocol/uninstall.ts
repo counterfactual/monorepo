@@ -23,8 +23,8 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { respondingXpub } = context.message.params;
-    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+    const { responderXpub } = context.message.params;
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -40,13 +40,13 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Uninstall,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySig,
         seq: 1
       } as ProtocolMessage
     ];
 
-    assertIsValidSignature(respondingAddress, uninstallCommitment, theirSig);
+    assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,
@@ -61,8 +61,8 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
   },
   1: async function*(context: Context) {
-    const { initiatingXpub } = context.message.params;
-    const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
+    const { initiatorXpub } = context.message.params;
+    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -72,7 +72,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.signature!;
 
-    assertIsValidSignature(initiatingAddress, uninstallCommitment, theirSig);
+    assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
@@ -93,7 +93,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Uninstall,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySig,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage

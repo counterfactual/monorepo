@@ -301,11 +301,19 @@ export async function confirmProposedAppInstanceOnNode(
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.initiatorDeposit).toEqual(appInstanceProposal.responderDeposit);
-    expect(proposalParams.responderDeposit).toEqual(appInstanceProposal.initiatorDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
   } else {
-    expect(proposalParams.initiatorDeposit).toEqual(appInstanceProposal.initiatorDeposit);
-    expect(proposalParams.responderDeposit).toEqual(appInstanceProposal.responderDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
   }
   expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented

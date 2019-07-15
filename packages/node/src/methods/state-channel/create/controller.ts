@@ -72,12 +72,12 @@ export default class CreateChannelController extends NodeController {
     const { owners } = params;
     const { publicIdentifier, instructionExecutor, store } = requestHandler;
 
-    const [respondingXpub] = owners.filter(x => x !== publicIdentifier);
+    const [responderXpub] = owners.filter(x => x !== publicIdentifier);
 
     const channel = (await instructionExecutor.runSetupProtocol({
       multisigAddress,
-      respondingXpub,
-      initiatingXpub: publicIdentifier
+      responderXpub,
+      initiatorXpub: publicIdentifier
     })).get(multisigAddress)!;
 
     await store.saveStateChannel(channel);
@@ -89,7 +89,7 @@ export default class CreateChannelController extends NodeController {
       data: {
         multisigAddress,
         owners,
-        counterpartyXpub: respondingXpub
+        counterpartyXpub: responderXpub
       } as Node.CreateChannelResult
     };
 

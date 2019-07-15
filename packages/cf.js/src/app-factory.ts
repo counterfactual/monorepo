@@ -69,8 +69,14 @@ export class AppFactory {
     outcomeType: OutcomeType;
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
-    const initiatorDeposit = parseBigNumber(params.initiatorDeposit, "initiatorDeposit");
-    const responderDeposit = parseBigNumber(params.responderDeposit, "responderDeposit");
+    const initiatorDeposit = parseBigNumber(
+      params.initiatorDeposit,
+      "initiatorDeposit"
+    );
+    const responderDeposit = parseBigNumber(
+      params.responderDeposit,
+      "responderDeposit"
+    );
 
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.PROPOSE_INSTALL,
@@ -111,8 +117,14 @@ export class AppFactory {
     intermediaries: string[];
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
-    const initiatorDeposit = parseBigNumber(params.initiatorDeposit, "initiatorDeposit");
-    const responderDeposit = parseBigNumber(params.responderDeposit, "responderDeposit");
+    const initiatorDeposit = parseBigNumber(
+      params.initiatorDeposit,
+      "initiatorDeposit"
+    );
+    const responderDeposit = parseBigNumber(
+      params.responderDeposit,
+      "responderDeposit"
+    );
 
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
