@@ -29,7 +29,7 @@ contract MChallengeRegistryCore {
   /// @notice Compute a unique hash for the state of a channelized app instance
   /// @param identityHash The unique hash of an `AppIdentity`
   /// @param appStateHash The hash of the app state to be signed
-  /// @param versionNumber The versionNumber corresponder to the version of the state
+  /// @param versionNumber The versionNumber corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
   /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
   function computeAppChallengeHash(

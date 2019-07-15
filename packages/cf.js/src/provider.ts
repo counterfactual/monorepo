@@ -342,7 +342,7 @@ export class Provider {
           type: EventType.ERROR,
           data: {
             errorName: "orphaned_response",
-            message: `Response has no corresponder inflight request: ${JSON.stringify(
+            message: `Response has no corresponding inflight request: ${JSON.stringify(
               response
             )}`
           }
