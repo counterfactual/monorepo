@@ -19,8 +19,8 @@ export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: Address;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumber;
-  responderDeposit: BigNumber;
+  initiatingDeposit: BigNumber;
+  respondingDeposit: BigNumber;
   timeout: BigNumber;
   intermediaries?: Address[];
 };
@@ -88,8 +88,8 @@ export namespace Node {
     respondingAddress: Address;
     appDefinition: Address;
     abiEncodings: AppABIEncodings;
-    initiatorDeposit: BigNumber;
-    responderDeposit: BigNumber;
+    initiatingDeposit: BigNumber;
+    respondingDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
   };
@@ -255,14 +255,14 @@ export namespace cf {
     ): AppFactory;
     proposeInstall(parameters: {
       proposedToIdentifier: Address;
-      initiatorDeposit: BigNumberish;
-      responderDeposit: BigNumberish;
+      initiatingDeposit: BigNumberish;
+      respondingDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
     }): Promise<string>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: Address;
-      initiatorDeposit: BigNumberish;
-      responderDeposit: BigNumberish;
+      initiatingDeposit: BigNumberish;
+      respondingDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
       intermediaries: Address[];
       timeout: number;

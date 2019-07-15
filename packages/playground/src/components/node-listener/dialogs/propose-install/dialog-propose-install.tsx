@@ -49,7 +49,7 @@ export class DialogProposeInstall {
             <br />
             <strong>
               {window["ethers"].utils.formatEther(
-                this.message.data.params.initiatorDeposit
+                this.message.data.params.initiatingDeposit
               )}{" "}
               ETH
             </strong>{" "}

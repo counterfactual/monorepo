@@ -54,8 +54,8 @@ export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumber;
-  responderDeposit: BigNumber;
+  initiatingDeposit: BigNumber;
+  respondingDeposit: BigNumber;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -72,8 +72,8 @@ export type AppInstanceProposal = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumber;
-  responderDeposit: BigNumber;
+  initiatingDeposit: BigNumber;
+  respondingDeposit: BigNumber;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
