@@ -107,7 +107,7 @@ export class AppRoot {
 
           this.updateOpponent({
             attributes: {
-              nodeAddress: this.state.appInstance.initialState.initiatingAddress
+              nodeAddress: this.state.appInstance.initialState.initiatorAddress
             }
           });
 

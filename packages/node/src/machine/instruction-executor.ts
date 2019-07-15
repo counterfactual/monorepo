@@ -27,15 +27,21 @@ For e.g., ParamTypeOf<Protocol.Install> = InstallParams
 This syntax is preferred according to https://www.typescriptlang.org/docs/handbook/release-notes/typescript-2-8.html#conditional-types
 **/
 // tslint:disable
-type ParamTypeOf<T extends Protocol> =
-  T extends Protocol.Install ? InstallParams :
-  T extends Protocol.Update ? UpdateParams :
-  T extends Protocol.Uninstall ? UninstallParams :
-  T extends Protocol.InstallVirtualApp ? InstallVirtualAppParams :
-  T extends Protocol.UninstallVirtualApp ? UninstallVirtualAppParams :
-  T extends Protocol.TakeAction ? TakeActionParams :
-  T extends Protocol.Withdraw ? WithdrawParams :
-  never;
+type ParamTypeOf<T extends Protocol> = T extends Protocol.Install
+  ? InstallParams
+  : T extends Protocol.Update
+  ? UpdateParams
+  : T extends Protocol.Uninstall
+  ? UninstallParams
+  : T extends Protocol.InstallVirtualApp
+  ? InstallVirtualAppParams
+  : T extends Protocol.UninstallVirtualApp
+  ? UninstallVirtualAppParams
+  : T extends Protocol.TakeAction
+  ? TakeActionParams
+  : T extends Protocol.Withdraw
+  ? WithdrawParams
+  : never;
 // tslint:enable
 
 function firstRecipientFromProtocolName(protocolName: Protocol) {
@@ -55,7 +61,7 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
       Protocol.Withdraw
     ].indexOf(protocolName) !== -1
   ) {
-    return "respondingXpub";
+    return "responderXpub";
   }
   throw Error(
     `Unknown protocolName ${protocolName} passed to firstRecipientFromProtocolName`
@@ -117,7 +123,7 @@ export class InstructionExecutor {
         params,
         protocolExecutionID: uuid.v1(),
         seq: 0,
-        toXpub: params.respondingXpub
+        toXpub: params.responderXpub
       }
     );
   }
