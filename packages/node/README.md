@@ -60,9 +60,9 @@ Params:
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
@@ -90,9 +90,9 @@ Params:
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
@@ -423,9 +423,9 @@ An instance of an installed app.
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized

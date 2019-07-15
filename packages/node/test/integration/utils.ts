@@ -212,16 +212,16 @@ export function makeTTTProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  responderDeposit: BigNumber = Zero
 ): Rpc {
   const initialState =
     Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
-    myDeposit,
-    peerDeposit,
+    initiatorDeposit,
+    responderDeposit,
     appDefinition,
     initialState,
     abiEncodings: {
@@ -261,16 +261,16 @@ export function makeTTTVirtualProposalRequest(
   intermediaries: string[],
   appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  responderDeposit: BigNumber = Zero
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
     appDefinition,
     initialState,
-    myDeposit,
-    peerDeposit
+    initiatorDeposit,
+    responderDeposit
   ).parameters as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
@@ -301,11 +301,19 @@ export async function confirmProposedAppInstanceOnNode(
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.peerDeposit);
-    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.myDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
   } else {
-    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.myDeposit);
-    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.peerDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
   }
   expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented

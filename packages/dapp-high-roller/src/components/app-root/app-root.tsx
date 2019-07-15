@@ -239,7 +239,9 @@ export class AppRoot {
       pathname: "/game",
       state: {
         isProposing,
-        betAmount: ethers.utils.formatEther(this.state.appInstance.myDeposit)
+        betAmount: ethers.utils.formatEther(
+          this.state.appInstance.initiatorDeposit
+        )
       },
       query: {},
       key: ""
@@ -249,7 +251,9 @@ export class AppRoot {
   goToWaitingRoom(history: RouterHistory) {
     history.push("/waiting", {
       isProposing: false,
-      betAmount: ethers.utils.formatEther(this.state.appInstance.peerDeposit)
+      betAmount: ethers.utils.formatEther(
+        this.state.appInstance.responderDeposit
+      )
     });
   }
 
