@@ -4,7 +4,7 @@ import {
   CounterfactualEvent,
   CounterfactualMethod,
   EthereumGlobal
-} from "../types";
+} from "../../types";
 
 export const ETHEREUM_MOCK_ADDRESS =
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE";

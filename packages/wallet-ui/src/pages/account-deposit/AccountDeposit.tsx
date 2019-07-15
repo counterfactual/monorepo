@@ -16,7 +16,7 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { deposit, WalletDepositTransition } from "../../store/wallet";
+import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
 import "./AccountDeposit.scss";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (

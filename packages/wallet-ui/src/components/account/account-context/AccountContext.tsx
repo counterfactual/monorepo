@@ -8,7 +8,7 @@ import { Action } from "redux";
 import { ThunkDispatch } from "redux-thunk";
 import { EthereumService } from "../../../providers/EthereumService";
 import { ActionType, ApplicationState, UserState } from "../../../store/types";
-import { loginUser } from "../../../store/user";
+import { loginUser } from "../../../store/user/user";
 import { RoutePath } from "../../../types";
 import { FormButton } from "../../form";
 import "./AccountContext.scss";

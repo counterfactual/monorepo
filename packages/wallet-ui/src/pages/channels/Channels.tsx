@@ -1,14 +1,12 @@
 import React from "react";
-import { ThunkDispatch } from "redux-thunk";
-import { Action } from "redux";
 import { connect } from "react-redux";
-
-import { ChannelTree, ChannelNode } from "../../components/channel";
-import { ApplicationState, ActionType, ChannelsState } from "../../store/types";
-import { getAllChannels } from "../../store/channels";
-
-import "./Channels.scss";
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import { ChannelNode, ChannelTree } from "../../components/channel";
+import { getAllChannels } from "../../store/channels/channels";
+import { ActionType, ApplicationState, ChannelsState } from "../../store/types";
 import log from "../../utils/log";
+import "./Channels.scss";
 
 type ChannelsProps = {
   getAllChannels: () => void;

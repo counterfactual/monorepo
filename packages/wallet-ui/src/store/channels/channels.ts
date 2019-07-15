@@ -1,17 +1,15 @@
-import { ThunkAction } from "redux-thunk";
 import { Action } from "redux";
-
+import { ThunkAction } from "redux-thunk";
+import { getChannel, getChannelAddresses } from "../../utils/counterfactual";
+import log from "../../utils/log";
 import {
-  StoreAction,
-  ApplicationState,
   ActionType,
+  ApplicationState,
   ChannelsMap,
   ChannelsState,
-  Connection
-} from "./types";
-
-import { getChannelAddresses, getChannel } from "../utils/counterfactual";
-import log from "../utils/log";
+  Connection,
+  StoreAction
+} from "../types";
 
 const initialState = {
   channels: {} as ChannelsMap

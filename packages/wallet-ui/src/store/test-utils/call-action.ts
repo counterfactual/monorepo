@@ -1,6 +1,6 @@
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
-import { ActionType, ApplicationState, StoreAction } from "../store/types";
+import { ActionType, ApplicationState, StoreAction } from "../types";
 
 export type ActionCreator = (
   ...args: any[]

@@ -8,7 +8,7 @@ import { MemoryRouter as Router, RouteComponentProps } from "react-router-dom";
 import { Action } from "redux";
 import { ThunkDispatch } from "redux-thunk";
 import { ActionType, ApplicationState, User } from "../../store/types";
-import { addUser } from "../../store/user.mock";
+import { addUser } from "../../store/user/user.mock";
 import { RoutePath } from "../../types";
 import { testSelector } from "../../utils/testSelector";
 import store from "./../../store/store";

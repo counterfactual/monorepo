@@ -3,15 +3,15 @@ import { Web3Provider } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { RoutePath } from "../types";
-import { forFunds, requestDeposit } from "../utils/counterfactual";
+import { RoutePath } from "../../types";
+import { forFunds, requestDeposit } from "../../utils/counterfactual";
 import {
   ActionType,
   ApplicationState,
   Deposit,
   StoreAction,
   WalletState
-} from "./types";
+} from "../types";
 
 export const initialState = {
   ethAddress: "",

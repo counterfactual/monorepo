@@ -14,8 +14,8 @@ import {
 } from "./pages";
 import { EthereumService } from "./providers/EthereumService";
 import { ActionType, ApplicationState } from "./store/types";
-import { getUser } from "./store/user";
-import { connectToWallet } from "./store/wallet";
+import { getUser } from "./store/user/user";
+import { connectToWallet } from "./store/wallet/wallet";
 import { RoutePath } from "./types";
 
 type AppProps = {

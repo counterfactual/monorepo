@@ -15,7 +15,7 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { addUser, UserAddTransition } from "../../store/user";
+import { addUser, UserAddTransition } from "../../store/user/user";
 import "./AccountRegistration.scss";
 
 export type AccountRegistrationProps = RouteComponentProps & {

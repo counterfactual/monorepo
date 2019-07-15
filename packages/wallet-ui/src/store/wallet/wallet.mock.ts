@@ -2,9 +2,9 @@ import { Web3Provider } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { RoutePath } from "../types";
-import { forFunds, requestDeposit } from "../utils/counterfactual";
-import { ActionType, ApplicationState, Deposit, WalletState } from "./types";
+import { RoutePath } from "../../types";
+import { forFunds, requestDeposit } from "../../utils/counterfactual";
+import { ActionType, ApplicationState, Deposit, WalletState } from "../types";
 import { WalletDepositTransition } from "./wallet";
 
 export const connectToWallet = (): ThunkAction<

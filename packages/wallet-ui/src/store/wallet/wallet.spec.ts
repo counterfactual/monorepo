@@ -1,15 +1,16 @@
 import { One } from "ethers/constants";
 import { parseEther } from "ethers/utils";
 import { createMemoryHistory } from "history";
-import { RoutePath } from "../types";
-import callAction, { ActionResult } from "../utils/call-action";
+import { RoutePath } from "../../types";
+import callAction, { ActionResult } from "../test-utils/call-action";
 import EthereumMock, {
   enableEthereumMockBehavior,
   ETHEREUM_MOCK_ADDRESS,
   MULTISIG_MOCK_ADDRESS,
   NODE_MOCK_ADDRESS
-} from "./ethereum.mock";
-import { ActionType, WalletState } from "./types";
+} from "../test-utils/ethereum.mock";
+import Web3ProviderMock from "../test-utils/web3provider.mock";
+import { ActionType, WalletState } from "../types";
 import {
   connectToWallet,
   deposit,
@@ -17,7 +18,6 @@ import {
   reducers,
   WalletDepositTransition
 } from "./wallet";
-import Web3ProviderMock from "./web3provider.mock";
 
 // TODO: Test store states after implementing reducers in CallAction.
 
