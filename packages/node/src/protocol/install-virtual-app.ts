@@ -271,10 +271,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       network
     } = context;
 
-    const {
-      initiatingXpub,
-      responderXpub
-    } = params as InstallVirtualAppParams;
+    const { initiatingXpub, responderXpub } = params as InstallVirtualAppParams;
 
     // Aliasing `signature` to this variable name for code clarity
     const initiatingSignatureOnAliceIngridVirtualAppAgreement = signature;

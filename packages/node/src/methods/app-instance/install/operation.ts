@@ -32,8 +32,8 @@ export async function install(
     {
       initiatingXpub: proposal.proposedToIdentifier,
       responderXpub: proposal.proposedByIdentifier,
-      initiatingBalanceDecrement: proposal.initiatorDeposit,
-      responderBalanceDecrement: proposal.responderDeposit,
+      initiatingBalanceDecrement: proposal.myDeposit,
+      responderBalanceDecrement: proposal.peerDeposit,
       multisigAddress: stateChannel.multisigAddress,
       signingKeys: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,

@@ -76,7 +76,7 @@ export class NodeListener {
 
       const currentEthBalance = this.ethMultisigBalance;
       const minimumEthBalance = window["ethers"].utils.bigNumberify(
-        proposeInstallParams.initiatorDeposit
+        proposeInstallParams.myDeposit
       );
 
       if (currentEthBalance.lt(minimumEthBalance)) {

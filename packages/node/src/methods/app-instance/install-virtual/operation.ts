@@ -38,8 +38,8 @@ export async function installVirtual(
           ...proposal.abiEncodings
         },
         initialState: proposal.initialState,
-        initiatingBalanceDecrement: proposal.initiatorDeposit,
-        responderBalanceDecrement: proposal.responderDeposit,
+        initiatingBalanceDecrement: proposal.myDeposit,
+        responderBalanceDecrement: proposal.peerDeposit,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );

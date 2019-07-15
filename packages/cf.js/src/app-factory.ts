@@ -58,9 +58,9 @@ export class AppFactory {
     /** Xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
     /** Amount to be deposited by you */
-    initiatorDeposit: BigNumberish;
+    myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
-    responderDeposit: BigNumberish;
+    peerDeposit: BigNumberish;
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
@@ -69,21 +69,15 @@ export class AppFactory {
     outcomeType: OutcomeType;
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
-    const initiatorDeposit = parseBigNumber(
-      params.initiatorDeposit,
-      "initiatorDeposit"
-    );
-    const responderDeposit = parseBigNumber(
-      params.responderDeposit,
-      "responderDeposit"
-    );
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
 
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.PROPOSE_INSTALL,
       {
         timeout,
-        responderDeposit,
-        initiatorDeposit,
+        peerDeposit,
+        myDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         appDefinition: this.appDefinition,
@@ -106,9 +100,9 @@ export class AppFactory {
     /** xpub of peer being proposed to install instance with */
     proposedToIdentifier: string;
     /** Amount to be deposited by you */
-    initiatorDeposit: BigNumberish;
+    myDeposit: BigNumberish;
     /** Amount to be deposited by peer */
-    responderDeposit: BigNumberish;
+    peerDeposit: BigNumberish;
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
@@ -117,21 +111,15 @@ export class AppFactory {
     intermediaries: string[];
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
-    const initiatorDeposit = parseBigNumber(
-      params.initiatorDeposit,
-      "initiatorDeposit"
-    );
-    const responderDeposit = parseBigNumber(
-      params.responderDeposit,
-      "responderDeposit"
-    );
+    const myDeposit = parseBigNumber(params.myDeposit, "myDeposit");
+    const peerDeposit = parseBigNumber(params.peerDeposit, "peerDeposit");
 
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
       {
         timeout,
-        responderDeposit,
-        initiatorDeposit,
+        peerDeposit,
+        myDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
         intermediaries: params.intermediaries,

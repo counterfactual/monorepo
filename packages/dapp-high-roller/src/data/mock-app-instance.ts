@@ -20,8 +20,8 @@ export class AppInstance {
 
   readonly appDefinition: Address;
   readonly abiEncodings: AppABIEncodings;
-  readonly initiatorDeposit: BigNumber;
-  readonly responderDeposit: BigNumber;
+  readonly myDeposit: BigNumber;
+  readonly peerDeposit: BigNumber;
   readonly timeout: BigNumber;
   readonly intermediaries?: Address[];
   //   private readonly eventEmitter: EventEmitter = new EventEmitter();
@@ -30,8 +30,8 @@ export class AppInstance {
     this.identityHash = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
-    this.initiatorDeposit = info.initiatorDeposit;
-    this.responderDeposit = info.responderDeposit;
+    this.myDeposit = info.myDeposit;
+    this.peerDeposit = info.peerDeposit;
     this.timeout = info.timeout;
     this.intermediaries = info.intermediaries;
   }

@@ -315,9 +315,7 @@ export class Provider {
                 type: EventType.ERROR,
                 data: {
                   errorName: "unexpected_message_type",
-                  message: `Unexpected response type. Expected ${methodName}, got ${
-                    response.result.type
-                  }`
+                  message: `Unexpected response type. Expected ${methodName}, got ${response.result.type}`
                 }
               },
               requestId
