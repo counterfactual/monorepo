@@ -90,8 +90,6 @@ export class Node {
       this.networkContext = networkContext;
     }
 
-    this.blocksNeededForConfirmation = blocksNeededForConfirmation;
-
     this.instructionExecutor = this.buildInstructionExecutor();
 
     log.info(
