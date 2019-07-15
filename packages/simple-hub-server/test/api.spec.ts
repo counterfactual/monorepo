@@ -40,6 +40,8 @@ import {
   USR_CHARLIE_KNEX
 } from "./mock-data";
 
+jest.setTimeout(10000);
+
 const api = mountApi();
 
 let server: Server;
