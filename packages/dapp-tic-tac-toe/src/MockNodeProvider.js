@@ -13,7 +13,7 @@ export default class NodeProvider {
         [0, 0, 0]
       ]
     };
-    this.callback = () => {};
+    this.callback = () => { };
   }
 
   onMessage(callback) {
@@ -156,7 +156,7 @@ export default class NodeProvider {
     let x = 0;
     let y = 0;
 
-    while(this.activeState.board[x][y] !== 0) {
+    while (this.activeState.board[x][y] !== 0) {
       y += 1;
       if (y >= 3) {
         y = 0;
@@ -182,8 +182,8 @@ export default class NodeProvider {
         actionEncoding: "tuple(ActionType actionType, uint256 playX, uint256 playY, WinClaim winClaim)",
         stateEncoding: "tuple(uint256 turnName, uint256 winner, uint256[3][3] board)"
       },
-      myDeposit: window.ethers.utils.parseEther("0.1"),
-      peerDeposit: window.ethers.utils.parseEther("0.1"),
+      initiatorDeposit: window.ethers.utils.parseEther("0.1"),
+      responderDeposit: window.ethers.utils.parseEther("0.1"),
       timeout: window.ethers.utils.bigNumberify("100"),
       intermediaries: ["0x2515151515151515151515151515151515151515"]
     }, params);
