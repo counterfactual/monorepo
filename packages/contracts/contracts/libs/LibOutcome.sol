@@ -9,12 +9,11 @@ library LibOutcome {
     uint256 amount;
   }
 
-  struct CoinBalances {
+  struct MultiCoinTransfer {
     address to;
-    address[] coinAddress;
-    uint256[] balance;
+    address[] tokenAddresses;
+    uint256[] amounts;
   }
-
 
   enum TwoPartyFixedOutcome {
     SEND_TO_ADDR_ONE,
