@@ -42,7 +42,8 @@ describe("StateChannel::uninstallApp", () => {
     sc1 = sc1.setFreeBalance(
       createFreeBalanceStateWithFundedTokenAmounts(
         [xkeyKthAddress(xpubs[0], 0), xkeyKthAddress(xpubs[1], 0)],
-        WeiPerEther
+        WeiPerEther,
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
       )
     );
 

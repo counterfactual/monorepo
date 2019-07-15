@@ -6,6 +6,7 @@ import { AddressZero, WeiPerEther } from "ethers/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -53,7 +54,8 @@ describe("set state on free balance", () => {
     ).setFreeBalance(
       createFreeBalanceStateWithFundedTokenAmounts(
         multisigOwnerKeys.map<string>(key => key.address),
-        WeiPerEther
+        WeiPerEther,
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
       )
     );
 

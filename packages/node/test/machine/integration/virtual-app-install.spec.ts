@@ -101,7 +101,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       ).setFreeBalance(
         createFreeBalanceStateWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
-          parseEther("20")
+          parseEther("20"),
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
         )
       );
 

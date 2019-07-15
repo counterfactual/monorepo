@@ -16,6 +16,7 @@ import {
 import { VirtualAppSetStateCommitment } from "../../../src/ethereum/virtual-app-set-state-commitment";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -69,7 +70,8 @@ beforeEach(() => {
   ).setFreeBalance(
     createFreeBalanceStateWithFundedTokenAmounts(
       multisigOwnerKeys.map<string>(key => key.address),
-      WeiPerEther
+      WeiPerEther,
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
     )
   );
 
