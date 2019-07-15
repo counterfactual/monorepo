@@ -6,7 +6,7 @@ export async function uninstallAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
-  respondingXpub: string,
+  responderXpub: string,
   appInstanceId: string
 ): Promise<void> {
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -18,7 +18,7 @@ export async function uninstallAppInstanceFromChannel(
     new Map(Object.entries(await store.getAllChannels())),
     {
       initiatingXpub,
-      respondingXpub,
+      responderXpub,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: appInstance.identityHash
     }

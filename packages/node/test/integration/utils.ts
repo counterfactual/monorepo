@@ -212,16 +212,16 @@ export function makeTTTProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
-  initiatingDeposit: BigNumber = Zero,
-  respondingDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  responderDeposit: BigNumber = Zero
 ): Rpc {
   const initialState =
     Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
-    initiatingDeposit,
-    respondingDeposit,
+    initiatorDeposit,
+    responderDeposit,
     appDefinition,
     initialState,
     abiEncodings: {
@@ -261,16 +261,16 @@ export function makeTTTVirtualProposalRequest(
   intermediaries: string[],
   appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
-  initiatingDeposit: BigNumber = Zero,
-  respondingDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  responderDeposit: BigNumber = Zero
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
     appDefinition,
     initialState,
-    initiatingDeposit,
-    respondingDeposit
+    initiatorDeposit,
+    responderDeposit
   ).parameters as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
@@ -301,18 +301,18 @@ export async function confirmProposedAppInstanceOnNode(
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.initiatingDeposit).toEqual(
-      appInstanceProposal.respondingDeposit
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.responderDeposit
     );
-    expect(proposalParams.respondingDeposit).toEqual(
-      appInstanceProposal.initiatingDeposit
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
     );
   } else {
-    expect(proposalParams.initiatingDeposit).toEqual(
-      appInstanceProposal.initiatingDeposit
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
     );
-    expect(proposalParams.respondingDeposit).toEqual(
-      appInstanceProposal.respondingDeposit
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.responderDeposit
     );
   }
   expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);

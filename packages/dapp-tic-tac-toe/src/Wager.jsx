@@ -129,10 +129,10 @@ class Wager extends Component {
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
-        respondingDeposit: window.ethers.utils.parseEther(
+        responderDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
-        initiatingDeposit: window.ethers.utils.parseEther(
+        initiatorDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
         timeout: 172800,

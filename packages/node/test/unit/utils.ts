@@ -29,8 +29,8 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      initiatingDeposit: Zero,
-      respondingDeposit: Zero,
+      initiatorDeposit: Zero,
+      responderDeposit: Zero,
       timeout: One,
       initialState: {
         foo: AddressZero,

@@ -315,7 +315,9 @@ export class Provider {
                 type: EventType.ERROR,
                 data: {
                   errorName: "unexpected_message_type",
-                  message: `Unexpected response type. Expected ${methodName}, got ${response.result.type}`
+                  message: `Unexpected response type. Expected ${methodName}, got ${
+                    response.result.type
+                  }`
                 }
               },
               requestId
@@ -416,7 +418,7 @@ export class Provider {
           type: EventType.ERROR,
           data: {
             errorName: "orphaned_response",
-            message: `Response has no corresponding inflight request: ${JSON.stringify(
+            message: `Response has no corresponder inflight request: ${JSON.stringify(
               response
             )}`
           }

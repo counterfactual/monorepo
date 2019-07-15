@@ -109,7 +109,7 @@ First we introduce a new type which we label `InstallParams`.
 | `protocol`  | `"install"`                                                               |
 | `multisig`  | The address of the on-chain multisignature wallet for this `StateChannel` |
 | `params`    | An `InstallParams` object describing the proposed app                     |
-| `toXpub`    | The extended public key of the responding party                           |
+| `toXpub`    | The extended public key of the responder party                           |
 | `seq`       | `1`                                                                       |
 | `signature` | Signed copy of the `ConditionalTransaction` digest by initiator           |
 
@@ -131,6 +131,6 @@ First we introduce a new type which we label `InstallParams`.
 | `protocol`  | `"install"`                                                  |
 | `multisig`  | The address of the on-chain Alice-Bob multisignature wallet  |
 | `params`    | An `InstallData` object describing the proposed app          |
-| `toXpub`    | The extended public key of the responding party              |
+| `toXpub`    | The extended public key of the responder party              |
 | `seq`       | `-1`                                                         |
 | `signature` | Signed copy of the `FreeBalanceSetState` digest by initiator |

@@ -240,7 +240,7 @@ export class AppRoot {
       state: {
         isProposing,
         betAmount: ethers.utils.formatEther(
-          this.state.appInstance.initiatingDeposit
+          this.state.appInstance.initiatorDeposit
         )
       },
       query: {},
@@ -252,7 +252,7 @@ export class AppRoot {
     history.push("/waiting", {
       isProposing: false,
       betAmount: ethers.utils.formatEther(
-        this.state.appInstance.respondingDeposit
+        this.state.appInstance.responderDeposit
       )
     });
   }

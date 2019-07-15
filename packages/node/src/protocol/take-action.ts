@@ -19,7 +19,7 @@ type TakeActionProtocolMessage = ProtocolMessage & { params: TakeActionParams };
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { appIdentityHash, multisigAddress, respondingXpub } = context.message
+    const { appIdentityHash, multisigAddress, responderXpub } = context.message
       .params as TakeActionParams;
     const channel = context.stateChannelsMap.get(
       multisigAddress
@@ -41,13 +41,13 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         seq: 1,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySig
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      xkeyKthAddress(respondingXpub, appSeqNo),
+      xkeyKthAddress(responderXpub, appSeqNo),
       setStateCommitment,
       signature
     );

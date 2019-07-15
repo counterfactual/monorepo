@@ -35,8 +35,8 @@ export class AppInstance {
   readonly timeout: BigNumber;
 
   // Funding-related fields
-  readonly initiatingDeposit: BigNumber;
-  readonly respondingDeposit: BigNumber;
+  readonly initiatorDeposit: BigNumber;
+  readonly responderDeposit: BigNumber;
   readonly intermediaries?: Address[];
 
   /**
@@ -69,8 +69,8 @@ export class AppInstance {
       this.timeout = info["timeout"];
     }
 
-    this.initiatingDeposit = info["initiatingDeposit"];
-    this.respondingDeposit = info["respondingDeposit"];
+    this.initiatorDeposit = info["initiatorDeposit"];
+    this.responderDeposit = info["responderDeposit"];
     this.intermediaries = info["intermediaries"];
   }
 

@@ -64,7 +64,7 @@ describe("Three mininodes", () => {
 
     mininodeA.scm = await mininodeA.ie.runSetupProtocol({
       initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -80,10 +80,10 @@ describe("Three mininodes", () => {
     await mininodeA.ie.initiateProtocol(Protocol.Install, mininodeA.scm, {
       signingKeys,
       initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB,
       initiatingBalanceDecrement: Zero,
-      respondingBalanceDecrement: Zero,
+      responderBalanceDecrement: Zero,
       initialState: {
         counter: 0
       },
@@ -106,7 +106,7 @@ describe("Three mininodes", () => {
     await mininodeA.ie.initiateProtocol(Protocol.Uninstall, mininodeA.scm, {
       appIdentityHash: key,
       initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -116,7 +116,7 @@ describe("Three mininodes", () => {
       multisigBC,
       (await mininodeB.ie.runSetupProtocol({
         initiatingXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         multisigAddress: multisigBC
       })).get(multisigBC)!
     );
@@ -133,7 +133,7 @@ describe("Three mininodes", () => {
       {
         initiatingXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         defaultTimeout: 100,
         appInterface: {
           addr: appDefinition.address,
@@ -144,7 +144,7 @@ describe("Three mininodes", () => {
           counter: 0
         },
         initiatingBalanceDecrement: bigNumberify(0),
-        respondingBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
@@ -154,7 +154,7 @@ describe("Three mininodes", () => {
       {
         initiatingXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         defaultTimeout: 100,
         appInterface: {
           addr: appDefinition.address,
@@ -165,7 +165,7 @@ describe("Three mininodes", () => {
           counter: 0
         },
         initiatingBalanceDecrement: bigNumberify(0),
-        respondingBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
@@ -187,7 +187,7 @@ describe("Three mininodes", () => {
 
     await mininodeA.ie.initiateProtocol(Protocol.Update, mininodeA.scm, {
       initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
+      responderXpub: mininodeC.xpub,
       multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       newState: {
@@ -197,7 +197,7 @@ describe("Three mininodes", () => {
 
     await mininodeA.ie.initiateProtocol(Protocol.TakeAction, mininodeA.scm, {
       initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
+      responderXpub: mininodeC.xpub,
       multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
       appIdentityHash: appInstance.identityHash,
       action: {
@@ -212,7 +212,7 @@ describe("Three mininodes", () => {
       {
         initiatingXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        responderXpub: mininodeC.xpub,
         targetAppIdentityHash: appInstance.identityHash,
         targetAppState: {
           counter: 2

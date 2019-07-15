@@ -43,13 +43,13 @@ export type ProtocolMessage = {
 
 export type SetupParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   multisigAddress: string;
 };
 
 export type UpdateParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
   newState: SolidityABIEncoderV2Type;
@@ -57,7 +57,7 @@ export type UpdateParams = {
 
 export type TakeActionParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
   action: SolidityABIEncoderV2Type;
@@ -65,7 +65,7 @@ export type TakeActionParams = {
 
 export type WithdrawParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   multisigAddress: string;
   recipient: string;
   amount: BigNumber;
@@ -74,11 +74,11 @@ export type WithdrawParams = {
 
 export type InstallParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   tokenAddress: string;
   multisigAddress: string;
   initiatingBalanceDecrement: BigNumber;
-  respondingBalanceDecrement: BigNumber;
+  responderBalanceDecrement: BigNumber;
   signingKeys: string[];
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
@@ -89,25 +89,25 @@ export type InstallParams = {
 export type UninstallParams = {
   appIdentityHash: string;
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   multisigAddress: string;
 };
 
 export type InstallVirtualAppParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: SolidityABIEncoderV2Type;
   initiatingBalanceDecrement: BigNumber;
-  respondingBalanceDecrement: BigNumber;
+  responderBalanceDecrement: BigNumber;
   tokenAddress: string;
 };
 
 export type UninstallVirtualAppParams = {
   initiatingXpub: string;
-  respondingXpub: string;
+  responderXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;
   targetAppState: SolidityABIEncoderV2Type;

@@ -5,8 +5,8 @@
 |       Field       |   type    |                    description                    |
 | ----------------- | --------- | ------------------------------------------------- |
 | `initiatingXpub`  | `xpub`    | xpub of `initiating`                              |
-| `respondingXpub`  | `xpub`    | xpub of `responding`                              |
-| `multisigAddress` | `address` | address of the `initiating`-`responding` multisig |
+| `responderXpub`  | `xpub`    | xpub of `responder`                              |
+| `multisigAddress` | `address` | address of the `initiating`-`responder` multisig |
 | `recipient`       | `address` | address to withdraw ETH to                        |
 | `amount`          | `uint256` | amount of ether to withdraw, in wei               |
 
@@ -29,11 +29,11 @@ This is exactly the same kind of uninstall commitment produced by the uninstall 
 | Signature |     Commitment     |  Signed By   |
 | --------- | ------------------ | ------------ |
 | s1        | installRefundApp   | `initiating` |
-| s2        | installRefundApp   | `responding` |
+| s2        | installRefundApp   | `responder` |
 | s3        | withdrawCommitment | `initiating` |
-| s4        | withdrawCommitment | `responding` |
+| s4        | withdrawCommitment | `responder` |
 | s5        | uninstallRefundApp | `initiating` |
-| s6        | uninstallRefundApp | `responding` |
+| s6        | uninstallRefundApp | `responder` |
 
 ## Messages
 
@@ -44,14 +44,14 @@ This is exactly the same kind of uninstall commitment produced by the uninstall 
 |     Field     |   Description    |
 | ------------- | ---------------- |
 | `fromAddress` | `initiatingXpub` |
-| `toAddress`   | `respondingXpub` |
+| `toAddress`   | `responderXpub` |
 | `seq`         | `1`              |
 | `signature`   | s1               |
 | `signature2`  | s3               |
 
 |     Field     |   Description    |
 | ------------- | ---------------- |
-| `fromAddress` | `respondingXpub` |
+| `fromAddress` | `responderXpub` |
 | `toAddress`   | `initiatingXpub` |
 | `seq`         | `2`              |
 | `signature`   | s2               |
@@ -61,6 +61,6 @@ This is exactly the same kind of uninstall commitment produced by the uninstall 
 |     Field     |   Description    |
 | ------------- | ---------------- |
 | `fromAddress` | `initiatingXpub` |
-| `toAddress`   | `respondingXpub` |
+| `toAddress`   | `responderXpub` |
 | `seq`         | `-1`              |
 | `signature`   | s5               |

@@ -50,11 +50,11 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const {
       intermediaryXpub,
-      respondingXpub
+      responderXpub
     } = params as UninstallVirtualAppParams;
 
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
-    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
       params,
@@ -79,7 +79,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const { signature: s3, signature2: signature2 } = m4;
 
-    assertIsValidSignature(respondingAddress, lockCommitment, s3);
+    assertIsValidSignature(responderAddress, lockCommitment, s3);
     assertIsValidSignature(
       intermediaryAddress,
       lockCommitment,
@@ -118,11 +118,11 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const {
       initiatingXpub,
-      respondingXpub
+      responderXpub
     } = params as UninstallVirtualAppParams;
 
     const initiatingAddress = xkeyKthAddress(initiatingXpub, 0);
-    const respondingAddress = xkeyKthAddress(respondingXpub, 0);
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
 
     const lockCommitment = addVirtualAppStateTransitionToContext(
       params,
@@ -142,14 +142,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: protocolExecutionID,
         params: params,
         seq: 2,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: signature,
         signature2: signature2
       } as ProtocolMessage
     ];
     const { signature: s3 } = m3;
 
-    assertIsValidSignature(respondingAddress, lockCommitment, s3);
+    assertIsValidSignature(responderAddress, lockCommitment, s3);
 
     const m5 = yield [
       Opcode.IO_SEND_AND_WAIT,
@@ -203,13 +203,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.UninstallVirtualApp,
         protocolExecutionID: protocolExecutionID,
         seq: UNASSIGNED_SEQ_NO,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: s6
       } as ProtocolMessage
     ];
     const { signature: s7 } = m8;
 
-    assertIsValidSignature(respondingAddress, rightUninstallCommitment, s7);
+    assertIsValidSignature(responderAddress, rightUninstallCommitment, s7);
 
     removeVirtualAppInstance(params, context);
   },
@@ -290,13 +290,13 @@ function removeVirtualAppInstance(
 ) {
   const {
     intermediaryXpub,
-    respondingXpub,
+    responderXpub,
     initiatingXpub,
     targetAppIdentityHash
   } = params as UninstallVirtualAppParams;
 
   const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatingXpub, respondingXpub],
+    [initiatingXpub, responderXpub],
     intermediaryXpub
   );
 
@@ -312,14 +312,14 @@ function addVirtualAppStateTransitionToContext(
 ): VirtualAppSetStateCommitment {
   const {
     intermediaryXpub,
-    respondingXpub,
+    responderXpub,
     initiatingXpub,
     targetAppIdentityHash,
     targetAppState
   } = params as UninstallVirtualAppParams;
 
   const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatingXpub, respondingXpub],
+    [initiatingXpub, responderXpub],
     intermediaryXpub
   );
 
@@ -368,12 +368,12 @@ async function addRightUninstallAgreementToContext(
   const {
     initiatingXpub,
     intermediaryXpub,
-    respondingXpub,
+    responderXpub,
     targetAppIdentityHash
   } = params as UninstallVirtualAppParams;
 
   const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatingXpub, respondingXpub],
+    [initiatingXpub, responderXpub],
     intermediaryXpub
   );
 
@@ -388,7 +388,7 @@ async function addRightUninstallAgreementToContext(
 
   const sc = getChannelFromCounterparty(
     context.stateChannelsMap,
-    respondingXpub,
+    responderXpub,
     intermediaryXpub
   )!;
 
@@ -396,7 +396,7 @@ async function addRightUninstallAgreementToContext(
     targetAppIdentityHash,
     {
       [zA(intermediaryXpub)]: increments[zA(initiatingXpub)],
-      [zA(respondingXpub)]: increments[zA(respondingXpub)]
+      [zA(responderXpub)]: increments[zA(responderXpub)]
     },
     CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
@@ -416,12 +416,12 @@ async function addLeftUninstallAgreementToContext(
   const {
     initiatingXpub,
     intermediaryXpub,
-    respondingXpub,
+    responderXpub,
     targetAppIdentityHash
   } = params as UninstallVirtualAppParams;
 
   const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatingXpub, respondingXpub],
+    [initiatingXpub, responderXpub],
     intermediaryXpub
   );
 
@@ -443,7 +443,7 @@ async function addLeftUninstallAgreementToContext(
   const newStateChannel = sc.removeSingleAssetTwoPartyIntermediaryAgreement(
     targetAppIdentityHash,
     {
-      [zA(intermediaryXpub)]: increments[zA(respondingXpub)],
+      [zA(intermediaryXpub)]: increments[zA(responderXpub)],
       [zA(initiatingXpub)]: increments[zA(initiatingXpub)]
     },
     CONVENTION_FOR_ETH_TOKEN_ADDRESS

@@ -18,7 +18,7 @@ import {
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
- * proposal to the intermediaries and the responding Node.
+ * proposal to the intermediaries and the responder Node.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */

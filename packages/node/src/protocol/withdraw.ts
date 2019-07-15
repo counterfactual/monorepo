@@ -52,7 +52,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = context;
 
     const {
-      respondingXpub,
+      responderXpub,
       multisigAddress,
       recipient,
       amount,
@@ -63,8 +63,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       multisigAddress
     )!;
 
-    const respondingAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
-      respondingXpub
+    const responderAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
+      responderXpub
     );
 
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
@@ -94,14 +94,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID,
         params,
         protocol: Protocol.Withdraw,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnConditionalTransaction,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -134,7 +134,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -178,7 +178,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnFreeBalanceStateUpdate,
         signature2: mySignatureOnWithdrawalCommitment,
         seq: UNASSIGNED_SEQ_NO
@@ -186,7 +186,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       withdrawCommitment,
       counterpartySignatureOnWithdrawalCommitment
     );
@@ -210,7 +210,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      respondingAddress,
+      responderAddress,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
@@ -225,7 +225,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
       }

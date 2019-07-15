@@ -250,8 +250,8 @@ export namespace Node {
   export type ProposeInstallParams = {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
-    initiatingDeposit: BigNumber;
-    respondingDeposit: BigNumber;
+    initiatorDeposit: BigNumber;
+    responderDeposit: BigNumber;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;

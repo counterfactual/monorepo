@@ -49,7 +49,7 @@ export async function handleReceivedProtocolMessage(
     const {
       initiatingXpub,
       intermediaryXpub,
-      respondingXpub,
+      responderXpub,
       targetAppIdentityHash
     } = params as UninstallVirtualAppParams;
     let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
@@ -58,7 +58,7 @@ export async function handleReceivedProtocolMessage(
 
     if (channelWithIntermediary === null) {
       channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
-        hashOfOrderedPublicIdentifiers([respondingXpub, intermediaryXpub])
+        hashOfOrderedPublicIdentifiers([responderXpub, intermediaryXpub])
       );
     }
 

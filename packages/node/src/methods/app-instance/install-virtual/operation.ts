@@ -30,7 +30,7 @@ export async function installVirtual(
       new Map(Object.entries(await store.getAllChannels())),
       {
         initiatingXpub: proposal.proposedToIdentifier,
-        respondingXpub: proposal.proposedByIdentifier,
+        responderXpub: proposal.proposedByIdentifier,
         intermediaryXpub: proposal.intermediaries![0],
         defaultTimeout: proposal.timeout.toNumber(),
         appInterface: {
@@ -38,8 +38,8 @@ export async function installVirtual(
           ...proposal.abiEncodings
         },
         initialState: proposal.initialState,
-        initiatingBalanceDecrement: proposal.initiatingDeposit,
-        respondingBalanceDecrement: proposal.respondingDeposit,
+        initiatingBalanceDecrement: proposal.initiatorDeposit,
+        responderBalanceDecrement: proposal.responderDeposit,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );

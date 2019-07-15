@@ -12,7 +12,7 @@ Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alic
 
 ## Roles
 
-Two users run the protocol. They are designated as `initiating` and `responding`.
+Two users run the protocol. They are designated as `initiating` and `responder`.
 
 ## Messages
 
@@ -52,7 +52,7 @@ appIdentityHash := keccak256(
 | `protocol`    | `"update"`                              |
 | `params`      | An `UpdateParams` object                |
 | `fromAddress` | The address of `initiating`             |
-| `toAddress`   | The address of `responding`             |
+| `toAddress`   | The address of `responder`             |
 | `seq`         | `1`                                     |
 | `signature`   | `initiating`'s signed commitment digest |
 
@@ -61,10 +61,10 @@ appIdentityHash := keccak256(
 | Field         | Description                             |
 | ------------- | --------------------------------------- |
 | `protocol`    | `"update"`                              |
-| `fromAddress` | The address of `responding`             |
+| `fromAddress` | The address of `responder`             |
 | `toAddress`   | The address of `initiating`             |
 | `seq`         | `2`                                     |
-| `signature`   | `responding`'s signed commitment digest |
+| `signature`   | `responder`'s signed commitment digest |
 
 ## Commitments
 

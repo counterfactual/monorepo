@@ -30,7 +30,7 @@ export async function runWithdrawProtocol(
       tokenAddress,
       recipient: params.recipient as string,
       initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
+      responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress
     }
   );

@@ -17,7 +17,7 @@ export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
  *
  * @export
  * @param {string} networkName - name of the network
- * @returns {NetworkContext} - the corresponding NetworkContext
+ * @returns {NetworkContext} - the corresponder NetworkContext
  */
 export function getNetworkContextForNetworkName(
   networkName: string

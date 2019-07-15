@@ -69,7 +69,7 @@ export default class TakeActionController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const respondingXpub = getCounterpartyAddress(
+    const responderXpub = getCounterpartyAddress(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
@@ -79,7 +79,7 @@ export default class TakeActionController extends NodeController {
       store,
       instructionExecutor,
       publicIdentifier,
-      respondingXpub,
+      responderXpub,
       action
     );
 
@@ -112,7 +112,7 @@ async function runTakeActionProtocol(
   store: Store,
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
-  respondingXpub: string,
+  responderXpub: string,
   action: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
@@ -127,7 +127,7 @@ async function runTakeActionProtocol(
       ]),
       {
         initiatingXpub,
-        respondingXpub,
+        responderXpub,
         appIdentityHash,
         action,
         multisigAddress: stateChannel.multisigAddress

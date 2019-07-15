@@ -65,7 +65,7 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE =
 
 /**
  * Namespace providing a lookup table from an appIdentityHash and protocol to the
- * corresponding commitment transaction.
+ * corresponder commitment transaction.
  */
 export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
   "appInstanceHashToCommitment";

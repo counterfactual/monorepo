@@ -5,7 +5,7 @@ export async function uninstallAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
   initiatingXpub: string,
-  respondingXpub: string,
+  responderXpub: string,
   intermediaryXpub: string,
   appInstanceId: string
 ): Promise<void> {
@@ -20,7 +20,7 @@ export async function uninstallAppInstanceFromChannel(
     currentChannels,
     {
       initiatingXpub,
-      respondingXpub,
+      responderXpub,
       intermediaryXpub,
       targetAppState: appInstance.state,
       targetAppIdentityHash: appInstance.identityHash
