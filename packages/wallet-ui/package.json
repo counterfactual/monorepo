@@ -28,11 +28,13 @@
   "jest": {
     "collectCoverageFrom": [
       "./src/**/*.ts*",
+      "!./src/index.tsx",
       "!./src/**/*.mock.ts",
       "!./src/**/*.d.ts",
       "!./src/**/types.ts",
       "!./src/**/index.ts",
       "!./src/utils/log.ts",
+      "!./src/utils/testSelector.ts",
       "!./src/store/test-utils/*.ts"
     ]
   },
