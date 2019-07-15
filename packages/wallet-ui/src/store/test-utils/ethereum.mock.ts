@@ -5,6 +5,7 @@ import {
   CounterfactualMethod,
   EthereumGlobal
 } from "../../types";
+import { USER_MOCK_DATA } from "../user/user.mock";
 
 export const ETHEREUM_MOCK_ADDRESS =
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE";
@@ -24,9 +25,14 @@ export const FREE_BALANCE_MOCK_ADDRESS =
 export const COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS =
   "0xb6c0924Ca0C030AC64c037C3Af665aebb78cB109";
 
+export const TRANSACTION_MOCK_HASH =
+  "0xf86c258502540be40083035b609482e041e84074fc5f5947d4d27e3c44f824b7a1a187b1a2bc2ec500008078a04a7db627266fa9a4116e3f6b33f5d245db40983234eb356261f36808909d2848a0166fa098a2ce3bda87af6000ed0083e3bf7cc31c6686b670bd85cbc6da2d6e85";
+
 export type EthereumMockBehaviors = {
   failOnEnable: boolean;
   rejectDeposit: boolean;
+  nodeAddressFromUserMock: boolean;
+  multisigAddressFromUserMock: boolean;
 };
 
 export const enableEthereumMockBehavior = (
@@ -56,7 +62,9 @@ export default class EthereumMock implements EthereumGlobal {
 
   mockBehaviors: EthereumMockBehaviors = {
     failOnEnable: false,
-    rejectDeposit: false
+    rejectDeposit: false,
+    nodeAddressFromUserMock: false,
+    multisigAddressFromUserMock: false
   };
 
   constructor(private readonly events: { [key: string]: Function[] } = {}) {}
@@ -100,6 +108,30 @@ export default class EthereumMock implements EthereumGlobal {
         result: {
           [FREE_BALANCE_MOCK_ADDRESS]: parseEther("1.0"),
           [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: parseEther("1.0")
+        },
+        id: Date.now()
+      };
+    }
+
+    if (eventOrMethod === CounterfactualMethod.GetNodeAddress) {
+      return {
+        jsonrpc: "2.0",
+        result: this.mockBehaviors.nodeAddressFromUserMock
+          ? USER_MOCK_DATA.nodeAddress
+          : NODE_MOCK_ADDRESS,
+        id: Date.now()
+      };
+    }
+
+    if (eventOrMethod === CounterfactualEvent.CreateChannel) {
+      return {
+        jsonrpc: "2.0",
+        result: {
+          data: {
+            multisigAddress: this.mockBehaviors.nodeAddressFromUserMock
+              ? USER_MOCK_DATA.multisigAddress
+              : MULTISIG_MOCK_ADDRESS
+          }
         },
         id: Date.now()
       };
