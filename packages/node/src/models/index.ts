@@ -1,4 +1,4 @@
-import { AppInstance, AppInstanceJson } from "./app-instance";
+import { AppInstance } from "./app-instance";
 import {
   AppInstanceProposal,
   AppInstanceProposalJSON
@@ -7,7 +7,6 @@ import { StateChannel, StateChannelJSON } from "./state-channel";
 
 export {
   AppInstance,
-  AppInstanceJson,
   AppInstanceProposal,
   AppInstanceProposalJSON,
   StateChannel,

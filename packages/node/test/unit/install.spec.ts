@@ -135,7 +135,7 @@ describe("Can handle correct & incorrect installs", () => {
       )
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
-    // The AppInstanceInfo that's returned is the one that was installed, which
+    // The AppInstanceProposal that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
       install(store, ie, {

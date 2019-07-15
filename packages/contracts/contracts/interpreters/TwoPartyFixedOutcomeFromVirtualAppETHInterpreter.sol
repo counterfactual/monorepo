@@ -5,6 +5,12 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
+/// @notice
+/// Asset: ETH
+/// OutcomeType: TwoPartyFixedOutcome
+/// This is expected to be used for a virtual app in a simple hub topology, hence
+/// two different commitments to this interpreter are to be made in the two direct channels,
+/// where the commitments differ in the params.beneficiaries field.
 contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   Interpreter
 {
@@ -48,9 +54,7 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
 
       agreement.beneficiaries[1].transfer(agreement.capitalProvided);
 
-    else if (
-      twoPartyOutcome == LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS
-    ) {
+    else {
 
       agreement.beneficiaries[0].transfer(
         agreement.capitalProvided / 2
@@ -60,7 +64,7 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
         agreement.capitalProvided - agreement.capitalProvided / 2
       );
 
-    } else revert("Outcome received was invalid");
+    }
 
   }
 

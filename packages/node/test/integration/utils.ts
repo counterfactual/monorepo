@@ -3,7 +3,8 @@ import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
   Address,
   AppABIEncodings,
-  AppInstanceInfo,
+  AppInstanceJson,
+  AppInstanceProposal,
   ContractABI,
   NetworkContext,
   networkContextProps,
@@ -28,7 +29,6 @@ import {
   ProposeVirtualMessage,
   Rpc
 } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   FreeBalanceState
@@ -80,35 +80,20 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstances(
-  node: Node
-): Promise<AppInstanceInfo[]> {
-  return getApps(node, APP_INSTANCE_STATUS.INSTALLED);
-}
-
-export async function getInstalledAppInstanceInfo(
+export async function getInstalledAppInstance(
   node: Node,
   appInstanceId: string
-): Promise<AppInstanceInfo> {
-  const allAppInstanceInfos = await getApps(
-    node,
-    APP_INSTANCE_STATUS.INSTALLED
-  );
-  return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.identityHash === appInstanceId;
+): Promise<AppInstanceJson> {
+  const allAppInstances = await getInstalledAppInstances(node);
+  return allAppInstances.filter(appInstance => {
+    return appInstance.identityHash === appInstanceId;
   })[0];
-}
-
-export async function getProposedAppInstances(
-  node: Node
-): Promise<AppInstanceInfo[]> {
-  return getApps(node, APP_INSTANCE_STATUS.PROPOSED);
 }
 
 export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
-): Promise<AppInstanceInfo> {
+): Promise<AppInstanceProposal> {
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
@@ -139,32 +124,32 @@ export async function getFreeBalanceState(
   return response.result.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
-export async function getApps(
-  node: Node,
-  appInstanceStatus: APP_INSTANCE_STATUS
-): Promise<AppInstanceInfo[]> {
-  let request: Rpc;
-  let response: JsonRpcResponse;
-  let result;
-  if (appInstanceStatus === APP_INSTANCE_STATUS.INSTALLED) {
-    request = jsonRpcDeserialize({
-      jsonrpc: "2.0",
-      id: Date.now(),
-      method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
-      params: {} as NodeTypes.GetAppInstancesParams
-    });
-    response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
-    result = response.result.result as NodeTypes.GetAppInstancesResult;
-    return result.appInstances;
-  }
-  request = jsonRpcDeserialize({
+export async function getInstalledAppInstances(
+  node: Node
+): Promise<AppInstanceJson[]> {
+  const request = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
+    params: {} as NodeTypes.GetAppInstancesParams
+  });
+  const response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
+  const result = response.result.result as NodeTypes.GetAppInstancesResult;
+  return result.appInstances;
+}
+
+export async function getProposedAppInstances(
+  node: Node
+): Promise<AppInstanceProposal[]> {
+  const request = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_PROPOSED_APP_INSTANCES,
     params: {} as NodeTypes.GetProposedAppInstancesParams
   });
-  response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
-  result = response.result.result as NodeTypes.GetProposedAppInstancesResult;
+  const response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
+  const result = response.result
+    .result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
 
@@ -308,7 +293,7 @@ export function makeTTTVirtualProposalRequest(
  */
 export async function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  appInstanceProposal: AppInstanceInfo,
+  appInstanceProposal: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
@@ -331,7 +316,7 @@ export async function confirmProposedAppInstanceOnNode(
 
 export function confirmProposedVirtualAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo,
+  proposedAppInstance: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
   confirmProposedAppInstanceOnNode(
@@ -462,11 +447,11 @@ export async function installTTTApp(
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstanceInfo(
+      const appInstanceNodeA = await getInstalledAppInstance(
         nodeA,
         appInstanceId
       );
-      const appInstanceNodeB = await getInstalledAppInstanceInfo(
+      const appInstanceNodeB = await getInstalledAppInstance(
         nodeB,
         appInstanceId
       );
@@ -528,12 +513,17 @@ export async function confirmChannelCreation(
 
 export async function confirmAppInstanceInstallation(
   proposedParams: NodeTypes.ProposeInstallParams,
-  appInstanceInfo: AppInstanceInfo
+  appInstance: AppInstanceJson
 ) {
-  delete appInstanceInfo.proposedByIdentifier;
-  delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.identityHash;
-  expect(appInstanceInfo).toEqual(proposedParams);
+  expect(appInstance.appInterface.addr).toEqual(proposedParams.appDefinition);
+  expect(appInstance.appInterface.stateEncoding).toEqual(
+    proposedParams.abiEncodings.stateEncoding
+  );
+  expect(appInstance.appInterface.actionEncoding).toEqual(
+    proposedParams.abiEncodings.actionEncoding
+  );
+  expect(appInstance.defaultTimeout).toEqual(proposedParams.timeout.toNumber());
+  expect(appInstance.latestState).toEqual(proposedParams.initialState);
 }
 
 export async function getState(
@@ -647,13 +637,6 @@ export async function makeProposeCall(
       .appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
   };
-}
-
-export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
-  appInstances.forEach((appInstance: AppInstanceInfo) => {
-    delete appInstance.myDeposit;
-    delete appInstance.peerDeposit;
-  });
 }
 
 export function createFreeBalanceStateWithFundedETHAmounts(

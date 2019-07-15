@@ -1,6 +1,7 @@
 import {
   Address,
   AppInstanceInfo,
+  AppInstanceJson,
   IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
@@ -354,7 +355,7 @@ export class Provider {
    */
   async getOrCreateAppInstance(
     id: string,
-    info?: AppInstanceInfo
+    info?: AppInstanceInfo | AppInstanceJson
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
       let newInfo;
