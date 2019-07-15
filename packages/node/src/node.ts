@@ -15,7 +15,7 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { deployTestArtifactsToChain } from "./network-configuration";
+import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
@@ -79,24 +79,17 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,
-    readonly blocksNeededForConfirmation?: number
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    if (typeof networkContext === "string") {
-      this.networkContext = deployTestArtifactsToChain(networkContext);
 
-      if (
-        blocksNeededForConfirmation &&
-        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
-      ) {
-        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
-      }
+    if (typeof networkContext === "string") {
+      this.networkContext = getNetworkContextForNetworkName(networkContext);
     } else {
-      // Used for testing / ganache
       this.networkContext = networkContext;
     }
+
     this.instructionExecutor = this.buildInstructionExecutor();
 
     log.info(

@@ -8,15 +8,14 @@ import "@counterfactual/contracts/contracts/interpreters/SwapInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
-/// @title Simple Swap App
+/// @title SimpleTwoPartySwapApp
 /// @notice This contract lets two parties swap one ERC20 or ETH asset for another
-
 contract SimpleTwoPartySwapApp is CounterfactualApp {
 
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.CoinBalances[] coinBalances; // [Alice, Bob]
+    LibOutcome.MultiCoinTransfer[] multiCoinTransfers;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -25,13 +24,13 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
     returns (bytes memory)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    uint256[] memory balancesA = state.coinBalances[0].balance;
-    uint256[] memory balancesB = state.coinBalances[1].balance;
 
-    // apply swap
-    state.coinBalances[0].balance = balancesB;
-    state.coinBalances[1].balance = balancesA;
+    uint256[] memory amountsA = state.multiCoinTransfers[0].amounts;
+    uint256[] memory amountsB = state.multiCoinTransfers[1].amounts;
 
-    return abi.encode(state.coinBalances);
+    state.multiCoinTransfers[0].amounts = amountsB;
+    state.multiCoinTransfers[1].amounts = amountsA;
+
+    return abi.encode(state.multiCoinTransfers);
   }
 }

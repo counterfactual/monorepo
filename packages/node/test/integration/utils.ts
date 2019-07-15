@@ -6,14 +6,12 @@ import {
   AppInstanceJson,
   AppInstanceProposal,
   ContractABI,
-  NetworkContext,
-  networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -329,14 +327,6 @@ export function confirmProposedVirtualAppInstanceOnNode(
     proposedAppInstance.intermediaries
   );
 }
-
-const emptyNetworkMap = new Map(
-  networkContextProps.map((i): [string, string] => [i, AddressZero])
-);
-export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
-  (main, [key, value]) => ({ ...main, [key]: value }),
-  {}
-) as NetworkContext;
 
 export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
