@@ -13,7 +13,7 @@ import {
   WalletState
 } from "./types";
 
-const initialState = {
+export const initialState = {
   ethAddress: "",
   error: {},
   counterfactualBalance: Zero,
