@@ -57,6 +57,7 @@ export type EthereumMockBehaviors = {
   multisigAddressFromUserMock: boolean;
   returnEmptyUserOnRequestUser: boolean;
   forceRetryOnWaitForFunds: boolean;
+  forceFailOnGetAllChannels: boolean;
 };
 
 export const enableEthereumMockBehavior = (
@@ -92,7 +93,8 @@ export default class EthereumMock implements EthereumGlobal {
     nodeAddressFromUserMock: false,
     multisigAddressFromUserMock: false,
     returnEmptyUserOnRequestUser: false,
-    forceRetryOnWaitForFunds: false
+    forceRetryOnWaitForFunds: false,
+    forceFailOnGetAllChannels: false
   };
 
   constructor(private readonly events: { [key: string]: Function[] } = {}) {}
@@ -161,7 +163,10 @@ export default class EthereumMock implements EthereumGlobal {
       };
     }
 
-    if (eventOrMethod === CounterfactualMethod.RequestChannels) {
+    if (
+      eventOrMethod === CounterfactualMethod.RequestChannels &&
+      !this.mockBehaviors.forceFailOnGetAllChannels
+    ) {
       return {
         jsonrpc: "2.0",
         result: {

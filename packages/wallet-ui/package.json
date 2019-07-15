@@ -29,7 +29,8 @@
       "!./src/**/index.ts",
       "!./src/utils/log.ts",
       "!./src/utils/testSelector.ts",
-      "!./src/store/test-utils/*.ts"
+      "!./src/store/test-utils/*.ts",
+      "!./src/store/store.ts"
     ]
   },
   "eslintConfig": {
