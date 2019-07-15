@@ -12,6 +12,8 @@ import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
  */
 contract CoinTransferInterpreter is Interpreter {
 
+  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
+
   using LibOutcome for LibOutcome.CoinTransfer;
 
   struct Param {
@@ -50,7 +52,7 @@ contract CoinTransferInterpreter is Interpreter {
         require(amount <= limitRemaining, "Hit the transfer limit.");
         limitRemaining -= amount;
 
-        if (token == address(0x0)) {
+        if (token == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
           // note: send() is deliberately used instead of transfer() here
           // so that a revert does not stop the rest of the sends
           to.send(amount);
