@@ -92,9 +92,7 @@ export function createProviderConsumer<T extends object>(
     );
     if (elementRefName === undefined) {
       throw new Error(
-        `Please ensure that your Component ${
-          childComponent.is
-        } has an attribute with an "@Element" decorator. ` +
+        `Please ensure that your Component ${childComponent.is} has an attribute with an "@Element" decorator. ` +
           `This is required to be able to inject properties.`
       );
     }

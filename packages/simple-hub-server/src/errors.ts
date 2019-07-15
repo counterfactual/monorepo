@@ -19,7 +19,7 @@ enum errorTypes {
 const errors: {
   [key in errorTypes]: (args?: {
     [key: string]: string | number | boolean;
-  }) => JsonApiError
+  }) => JsonApiError;
 } = {
   SignatureRequired: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
