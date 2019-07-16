@@ -213,6 +213,11 @@
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.22.tgz#481760e1e4c9454789488c6477456c2e00d14581"
   integrity sha512-fNQGb4ZYbUl6VgXcTL1HLkHto9lzymHTwMzKHqXFThi5pU/Q3Ete/WQgKVskFv8tjeKaitxWmOdRIG1gBCpNqw==
 
+"@counterfactual/types@0.0.23":
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.23.tgz#2b8ab9eae8d18356bfde1f919065be6cc6e0338e"
+  integrity sha512-h2tspVQZ8DHwI8NMlIhY1+EpHUC2doPaeXc6ujq2j+belrEUmwN5gVHV1xGLCPRRJ3+7gQJzptMb50/5kegePw==
+
 "@counterfactual/typescript-typings@0.1.0":
   version "0.1.0"
   resolved "https://registry.npmjs.org/@counterfactual/typescript-typings/-/typescript-typings-0.1.0.tgz#96ffb1f091f6d24831495596c406c93d0e1ee87c"
@@ -4555,12 +4560,7 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.npmjs.org/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
-lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.5:
-  version "4.17.14"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
-  integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
-
-lodash@^4.17.14:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.5:
   version "4.17.14"
   resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.14.tgz#9ce487ae66c96254fe20b599f21b6816028078ba"
   integrity sha512-mmKYbW3GLuJeX+iGP+Y7Gp1AiGHGbXHCOh/jZmrawMmsE7MS4znI3RL2FsjbqOyMayHInjOeykW7PEajUk1/xw==
