@@ -21,7 +21,6 @@ import {
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../machine/virtual-app-unique-identifier";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -1024,7 +1023,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
       [initiatorAddress]: initiatorBalanceDecrement,
       [intermediaryAddress]: responderBalanceDecrement
     },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    tokenAddress
   );
 
   const stateChannelWithResponding = channelWithResponding.addSingleAssetTwoPartyIntermediaryAgreement(
@@ -1041,7 +1040,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
       [intermediaryAddress]: initiatorBalanceDecrement,
       [responderAddress]: responderBalanceDecrement
     },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    tokenAddress
   );
 
   return [
@@ -1110,7 +1109,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
       [intermediaryAddress]: initiatorBalanceDecrement,
       [responderAddress]: responderBalanceDecrement
     },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    tokenAddress
   );
 
   return [
