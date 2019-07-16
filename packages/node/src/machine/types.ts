@@ -74,8 +74,9 @@ export type WithdrawParams = {
 
 export type InstallParams = {
   initiatorXpub: string;
+  initiatorDepositTokenAddress: string;
   responderXpub: string;
-  tokenAddress: string;
+  responderDepositTokenAddress: string;
   multisigAddress: string;
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;

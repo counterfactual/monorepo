@@ -3,7 +3,6 @@ pragma experimental "ABIEncoderV2";
 
 import "./ChallengeRegistry.sol";
 import "./libs/LibOutcome.sol";
-import "./interpreters/CoinTransferETHInterpreter.sol";
 
 
 /// @title ConditionalTransactionDelegateTarget
@@ -25,7 +24,8 @@ contract ConditionalTransactionDelegateTarget {
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address coinTransferETHInterpreterAddress
+    address coinTransferETHInterpreterAddress,
+    bytes memory coinTransferETHInterpreterParams
   )
     public
   {
@@ -42,14 +42,7 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      abi.encode(
-        CoinTransferETHInterpreter.Params(
-          // This is the `limit` param, which for the case of the
-          // FreeBalance is set to the max amount.
-          MAX_UINT256,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        )
-      )
+      coinTransferETHInterpreterParams
     );
 
     (

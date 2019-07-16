@@ -2,7 +2,6 @@ import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
@@ -43,7 +42,8 @@ export async function install(
       },
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
-      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
+      responderDepositTokenAddress: proposal.responderDepositTokenAddress
     }
   );
 

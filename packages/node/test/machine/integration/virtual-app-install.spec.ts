@@ -15,7 +15,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
+import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -99,9 +99,10 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey)
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedETHAmounts(
+        createFreeBalanceStateWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
-          parseEther("20")
+          parseEther("20"),
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
         )
       );
 

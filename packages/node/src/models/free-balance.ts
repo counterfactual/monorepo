@@ -1,7 +1,7 @@
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { getCoinBucketAppInterface } from "../ethereum/utils/funds-bucket";
+import { getFreeBalanceAppInterface } from "../ethereum/utils/funds-bucket";
 import { xkeysToSortedKthAddresses } from "../machine";
 
 import { AppInstance } from ".";
@@ -19,6 +19,10 @@ export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
 export type CoinTransferMap = {
   [to: string]: BigNumber;
+};
+
+export type TokenIndexedCoinTransferMap = {
+  [tokenAddress: string]: CoinTransferMap;
 };
 
 export type CoinTransfer = {
@@ -78,7 +82,7 @@ export function createFreeBalance(
     multisigAddress,
     sortedTopLevelKeys,
     freeBalanceTimeout,
-    getCoinBucketAppInterface(coinBucketAddress),
+    getFreeBalanceAppInterface(coinBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     serializeFreeBalanceState(initialState),
@@ -86,7 +90,7 @@ export function createFreeBalance(
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS }
+    { limit: [MaxUint256], tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
   );
 }
 
@@ -115,7 +119,7 @@ export function convertCoinTransfersMapToCoinTransfers(
 }
 
 /**
- * Given an AppInstance whose state is HexFreeBalanceState, convert the state
+ * Given an AppInstance whose state is FreeBalanceState, convert the state
  * into the locally more convenient data type CoinTransferMap and return that.
  *
  * Note that this function will also default the `to` addresses of a new token

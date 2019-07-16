@@ -94,7 +94,8 @@ describe("Three mininodes", () => {
       },
       defaultTimeout: 40,
       outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
-      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
     const appInstances = mininodeA.scm.get(multisigAB)!.appInstances;

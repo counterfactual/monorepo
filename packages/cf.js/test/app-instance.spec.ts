@@ -7,7 +7,11 @@ import { AppInstance, AppInstanceEventType } from "../src/app-instance";
 import { jsonRpcMethodNames } from "../src/provider";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
-import { TEST_XPUBS, TestNodeProvider } from "./fixture";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TEST_XPUBS,
+  TestNodeProvider
+} from "./fixture";
 
 describe("CF.js AppInstance", () => {
   let nodeProvider: TestNodeProvider;
@@ -22,7 +26,9 @@ describe("CF.js AppInstance", () => {
     responderDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   beforeEach(async () => {

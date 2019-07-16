@@ -1,5 +1,6 @@
 import {
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcomeInterpreterParams
@@ -12,6 +13,7 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, InstallParams, ProtocolMessage } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
+import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -284,7 +286,8 @@ function computeStateChannelTransition(
   const {
     initiatorBalanceDecrement,
     responderBalanceDecrement,
-    tokenAddress,
+    initiatorDepositTokenAddress,
+    responderDepositTokenAddress,
     initiatorXpub,
     responderXpub,
     signingKeys,
@@ -302,8 +305,10 @@ function computeStateChannelTransition(
     coinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
   } = computeInterpreterParameters(
+    stateChannel.freeBalance,
     outcomeType,
-    tokenAddress,
+    initiatorDepositTokenAddress,
+    responderDepositTokenAddress,
     initiatorBalanceDecrement,
     responderBalanceDecrement,
     initiatorFbAddress,
@@ -321,14 +326,35 @@ function computeStateChannelTransition(
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
-    /* tokenAddress */ tokenAddress
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 
-  return stateChannel.installApp(appInstanceToBeInstalled, {
-    [initiatorFbAddress]: initiatorBalanceDecrement,
-    [responderFbAddress]: responderBalanceDecrement
-  });
+  let tokenIndexedBalanceDecrement: TokenIndexedCoinTransferMap;
+  if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+    tokenIndexedBalanceDecrement = {
+      [initiatorDepositTokenAddress]: {
+        [initiatorFbAddress]: initiatorBalanceDecrement
+      },
+      [responderDepositTokenAddress]: {
+        [responderFbAddress]: responderBalanceDecrement
+      }
+    };
+  } else {
+    // If the decrements are on the same token, the previous block
+    // sets the decrement only on the `respondingFbAddress` and the
+    // `initiatingFbAddress` would get overwritten
+    tokenIndexedBalanceDecrement = {
+      [initiatorDepositTokenAddress]: {
+        [initiatorFbAddress]: initiatorBalanceDecrement,
+        [responderFbAddress]: responderBalanceDecrement
+      }
+    };
+  }
+
+  return stateChannel.installApp(
+    appInstanceToBeInstalled,
+    tokenIndexedBalanceDecrement
+  );
 }
 
 /**
@@ -342,6 +368,8 @@ function computeStateChannelTransition(
  * inside of the client (the Node) by adding an "outcomeType" variable which
  * is a simplification of the actual decision a developer has to make with their app.
  *
+ * TODO: update doc on how CoinTransferInterpreterParams work
+ *
  * @param {OutcomeType} outcomeType - either COIN_TRANSFER or TWO_PARTY_FIXED_OUTCOME
  * @param {BigNumber} initiatorBalanceDecrement - amount Wei initiator deposits
  * @param {BigNumber} responderBalanceDecrement - amount Wei responder deposits
@@ -353,8 +381,10 @@ function computeStateChannelTransition(
  * object currently accepts both in its constructor and internally manages them.
  */
 function computeInterpreterParameters(
+  freeBalance: AppInstance,
   outcomeType: OutcomeType,
-  tokenAddress: string,
+  initiatorDepositTokenAddress: string,
+  responderDepositTokenAddress: string,
   initiatorBalanceDecrement: BigNumber,
   responderBalanceDecrement: BigNumber,
   initiatorFbAddress: string,
@@ -368,11 +398,29 @@ function computeInterpreterParameters(
 
   switch (outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
+      const limit: BigNumber[] = [];
+      const tokens: string[] = [];
+
+      // Deposit is taking place by the initiator
+      if (responderDepositTokenAddress === undefined) {
+        limit.push(initiatorBalanceDecrement);
+        tokens.push(initiatorDepositTokenAddress);
+      } else if (
+        initiatorDepositTokenAddress === responderDepositTokenAddress
+      ) {
+        limit.push(initiatorBalanceDecrement.add(responderBalanceDecrement));
+        tokens.push(initiatorDepositTokenAddress);
+      } else {
+        tokens.push(initiatorDepositTokenAddress);
+        limit.push(initiatorBalanceDecrement);
+
+        tokens.push(responderDepositTokenAddress);
+        limit.push(responderBalanceDecrement);
+      }
+
       coinTransferInterpreterParams = {
-        tokenAddress,
-        limit: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        )
+        limit,
+        tokens
       };
       break;
     }
@@ -417,9 +465,9 @@ function constructConditionalTransactionData(
 
   switch (outcomeType) {
     case OutcomeType.COIN_TRANSFER: {
-      interpreterAddress = network.CoinTransferETHInterpreter;
+      interpreterAddress = network.CoinTransferInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit, address tokenAddress)"],
+        [coinTransferInterpreterParamsStateEncoding],
         [appInstance.coinTransferInterpreterParams]
       );
       break;

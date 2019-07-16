@@ -922,22 +922,6 @@
   resolved "https://registry.npmjs.org/@counterfactual/apps/-/apps-0.1.1.tgz#18214b5cd9ad1e8658e436da27a98e45d53bc57a"
   integrity sha512-ItNpJFL6Vr6U0HqbvmI9/9qYCBoAlnbMv9eoIjJrc7sC6Wp0r0CfP0STh4OloUZB/Pa80uDmUxBkL7hZXJNYPg==
 
-"@counterfactual/cf.js@0.2.1":
-  version "0.2.1"
-  resolved "https://registry.npmjs.org/@counterfactual/cf.js/-/cf.js-0.2.1.tgz#bf0a5ca683ffe3c35d2fa426daf874ded621cf7d"
-  integrity sha512-wtH36gj2uUTW04AfeXqUhdrH4KZljCfYMpmE96M5nIHqrJ3K98Xk7d0eSopnZ+krZc8BduucExEtB4+L258KiQ==
-  dependencies:
-    "@counterfactual/node-provider" "0.1.2"
-    "@counterfactual/types" "0.0.13"
-    ethers "4.0.29"
-    eventemitter3 "^3.1.2"
-    rpc-server "0.0.1"
-
-"@counterfactual/contracts@0.1.7":
-  version "0.1.7"
-  resolved "https://registry.npmjs.org/@counterfactual/contracts/-/contracts-0.1.7.tgz#7cee2e5badf3895bff74a146c37c3e69bdf3c5fb"
-  integrity sha512-Q+Gk+xpAqSdQ6Ox+skr7SCmYkk82Yaqbobkjrz52ZZbiRDi8+IR3o3ZzlX2R1/LXVFn9iHXEHuxJUVwhC4JH2A==
-
 "@counterfactual/dapp-tic-tac-toe@0.1.2":
   version "0.1.2"
   resolved "https://registry.npmjs.org/@counterfactual/dapp-tic-tac-toe/-/dapp-tic-tac-toe-0.1.2.tgz#810aaf8f028eeba860a3442b6b5e81f919c9ef6c"
@@ -965,39 +949,10 @@
     firebase "6.0.2"
     firebase-server "1.0.2"
 
-"@counterfactual/node-provider@0.1.2":
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/@counterfactual/node-provider/-/node-provider-0.1.2.tgz#423fa7c516a32e36e56143a9e6b4f9aa05194733"
-  integrity sha512-7DrRocC9etadQq1hXNuLZr0FqEWuWcYrT3EtfnJWUkgHbk8C4/liOo2DS5pR0rYxZhh5SH6kn5QyX08W6Oackw==
-  dependencies:
-    eventemitter3 "^3.1.0"
-
-"@counterfactual/node@0.2.17":
-  version "0.2.17"
-  resolved "https://registry.npmjs.org/@counterfactual/node/-/node-0.2.17.tgz#394fcd6ddfa33e7b0a60ab15f962af33988f9d4d"
-  integrity sha512-BbmAf0ltR46piAS//R1tR+zH0I4npS2IXhDchNl7k/WMt17sVHrHrJPZ+WszNVowGxSMgehPc1wL8J++Kh7Y8w==
-  dependencies:
-    "@counterfactual/cf.js" "0.2.1"
-    "@counterfactual/contracts" "0.1.7"
-    "@counterfactual/firebase-client" "0.0.3"
-    "@counterfactual/types" "0.0.22"
-    ethers "4.0.32"
-    eventemitter3 "^4.0.0"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    rpc-server "0.0.1"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
-"@counterfactual/types@0.0.13":
-  version "0.0.13"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.13.tgz#d523f272158adffce4c8ab51403d9a1b5addf5af"
-  integrity sha512-mG4mLvWwJu1/SunpJQtgZBRYtvXPRcLP/MbSbkweahcEtRBZQmPjNKhTTaDzBNFlmzm7nqDuDCPBC7vwx9qBWg==
-
-"@counterfactual/types@0.0.22":
-  version "0.0.22"
-  resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.22.tgz#481760e1e4c9454789488c6477456c2e00d14581"
-  integrity sha512-fNQGb4ZYbUl6VgXcTL1HLkHto9lzymHTwMzKHqXFThi5pU/Q3Ete/WQgKVskFv8tjeKaitxWmOdRIG1gBCpNqw==
+"@counterfactual/types@0.0.23":
+  version "0.0.23"
+  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.23.tgz#2b8ab9eae8d18356bfde1f919065be6cc6e0338e"
+  integrity sha512-h2tspVQZ8DHwI8NMlIhY1+EpHUC2doPaeXc6ujq2j+belrEUmwN5gVHV1xGLCPRRJ3+7gQJzptMb50/5kegePw==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -3410,11 +3365,6 @@ core-js-pure@3.1.4:
   resolved "https://registry.npmjs.org/core-js-pure/-/core-js-pure-3.1.4.tgz#5fa17dc77002a169a3566cc48dc774d2e13e3769"
   integrity sha512-uJ4Z7iPNwiu1foygbcZYJsJs1jiXrTTCvxfLDXNhI/I+NHbSIEyr548y4fcsCEyWY0XgfAG/qqaunJ1SThHenA==
 
-core-js@2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/core-js/-/core-js-2.4.1.tgz#4de911e667b0eae9124e34254b53aea6fc618d3e"
-  integrity sha1-TekR5mew6ukSTjQlS1OupvxhjT4=
-
 core-js@2.6.4:
   version "2.6.4"
   resolved "https://registry.npmjs.org/core-js/-/core-js-2.6.4.tgz#b8897c062c4d769dd30a0ac5c73976c47f92ea0d"
@@ -4455,38 +4405,6 @@ etag@~1.8.1:
   resolved "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
-ethers@4.0.29:
-  version "4.0.29"
-  resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.29.tgz#b698f5d8a5a89bfd3d12dba2ad5a4cd9a95a93bb"
-  integrity sha512-WCaH8an3Y+i85zW6Y6fmt0oQE9GXJy9NjqNVDTJVUJ/WBLIB1z17nG16lbOz3zVYWFgarfnzVakN2G7AyXk1Xg==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.4"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
-
-ethers@4.0.32:
-  version "4.0.32"
-  resolved "https://registry.npmjs.org/ethers/-/ethers-4.0.32.tgz#46378864cb3bf29b57c2effd17508b560743abf6"
-  integrity sha512-r0k2tBNF6MYEsvwmINeP3VPppD/7eAZyiOk/ifDDawXGCKqr3iEQkPq6OZSDVD+4Jie38WPteS9thXzpn2+A5Q==
-  dependencies:
-    "@types/node" "^10.3.2"
-    aes-js "3.0.0"
-    bn.js "^4.4.0"
-    elliptic "6.3.3"
-    hash.js "1.1.3"
-    js-sha3 "0.5.7"
-    scrypt-js "2.0.4"
-    setimmediate "1.0.4"
-    uuid "2.0.1"
-    xmlhttprequest "1.8.0"
-
 ethers@4.0.33:
   version "4.0.33"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-4.0.33.tgz#f7b88d2419d731a39aefc37843a3f293e396f918"
@@ -4503,7 +4421,7 @@ ethers@4.0.33:
     uuid "2.0.1"
     xmlhttprequest "1.8.0"
 
-eventemitter3@^3.0.0, eventemitter3@^3.1.0, eventemitter3@^3.1.2:
+eventemitter3@^3.0.0:
   version "3.1.2"
   resolved "https://registry.npmjs.org/eventemitter3/-/eventemitter3-3.1.2.tgz#2d3d48f9c346698fce83a85d7d664e98535df6e7"
   integrity sha512-tvtQIeLVHjDkJYnzf2dgVMxfuSGJeM/7UCG17TT4EumTfNtF+0nebF/4zWOIkCreAbtNqhGEboB6BWrwqNaw4Q==
@@ -7486,7 +7404,7 @@ lodash.uniq@^4.5.0:
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha512-cQKh8igo5QUhZ7lg38DYWAxMvjSAKG0A8wGSVimP07SIUEK2UO+arSRKbRZWtelMtN5V0Hkwh5ryOto/SshYIg==
 
-loglevel@^1.4.1, loglevel@^1.6.1:
+loglevel@^1.4.1:
   version "1.6.3"
   resolved "https://registry.npmjs.org/loglevel/-/loglevel-1.6.3.tgz#77f2eb64be55a404c9fd04ad16d57c1d6d6b1280"
   integrity sha512-LoEDv5pgpvWgPF4kNYuIp0qqSJVWak/dML0RY74xlzMZiT9w77teNAwKYKWBTYjlokMirg+o3jBwp+vlLrcfAA==
@@ -8413,13 +8331,6 @@ p-map@^1.1.1:
   version "1.2.0"
   resolved "https://registry.npmjs.org/p-map/-/p-map-1.2.0.tgz#e4e94f311eabbc8633a1e79908165fca26241b6b"
   integrity sha512-r6zKACMNhjPJMTl8KcFH4li//gkrXWfbD6feV8l6doRHlzljFWGJ2AP6iKaCJXyZmAUMOPtvbW7EXkbWO/pLEA==
-
-p-queue@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.npmjs.org/p-queue/-/p-queue-5.0.0.tgz#80f1741d5e78a6fa72fce889406481baa5617a3c"
-  integrity sha512-6QfeouDf236N+MAxHch0CVIy8o/KBnmhttKjxZoOkUlzqU+u9rZgEyXH3OdckhTgawbqf5rpzmyR+07+Lv0+zg==
-  dependencies:
-    eventemitter3 "^3.1.0"
 
 p-reduce@^1.0.0:
   version "1.0.0"
@@ -10199,11 +10110,6 @@ ripemd160@^2.0.0, ripemd160@^2.0.1:
     hash-base "^3.0.0"
     inherits "^2.0.1"
 
-rpc-server@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.npmjs.org/rpc-server/-/rpc-server-0.0.1.tgz#e9580425a6d7924f0f1788180861c2f29973f889"
-  integrity sha512-JyaJElunGQeVFce6lcf6nMXJn7FRo765/Iq9x6lfY58xeZT24SUM+OXzoHyRhXPEclM2tubssQH1QCvy0Tjs8Q==
-
 rsvp@^3.3.3:
   version "3.6.2"
   resolved "https://registry.npmjs.org/rsvp/-/rsvp-3.6.2.tgz#2e96491599a96cde1b515d5674a8f7a91452926a"
@@ -11316,13 +11222,6 @@ typedarray@^0.0.6:
   version "0.0.6"
   resolved "https://registry.npmjs.org/typedarray/-/typedarray-0.0.6.tgz#867ac74e3864187b1d3d47d996a78ec5c8830777"
   integrity sha1-hnrHTjhkGHsdPUfZlqeOxciDB3c=
-
-typescript-memoize@^1.0.0-alpha.3:
-  version "1.0.0-alpha.3"
-  resolved "https://registry.npmjs.org/typescript-memoize/-/typescript-memoize-1.0.0-alpha.3.tgz#699a5415f886694a8d6e2e5451bc28a39a6bc2f9"
-  integrity sha1-aZpUFfiGaUqNbi5UUbwoo5prwvk=
-  dependencies:
-    core-js "2.4.1"
 
 typescript@3.5.3:
   version "3.5.3"

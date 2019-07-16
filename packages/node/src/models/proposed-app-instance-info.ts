@@ -1,6 +1,7 @@
 import {
   AppABIEncodings,
   AppInterface,
+  CoinTransferInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
@@ -10,13 +11,13 @@ import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
 import { AppInstance, StateChannel } from "../models";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-
 export interface IAppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: BigNumberish;
+  initiatorDepositTokenAddress: string;
   responderDeposit: BigNumberish;
+  responderDepositTokenAddress: string;
   timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -30,7 +31,9 @@ export interface AppInstanceProposalJSON {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: { _hex: string };
+  initiatorDepositTokenAddress: string;
   responderDeposit: { _hex: string };
+  responderDepositTokenAddress: string;
   timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -54,7 +57,9 @@ export class AppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
   responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -70,7 +75,11 @@ export class AppInstanceProposal {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
     this.initiatorDeposit = bigNumberify(proposeParams.initiatorDeposit);
+    this.initiatorDepositTokenAddress =
+      proposeParams.initiatorDepositTokenAddress;
     this.responderDeposit = bigNumberify(proposeParams.responderDeposit);
+    this.responderDepositTokenAddress =
+      proposeParams.responderDepositTokenAddress;
     this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
@@ -111,6 +120,11 @@ export class AppInstanceProposal {
 
     const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
 
+    const interpreterParams: CoinTransferInterpreterParams = {
+      limit: [],
+      tokens: []
+    };
+
     const proposedAppInstance = new AppInstance(
       owner,
       signingKeys,
@@ -124,10 +138,11 @@ export class AppInstanceProposal {
       // the below two arguments are not currently used in app identity
       // computation
       undefined,
-      {
-        limit: bigNumberify(this.initiatorDeposit).add(this.responderDeposit),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      }
+      // this is not relevant here as it gets set properly later in the context
+      // of the channel during an install, and it's not used to calculate
+      // the AppInstance ID so there won't be a possible mismatch between
+      // a proposed AppInstance ID and an installed AppInstance ID
+      interpreterParams
     );
 
     return proposedAppInstance.identityHash;
@@ -139,7 +154,9 @@ export class AppInstanceProposal {
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
       initiatorDeposit: { _hex: this.initiatorDeposit.toHexString() },
+      initiatorDepositTokenAddress: this.initiatorDepositTokenAddress,
       responderDeposit: { _hex: this.responderDeposit.toHexString() },
+      responderDepositTokenAddress: this.responderDepositTokenAddress,
       initialState: this.initialState,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
@@ -154,7 +171,9 @@ export class AppInstanceProposal {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       initiatorDeposit: bigNumberify(json.initiatorDeposit._hex),
+      initiatorDepositTokenAddress: json.initiatorDepositTokenAddress,
       responderDeposit: bigNumberify(json.responderDeposit._hex),
+      responderDepositTokenAddress: json.responderDepositTokenAddress,
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,

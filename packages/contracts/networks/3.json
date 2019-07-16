@@ -1,8 +1,8 @@
 [
   {
     "contractName": "Migrations",
-    "address": "0xBF7AdB216E55D45238E3AB21Ffa5d6bEA6759B6d",
-    "transactionHash": "0x8134cb7611a67f627d5c451ade61828802cafd78ba04964a7db898e4d99fdc40"
+    "address": "0x6D0fb614b9A962e5ade8d6737cac8eb2131a57d4",
+    "transactionHash": "0xf0ace24280456c70c88c0903267b9aa6761673daf22b1adacc070596f9e841a6"
   },
   {
     "contractName": "ChallengeRegistry",
@@ -25,19 +25,14 @@
     "transactionHash": "0xe7f5ba57c153ee1eb306d3bad7fe4d65e5179a00b58ece6b4d8c43dc8ba3c6a9"
   },
   {
-    "contractName": "Migrations",
-    "address": "0x8ed35A27ddE262BE24aA243511C9E477565e7e20",
-    "transactionHash": "0x507c99d248f26b5a9a46512cc192b033c3a4fd2c9746cc64121cd3e35a9c7b34"
-  },
-  {
     "contractName": "ConditionalTransactionDelegateTarget",
-    "address": "0xA53De731723e6b07B4Fe14F552a6724f2F3847f2",
-    "transactionHash": "0x0deef2b099bf9ea2ff1da6302ab7c9ce744274a3e92bc41920ddf80177fdeb00"
+    "address": "0x9D3D5a3AFD872AaEea1eb92e0aE13D9CC1FF820d",
+    "transactionHash": "0x5d445b21c5f7d9e2d195a66b5259798e2f76f4ee379ab81fbee8e4b942ccd062"
   },
   {
-    "contractName": "CoinTransferETHInterpreter",
-    "address": "0x9527c33bf112D6c82cbdd6d01FCe65e3fd685794",
-    "transactionHash": "0xd3f0fc0ca2d0d158cd2ad9663c858ee2bc848bbd070fa4677dbdb899c04eed68"
+    "contractName": "CoinTransferInterpreter",
+    "address": "0xf312C3Bf048B95Ad44DBd06A3D2Fc6742e772d2d",
+    "transactionHash": "0x171273113d5d33110b2d2aa90ee207beadeed548c2a17513ca659dd615ba4f37"
   },
   {
     "contractName": "FreeBalanceApp",
@@ -60,23 +55,8 @@
     "transactionHash": "0x8a08e6287703128453c432d6e09ad7b3a438c4862b670fae253f9f0c0961402e"
   },
   {
-    "contractName": "Migrations",
-    "address": "0x22cF773ca906CBB854EB65570D6874fFb1813C7D",
-    "transactionHash": "0xe4b014fd3317f2d3cd42f8fb3f02f03524f42ff56b1d5ee027c0d8cf8268f1b6"
-  },
-  {
-    "contractName": "ConditionalTransactionDelegateTarget",
-    "address": "0xB31d8f59A539f7c2553D663615e362d25D21F5f0",
-    "transactionHash": "0x1ac5961eb664dea3dd3f3b0612deb8cda20fb033f4b50225961b86865633796b"
-  },
-  {
     "contractName": "CoinBalanceRefundApp",
-    "address": "0xaf75368BE8dB0274Ab8816CDFaa1A7733c26c03d",
-    "transactionHash": "0x5f1f8029e853e20ac9cc8263327287f70704d86416b51b3a64cac90b9cd863f3"
-  },
-  {
-    "contractName": "CoinTransferETHInterpreter",
-    "address": "0x32B3F90D78Fd76eBEAE104da3663ecc6ba4e5792",
-    "transactionHash": "0xddcacc3e5d688f67ac6f27d9db38985d388d0e8e2250ff5b397bcce6c1acfccc"
+    "address": "0xD28B4723cE66294544e19B0a50d8a7f86171AA68",
+    "transactionHash": "0xc190d00c0cfe881b81d3170764098a85c926039047f1d48eca95a73352ad6268"
   }
 ]

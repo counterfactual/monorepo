@@ -3,8 +3,6 @@ pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
 import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
-import "@counterfactual/contracts/contracts/interpreters/SwapInterpreter.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -15,7 +13,7 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.MultiCoinTransfer[] multiCoinTransfers;
+    LibOutcome.CoinTransfer[] coinTransfers;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -25,12 +23,12 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
 
-    uint256[] memory amountsA = state.multiCoinTransfers[0].amounts;
-    uint256[] memory amountsB = state.multiCoinTransfers[1].amounts;
+    uint256 amountsA = state.coinTransfers[0].amount;
+    uint256 amountsB = state.coinTransfers[1].amount;
 
-    state.multiCoinTransfers[0].amounts = amountsB;
-    state.multiCoinTransfers[1].amounts = amountsA;
+    state.coinTransfers[0].amount = amountsB;
+    state.coinTransfers[1].amount = amountsA;
 
-    return abi.encode(state.multiCoinTransfers);
+    return abi.encode(state.coinTransfers);
   }
 }

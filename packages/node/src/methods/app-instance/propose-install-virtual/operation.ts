@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
 import { AppInstanceProposal, StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import { getStateChannelWithOwners } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
@@ -30,7 +31,11 @@ export async function createProposedVirtualAppInstance(
   const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
-      proposedByIdentifier: myIdentifier
+      proposedByIdentifier: myIdentifier,
+      initiatorDepositTokenAddress:
+        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress:
+        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );
