@@ -106,16 +106,10 @@ export function convertCoinTransfersToCoinTransfersMap(
 export function convertCoinTransfersMapToCoinTransfers(
   coinTransfersMap: CoinTransferMap
 ): CoinTransfer[] {
-  const balances: CoinTransfer[] = [];
-
-  for (const addr of Object.keys(coinTransfersMap)) {
-    balances.push({
-      to: addr,
-      amount: coinTransfersMap[addr]
-    });
-  }
-
-  return balances;
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
 }
 
 /**
