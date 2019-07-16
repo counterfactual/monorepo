@@ -1,9 +1,9 @@
 import { Web3Provider } from "ethers/providers";
+import { parseEther } from "ethers/utils";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit } from "../../utils/counterfactual";
 import { ActionType, ApplicationState, Deposit, WalletState } from "../types";
 import { WalletDepositTransition } from "./wallet";
 
@@ -49,27 +49,15 @@ export const deposit = (
   Action<ActionType | WalletDepositTransition>
 > => async dispatch => {
   try {
-    // 1. Ask Metamask to do the deposit.
     dispatch({ type: WalletDepositTransition.CheckWallet });
-    await requestDeposit(transaction);
-
-    // 2. Wait until the deposit is completed in both sides.
     dispatch({ type: WalletDepositTransition.WaitForFunds });
-    const counterfactualBalance = await forFunds({
-      multisigAddress: transaction.multisigAddress,
-      nodeAddress: transaction.nodeAddress
-    });
-
-    // 3. Get the Metamask balance.
-    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
-
-    // 4. Update the balance.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance },
+      data: {
+        ethereumBalance: parseEther("0.2"),
+        counterfactualBalance: parseEther("0.2")
+      },
       type: ActionType.WalletSetBalance
     });
-
-    // Optional: Redirect to Channels.
     if (history) {
       history.push(RoutePath.Channels);
     }
