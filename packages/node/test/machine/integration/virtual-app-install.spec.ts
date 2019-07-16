@@ -29,6 +29,7 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
+// todo(xuanji): dedup
 /**
  * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
  *
@@ -42,15 +43,19 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   tuple(
     uint256 capitalProvided,
     uint256 expiryBlock,
-    address[2] beneficiaries
+    address[2] beneficiaries,
+    address tokenAddress
   )
 `;
 
-const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
-  defaultAbiCoder.encode(
+// todo(xuanji): dedup
+const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params => {
+  console.log("params=", params);
+  return defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
   );
+};
 
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -140,7 +145,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const agreement = {
         beneficiaries,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000
+        expiryBlock: (await provider.getBlockNumber()) + 1000,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       };
 
       stateChannel = stateChannel.addSingleAssetTwoPartyIntermediaryAgreement(
@@ -207,6 +213,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         value: parseEther("10")
       });
 
+      console.log("point A");
+
       const commitment = new ConditionalTransaction(
         network, // network
         proxyAddress, // multisigAddress
@@ -217,6 +225,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
       );
 
+      console.log("point B");
+
       await wallet.sendTransaction({
         ...commitment.getSignedTransaction([
           multisigOwnerKeys[0].signDigest(commitment.hashToSign()),
@@ -224,6 +234,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         ]),
         gasLimit: 6e9
       });
+
+      console.log("point C");
 
       expect(await provider.getBalance(beneficiaries[0])).toBeEq(
         parseEther("5")

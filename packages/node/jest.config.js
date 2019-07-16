@@ -32,6 +32,6 @@ module.exports = {
   "transform": {
     "^.+\\.tsx?$": "ts-jest"
   },
-  "verbose": false,
+  "verbose": true,
   "extraGlobals": ["Math"]
 }

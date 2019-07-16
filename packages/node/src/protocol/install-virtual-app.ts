@@ -40,15 +40,18 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   tuple(
     uint256 capitalProvided,
     uint256 expiryBlock,
-    address[2] beneficiaries
+    address[2] beneficiaries,
+    address tokenAddress
   )
 `;
 
-const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
-  defaultAbiCoder.encode(
+const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params => {
+  console.log("encoding", params);
+  return defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
   );
+};
 
 const protocol = Protocol.InstallVirtualApp;
 
@@ -929,6 +932,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   const newStateChannel = stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
     virtualAppInstance.identityHash,
     {
+      tokenAddress,
       expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
@@ -959,7 +963,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     responderBalanceDecrement,
     initiatorXpub,
     intermediaryXpub,
-    responderXpub
+    responderXpub,
+    tokenAddress
   } = params as InstallVirtualAppParams;
 
   const stateChannelBetweenVirtualAppUsers = getOrCreateStateChannelThatWrapsVirtualAppInstance(
@@ -1008,6 +1013,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   const stateChannelWithInitiating = channelWithInitiating.addSingleAssetTwoPartyIntermediaryAgreement(
     virtualAppInstance.identityHash,
     {
+      tokenAddress,
       expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
@@ -1024,6 +1030,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   const stateChannelWithResponding = channelWithResponding.addSingleAssetTwoPartyIntermediaryAgreement(
     virtualAppInstance.identityHash,
     {
+      tokenAddress,
       expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
@@ -1057,7 +1064,8 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     responderBalanceDecrement,
     initiatorXpub,
     intermediaryXpub,
-    responderXpub
+    responderXpub,
+    tokenAddress
   } = params as InstallVirtualAppParams;
 
   const stateChannelThatWrapsVirtualApp = getOrCreateStateChannelThatWrapsVirtualAppInstance(
@@ -1091,6 +1099,7 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   const newStateChannel = stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
     virtualAppInstance.identityHash,
     {
+      tokenAddress,
       expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
