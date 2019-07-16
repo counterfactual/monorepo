@@ -5,15 +5,14 @@ import { ThunkDispatch } from "redux-thunk";
 import { ChannelNode, ChannelTree } from "../../components/channel";
 import { getAllChannels } from "../../store/channels/channels";
 import { ActionType, ApplicationState, ChannelsState } from "../../store/types";
-import log from "../../utils/log";
 import "./Channels.scss";
 
-type ChannelsProps = {
+export type ChannelsProps = {
   getAllChannels: () => void;
   channelsState: ChannelsState;
 };
 
-class Channels extends React.Component<ChannelsProps> {
+export class Channels extends React.Component<ChannelsProps> {
   componentDidMount() {
     const { getAllChannels } = this.props;
 
@@ -22,8 +21,6 @@ class Channels extends React.Component<ChannelsProps> {
 
   render() {
     const { channels } = this.props.channelsState;
-
-    log("State channels", channels);
 
     return (
       <section className="section fill">
