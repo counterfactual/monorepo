@@ -6,7 +6,7 @@ import { NetworkContext } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { defaultAbiCoder, Interface, parseEther } from "ethers/utils";
+import { Interface, parseEther } from "ethers/utils";
 
 import {
   ConditionalTransaction,
@@ -15,6 +15,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
+import { encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams } from "../../../src/protocol/install-virtual-app";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -28,29 +29,6 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
-
-/**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
- *
- * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
- *       know how to interpret it. However, the encoder encodes it the same way
- *       without specifying it anyway, so that's why beneficiaries is address[2]
- *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.
- *
- */
-const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
-  tuple(
-    uint256 capitalProvided,
-    uint256 expiryBlock,
-    address[2] beneficiaries
-  )
-`;
-
-const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
-  defaultAbiCoder.encode(
-    [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
-    [params]
-  );
 
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -140,7 +118,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const agreement = {
         beneficiaries,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000
+        expiryBlock: (await provider.getBlockNumber()) + 1000,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       };
 
       stateChannel = stateChannel.addSingleAssetTwoPartyIntermediaryAgreement(

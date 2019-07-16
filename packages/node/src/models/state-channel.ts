@@ -55,12 +55,14 @@ export type SingleAssetTwoPartyIntermediaryAgreement = {
   capitalProvided: BigNumber;
   expiryBlock: number;
   beneficiaries: [string, string];
+  tokenAddress: string;
 };
 
 type SingleAssetTwoPartyIntermediaryAgreementJSON = {
   capitalProvided: { _hex: string };
   expiryBlock: number;
   beneficiaries: [string, string];
+  tokenAddress: string;
 };
 
 export type StateChannelJSON = {
@@ -584,7 +586,8 @@ export class StateChannel {
         {
           capitalProvided: { _hex: val.capitalProvided.toHexString() },
           expiryBlock: val.expiryBlock,
-          beneficiaries: val.beneficiaries
+          beneficiaries: val.beneficiaries,
+          tokenAddress: val.tokenAddress
         }
       ]),
       createdAt: this.createdAt
@@ -613,7 +616,8 @@ export class StateChannel {
             {
               capitalProvided: bigNumberify(val.capitalProvided._hex),
               expiryBlock: val.expiryBlock,
-              beneficiaries: val.beneficiaries
+              beneficiaries: val.beneficiaries,
+              tokenAddress: val.tokenAddress
             }
           ]
         )
