@@ -81,7 +81,7 @@ describe("<AccountRegistration />", () => {
     component.find(testSelector("amount")).simulate("change", {
       target: { value: "0.01", validity: { valid: true } }
     });
-    // component.find(testSelector("button")).simulate("click");
-    expect(props.history.location.pathname).toBe(RoutePath.Root);
+    component.find(testSelector("button")).simulate("click");
+    expect(props.history.location.pathname).toBe(RoutePath.Channels);
   });
 });
