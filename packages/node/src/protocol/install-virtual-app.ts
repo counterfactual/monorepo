@@ -44,13 +44,11 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   )
 `;
 
-export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params => {
-  console.log("encoding", params);
-  return defaultAbiCoder.encode(
+export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
+  defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
   );
-};
 
 const protocol = Protocol.InstallVirtualApp;
 

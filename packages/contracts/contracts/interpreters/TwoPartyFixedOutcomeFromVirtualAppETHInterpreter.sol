@@ -30,7 +30,6 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   )
     external
   {
-
     LibOutcome.TwoPartyFixedOutcome twoPartyOutcome = abi.decode(
       outcome,
       (LibOutcome.TwoPartyFixedOutcome)
