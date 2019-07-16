@@ -66,13 +66,21 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
       }
     } else {
 
-      agreement.beneficiaries[0].transfer(
-        agreement.capitalProvided / 2
-      );
+      if (agreement.tokenAddress == address(0)) {
 
-      agreement.beneficiaries[1].transfer(
-        agreement.capitalProvided - agreement.capitalProvided / 2
-      );
+        agreement.beneficiaries[0].transfer(
+          agreement.capitalProvided / 2
+        );
+
+
+        agreement.beneficiaries[1].transfer(
+          agreement.capitalProvided - agreement.capitalProvided / 2
+        );
+
+      } else {
+        ERC20(agreement.tokenAddress).transfer(agreement.beneficiaries[0], agreement.capitalProvided / 2);
+        ERC20(agreement.tokenAddress).transfer(agreement.beneficiaries[1], agreement.capitalProvided - agreement.capitalProvided / 2);
+      }
 
     }
 
