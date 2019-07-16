@@ -61,7 +61,6 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
   render() {
     const { type, name, ethAddress, children } = this.props;
     const { expanded, showingMenu } = this.state;
-    console.log(expanded, !!children);
     return (
       <li className="channel-node">
         <div className={`channel-node-wrapper channel-node-wrapper--${type}`}>
