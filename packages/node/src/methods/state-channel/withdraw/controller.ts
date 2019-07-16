@@ -32,13 +32,6 @@ export default class WithdrawController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
-  }
-
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {
     const { store, publicIdentifier, networkContext } = requestHandler;
 
     const stateChannel = await store.getStateChannel(params.multisigAddress);
@@ -75,7 +68,14 @@ export default class WithdrawController extends NodeController {
         )
       );
     }
+
+    return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.WithdrawParams
+  ): Promise<void> {}
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,

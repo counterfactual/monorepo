@@ -24,21 +24,21 @@ contract CoinBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    LibOutcome.CoinTransfer[] memory ret = new LibOutcome.CoinTransfer[](1);
+    LibOutcome.CoinTransfer[1][1] memory ret;
 
     if (appState.token == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
-      ret[0].amount = address(appState.multisig).balance - appState.threshold;
+      ret[0][0].amount = address(appState.multisig).balance - appState.threshold;
 
     } else {
 
       // solium-disable-next-line operator-whitespace
-      ret[0].amount =
+      ret[0][0].amount =
         ERC20(appState.token).balanceOf(appState.multisig) - appState.threshold;
 
     }
 
-    ret[0].to = appState.recipient;
+    ret[0][0].to = appState.recipient;
 
     return abi.encode(ret);
   }

@@ -13,10 +13,17 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-  limit: BigNumber;
-  tokenAddress: string;
+  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  limit: BigNumber[];
+  tokens: string[];
 };
+
+export const coinTransferInterpreterParamsStateEncoding = `
+  tuple(
+    uint256[] limit,
+    address[] tokens
+  )
+`;
 
 export type AppInstanceJson = {
   identityHash: string;
@@ -42,12 +49,10 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string };
-    tokenAddress: string;
+    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    limit: { _hex: string }[];
+    tokens: string[];
   };
-
-  tokenAddress: string;
 };
 
 export type AppInstanceInfo = {
@@ -55,7 +60,9 @@ export type AppInstanceInfo = {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
   responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -73,7 +80,9 @@ export type AppInstanceProposal = {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
   responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -103,6 +112,13 @@ export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
+
+export type CoinBalanceRefundState = {
+  recipient: string;
+  multisig: string;
+  threshold: BigNumber;
+  token: string;
+};
 
 export const coinBalanceRefundStateEncoding = `
   tuple(

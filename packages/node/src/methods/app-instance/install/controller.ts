@@ -31,7 +31,7 @@ export default class InstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(sc.multisigAddress)
+        await store.getMultisigAddressFromAppInstance(sc.multisigAddress)
       )
     ];
   }

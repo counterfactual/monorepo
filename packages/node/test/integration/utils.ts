@@ -213,7 +213,9 @@ export function makeTTTProposalRequest(
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
   initiatorDeposit: BigNumber = Zero,
-  responderDeposit: BigNumber = Zero
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const initialState =
     Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
@@ -221,7 +223,9 @@ export function makeTTTProposalRequest(
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
     initiatorDeposit,
+    initiatorDepositTokenAddress,
     responderDeposit,
+    responderDepositTokenAddress,
     appDefinition,
     initialState,
     abiEncodings: {
@@ -262,7 +266,9 @@ export function makeTTTVirtualProposalRequest(
   appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
   initiatorDeposit: BigNumber = Zero,
-  responderDeposit: BigNumber = Zero
+  initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
@@ -270,7 +276,9 @@ export function makeTTTVirtualProposalRequest(
     appDefinition,
     initialState,
     initiatorDeposit,
-    responderDeposit
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   ).parameters as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
@@ -395,9 +403,10 @@ export async function sleep(timeInMilliseconds: number) {
 export async function collateralizeChannel(
   node1: Node,
   node2: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
-  const depositReq = makeDepositRequest(multisigAddress, One);
+  const depositReq = makeDepositRequest(multisigAddress, One, tokenAddress);
   await node1.rpcRouter.dispatch(depositReq);
   await node2.rpcRouter.dispatch(depositReq);
 }
@@ -551,7 +560,9 @@ export async function makeTTTVirtualProposal(
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
-    Zero
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    Zero,
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
   const params = virtualAppInstanceProposalRequest.parameters as NodeTypes.ProposeInstallVirtualParams;
   const response = (await nodeA.rpcRouter.dispatch(
@@ -613,7 +624,15 @@ export async function makeVirtualProposeCall(
 
 export async function makeProposeCall(
   nodeA: Node,
-  nodeB: Node
+  nodeB: Node,
+  appDefinition: string = (global[
+    "networkContext"
+  ] as NetworkContextForTestSuite).TicTacToeApp,
+  state: SolidityABIEncoderV2Type = {},
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
@@ -621,10 +640,12 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-    {},
-    One,
-    Zero
+    appDefinition,
+    state,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   );
 
   const response = (await nodeA.rpcRouter.dispatch(
@@ -637,18 +658,22 @@ export async function makeProposeCall(
   };
 }
 
-export function createFreeBalanceStateWithFundedETHAmounts(
+export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
-  amount: BigNumber
+  amount: BigNumber,
+  tokens: string[]
 ): FreeBalanceState {
+  const balancesIndexedByToken = {};
+  tokens.forEach(token => {
+    balancesIndexedByToken[token] = addresses.map(to => ({
+      to,
+      amount
+    }));
+  });
+
   return {
-    activeAppsMap: {},
-    balancesIndexedByToken: {
-      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
-        to,
-        amount
-      }))
-    }
+    balancesIndexedByToken,
+    activeAppsMap: {}
   };
 }
 

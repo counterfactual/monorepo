@@ -1,5 +1,6 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
+  CoinBalanceRefundState,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcome
@@ -7,40 +8,55 @@ import {
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { defaultAbiCoder } from "ethers/utils";
 
 import { StateChannel } from "../../models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TokenIndexedCoinTransferMap
+} from "../../models/free-balance";
 
-function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
+/**
+ * Note that this is only used with `CoinBalanceRefundApp.sol`
+ */
+function computeCoinTransferIncrement(
+  token: string,
+  outcome: string
+): TokenIndexedCoinTransferMap {
   const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address,uint256)[]"],
+    ["tuple(address to, uint256 amount)[1][1]"],
     outcome
   );
 
-  const ret = {} as any;
+  const ret: TokenIndexedCoinTransferMap = {};
 
-  for (const pair of decoded) {
-    const [address, to] = pair;
-    ret[address] = to;
+  ret[token] = {};
+  const balances = decoded[0];
+
+  for (const pair of balances) {
+    const [address, amount] = pair;
+    ret[token][address] = amount;
   }
   return ret;
 }
 
-function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
-  for (const key in arr) {
-    if (arr[key].gt(Zero)) {
-      return true;
+function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
+  for (const tokenAddress of Object.keys(map)) {
+    for (const address of Object.keys(map[tokenAddress])) {
+      if (map[tokenAddress][address].gt(Zero)) {
+        return true;
+      }
     }
   }
   return false;
 }
 
-export async function computeFreeBalanceIncrements(
+export async function computeTokenIndexedFreeBalanceIncrements(
   networkContext: NetworkContext,
   stateChannel: StateChannel,
   appInstanceId: string,
   provider: BaseProvider
-): Promise<{ [x: string]: BigNumber }> {
+): Promise<TokenIndexedCoinTransferMap> {
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
   const appDefinition = new Contract(
@@ -76,7 +92,10 @@ export async function computeFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const increments = computeCoinTransferIncrement(outcome);
+        const increments = computeCoinTransferIncrement(
+          (appInstance.state as CoinBalanceRefundState).token,
+          outcome
+        );
 
         if (anyNonzeroValues(increments)) {
           return increments;
@@ -98,13 +117,19 @@ export async function computeFreeBalanceIncrements(
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[0]]: total
+          }
         };
       }
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[1]]: total
+          }
         };
       }
 
@@ -112,8 +137,10 @@ export async function computeFreeBalanceIncrements(
       const i1 = total.sub(i0);
 
       return {
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        }
       };
     }
     default: {

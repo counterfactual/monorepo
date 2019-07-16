@@ -21,7 +21,7 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.22",
+    "@counterfactual/types": "0.0.23",
     "@types/jest": "24.0.12",
     "@types/node": "12.6.2",
     "jest": "24.8.0",

@@ -63,10 +63,6 @@ describe("Node method follows spec - deposit", () => {
       erc20ContractAddress
     );
 
-    expect(
-      await erc20Contract.functions.balanceOf(await nodeA.signerAddress())
-    ).toEqual(Zero);
-
     await expect(
       nodeA.rpcRouter.dispatch(erc20DepositRequest)
     ).rejects.toThrowError(
@@ -81,6 +77,9 @@ describe("Node method follows spec - deposit", () => {
     await transferERC20Tokens(await nodeB.signerAddress());
 
     let preDepositBalance = await provider.getBalance(multisigAddress);
+    const preDepositERC20Balance = await erc20Contract.functions.balanceOf(
+      multisigAddress
+    );
 
     await nodeA.rpcRouter.dispatch(erc20DepositRequest);
     await nodeB.rpcRouter.dispatch(erc20DepositRequest);
@@ -90,7 +89,7 @@ describe("Node method follows spec - deposit", () => {
     );
 
     expect(await erc20Contract.functions.balanceOf(multisigAddress)).toEqual(
-      Two
+      preDepositERC20Balance.add(Two)
     );
 
     await confirmEthAndERC20FreeBalances(

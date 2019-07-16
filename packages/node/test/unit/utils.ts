@@ -36,7 +36,9 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
-      outcomeType: OutcomeType.COIN_TRANSFER
+      outcomeType: OutcomeType.COIN_TRANSFER,
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     undefined,
     appInstanceId
@@ -71,7 +73,6 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    /* coinTransferInterpreterParams */ undefined,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    /* coinTransferInterpreterParams */ undefined
   );
 }

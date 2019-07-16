@@ -58,7 +58,7 @@ export async function getPeersAddressFromAppInstanceID(
   store: Store,
   appInstanceId: string
 ): Promise<Address[]> {
-  const multisigAddress = await store.getMultisigAddressFromstring(
+  const multisigAddress = await store.getMultisigAddressFromAppInstance(
     appInstanceId
   );
 

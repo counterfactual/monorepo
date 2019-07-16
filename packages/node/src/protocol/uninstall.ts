@@ -12,7 +12,7 @@ import {
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
-import { computeFreeBalanceIncrements } from "./utils/get-outcome-increments";
+import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
@@ -112,14 +112,17 @@ async function proposeStateTransition(
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
-  const increments = await computeFreeBalanceIncrements(
+  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     network,
     sc,
     appIdentityHash,
     provider
   );
 
-  const newStateChannel = sc.uninstallApp(appIdentityHash, increments);
+  const newStateChannel = sc.uninstallApp(
+    appIdentityHash,
+    tokenIndexedIncrements
+  );
 
   stateChannelsMap.set(multisigAddress, newStateChannel);
 

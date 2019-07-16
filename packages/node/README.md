@@ -62,8 +62,12 @@ Params:
   - ABI encodings used for states and actions of this app
 - `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
+- `initiatorDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the proposer's side of the app. If not specified, this defaults to ETH.
 - `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
+- `responderDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the peer's side of the app. If not specified, this defaults to ETH.
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)

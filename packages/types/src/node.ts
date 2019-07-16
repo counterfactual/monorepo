@@ -251,7 +251,9 @@ export namespace Node {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
     initiatorDeposit: BigNumber;
+    initiatorDepositTokenAddress?: string;
     responderDeposit: BigNumber;
+    responderDepositTokenAddress?: string;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
