@@ -35,7 +35,7 @@ export interface NetworkContext {
   MinimumViableMultisig: string;
   ProxyFactory: string;
   TwoPartyFixedOutcomeETHInterpreter: string;
-  TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
+  TwoPartyFixedOutcomeFromVirtualAppInterpreter: string;
 }
 
 // Keep in sync with above
@@ -49,7 +49,7 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "MinimumViableMultisig",
   "ProxyFactory",
   "TwoPartyFixedOutcomeETHInterpreter",
-  "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
+  "TwoPartyFixedOutcomeFromVirtualAppInterpreter"
 ];
 
 export interface DeployedContractNetworksFileEntry {

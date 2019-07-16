@@ -15,7 +15,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams } from "../../../src/protocol/install-virtual-app";
+import { encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams } from "../../../src/protocol/install-virtual-app";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -192,8 +192,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         freeBalanceETH.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
       );
 
       await wallet.sendTransaction({

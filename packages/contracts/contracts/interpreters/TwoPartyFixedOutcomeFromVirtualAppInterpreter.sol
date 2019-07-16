@@ -13,7 +13,7 @@ import "../libs/LibOutcome.sol";
 /// This is expected to be used for a virtual app in a simple hub topology, hence
 /// two different commitments to this interpreter are to be made in the two direct channels,
 /// where the commitments differ in the params.beneficiaries field.
-contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
+contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
   Interpreter
 {
 

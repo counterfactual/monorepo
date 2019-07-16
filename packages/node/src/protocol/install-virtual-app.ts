@@ -27,12 +27,12 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
+ * As specified in TwoPartyFixedOutcomeFromVirtualAppInterpreter.sol
  *
  * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
  *       know how to interpret it. However, the encoder encodes it the same way
  *       without specifying it anyway, so that's why beneficiaries is address[2]
- *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.
+ *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppInterpreter.
  *
  */
 const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
@@ -44,7 +44,7 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   )
 `;
 
-export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
+export const encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams = params =>
   defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
@@ -94,8 +94,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       virtualAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -303,8 +303,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.multisigOwners,
       virtualAppInstance.identityHash,
       stateChannelWithInitiating.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -327,8 +327,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigOwners,
       virtualAppInstance.identityHash,
       stateChannelWithResponding.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithResponding.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -621,8 +621,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       virtualAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -792,7 +792,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
  *
  * NOTE: The VirtualApp is currently HARD-CODED to only work with interpreters
  *       that can understand the TwoPartyFixedOutcome outcome type. Currently
- *       we use the TwoPartyFixedOutcomeFromVirtualAppETHInterpreter for all
+ *       we use the TwoPartyFixedOutcomeFromVirtualAppInterpreter for all
  *       commitments between users and intermediaries to handle Virtual Apps.
  *
  *       Also, take notice that the `signingKeys` for this app are encoded as
