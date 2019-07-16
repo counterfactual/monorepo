@@ -212,7 +212,7 @@ export class DappContainer {
 
   /**
    * Binds the port with the MessageChannel created for this dApp
-   * by responding to NodeProvider configuration messages.
+   * by responder to NodeProvider configuration messages.
    *
    * @param event {MessageEvent}
    */

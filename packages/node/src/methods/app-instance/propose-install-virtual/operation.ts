@@ -45,12 +45,12 @@ export async function createProposedVirtualAppInstance(
  * Virtual AppInstance operations.
  * @param thisAddress
  * @param intermediaries
- * @param respondingAddress
+ * @param responderAddress
  */
 export function getNextNodeAddress(
   thisAddress: string,
   intermediaries: string[],
-  respondingAddress: string
+  responderAddress: string
 ): string {
   const intermediaryIndex = intermediaries.findIndex(
     intermediaryAddress => intermediaryAddress === thisAddress
@@ -61,7 +61,7 @@ export function getNextNodeAddress(
   }
 
   if (intermediaryIndex + 1 === intermediaries.length) {
-    return respondingAddress;
+    return responderAddress;
   }
 
   return intermediaries[intermediaryIndex + 1];
@@ -75,33 +75,33 @@ export function isNodeIntermediary(
 }
 
 export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   intermediaries: string[],
   store: Store
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
     stateChannel = await getStateChannelWithOwners(
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       store
     );
   } catch (e) {
     if (
       e
         .toString()
-        .includes(NO_CHANNEL_BETWEEN_NODES(initiatingXpub, respondingXpub)) &&
+        .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
       intermediaries !== undefined
     ) {
       const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-        [initiatingXpub, respondingXpub],
+        [initiatorXpub, responderXpub],
         intermediaries[0]
       );
 
       stateChannel = StateChannel.createEmptyChannel(key, [
-        initiatingXpub,
-        respondingXpub
+        initiatorXpub,
+        responderXpub
       ]);
 
       await store.saveStateChannel(stateChannel);

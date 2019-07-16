@@ -15,8 +15,8 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
 export interface IAppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumberish;
-  peerDeposit: BigNumberish;
+  initiatorDeposit: BigNumberish;
+  responderDeposit: BigNumberish;
   timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -29,8 +29,8 @@ export interface AppInstanceProposalJSON {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: { _hex: string };
-  peerDeposit: { _hex: string };
+  initiatorDeposit: { _hex: string };
+  responderDeposit: { _hex: string };
   timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -53,8 +53,8 @@ export class AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  responderDeposit: BigNumber;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -69,8 +69,8 @@ export class AppInstanceProposal {
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.myDeposit = bigNumberify(proposeParams.myDeposit);
-    this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
+    this.initiatorDeposit = bigNumberify(proposeParams.initiatorDeposit);
+    this.responderDeposit = bigNumberify(proposeParams.responderDeposit);
     this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
@@ -125,7 +125,7 @@ export class AppInstanceProposal {
       // computation
       undefined,
       {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
+        limit: bigNumberify(this.initiatorDeposit).add(this.responderDeposit),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
       }
     );
@@ -138,8 +138,8 @@ export class AppInstanceProposal {
       identityHash: this.identityHash,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      myDeposit: { _hex: this.myDeposit.toHexString() },
-      peerDeposit: { _hex: this.peerDeposit.toHexString() },
+      initiatorDeposit: { _hex: this.initiatorDeposit.toHexString() },
+      responderDeposit: { _hex: this.responderDeposit.toHexString() },
       initialState: this.initialState,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
@@ -153,8 +153,8 @@ export class AppInstanceProposal {
     const proposeParams: IAppInstanceProposal = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
-      myDeposit: bigNumberify(json.myDeposit._hex),
-      peerDeposit: bigNumberify(json.peerDeposit._hex),
+      initiatorDeposit: bigNumberify(json.initiatorDeposit._hex),
+      responderDeposit: bigNumberify(json.responderDeposit._hex),
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,

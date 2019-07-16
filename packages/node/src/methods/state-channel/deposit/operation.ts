@@ -65,11 +65,11 @@ export async function installBalanceRefundApp(
 
   const installParams: InstallParams = {
     initialState: depositContext.initialState,
-    initiatingXpub: publicIdentifier,
-    respondingXpub: peerAddress,
+    initiatorXpub: publicIdentifier,
+    responderXpub: peerAddress,
     multisigAddress: stateChannel.multisigAddress,
-    initiatingBalanceDecrement: Zero,
-    respondingBalanceDecrement: Zero,
+    initiatorBalanceDecrement: Zero,
+    responderBalanceDecrement: Zero,
     signingKeys: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
@@ -176,8 +176,8 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
+      initiatorXpub: publicIdentifier,
+      responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }
