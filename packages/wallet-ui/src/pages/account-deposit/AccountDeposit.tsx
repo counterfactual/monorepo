@@ -66,25 +66,23 @@ export class AccountDeposit extends React.Component<
     [WalletDepositTransition.WaitForFunds]: "Transfering funds"
   };
 
-  createDepositData: () => Deposit = () => {
-    const { user } = this.props;
-    const { multisigAddress, nodeAddress, ethAddress } = user;
-    const { amount } = this.state;
-
+  createDepositData(
+    { multisigAddress, nodeAddress, ethAddress }: User,
+    amount: BigNumberish
+  ): Deposit {
     return {
       nodeAddress,
       ethAddress,
       amount,
       multisigAddress: multisigAddress as string
     };
-  };
+  }
 
   render() {
-    const { walletState, deposit, history } = this.props;
+    const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status } = walletState;
     const { amount, loading } = this.state;
-
     return (
       <WidgetScreen header={"Fund your account"} exitable={false}>
         <form>
@@ -112,7 +110,7 @@ export class AccountDeposit extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.createDepositData(), provider, history);
+              deposit(this.createDepositData(user, amount), provider, history);
             }}
           >
             {!loading ? "Proceed" : this.buttonText[status]}
