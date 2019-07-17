@@ -5,8 +5,7 @@ import { EthereumCommitment } from "../../ethereum/types";
 export function assertIsValidSignature(
   expectedSigner: string,
   commitment?: EthereumCommitment,
-  signature?: Signature,
-  errorNote?: string
+  signature?: Signature
 ) {
   if (commitment === undefined) {
     throw Error("assertIsValidSignature received an undefined commitment");
@@ -20,7 +19,7 @@ export function assertIsValidSignature(
 
   if (getAddress(expectedSigner) !== signer) {
     throw Error(
-      `Validating a signature with expected signer ${expectedSigner} but recovered ${signer} for commitment hash ${commitment.hashToSign()}. Also ${errorNote}.`
+      `Validating a signature with expected signer ${expectedSigner} but recovered ${signer} for commitment hash ${commitment.hashToSign()}.`
     );
   }
 }

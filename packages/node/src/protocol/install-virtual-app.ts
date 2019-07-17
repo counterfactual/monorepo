@@ -26,9 +26,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol,
- * "As"
- *
+ * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol, *
  * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
  *       know how to interpret it. However, the encoder encodes it the same way
  *       without specifying it anyway, so that's why beneficiaries is address[2]
@@ -140,8 +138,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
-      intermediarySignatureOnAliceIngridVirtualAppAgreement,
-      "intermediarySignatureOnAliceIngridVirtualAppAgreement"
+      intermediarySignatureOnAliceIngridVirtualAppAgreement
     );
 
     // TODO: write to DB
@@ -173,8 +170,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
-      intermediarySignatureOnAliceIngridFreeBalanceAppActivation,
-      "intermediarySignatureOnAliceIngridFreeBalanceAppActivation"
+      intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     );
 
     // TODO: sign free balance app activation
@@ -253,22 +249,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       timeLockedPassThroughSetStateCommitment,
-      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      "intermediarySignatureOnTimeLockedPassThroughSetStateCommitment"
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       responderAddress,
       timeLockedPassThroughSetStateCommitment,
-      responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      "responderSignatureOnTimeLockedPassThroughSetStateCommitment"
+      responderSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       responderAddress,
       virtualAppSetStateCommitment,
-      responderSignatureOnVirtualAppSetStateCommitment,
-      "responderSignatureOnVirtualAppSetStateCommitment"
+      responderSignatureOnVirtualAppSetStateCommitment
     );
 
     // TODO: Save to DB
@@ -372,8 +365,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       initiatorAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
-      initiatorSignatureOnAliceIngridVirtualAppAgreement,
-      "initiatorSignatureOnAliceIngridVirtualAppAgreement"
+      initiatorSignatureOnAliceIngridVirtualAppAgreement
     );
 
     // TODO: compute conditional transaction for the responder party
@@ -422,8 +414,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       responderAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
-      responderSignatureOnIngridBobVirtualAppAgreement,
-      "responderSignatureOnIngridBobVirtualAppAgreement"
+      responderSignatureOnIngridBobVirtualAppAgreement
     );
 
     // TODO: compute free balance activation from responder
@@ -441,8 +432,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       responderAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
-      responderSignatureOnIngridBobFreeBalanceAppActivation,
-      "responderSignatureOnIngridBobFreeBalanceAppActivation"
+      responderSignatureOnIngridBobFreeBalanceAppActivation
     );
 
     // TODO: compute free balance app activation for initiator
@@ -507,8 +497,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       initiatorAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
-      initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
-      "initiatorSignatureOnAliceIngridFreeBalanceAppActivation"
+      initiatorSignatureOnAliceIngridFreeBalanceAppActivation
     );
 
     // TODO: write to db
@@ -540,8 +529,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       initiatorAddress,
       timeLockedPassThroughSetStateCommitment,
-      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      "initiatorSignatureOnTimeLockedPassThroughSetStateCommitment"
+      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     // TODO: sign free balance update with responder
@@ -597,8 +585,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       responderAddress,
       timeLockedPassThroughSetStateCommitment,
-      responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      "responderSignatureOnTimeLockedPassThroughSetStateCommitment"
+      responderSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     // TODO: write to DB
@@ -702,8 +689,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
-      intermediarySignatureOnIngridBobVirtualAppAgreement,
-      "intermediarySignatureOnIngridBobVirtualAppAgreement"
+      intermediarySignatureOnIngridBobVirtualAppAgreement
     );
 
     // TODO: sign conditional transaction
@@ -767,8 +753,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
-      intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      "intermediarySignatureOnIngridBobFreeBalanceAppActivation"
+      intermediarySignatureOnIngridBobFreeBalanceAppActivation
     );
 
     // TODO: write to DB
@@ -808,22 +793,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       intermediaryAddress,
       timeLockedPassThroughSetStateCommitment,
-      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      "intermediarySignatureOnTimeLockedPassThroughSetStateCommitment"
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       initiatorAddress,
       timeLockedPassThroughSetStateCommitment,
-      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      "initiatorSignatureOnTimeLockedPassThroughSetStateCommitment"
+      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       initiatorAddress,
       virtualAppSetStateCommitment,
-      initiatorSignatureOnVirtualAppSetStateCommitment,
-      "initiatorSignatureOnVirtualAppSetStateCommitment"
+      initiatorSignatureOnVirtualAppSetStateCommitment
     );
 
     // TODO: sign virtual app set state commitment balance app activation
