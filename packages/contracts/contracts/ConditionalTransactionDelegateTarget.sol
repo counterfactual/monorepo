@@ -24,8 +24,8 @@ contract ConditionalTransactionDelegateTarget {
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address coinTransferETHInterpreterAddress,
-    bytes memory coinTransferETHInterpreterParams
+    address coinTransferInterpreterAddress,
+    bytes memory coinTransferInterpreterParams
   )
     public
   {
@@ -42,14 +42,14 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      coinTransferETHInterpreterParams
+      coinTransferInterpreterParams
     );
 
     (
       bool success,
       // solium-disable-next-line no-unused-vars
       bytes memory returnData
-    ) = coinTransferETHInterpreterAddress.delegatecall(payload);
+    ) = coinTransferInterpreterAddress.delegatecall(payload);
 
     require(
       success,
