@@ -1,10 +1,11 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { One } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 
-import { Node } from "../../src";
+import { JsonRpcResponse, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -48,7 +49,11 @@ describe("Node method follows spec - withdraw", () => {
 
     const withdrawReq = makeWithdrawRequest(multisigAddress, One);
 
-    await nodeA.rpcRouter.dispatch(withdrawReq);
+    const withdrawRes = ((await nodeA.rpcRouter.dispatch(
+      withdrawReq
+    )) as JsonRpcResponse).result.result as NodeTypes.WithdrawResult;
+
+    expect(withdrawRes.txHash).toBeDefined();
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()

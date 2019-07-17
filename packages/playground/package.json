@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@counterfactual/types": "0.2.18",
-    "@counterfactual/types": "0.0.23",
+    "@counterfactual/types": "0.0.24",
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",
     "@stencil/sass": "0.1.1",
