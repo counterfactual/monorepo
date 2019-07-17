@@ -104,7 +104,7 @@ async function createProxy() {
   );
 }
 
-async function fundWithEth(
+async function fundWithETH(
   wallet: Wallet,
   proxyAddress: string,
   amount: BigNumber
@@ -169,7 +169,7 @@ function createTargetAppInstance(stateChannel: StateChannel) {
   );
 }
 
-async function ssoc(
+async function setStatesAndOutcomes(
   targetAppInstance: AppInstance,
   stateChannel: StateChannel
 ) {
@@ -223,7 +223,7 @@ async function ssoc(
   );
 }
 
-describe("ERC20", () => {
+describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
@@ -253,7 +253,7 @@ describe("ERC20", () => {
         erc20Contract.address
       );
 
-      await ssoc(targetAppInstance, stateChannel);
+      await setStatesAndOutcomes(targetAppInstance, stateChannel);
 
       const commitment = new ConditionalTransaction(
         network, // network
@@ -290,7 +290,7 @@ describe("ERC20", () => {
 describe("Scenario: install virtual AppInstance, put on-chain", () => {
   it("returns the ETH the app had locked up", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      await fundWithEth(wallet, proxyAddress, parseEther("10"));
+      await fundWithETH(wallet, proxyAddress, parseEther("10"));
 
       let stateChannel = await setupChannel(
         proxyAddress,
@@ -317,7 +317,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
-      await ssoc(targetAppInstance, stateChannel);
+      await setStatesAndOutcomes(targetAppInstance, stateChannel);
 
       const commitment = new ConditionalTransaction(
         network, // network
