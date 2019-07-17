@@ -84,6 +84,8 @@ export type InstallParams = {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
+
+  // Outcome Type returned by the app instance, as defined by `appInterface`
   outcomeType: OutcomeType;
 };
 
@@ -101,6 +103,9 @@ export type InstallVirtualAppParams = {
   defaultTimeout: number;
   appInterface: AppInterface;
   initialState: SolidityABIEncoderV2Type;
+
+  // initiator and respondor must fund the installed virtual app with the same
+  // token type `tokenAddress`, but may use different amounts
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
