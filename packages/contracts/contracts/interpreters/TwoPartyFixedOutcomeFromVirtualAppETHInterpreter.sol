@@ -10,9 +10,10 @@ import "../libs/LibOutcome.sol";
 /// @notice
 /// Asset: Single Asset
 /// OutcomeType: TwoPartyFixedOutcome
-/// This is expected to be used for a virtual app in a simple hub topology, hence
-/// two different commitments to this interpreter are to be made in the two direct channels,
-/// where the commitments differ in the params.beneficiaries field.
+/// This is expected to be used for a virtual app in a simple hub topology, 
+/// hence two different commitments to this interpreter are to be made in the 
+/// two direct channels, where the commitments differ in the 
+/// params.beneficiaries field.
 contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   Interpreter
 {
@@ -53,7 +54,9 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
         agreement.beneficiaries[0].transfer(agreement.capitalProvided);
       } else {
-        ERC20(agreement.tokenAddress).transfer(agreement.beneficiaries[0], agreement.capitalProvided);
+        ERC20(agreement.tokenAddress).transfer(
+          agreement.beneficiaries[0], agreement.capitalProvided
+        );
       }
 
     } else if (
@@ -63,7 +66,9 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
         agreement.beneficiaries[1].transfer(agreement.capitalProvided);
       } else {
-        ERC20(agreement.tokenAddress).transfer(agreement.beneficiaries[1], agreement.capitalProvided);
+        ERC20(agreement.tokenAddress).transfer(
+          agreement.beneficiaries[1], agreement.capitalProvided
+        );
       }
     } else {
 
@@ -84,7 +89,8 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
         );
 
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[1], agreement.capitalProvided - agreement.capitalProvided / 2
+          agreement.beneficiaries[1], 
+          agreement.capitalProvided - agreement.capitalProvided / 2
         );
       }
 
