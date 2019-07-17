@@ -2,7 +2,7 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -103,6 +103,7 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         2, // latest state
         1, // latest versionNumber
         0, // latest timeout
+        OutcomeType.TWO_PARTY_FIXED_OUTCOME,
         {
           playerAddrs: [AddressZero, AddressZero],
           amount: Zero

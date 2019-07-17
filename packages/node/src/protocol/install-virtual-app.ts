@@ -133,15 +133,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     } = m4;
 
-    // TODO: require(signature on virtual app agreement is good)
-
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
       intermediarySignatureOnAliceIngridVirtualAppAgreement
     );
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -155,8 +151,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppInstance.identityHash
     ];
 
-    // TODO: compute free balance app activation commitment
-
     const freeBalanceAliceIngridVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithIntermediary.freeBalance.identity,
@@ -165,22 +159,16 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    // TODO: require(signature on free balance app activation is good
-
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
       intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     );
 
-    // TODO: sign free balance app activation
-
     const initiatorSignatureOnAliceIngridFreeBalanceAppActivation = yield [
       Opcode.OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -193,8 +181,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ),
       stateChannelWithIntermediary.freeBalance.identityHash
     ];
-
-    // TODO: compute virtual app set state commitment
 
     const virtualAppSetStateCommitment = new SetStateCommitment(
       network,
@@ -212,8 +198,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.defaultTimeout
     );
 
-    // TODO: sign virtual app set state commitment
-
     const initiatorSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
       Opcode.OP_SIGN,
       timeLockedPassThroughSetStateCommitment
@@ -223,8 +207,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.OP_SIGN,
       virtualAppSetStateCommitment
     ];
-
-    // TODO: send [ FB, VA ] to intermediary
 
     const m5 = {
       protocol,
@@ -244,8 +226,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature3: responderSignatureOnVirtualAppSetStateCommitment
     } = m8;
 
-    // TODO: require(signatures on virtual app agreement are OK)
-
     assertIsValidSignature(
       intermediaryAddress,
       timeLockedPassThroughSetStateCommitment,
@@ -263,8 +243,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppSetStateCommitment,
       responderSignatureOnVirtualAppSetStateCommitment
     );
-
-    // TODO: Save to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -286,8 +264,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ]),
       virtualAppInstance.identityHash
     ];
-
-    // TODO: save to context
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -344,8 +320,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       responderXpub
     );
 
-    // TODO: compute conditional transaction for the initiator party
-
     const presignedMultisigTxForAliceIngridVirtualAppAgreement = new ConditionalTransaction(
       network,
       stateChannelWithInitiating.multisigAddress,
@@ -360,15 +334,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    // TODO: require(signature on conditional transaction is good from initiator)
-
     assertIsValidSignature(
       initiatorAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
       initiatorSignatureOnAliceIngridVirtualAppAgreement
     );
-
-    // TODO: compute conditional transaction for the responder party
 
     const presignedMultisigTxForIngridBobVirtualAppAgreement = new ConditionalTransaction(
       network,
@@ -384,14 +354,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    // TODO: sign conditional transaction
-
     const intermediarySignatureOnIngridBobVirtualAppAgreement = yield [
       Opcode.OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
-
-    // TODO: send conditional transaction to responder
 
     const m2 = {
       params, // Must include as this is the first message received by responder
@@ -409,15 +375,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
     } = m3;
 
-    // TODO: require(signature on conditional transaction is good from responder
-
     assertIsValidSignature(
       responderAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
       responderSignatureOnIngridBobVirtualAppAgreement
     );
-
-    // TODO: compute free balance activation from responder
 
     const freeBalanceIngridBobVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
@@ -427,15 +389,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.timeout
     );
 
-    // TODO: require( signature on free balance app activation is good)
-
     assertIsValidSignature(
       responderAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
       responderSignatureOnIngridBobFreeBalanceAppActivation
     );
-
-    // TODO: compute free balance app activation for initiator
 
     const freeBalanceAliceIngridVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
@@ -445,21 +403,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.freeBalance.timeout
     );
 
-    // TODO: sign free balance app activation commitment with initiator
-
     const intermediarySignatureOnAliceIngridFreeBalanceAppActivation = yield [
       Opcode.OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
-    // TODO: sign conditional transaction for initiator
-
     const intermediarySignatureOnAliceIngridVirtualAppAgreement = yield [
       Opcode.OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -472,8 +424,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ),
       timeLockedPassThroughAppInstance.identityHash
     ];
-
-    // TODO: send [ CT, FB ] to initiator
 
     const m4 = {
       protocol,
@@ -492,15 +442,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature3: initiatorSignatureOnVirtualAppSetStateCommitment
     } = m5;
 
-    // TODO: require(signature on free balance activation with initiaitng is good)
-
     assertIsValidSignature(
       initiatorAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
       initiatorSignatureOnAliceIngridFreeBalanceAppActivation
     );
-
-    // TODO: write to db
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -514,8 +460,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.identityHash
     ];
 
-    // TODO: compute virtual app set state commitment
-
     const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
       network,
       timeLockedPassThroughAppInstance.identity,
@@ -524,22 +468,16 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.defaultTimeout
     );
 
-    // TODO: require(signature on virtual app set state from initiaitng is good)
-
     assertIsValidSignature(
       initiatorAddress,
       timeLockedPassThroughSetStateCommitment,
       initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    // TODO: sign free balance update with responder
-
     const intermediarySignatureOnIngridBobFreeBalanceAppActivation = yield [
       Opcode.OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -553,14 +491,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.identityHash
     ];
 
-    // TODO: sign virtual app set state
-
     const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
       Opcode.OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
-
-    // TODO: send [ FB, VA ] to responder
 
     const m6 = {
       protocol,
@@ -580,15 +514,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: responderSignatureOnVirtualAppSetStateCommitment
     } = m7;
 
-    // TODO: require virtual app set state is good from responder
-
     assertIsValidSignature(
       responderAddress,
       timeLockedPassThroughSetStateCommitment,
       responderSignatureOnTimeLockedPassThroughSetStateCommitment
     );
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -601,8 +531,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.identityHash
     ];
 
-    // TODO: forward the virtual app set state to the initiator
-
     const m8 = {
       protocol,
       protocolExecutionID,
@@ -614,8 +542,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     } as ProtocolMessage;
 
     yield [Opcode.IO_SEND, m8];
-
-    // TODO: save to context
 
     context.stateChannelsMap.set(
       stateChannelBetweenVirtualAppUsers.multisigAddress,
@@ -668,8 +594,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorXpub
     );
 
-    // TODO: compute conditional transaction for the intermeidary party
-
     const presignedMultisigTxForIngridBobVirtualAppAgreement = new ConditionalTransaction(
       network,
       stateChannelWithIntermediary.multisigAddress,
@@ -684,22 +608,16 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    // TODO: require(signature on virtual app agreement is good from)
-
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
       intermediarySignatureOnIngridBobVirtualAppAgreement
     );
 
-    // TODO: sign conditional transaction
-
     const responderSignatureOnIngridBobVirtualAppAgreement = yield [
       Opcode.OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -711,8 +629,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppInstance.identityHash
     ];
 
-    // TODO: compute free balance app activation commitment
-
     const freeBalanceIngridBobVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithIntermediary.freeBalance.identity,
@@ -721,14 +637,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    // TODO: sign free balabce app activation commitment
-
     const responderSignatureOnIngridBobFreeBalanceAppActivation = yield [
       Opcode.OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
-
-    // TODO: send free balance app activation and conditional transaction countersig to intermediary
 
     const m3 = {
       protocol,
@@ -748,15 +660,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature4: initiatorSignatureOnVirtualAppSetStateCommitment
     } = m6;
 
-    // TODO: require(signature on free balance app activation is good
-
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
       intermediarySignatureOnIngridBobFreeBalanceAppActivation
     );
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -769,8 +677,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ),
       stateChannelWithIntermediary.freeBalance.identityHash
     ];
-
-    // TODO: compute virtual app set state commitment
 
     const virtualAppSetStateCommitment = new SetStateCommitment(
       network,
@@ -787,8 +693,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.versionNumber,
       timeLockedPassThroughAppInstance.defaultTimeout
     );
-
-    // TODO: require virtual app set state commitment sigs by intermediary and initiaitng are good
 
     assertIsValidSignature(
       intermediaryAddress,
@@ -808,8 +712,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignatureOnVirtualAppSetStateCommitment
     );
 
-    // TODO: sign virtual app set state commitment balance app activation
-
     const responderSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
       Opcode.OP_SIGN,
       timeLockedPassThroughSetStateCommitment
@@ -819,8 +721,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.OP_SIGN,
       virtualAppSetStateCommitment
     ];
-
-    // TODO: write to DB
 
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -842,8 +742,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ]),
       virtualAppInstance.identityHash
     ];
-
-    // TODO: send [ VA ] to intermediary
 
     const m7 = {
       protocol,
