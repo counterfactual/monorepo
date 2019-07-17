@@ -23,9 +23,7 @@ export default class MultisigDeployProcessor extends OperationProcessor<
     );
 
     informSlack(
-      `📄 *MULTISIG_TX_BROADCASTED* (_${
-        user.attributes.username
-      }_) | Broadcasted multisig creation transaction <http://kovan.etherscan.io/tx/${transactionHash}|_(view on etherscan)_>.`
+      `📄 *MULTISIG_TX_BROADCASTED* (_${user.attributes.username}_) | Broadcasted multisig creation transaction <http://kovan.etherscan.io/tx/${transactionHash}|_(view on etherscan)_>.`
     );
 
     return {

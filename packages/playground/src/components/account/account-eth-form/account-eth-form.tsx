@@ -36,9 +36,7 @@ export class AccountEthForm {
     const value = Number(this.value);
 
     if (!value || value < this.min || value > this.max) {
-      this.error = `Enter an amount larger than ${this.min} and smaller than ${
-        this.max
-      }.`;
+      this.error = `Enter an amount larger than ${this.min} and smaller than ${this.max}.`;
       return;
     }
 

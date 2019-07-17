@@ -13,10 +13,17 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-  limit: BigNumber;
-  tokenAddress: string;
+  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  limit: BigNumber[];
+  tokens: string[];
 };
+
+export const coinTransferInterpreterParamsStateEncoding = `
+  tuple(
+    uint256[] limit,
+    address[] tokens
+  )
+`;
 
 export type AppInstanceJson = {
   identityHash: string;
@@ -42,20 +49,20 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string };
-    tokenAddress: string;
+    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    limit: { _hex: string }[];
+    tokens: string[];
   };
-
-  tokenAddress: string;
 };
 
 export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -72,8 +79,10 @@ export type AppInstanceProposal = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -94,8 +103,7 @@ export type AppABIEncodings = {
 // Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  TWO_PARTY_DYNAMIC_OUTCOME = 1,
-  COIN_TRANSFER = 2
+  COIN_TRANSFER = 1
 }
 
 // TwoPartyFixedOutcome.sol::Outcome
@@ -104,6 +112,13 @@ export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
+
+export type CoinBalanceRefundState = {
+  recipient: string;
+  multisig: string;
+  threshold: BigNumber;
+  token: string;
+};
 
 export const coinBalanceRefundStateEncoding = `
   tuple(

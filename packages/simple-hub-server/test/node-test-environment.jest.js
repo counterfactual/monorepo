@@ -34,7 +34,7 @@ class NodeEnvironment extends NodeJSEnvironment {
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
       TicTacToe: data.networkContext.TicTacToe,
-      CoinTransferETHInterpreter: data.networkContext.CoinTransferETHInterpreter
+      CoinTransferInterpreter: data.networkContext.CoinTransferInterpreter
     };
 
     this.global.networkContext = networkContext;

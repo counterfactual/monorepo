@@ -49,6 +49,17 @@ export const INSUFFICIENT_FUNDS_TO_WITHDRAW = (
   return `Node has ${balance} and needs ${amount} of token ${address} to withdraw`;
 };
 
+export const INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET = (
+  publicIdentifier: string,
+  multisigAddress: string,
+  tokenAddress: string,
+  balance: BigNumber,
+  allocationAmount: BigNumber
+) =>
+  `Node with public identifier ${publicIdentifier} has insufficient funds in channel ${multisigAddress}
+  for token ${tokenAddress} to allocate towards an AppInstance. Current free balance for token is ${balance},
+  attempted allocation amount: ${allocationAmount} `;
+
 export const INSUFFICIENT_FUNDS =
   "Node's default signer does not have enough funds for this action";
 

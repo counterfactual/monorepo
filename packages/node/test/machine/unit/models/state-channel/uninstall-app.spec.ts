@@ -34,13 +34,17 @@ describe("StateChannel::uninstallApp", () => {
     testApp = createAppInstanceForTest(sc1);
 
     sc1 = sc1.installApp(testApp, {
-      [xkeyKthAddress(xpubs[0], 0)]: Zero,
-      [xkeyKthAddress(xpubs[1], 0)]: Zero
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [xkeyKthAddress(xpubs[0], 0)]: Zero,
+        [xkeyKthAddress(xpubs[1], 0)]: Zero
+      }
     });
 
     sc2 = sc1.uninstallApp(testApp.identityHash, {
-      [xkeyKthAddress(xpubs[0], 0)]: Zero,
-      [xkeyKthAddress(xpubs[1], 0)]: Zero
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [xkeyKthAddress(xpubs[0], 0)]: Zero,
+        [xkeyKthAddress(xpubs[1], 0)]: Zero
+      }
     });
   });
 

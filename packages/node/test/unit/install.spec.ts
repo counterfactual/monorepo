@@ -1,5 +1,9 @@
+import {
+  EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT,
+  NetworkContext
+} from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -24,10 +28,17 @@ import {
   FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
-import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createAppInstanceProposalForTest } from "./utils";
+
+const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
+  (acc, contractName) => ({
+    ...acc,
+    [contractName]: AddressZero
+  }),
+  {} as NetworkContext
+);
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
@@ -35,7 +46,10 @@ describe("Can handle correct & incorrect installs", () => {
 
   beforeAll(() => {
     store = new Store(new MemoryStoreService(), "install.spec.ts-test-store");
-    ie = new InstructionExecutor(EMPTY_NETWORK, {} as BaseProvider);
+    ie = new InstructionExecutor(
+      NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
+      {} as BaseProvider
+    );
   });
 
   it("fails to install with undefined appInstanceId", async () => {
@@ -97,7 +111,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK.FreeBalanceApp,
+      AddressZero,
       multisigAddress,
       hdnodes.map(x => x.neuter().extendedKey)
     );

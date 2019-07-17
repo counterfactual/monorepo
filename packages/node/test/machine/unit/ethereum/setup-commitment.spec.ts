@@ -1,5 +1,7 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
+import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
 import {
+  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
@@ -39,14 +41,18 @@ describe("SetupCommitment", () => {
     [interaction.sender, interaction.receiver]
   );
 
-  const freeBalanceETH = stateChannel.freeBalance;
+  const freeBalance = stateChannel.freeBalance;
 
   beforeAll(() => {
     tx = new SetupCommitment(
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalanceETH.identity
+      freeBalance.identity,
+      defaultAbiCoder.encode(
+        [coinTransferInterpreterParamsStateEncoding],
+        [freeBalance.coinTransferInterpreterParams]
+      )
     ).getTransactionDetails();
   });
 
@@ -76,10 +82,8 @@ describe("SetupCommitment", () => {
     it("should contain expected arguments", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
-      expect(appIdentityHash).toBe(appIdentityToHash(freeBalanceETH.identity));
-      expect(interpreterAddress).toBe(
-        networkContext.CoinTransferETHInterpreter
-      );
+      expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
+      expect(interpreterAddress).toBe(networkContext.CoinTransferInterpreter);
     });
   });
 });
