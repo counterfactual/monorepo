@@ -1,9 +1,12 @@
+import { BaseProvider } from "ethers/providers";
+
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 
-export async function uninstallAppInstanceFromChannel(
+export async function uninstallVirtualAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
+  provider: BaseProvider,
   initiatorXpub: string,
   responderXpub: string,
   intermediaryXpub: string,
@@ -22,7 +25,10 @@ export async function uninstallAppInstanceFromChannel(
       initiatorXpub,
       responderXpub,
       intermediaryXpub,
-      targetAppState: appInstance.state,
+      targetOutcome: await appInstance.computeOutcome(
+        appInstance.state,
+        provider
+      ),
       targetAppIdentityHash: appInstance.identityHash
     }
   );

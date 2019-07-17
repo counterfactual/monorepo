@@ -35,9 +35,8 @@ describe("Node method follows spec - takeAction virtual", () => {
     "Node A and C install an AppInstance via Node B, Node A takes action, " +
       "Node C confirms receipt of state update",
     () => {
-      it("sends takeAction with invalid appInstanceId", async () => {
+      it("sends takeAction with invalid appInstanceId", () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
-
         expect(nodeA.rpcRouter.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );

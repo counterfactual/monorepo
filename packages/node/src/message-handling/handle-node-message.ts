@@ -106,7 +106,12 @@ export async function handleReceivedProposeVirtualMessage(
   requestHandler: RequestHandler,
   receivedProposeMessage: ProposeVirtualMessage
 ) {
-  const { publicIdentifier, store, messagingService } = requestHandler;
+  const {
+    publicIdentifier,
+    store,
+    messagingService,
+    networkContext
+  } = requestHandler;
 
   const {
     data: { params, proposedByIdentifier }
@@ -125,7 +130,8 @@ export async function handleReceivedProposeVirtualMessage(
     proposedByIdentifier,
     publicIdentifier,
     intermediaries,
-    store
+    store,
+    networkContext
   );
 
   await store.addVirtualAppInstanceProposal(

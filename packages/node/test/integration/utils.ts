@@ -287,6 +287,7 @@ export function makeTTTVirtualProposalRequest(
     ...installProposalParams,
     intermediaries
   };
+
   return jsonRpcDeserialize({
     params: installVirtualParams,
     id: Date.now(),

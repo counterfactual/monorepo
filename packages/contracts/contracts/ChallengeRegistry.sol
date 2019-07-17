@@ -5,7 +5,6 @@ import "./mixins/MixinChallengeRegistryCore.sol";
 import "./mixins/MixinCancelChallenge.sol";
 import "./mixins/MixinSetOutcome.sol";
 import "./mixins/MixinSetState.sol";
-import "./mixins/MixinVirtualAppSetState.sol";
 import "./mixins/MixinSetStateWithAction.sol";
 import "./mixins/MixinRespondToChallenge.sol";
 
@@ -14,7 +13,6 @@ import "./mixins/MixinRespondToChallenge.sol";
 contract ChallengeRegistry is
   MixinChallengeRegistryCore,
   MixinSetState,
-  MixinVirtualAppSetState,
   MixinSetStateWithAction,
   MixinCancelChallenge,
   MixinRespondToChallenge,

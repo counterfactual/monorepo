@@ -8,6 +8,7 @@ import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json"
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import TimeLockedPassThrough from "@counterfactual/contracts/build/TimeLockedPassThrough.json";
 import TwoPartyFixedOutcomeETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeETHInterpreter.json";
 import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
@@ -91,6 +92,12 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const timeLockedPassThrough = await new ContractFactory(
+    TimeLockedPassThrough.abi,
+    TimeLockedPassThrough.bytecode,
+    wallet
+  ).deploy();
+
   return {
     ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
@@ -103,6 +110,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,
+    TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeETHInterpreter:
       twoPartyFixedOutcomeETHInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:

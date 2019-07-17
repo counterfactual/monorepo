@@ -2,14 +2,10 @@ import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-import {
-  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp,
-  Protocol,
-  xkeyKthAddress
-} from "../../../src/machine";
+import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
@@ -150,6 +146,7 @@ describe("Three mininodes", () => {
         outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
+
     await mininodeA.ie.initiateProtocol(
       Protocol.InstallVirtualApp,
       mininodeA.scm,
@@ -173,26 +170,28 @@ describe("Three mininodes", () => {
       }
     );
 
-    expect(mininodeA.scm.size).toBe(2);
+    // Expecting size to be 3 because: AB, AC, and ABC
+    expect(mininodeA.scm.size).toBe(3);
+    expect(mininodeB.scm.size).toBe(3);
+    expect(mininodeC.scm.size).toBe(3);
 
-    const unqiueIdentifierForStateChannelWrappingVirtualApp = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
+    const multisigAC = getCreate2MultisigAddress(
       [mininodeA.xpub, mininodeC.xpub],
-      mininodeB.xpub
+      network.ProxyFactory,
+      network.MinimumViableMultisig
     );
 
-    const [appInstance] = [
-      ...mininodeA.scm
-        .get(unqiueIdentifierForStateChannelWrappingVirtualApp)!
-        .appInstances.values()
+    const [virtualAppInstance] = [
+      ...mininodeA.scm.get(multisigAC)!.appInstances.values()
     ];
 
-    expect(appInstance.isVirtualApp);
+    expect(virtualAppInstance.isVirtualApp);
 
     await mininodeA.ie.initiateProtocol(Protocol.Update, mininodeA.scm, {
       initiatorXpub: mininodeA.xpub,
       responderXpub: mininodeC.xpub,
-      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
-      appIdentityHash: appInstance.identityHash,
+      multisigAddress: multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
       newState: {
         counter: 1
       }
@@ -201,8 +200,8 @@ describe("Three mininodes", () => {
     await mininodeA.ie.initiateProtocol(Protocol.TakeAction, mininodeA.scm, {
       initiatorXpub: mininodeA.xpub,
       responderXpub: mininodeC.xpub,
-      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
-      appIdentityHash: appInstance.identityHash,
+      multisigAddress: multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
       action: {
         actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
         increment: 1
@@ -216,10 +215,13 @@ describe("Three mininodes", () => {
         initiatorXpub: mininodeA.xpub,
         intermediaryXpub: mininodeB.xpub,
         responderXpub: mininodeC.xpub,
-        targetAppIdentityHash: appInstance.identityHash,
-        targetAppState: {
-          counter: 2
-        }
+        targetAppIdentityHash: virtualAppInstance.identityHash,
+        targetOutcome: await virtualAppInstance.computeOutcome(
+          {
+            counter: 2
+          },
+          appDefinition.provider as BaseProvider
+        )
       }
     );
   });

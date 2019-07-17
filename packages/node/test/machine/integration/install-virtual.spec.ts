@@ -6,7 +6,7 @@ import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther, SigningKey } from "ethers/utils";
 
@@ -242,7 +242,8 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
         beneficiaries,
         capitalProvided: parseEther("10"),
         expiryBlock: (await provider.getBlockNumber()) + 1000,
-        tokenAddress: erc20Contract.address
+        tokenAddress: erc20Contract.address,
+        timeLockedPassThroughIdentityHash: HashZero
       };
 
       stateChannel = stateChannel.addSingleAssetTwoPartyIntermediaryAgreement(
@@ -306,7 +307,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         beneficiaries,
         capitalProvided: parseEther("10"),
         expiryBlock: (await provider.getBlockNumber()) + 1000,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        timeLockedPassThroughIdentityHash: HashZero
       };
 
       stateChannel = stateChannel.addSingleAssetTwoPartyIntermediaryAgreement(
