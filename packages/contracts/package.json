@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/contracts",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Smart contracts for Counterfactual",
   "license": "MIT",
   "engines": {
