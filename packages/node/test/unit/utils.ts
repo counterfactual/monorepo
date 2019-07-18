@@ -36,7 +36,7 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
-      outcomeType: OutcomeType.COIN_TRANSFER,
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
       responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },

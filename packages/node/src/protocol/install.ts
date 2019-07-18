@@ -398,7 +398,7 @@ function computeInterpreterParameters(
     | undefined;
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
       const limit: BigNumber[] = [];
       const tokens: string[] = [];
 
@@ -465,7 +465,7 @@ function constructConditionalTransactionData(
   let interpreterParams: string;
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
       interpreterAddress = network.CoinTransferInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         [coinTransferInterpreterParamsStateEncoding],

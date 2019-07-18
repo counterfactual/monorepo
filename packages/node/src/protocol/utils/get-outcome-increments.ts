@@ -85,7 +85,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
   }
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
