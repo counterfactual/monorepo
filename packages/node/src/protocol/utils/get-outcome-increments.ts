@@ -142,8 +142,20 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         }
       };
     }
+    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      const [decoded] = defaultAbiCoder.decode(
+        ["tuple(address to, uint256 amount)[2]"],
+        outcome
+      );
+      return {
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [decoded[0].to]: decoded[0].amount,
+          [decoded[1].to]: decoded[1].amount
+        }
+      };
+    }
     default: {
-      throw new Error("unknown interpreter");
+      throw new Error("unknown outcomeType");
     }
   }
 }

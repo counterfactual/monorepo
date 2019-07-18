@@ -111,6 +111,7 @@ export type InstallVirtualAppParams = {
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
 
+  // outcomeType returned by the app instance, as defined by the app definition `appInterface`
   outcomeType: OutcomeType;
 };
 

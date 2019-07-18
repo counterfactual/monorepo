@@ -5,10 +5,15 @@
  *        is quite computationally expensive. Refactor to use it less.
  */
 
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import {
+  CoinTransferInterpreterParams,
+  NetworkContext,
+  OutcomeType,
+  TwoPartyFixedOutcomeInterpreterParams
+} from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
 import { Opcode, Protocol } from "../machine/enums";
@@ -24,6 +29,7 @@ import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 /**
  * As specified in TwoPartyFixedOutcomeFromVirtualAppInterpreter.sol, *
@@ -772,6 +778,53 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   }
 };
 
+// todo(xuanji): make this more consistent with the function
+// with the same name from install.ts. This involves refactoring
+// the callers.
+function computeInterpreterParameters(
+  outcomeType: OutcomeType,
+  initiatingAddress: string,
+  respondingAddress: string,
+  initiatingBalanceDecrement: BigNumber,
+  respondingBalanceDecrement: BigNumber
+) {
+  const coinTransferInterpreterParams:
+    | CoinTransferInterpreterParams
+    | undefined = undefined;
+
+  let twoPartyOutcomeInterpreterParams:
+    | TwoPartyFixedOutcomeInterpreterParams
+    | undefined = undefined;
+
+  // debug
+  if (outcomeType === undefined) {
+    throw Error("This really should have been caught earlier");
+  }
+
+  switch (outcomeType) {
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+      twoPartyOutcomeInterpreterParams = {
+        playerAddrs: [initiatingAddress, respondingAddress],
+        amount: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        ),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      };
+      break;
+    }
+    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      break;
+    }
+    default: {
+      throw Error(`Not supported, and weird outcome type: ${outcomeType}`);
+    }
+  }
+  return {
+    coinTransferInterpreterParams,
+    twoPartyOutcomeInterpreterParams
+  };
+}
+
 /**
  * Creates a shared AppInstance that represents the Virtual App being installed.
  *
@@ -858,6 +911,17 @@ function constructTimeLockedPassThroughAppInstance(
 
   const HARD_CODED_CHALLENGE_TIMEOUT = 100;
 
+  const {
+    coinTransferInterpreterParams,
+    twoPartyOutcomeInterpreterParams
+  } = computeInterpreterParameters(
+    outcomeType,
+    initiatorAddress,
+    responderAddress,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement
+  );
+
   return new AppInstance(
     /* multisigAddress */ AddressZero,
     /* participants */
@@ -886,15 +950,8 @@ function constructTimeLockedPassThroughAppInstance(
     /* versionNumber */ 0,
     /* latestTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* outcomeType */ outcomeType,
-    /* twoPartyOutcomeInterpreterParams */
-    {
-      playerAddrs: [initiatorAddress, responderAddress],
-      amount: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
-      tokenAddress: AddressZero
-    },
-    /* coinTransferInterpreterParams */ undefined
+    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 }
 

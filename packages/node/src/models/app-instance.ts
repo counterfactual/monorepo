@@ -138,6 +138,7 @@ export class AppInstance {
   }
 
   @Memoize()
+  // todo(xuanji): we should print better error messages here
   public get encodedLatestState() {
     return defaultAbiCoder.encode(
       [this.appInterface.stateEncoding],
@@ -166,7 +167,8 @@ export class AppInstance {
     } catch (e) {
       // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
       console.error(
-        "Attempted to setState on an app with an invalid state object"
+        "Attempted to setState on an app with an invalid state object",
+        newState
       );
       throw e;
     }
