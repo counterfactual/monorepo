@@ -1,20 +1,6 @@
 import React from "react";
-
 import { ChannelTree } from "../channel-tree/ChannelTree";
-
 import "./ChannelNode.scss";
-
-type ChannelNodeProps = {
-  type: "hub" | "user" | "app";
-  name: string;
-  ethAddress: string;
-  children?: React.ReactNode;
-};
-
-type ChannelNodeState = {
-  expanded: boolean;
-  showingMenu: boolean;
-};
 
 type ChannelMenuProps = {
   type: "hub" | "user" | "app";
@@ -37,6 +23,18 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ type, visible }) => (
     ) : null}
   </menu>
 );
+
+export type ChannelNodeProps = {
+  type: "hub" | "user" | "app";
+  name: string;
+  ethAddress: string;
+  children?: React.ReactNode;
+};
+
+type ChannelNodeState = {
+  expanded: boolean;
+  showingMenu: boolean;
+};
 
 class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
   constructor(props: ChannelNodeProps) {
@@ -63,7 +61,6 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
   render() {
     const { type, name, ethAddress, children } = this.props;
     const { expanded, showingMenu } = this.state;
-
     return (
       <li className="channel-node">
         <div className={`channel-node-wrapper channel-node-wrapper--${type}`}>

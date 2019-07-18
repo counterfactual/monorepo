@@ -1,18 +1,13 @@
 [
   {
     "contractName": "Migrations",
-    "address": "0x6D0fb614b9A962e5ade8d6737cac8eb2131a57d4",
-    "transactionHash": "0xf0ace24280456c70c88c0903267b9aa6761673daf22b1adacc070596f9e841a6"
+    "address": "0xB34976eB52c458a2dFb2AB667A7C89e4EC0f8053",
+    "transactionHash": "0xd721ca75be11660107b7de4b9ad7d58e26f7149f20d55d83e8e59522e350830b"
   },
   {
     "contractName": "ChallengeRegistry",
     "address": "0xbdf602c9570bF5A85b4dC678f34f6a8Dfd8f6B94",
     "transactionHash": "0x95cf97f46892fec8b93eef97673179740980caf6812857847ddc375ffea71eaf"
-  },
-  {
-    "contractName": "CoinBalanceRefundApp",
-    "address": "0x495696254aEE93E72e88cdA0BE12f000d1956d28",
-    "transactionHash": "0x96b2a56bdb152d23d995c9b0c0da7cac1f9465754d9fc2bfd8b1d25648de2798"
   },
   {
     "contractName": "MinimumViableMultisig",
@@ -26,13 +21,8 @@
   },
   {
     "contractName": "ConditionalTransactionDelegateTarget",
-    "address": "0x9D3D5a3AFD872AaEea1eb92e0aE13D9CC1FF820d",
-    "transactionHash": "0x5d445b21c5f7d9e2d195a66b5259798e2f76f4ee379ab81fbee8e4b942ccd062"
-  },
-  {
-    "contractName": "CoinTransferInterpreter",
-    "address": "0xf312C3Bf048B95Ad44DBd06A3D2Fc6742e772d2d",
-    "transactionHash": "0x171273113d5d33110b2d2aa90ee207beadeed548c2a17513ca659dd615ba4f37"
+    "address": "0x0190c3A90f6Ab9720a7FB232b5b8E4b55012f842",
+    "transactionHash": "0x7b51d3934126b7ea63cbf9692a8458c3002e3601aa8875488d614df80b36e638"
   },
   {
     "contractName": "FreeBalanceApp",
@@ -56,7 +46,12 @@
   },
   {
     "contractName": "CoinBalanceRefundApp",
-    "address": "0xD28B4723cE66294544e19B0a50d8a7f86171AA68",
-    "transactionHash": "0xc190d00c0cfe881b81d3170764098a85c926039047f1d48eca95a73352ad6268"
+    "address": "0x87224A136B9C2F1f6E7f9c1794692b0FA5104704",
+    "transactionHash": "0xcfb0abfb8b753ca952b813d213528fe1486499a04355212cd9dba9305a83b9dc"
+  },
+  {
+    "contractName": "CoinTransferInterpreter",
+    "address": "0x1cb10f09075cBbAb8D7BcE60e8065B49c24A5C51",
+    "transactionHash": "0x807d73062eaa343180709af80fc573dc78365a38ba79dbf6b9597d3315cf42f4"
   }
 ]

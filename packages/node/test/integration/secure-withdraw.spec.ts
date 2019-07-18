@@ -1,10 +1,13 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import { randomBytes } from "crypto";
 import { Contract } from "ethers";
-import { One } from "ethers/constants";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
+import { getAddress, hexlify } from "ethers/utils";
 
 import { Node } from "../../src";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -46,12 +49,27 @@ describe("Node method follows spec - withdraw", () => {
       startingMultisigBalance.toNumber() + 1
     );
 
-    const withdrawReq = makeWithdrawRequest(multisigAddress, One);
+    const recipient = getAddress(hexlify(randomBytes(20)));
+
+    expect((await provider.getBalance(recipient)).toNumber()).toEqual(
+      Zero.toNumber()
+    );
+
+    const withdrawReq = makeWithdrawRequest(
+      multisigAddress,
+      One,
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      recipient
+    );
 
     await nodeA.rpcRouter.dispatch(withdrawReq);
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()
+    );
+
+    expect((await provider.getBalance(recipient)).toNumber()).toEqual(
+      One.toNumber()
     );
   });
 
@@ -92,10 +110,17 @@ describe("Node method follows spec - withdraw", () => {
       startingMultisigTokenBalance.toNumber() + 1
     );
 
+    const recipient = getAddress(hexlify(randomBytes(20)));
+
+    expect(
+      (await erc20Contract.functions.balanceOf(recipient)).toNumber()
+    ).toEqual(Zero.toNumber());
+
     const withdrawReq = makeWithdrawRequest(
       multisigAddress,
       One,
-      erc20ContractAddress
+      erc20ContractAddress,
+      recipient
     );
 
     await nodeA.rpcRouter.dispatch(withdrawReq);
@@ -103,5 +128,9 @@ describe("Node method follows spec - withdraw", () => {
     expect(
       (await erc20Contract.functions.balanceOf(multisigAddress)).toNumber()
     ).toEqual(startingMultisigTokenBalance.toNumber());
+
+    expect(
+      (await erc20Contract.functions.balanceOf(recipient)).toNumber()
+    ).toEqual(One.toNumber());
   });
 });

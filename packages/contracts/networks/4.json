@@ -1,8 +1,8 @@
 [
   {
     "contractName": "Migrations",
-    "address": "0x19F8DfD0648910fAfB8a2e639a71087Ea112fBff",
-    "transactionHash": "0x0534ef208f4a5a327b9f3a59beea99286d146c22e25ee55db03ea2050280253e"
+    "address": "0x79199A95e83e94eF08F941aa4cEB9639601f7aD1",
+    "transactionHash": "0xcbcbb9995589e1fa595c11d4eab1d1910b5279f88e4e5051b229432b006607ce"
   },
   {
     "contractName": "ChallengeRegistry",
@@ -41,17 +41,17 @@
   },
   {
     "contractName": "ConditionalTransactionDelegateTarget",
-    "address": "0xa8146E2a810C739ff0845f667Bc17F132d59E280",
-    "transactionHash": "0xe921c6a1d83691b4825484452f34794a356846e77f2369c5c4597eed2ee14cb7"
+    "address": "0x5476b5941F6161831EEA096Ff7db9926bec5c9FB",
+    "transactionHash": "0x24410b1692872b8f516c3a6425a1e67719b8bd3c112eed2d0fc0936f3529c914"
   },
   {
     "contractName": "CoinBalanceRefundApp",
-    "address": "0x5378C360649f53197b33D8F9B45d2a56d4137704",
-    "transactionHash": "0xf16dea684160ac740d53c16fe24c947677681175fe777a862d6fd99851cc8c20"
+    "address": "0xD26E31B8Dfa52EBaC2E0418DF9d2ac61D979bEF8",
+    "transactionHash": "0xe60a95b29bd49965489c9ad229f308e7f96d05df5ce243a32fa029b3a70a6b13"
   },
   {
     "contractName": "CoinTransferInterpreter",
-    "address": "0x38BdB7A438c4f562668B29555DE977EE08Aa5551",
-    "transactionHash": "0x880c4b266356dad2175fba1080e62ca5157e7f4e68aa08c2e3a5519d0b063ee1"
+    "address": "0x2FcB59d7A3D6D64c43A8B887f26d002B579cd485",
+    "transactionHash": "0x9ec8d716faca25ff22473897ed546f415f4eb7beb439e0ede7b603469cf6e051"
   }
 ]
