@@ -1,3 +1,4 @@
+import { OutcomeType } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -88,6 +89,7 @@ export function createFreeBalance(
     serializeFreeBalanceState(initialState),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
     { limit: [MaxUint256], tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }

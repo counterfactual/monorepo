@@ -137,6 +137,7 @@ export class AppInstanceProposal {
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
+      -1,
       undefined,
       // this is not relevant here as it gets set properly later in the context
       // of the channel during an install, and it's not used to calculate

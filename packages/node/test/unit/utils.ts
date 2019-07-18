@@ -69,6 +69,7 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestVersionNumber */ 0,
     /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero

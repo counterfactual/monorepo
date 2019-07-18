@@ -146,7 +146,8 @@ describe("Three mininodes", () => {
         },
         initiatorBalanceDecrement: bigNumberify(0),
         responderBalanceDecrement: bigNumberify(0),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
     await mininodeA.ie.initiateProtocol(
@@ -167,7 +168,8 @@ describe("Three mininodes", () => {
         },
         initiatorBalanceDecrement: bigNumberify(0),
         responderBalanceDecrement: bigNumberify(0),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       }
     );
 

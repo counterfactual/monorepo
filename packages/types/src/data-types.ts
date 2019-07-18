@@ -37,6 +37,8 @@ export type AppInstanceJson = {
   latestVersionNumber: number;
   latestTimeout: number;
 
+  outcomeType: number;
+
   /**
    * Interpreter-related Fields
    */
@@ -103,7 +105,8 @@ export type AppABIEncodings = {
 // Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  COIN_TRANSFER = 1
+  COIN_TRANSFER = 1,
+  FREE_BALANCE_OUTCOME_TYPE = 2
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

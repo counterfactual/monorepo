@@ -325,6 +325,7 @@ function computeStateChannelTransition(
     /* latestState */ initialState,
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
+    /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
     /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );

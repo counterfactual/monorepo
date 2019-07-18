@@ -1,5 +1,5 @@
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import * as chai from "chai";
 import { randomBytes } from "crypto";
 import * as matchers from "ethereum-waffle/dist/matchers/matchers";
@@ -89,6 +89,7 @@ beforeEach(() => {
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestVersionNumber */ 10,
     /* latestTimeout */ 10,
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
