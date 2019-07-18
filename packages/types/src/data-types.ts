@@ -37,6 +37,8 @@ export type AppInstanceJson = {
   latestVersionNumber: number;
   latestTimeout: number;
 
+  outcomeType: number;
+
   /**
    * Interpreter-related Fields
    */
@@ -100,10 +102,23 @@ export type AppABIEncodings = {
   actionEncoding: ABIEncoding | undefined;
 };
 
-// Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  COIN_TRANSFER = 1
+
+  // CoinTransfer
+  // Since no apps currently use this outcome
+  // type, do not use it in the node 
+  COIN_TRANSFER_DO_NOT_USE = 1,
+
+  // tuple(address[], CoinTransfer[][], bytes32[])
+  FREE_BALANCE_OUTCOME_TYPE = 2,
+
+  // CoinTransfer[1][1]
+  REFUND_OUTCOME_TYPE = 3,
+
+  // CoinTransfer[2]
+  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

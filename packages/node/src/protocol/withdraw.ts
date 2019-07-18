@@ -1,7 +1,8 @@
 import {
   coinBalanceRefundStateEncoding,
   coinTransferInterpreterParamsStateEncoding,
-  NetworkContext
+  NetworkContext,
+  OutcomeType
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
@@ -520,6 +521,7 @@ function addRefundAppToStateChannel(
     },
     0,
     defaultTimeout,
+    OutcomeType.REFUND_OUTCOME_TYPE,
     undefined,
     { tokens: [tokenAddress], limit: [MaxUint256] }
   );

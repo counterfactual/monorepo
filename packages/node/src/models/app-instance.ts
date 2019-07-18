@@ -4,6 +4,7 @@ import {
   AppInstanceJson,
   AppInterface,
   CoinTransferInterpreterParams,
+  OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -51,7 +52,6 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
  *           and the amount that is to be distributed for an app
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
-// TODO: dont forget dependnecy versionNumber docstring
 export class AppInstance {
   private readonly json: AppInstanceJson;
 
@@ -65,6 +65,7 @@ export class AppInstance {
     latestState: any,
     latestVersionNumber: number,
     latestTimeout: number,
+    outcomeType: OutcomeType,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
     coinTransferInterpreterParams?: CoinTransferInterpreterParams
   ) {
@@ -79,6 +80,7 @@ export class AppInstance {
       latestVersionNumber,
       latestTimeout,
       identityHash: AddressZero,
+      outcomeType: outcomeType,
       twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
@@ -120,6 +122,7 @@ export class AppInstance {
       latestState,
       json.latestVersionNumber,
       json.latestTimeout,
+      json.outcomeType,
       json.twoPartyOutcomeInterpreterParams
         ? {
             playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,

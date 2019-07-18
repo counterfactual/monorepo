@@ -819,7 +819,8 @@ function constructVirtualAppInstance(
     appInterface,
     initialState,
     initiatorBalanceDecrement,
-    responderBalanceDecrement
+    responderBalanceDecrement,
+    outcomeType
   } = params;
 
   const seqNo = stateChannelThatWrapsVirtualApp.numInstalledApps;
@@ -842,8 +843,8 @@ function constructVirtualAppInstance(
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
-    /* twoPartyOutcomeInterpreterParams */
-    {
+    /* outcomeType */ outcomeType,
+    /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [initiatorAddress, responderAddress],
       amount: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement

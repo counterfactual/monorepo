@@ -4,6 +4,7 @@ import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -161,6 +162,7 @@ function createTargetAppInstance(stateChannel: StateChannel) {
     2, // latest state
     1, // latest versionNumber
     0, // latest timeout
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
