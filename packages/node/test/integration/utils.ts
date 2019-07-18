@@ -171,7 +171,8 @@ export function makeDepositRequest(
 export function makeWithdrawRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  recipient?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -179,7 +180,8 @@ export function makeWithdrawRequest(
     params: {
       tokenAddress,
       multisigAddress,
-      amount
+      amount,
+      recipient
     } as NodeTypes.WithdrawParams,
     jsonrpc: "2.0"
   });
