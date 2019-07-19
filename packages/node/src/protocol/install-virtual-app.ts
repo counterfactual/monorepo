@@ -5,7 +5,7 @@
  *        is quite computationally expensive. Refactor to use it less.
  */
 
-import { NetworkContext } from "@counterfactual/types";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { bigNumberify, defaultAbiCoder } from "ethers/utils";
@@ -49,6 +49,8 @@ export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = para
   );
 
 const protocol = Protocol.InstallVirtualApp;
+
+const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * This exchange is described at the following URL:
@@ -105,7 +107,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const initiatorSignatureOnAliceIngridVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
 
@@ -126,7 +128,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ] as unknown
     } as ProtocolMessage;
 
-    const m4 = yield [Opcode.IO_SEND_AND_WAIT, m1];
+    const m4 = yield [IO_SEND_AND_WAIT, m1];
 
     const {
       signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
@@ -140,7 +142,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp, // TODO: Figure out how to map this to save to DB correctly
       presignedMultisigTxForAliceIngridVirtualAppAgreement.getSignedTransaction(
         [
@@ -166,12 +168,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const initiatorSignatureOnAliceIngridFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -199,12 +201,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const initiatorSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
 
     const initiatorSignatureOnVirtualAppSetStateCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       virtualAppSetStateCommitment
     ];
 
@@ -218,7 +220,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature3: initiatorSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    const m8 = yield [Opcode.IO_SEND_AND_WAIT, m5];
+    const m8 = yield [IO_SEND_AND_WAIT, m5];
 
     const {
       signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -245,7 +247,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       timeLockedPassThroughSetStateCommitment.getSignedTransaction([
         initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -256,7 +258,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       virtualAppSetStateCommitment.getSignedTransaction([
         initiatorSignatureOnVirtualAppSetStateCommitment,
@@ -355,7 +357,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const intermediarySignatureOnIngridBobVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
 
@@ -368,7 +370,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature: intermediarySignatureOnIngridBobVirtualAppAgreement
     } as ProtocolMessage;
 
-    const m3 = yield [Opcode.IO_SEND_AND_WAIT, m2];
+    const m3 = yield [IO_SEND_AND_WAIT, m2];
 
     const {
       signature: responderSignatureOnIngridBobVirtualAppAgreement,
@@ -404,17 +406,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const intermediarySignatureOnAliceIngridFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
     const intermediarySignatureOnAliceIngridVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp,
       presignedMultisigTxForAliceIngridVirtualAppAgreement.getSignedTransaction(
         [
@@ -434,7 +436,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     } as ProtocolMessage;
 
-    const m5 = yield [Opcode.IO_SEND_AND_WAIT, m4];
+    const m5 = yield [IO_SEND_AND_WAIT, m4];
 
     const {
       signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
@@ -449,7 +451,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -475,12 +477,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const intermediarySignatureOnIngridBobFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -492,7 +494,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
 
@@ -507,7 +509,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature4: initiatorSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    const m7 = yield [Opcode.IO_SEND_AND_WAIT, m6];
+    const m7 = yield [IO_SEND_AND_WAIT, m6];
 
     const {
       signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -521,7 +523,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       timeLockedPassThroughSetStateCommitment.getSignedTransaction([
         initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -541,7 +543,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature3: responderSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    yield [Opcode.IO_SEND, m8];
+    yield [IO_SEND, m8];
 
     context.stateChannelsMap.set(
       stateChannelBetweenVirtualAppUsers.multisigAddress,
@@ -615,12 +617,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const responderSignatureOnIngridBobVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp, // TODO: Figure out how to map this to save to DB correctly
       presignedMultisigTxForIngridBobVirtualAppAgreement.getSignedTransaction([
         responderSignatureOnIngridBobVirtualAppAgreement,
@@ -638,7 +640,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const responderSignatureOnIngridBobFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
 
@@ -651,7 +653,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
     } as ProtocolMessage;
 
-    const m6 = yield [Opcode.IO_SEND_AND_WAIT, m3];
+    const m6 = yield [IO_SEND_AND_WAIT, m3];
 
     const {
       signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
@@ -667,7 +669,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -713,17 +715,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const responderSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
 
     const responderSignatureOnVirtualAppSetStateCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       virtualAppSetStateCommitment
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       timeLockedPassThroughSetStateCommitment.getSignedTransaction([
         initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -734,7 +736,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       virtualAppSetStateCommitment.getSignedTransaction([
         initiatorSignatureOnVirtualAppSetStateCommitment,
@@ -752,7 +754,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: responderSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    yield [Opcode.IO_SEND, m7];
+    yield [IO_SEND, m7];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -803,7 +805,7 @@ function constructVirtualAppInstance(
   return new AppInstance(
     /* multisigAddress */ stateChannelBetweenEndpoints.multisigAddress,
     /* signingKeys */
-    [initiatorAddress, responderAddress],
+    sortAddresses([initiatorAddress, responderAddress]),
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
     /* isVirtualApp */ true,
@@ -811,6 +813,7 @@ function constructVirtualAppInstance(
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
+    /* outcomeType */ OutcomeType.COIN_TRANSFER_DO_NOT_USE,
     /* twoPartyOutcomeInterpreterParams */ undefined,
     /* coinTransferInterpreterParams */ undefined
   );
