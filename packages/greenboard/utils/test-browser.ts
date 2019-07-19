@@ -121,14 +121,23 @@ export class TestBrowser {
       allDoneButton
     } = FIRST_TIME_FLOW_SELECTORS;
 
+    // Welcome screen
     await this.clickOnElement(getStartedButton);
+
+    // Import from seed phrase or create a new wallet?
     await this.clickOnElement(importFromSeedPhraseButton);
+
+    // Accept privacy policy
     await this.clickOnElement(iAgreeButton);
+
+    // Set seed phrase, password, accept terms and conditions and submit.
     await this.typeOnInput(seedPhraseInput, seedPhraseValue);
     await this.typeOnInput(passwordInput, passwordValue);
     await this.typeOnInput(confirmPasswordInput, passwordValue);
     await this.clickOnElement(acceptTermsAndConditionsCheckbox);
     await this.clickOnElement(importSubmitButton);
+
+    // Wait for process to finish and leave onboarding.
     await this.waitForElement(endOfFlowScreen);
     await this.clickOnElement(allDoneButton);
   }
