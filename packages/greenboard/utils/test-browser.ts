@@ -223,13 +223,12 @@ export class TestBrowser {
    * @param transactionType
    */
   async switchToMetamaskPopup(transactionType: MetamaskTransaction) {
-    // Open a second tab with Metamask, then switch to it.
-    await this.browser.sleep(1000);
-    await this.browser.executeScript("window.open('');");
-    await this.browser.sleep(100);
+    // Timeouts are needed so Metamask has enough time to generate
+    // the transaction and render the proper screen when forcing the
+    // popup on a tab.
+    const popupHandle = await this.openNewTab();
+    await this.browser.switchTo().window(popupHandle);
 
-    const windowHandles = await this.browser.getAllWindowHandles();
-    await this.browser.switchTo().window(windowHandles.pop() as string);
     await this.navigateTo(this.popupUrl);
 
     this.updateContext(TestBrowserContext.MetamaskPopup);
@@ -439,5 +438,35 @@ export class TestBrowser {
 
     this.previousContext = this.currentContext;
     this.currentContext = previousContext;
+  }
+
+  /**
+   * Opens a new tab in the browser by executing `window.open()` in the
+   * current window's execution context, returning the new window's
+   * handle.
+   *
+   * By default, it'll wait for a second *before* opening the window
+   * and delay further execution for 100ms *after* opening the window.
+   *
+   * Whle opening a window can be done immediately, it is recommended
+   * to add some delay after opening the window so Selenium has enough
+   * time to detect the new window handle.
+   *
+   * @param millisecondsToWaitBeforeOpening
+   * @param millisecondsToWaitAfterOpening
+   */
+  private async openNewTab(
+    millisecondsToWaitBeforeOpening = 1000,
+    millisecondsToWaitAfterOpening = 100
+  ) {
+    await this.browser.sleep(millisecondsToWaitBeforeOpening);
+
+    await this.browser.executeScript("window.open('');");
+
+    await this.browser.sleep(millisecondsToWaitAfterOpening);
+
+    const windowHandles = await this.browser.getAllWindowHandles();
+
+    return windowHandles.pop() as string;
   }
 }
