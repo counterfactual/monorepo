@@ -28,7 +28,7 @@ export default class UninstallVirtualController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const multisigAddressForStateChannelWithInterediary = await store.getMultisigAddressFromOwnersHash(
+    const multisigAddressForStateChannelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
         params.intermediaryIdentifier,
         requestHandler.publicIdentifier
@@ -44,7 +44,7 @@ export default class UninstallVirtualController extends NodeController {
         stateChannelWithResponding.multisigAddress
       ),
       requestHandler.getShardedQueue(
-        multisigAddressForStateChannelWithInterediary
+        multisigAddressForStateChannelWithIntermediary
       )
     ];
   }
