@@ -301,6 +301,9 @@ function computeStateChannelTransition(
   const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
   const responderFbAddress = stateChannel.getFreeBalanceAddrOf(responderXpub);
 
+  console.log("******** params!", JSON.stringify(params, null, 2));
+  console.log("******** initiatorBalanceDecrement is big num!", BigNumber.isBigNumber(initiatorBalanceDecrement));
+
   const {
     coinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
@@ -309,8 +312,8 @@ function computeStateChannelTransition(
     outcomeType,
     initiatorDepositTokenAddress,
     responderDepositTokenAddress,
-    initiatorBalanceDecrement,
-    responderBalanceDecrement,
+    bigNumberify(initiatorBalanceDecrement),
+    bigNumberify(responderBalanceDecrement),
     initiatorFbAddress,
     responderFbAddress
   );
@@ -333,10 +336,10 @@ function computeStateChannelTransition(
   if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
     tokenIndexedBalanceDecrement = {
       [initiatorDepositTokenAddress]: {
-        [initiatorFbAddress]: initiatorBalanceDecrement
+        [initiatorFbAddress]: bigNumberify(initiatorBalanceDecrement)
       },
       [responderDepositTokenAddress]: {
-        [responderFbAddress]: responderBalanceDecrement
+        [responderFbAddress]: bigNumberify(responderBalanceDecrement)
       }
     };
   } else {
@@ -345,8 +348,8 @@ function computeStateChannelTransition(
     // `initiatingFbAddress` would get overwritten
     tokenIndexedBalanceDecrement = {
       [initiatorDepositTokenAddress]: {
-        [initiatorFbAddress]: initiatorBalanceDecrement,
-        [responderFbAddress]: responderBalanceDecrement
+        [initiatorFbAddress]: bigNumberify(initiatorBalanceDecrement),
+        [responderFbAddress]: bigNumberify(responderBalanceDecrement)
       }
     };
   }
