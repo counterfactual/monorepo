@@ -5,11 +5,6 @@
     "transactionHash": "0xcbcbb9995589e1fa595c11d4eab1d1910b5279f88e4e5051b229432b006607ce"
   },
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0xbdf602c9570bF5A85b4dC678f34f6a8Dfd8f6B94",
-    "transactionHash": "0xd7f2dc29b06de84a86a082a1721cb77158457df9a17b8543a40c732063ca7e77"
-  },
-  {
     "contractName": "MinimumViableMultisig",
     "address": "0xB6ea6aB24081CF1E583B467248826B5B8E1949C2",
     "transactionHash": "0x1fe63e1f30d83c69e6738a08bdc52da8e9f2da045a80b31e69ca0a6f47b0339c"
@@ -35,11 +30,6 @@
     "transactionHash": "0x0675898baaa81e81e40d33740ca9e35e34991daf477366ce82f73c017bc63ee7"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
-    "address": "0xb67E0913f6F22E32cA8F30d84Cad44b71ED9F63e",
-    "transactionHash": "0x8a08e6287703128453c432d6e09ad7b3a438c4862b670fae253f9f0c0961402e"
-  },
-  {
     "contractName": "ConditionalTransactionDelegateTarget",
     "address": "0x5476b5941F6161831EEA096Ff7db9926bec5c9FB",
     "transactionHash": "0x24410b1692872b8f516c3a6425a1e67719b8bd3c112eed2d0fc0936f3529c914"
@@ -53,5 +43,25 @@
     "contractName": "CoinTransferInterpreter",
     "address": "0x2FcB59d7A3D6D64c43A8B887f26d002B579cd485",
     "transactionHash": "0x9ec8d716faca25ff22473897ed546f415f4eb7beb439e0ede7b603469cf6e051"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0x4d5Ea4aE83ED10287161D804D8Eafe65EF77877B",
+    "transactionHash": "0x1f1d0cdc72a52d4ed98a03aaf3d56d5afebdf51a167ddd692316b946d2375606"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0x745e6dFF2d3B00B20688e2019423C0E67A2f1A7c",
+    "transactionHash": "0x2e0bb957800f5520aa0164f47aa4c11afdb0d9b60f8ec4120d64c4439c82d10d"
+  },
+  {
+    "contractName": "TimeLockedPassThrough",
+    "address": "0xE0829Cd197906E29314d75A30A988c4959D9eeD0",
+    "transactionHash": "0x14eefafb4437bb7460eecfb120bb966ca5c8eca73d139c514233421f580cfa37"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
+    "address": "0xa4e660f95588271486a9Aa83DB4d97ad156648B7",
+    "transactionHash": "0xc6cdbc3f903a7e3bb150f2f04bf421e7ba9bab892642dfebdaed29fd28c71af0"
   }
 ]
