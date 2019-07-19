@@ -28,8 +28,9 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "pretest": "rm -rf /tmp/greenboard",
-    "test": "jest"
+    "prestart": "rm -rf /tmp/greenboard",
+    "start": "jest",
+    "test": "echo Use `yarn start` to test."
   },
   "jest": {
     "roots": [
