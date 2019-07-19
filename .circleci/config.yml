@@ -122,40 +122,6 @@ jobs:
 
       - run: yarn lint
 
-  ensure-updated-lockfiles:
-    <<: *defaults
-    steps:
-      - <<: *restore_code
-
-      - checkout
-
-      - <<: *restore_dep
-
-      - attach_workspace:
-          at: /home/circleci/project
-
-      - run: apt-get install -y jq # using this to mutate package.json
-
-      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
-
-      - run:
-          name: Check root yarn.lock
-          command: yarn --frozen-lockfile
-
-      - run: jq -c 'del(.workspaces)' package.json > tmp.$$.json && mv tmp.$$.json package.json
-
-      - run:
-          name: Check simple-hub-server yarn.lock
-          command: cd packages/simple-hub-server && yarn --frozen-lockfile
-
-      - run:
-          name: Check tic-tac-toe-bot yarn.lock
-          command: cd packages/tic-tac-toe-bot && yarn --frozen-lockfile
-
-      - run:
-          name: Check high-roller-bot yarn.lock
-          command: cd packages/high-roller-bot && yarn --frozen-lockfile
-
   publish-to-npm:
     <<: *defaults
     steps:
@@ -193,14 +159,9 @@ workflows:
           requires:
             - build
 
-      - ensure-updated-lockfiles:
-          requires:
-            - build
-
       - publish-to-npm:
           requires:
             - build
-            - ensure-updated-lockfiles
             - run-non-playground-tests
             - run-playground-tests
             - run-tslint
