@@ -24,6 +24,4 @@ it("registers a new account", async () => {
   );
 
   await browser.signTransaction();
-
-  await browser.switchToWallet();
 });

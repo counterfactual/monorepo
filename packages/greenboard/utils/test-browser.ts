@@ -249,7 +249,7 @@ export class TestBrowser {
 
     await this.close();
 
-    this.updateContextWithPreviousContext();
+    this.switchToPreviousContext();
   }
 
   /****************************************************************
@@ -433,7 +433,7 @@ export class TestBrowser {
    *
    * @param newContext
    */
-  private async updateContextWithPreviousContext() {
+  private async switchToPreviousContext() {
     const previousContext = this.previousContext;
 
     this.previousContext = this.currentContext;
