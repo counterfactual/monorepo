@@ -112,6 +112,10 @@ export class RequestHandler {
     await controllerExecutionMethod(this, msg);
   }
 
+  public async isLegacyEvent(event: NodeEvents) {
+    return this.events.has(event);
+  }
+
   public getShardedQueue(shardKey: string): Queue {
     let shardedQueue: Queue;
     if (!this.shardedQueues.has(shardKey)) {

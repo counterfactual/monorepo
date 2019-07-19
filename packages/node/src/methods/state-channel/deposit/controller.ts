@@ -90,7 +90,7 @@ export default class DepositController extends NodeController {
       provider,
       messagingService,
       publicIdentifier,
-      outgoing
+      router
     } = requestHandler;
 
     const { multisigAddress, tokenAddress } = params;
@@ -121,7 +121,7 @@ export default class DepositController extends NodeController {
         } as DepositConfirmationMessage);
       }
 
-      outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
+      router.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, { result: {} }, "outgoing");
     }
 
     return {
