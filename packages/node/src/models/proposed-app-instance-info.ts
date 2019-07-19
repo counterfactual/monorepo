@@ -8,8 +8,10 @@ import {
 import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
-import { AppInstance, StateChannel } from "../models";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
+
+import { AppInstance } from "./app-instance";
+import { StateChannel } from "./state-channel";
 
 export interface IAppInstanceProposal {
   appDefinition: string;
