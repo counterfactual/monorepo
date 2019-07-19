@@ -6,14 +6,10 @@ import {
 } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-import {
-  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp,
-  Protocol,
-  xkeyKthAddress
-} from "../../../src/machine";
+import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
@@ -130,15 +126,14 @@ describe("Three mininodes", () => {
       }
     );
 
-    const unqiueIdentifierForStateChannelWrappingVirtualApp = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
+    const multisigAC = getCreate2MultisigAddress(
       [mininodeA.xpub, mininodeC.xpub],
-      mininodeB.xpub
+      network.ProxyFactory,
+      network.MinimumViableMultisig
     );
 
     const [appInstance] = [
-      ...mininodeA.scm
-        .get(unqiueIdentifierForStateChannelWrappingVirtualApp)!
-        .appInstances.values()
+      ...mininodeA.scm.get(multisigAC)!.appInstances.values()
     ];
 
     expect(appInstance.isVirtualApp);
@@ -151,7 +146,10 @@ describe("Three mininodes", () => {
         intermediaryXpub: mininodeB.xpub,
         responderXpub: mininodeC.xpub,
         targetAppIdentityHash: appInstance.identityHash,
-        targetAppState: appState
+        targetOutcome: await appInstance.computeOutcome(
+          appState,
+          appDefinition.provider as BaseProvider
+        )
       }
     );
   });
