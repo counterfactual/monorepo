@@ -11,8 +11,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
+import AppInstanceAdjudicator from "../build/AppInstanceAdjudicator json";
 import AppWithAction from "../build/AppWithAction.json";
-import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import {
   AppIdentityTestClass,
@@ -62,11 +62,11 @@ function encodeAction(action: SolidityValueType) {
   );
 }
 
-describe("ChallengeRegistry Challenge", () => {
+describe("AppInstanceAdjudicator Challenge", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
 
-  let appRegistry: Contract;
+  let adjudicator: Contract;
   let appDefinition: Contract;
 
   let setState: (versionNumber: number, appState?: string) => Promise<void>;
@@ -82,7 +82,7 @@ describe("ChallengeRegistry Challenge", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
+    adjudicator = await waffle.deployContract(wallet, AppInstanceAdjudicator  [], {
       gasLimit: 6000000 // override default of 4 million
     });
 
@@ -98,11 +98,11 @@ describe("ChallengeRegistry Challenge", () => {
     );
 
     latestState = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
+      (await adjudicator.functions.getAppChallenge(appInstance.identityHash))
         .appStateHash;
 
     latestVersionNumber = async () =>
-      (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
+      (await adjudicator.functions.getAppChallenge(appInstance.identityHash))
         .versionNumber;
 
     setState = async (versionNumber: number, appState?: string) => {
@@ -113,7 +113,7 @@ describe("ChallengeRegistry Challenge", () => {
         versionNumber,
         ONCHAIN_CHALLENGE_TIMEOUT
       );
-      await appRegistry.functions.setState(appInstance.appIdentity, {
+      await adjudicator.functions.setState(appInstance.appIdentity, {
         versionNumber,
         appStateHash: stateHash,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
@@ -125,7 +125,7 @@ describe("ChallengeRegistry Challenge", () => {
     };
 
     respondToChallenge = (state: any, action: any, actionSig: any) =>
-      appRegistry.functions.respondToChallenge(
+      adjudicator.functions.respondToChallenge(
         appInstance.appIdentity,
         encodeState(state),
         encodeAction(action),

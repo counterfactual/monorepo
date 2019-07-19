@@ -11,7 +11,7 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import ChallengeRegistry from "../build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "../build/AppInstanceAdjudicator.json";
 
 import {
   AppIdentityTestClass,
@@ -44,7 +44,7 @@ const BOB =
 // HELPER DATA
 const ONCHAIN_CHALLENGE_TIMEOUT = 30;
 
-describe("ChallengeRegistry", () => {
+describe("AppInstanceAdjudicator", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
   let globalChannelNonce = 0;
@@ -67,9 +67,14 @@ describe("ChallengeRegistry", () => {
     provider = waffle.createMockProvider();
     wallet = (await waffle.getWallets(provider))[0];
 
-    appRegistry = await waffle.deployContract(wallet, ChallengeRegistry, [], {
-      gasLimit: 6000000 // override default of 4 million
-    });
+    appRegistry = await waffle.deployContract(
+      wallet,
+      AppInstanceAdjudicator,
+      [],
+      {
+        gasLimit: 6000000 // override default of 4 million
+      }
+    );
   });
 
   beforeEach(async () => {

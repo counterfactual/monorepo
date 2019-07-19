@@ -39,7 +39,7 @@ export class ConditionalTransaction extends MultisigCommitment {
       to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
       data: iface.functions.executeEffectOfInterpretedAppOutcome.encode([
-        this.networkContext.ChallengeRegistry,
+        this.networkContext.AppInstanceAdjudicator,
         this.freeBalanceAppIdentityHash,
         this.appIdentityHash,
         this.interpreterAddr,

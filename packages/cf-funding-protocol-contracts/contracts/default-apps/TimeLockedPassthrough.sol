@@ -12,7 +12,7 @@ import "@counterfactual/cf-adjudicator-contracts/contracts/AppInstanceAdjudicato
 ///  returns, allowing it to "pass through" unaltered.
 ///
 /// However, after `switchesOutcomeAt`, it should return `defaultOutcome`.
-/// `challengeRegistryAddress` is used to look up the outcome.
+/// `adjudicator` is used to look up the outcome.
 ///
 /// This contract is applied to virtual apps for two reasons:
 ///

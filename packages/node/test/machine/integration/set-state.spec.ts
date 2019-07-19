@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
@@ -16,7 +16,7 @@ import {
   getRandomExtendedPrvKeys
 } from "./random-signing-keys";
 
-// The ChallengeRegistry.setState call _could_ be estimated but we haven't
+// The AppInstanceAdjudicator.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -32,8 +32,8 @@ beforeAll(async () => {
   network = global["networkContext"];
 
   appRegistry = new Contract(
-    network.ChallengeRegistry,
-    ChallengeRegistry.abi,
+    network.AppInstanceAdjudicator,
+    AppInstanceAdjudicator.abi,
     wallet
   );
 });

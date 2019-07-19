@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import {
   bigNumberify,
   Interface,
@@ -42,8 +42,8 @@ describe("Set State Commitment", () => {
     ]);
   });
 
-  it("should be to ChallengeRegistry", () => {
-    expect(tx.to).toBe(networkContext.ChallengeRegistry);
+  it("should be to AppInstanceAdjudicator", () => {
+    expect(tx.to).toBe(networkContext.AppInstanceAdjudicator);
   });
 
   it("should have no value", () => {
@@ -51,7 +51,7 @@ describe("Set State Commitment", () => {
   });
 
   describe("the calldata", () => {
-    const iface = new Interface(ChallengeRegistry.abi);
+    const iface = new Interface(AppInstanceAdjudicator.abi);
     let desc: TransactionDescription;
 
     beforeAll(() => {
@@ -92,9 +92,9 @@ describe("Set State Commitment", () => {
   it("should produce the correct hash to sign", () => {
     const hashToSign = commitment.hashToSign();
 
-    // Based on MChallengeRegistryCore::computeStateHash
+    // Based on AppInstanceAdjudicator::computeStateHash
     // TODO: Probably should be able to compute this from some helper
-    //       function ... maybe an ChallengeRegistry class or something
+    //       function ... maybe an AppInstanceAdjudicator class or something
     const expectedHashToSign = keccak256(
       solidityPack(
         ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],

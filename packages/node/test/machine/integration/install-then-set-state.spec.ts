@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
@@ -42,7 +42,7 @@ import {
 // gas needed, so we hard-code this number to ensure the tx completes
 const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 
-// The ChallengeRegistry.setState call _could_ be estimated but we haven't
+// The AppInstanceAdjudicator.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -64,8 +64,8 @@ beforeAll(async () => {
   network = global["networkContext"];
 
   appRegistry = new Contract(
-    network.ChallengeRegistry,
-    ChallengeRegistry.abi,
+    network.AppInstanceAdjudicator,
+    AppInstanceAdjudicator.abi,
     wallet
   );
 });

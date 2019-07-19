@@ -93,7 +93,7 @@ describe("ConditionalTransaction", () => {
         interpreterAddress,
         interpreterParams
       ] = calldata.args;
-      expect(appRegistryAddress).toBe(networkContext.ChallengeRegistry);
+      expect(appRegistryAddress).toBe(networkContext.AppInstanceAdjudicator);
       expect(freeBalanceAppIdentity).toBe(freeBalanceETH.identityHash);
       expect(appIdentityHash).toBe(appIdentityToHash(appInstance.identity));
       expect(interpreterAddress).toBe(AddressZero);

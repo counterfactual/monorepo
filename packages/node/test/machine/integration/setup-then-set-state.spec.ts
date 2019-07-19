@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import {
@@ -30,7 +30,7 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e9;
 // Similarly, the SetupCommitment is a `delegatecall`, so we estimate
 const SETUP_COMMITMENT_GAS = 6e9;
 
-// The ChallengeRegistry.setState call _could_ be estimated but we haven't
+// The AppInstanceAdjudicator.setState call _could_ be estimated but we haven't
 // written this test to do that yet
 const SETSTATE_COMMITMENT_GAS = 6e9;
 
@@ -47,8 +47,8 @@ beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
   appRegistry = new Contract(
-    network.ChallengeRegistry,
-    ChallengeRegistry.abi,
+    network.AppInstanceAdjudicator,
+    AppInstanceAdjudicator.abi,
     wallet
   );
 });

@@ -6,11 +6,11 @@ The **Install Protocol** can be followed to allocate some funds inside of a `Sta
 
 In order for some of the funds in the multisignature wallet to be securely considered "allocated" to some `AppInstance`, there must exist a `DELEGATECALL` transaction to some contract which defines the logic for spending it and then executes the on-chain state transition to make it happen. In particular, this contract must do the following:
 
-1. **Get the list of funded apps.** Go the `ChallengeRegistry` for the final outcome of the `FreeBalance` `AppInstance` to see the list of `activeApps`.
+1. **Get the list of funded apps.** Go the `AppInstanceAdjudicator` for the final outcome of the `FreeBalance` `AppInstance` to see the list of `activeApps`.
 
 2. **Verify this app is funded.** Check that the `appInstanceIdentityHash` of a particular `AppInstance` is in the list of `activeApps`.
 
-3. **Get the outcome of the app.** Go to the `ChallengeRegistry` for the final outcome of the `AppInstance` that these funds were allocated to
+3. **Get the outcome of the app.** Go to the `AppInstanceAdjudicator` for the final outcome of the `AppInstance` that these funds were allocated to
 
 4. **Execute the effect.** Forward this outcome to the `interpreterAddress` along with some `interpreterParams` to have that interpreter execute the on-chain state transition.
 
@@ -50,7 +50,7 @@ keccak256(
       "executeEffectOfInterpretedAppOutcome(address,bytes32,bytes32,address,bytes)",
 
       // Address of the global registry for on-chain challenges
-      challengeRegistryAddress,
+      adjudicator,
 
       // The unique identifier of the FreeBalance AppInstance
       freeBalanceAppIdentityHash,

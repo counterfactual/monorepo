@@ -81,7 +81,7 @@ describe("SetupCommitment", () => {
 
     it("should contain expected arguments", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
-      expect(appRegistry).toBe(networkContext.ChallengeRegistry);
+      expect(appRegistry).toBe(networkContext.AppInstanceAdjudicator);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
       expect(interpreterAddress).toBe(
         networkContext.MultiAssetMultiPartyCoinTransferInterpreter

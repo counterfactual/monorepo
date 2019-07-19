@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import {
   AppIdentity,
   NetworkContext,
@@ -17,7 +17,7 @@ import { sortSignaturesBySignerAddress } from "../utils";
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
-const iface = new Interface(ChallengeRegistry.abi);
+const iface = new Interface(AppInstanceAdjudicator.abi);
 
 export class SetStateCommitment extends EthereumCommitment {
   constructor(
@@ -47,7 +47,7 @@ export class SetStateCommitment extends EthereumCommitment {
 
   public getSignedTransaction(sigs: Signature[]): Transaction {
     return {
-      to: this.networkContext.ChallengeRegistry,
+      to: this.networkContext.AppInstanceAdjudicator,
       value: 0,
       data: iface.functions.setState.encode([
         this.appIdentity,

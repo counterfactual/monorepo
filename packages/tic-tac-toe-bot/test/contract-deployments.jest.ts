@@ -1,5 +1,5 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import AppInstanceAdjudicator from "@counterfactual/cf-adjudicator-contracts/build/AppInstanceAdjudicator.json";
 import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/build/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
@@ -62,9 +62,9 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const challengeRegistry = await new ContractFactory(
-    ChallengeRegistry.abi,
-    ChallengeRegistry.bytecode,
+  const appInstanceAdjudicator = await new ContractFactory(
+    AppInstanceAdjudicator.abi,
+    AppInstanceAdjudicator.bytecode,
     wallet
   ).deploy();
 
@@ -99,7 +99,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   return {
-    ChallengeRegistry: challengeRegistry.address,
+    AppInstanceAdjudicator: appInstanceAdjudicator.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
     IdentityApp: identityApp.address,

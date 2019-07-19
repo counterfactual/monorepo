@@ -24,7 +24,7 @@ export class SetupCommitment extends MultisigCommitment {
       to: this.networkContext.ConditionalTransactionDelegateTarget,
       value: 0,
       data: iface.functions.executeEffectOfFreeBalance.encode([
-        this.networkContext.ChallengeRegistry,
+        this.networkContext.AppInstanceAdjudicator,
         appIdentityToHash(this.freeBalanceAppIdentity),
         this.networkContext.MultiAssetMultiPartyCoinTransferInterpreter,
         this.freeBalanceInterpreterParams

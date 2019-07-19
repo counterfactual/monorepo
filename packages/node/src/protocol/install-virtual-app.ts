@@ -943,7 +943,7 @@ function constructTimeLockedPassThroughAppInstance(
     /* appInterface */ {
       stateEncoding: `
         tuple(
-          address challengeRegistryAddress,
+          address adjudicator,
           bytes32 targetAppIdentityHash,
           uint256 switchesOutcomeAt,
           bytes defaultOutcome
@@ -955,7 +955,7 @@ function constructTimeLockedPassThroughAppInstance(
     /* isVirtualApp */ true,
     /* appSeqNo */ seqNo,
     {
-      challengeRegistryAddress: network.ChallengeRegistry,
+      adjudicator: network.AppInstanceAdjudicator,
       targetAppIdentityHash: virtualAppInstanceIdentityHash,
       // FIXME: This number _should_ be MaxUint256 so that we can have no timeouts for
       //        virtual apps at the moment, but it needs to be Zero for now otherwise
