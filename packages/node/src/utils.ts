@@ -10,8 +10,9 @@ import {
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
+import log from "loglevel";
 
-import { xkeysToSortedKthAddresses } from "./machine";
+import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
 import { Store } from "./store";
@@ -138,4 +139,31 @@ export function getCreate2MultisigAddress(
       ]
     ).slice(-40)
   );
+}
+
+const isBrowser =
+  typeof window !== "undefined" &&
+  {}.toString.call(window) === "[object Window]";
+
+export function debugLog(...messages: any[]) {
+  try {
+    const logPrefix = "NodeDebugLog";
+    if (isBrowser) {
+      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
+        // for some reason `debug` doesn't actually log in the browser
+        log.info(logPrefix, messages);
+        log.trace();
+      }
+      // node.js side
+    } else if (
+      process.env.LOG_LEVEL !== undefined &&
+      process.env.LOG_LEVEL === "DEBUG"
+    ) {
+      log.debug(logPrefix, JSON.stringify(messages, null, 4));
+      log.trace();
+      log.debug("\n");
+    }
+  } catch (e) {
+    console.error("Failed to log: ", e);
+  }
 }

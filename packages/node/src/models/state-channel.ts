@@ -25,10 +25,7 @@ import {
 
 // TODO: Hmmm this code should probably be somewhere else?
 export const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 172800,
-  freeBalanceInitialStateTimeout: 172800,
-  // We assume the Free Balance is the first app ever installed
-  appSequenceNumberForFreeBalance: 0
+  freeBalanceDefaultTimeout: 172800
 };
 
 const VERSION_NUMBER_EXPIRY = 65536;

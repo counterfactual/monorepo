@@ -2,11 +2,16 @@ import { OutcomeType } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { getFreeBalanceAppInterface } from "../ethereum/utils/funds-bucket";
-import { xkeysToSortedKthAddresses } from "../machine";
+import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
+import { xkeysToSortedKthAddresses } from "../machine/xkeys";
 
-import { AppInstance } from ".";
-import { HARD_CODED_ASSUMPTIONS } from "./state-channel";
+import { AppInstance } from "./app-instance";
+
+const HARD_CODED_ASSUMPTIONS = {
+  freeBalanceInitialStateTimeout: 172800,
+  // We assume the Free Balance is the first app ever installed
+  appSequenceNumberForFreeBalance: 0
+};
 
 /**
  * We use 0x00...000 to represent an identifier for the ETH token

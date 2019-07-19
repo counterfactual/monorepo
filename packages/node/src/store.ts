@@ -23,8 +23,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { debugLog } from "./node";
-import { hashOfOrderedPublicIdentifiers } from "./utils";
+import { debugLog, hashOfOrderedPublicIdentifiers } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
