@@ -4,6 +4,7 @@ import { fromSeed } from "ethers/utils/hdnode";
 
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/models/free-balance";
 import { createAppInstanceForTest } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -35,8 +36,10 @@ describe("StateChannel::setState", () => {
     testApp = createAppInstanceForTest(sc1);
 
     sc1 = sc1.installApp(testApp, {
-      [xkeyKthAddress(xpubs[0], 0)]: Zero,
-      [xkeyKthAddress(xpubs[1], 0)]: Zero
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [xkeyKthAddress(xpubs[0], 0)]: Zero,
+        [xkeyKthAddress(xpubs[1], 0)]: Zero
+      }
     });
 
     sc2 = sc1.setState(testApp.identityHash, APP_STATE);

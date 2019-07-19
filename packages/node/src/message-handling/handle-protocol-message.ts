@@ -47,18 +47,18 @@ export async function handleReceivedProtocolMessage(
 
   if (protocol === Protocol.UninstallVirtualApp) {
     const {
-      initiatingXpub,
+      initiatorXpub,
       intermediaryXpub,
-      respondingXpub,
+      responderXpub,
       targetAppIdentityHash
     } = params as UninstallVirtualAppParams;
     let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([initiatingXpub, intermediaryXpub])
+      hashOfOrderedPublicIdentifiers([initiatorXpub, intermediaryXpub])
     );
 
     if (channelWithIntermediary === null) {
       channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
-        hashOfOrderedPublicIdentifiers([respondingXpub, intermediaryXpub])
+        hashOfOrderedPublicIdentifiers([responderXpub, intermediaryXpub])
       );
     }
 
@@ -129,7 +129,7 @@ export async function handleReceivedProtocolMessage(
 
       case Protocol.Setup:
         multisigAddress = (params as SetupParams).multisigAddress;
-        const { initiatingXpub } = params as SetupParams;
+        const { initiatorXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.CREATE_CHANNEL,
@@ -137,7 +137,7 @@ export async function handleReceivedProtocolMessage(
             multisigAddress,
             owners: (stateChannelsMap.get(multisigAddress) as StateChannel)
               .multisigOwners,
-            counterpartyXpub: initiatingXpub
+            counterpartyXpub: initiatorXpub
           }
         };
 

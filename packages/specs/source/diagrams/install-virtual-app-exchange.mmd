@@ -12,23 +12,23 @@ sequenceDiagram
 
   I->>B: M2
 
-  Note over B: Countersign BC <br> VirtualAppAgreement <br> and sign BC <br> FreeBalanceActivation
+  Note over B: Countersign BC <br> VirtualAppAgreement <br> & sign BC <br> FreeBalanceActivation
 
   B->>I: M3
 
-  Note over I: Countersign AB <br> VirtualAppAgreement <br> and sign AB <br> FreeBalanceActivation
+  Note over I: Countersign AB <br> VirtualAppAgreement <br> & sign AB <br> FreeBalanceActivation
 
   I->>A: M4
 
-  Note over A: Countersign AB <br> FreeBalanceActivation <br> and sign ABC <br> VirtualAppSetState
+  Note over A: Countersign AB <br> FreeBalanceActivation <br> & sign AB <br> VirtualApp SetState <br> & AIB TLPT
 
   A->>I: M5
 
-  Note over I: Countersign BC <br> FreeBalanceActivation <br> and sign ABC <br> VirtualAppSetState
+  Note over I: Countersign BC <br> FreeBalanceActivation <br> & sign AIB TLPT
 
   I->>B: M6
 
-  Note over B: Countersign ABC <br> VirtualAppSetState
+  Note over B: Countersign AB <br> VirtualApp SetState <br> & AIB TLPT
 
   B->>I: M7
 

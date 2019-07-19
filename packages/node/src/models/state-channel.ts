@@ -4,7 +4,11 @@ import {
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { flip, merge } from "../ethereum/utils/free-balance-app";
+import {
+  flip,
+  flipTokenIndexedBalances,
+  merge
+} from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 
 import { AppInstance } from "./app-instance";
@@ -15,18 +19,14 @@ import {
   FreeBalanceState,
   FreeBalanceStateJSON,
   getBalancesFromFreeBalanceAppInstance,
-  serializeFreeBalanceState
+  serializeFreeBalanceState,
+  TokenIndexedCoinTransferMap
 } from "./free-balance";
 
 // TODO: Hmmm this code should probably be somewhere else?
 export const HARD_CODED_ASSUMPTIONS = {
-  freeBalanceDefaultTimeout: 172800,
-  freeBalanceInitialStateTimeout: 172800,
-  // We assume the Free Balance is the first app ever installed
-  appSequenceNumberForFreeBalance: 0
+  freeBalanceDefaultTimeout: 172800
 };
-
-const VERSION_NUMBER_EXPIRY = 65536;
 
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
@@ -47,15 +47,19 @@ function sortAddresses(addrs: string[]) {
 }
 
 export type SingleAssetTwoPartyIntermediaryAgreement = {
+  timeLockedPassThroughIdentityHash: string;
   capitalProvided: BigNumber;
   expiryBlock: number;
   beneficiaries: [string, string];
+  tokenAddress: string;
 };
 
 type SingleAssetTwoPartyIntermediaryAgreementJSON = {
+  timeLockedPassThroughIdentityHash: string;
   capitalProvided: { _hex: string };
   expiryBlock: number;
   beneficiaries: [string, string];
+  tokenAddress: string;
 };
 
 export type StateChannelJSON = {
@@ -110,7 +114,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
+      throw new Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -210,19 +214,20 @@ export class StateChannel {
 
   public addActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    increments: CoinTransferMap,
-    tokenAddress: string
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
     const freeBalanceState = deserializeFreeBalanceState(json);
 
-    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
-      merge(
-        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-        increments
-      )
-    ).map(([to, amount]) => ({ to, amount }));
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
+      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+        merge(
+          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+          tokenIndexedIncrements[tokenAddress]
+        )
+      ).map(([to, amount]) => ({ to, amount }));
+    }
 
     freeBalanceState.activeAppsMap[activeApp] = true;
 
@@ -239,8 +244,7 @@ export class StateChannel {
 
   public removeActiveAppAndIncrementFreeBalance(
     activeApp: string,
-    increments: CoinTransferMap,
-    tokenAddress: string
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
@@ -254,12 +258,14 @@ export class StateChannel {
 
     delete freeBalanceState.activeAppsMap[activeApp];
 
-    freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
-      merge(
-        getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-        increments
-      )
-    ).map(([to, amount]) => ({ to, amount }));
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
+      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+        merge(
+          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+          tokenIndexedIncrements[tokenAddress]
+        )
+      ).map(([to, amount]) => ({ to, amount }));
+    }
 
     return new StateChannel(
       this.multisigAddress,
@@ -321,7 +327,7 @@ export class StateChannel {
     );
   }
 
-  public addVirtualAppInstance(appInstance: AppInstance) {
+  public addAppInstance(appInstance: AppInstance) {
     if (appInstance.appSeqNo !== this.numInstalledApps) {
       throw Error(
         `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
@@ -340,6 +346,24 @@ export class StateChannel {
       this.singleAssetTwoPartyIntermediaryAgreements,
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
+      this.createdAt
+    );
+  }
+
+  public removeAppInstance(appInstanceId: string) {
+    const appInstances = new Map<string, AppInstance>(
+      this.appInstances.entries()
+    );
+
+    appInstances.delete(appInstanceId);
+
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps,
       this.createdAt
     );
   }
@@ -367,33 +391,10 @@ export class StateChannel {
     );
   }
 
-  public lockAppInstance(appInstanceIdentityHash: string) {
-    const appInstance = this.getAppInstance(appInstanceIdentityHash);
-
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
-
-    appInstances.set(
-      appInstanceIdentityHash,
-      appInstance.lockState(VERSION_NUMBER_EXPIRY)
-    );
-
-    return new StateChannel(
-      this.multisigAddress,
-      this.userNeuteredExtendedKeys,
-      appInstances,
-      this.singleAssetTwoPartyIntermediaryAgreements,
-      this.freeBalanceAppInstance,
-      this.monotonicNumInstalledApps,
-      this.createdAt
-    );
-  }
-
   public addSingleAssetTwoPartyIntermediaryAgreement(
     targetIdentityHash: string,
-    evaaInstance: SingleAssetTwoPartyIntermediaryAgreement,
-    decrements: { [s: string]: BigNumber },
+    agreement: SingleAssetTwoPartyIntermediaryAgreement,
+    decrements: CoinTransferMap,
     tokenAddress: string
   ) {
     // Add to singleAssetTwoPartyIntermediaryAgreements
@@ -403,7 +404,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
-    evaaInstances.set(targetIdentityHash, evaaInstance);
+    evaaInstances.set(targetIdentityHash, agreement);
 
     return new StateChannel(
       this.multisigAddress,
@@ -413,11 +414,9 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps + 1,
       this.createdAt
-    ).addActiveAppAndIncrementFreeBalance(
-      targetIdentityHash,
-      flip(decrements),
-      tokenAddress
-    );
+    ).addActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+      [tokenAddress]: flip(decrements)
+    });
   }
 
   public removeSingleAssetTwoPartyIntermediaryAgreement(
@@ -444,32 +443,15 @@ export class StateChannel {
       this.freeBalanceAppInstance,
       this.monotonicNumInstalledApps,
       this.createdAt
-    ).removeActiveAppAndIncrementFreeBalance(
-      targetIdentityHash,
-      increments,
-      tokenAddress
-    );
+    ).removeActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+      [tokenAddress]: increments
+    });
   }
 
-  public removeVirtualApp(targetIdentityHash: string) {
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
-
-    appInstances.delete(targetIdentityHash);
-
-    return new StateChannel(
-      this.multisigAddress,
-      this.userNeuteredExtendedKeys,
-      appInstances,
-      this.singleAssetTwoPartyIntermediaryAgreements,
-      this.freeBalanceAppInstance,
-      this.monotonicNumInstalledApps,
-      this.createdAt
-    );
-  }
-
-  public installApp(appInstance: AppInstance, decrements: CoinTransferMap) {
+  public installApp(
+    appInstance: AppInstance,
+    tokenIndexedDecrements: TokenIndexedCoinTransferMap
+  ) {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
@@ -501,14 +483,13 @@ export class StateChannel {
       this.createdAt
     ).addActiveAppAndIncrementFreeBalance(
       appInstance.identityHash,
-      flip(decrements),
-      appInstance.tokenAddress
+      flipTokenIndexedBalances(tokenIndexedDecrements)
     );
   }
 
   public uninstallApp(
     appInstanceIdentityHash: string,
-    increments: CoinTransferMap
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
   ) {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
@@ -538,8 +519,7 @@ export class StateChannel {
       this.createdAt
     ).removeActiveAppAndIncrementFreeBalance(
       appInstanceIdentityHash,
-      increments,
-      appToBeUninstalled.tokenAddress
+      tokenIndexedIncrements
     );
   }
 
@@ -550,7 +530,7 @@ export class StateChannel {
 
     if (!ret) {
       throw Error(
-        `Could not find any eth virtual app agreements with for virtual app ${key}`
+        `Could not find any eth virtual app agreements with virtual app ${key}`
       );
     }
 
@@ -578,9 +558,8 @@ export class StateChannel {
       ].map(([key, val]) => [
         key,
         {
-          capitalProvided: { _hex: val.capitalProvided.toHexString() },
-          expiryBlock: val.expiryBlock,
-          beneficiaries: val.beneficiaries
+          ...val,
+          capitalProvided: { _hex: val.capitalProvided.toHexString() }
         }
       ]),
       createdAt: this.createdAt
@@ -607,9 +586,8 @@ export class StateChannel {
           ([key, val]) => [
             key,
             {
-              capitalProvided: bigNumberify(val.capitalProvided._hex),
-              expiryBlock: val.expiryBlock,
-              beneficiaries: val.beneficiaries
+              ...val,
+              capitalProvided: bigNumberify(val.capitalProvided._hex)
             }
           ]
         )

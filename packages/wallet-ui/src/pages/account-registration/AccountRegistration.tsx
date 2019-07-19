@@ -15,7 +15,7 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { addUser, UserAddTransition } from "../../store/user";
+import { addUser, UserAddTransition } from "../../store/user/user";
 import "./AccountRegistration.scss";
 
 export type AccountRegistrationProps = RouteComponentProps & {
@@ -26,7 +26,7 @@ export type AccountRegistrationProps = RouteComponentProps & {
 };
 
 export type AccountRegistrationState = User & { loading: boolean };
-class AccountRegistration extends React.Component<
+export class AccountRegistration extends React.Component<
   AccountRegistrationProps,
   AccountRegistrationState
 > {
@@ -57,7 +57,7 @@ class AccountRegistration extends React.Component<
 
   render() {
     const { wallet, addUser, error, history, registrationStatus } = this.props;
-    const { loading } = this.state;
+    const { loading, ...userData } = this.state;
     const { signer } = this.context;
     return (
       <WidgetScreen
@@ -98,12 +98,11 @@ class AccountRegistration extends React.Component<
           ) : null}
           <FormButton
             type="button"
-            className="button"
             spinner={loading}
-            disabled={loading}
+            disabled={loading || !userData.username}
             onClick={() => {
               this.setState({ loading: true });
-              addUser(this.state, signer, history);
+              addUser(userData, signer, history);
             }}
           >
             {!loading ? "Create account" : this.buttonText[registrationStatus]}
