@@ -42,7 +42,7 @@ export class Store {
   constructor(
     private readonly storeService: Node.IStoreService,
     private readonly storeKeyPrefix: string,
-    private readonly network: NetworkContext
+    private readonly networkContext: NetworkContext
   ) {}
 
   /**
@@ -213,8 +213,8 @@ export class Store {
             proposedAppInstance.proposedToIdentifier,
             proposedAppInstance.proposedByIdentifier
           ],
-          this.network.ProxyFactory,
-          this.network.MinimumViableMultisig
+          this.networkContext.ProxyFactory,
+          this.networkContext.MinimumViableMultisig
         )
       }
     ]);
