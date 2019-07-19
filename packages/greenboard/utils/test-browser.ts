@@ -67,9 +67,15 @@ export class TestBrowser {
   /**
    * Opens the Metamask extension page in the current window. It'll automatically
    * lookup the extension ID from the Extensions Inspector and save the `home`
-   * and `popup` URLs for later usage.
+   * and `popup` URLs for later usage. If such URLs are already defined,
+   * it'll skip the lookup and navigate to `homeUrl`.
    */
   async openMetamask() {
+    if (this.homeUrl && this.popupUrl) {
+      await this.navigateTo(this.homeUrl);
+      return;
+    }
+
     await this.waitForExtensionsList();
 
     const backgroundPageUrl = await this.getTextFromElement(
