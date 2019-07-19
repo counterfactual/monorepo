@@ -20,7 +20,6 @@ import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
-  Bytes32,
   ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
@@ -75,7 +74,6 @@ export {
   coinTransferInterpreterParamsStateEncoding,
   ContractABI,
   SolidityABIEncoderV2Type,
-  Bytes32,
   INodeProvider,
   IRpcNodeProvider,
   Node,
