@@ -1,6 +1,5 @@
 import { BigNumberish, Interface, ParamType } from "ethers/utils";
 
-export type ABIEncoding = string;
 export type Address = string;
 export type Bytes32 = string;
 

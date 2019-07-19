@@ -18,7 +18,6 @@ import {
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
-  ABIEncoding,
   Address,
   Bytes32,
   ContractABI,
@@ -61,7 +60,6 @@ export interface DeployedContractNetworksFileEntry {
 }
 
 export {
-  ABIEncoding,
   Address,
   AppABIEncodings,
   AppIdentity,
