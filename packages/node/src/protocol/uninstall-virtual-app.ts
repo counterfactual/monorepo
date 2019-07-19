@@ -2,7 +2,7 @@ import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
-import { SetStateCommitment, VirtualAppSetStateCommitment } from "../ethereum";
+import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
@@ -11,19 +11,25 @@ import {
   ProtocolParameters,
   UninstallVirtualAppParams
 } from "../machine/types";
-import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../machine/virtual-app-unique-identifier";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { StateChannel } from "../models";
+import { AppInstance, StateChannel } from "../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+import { getCreate2MultisigAddress } from "../utils";
 
-import { getChannelFromCounterparty } from "./utils/get-channel-from-counterparty";
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const zA = (xpub: string) => {
+function xkeyTo0thAddress(xpub: string) {
   return fromExtendedKey(xpub).derivePath("0").address;
-};
+}
+
+const {
+  OP_SIGN,
+  IO_SEND_AND_WAIT,
+  IO_SEND
+  // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
+} = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -45,7 +51,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
       message: { protocolExecutionID, params },
-      provider
+      provider,
+      stateChannelsMap,
+      network
     } = context;
 
     const {
@@ -56,64 +64,118 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
     const responderAddress = xkeyKthAddress(responderXpub, 0);
 
-    const lockCommitment = addVirtualAppStateTransitionToContext(
+    const [
+      stateChannelWithAllThreeParties,
+      stateChannelWithIntermediary,
+      stateChannelWithResponding,
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
+      stateChannelsMap,
       params,
-      context,
-      false
+      provider,
+      network
     );
 
-    const signature = yield [Opcode.OP_SIGN, lockCommitment];
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
+      network,
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.appSeqNo,
+      timeLockedPassThroughAppInstance.defaultTimeout
+    );
 
-    const m4 = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        // m1
-        protocol: Protocol.UninstallVirtualApp,
-        protocolExecutionID: protocolExecutionID,
-        params: params,
-        seq: 1,
-        toXpub: intermediaryXpub,
-        signature: signature
-      } as ProtocolMessage
+    const initiatingSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
     ];
 
-    const { signature: s3, signature2: signature2 } = m4;
+    const m1 = {
+      params,
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: 1,
+      toXpub: intermediaryXpub,
+      signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+    } as ProtocolMessage;
 
-    assertIsValidSignature(responderAddress, lockCommitment, s3);
+    const m4 = yield [IO_SEND_AND_WAIT, m1];
+
+    const {
+      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+    } = m4;
+
+    assertIsValidSignature(
+      responderAddress,
+      timeLockedPassThroughSetStateCommitment,
+      responderSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
+
     assertIsValidSignature(
       intermediaryAddress,
-      lockCommitment,
-      signature2,
-      true
+      timeLockedPassThroughSetStateCommitment,
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    const uninstallLeft = await addLeftUninstallAgreementToContext(
-      params,
-      context,
-      provider
+    const aliceIngridAppDisactivationCommitment = new SetStateCommitment(
+      network,
+      stateChannelWithIntermediary.freeBalance.identity,
+      stateChannelWithIntermediary.freeBalance.hashOfLatestState,
+      stateChannelWithIntermediary.freeBalance.versionNumber,
+      stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    const s4 = yield [Opcode.OP_SIGN, uninstallLeft];
-
-    // send m5, wait for m6
-    const { signature: s6 } = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        protocolExecutionID: protocolExecutionID,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: intermediaryXpub,
-        signature: s4
-      }
+    const initiatingSignatureOnAliceIngridAppDisactivationCommitment = yield [
+      OP_SIGN,
+      aliceIngridAppDisactivationCommitment
     ];
 
-    assertIsValidSignature(intermediaryAddress, uninstallLeft, s6);
-    removeVirtualAppInstance(params, context);
+    const m5 = {
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: intermediaryXpub,
+      signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
+    };
+
+    const m6 = yield [IO_SEND_AND_WAIT, m5];
+
+    const {
+      signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+    } = m6;
+
+    assertIsValidSignature(
+      intermediaryAddress,
+      aliceIngridAppDisactivationCommitment,
+      intermediarySignatureOnAliceIngridAppDisactivationCommitment
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithIntermediary.multisigAddress,
+      stateChannelWithIntermediary
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithAllThreeParties.multisigAddress,
+      stateChannelWithAllThreeParties
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithResponding.multisigAddress,
+      stateChannelWithResponding
+    );
   },
 
   1 /* Intermediary */: async function*(context: Context) {
     const {
-      message: { protocolExecutionID, params, signature },
-      provider
+      message: {
+        protocolExecutionID,
+        params,
+        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+      },
+      provider,
+      stateChannelsMap,
+      network
     } = context;
 
     const {
@@ -124,100 +186,164 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
     const responderAddress = xkeyKthAddress(responderXpub, 0);
 
-    const lockCommitment = addVirtualAppStateTransitionToContext(
+    const [
+      stateChannelWithAllThreeParties,
+      stateChannelWithInitiating,
+      stateChannelWithResponding,
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
+      stateChannelsMap,
       params,
-      context,
-      true
+      provider,
+      network
     );
 
-    assertIsValidSignature(initiatorAddress, lockCommitment, signature);
-
-    const signature2 = yield [Opcode.OP_SIGN_AS_INTERMEDIARY, lockCommitment];
-
-    const m3 = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        // m2
-        protocol: Protocol.UninstallVirtualApp,
-        protocolExecutionID: protocolExecutionID,
-        params: params,
-        seq: 2,
-        toXpub: responderXpub,
-        signature: signature,
-        signature2: signature2
-      } as ProtocolMessage
-    ];
-    const { signature: s3 } = m3;
-
-    assertIsValidSignature(responderAddress, lockCommitment, s3);
-
-    const m5 = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        // m4
-        protocol: Protocol.UninstallVirtualApp,
-        protocolExecutionID: protocolExecutionID,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: initiatorXpub,
-        signature: s3,
-        signature2: signature2
-      } as ProtocolMessage
-    ];
-
-    const { signature: s4 } = m5;
-
-    const leftUninstallCommitment = await addLeftUninstallAgreementToContext(
-      params,
-      context,
-      context.provider
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
+      network,
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.appSeqNo,
+      timeLockedPassThroughAppInstance.defaultTimeout
     );
 
-    assertIsValidSignature(initiatorAddress, leftUninstallCommitment, s4);
+    assertIsValidSignature(
+      initiatorAddress,
+      timeLockedPassThroughSetStateCommitment,
+      initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
 
-    const s5 = yield [Opcode.OP_SIGN, leftUninstallCommitment];
+    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
+    ];
 
-    // send m6 without waiting for a reply
+    const m2 = {
+      protocolExecutionID,
+      params,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: 2,
+      toXpub: responderXpub,
+      signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+    } as ProtocolMessage;
+
+    const m3 = yield [IO_SEND_AND_WAIT, m2];
+
+    const {
+      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+    } = m3;
+
+    assertIsValidSignature(
+      responderAddress,
+      timeLockedPassThroughSetStateCommitment,
+      respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
+
+    const m4 = {
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: initiatorXpub,
+      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+    } as ProtocolMessage;
+
+    const m5 = yield [IO_SEND_AND_WAIT, m4];
+
+    const {
+      signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
+    } = m5;
+
+    const aliceIngridAppDisactivationCommitment = new SetStateCommitment(
+      network,
+      stateChannelWithInitiating.freeBalance.identity,
+      stateChannelWithInitiating.freeBalance.hashOfLatestState,
+      stateChannelWithInitiating.freeBalance.versionNumber,
+      stateChannelWithInitiating.freeBalance.timeout
+    );
+
+    assertIsValidSignature(
+      initiatorAddress,
+      aliceIngridAppDisactivationCommitment,
+      initiatingSignatureOnAliceIngridAppDisactivationCommitment
+    );
+
+    const intermediarySignatureOnAliceIngridAppDisactivationCommitment = yield [
+      OP_SIGN,
+      aliceIngridAppDisactivationCommitment
+    ];
+
     yield [
-      Opcode.IO_SEND,
+      IO_SEND,
       {
+        protocolExecutionID,
         protocol: Protocol.UninstallVirtualApp,
-        protocolExecutionID: protocolExecutionID,
         seq: UNASSIGNED_SEQ_NO,
         toXpub: initiatorXpub,
-        signature: s5
+        signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
       } as ProtocolMessage
     ];
 
-    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      params,
-      context,
-      provider
+    const ingridBobAppDisactivationCommitment = new SetStateCommitment(
+      network,
+      stateChannelWithResponding.freeBalance.identity,
+      stateChannelWithResponding.freeBalance.hashOfLatestState,
+      stateChannelWithResponding.freeBalance.versionNumber,
+      stateChannelWithResponding.freeBalance.timeout
     );
 
-    const s6 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
-
-    const m8 = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        // m7
-        protocol: Protocol.UninstallVirtualApp,
-        protocolExecutionID: protocolExecutionID,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: responderXpub,
-        signature: s6
-      } as ProtocolMessage
+    const intermediarySignatureOnIngridBobAppDisactivationCommitment = yield [
+      OP_SIGN,
+      ingridBobAppDisactivationCommitment
     ];
-    const { signature: s7 } = m8;
 
-    assertIsValidSignature(responderAddress, rightUninstallCommitment, s7);
+    const m7 = {
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: responderXpub,
+      signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+    } as ProtocolMessage;
 
-    removeVirtualAppInstance(params, context);
+    const m8 = yield [IO_SEND_AND_WAIT, m7];
+
+    const {
+      signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+    } = m8;
+
+    assertIsValidSignature(
+      responderAddress,
+      ingridBobAppDisactivationCommitment,
+      respondingSignatureOnIngridBobAppDisactivationCommitment
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithInitiating.multisigAddress,
+      stateChannelWithInitiating
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithAllThreeParties.multisigAddress,
+      stateChannelWithAllThreeParties
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithResponding.multisigAddress,
+      stateChannelWithResponding
+    );
   },
 
   2 /* Responding */: async function*(context: Context) {
     const {
-      message: { protocolExecutionID, params, signature, signature2 },
-      provider
+      message: {
+        protocolExecutionID,
+        params,
+        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      },
+      provider,
+      stateChannelsMap,
+      network
     } = context;
 
     const {
@@ -228,238 +354,459 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
     const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
-    const lockCommitment = addVirtualAppStateTransitionToContext(
+    const [
+      stateChannelWithAllThreeParties,
+      stateChannelWithIntermediary,
+      stateChannelWithInitiating,
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndAppInstanceObjectsForResponding(
+      stateChannelsMap,
       params,
-      context,
-      false
+      provider,
+      network
     );
 
-    assertIsValidSignature(initiatorAddress, lockCommitment, signature);
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
+      network,
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.appSeqNo,
+      timeLockedPassThroughAppInstance.defaultTimeout
+    );
+
+    assertIsValidSignature(
+      initiatorAddress,
+      timeLockedPassThroughSetStateCommitment,
+      initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
 
     assertIsValidSignature(
       intermediaryAddress,
-      lockCommitment,
-      signature2,
-      true
+      timeLockedPassThroughSetStateCommitment,
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    const s3 = yield [Opcode.OP_SIGN, lockCommitment];
-
-    const m7 = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        // m3
-        protocolExecutionID,
-        protocol: Protocol.UninstallVirtualApp,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: intermediaryXpub,
-        signature: s3
-      } as ProtocolMessage
+    const respondingSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
     ];
 
-    const { signature: s6 } = m7;
+    const m3 = {
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: intermediaryXpub,
+      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+    } as ProtocolMessage;
 
-    const rightUninstallCommitment = await addRightUninstallAgreementToContext(
-      params,
-      context,
-      provider
+    const m7 = yield [IO_SEND_AND_WAIT, m3];
+
+    const {
+      signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+    } = m7;
+
+    const ingridBobAppDisactivationCommitment = new SetStateCommitment(
+      network,
+      stateChannelWithIntermediary.freeBalance.identity,
+      stateChannelWithIntermediary.freeBalance.hashOfLatestState,
+      stateChannelWithIntermediary.freeBalance.versionNumber,
+      stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    assertIsValidSignature(intermediaryAddress, rightUninstallCommitment, s6);
+    assertIsValidSignature(
+      intermediaryAddress,
+      ingridBobAppDisactivationCommitment,
+      intermediarySignatureOnIngridBobAppDisactivationCommitment
+    );
 
-    const s7 = yield [Opcode.OP_SIGN, rightUninstallCommitment];
-
-    yield [
-      Opcode.IO_SEND,
-      {
-        protocolExecutionID,
-        protocol: Protocol.UninstallVirtualApp,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: intermediaryXpub,
-        signature: s7
-      } as ProtocolMessage
+    const respondingSignatureOnIngridBobAppDisactivationCommitment = yield [
+      OP_SIGN,
+      ingridBobAppDisactivationCommitment
     ];
 
-    removeVirtualAppInstance(params, context);
+    const m8 = {
+      protocolExecutionID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: intermediaryXpub,
+      signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+    } as ProtocolMessage;
+
+    yield [IO_SEND, m8];
+
+    context.stateChannelsMap.set(
+      stateChannelWithIntermediary.multisigAddress,
+      stateChannelWithIntermediary
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithAllThreeParties.multisigAddress,
+      stateChannelWithAllThreeParties
+    );
+
+    context.stateChannelsMap.set(
+      stateChannelWithInitiating.multisigAddress,
+      stateChannelWithInitiating
+    );
   }
 };
 
-function removeVirtualAppInstance(
-  params: ProtocolParameters,
-  context: Context
-) {
-  const {
-    intermediaryXpub,
-    responderXpub,
-    initiatorXpub,
-    targetAppIdentityHash
-  } = params as UninstallVirtualAppParams;
-
-  const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatorXpub, responderXpub],
-    intermediaryXpub
-  );
-
-  const sc = context.stateChannelsMap.get(key)!;
-
-  context.stateChannelsMap.set(key, sc.removeVirtualApp(targetAppIdentityHash));
+function getStateChannelFromMapWithOwners(
+  stateChannelsMap: Map<string, StateChannel>,
+  userXpubs: string[],
+  network: NetworkContext
+): StateChannel {
+  return stateChannelsMap.get(
+    getCreate2MultisigAddress(
+      userXpubs,
+      network.ProxyFactory,
+      network.MinimumViableMultisig
+    )
+  )!;
 }
 
-function addVirtualAppStateTransitionToContext(
+async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
+  stateChannelsMap: Map<string, StateChannel>,
   params: ProtocolParameters,
-  context: Context,
-  isIntermediary: boolean
-): VirtualAppSetStateCommitment {
+  provider: BaseProvider,
+  network: NetworkContext
+): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
     intermediaryXpub,
     responderXpub,
     initiatorXpub,
     targetAppIdentityHash,
-    targetAppState
+    targetOutcome
   } = params as UninstallVirtualAppParams;
 
-  const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatorXpub, responderXpub],
-    intermediaryXpub
+  const initiatorAddress = xkeyTo0thAddress(initiatorXpub);
+  const intermediaryAddress = xkeyTo0thAddress(intermediaryXpub);
+  const responderAddress = xkeyTo0thAddress(responderXpub);
+
+  const [
+    stateChannelWithAllThreeParties,
+    stateChannelWithIntermediary,
+    stateChannelWithResponding
+  ] = [
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, responderXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, responderXpub],
+      network
+    )
+  ];
+
+  const agreement = stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
+    targetAppIdentityHash
   );
 
-  let sc = context.stateChannelsMap.get(key) as StateChannel;
+  const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
+    agreement.timeLockedPassThroughIdentityHash
+  );
 
-  if (isIntermediary) {
-    sc = sc.setState(targetAppIdentityHash, targetAppState);
+  const virtualAppInstance = stateChannelWithResponding.getAppInstance(
+    timeLockedPassThroughAppInstance.state["targetAppIdentityHash"] // TODO: type
+  );
+
+  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
+    network,
+    stateChannelWithAllThreeParties.getAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
+    provider
+  );
+
+  return [
+    /**
+     * Remove the agreement from the app with the intermediary
+     */
+    stateChannelWithAllThreeParties.removeAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
+
+    /**
+     * Remove the agreement from the app with the intermediary
+     */
+    stateChannelWithIntermediary.removeSingleAssetTwoPartyIntermediaryAgreement(
+      virtualAppInstance.identityHash,
+      {
+        [intermediaryAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            responderAddress
+          ],
+
+        [initiatorAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            initiatorAddress
+          ]
+      },
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    ),
+
+    /**
+     * Remove the virtual app itself
+     */
+    stateChannelWithResponding.removeAppInstance(
+      virtualAppInstance.identityHash
+    ),
+
+    /**
+     * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
+     */
+    timeLockedPassThroughAppInstance.setState({
+      ...timeLockedPassThroughAppInstance.state,
+      switchesOutcomeAt: 0,
+      defaultOutcome: targetOutcome
+    })
+  ];
+}
+
+async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
+  stateChannelsMap: Map<string, StateChannel>,
+  params: ProtocolParameters,
+  provider: BaseProvider,
+  network: NetworkContext
+): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
+  const {
+    intermediaryXpub,
+    responderXpub,
+    initiatorXpub,
+    targetAppIdentityHash,
+    targetOutcome
+  } = params as UninstallVirtualAppParams;
+
+  const initiatorAddress = xkeyTo0thAddress(initiatorXpub);
+  const intermediaryAddress = xkeyTo0thAddress(intermediaryXpub);
+  const responderAddress = xkeyTo0thAddress(responderXpub);
+
+  const [
+    stateChannelWithAllThreeParties,
+    stateChannelWithIntermediary,
+    stateChannelWithInitiating
+  ] = [
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, responderXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [responderXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, responderXpub],
+      network
+    )
+  ];
+
+  const agreement = stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
+    targetAppIdentityHash
+  );
+
+  const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
+    agreement.timeLockedPassThroughIdentityHash
+  );
+
+  const virtualAppInstance = stateChannelWithInitiating.getAppInstance(
+    timeLockedPassThroughAppInstance.state["targetAppIdentityHash"] // TODO: type
+  );
+
+  const expectedOutcome = await virtualAppInstance.computeOutcome(
+    virtualAppInstance.state,
+    provider
+  );
+
+  if (expectedOutcome !== targetOutcome) {
+    throw new Error(
+      "UninstallVirtualApp Protocol: Received targetOutcome that did not match expected outcome based on latest state of Virtual App."
+    );
   }
 
-  sc = sc.lockAppInstance(targetAppIdentityHash);
-  const targetAppInstance = sc.getAppInstance(targetAppIdentityHash);
-
-  context.stateChannelsMap.set(key, sc);
-
-  // post-expiry lock commitment
-  return new VirtualAppSetStateCommitment(
-    context.network,
-    targetAppInstance.identity,
-    targetAppInstance.defaultTimeout,
-    targetAppInstance.hashOfLatestState,
-    targetAppInstance.appSeqNo
-  );
-}
-
-function constructUninstallOp(
-  network: NetworkContext,
-  stateChannel: StateChannel
-) {
-  const freeBalance = stateChannel.freeBalance;
-
-  return new SetStateCommitment(
+  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     network,
-    freeBalance.identity,
-    freeBalance.hashOfLatestState,
-    freeBalance.versionNumber,
-    freeBalance.timeout
-  );
-}
-
-async function addRightUninstallAgreementToContext(
-  params: ProtocolParameters,
-  context: Context,
-  provider: BaseProvider
-) {
-  // uninstall right agreement
-  const {
-    initiatorXpub,
-    intermediaryXpub,
-    responderXpub,
-    targetAppIdentityHash
-  } = params as UninstallVirtualAppParams;
-
-  const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatorXpub, responderXpub],
-    intermediaryXpub
-  );
-
-  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
-
-  const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    context.network,
-    metachannel,
-    targetAppIdentityHash,
+    stateChannelWithAllThreeParties.getAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
     provider
   );
 
-  const sc = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    responderXpub,
-    intermediaryXpub
-  )!;
+  return [
+    /**
+     * Remove the agreement from the app with the intermediary
+     */
+    stateChannelWithAllThreeParties.removeAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
 
-  const newStateChannel = sc.removeSingleAssetTwoPartyIntermediaryAgreement(
-    targetAppIdentityHash,
-    {
-      [zA(intermediaryXpub)]: tokenIndexedIncrements[
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      ][zA(initiatorXpub)],
+    /**
+     * Remove the agreement from the app with the intermediary
+     */
+    stateChannelWithIntermediary.removeSingleAssetTwoPartyIntermediaryAgreement(
+      virtualAppInstance.identityHash,
+      {
+        [intermediaryAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            initiatorAddress
+          ],
 
-      [zA(responderXpub)]: tokenIndexedIncrements[
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      ][zA(responderXpub)]
-    },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
-  );
+        [responderAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            responderAddress
+          ]
+      },
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    ),
 
-  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
+    /**
+     * Remove the virtual app itself
+     */
+    stateChannelWithInitiating.removeAppInstance(
+      virtualAppInstance.identityHash
+    ),
 
-  return constructUninstallOp(context.network, sc);
+    /**
+     * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
+     */
+    timeLockedPassThroughAppInstance.setState({
+      ...timeLockedPassThroughAppInstance.state,
+      switchesOutcomeAt: 0,
+      defaultOutcome: expectedOutcome
+    })
+  ];
 }
 
-async function addLeftUninstallAgreementToContext(
+async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
+  stateChannelsMap: Map<string, StateChannel>,
   params: ProtocolParameters,
-  context: Context,
-  provider: BaseProvider
-): Promise<SetStateCommitment> {
-  // uninstall left virtual app agreement
-
+  provider: BaseProvider,
+  network: NetworkContext
+): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
-    initiatorXpub,
     intermediaryXpub,
     responderXpub,
-    targetAppIdentityHash
+    initiatorXpub,
+    targetAppIdentityHash,
+    targetOutcome
   } = params as UninstallVirtualAppParams;
 
-  const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-    [initiatorXpub, responderXpub],
-    intermediaryXpub
+  const initiatorAddress = xkeyTo0thAddress(initiatorXpub);
+  const intermediaryAddress = xkeyTo0thAddress(intermediaryXpub);
+  const responderAddress = xkeyTo0thAddress(responderXpub);
+
+  const [
+    stateChannelWithAllThreeParties,
+    stateChannelWithInitiating,
+    stateChannelWithResponding
+  ] = [
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, responderXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [initiatorXpub, intermediaryXpub],
+      network
+    ),
+
+    getStateChannelFromMapWithOwners(
+      stateChannelsMap,
+      [intermediaryXpub, responderXpub],
+      network
+    )
+  ];
+
+  const agreementWithInitiating = stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
+    targetAppIdentityHash
   );
 
-  const metachannel = context.stateChannelsMap.get(key) as StateChannel;
+  const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
+    agreementWithInitiating.timeLockedPassThroughIdentityHash
+  );
+
+  // TODO: Verify that the targetOutcome still leads to the intermediary getting
+  //       the same amount of money they are meant to get. This check should be
+  //       a switch statement on the outcomeType that then is interpreted in a way
+  //       that calculates the intermediaries returns and asserts that they are
+  //       equal to the amount in the agreement (i.e., `capitalProvided`).
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    context.network,
-    metachannel,
-    targetAppIdentityHash,
+    network,
+    stateChannelWithAllThreeParties.getAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
     provider
   );
 
-  const sc = getChannelFromCounterparty(
-    context.stateChannelsMap,
-    initiatorXpub,
-    intermediaryXpub
-  )!;
+  return [
+    /**
+     * Remove the agreement from the 3-party app
+     */
+    stateChannelWithAllThreeParties.removeAppInstance(
+      timeLockedPassThroughAppInstance.identityHash
+    ),
 
-  const newStateChannel = sc.removeSingleAssetTwoPartyIntermediaryAgreement(
-    targetAppIdentityHash,
-    {
-      [zA(intermediaryXpub)]: tokenIndexedIncrements[
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      ][zA(responderXpub)],
+    /**
+     * Remove the agreement from the app with the initiating
+     */
+    stateChannelWithInitiating.removeSingleAssetTwoPartyIntermediaryAgreement(
+      timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
+      {
+        [intermediaryAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            responderAddress
+          ],
 
-      [zA(initiatorXpub)]: tokenIndexedIncrements[
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      ][zA(initiatorXpub)]
-    },
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
-  );
+        [initiatorAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            initiatorAddress
+          ]
+      },
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    ),
 
-  context.stateChannelsMap.set(sc.multisigAddress, newStateChannel);
+    /**
+     * Remove the agreement from the app with the responding
+     */
+    stateChannelWithResponding.removeSingleAssetTwoPartyIntermediaryAgreement(
+      timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
+      {
+        [intermediaryAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            initiatorAddress
+          ],
 
-  return constructUninstallOp(context.network, sc);
+        [responderAddress]:
+          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
+            responderAddress
+          ]
+      },
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    ),
+
+    /**
+     * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
+     */
+    timeLockedPassThroughAppInstance.setState({
+      ...timeLockedPassThroughAppInstance.state,
+      switchesOutcomeAt: 0,
+      defaultOutcome: targetOutcome
+    })
+  ];
 }

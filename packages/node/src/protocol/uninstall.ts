@@ -114,8 +114,7 @@ async function proposeStateTransition(
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     network,
-    sc,
-    appIdentityHash,
+    sc.getAppInstance(appIdentityHash),
     provider
   );
 

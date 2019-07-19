@@ -10,9 +10,9 @@ import "../libs/LibOutcome.sol";
 /// @notice
 /// Asset: Single Asset
 /// OutcomeType: TwoPartyFixedOutcome
-/// This is expected to be used for a virtual app in a simple hub topology, 
-/// hence two different commitments to this interpreter are to be made in the 
-/// two direct channels, where the commitments differ in the 
+/// This is expected to be used for a virtual app in a simple hub topology,
+/// hence two different commitments to this interpreter are to be made in the
+/// two direct channels, where the commitments differ in the
 /// params.beneficiaries field.
 contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   Interpreter
@@ -89,7 +89,7 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
         );
 
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[1], 
+          agreement.beneficiaries[1],
           agreement.capitalProvided - agreement.capitalProvided / 2
         );
       }

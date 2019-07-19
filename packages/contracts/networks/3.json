@@ -5,11 +5,6 @@
     "transactionHash": "0xd721ca75be11660107b7de4b9ad7d58e26f7149f20d55d83e8e59522e350830b"
   },
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0xbdf602c9570bF5A85b4dC678f34f6a8Dfd8f6B94",
-    "transactionHash": "0x95cf97f46892fec8b93eef97673179740980caf6812857847ddc375ffea71eaf"
-  },
-  {
     "contractName": "MinimumViableMultisig",
     "address": "0xB6ea6aB24081CF1E583B467248826B5B8E1949C2",
     "transactionHash": "0x6ba6d47f165ad29f33e9eddd9eb9ad1574c508b650da5801df9fdd7d7c5466b2"
@@ -40,11 +35,6 @@
     "transactionHash": "0x0675898baaa81e81e40d33740ca9e35e34991daf477366ce82f73c017bc63ee7"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
-    "address": "0xb67E0913f6F22E32cA8F30d84Cad44b71ED9F63e",
-    "transactionHash": "0x8a08e6287703128453c432d6e09ad7b3a438c4862b670fae253f9f0c0961402e"
-  },
-  {
     "contractName": "CoinBalanceRefundApp",
     "address": "0x87224A136B9C2F1f6E7f9c1794692b0FA5104704",
     "transactionHash": "0xcfb0abfb8b753ca952b813d213528fe1486499a04355212cd9dba9305a83b9dc"
@@ -53,5 +43,25 @@
     "contractName": "CoinTransferInterpreter",
     "address": "0x1cb10f09075cBbAb8D7BcE60e8065B49c24A5C51",
     "transactionHash": "0x807d73062eaa343180709af80fc573dc78365a38ba79dbf6b9597d3315cf42f4"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0x4d5Ea4aE83ED10287161D804D8Eafe65EF77877B",
+    "transactionHash": "0x1f1d0cdc72a52d4ed98a03aaf3d56d5afebdf51a167ddd692316b946d2375606"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0x745e6dFF2d3B00B20688e2019423C0E67A2f1A7c",
+    "transactionHash": "0x2e0bb957800f5520aa0164f47aa4c11afdb0d9b60f8ec4120d64c4439c82d10d"
+  },
+  {
+    "contractName": "TimeLockedPassThrough",
+    "address": "0xE0829Cd197906E29314d75A30A988c4959D9eeD0",
+    "transactionHash": "0x14eefafb4437bb7460eecfb120bb966ca5c8eca73d139c514233421f580cfa37"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
+    "address": "0xa4e660f95588271486a9Aa83DB4d97ad156648B7",
+    "transactionHash": "0xc6cdbc3f903a7e3bb150f2f04bf421e7ba9bab892642dfebdaed29fd28c71af0"
   }
 ]

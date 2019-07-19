@@ -5,12 +5,12 @@
  *        is quite computationally expensive. Refactor to use it less.
  */
 
-import { NetworkContext } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import { AddressZero, Zero } from "ethers/constants";
+import { BaseProvider } from "ethers/providers";
 import { bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
-import { VirtualAppSetStateCommitment } from "../ethereum/virtual-app-set-state-commitment";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -18,7 +18,6 @@ import {
   ProtocolExecutionFlow,
   ProtocolMessage
 } from "../machine/types";
-import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../machine/virtual-app-unique-identifier";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
@@ -27,8 +26,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol
- *
+ * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol, *
  * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
  *       know how to interpret it. However, the encoder encodes it the same way
  *       without specifying it anyway, so that's why beneficiaries is address[2]
@@ -52,6 +50,8 @@ export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = para
 
 const protocol = Protocol.InstallVirtualApp;
 
+const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
+
 /**
  * This exchange is described at the following URL:
  *
@@ -62,7 +62,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const {
       message: { params, protocolExecutionID },
       stateChannelsMap,
-      network
+      network,
+      provider
     } = context;
 
     const {
@@ -71,13 +72,16 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     } = params as InstallVirtualAppParams;
 
     const [
+      stateChannelWithInitiatingAndIntermediary,
       stateChannelWithResponding,
       stateChannelWithIntermediary,
-      virtualAppInstance
-    ] = getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
+      virtualAppInstance,
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
       params as InstallVirtualAppParams,
       stateChannelsMap,
-      network
+      network,
+      provider
     );
 
     const intermediaryAddress = stateChannelWithIntermediary.getMultisigOwnerAddrOf(
@@ -92,7 +96,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       network,
       stateChannelWithIntermediary.multisigAddress,
       stateChannelWithIntermediary.multisigOwners,
-      virtualAppInstance.identityHash,
+      timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
       network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
       encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
@@ -103,7 +107,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const initiatorSignatureOnAliceIngridVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
 
@@ -113,29 +117,32 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: 1,
-      signature: initiatorSignatureOnAliceIngridVirtualAppAgreement
+      signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
+      // FIXME: We are abusing these typed parameters in the ProtocolMessage
+      //        to pass through some variables from the initiating party
+      //        to the intermediary party. To fix, we ought to have some
+      //        kind of `metadata` fields on the ProtocolMessage
+      signature2: virtualAppInstance.identityHash as unknown,
+      signature3: timeLockedPassThroughAppInstance.state[
+        "defaultOutcome"
+      ] as unknown
     } as ProtocolMessage;
 
-    const m4 = yield [Opcode.IO_SEND_AND_WAIT, m1];
+    const m4 = yield [IO_SEND_AND_WAIT, m1];
 
     const {
       signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
       signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     } = m4;
 
-    // TODO: require(signature on virtual app agreement is good)
-
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForAliceIngridVirtualAppAgreement,
-      intermediarySignatureOnAliceIngridVirtualAppAgreement,
-      true
+      intermediarySignatureOnAliceIngridVirtualAppAgreement
     );
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp, // TODO: Figure out how to map this to save to DB correctly
       presignedMultisigTxForAliceIngridVirtualAppAgreement.getSignedTransaction(
         [
@@ -146,8 +153,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppInstance.identityHash
     ];
 
-    // TODO: compute free balance app activation commitment
-
     const freeBalanceAliceIngridVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithIntermediary.freeBalance.identity,
@@ -156,26 +161,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    // TODO: require(signature on free balance app activation is good
-
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment,
-      intermediarySignatureOnAliceIngridFreeBalanceAppActivation,
-      true
+      intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     );
 
-    // TODO: sign free balance app activation
-
     const initiatorSignatureOnAliceIngridFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -186,24 +184,31 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.identityHash
     ];
 
-    // TODO: compute virtual app set state commitment
-
-    const virtualAppSetStateCommitmentWithIntermediary = new VirtualAppSetStateCommitment(
+    const virtualAppSetStateCommitment = new SetStateCommitment(
       network,
       virtualAppInstance.identity,
-      virtualAppInstance.defaultTimeout,
       virtualAppInstance.hashOfLatestState,
-      virtualAppInstance.versionNumber
+      virtualAppInstance.versionNumber,
+      virtualAppInstance.defaultTimeout
     );
 
-    // TODO: sign virtual app set state commitment
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
+      network,
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.versionNumber,
+      timeLockedPassThroughAppInstance.defaultTimeout
+    );
 
-    const initiatorSignatureOnVirtualAppSetStateCommitment = yield [
-      Opcode.OP_SIGN,
-      virtualAppSetStateCommitmentWithIntermediary
+    const initiatorSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
     ];
 
-    // TODO: send [ FB, VA ] to intermediary
+    const initiatorSignatureOnVirtualAppSetStateCommitment = yield [
+      OP_SIGN,
+      virtualAppSetStateCommitment
+    ];
 
     const m5 = {
       protocol,
@@ -211,47 +216,56 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
       signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
-      signature2: initiatorSignatureOnVirtualAppSetStateCommitment
+      signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    const m8 = yield [Opcode.IO_SEND_AND_WAIT, m5];
+    const m8 = yield [IO_SEND_AND_WAIT, m5];
 
     const {
-      signature: intermediarySignatureOnVirtualAppSetStateCommitment,
-      signature2: responderSignatureOnVirtualAppSetStateCommitment
+      signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: responderSignatureOnVirtualAppSetStateCommitment
     } = m8;
-
-    // TODO: require(signatures on virtual app agreement are OK)
 
     assertIsValidSignature(
       intermediaryAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
-      intermediarySignatureOnVirtualAppSetStateCommitment,
-      true
+      timeLockedPassThroughSetStateCommitment,
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       responderAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
+      timeLockedPassThroughSetStateCommitment,
+      responderSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
+
+    assertIsValidSignature(
+      responderAddress,
+      virtualAppSetStateCommitment,
       responderSignatureOnVirtualAppSetStateCommitment
     );
 
-    // TODO: Save to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
-      virtualAppSetStateCommitmentWithIntermediary.getSignedTransaction(
-        [
-          initiatorSignatureOnVirtualAppSetStateCommitment,
-          responderSignatureOnVirtualAppSetStateCommitment
-        ],
-        intermediarySignatureOnVirtualAppSetStateCommitment
-      ),
-      virtualAppInstance.identityHash
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      ]),
+      timeLockedPassThroughAppInstance.identityHash
     ];
 
-    // TODO: save to context
+    yield [
+      WRITE_COMMITMENT,
+      Protocol.Update,
+      virtualAppSetStateCommitment.getSignedTransaction([
+        initiatorSignatureOnVirtualAppSetStateCommitment,
+        responderSignatureOnVirtualAppSetStateCommitment
+      ]),
+      virtualAppInstance.identityHash
+    ];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -262,29 +276,42 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigAddress,
       stateChannelWithResponding
     );
+
+    context.stateChannelsMap.set(
+      stateChannelWithInitiatingAndIntermediary.multisigAddress,
+      stateChannelWithInitiatingAndIntermediary
+    );
   },
 
   1 /* Intermediary */: async function*(context: Context) {
+    const { message: m1, stateChannelsMap, network, provider } = context;
+
     const {
-      message: { params, protocolExecutionID, signature },
-      stateChannelsMap,
-      network
-    } = context;
+      params,
+      protocolExecutionID,
+      signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
+      // FIXME: We are abusing these typed parameters in the ProtocolMessage
+      //        to pass through some variables from the initiating party
+      //        to the intermediary party. To fix, we ought to have some
+      //        kind of `metadata` fields on the ProtocolMessage
+      signature2: virtualAppInstanceIdentityHash,
+      signature3: virtualAppInstanceDefaultOutcome
+    } = m1;
 
     const { initiatorXpub, responderXpub } = params as InstallVirtualAppParams;
-
-    // Aliasing `signature` to this variable name for code clarity
-    const initiatorSignatureOnAliceIngridVirtualAppAgreement = signature;
 
     const [
       stateChannelBetweenVirtualAppUsers,
       stateChannelWithInitiating,
       stateChannelWithResponding,
-      virtualAppInstance
-    ] = getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
       params as InstallVirtualAppParams,
       stateChannelsMap,
-      network
+      (virtualAppInstanceIdentityHash as unknown) as string,
+      (virtualAppInstanceDefaultOutcome as unknown) as string,
+      network,
+      provider
     );
 
     const initiatorAddress = stateChannelWithInitiating.getMultisigOwnerAddrOf(
@@ -295,23 +322,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       responderXpub
     );
 
-    // TODO: compute conditional transaction for the initiator party
-
     const presignedMultisigTxForAliceIngridVirtualAppAgreement = new ConditionalTransaction(
       network,
       stateChannelWithInitiating.multisigAddress,
       stateChannelWithInitiating.multisigOwners,
-      virtualAppInstance.identityHash,
+      timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithInitiating.freeBalance.identityHash,
       network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
       encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
         stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
-          virtualAppInstance.identityHash
+          timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
       )
     );
-
-    // TODO: require(signature on conditional transaction is good from initiator)
 
     assertIsValidSignature(
       initiatorAddress,
@@ -319,30 +342,24 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignatureOnAliceIngridVirtualAppAgreement
     );
 
-    // TODO: compute conditional transaction for the responder party
-
     const presignedMultisigTxForIngridBobVirtualAppAgreement = new ConditionalTransaction(
       network,
       stateChannelWithResponding.multisigAddress,
       stateChannelWithResponding.multisigOwners,
-      virtualAppInstance.identityHash,
+      timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithResponding.freeBalance.identityHash,
       network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
       encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
         stateChannelWithResponding.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
-          virtualAppInstance.identityHash
+          timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
       )
     );
 
-    // TODO: sign conditional transaction
-
     const intermediarySignatureOnIngridBobVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
-
-    // TODO: send conditional transaction to responder
 
     const m2 = {
       params, // Must include as this is the first message received by responder
@@ -353,22 +370,18 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature: intermediarySignatureOnIngridBobVirtualAppAgreement
     } as ProtocolMessage;
 
-    const m3 = yield [Opcode.IO_SEND_AND_WAIT, m2];
+    const m3 = yield [IO_SEND_AND_WAIT, m2];
 
     const {
       signature: responderSignatureOnIngridBobVirtualAppAgreement,
       signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
     } = m3;
 
-    // TODO: require(signature on conditional transaction is good from responder
-
     assertIsValidSignature(
       responderAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
       responderSignatureOnIngridBobVirtualAppAgreement
     );
-
-    // TODO: compute free balance activation from responder
 
     const freeBalanceIngridBobVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
@@ -378,15 +391,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.timeout
     );
 
-    // TODO: require( signature on free balance app activation is good)
-
     assertIsValidSignature(
       responderAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
       responderSignatureOnIngridBobFreeBalanceAppActivation
     );
-
-    // TODO: compute free balance app activation for initiator
 
     const freeBalanceAliceIngridVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
@@ -396,24 +405,18 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.freeBalance.timeout
     );
 
-    // TODO: sign free balance app activation commitment with initiator
-
     const intermediarySignatureOnAliceIngridFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
-    // TODO: sign conditional transaction for initiator
-
     const intermediarySignatureOnAliceIngridVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp,
       presignedMultisigTxForAliceIngridVirtualAppAgreement.getSignedTransaction(
         [
@@ -421,10 +424,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
           intermediarySignatureOnAliceIngridVirtualAppAgreement
         ]
       ),
-      virtualAppInstance.identityHash
+      timeLockedPassThroughAppInstance.identityHash
     ];
-
-    // TODO: send [ CT, FB ] to initiator
 
     const m4 = {
       protocol,
@@ -435,14 +436,13 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     } as ProtocolMessage;
 
-    const m5 = yield [Opcode.IO_SEND_AND_WAIT, m4];
+    const m5 = yield [IO_SEND_AND_WAIT, m4];
 
     const {
       signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
-      signature2: initiatorSignatureOnVirtualAppSetStateCommitment
+      signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
     } = m5;
-
-    // TODO: require(signature on free balance activation with initiaitng is good)
 
     assertIsValidSignature(
       initiatorAddress,
@@ -450,10 +450,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignatureOnAliceIngridFreeBalanceAppActivation
     );
 
-    // TODO: write to db
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -464,35 +462,27 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.identityHash
     ];
 
-    // TODO: compute virtual app set state commitment
-
-    const virtualAppSetStateCommitmentWithIntermediary = new VirtualAppSetStateCommitment(
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
       network,
-      virtualAppInstance.identity,
-      virtualAppInstance.defaultTimeout,
-      virtualAppInstance.hashOfLatestState,
-      virtualAppInstance.versionNumber
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.versionNumber,
+      timeLockedPassThroughAppInstance.defaultTimeout
     );
-
-    // TODO: require(signature on virtual app set state from initiaitng is good)
 
     assertIsValidSignature(
       initiatorAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
-      initiatorSignatureOnVirtualAppSetStateCommitment
+      timeLockedPassThroughSetStateCommitment,
+      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    // TODO: sign free balance update with responder
-
     const intermediarySignatureOnIngridBobFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -503,14 +493,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.identityHash
     ];
 
-    // TODO: sign virtual app set state
-
-    const intermediarySignatureOnVirtualAppSetStateCommitment = yield [
-      Opcode.OP_SIGN_AS_INTERMEDIARY,
-      virtualAppSetStateCommitmentWithIntermediary
+    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
     ];
-
-    // TODO: send [ FB, VA ] to responder
 
     const m6 = {
       protocol,
@@ -518,51 +504,46 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       toXpub: responderXpub,
       seq: UNASSIGNED_SEQ_NO,
       signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      signature2: intermediarySignatureOnVirtualAppSetStateCommitment,
-      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature4: initiatorSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    const m7 = yield [Opcode.IO_SEND_AND_WAIT, m6];
+    const m7 = yield [IO_SEND_AND_WAIT, m6];
 
-    const { signature: responderSignatureOnVirtualAppSetStateCommitment } = m7;
-
-    // TODO: require virtual app set state is good from responder
+    const {
+      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: responderSignatureOnVirtualAppSetStateCommitment
+    } = m7;
 
     assertIsValidSignature(
       responderAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
-      responderSignatureOnVirtualAppSetStateCommitment
+      timeLockedPassThroughSetStateCommitment,
+      responderSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
-      virtualAppSetStateCommitmentWithIntermediary.getSignedTransaction(
-        [
-          initiatorSignatureOnVirtualAppSetStateCommitment,
-          responderSignatureOnVirtualAppSetStateCommitment
-        ],
-        intermediarySignatureOnVirtualAppSetStateCommitment
-      ),
-      virtualAppInstance.identityHash
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      ]),
+      timeLockedPassThroughAppInstance.identityHash
     ];
-
-    // TODO: forward the virtual app set state to the initiator
 
     const m8 = {
       protocol,
       protocolExecutionID,
       toXpub: initiatorXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: intermediarySignatureOnVirtualAppSetStateCommitment,
-      signature2: responderSignatureOnVirtualAppSetStateCommitment
+      signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: responderSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    yield [Opcode.IO_SEND, m8];
-
-    // TODO: save to context
+    yield [IO_SEND, m8];
 
     context.stateChannelsMap.set(
       stateChannelBetweenVirtualAppUsers.multisigAddress,
@@ -581,11 +562,13 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   },
 
   2 /* Responding */: async function*(context: Context) {
+    const { message: m2, stateChannelsMap, network, provider } = context;
+
     const {
-      message: { params, protocolExecutionID, signature },
-      stateChannelsMap,
-      network
-    } = context;
+      params,
+      protocolExecutionID,
+      signature: intermediarySignatureOnIngridBobVirtualAppAgreement
+    } = m2;
 
     const {
       intermediaryXpub,
@@ -593,17 +576,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     } = params as InstallVirtualAppParams;
 
     const [
+      stateChannelWithRespondingAndIntermediary,
       stateChannelWithInitiating,
       stateChannelWithIntermediary,
-      virtualAppInstance
-    ] = getUpdatedStateChannelAndVirtualAppObjectsForResponding(
+      virtualAppInstance,
+      timeLockedPassThroughAppInstance
+    ] = await getUpdatedStateChannelAndVirtualAppObjectsForResponding(
       params as InstallVirtualAppParams,
       stateChannelsMap,
-      network
+      network,
+      provider
     );
-
-    // Aliasing `signature` to this variable name for code clarity
-    const intermediarySignatureOnIngridBobVirtualAppAgreement = signature;
 
     const intermediaryAddress = stateChannelWithIntermediary.getMultisigOwnerAddrOf(
       intermediaryXpub
@@ -613,13 +596,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorXpub
     );
 
-    // TODO: compute conditional transaction for the intermeidary party
-
     const presignedMultisigTxForIngridBobVirtualAppAgreement = new ConditionalTransaction(
       network,
       stateChannelWithIntermediary.multisigAddress,
       stateChannelWithIntermediary.multisigOwners,
-      virtualAppInstance.identityHash,
+      timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
       network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
       encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
@@ -629,26 +610,19 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    // TODO: require(signature on virtual app agreement is good from)
-
     assertIsValidSignature(
       intermediaryAddress,
       presignedMultisigTxForIngridBobVirtualAppAgreement,
-      intermediarySignatureOnIngridBobVirtualAppAgreement,
-      true
+      intermediarySignatureOnIngridBobVirtualAppAgreement
     );
 
-    // TODO: sign conditional transaction
-
     const responderSignatureOnIngridBobVirtualAppAgreement = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.InstallVirtualApp, // TODO: Figure out how to map this to save to DB correctly
       presignedMultisigTxForIngridBobVirtualAppAgreement.getSignedTransaction([
         responderSignatureOnIngridBobVirtualAppAgreement,
@@ -656,8 +630,6 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ]),
       virtualAppInstance.identityHash
     ];
-
-    // TODO: compute free balance app activation commitment
 
     const freeBalanceIngridBobVirtualAppAgreementActivationCommitment = new SetStateCommitment(
       network,
@@ -667,14 +639,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    // TODO: sign free balabce app activation commitment
-
     const responderSignatureOnIngridBobFreeBalanceAppActivation = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
-
-    // TODO: send free balance app activation and conditional transaction countersig to intermediary
 
     const m3 = {
       protocol,
@@ -685,27 +653,23 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
     } as ProtocolMessage;
 
-    const m6 = yield [Opcode.IO_SEND_AND_WAIT, m3];
+    const m6 = yield [IO_SEND_AND_WAIT, m3];
 
     const {
       signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      signature2: intermediarySignatureOnVirtualAppSetStateCommitment,
-      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature4: initiatorSignatureOnVirtualAppSetStateCommitment
     } = m6;
-
-    // TODO: require(signature on free balance app activation is good
 
     assertIsValidSignature(
       intermediaryAddress,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment,
-      intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      true
+      intermediarySignatureOnIngridBobFreeBalanceAppActivation
     );
 
-    // TODO: write to DB
-
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment.getSignedTransaction(
         [
@@ -716,64 +680,81 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.identityHash
     ];
 
-    // TODO: compute virtual app set state commitment
-
-    const virtualAppSetStateCommitmentWithIntermediary = new VirtualAppSetStateCommitment(
+    const virtualAppSetStateCommitment = new SetStateCommitment(
       network,
       virtualAppInstance.identity,
-      virtualAppInstance.defaultTimeout,
       virtualAppInstance.hashOfLatestState,
-      virtualAppInstance.versionNumber
+      virtualAppInstance.versionNumber,
+      virtualAppInstance.defaultTimeout
     );
 
-    // TODO: require virtual app set state commitment sigs by intermediary and initiaitng are good
+    const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
+      network,
+      timeLockedPassThroughAppInstance.identity,
+      timeLockedPassThroughAppInstance.hashOfLatestState,
+      timeLockedPassThroughAppInstance.versionNumber,
+      timeLockedPassThroughAppInstance.defaultTimeout
+    );
 
     assertIsValidSignature(
       intermediaryAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
-      intermediarySignatureOnVirtualAppSetStateCommitment,
-      true
+      timeLockedPassThroughSetStateCommitment,
+      intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
     assertIsValidSignature(
       initiatorAddress,
-      virtualAppSetStateCommitmentWithIntermediary,
+      timeLockedPassThroughSetStateCommitment,
+      initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
+    );
+
+    assertIsValidSignature(
+      initiatorAddress,
+      virtualAppSetStateCommitment,
       initiatorSignatureOnVirtualAppSetStateCommitment
     );
 
-    // TODO: sign virtual app set state commitment balance app activation
+    const responderSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+      OP_SIGN,
+      timeLockedPassThroughSetStateCommitment
+    ];
 
     const responderSignatureOnVirtualAppSetStateCommitment = yield [
-      Opcode.OP_SIGN,
-      virtualAppSetStateCommitmentWithIntermediary
+      OP_SIGN,
+      virtualAppSetStateCommitment
     ];
-
-    // TODO: write to DB
 
     yield [
-      Opcode.WRITE_COMMITMENT,
+      WRITE_COMMITMENT,
       Protocol.Update,
-      virtualAppSetStateCommitmentWithIntermediary.getSignedTransaction(
-        [
-          initiatorSignatureOnVirtualAppSetStateCommitment,
-          responderSignatureOnVirtualAppSetStateCommitment
-        ],
-        intermediarySignatureOnVirtualAppSetStateCommitment
-      ),
-      virtualAppInstance.identityHash
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      ]),
+      timeLockedPassThroughAppInstance.identityHash
     ];
 
-    // TODO: send [ VA ] to intermediary
+    yield [
+      WRITE_COMMITMENT,
+      Protocol.Update,
+      virtualAppSetStateCommitment.getSignedTransaction([
+        initiatorSignatureOnVirtualAppSetStateCommitment,
+        responderSignatureOnVirtualAppSetStateCommitment
+      ]),
+      virtualAppInstance.identityHash
+    ];
 
     const m7 = {
       protocol,
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: responderSignatureOnVirtualAppSetStateCommitment
+      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+      signature2: responderSignatureOnVirtualAppSetStateCommitment
     } as ProtocolMessage;
 
-    yield [Opcode.IO_SEND, m7];
+    yield [IO_SEND, m7];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -784,58 +765,47 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.multisigAddress,
       stateChannelWithInitiating
     );
+
+    context.stateChannelsMap.set(
+      stateChannelWithRespondingAndIntermediary.multisigAddress,
+      stateChannelWithRespondingAndIntermediary
+    );
   }
 };
 
 /**
  * Creates a shared AppInstance that represents the Virtual App being installed.
  *
- * NOTE: The VirtualApp is currently HARD-CODED to only work with interpreters
- *       that can understand the TwoPartyFixedOutcome outcome type. Currently
- *       we use the TwoPartyFixedOutcomeFromVirtualAppETHInterpreter for all
- *       commitments between users and intermediaries to handle Virtual Apps.
+ * NOTE: There is NO interpreter for this AppInstance since nothing interprets the outcome
+ *       except for a TimeLockedPassThrough AppInstance that uses it inside of its own
+ *       computeOutcome function.
  *
- *       Also, take notice that the `signingKeys` for this app are encoded as
- *       [ intermediaryKey(seqNo), ...(sorted keys of initiator and responder)]
- *
- *       Which is the convention for Virtual Apps since we expect the 0th signing
- *       key to sign a different sigest in set state commitments. See
- *       MixinVirtualAppSetState to see the solidity code for this convention.
- *
- * @param {StateChannel} stateChannelThatWrapsVirtualApp - The StateChannel object between the endpoints
+ * @param {StateChannel} stateChannelBetweenEndpoints - The StateChannel object between the endpoints
  * @param {InstallVirtualAppParams} params - Parameters of the new App to be installed
  *
  * @returns {AppInstance} an AppInstance with the correct metadata
  */
 function constructVirtualAppInstance(
-  stateChannelThatWrapsVirtualApp: StateChannel,
+  stateChannelBetweenEndpoints: StateChannel,
   params: InstallVirtualAppParams
 ): AppInstance {
   const {
-    intermediaryXpub,
     initiatorXpub,
     responderXpub,
     defaultTimeout,
     appInterface,
-    initialState,
-    initiatorBalanceDecrement,
-    responderBalanceDecrement,
-    outcomeType
+    initialState
   } = params;
 
-  const seqNo = stateChannelThatWrapsVirtualApp.numInstalledApps;
+  const seqNo = stateChannelBetweenEndpoints.numInstalledApps;
 
-  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, seqNo);
   const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
   const responderAddress = xkeyKthAddress(responderXpub, seqNo);
 
   return new AppInstance(
-    /* multisigAddress */ AddressZero,
+    /* multisigAddress */ stateChannelBetweenEndpoints.multisigAddress,
     /* signingKeys */
-    [
-      intermediaryAddress,
-      ...sortAddresses([initiatorAddress, responderAddress])
-    ],
+    sortAddresses([initiatorAddress, responderAddress]),
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
     /* isVirtualApp */ true,
@@ -843,8 +813,83 @@ function constructVirtualAppInstance(
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
+    /* outcomeType */ OutcomeType.COIN_TRANSFER_DO_NOT_USE,
+    /* twoPartyOutcomeInterpreterParams */ undefined,
+    /* coinTransferInterpreterParams */ undefined
+  );
+}
+
+/**
+ * Creates a shared AppInstance that represents the AppInstance whose outcome
+ * determines how any VirtualAppAgreements play out. It depends on a VirtualApp.
+ *
+ * NOTE: This AppInstance is currently HARD-CODED to only work with interpreters
+ *       that can understand the TwoPartyFixedOutcome outcome type. Currently
+ *       we use the TwoPartyFixedOutcomeFromVirtualAppETHInterpreter for all
+ *       commitments between users and intermediaries to handle Virtual Apps.
+ *
+ * @param {StateChannel} threePartyStateChannel - The StateChannel object with all 3
+ *        participants of this protocol as the owner-set.
+ *
+ * @param {InstallVirtualAppParams} params - Parameters of the new App to be installed
+ *
+ * @returns {AppInstance} an AppInstance with the correct metadata
+ */
+function constructTimeLockedPassThroughAppInstance(
+  threePartyStateChannel: StateChannel,
+  virtualAppInstanceIdentityHash: string,
+  virtualAppDefaultOutcome: string,
+  network: NetworkContext,
+  params: InstallVirtualAppParams,
+  provider: BaseProvider
+): AppInstance {
+  const {
+    intermediaryXpub,
+    initiatorXpub,
+    responderXpub,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement,
+    outcomeType
+  } = params;
+
+  const seqNo = threePartyStateChannel.numInstalledApps;
+
+  const intermediaryAddress = xkeyKthAddress(intermediaryXpub, seqNo);
+  const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
+  const responderAddress = xkeyKthAddress(responderXpub, seqNo);
+
+  const HARD_CODED_CHALLENGE_TIMEOUT = 100;
+
+  return new AppInstance(
+    /* multisigAddress */ AddressZero,
+    /* signingKeys */
+    sortAddresses([initiatorAddress, responderAddress, intermediaryAddress]),
+    /* defaultTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
+    /* appInterface */ {
+      stateEncoding: `
+        tuple(
+          address challengeRegistryAddress,
+          bytes32 targetAppIdentityHash,
+          uint256 switchesOutcomeAt,
+          bytes defaultOutcome
+        )
+      `,
+      actionEncoding: undefined,
+      addr: network.TimeLockedPassThrough
+    },
+    /* isVirtualApp */ true,
+    /* appSeqNo */ seqNo,
+    {
+      challengeRegistryAddress: network.ChallengeRegistry,
+      targetAppIdentityHash: virtualAppInstanceIdentityHash,
+      switchesOutcomeAt: Zero,
+      defaultOutcome: virtualAppDefaultOutcome
+    },
+    /* versionNumber */ 0,
+    /* latestTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* outcomeType */ outcomeType,
-    /* twoPartyOutcomeInterpreterParams */ {
+    /* twoPartyOutcomeInterpreterParams */
+    {
       playerAddrs: [initiatorAddress, responderAddress],
       amount: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
@@ -855,7 +900,8 @@ function constructVirtualAppInstance(
 }
 
 /**
- * Fetches a MetaChannel object from the stateChannelsMap or returns a new one.
+ * Gets a StateChannel between the two endpoint users. It may not already exist, in which
+ * case it constructs a StateChannel object to be used.
  *
  * Note that this method has the "getOrCreate" prefix because if this is the _first_
  * time that a virtual app is instantiated between these counterparties that goes
@@ -865,31 +911,36 @@ function constructVirtualAppInstance(
  * the unique identifier for the wrapper StateChannel.
  *
  * @param {Map<string, StateChannel>} stateChannelsMap - map of StateChannels to query
- * @param {[string, string]} userXpubs - List of users expected in stateChannelThatWrapsVirtualApp with intermediary
- * @param {string} intermediaryXpub - Intermediary for this particular stateChannelThatWrapsVirtualApp
+ * @param {[string, string]} userXpubs - List of users
+ * @param {NetworkContext} network - Metadata on the current blockchain
  *
- * @returns {StateChannel} - a stateChannelThatWrapsVirtualApp
+ * @returns {StateChannel} - a stateChannelWithAllThreeParties
  */
-function getOrCreateStateChannelThatWrapsVirtualAppInstance(
+function getOrCreateStateChannelWithUsers(
   stateChannelsMap: Map<string, StateChannel>,
-  userXpubs: [string, string],
-  intermediaryXpub: string
+  userXpubs: string[],
+  network: NetworkContext
 ): StateChannel {
-  const uid = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
+  const multisigAddress = getCreate2MultisigAddress(
     userXpubs,
-    intermediaryXpub
+    network.ProxyFactory,
+    network.MinimumViableMultisig
   );
 
   return (
-    stateChannelsMap.get(uid) || StateChannel.createEmptyChannel(uid, userXpubs)
+    stateChannelsMap.get(multisigAddress) ||
+    StateChannel.createEmptyChannel(multisigAddress, userXpubs)
   );
 }
 
-function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
+async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   params: InstallVirtualAppParams,
   stateChannelsMap: Map<string, StateChannel>,
-  network: NetworkContext
-): [StateChannel, StateChannel, AppInstance] {
+  network: NetworkContext,
+  provider: BaseProvider
+): Promise<
+  [StateChannel, StateChannel, StateChannel, AppInstance, AppInstance]
+> {
   const {
     initiatorBalanceDecrement,
     responderBalanceDecrement,
@@ -899,15 +950,30 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     responderXpub
   } = params as InstallVirtualAppParams;
 
-  const stateChannelThatWrapsVirtualApp = getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const stateChannelWithAllThreeParties = getOrCreateStateChannelWithUsers(
+    stateChannelsMap,
+    [initiatorXpub, responderXpub, intermediaryXpub],
+    network
+  );
+
+  const stateChannelWithResponding = getOrCreateStateChannelWithUsers(
     stateChannelsMap,
     [initiatorXpub, responderXpub],
-    intermediaryXpub
+    network
   );
 
   const virtualAppInstance = constructVirtualAppInstance(
-    stateChannelThatWrapsVirtualApp,
+    stateChannelWithResponding,
     params
+  );
+
+  const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
+    stateChannelWithAllThreeParties,
+    virtualAppInstance.identityHash,
+    await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
+    network,
+    params,
+    provider
   );
 
   const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
@@ -927,10 +993,12 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     );
   }
 
-  const newStateChannel = stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
+  const newStateChannelWithIntermediary = stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
     virtualAppInstance.identityHash,
     {
       tokenAddress,
+      timeLockedPassThroughIdentityHash:
+        timeLockedPassThroughAppInstance.identityHash,
       expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
@@ -945,17 +1013,24 @@ function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   );
 
   return [
-    stateChannelThatWrapsVirtualApp.addVirtualAppInstance(virtualAppInstance),
-    newStateChannel,
-    virtualAppInstance
+    stateChannelWithAllThreeParties.addAppInstance(
+      timeLockedPassThroughAppInstance
+    ),
+    stateChannelWithResponding.addAppInstance(virtualAppInstance),
+    newStateChannelWithIntermediary,
+    virtualAppInstance,
+    timeLockedPassThroughAppInstance
   ];
 }
 
-function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
+async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   params: InstallVirtualAppParams,
   stateChannelsMap: Map<string, StateChannel>,
-  network: NetworkContext
-): [StateChannel, StateChannel, StateChannel, AppInstance] {
+  virtualAppInstanceIdentityHash: string,
+  virtualAppInstanceDefaultOutcome: string,
+  network: NetworkContext,
+  provider: BaseProvider
+): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
     initiatorBalanceDecrement,
     responderBalanceDecrement,
@@ -965,15 +1040,19 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     tokenAddress
   } = params as InstallVirtualAppParams;
 
-  const stateChannelBetweenVirtualAppUsers = getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const stateChannelWithAllThreeParties = getOrCreateStateChannelWithUsers(
     stateChannelsMap,
-    [initiatorXpub, responderXpub],
-    intermediaryXpub
+    [initiatorXpub, responderXpub, intermediaryXpub],
+    network
   );
 
-  const virtualAppInstance = constructVirtualAppInstance(
-    stateChannelBetweenVirtualAppUsers,
-    params
+  const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
+    stateChannelWithAllThreeParties,
+    virtualAppInstanceIdentityHash,
+    virtualAppInstanceDefaultOutcome,
+    network,
+    params,
+    provider
   );
 
   const channelWithInitiating = stateChannelsMap.get(
@@ -1008,55 +1087,61 @@ function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
   const responderAddress = xkeyKthAddress(responderXpub, 0);
 
-  const stateChannelWithInitiating = channelWithInitiating.addSingleAssetTwoPartyIntermediaryAgreement(
-    virtualAppInstance.identityHash,
-    {
-      tokenAddress,
-      expiryBlock: 100_000_000_000,
-      capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
-      beneficiaries: [initiatorAddress, intermediaryAddress]
-    },
-    {
-      [initiatorAddress]: initiatorBalanceDecrement,
-      [intermediaryAddress]: responderBalanceDecrement
-    },
-    tokenAddress
-  );
-
-  const stateChannelWithResponding = channelWithResponding.addSingleAssetTwoPartyIntermediaryAgreement(
-    virtualAppInstance.identityHash,
-    {
-      tokenAddress,
-      expiryBlock: 100_000_000_000,
-      capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
-      beneficiaries: [intermediaryAddress, responderAddress]
-    },
-    {
-      [intermediaryAddress]: initiatorBalanceDecrement,
-      [responderAddress]: responderBalanceDecrement
-    },
-    tokenAddress
-  );
-
   return [
-    stateChannelBetweenVirtualAppUsers.addVirtualAppInstance(
-      virtualAppInstance
+    stateChannelWithAllThreeParties.addAppInstance(
+      timeLockedPassThroughAppInstance
     ),
-    stateChannelWithInitiating,
-    stateChannelWithResponding,
-    virtualAppInstance
+
+    channelWithInitiating.addSingleAssetTwoPartyIntermediaryAgreement(
+      virtualAppInstanceIdentityHash,
+      {
+        tokenAddress,
+        timeLockedPassThroughIdentityHash:
+          timeLockedPassThroughAppInstance.identityHash,
+        expiryBlock: 100_000_000_000,
+        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
+          responderBalanceDecrement
+        ),
+        beneficiaries: [initiatorAddress, intermediaryAddress]
+      },
+      {
+        [initiatorAddress]: initiatorBalanceDecrement,
+        [intermediaryAddress]: responderBalanceDecrement
+      },
+      tokenAddress
+    ),
+
+    channelWithResponding.addSingleAssetTwoPartyIntermediaryAgreement(
+      virtualAppInstanceIdentityHash,
+      {
+        tokenAddress,
+        timeLockedPassThroughIdentityHash:
+          timeLockedPassThroughAppInstance.identityHash,
+        expiryBlock: 100_000_000_000,
+        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
+          responderBalanceDecrement
+        ),
+        beneficiaries: [intermediaryAddress, responderAddress]
+      },
+      {
+        [intermediaryAddress]: initiatorBalanceDecrement,
+        [responderAddress]: responderBalanceDecrement
+      },
+      tokenAddress
+    ),
+
+    timeLockedPassThroughAppInstance
   ];
 }
 
-function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
+async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   params: InstallVirtualAppParams,
   stateChannelsMap: Map<string, StateChannel>,
-  network: NetworkContext
-): [StateChannel, StateChannel, AppInstance] {
+  network: NetworkContext,
+  provider: BaseProvider
+): Promise<
+  [StateChannel, StateChannel, StateChannel, AppInstance, AppInstance]
+> {
   const {
     initiatorBalanceDecrement,
     responderBalanceDecrement,
@@ -1066,15 +1151,30 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     tokenAddress
   } = params as InstallVirtualAppParams;
 
-  const stateChannelThatWrapsVirtualApp = getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const stateChannelWithAllThreeParties = getOrCreateStateChannelWithUsers(
+    stateChannelsMap,
+    [initiatorXpub, responderXpub, intermediaryXpub],
+    network
+  );
+
+  const stateChannelWithInitiating = getOrCreateStateChannelWithUsers(
     stateChannelsMap,
     [initiatorXpub, responderXpub],
-    intermediaryXpub
+    network
   );
 
   const virtualAppInstance = constructVirtualAppInstance(
-    stateChannelThatWrapsVirtualApp,
+    stateChannelWithInitiating,
     params
+  );
+
+  const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
+    stateChannelWithAllThreeParties,
+    virtualAppInstance.identityHash,
+    await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
+    network,
+    params,
+    provider
   );
 
   const stateChannelWithIntermediary = stateChannelsMap.get(
@@ -1094,26 +1194,34 @@ function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
   const responderAddress = xkeyKthAddress(responderXpub, 0);
 
-  const newStateChannel = stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
-    virtualAppInstance.identityHash,
-    {
-      tokenAddress,
-      expiryBlock: 100_000_000_000,
-      capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
-      beneficiaries: [intermediaryAddress, responderAddress]
-    },
-    {
-      [intermediaryAddress]: initiatorBalanceDecrement,
-      [responderAddress]: responderBalanceDecrement
-    },
-    tokenAddress
-  );
-
   return [
-    stateChannelThatWrapsVirtualApp.addVirtualAppInstance(virtualAppInstance),
-    newStateChannel,
-    virtualAppInstance
+    stateChannelWithAllThreeParties.addAppInstance(
+      timeLockedPassThroughAppInstance
+    ),
+
+    stateChannelWithInitiating.addAppInstance(virtualAppInstance),
+
+    stateChannelWithIntermediary.addSingleAssetTwoPartyIntermediaryAgreement(
+      virtualAppInstance.identityHash,
+      {
+        tokenAddress,
+        timeLockedPassThroughIdentityHash:
+          timeLockedPassThroughAppInstance.identityHash,
+        expiryBlock: 100_000_000_000,
+        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
+          responderBalanceDecrement
+        ),
+        beneficiaries: [intermediaryAddress, responderAddress]
+      },
+      {
+        [intermediaryAddress]: initiatorBalanceDecrement,
+        [responderAddress]: responderBalanceDecrement
+      },
+      tokenAddress
+    ),
+
+    virtualAppInstance,
+
+    timeLockedPassThroughAppInstance
   ];
 }

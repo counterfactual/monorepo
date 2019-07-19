@@ -276,6 +276,15 @@ export class AppInstance {
     });
   }
 
+  public async computeOutcome(
+    state: SolidityABIEncoderV2Type,
+    provider: BaseProvider
+  ): Promise<string> {
+    return await this.toEthersContract(provider).functions.computeOutcome(
+      this.encodeState(state)
+    );
+  }
+
   public async computeStateTransition(
     action: SolidityABIEncoderV2Type,
     provider: BaseProvider

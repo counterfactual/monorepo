@@ -1,5 +1,10 @@
-import { Address, Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
-import { defaultAbiCoder, keccak256, solidityKeccak256 } from "ethers/utils";
+import {
+  Address,
+  NetworkContext,
+  Node,
+  SolidityABIEncoderV2Type
+} from "@counterfactual/types";
+import { solidityKeccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
@@ -23,7 +28,11 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { debugLog, hashOfOrderedPublicIdentifiers } from "./utils";
+import {
+  debugLog,
+  getCreate2MultisigAddress,
+  hashOfOrderedPublicIdentifiers
+} from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -32,7 +41,8 @@ import { debugLog, hashOfOrderedPublicIdentifiers } from "./utils";
 export class Store {
   constructor(
     private readonly storeService: Node.IStoreService,
-    private readonly storeKeyPrefix: string
+    private readonly storeKeyPrefix: string,
+    private readonly networkContext: NetworkContext
   ) {}
 
   /**
@@ -70,7 +80,7 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      return Promise.reject(
+      throw new Error(
         NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
       );
     }
@@ -191,11 +201,6 @@ export class Store {
   public async addVirtualAppInstanceProposal(
     proposedAppInstance: AppInstanceProposal
   ) {
-    const sortedXpubs = [
-      proposedAppInstance.proposedToIdentifier,
-      proposedAppInstance.proposedByIdentifier
-    ].sort();
-
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
@@ -203,17 +208,13 @@ export class Store {
       },
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
-        value: keccak256(
-          defaultAbiCoder.encode(
-            ["string", "string", "string"],
-            [
-              proposedAppInstance.intermediaries![0],
-              // Ordered as [0: to, 1: by] because when executed, it is "to"
-              // that becomes initiatorAddress / the idx 0 in compute-virtual-key
-              sortedXpubs[0],
-              sortedXpubs[1]
-            ]
-          )
+        value: getCreate2MultisigAddress(
+          [
+            proposedAppInstance.proposedToIdentifier,
+            proposedAppInstance.proposedByIdentifier
+          ],
+          this.networkContext.ProxyFactory,
+          this.networkContext.MinimumViableMultisig
         )
       }
     ]);

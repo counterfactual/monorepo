@@ -5,11 +5,6 @@
     "transactionHash": "0xee60edbf404a5578ef171349c7bfbbc93939efc2d0c101c39478fa5ab344ac8d"
   },
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0x1d591B6f1E84781853d1b46d1F9820794FA27b9d",
-    "transactionHash": "0x4c4b11058e5c9a2ca3ab08c5fda08a371d5f87d69e50fbf534b2624b0941c18c"
-  },
-  {
     "contractName": "ConditionalTransactionDelegateTarget",
     "address": "0x6346bD6fb9247FBBC2a0Cf341D812B1b10b95c78",
     "transactionHash": "0x9b2f528203eeceb88cfd2b749db9f30106e490e17cdae340526844a8330e062f"
@@ -50,8 +45,23 @@
     "transactionHash": "0xcd4d6e092d9c48e9e3058454e5413061af326bce0baced66c6a364a312a3c0dd"
   },
   {
+    "contractName": "Migrations",
+    "address": "0xc79036513BCFF37F31f66EED5af502BaDc1a7aeC",
+    "transactionHash": "0x14e27de819401fcecf3a2dc2aa8fb7eb4493fe3fcfc941103b86e956b249a634"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0x0DC9e351e08FBd1Bfec6f5FfD53eba4c324fBeBC",
+    "transactionHash": "0x42ae557c6a964bea795d9a59c4b00da8835c59bf8ba71bc35a1c97e5850632b5"
+  },
+  {
+    "contractName": "TimeLockedPassThrough",
+    "address": "0xB0DAd30323212D940d22075965f106e9B8406aa4",
+    "transactionHash": "0xf8bce2b3b8e9cd109367b060bb5618779f62d6d0a0b88b7ac7851f2584e99660"
+  },
+  {
     "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
-    "address": "0xecf990618Ed8ED3F297AD47b09284B7137D4A447",
-    "transactionHash": "0xedc8eeaefafd3222f1f0c90a706370e48356643dfe1bc6f7a2f1a0278c1bcff1"
+    "address": "0x5830C7cD707711783E13a9f3F04ba8183298715E",
+    "transactionHash": "0x4be6e93c709c9f86cab55b66839d1752d990d1ca947a47b59cb6e921ffedfd7b"
   }
 ]

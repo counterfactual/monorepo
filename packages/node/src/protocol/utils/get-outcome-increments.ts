@@ -10,7 +10,7 @@ import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
-import { StateChannel } from "../../models";
+import { AppInstance } from "../../models";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   TokenIndexedCoinTransferMap
@@ -62,12 +62,9 @@ const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
  */
 export async function computeTokenIndexedFreeBalanceIncrements(
   networkContext: NetworkContext,
-  stateChannel: StateChannel,
-  appInstanceId: string,
+  appInstance: AppInstance,
   provider: BaseProvider
 ): Promise<TokenIndexedCoinTransferMap> {
-  const appInstance = stateChannel.getAppInstance(appInstanceId);
-
   const appDefinition = new Contract(
     appInstance.appInterface.addr,
     CounterfactualApp.abi,

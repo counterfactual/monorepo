@@ -35,7 +35,7 @@ export class RequestHandler {
     storeKeyPrefix: string,
     readonly blocksNeededForConfirmation: number
   ) {
-    this.store = new Store(storeService, storeKeyPrefix);
+    this.store = new Store(storeService, storeKeyPrefix, networkContext);
   }
 
   injectRouter(router: RpcRouter) {
