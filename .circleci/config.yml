@@ -142,20 +142,6 @@ jobs:
           name: Check root yarn.lock
           command: yarn --frozen-lockfile
 
-      - run: jq -c 'del(.workspaces)' package.json > tmp.$$.json && mv tmp.$$.json package.json
-
-      - run:
-          name: Check simple-hub-server yarn.lock
-          command: cd packages/simple-hub-server && yarn --frozen-lockfile
-
-      - run:
-          name: Check tic-tac-toe-bot yarn.lock
-          command: cd packages/tic-tac-toe-bot && yarn --frozen-lockfile
-
-      - run:
-          name: Check high-roller-bot yarn.lock
-          command: cd packages/high-roller-bot && yarn --frozen-lockfile
-
   publish-to-npm:
     <<: *defaults
     steps:

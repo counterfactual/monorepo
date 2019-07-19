@@ -13,10 +13,17 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-  limit: BigNumber;
-  tokenAddress: string;
+  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  limit: BigNumber[];
+  tokens: string[];
 };
+
+export const coinTransferInterpreterParamsStateEncoding = `
+  tuple(
+    uint256[] limit,
+    address[] tokens
+  )
+`;
 
 export type AppInstanceJson = {
   identityHash: string;
@@ -30,6 +37,8 @@ export type AppInstanceJson = {
   latestVersionNumber: number;
   latestTimeout: number;
 
+  outcomeType: number;
+
   /**
    * Interpreter-related Fields
    */
@@ -42,20 +51,20 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string };
-    tokenAddress: string;
+    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    limit: { _hex: string }[];
+    tokens: string[];
   };
-
-  tokenAddress: string;
 };
 
 export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -72,8 +81,10 @@ export type AppInstanceProposal = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -91,11 +102,23 @@ export type AppABIEncodings = {
   actionEncoding: ABIEncoding | undefined;
 };
 
-// Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  TWO_PARTY_DYNAMIC_OUTCOME = 1,
-  COIN_TRANSFER = 2
+
+  // CoinTransfer
+  // Since no apps currently use this outcome
+  // type, do not use it in the node 
+  COIN_TRANSFER_DO_NOT_USE = 1,
+
+  // tuple(address[], CoinTransfer[][], bytes32[])
+  FREE_BALANCE_OUTCOME_TYPE = 2,
+
+  // CoinTransfer[1][1]
+  REFUND_OUTCOME_TYPE = 3,
+
+  // CoinTransfer[2]
+  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+
 }
 
 // TwoPartyFixedOutcome.sol::Outcome
@@ -104,6 +127,13 @@ export enum TwoPartyFixedOutcome {
   SEND_TO_ADDR_TWO = 1,
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
+
+export type CoinBalanceRefundState = {
+  recipient: string;
+  multisig: string;
+  threshold: BigNumber;
+  token: string;
+};
 
 export const coinBalanceRefundStateEncoding = `
   tuple(

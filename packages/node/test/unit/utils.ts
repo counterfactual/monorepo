@@ -29,14 +29,16 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      myDeposit: Zero,
-      peerDeposit: Zero,
+      initiatorDeposit: Zero,
+      responderDeposit: Zero,
       timeout: One,
       initialState: {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
-      outcomeType: OutcomeType.COIN_TRANSFER
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     undefined,
     appInstanceId
@@ -67,11 +69,11 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestVersionNumber */ 0,
     /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    /* coinTransferInterpreterParams */ undefined,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    /* coinTransferInterpreterParams */ undefined
   );
 }

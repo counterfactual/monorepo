@@ -3,7 +3,6 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
-import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
@@ -15,12 +14,12 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { deployTestArtifactsToChain } from "./network-configuration";
+import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { timeout } from "./utils";
+import { debugLog, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -79,35 +78,28 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,
-    readonly blocksNeededForConfirmation?: number
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    if (typeof networkContext === "string") {
-      this.networkContext = deployTestArtifactsToChain(networkContext);
 
-      if (
-        blocksNeededForConfirmation &&
-        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
-      ) {
-        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
-      }
+    if (typeof networkContext === "string") {
+      this.networkContext = getNetworkContextForNetworkName(networkContext);
     } else {
-      // Used for testing / ganache
       this.networkContext = networkContext;
     }
+
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    log.info(
+    debugLog(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    log.info(`Node signer address: ${this.signer.address}`);
-    log.info(`Node public identifier: ${this.publicIdentifier}`);
+    debugLog(`Node signer address: ${this.signer.address}`);
+    debugLog(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -153,30 +145,20 @@ export class Node {
       this.provider
     );
 
-    // todo(xuanji): remove special cases
-    const makeSigner = (asIntermediary: boolean) => {
-      return async (args: any[]) => {
-        if (args.length !== 1 && args.length !== 2) {
-          throw Error("OP_SIGN middleware received wrong number of arguments.");
-        }
+    instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
+      if (args.length !== 1 && args.length !== 2) {
+        throw Error("OP_SIGN middleware received wrong number of arguments.");
+      }
 
-        const [commitment, overrideKeyIndex] = args;
-        const keyIndex = overrideKeyIndex || 0;
+      const [commitment, overrideKeyIndex] = args;
+      const keyIndex = overrideKeyIndex || 0;
 
-        const signingKey = new SigningKey(
-          this.signer.derivePath(`${keyIndex}`).privateKey
-        );
+      const signingKey = new SigningKey(
+        this.signer.derivePath(`${keyIndex}`).privateKey
+      );
 
-        return signingKey.signDigest(commitment.hashToSign(asIntermediary));
-      };
-    };
-
-    instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
-
-    instructionExecutor.register(
-      Opcode.OP_SIGN_AS_INTERMEDIARY,
-      makeSigner(true)
-    );
+      return signingKey.signDigest(commitment.hashToSign());
+    });
 
     instructionExecutor.register(
       Opcode.IO_SEND,
@@ -216,9 +198,7 @@ export class Node {
 
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
           throw Error(
-            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
-              data.protocol
-            }`
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
           );
         }
 
@@ -392,31 +372,4 @@ export class Node {
  */
 export function getETHFreeBalanceAddress(publicIdentifier: string) {
   return fromExtendedKey(publicIdentifier).derivePath("0").address;
-}
-
-const isBrowser =
-  typeof window !== "undefined" &&
-  {}.toString.call(window) === "[object Window]";
-
-export function debugLog(...messages: any[]) {
-  try {
-    const logPrefix = "NodeDebugLog";
-    if (isBrowser) {
-      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
-        // for some reason `debug` doesn't actually log in the browser
-        log.info(logPrefix, messages);
-        log.trace();
-      }
-      // node.js side
-    } else if (
-      process.env.LOG_LEVEL !== undefined &&
-      process.env.LOG_LEVEL === "DEBUG"
-    ) {
-      log.debug(logPrefix, JSON.stringify(messages, null, 4));
-      log.trace();
-      log.debug("\n");
-    }
-  } catch (e) {
-    console.error("Failed to log: ", e);
-  }
 }

@@ -51,9 +51,7 @@ describe("Signature Validator Helper", () => {
     expect(() =>
       assertIsValidSignature(signer.address, commitment, signature)
     ).toThrow(
-      `Validating a signature with expected signer ${
-        signer.address
-      } but recovered ${wrongSigner} for commitment hash ${rightHash}`
+      `Validating a signature with expected signer ${signer.address} but recovered ${wrongSigner} for commitment hash ${rightHash}`
     );
   });
 });

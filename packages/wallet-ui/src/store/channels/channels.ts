@@ -1,19 +1,16 @@
-import { ThunkAction } from "redux-thunk";
 import { Action } from "redux";
-
+import { ThunkAction } from "redux-thunk";
+import { getChannelAddresses } from "../../utils/counterfactual";
 import {
-  StoreAction,
-  ApplicationState,
   ActionType,
+  ApplicationState,
   ChannelsMap,
   ChannelsState,
-  Connection
-} from "./types";
+  Connection,
+  StoreAction
+} from "../types";
 
-import { getChannelAddresses, getChannel } from "../utils/counterfactual";
-import log from "../utils/log";
-
-const initialState = {
+export const initialState = {
   channels: {} as ChannelsMap
 } as ChannelsState;
 
@@ -27,7 +24,7 @@ export const getAllChannels = (): ThunkAction<
     // 1. Get channel addresses.
     const addresses = await getChannelAddresses();
 
-    log("Addresses acquired", addresses);
+    // log("Addresses acquired", addresses);
 
     // 2. Build a Connection object for each of them
     const connections = addresses
@@ -44,14 +41,18 @@ export const getAllChannels = (): ThunkAction<
         {} as ChannelsMap
       );
 
-    log("Connections built", connections);
+    // log("Connections built", connections);
 
     // 3. Get the state channel for each and pass it as a connection.
-    for (const address of Object.keys(connections)) {
-      log("Looking up subconnections for ", address);
-      connections[address].connections.push(await getChannel(address));
-      log("Added subconnection", connections[address].connections);
-    }
+    // for (const address of Object.keys(connections)) {
+    //   // log("Looking up subconnections for ", address);
+    //   const relatedChannels = await getChannel(address);
+
+    //   if (relatedChannels) {
+    //     connections[address].connections.push();
+    //     // log("Added subconnection", connections[address].connections);
+    //   }
+    // }
 
     dispatch({
       data: {

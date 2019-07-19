@@ -183,8 +183,8 @@ describe("ttt-bot", () => {
             stateEncoding:
               "tuple(uint256 versionNumber, uint256 winner, uint256[3][3] board)"
           },
-          myDeposit: Zero,
-          peerDeposit: Zero,
+          initiatorDeposit: Zero,
+          responderDeposit: Zero,
           timeout: bigNumberify(100)
         }
       });

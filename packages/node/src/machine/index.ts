@@ -26,9 +26,6 @@ import {
 } from "./xkeys";
 
 export {
-  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp
-} from "./virtual-app-unique-identifier";
-export {
   appIdentityToHash,
   InstructionExecutor,
   Context,

@@ -1,6 +1,7 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import {
   AppInterface,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   NetworkContext,
   Node,
@@ -65,17 +66,18 @@ export async function installBalanceRefundApp(
 
   const installParams: InstallParams = {
     initialState: depositContext.initialState,
-    initiatingXpub: publicIdentifier,
-    respondingXpub: peerAddress,
+    initiatorXpub: publicIdentifier,
+    responderXpub: peerAddress,
     multisigAddress: stateChannel.multisigAddress,
-    initiatingBalanceDecrement: Zero,
-    respondingBalanceDecrement: Zero,
+    initiatorBalanceDecrement: Zero,
+    responderBalanceDecrement: Zero,
     signingKeys: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: OutcomeType.COIN_TRANSFER,
-    tokenAddress: tokenAddress! // params object is mutated in caller
+    outcomeType: OutcomeType.REFUND_OUTCOME_TYPE,
+    initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
@@ -176,8 +178,8 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
+      initiatorXpub: publicIdentifier,
+      responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }
@@ -211,7 +213,7 @@ async function getDepositContext(
     token: tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
-  };
+  } as CoinBalanceRefundState;
 
   return {
     initialState,

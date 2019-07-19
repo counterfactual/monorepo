@@ -29,8 +29,8 @@ export async function installVirtual(
       Protocol.InstallVirtualApp,
       new Map(Object.entries(await store.getAllChannels())),
       {
-        initiatingXpub: proposal.proposedToIdentifier,
-        respondingXpub: proposal.proposedByIdentifier,
+        initiatorXpub: proposal.proposedToIdentifier,
+        responderXpub: proposal.proposedByIdentifier,
         intermediaryXpub: proposal.intermediaries![0],
         defaultTimeout: proposal.timeout.toNumber(),
         appInterface: {
@@ -38,9 +38,10 @@ export async function installVirtual(
           ...proposal.abiEncodings
         },
         initialState: proposal.initialState,
-        initiatingBalanceDecrement: proposal.myDeposit,
-        respondingBalanceDecrement: proposal.peerDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        initiatorBalanceDecrement: proposal.initiatorDeposit,
+        responderBalanceDecrement: proposal.responderDeposit,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: proposal.outcomeType
       }
     );
   } catch (e) {

@@ -2,7 +2,11 @@ import { AppInterface } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import { FreeBalanceStateJSON } from "../../models/free-balance";
+import {
+  CoinTransferMap,
+  FreeBalanceStateJSON,
+  TokenIndexedCoinTransferMap
+} from "../../models/free-balance";
 
 const freeBalanceAppStateEncoding = `
   tuple(
@@ -27,10 +31,23 @@ export function encodeFreeBalanceAppState(state: FreeBalanceStateJSON) {
   return defaultAbiCoder.encode([freeBalanceAppStateEncoding], [state]);
 }
 
+export function flipTokenIndexedBalances(
+  tokenIndexedBalances: TokenIndexedCoinTransferMap
+): TokenIndexedCoinTransferMap {
+  // TODO: make functional
+  const flippedTokenBalances = {};
+  for (const tokenAddress of Object.keys(tokenIndexedBalances)) {
+    flippedTokenBalances[tokenAddress] = flip(
+      tokenIndexedBalances[tokenAddress]
+    );
+  }
+  return flippedTokenBalances;
+}
+
 /**
  * Returns a mapping with all values negated
  */
-export function flip(a: { [s: string]: BigNumber }) {
+export function flip(a: CoinTransferMap): CoinTransferMap {
   const ret = {};
   for (const key of Object.keys(a)) {
     ret[key] = Zero.sub(a[key]);

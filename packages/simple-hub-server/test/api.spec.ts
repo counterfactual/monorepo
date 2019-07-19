@@ -41,7 +41,7 @@ import {
   USR_CHARLIE_KNEX
 } from "./mock-data";
 
-jest.setTimeout(10000);
+// jest.setTimeout(10000);
 
 const api = mountApi();
 
@@ -193,6 +193,7 @@ describe("simple-hub-server", () => {
 
     it("creates an account for the first time and returns 201, without the multisig address", async done => {
       jest.setTimeout(10000);
+
       const response = await client
         .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
           headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])

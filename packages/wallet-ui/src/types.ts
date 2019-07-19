@@ -28,17 +28,19 @@ export enum CounterfactualEvent {
   RequestDepositStart = "counterfactual:request:deposit_start"
 }
 
+export type EthereumGlobal = Omit<IpcProvider, "send"> &
+  Omit<AsyncSendable, "send"> & {
+    enable: () => Promise<void>;
+    selectedAddress: string;
+    networkVersion: string;
+    send: (
+      eventOrMethod: CounterfactualMethod | CounterfactualEvent,
+      data?: any[]
+    ) => Promise<JsonRPCResponse>;
+  };
+
 declare global {
   interface Window {
-    ethereum: IpcProvider &
-    AsyncSendable & {
-      enable: () => Promise<void>;
-      selectedAddress: string;
-      networkVersion: string;
-      send: (
-        eventOrMethod: CounterfactualMethod | CounterfactualEvent,
-        data?: any[]
-      ) => Promise<JsonRPCResponse>;
-    };
+    ethereum: EthereumGlobal;
   }
 }

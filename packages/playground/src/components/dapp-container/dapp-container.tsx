@@ -212,7 +212,7 @@ export class DappContainer {
 
   /**
    * Binds the port with the MessageChannel created for this dApp
-   * by responding to NodeProvider configuration messages.
+   * by responder to NodeProvider configuration messages.
    *
    * @param event {MessageEvent}
    */
@@ -254,7 +254,7 @@ export class DappContainer {
    * @param event {MessageEvent}
    */
   private relayMessage(event: MessageEvent): void {
-    this.node.router.dispatch({ ...event.data });
+    this.node.rpcRouter.dispatch({ ...event.data });
   }
 
   /**
