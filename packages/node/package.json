@@ -6,7 +6,7 @@
   "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "scripts": {
@@ -49,7 +49,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/cf.js": "0.2.1",
+    "@counterfactual/cf.js": "0.2.2",
     "@counterfactual/contracts": "0.1.8",
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/types": "0.0.23",
