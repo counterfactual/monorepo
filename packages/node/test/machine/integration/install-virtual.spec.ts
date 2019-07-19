@@ -243,6 +243,13 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
         capitalProvided: parseEther("10"),
         expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: erc20Contract.address,
+        /**
+         * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
+         * to how the protocol actually sets up virtual apps. This is because, in this
+         * test case, we care mostly about retrieving _some_ outcome within the
+         * TwoPartyFixedOutcomeFromVirtualAppETHInterpreter such that it is used to
+         * distribute funds.
+         */
         timeLockedPassThroughIdentityHash: HashZero
       };
 
