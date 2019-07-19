@@ -37,6 +37,7 @@ jobs:
       - <<: *save_code
 
       - <<: *restore_dep
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
       - run:
           name: "yarn --frozen-lockfile"
           command: yarn --frozen-lockfile
