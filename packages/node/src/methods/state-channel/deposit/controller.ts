@@ -101,6 +101,13 @@ export default class DepositController extends NodeController {
 
     const depositSucceeded = await makeDeposit(requestHandler, params);
 
+    console.log(
+      requestHandler.publicIdentifier,
+      " deposited ",
+      depositSucceeded,
+      params
+    );
+
     await uninstallBalanceRefundApp(requestHandler, params);
 
     if (depositSucceeded) {
@@ -111,6 +118,7 @@ export default class DepositController extends NodeController {
           multisigAddress
         );
 
+        console.log("Depositing into ", peerAddress);
         await messagingService.send(peerAddress, {
           from: publicIdentifier,
           type: NODE_EVENTS.DEPOSIT_CONFIRMED,

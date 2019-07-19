@@ -352,7 +352,7 @@ export class Node {
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else if (
-      isProtocolMessage(msg) ||
+      isProtocolMessage(msg) &&
       this.requestHandler.isLegacyEvent(msg.type)
     ) {
       await this.requestHandler.callEvent(msg.type, msg);
