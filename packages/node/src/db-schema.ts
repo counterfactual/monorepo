@@ -68,7 +68,7 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE =
  * corresponding commitment transaction.
  */
 export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
-  "appInstanceHashToCommitment";
+  "appIdentityHashToCommitment";
 
 /**
  * Namespace for storing withdrawals
