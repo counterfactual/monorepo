@@ -37,7 +37,7 @@ graph LR
   end
 
   subgraph Signer
-    someFn
+    signDigest["signingKey.signDigest"]
   end
 
   subgraph Node
@@ -50,7 +50,7 @@ graph LR
     outgoing["Outgoing (EventEmitter)"]
     protocolMessageEventController-->|sends out events <br>after protocol finishes|outgoing
 
-    OP_SIGN-->someFn
+    OP_SIGN-->signDigest
 
   end
 
