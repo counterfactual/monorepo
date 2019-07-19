@@ -5,22 +5,18 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
-
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import {
-  InstructionExecutor,
-  Opcode,
-  Protocol,
-  ProtocolMessage
-} from "./machine";
+import { InstructionExecutor, Opcode, Protocol, ProtocolMessage } from "./machine";
 import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
-import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
+import { NodeMessageWrappedProtocolMessage, NODE_EVENTS } from "./types";
 import { timeout } from "./utils";
+
+
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -345,20 +341,23 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.protocolExecutionID);
-
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
+      console.log("test-log handleIoSendDeferral", msg);
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
     } else if (
-      isProtocolMessage(msg) ||
+      isProtocolMessage(msg as NodeMessageWrappedProtocolMessage) &&
       this.requestHandler.isLegacyEvent(msg.type)
     ) {
+      console.log("test-log handleReceivedMessage legacy", msg);
       await this.requestHandler.callEvent(msg.type, msg);
     } else {
+      console.log("test-log handleReceivedMessage rpcRouter", msg.type, msg);
       await this.rpcRouter.emit(msg.type, msg);
     }
+
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
