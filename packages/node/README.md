@@ -55,7 +55,7 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 
 - `proposedToIdentifier: string`
-  - string of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -89,7 +89,7 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 
 - `proposedToIdentifier: string`
-  - string of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
