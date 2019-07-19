@@ -1,3 +1,36 @@
+Ownership - arrows indicate "has a pointer to"
+
+```mermaid
+graph LR
+
+
+
+  subgraph Node
+
+
+
+    InstructionExecutor
+
+    MessagingService
+
+    RpcRouter --> RequestHandler
+
+    RequestHandler --> RpcRouter
+
+    RequestHandler --> StoreService
+
+    RequestHandler --> MessagingService
+
+    RequestHandler --> InstructionExecutor
+
+    
+
+end
+```
+
+Control Flow - arrows mostly indicate "calls"
+
+```mermaid
 graph LR
 
   subgraph MessagingService
@@ -86,4 +119,4 @@ graph LR
     runProtocol-->WRITE_COMMITMENT
 
   end
-
+```
