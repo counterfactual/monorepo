@@ -7,8 +7,7 @@ import {
   ContractABI,
   Node as NodeTypes,
   OutcomeType,
-  SolidityABIEncoderV2Type,
-  string
+  SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
