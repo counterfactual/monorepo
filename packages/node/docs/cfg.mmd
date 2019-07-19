@@ -11,22 +11,24 @@ graph LR
 
   subgraph RpcRouter
     dispatch
+  end
 
+  subgraph StoreService
+    storeServiceSet["set"]
   end
 
   subgraph NodeController["NodeController (RPC)"]
-    rpcExecute["executeMethod"]
+    rpcExecute["executeMethod"]-->storeServiceSet
 
     dispatch-->rpcExecute
     callMethod-->rpcExecute
-
   end
 
   subgraph Middleware
     IO_SEND_AND_WAIT
     IO_SEND
     OP_SIGN
-    WRITE_COMMITMENT
+    WRITE_COMMITMENT-->storeServiceSet
     IO_SEND_AND_WAIT-->send
     IO_SEND-->send
   end
@@ -56,7 +58,7 @@ graph LR
 
   subgraph EventController["NodeController (Event)"]
 
-    eventExecute["executeMethod"]
+    eventExecute["executeMethod"]-->storeServiceSet
     onReceivedMessage-->eventExecute
 
   end
