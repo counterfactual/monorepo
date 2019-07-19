@@ -65,7 +65,7 @@ describe("CF.js AppFactory", () => {
         initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
-        outcomeType: OutcomeType.COIN_TRANSFER
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       });
 
       expect(appInstanceId).toBe(expectedAppInstanceId);
@@ -120,7 +120,7 @@ describe("CF.js AppFactory", () => {
           initiatorDeposit: "$%GARBAGE$%",
           timeout: "100",
           initialState: { val: "4000" },
-          outcomeType: OutcomeType.COIN_TRANSFER
+          outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
         });
         done.fail("Expected an error for invalid initiatorDeposit");
       } catch (e) {

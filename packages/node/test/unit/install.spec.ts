@@ -45,7 +45,11 @@ describe("Can handle correct & incorrect installs", () => {
   let ie: InstructionExecutor;
 
   beforeAll(() => {
-    store = new Store(new MemoryStoreService(), "install.spec.ts-test-store");
+    store = new Store(
+      new MemoryStoreService(),
+      "install.spec.ts-test-store",
+      NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
+    );
     ie = new InstructionExecutor(
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
       {} as BaseProvider

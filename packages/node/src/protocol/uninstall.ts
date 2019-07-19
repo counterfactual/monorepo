@@ -1,10 +1,10 @@
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
-import { Protocol, ProtocolExecutionFlow } from "../machine";
-import { Opcode } from "../machine/enums";
+import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
+  ProtocolExecutionFlow,
   ProtocolMessage,
   ProtocolParameters,
   UninstallParams
@@ -114,8 +114,7 @@ async function proposeStateTransition(
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
     network,
-    sc,
-    appIdentityHash,
+    sc.getAppInstance(appIdentityHash),
     provider
   );
 

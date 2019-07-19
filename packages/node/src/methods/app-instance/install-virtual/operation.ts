@@ -40,7 +40,8 @@ export async function installVirtual(
         initialState: proposal.initialState,
         initiatorBalanceDecrement: proposal.initiatorDeposit,
         responderBalanceDecrement: proposal.responderDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: proposal.outcomeType
       }
     );
   } catch (e) {

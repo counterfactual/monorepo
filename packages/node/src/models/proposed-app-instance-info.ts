@@ -1,15 +1,12 @@
 import {
   AppABIEncodings,
-  AppInterface,
-  CoinTransferInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance } from "./app-instance";
+import { StateChannel } from "./state-channel";
 
 export interface IAppInstanceProposal {
   appDefinition: string;
@@ -89,63 +86,34 @@ export class AppInstanceProposal {
     this.identityHash = overrideId || this.getIdentityHashFor(channel!);
   }
 
-  // TODO: Note the construction of this is duplicated from the machine
   getIdentityHashFor(stateChannel: StateChannel) {
-    const proposedAppInterface: AppInterface = {
-      addr: this.appDefinition,
-      ...this.abiEncodings
-    };
+    return this.toAppInstanceFor(stateChannel).identityHash;
+  }
 
-    let signingKeys: string[];
-    let isVirtualApp: boolean;
-
-    if ((this.intermediaries || []).length > 0) {
-      isVirtualApp = true;
-
-      const appSeqNo = stateChannel.numInstalledApps;
-
-      const [intermediaryXpub] = this.intermediaries!;
-
-      // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
-      signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
-        xkeysToSortedKthAddresses(
-          [this.proposedByIdentifier, this.proposedToIdentifier],
-          appSeqNo
-        )
-      );
-    } else {
-      isVirtualApp = false;
-      signingKeys = stateChannel.getNextSigningKeys();
-    }
-
-    const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
-
-    const interpreterParams: CoinTransferInterpreterParams = {
-      limit: [],
-      tokens: []
-    };
-
-    const proposedAppInstance = new AppInstance(
-      owner,
-      signingKeys,
+  toAppInstanceFor(stateChannel: StateChannel) {
+    return new AppInstance(
+      stateChannel.multisigAddress,
+      stateChannel.getNextSigningKeys(),
       bigNumberify(this.timeout).toNumber(),
-      proposedAppInterface,
-      isVirtualApp,
-      isVirtualApp ? 1337 : stateChannel.numInstalledApps,
+      {
+        addr: this.appDefinition,
+        ...this.abiEncodings
+      },
+      (this.intermediaries || []).length > 0,
+      stateChannel.numInstalledApps,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
+      -1,
       undefined,
       // this is not relevant here as it gets set properly later in the context
       // of the channel during an install, and it's not used to calculate
       // the AppInstance ID so there won't be a possible mismatch between
       // a proposed AppInstance ID and an installed AppInstance ID
-      interpreterParams
+      undefined
     );
-
-    return proposedAppInstance.identityHash;
   }
 
   toJson(): AppInstanceProposalJSON {

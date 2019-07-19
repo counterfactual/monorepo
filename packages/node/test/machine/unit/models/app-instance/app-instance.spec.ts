@@ -1,3 +1,4 @@
+import { OutcomeType } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
@@ -23,8 +24,9 @@ describe("AppInstance", () => {
       false,
       Math.ceil(Math.random() * 2e10),
       { foo: getAddress(hexlify(randomBytes(20))), bar: 0 },
-      999, // <------ versionNumber
+      /* versionNumber */ 999,
       Math.ceil(1000 * Math.random()),
+      OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       {
         playerAddrs: [AddressZero, AddressZero],
         amount: Zero
