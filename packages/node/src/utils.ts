@@ -1,6 +1,5 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import Proxy from "@counterfactual/contracts/build/Proxy.json";
-import { Address } from "@counterfactual/types";
 import {
   BigNumber,
   getAddress,
@@ -48,17 +47,17 @@ export async function getPeersAddressFromChannel(
   myIdentifier: string,
   store: Store,
   multisigAddress: string
-): Promise<Address[]> {
+): Promise<string[]> {
   const stateChannel = await store.getStateChannel(multisigAddress);
   const owners = stateChannel.userNeuteredExtendedKeys;
   return owners.filter(owner => owner !== myIdentifier);
 }
 
 export async function getPeersAddressFromAppInstanceID(
-  myIdentifier: Address,
+  myIdentifier: string,
   store: Store,
   appInstanceId: string
-): Promise<Address[]> {
+): Promise<string[]> {
   const multisigAddress = await store.getMultisigAddressFromAppInstance(
     appInstanceId
   );
@@ -73,8 +72,8 @@ export async function getPeersAddressFromAppInstanceID(
 }
 
 export function getCounterpartyAddress(
-  myIdentifier: Address,
-  appInstanceAddresses: Address[]
+  myIdentifier: string,
+  appInstanceAddresses: string[]
 ) {
   return appInstanceAddresses.filter(address => {
     return address !== myIdentifier;

@@ -19,7 +19,6 @@ import {
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
-  Address,
   Bytes32,
   ContractABI,
   SolidityABIEncoderV2Type
@@ -62,7 +61,6 @@ export interface DeployedContractNetworksFileEntry {
 
 export {
   ABIEncoding,
-  Address,
   AppABIEncodings,
   AppIdentity,
   AppInstanceInfo,

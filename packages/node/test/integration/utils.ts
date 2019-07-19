@@ -1,14 +1,14 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
-  Address,
   AppABIEncodings,
   AppInstanceJson,
   AppInstanceProposal,
   ContractABI,
   Node as NodeTypes,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityABIEncoderV2Type,
+  string
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
@@ -47,7 +47,7 @@ import {
 export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
-): Promise<Address> {
+): Promise<string> {
   const req = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
@@ -248,7 +248,7 @@ export function makeTTTProposalRequest(
 
 export function makeInstallVirtualRequest(
   appInstanceId: string,
-  intermediaries: Address[]
+  intermediaries: string[]
 ): Rpc {
   return jsonRpcDeserialize({
     params: {
