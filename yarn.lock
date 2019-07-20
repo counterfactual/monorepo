@@ -9260,10 +9260,10 @@ ganache-core@2.5.6-beta.0:
     ethereumjs-wallet "0.6.2"
     web3 "1.0.0-beta.35"
 
-ganache-core@2.5.7:
-  version "2.5.7"
-  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
-  integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
+ganache-core@2.6.0:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.6.0.tgz#19001547893ff9f6d494fcaed66c52edd808f3c0"
+  integrity sha512-TAT8XCjORmRpWko9QWKWGbdZ8/3nblKgralUWdySHXZyGBVRoHyEzjygMYZoblSXXCWuYEmx+T1u73Di1tE0mA==
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
