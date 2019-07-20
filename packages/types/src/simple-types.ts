@@ -2,7 +2,6 @@ import { BigNumberish, Interface, ParamType } from "ethers/utils";
 
 export type ABIEncoding = string;
 export type Address = string;
-export type Bytes32 = string;
 
 // This is copied from the ethers definition of how an ABI is typed.
 // tslint:disable-next-line:prefer-array-literal
