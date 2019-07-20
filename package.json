@@ -43,6 +43,6 @@
     "caniuse-lite": "1.0.30000974"
   },
   "dependencies": {
-    "@resolver-engine/imports-fs": "^0.3.3"
+    "@resolver-engine/imports-fs": "0.3.3"
   }
 }

@@ -2423,6 +2423,15 @@
     "@resolver-engine/core" "^0.3.3"
     debug "^3.1.0"
 
+"@resolver-engine/imports-fs@0.3.3", "@resolver-engine/imports-fs@^0.3.2":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports-fs/-/imports-fs-0.3.3.tgz#4085db4b8d3c03feb7a425fbfcf5325c0d1e6c1b"
+  integrity sha512-7Pjg/ZAZtxpeyCFlZR5zqYkz+Wdo84ugB5LApwriT8XFeQoLwGUj4tZFFvvCuxaNCcqZzCYbonJgmGObYBzyCA==
+  dependencies:
+    "@resolver-engine/fs" "^0.3.3"
+    "@resolver-engine/imports" "^0.3.3"
+    debug "^3.1.0"
+
 "@resolver-engine/imports-fs@^0.2.2":
   version "0.2.2"
   resolved "https://registry.npmjs.org/@resolver-engine/imports-fs/-/imports-fs-0.2.2.tgz#5a81ef3285dbf0411ab3b15205080a1ad7622d9e"
@@ -2430,15 +2439,6 @@
   dependencies:
     "@resolver-engine/fs" "^0.2.1"
     "@resolver-engine/imports" "^0.2.2"
-    debug "^3.1.0"
-
-"@resolver-engine/imports-fs@^0.3.2", "@resolver-engine/imports-fs@^0.3.3":
-  version "0.3.3"
-  resolved "https://registry.npmjs.org/@resolver-engine/imports-fs/-/imports-fs-0.3.3.tgz#4085db4b8d3c03feb7a425fbfcf5325c0d1e6c1b"
-  integrity sha512-7Pjg/ZAZtxpeyCFlZR5zqYkz+Wdo84ugB5LApwriT8XFeQoLwGUj4tZFFvvCuxaNCcqZzCYbonJgmGObYBzyCA==
-  dependencies:
-    "@resolver-engine/fs" "^0.3.3"
-    "@resolver-engine/imports" "^0.3.3"
     debug "^3.1.0"
 
 "@resolver-engine/imports@^0.2.2":
@@ -11515,9 +11515,9 @@ jest-environment-node@^24.8.0:
     jest-mock "^24.8.0"
     jest-util "^24.8.0"
 
-jest-fetch-mock@^2.1.2:
+jest-fetch-mock@2.1.2:
   version "2.1.2"
-  resolved "https://registry.npmjs.org/jest-fetch-mock/-/jest-fetch-mock-2.1.2.tgz#1260b347918e3931c4ec743ceaf60433da661bd0"
+  resolved "https://registry.yarnpkg.com/jest-fetch-mock/-/jest-fetch-mock-2.1.2.tgz#1260b347918e3931c4ec743ceaf60433da661bd0"
   integrity sha512-tcSR4Lh2bWLe1+0w/IwvNxeDocMI/6yIA2bijZ0fyWxC4kQ18lckQ1n7Yd40NKuisGmcGBRFPandRXrW/ti/Bw==
   dependencies:
     cross-fetch "^2.2.2"
