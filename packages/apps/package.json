@@ -31,7 +31,7 @@
     "ethereum-waffle": "2.0.12",
     "ethers": "4.0.33",
     "ethlint": "1.2.4",
-    "mocha": "6.1.4",
+    "mocha": "6.2.0",
     "solc": "0.5.10",
     "truffle": "5.0.27",
     "truffle-deploy-registry": "0.5.1",
