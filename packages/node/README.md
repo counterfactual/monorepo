@@ -320,6 +320,29 @@ Result:
 - `multisigAddress: string`
   - the address of the multisig (i.e. the state deposit holder)
 
+### Method: `withdraw`
+
+If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+- `recipient?: string`
+- `tokenAddress?: string`
+
+Result:
+
+- `recipient: string`
+  - The address to whom the withdrawal is made
+- `txHash: string`
+  - The hash of the transaction in which the funds are transferred from the state deposit holder to the recipient
+
+Error(s):
+
+- "Insufficient funds"
+- "Withdraw Failed"
+
 ### Method: `getFreeBalance`
 
 Gets the free balance AppInstance of the specified channel.
