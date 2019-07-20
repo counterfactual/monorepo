@@ -19437,10 +19437,10 @@ truffle-interface-adapter@^0.2.0:
     ethers "^4.0.32"
     web3 "1.0.0-beta.37"
 
-truffle@5.0.27:
-  version "5.0.27"
-  resolved "https://registry.npmjs.org/truffle/-/truffle-5.0.27.tgz#2842539f69d55a7cf82d21c4ffab0605953e1942"
-  integrity sha512-MN02w3TNOwVaEvvCD535pov7D/59p92yzQ/Os4hR2kiSGy1s+9V6RYtmOPucY8G/1wx8RnvOAgcIzcqHrO6tvQ==
+truffle@5.0.28:
+  version "5.0.28"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.28.tgz#383c6c4ae082c52fe6dda6620f924ae3a0f5ac49"
+  integrity sha512-ccpvgrHW7EGfJ4cowMgh5dCAILG5Ie8q2QNBhnGtHxyPTDxb8o2/sgVIi5BZhaueijOPb47sYe2ojKlY6dk8+Q==
   dependencies:
     app-module-path "^2.2.0"
     mocha "5.2.0"

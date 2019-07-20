@@ -21,7 +21,7 @@
     "@counterfactual/types": "0.0.23",
     "ethers": "4.0.33",
     "ganache-core": "2.6.0",
-    "truffle": "5.0.27",
+    "truffle": "5.0.28",
     "typescript": "3.5.3"
   },
   "dependencies": {
