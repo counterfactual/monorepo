@@ -41,7 +41,7 @@
     "ethereum-waffle": "2.0.12",
     "ethers": "4.0.33",
     "ethlint": "1.2.4",
-    "ganache-cli": "6.4.5",
+    "ganache-cli": "6.5.0",
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
     "solc": "0.5.10",
