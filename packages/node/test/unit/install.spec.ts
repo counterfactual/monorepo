@@ -87,7 +87,7 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
-      NO_MULTISIG_FOR_APP_INSTANCE_ID
+      new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID)
     );
 
     await expect(
