@@ -1,4 +1,9 @@
-import { bigNumberify, BigNumberish, computeAddress, parseEther } from "ethers/utils";
+import {
+  bigNumberify,
+  BigNumberish,
+  computeAddress,
+  parseEther
+} from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import { BalanceRequest, Deposit, User } from "../store/types";
 import { CounterfactualEvent, CounterfactualMethod } from "../types";
@@ -24,7 +29,7 @@ export async function getUserFromStoredToken(): Promise<{
 }> {
   const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
-  return data.result || {};
+  return data.result;
 }
 
 export async function storeTokenFromUser({ token }: User): Promise<void> {
@@ -59,13 +64,6 @@ export async function requestDeposit({ amount, multisigAddress }: Deposit) {
     amount,
     multisigAddress
   ]);
-}
-
-export async function whenDepositStartsThen(callback: Function) {
-  const data = await window.ethereum.send(
-    CounterfactualEvent.RequestDepositStart
-  );
-  return callback(data);
 }
 
 export async function forFunds({

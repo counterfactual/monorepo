@@ -8,14 +8,13 @@ import SimpleTwoPartySwapApp from "../build/SimpleTwoPartySwapApp.json";
 
 chai.use(waffle.solidity);
 
-type CoinBalances = {
+type CoinTransfer = {
   to: string;
-  coinAddress: string[];
-  balance: BigNumber[];
+  amount: BigNumber;
 };
 
 type SimpleSwapAppState = {
-  coinBalances: CoinBalances[];
+  coinTransfers: CoinTransfer[];
 };
 
 const { expect } = chai;
@@ -24,32 +23,18 @@ function mkAddress(prefix: string = "0xa"): string {
   return prefix.padEnd(42, "0");
 }
 
-function decodeBytesToAppState(encodedAppState: string): SimpleSwapAppState {
-  console.log("-------------------------------------------------");
-  return defaultAbiCoder.decode(
-    [
-      `tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`
-    ],
-    encodedAppState
-  )[0];
-}
-
-function decodeBytesToComputeOutcome(
-  encodedAppState: string
-): SimpleSwapAppState {
-  return defaultAbiCoder.decode(
-    [`tuple(address to, address[] coinAddress, uint256[] balance)[]`],
-    encodedAppState
-  )[0];
-}
-
 describe("SimpleTwoPartySwapApp", () => {
   let simpleSwapApp: Contract;
 
   function encodeState(state: SimpleSwapAppState) {
     return defaultAbiCoder.encode(
       [
-        `tuple(tuple(address to, address[] coinAddress, uint256[] balance)[] coinBalances)`
+        `tuple(
+          tuple(
+            address to,
+            uint256 amount
+          )[] coinTransfers
+        )`
       ],
       [state]
     );
@@ -69,35 +54,30 @@ describe("SimpleTwoPartySwapApp", () => {
     it("can compute outcome with update", async () => {
       const senderAddr = mkAddress("0xa");
       const receiverAddr = mkAddress("0xB");
-      const tokenAddr = mkAddress("0xC");
       const tokenAmt = new BigNumber(10000);
       const ethAmt = new BigNumber(500);
       const preState: SimpleSwapAppState = {
-        coinBalances: [
+        coinTransfers: [
           {
             to: senderAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [tokenAmt, Zero]
+            amount: tokenAmt
           },
           {
             to: receiverAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [Zero, ethAmt]
+            amount: ethAmt
           }
         ]
       };
 
       const state: SimpleSwapAppState = {
-        coinBalances: [
+        coinTransfers: [
           {
             to: senderAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [Zero, ethAmt]
+            amount: ethAmt
           },
           {
             to: receiverAddr,
-            coinAddress: [tokenAddr, AddressZero],
-            balance: [tokenAmt, Zero]
+            amount: tokenAmt
           }
         ]
       };
@@ -105,8 +85,8 @@ describe("SimpleTwoPartySwapApp", () => {
       const ret = await computeOutcome(preState);
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(address to, address[] coinAddress, uint256[] balance)[]`],
-          [state.coinBalances]
+          [`tuple(address to, uint256 amount)[]`],
+          [state.coinTransfers]
         )
       );
     });

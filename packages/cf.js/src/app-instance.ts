@@ -1,5 +1,4 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInstanceJson,
@@ -30,14 +29,14 @@ export class AppInstance {
   readonly identityHash: string;
 
   // Application-specific fields
-  readonly appDefinition: Address;
+  readonly appDefinition: string;
   readonly abiEncodings: AppABIEncodings;
   readonly timeout: BigNumber;
 
   // Funding-related fields
-  readonly myDeposit: BigNumber;
-  readonly peerDeposit: BigNumber;
-  readonly intermediaries?: Address[];
+  readonly initiatorDeposit: BigNumber;
+  readonly responderDeposit: BigNumber;
+  readonly intermediaries?: string[];
 
   /**
    * Interpreter-related Fields
@@ -69,8 +68,8 @@ export class AppInstance {
       this.timeout = info["timeout"];
     }
 
-    this.myDeposit = info["myDeposit"];
-    this.peerDeposit = info["peerDeposit"];
+    this.initiatorDeposit = info["initiatorDeposit"];
+    this.responderDeposit = info["responderDeposit"];
     this.intermediaries = info["intermediaries"];
   }
 

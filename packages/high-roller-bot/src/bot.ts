@@ -4,7 +4,7 @@ import {
   UninstallVirtualMessage,
   UpdateStateMessage
 } from "@counterfactual/node";
-import { Address, Node as NodeTypes } from "@counterfactual/types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
 
@@ -34,7 +34,7 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
   return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
 }
 
-function respond(node: Node, nodeAddress: Address, msg: UpdateStateMessage) {
+function respond(node: Node, nodeAddress: string, msg: UpdateStateMessage) {
   const data: NodeTypes.UpdateStateEventData = msg.data;
   const { appInstanceId } = data;
   const newState = data.newState as HighRollerAppState;

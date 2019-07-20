@@ -250,8 +250,10 @@ export namespace Node {
   export type ProposeInstallParams = {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
-    myDeposit: BigNumber;
-    peerDeposit: BigNumber;
+    initiatorDeposit: BigNumber;
+    initiatorDepositTokenAddress?: string;
+    responderDeposit: BigNumber;
+    responderDepositTokenAddress?: string;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
@@ -313,7 +315,7 @@ export namespace Node {
 
   export type WithdrawResult = {
     recipient: string;
-    amount: BigNumber;
+    txHash: string;
   };
 
   export type MethodParams =

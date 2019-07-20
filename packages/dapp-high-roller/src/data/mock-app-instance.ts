@@ -1,7 +1,7 @@
 import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
-import { Address, AppABIEncodings, AppInstanceInfo, cf, Node } from "./types";
+import { AppABIEncodings, AppInstanceInfo, cf, Node } from "./types";
 
 export enum AppInstanceEventType {
   UPDATE_STATE = "updateState",
@@ -18,20 +18,20 @@ export class AppInstance {
    */
   readonly identityHash: string;
 
-  readonly appDefinition: Address;
+  readonly appDefinition: string;
   readonly abiEncodings: AppABIEncodings;
-  readonly myDeposit: BigNumber;
-  readonly peerDeposit: BigNumber;
+  readonly initiatorDeposit: BigNumber;
+  readonly responderDeposit: BigNumber;
   readonly timeout: BigNumber;
-  readonly intermediaries?: Address[];
+  readonly intermediaries?: string[];
   //   private readonly eventEmitter: EventEmitter = new EventEmitter();
 
   constructor(info: AppInstanceInfo, readonly provider: cf.Provider) {
     this.identityHash = info.identityHash;
     this.appDefinition = info.appDefinition;
     this.abiEncodings = info.abiEncodings;
-    this.myDeposit = info.myDeposit;
-    this.peerDeposit = info.peerDeposit;
+    this.initiatorDeposit = info.initiatorDeposit;
+    this.responderDeposit = info.responderDeposit;
     this.timeout = info.timeout;
     this.intermediaries = info.intermediaries;
   }

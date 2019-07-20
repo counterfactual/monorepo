@@ -55,15 +55,19 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `initiatorDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the proposer's side of the app. If not specified, this defaults to ETH.
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
+- `responderDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the peer's side of the app. If not specified, this defaults to ETH.
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
@@ -85,14 +89,14 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
@@ -264,7 +268,7 @@ Creates a channel by deploying a multisignature wallet contract.
 
 Params:
 
-- `owners: Address[]`
+- `owners: string[]`
   - the addresses who should be the owners of the multisig
 
 Result:
@@ -280,7 +284,7 @@ Gets the (multisig) addresses of all the channels that are open on the Node.
 
 Result:
 
-- `addresses: Address[]`
+- `addresses: string[]`
   - the list of multisig addresses representing the open channels on the Node.
 
 ### Method: `deposit`
@@ -315,6 +319,29 @@ Result:
 
 - `multisigAddress: string`
   - the address of the multisig (i.e. the state deposit holder)
+
+### Method: `withdraw`
+
+If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+- `recipient?: string`
+- `tokenAddress?: string`
+
+Result:
+
+- `recipient: string`
+  - The address to whom the withdrawal is made
+- `txHash: string`
+  - The hash of the transaction in which the funds are transferred from the state deposit holder to the recipient
+
+Error(s):
+
+- "Insufficient funds"
+- "Withdraw Failed"
 
 ### Method: `getFreeBalance`
 
@@ -405,9 +432,9 @@ Data:
 - `CreateChannelResult`
   - `counterpartyXpub: string`
     - Xpub of the counterparty that the channel was opened with
-  - `multisigAddress: Address`
+  - `multisigAddress: string`
     - The address of the multisig that was created
-  - `owners: Address[]`
+  - `owners: string[]`
     - The list of multisig owners of the created channel
 
 ## Data Types
@@ -423,9 +450,9 @@ An instance of an installed app.
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized

@@ -18,7 +18,7 @@ import {
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
- * proposal to the intermediaries and the responding Node.
+ * proposal to the intermediaries and the responder Node.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
@@ -64,7 +64,12 @@ export default class ProposeInstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Node.ProposeInstallVirtualResult> {
-    const { store, publicIdentifier, messagingService } = requestHandler;
+    const {
+      store,
+      publicIdentifier,
+      messagingService,
+      networkContext
+    } = requestHandler;
     const { initialState } = params;
 
     if (!initialState) {
@@ -78,7 +83,8 @@ export default class ProposeInstallVirtualController extends NodeController {
     const appInstanceId = await createProposedVirtualAppInstance(
       publicIdentifier,
       store,
-      params
+      params,
+      networkContext
     );
 
     const proposalMsg: ProposeVirtualMessage = {

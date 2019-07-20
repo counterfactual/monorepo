@@ -1,5 +1,4 @@
 import {
-  Address,
   AppInstanceInfo,
   AppInstanceJson,
   IRpcNodeProvider,
@@ -90,7 +89,7 @@ export class Provider {
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: Address[]
+    intermediaries: string[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,
@@ -124,7 +123,7 @@ export class Provider {
    * @param owners The channel's owning addresses
    * @return transactionHash for the channel creation
    */
-  async createChannel(owners: Address[]): Promise<string> {
+  async createChannel(owners: string[]): Promise<string> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.CREATE_CHANNEL,
       {
@@ -157,12 +156,12 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @param amount BigNumber representing the deposit's value
    * @param notifyCounterparty Boolean
    */
   async deposit(
-    multisigAddress: Address,
+    multisigAddress: string,
     amount: BigNumber,
     notifyCounterparty: boolean = true
   ) {
@@ -179,14 +178,14 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @param amount BigNumber representing the deposit's value
-   * @param recipient Address of the party that should receive the withdrawn funds
+   * @param recipient string of the party that should receive the withdrawn funds
    */
   async withdraw(
-    multisigAddress: Address,
+    multisigAddress: string,
     amount: BigNumber,
-    recipient: Address
+    recipient: string
   ) {
     await this.callRawNodeMethod(Node.RpcMethodName.WITHDRAW, {
       multisigAddress,
@@ -201,11 +200,11 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @return GetFreeBalanceStateResult
    */
   async getFreeBalanceState(
-    multisigAddress: Address
+    multisigAddress: string
   ): Promise<Node.GetFreeBalanceStateResult> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.GET_FREE_BALANCE_STATE,

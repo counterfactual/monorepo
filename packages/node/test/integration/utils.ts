@@ -1,19 +1,16 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
-  Address,
   AppABIEncodings,
   AppInstanceJson,
   AppInstanceProposal,
   ContractABI,
-  NetworkContext,
-  networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -49,7 +46,7 @@ import {
 export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
-): Promise<Address> {
+): Promise<string> {
   const req = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
@@ -173,7 +170,8 @@ export function makeDepositRequest(
 export function makeWithdrawRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  recipient?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -181,7 +179,8 @@ export function makeWithdrawRequest(
     params: {
       tokenAddress,
       multisigAddress,
-      amount
+      amount,
+      recipient
     } as NodeTypes.WithdrawParams,
     jsonrpc: "2.0"
   });
@@ -214,16 +213,20 @@ export function makeTTTProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const initialState =
     Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
-    myDeposit,
-    peerDeposit,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress,
     appDefinition,
     initialState,
     abiEncodings: {
@@ -244,7 +247,7 @@ export function makeTTTProposalRequest(
 
 export function makeInstallVirtualRequest(
   appInstanceId: string,
-  intermediaries: Address[]
+  intermediaries: string[]
 ): Rpc {
   return jsonRpcDeserialize({
     params: {
@@ -263,22 +266,27 @@ export function makeTTTVirtualProposalRequest(
   intermediaries: string[],
   appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
     appDefinition,
     initialState,
-    myDeposit,
-    peerDeposit
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   ).parameters as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
     ...installProposalParams,
     intermediaries
   };
+
   return jsonRpcDeserialize({
     params: installVirtualParams,
     id: Date.now(),
@@ -303,11 +311,19 @@ export async function confirmProposedAppInstanceOnNode(
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.peerDeposit);
-    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.myDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
   } else {
-    expect(proposalParams.myDeposit).toEqual(appInstanceProposal.myDeposit);
-    expect(proposalParams.peerDeposit).toEqual(appInstanceProposal.peerDeposit);
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.responderDeposit
+    );
   }
   expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented
@@ -329,14 +345,6 @@ export function confirmProposedVirtualAppInstanceOnNode(
     proposedAppInstance.intermediaries
   );
 }
-
-const emptyNetworkMap = new Map(
-  networkContextProps.map((i): [string, string] => [i, AddressZero])
-);
-export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
-  (main, [key, value]) => ({ ...main, [key]: value }),
-  {}
-) as NetworkContext;
 
 export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
@@ -397,9 +405,10 @@ export async function sleep(timeInMilliseconds: number) {
 export async function collateralizeChannel(
   node1: Node,
   node2: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
-  const depositReq = makeDepositRequest(multisigAddress, One);
+  const depositReq = makeDepositRequest(multisigAddress, One, tokenAddress);
   await node1.rpcRouter.dispatch(depositReq);
   await node2.rpcRouter.dispatch(depositReq);
 }
@@ -553,7 +562,9 @@ export async function makeTTTVirtualProposal(
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
-    Zero
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    Zero,
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
   const params = virtualAppInstanceProposalRequest.parameters as NodeTypes.ProposeInstallVirtualParams;
   const response = (await nodeA.rpcRouter.dispatch(
@@ -615,7 +626,15 @@ export async function makeVirtualProposeCall(
 
 export async function makeProposeCall(
   nodeA: Node,
-  nodeB: Node
+  nodeB: Node,
+  appDefinition: string = (global[
+    "networkContext"
+  ] as NetworkContextForTestSuite).TicTacToeApp,
+  state: SolidityABIEncoderV2Type = {},
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
@@ -623,10 +642,12 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-    {},
-    One,
-    Zero
+    appDefinition,
+    state,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   );
 
   const response = (await nodeA.rpcRouter.dispatch(
@@ -639,18 +660,22 @@ export async function makeProposeCall(
   };
 }
 
-export function createFreeBalanceStateWithFundedETHAmounts(
+export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
-  amount: BigNumber
+  amount: BigNumber,
+  tokens: string[]
 ): FreeBalanceState {
+  const balancesIndexedByToken = {};
+  tokens.forEach(token => {
+    balancesIndexedByToken[token] = addresses.map(to => ({
+      to,
+      amount
+    }));
+  });
+
   return {
-    activeAppsMap: {},
-    balancesIndexedByToken: {
-      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
-        to,
-        amount
-      }))
-    }
+    balancesIndexedByToken,
+    activeAppsMap: {}
   };
 }
 
