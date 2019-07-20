@@ -19,7 +19,7 @@
     "ethers": "4.0.33"
   },
   "dependencies": {
-    "@types/node": "12.6.2",
+    "@types/node": "12.6.8",
     "truffle-contract": "4.0.24"
   }
 }
