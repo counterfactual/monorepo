@@ -21994,10 +21994,10 @@ yn@^3.0.0:
   resolved "https://registry.npmjs.org/yn/-/yn-3.1.0.tgz#fcbe2db63610361afcc5eb9e0ac91e976d046114"
   integrity sha512-kKfnnYkbTfrAdd0xICNFw7Atm8nKpLcLv9AZGEt+kczL/WQVai4e2V6ZN8U/O+iI6WrNuJjNNOyu4zfhl9D3Hg==
 
-zos-lib@2.4.1:
-  version "2.4.1"
-  resolved "https://registry.npmjs.org/zos-lib/-/zos-lib-2.4.1.tgz#17a113946ce6d19295de6ee0d6137e3e364116db"
-  integrity sha512-7GfH0fSsptNCBuh1GfWHvUuNY+A1kWaPQqnWy5f/A0/U6by5fgS91q8RNErtjcijAPoUqQoRH1sNBHrb0l0WSg==
+zos-lib@2.4.2:
+  version "2.4.2"
+  resolved "https://registry.yarnpkg.com/zos-lib/-/zos-lib-2.4.2.tgz#69a76b8df91cfdd9c8f99aa0ccc9699420182cd4"
+  integrity sha512-q2lgsJ3eEUNKUBwfB7cYzjaioyy5b/PDcIWMoCkPViR0G/ku50iO5mc8P/KJJOwU7EZFGfn/2JQVOeRbQzz/WQ==
   dependencies:
     "@types/cbor" "^2.0.0"
     "@types/web3" "^1.0.14"
@@ -22033,3 +22033,4 @@ zos-lib@2.4.1:
     spinnies "^0.4.3"
     truffle-flattener "^1.4.0"
     web3 "1.0.0-beta.37"
+    web3-utils "1.0.0-beta.37"
