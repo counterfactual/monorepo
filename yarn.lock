@@ -19525,10 +19525,10 @@ ts-mocha@6.0.0:
   optionalDependencies:
     tsconfig-paths "^3.5.0"
 
-ts-mockito@2.3.1:
-  version "2.3.1"
-  resolved "https://registry.npmjs.org/ts-mockito/-/ts-mockito-2.3.1.tgz#4c3467a2ddeb207966000a740a0826c970125ed1"
-  integrity sha512-chcKw0sTApwJxTyKhzbWxI4BTUJ6RStZKUVh2/mfwYqFS09PYy5pvdXZwG35QSkqT5pkdXZlYKBX196RRvEZdQ==
+ts-mockito@2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/ts-mockito/-/ts-mockito-2.3.2.tgz#e32f720a530a55dacef4d83a3e3c744a977e5ff5"
+  integrity sha512-VJKpw6BRkcK23j9zgYUntiNdvTrlMnmLdm9I5gGN5Pi7fC/vFMP7pKmiEmKOdl36gjeISJfXIgxm2wdQ8DwFcw==
   dependencies:
     lodash "^4.17.5"
 
