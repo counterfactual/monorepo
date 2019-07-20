@@ -1,4 +1,3 @@
-import { Address } from "@counterfactual/types";
 import { KnexRecord, ResourceTypeAttributes } from "@ebryn/jsonapi-ts";
 import knex from "knex";
 import { Log } from "logepi";
@@ -68,7 +67,7 @@ export function getDatabase() {
 }
 
 export async function ethAddressAlreadyRegistered(
-  address: Address
+  address: string
 ): Promise<boolean> {
   const db = getDatabase();
 

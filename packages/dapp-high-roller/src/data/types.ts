@@ -4,6 +4,7 @@ import { BigNumber, BigNumberish } from "ethers/utils";
 import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
 
+export type ABIEncoding = string;
 export type Address = string;
 export type Bytes32 = string;
 
@@ -16,12 +17,12 @@ export interface SignedStateHashUpdate {
 
 export type AppInstanceInfo = {
   identityHash: string;
-  appDefinition: Address;
+  appDefinition: string;
   abiEncodings: AppABIEncodings;
   initiatorDeposit: BigNumber;
   responderDeposit: BigNumber;
   timeout: BigNumber;
-  intermediaries?: Address[];
+  intermediaries?: string[];
 };
 
 export type AppABIEncodings = {
@@ -84,8 +85,8 @@ export namespace Node {
   };
 
   export type ProposeInstallParams = {
-    responderAddress: Address;
-    appDefinition: Address;
+    responderAddress: string;
+    appDefinition: string;
     abiEncodings: AppABIEncodings;
     initiatorDeposit: BigNumber;
     responderDeposit: BigNumber;
@@ -97,7 +98,7 @@ export namespace Node {
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type ProposeInstallVirtualResult = ProposeInstallResult;
 
@@ -114,7 +115,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: Address[];
+    intermediaries: string[];
   };
   export type InstallVirtualResult = InstallResult;
 
@@ -146,15 +147,15 @@ export namespace Node {
   export type UninstallResult = {};
 
   export type CreateMultisigParams = {
-    owners: Address[];
+    owners: string[];
   };
   export type CreateMultisigResult = {
-    multisigAddress: Address;
+    multisigAddress: string;
   };
 
   export type GetChannelAddressesParams = {};
   export type GetChannelAddressesResult = {
-    multisigAddresses: Address[];
+    multisigAddresses: string[];
   };
 
   export type MethodParams =
@@ -201,8 +202,8 @@ export namespace Node {
     appInstance: AppInstanceInfo;
   };
   export type CreateMultisigEventData = {
-    owners: Address[];
-    multisigAddress: Address;
+    owners: string[];
+    multisigAddress: string;
   };
 
   export type EventData =
@@ -253,17 +254,17 @@ export namespace cf {
       provider: cf.Provider
     ): AppFactory;
     proposeInstall(parameters: {
-      proposedToIdentifier: Address;
+      proposedToIdentifier: string;
       initiatorDeposit: BigNumberish;
       responderDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
     }): Promise<string>;
     proposeInstallVirtual(parameters: {
-      proposedToIdentifier: Address;
+      proposedToIdentifier: string;
       initiatorDeposit: BigNumberish;
       responderDeposit: BigNumberish;
       initialState: SolidityABIEncoderV2Type;
-      intermediaries: Address[];
+      intermediaries: string[];
       timeout: number;
     }): Promise<string>;
   };

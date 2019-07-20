@@ -1,5 +1,4 @@
 import {
-  Address,
   NetworkContext,
   Node,
   SolidityABIEncoderV2Type
@@ -72,9 +71,7 @@ export class Store {
    * Returns the StateChannel instance with the specified multisig address.
    * @param multisigAddress
    */
-  public async getStateChannel(
-    multisigAddress: Address
-  ): Promise<StateChannel> {
+  public async getStateChannel(multisigAddress: string): Promise<StateChannel> {
     const stateChannelJson = await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
     );
@@ -97,7 +94,7 @@ export class Store {
    */
   public async getMultisigAddressFromAppInstance(
     appInstanceId: string
-  ): Promise<Address> {
+  ): Promise<string> {
     return this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`
     );

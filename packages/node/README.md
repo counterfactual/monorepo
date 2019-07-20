@@ -55,7 +55,7 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -89,7 +89,7 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
@@ -268,7 +268,7 @@ Creates a channel by deploying a multisignature wallet contract.
 
 Params:
 
-- `owners: Address[]`
+- `owners: string[]`
   - the addresses who should be the owners of the multisig
 
 Result:
@@ -284,7 +284,7 @@ Gets the (multisig) addresses of all the channels that are open on the Node.
 
 Result:
 
-- `addresses: Address[]`
+- `addresses: string[]`
   - the list of multisig addresses representing the open channels on the Node.
 
 ### Method: `deposit`
@@ -432,9 +432,9 @@ Data:
 - `CreateChannelResult`
   - `counterpartyXpub: string`
     - Xpub of the counterparty that the channel was opened with
-  - `multisigAddress: Address`
+  - `multisigAddress: string`
     - The address of the multisig that was created
-  - `owners: Address[]`
+  - `owners: string[]`
     - The list of multisig owners of the created channel
 
 ## Data Types
