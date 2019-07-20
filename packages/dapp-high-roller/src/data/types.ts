@@ -6,7 +6,6 @@ import { AppInstance } from "./mock-app-instance";
 
 export type ABIEncoding = string;
 export type Address = string;
-export type Bytes32 = string;
 
 export interface SignedStateHashUpdate {
   stateHash: string;
