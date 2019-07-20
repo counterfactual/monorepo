@@ -38,10 +38,10 @@ contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
       return;
     }
 
-    /* 
+    /*
     A functioning app should return SPLIT_AND_SEND_TO_BOTH_ADDRS
     to indicate that the committed asset should be split, hence by right
-    we can revert here if the outcome is something other than that, since we 
+    we can revert here if the outcome is something other than that, since we
     would have handled all cases; instead we choose to handle all other outcomes
     as if they were SPLIT.
     */

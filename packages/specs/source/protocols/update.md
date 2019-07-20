@@ -23,14 +23,16 @@ Two users run the protocol. They are designated as `initiator` and `responder`.
 For the below messages, the digest that is signed is represented as the following (reference: computeAppChallengeHash)
 
 ```typescript
-appIdentityHash := keccak256(
+keccak256(
   ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
   [
     0x19,
-    keccak256(encode(
-      [address, address[], address, uint256 ],
-      [owner, participants, appDefinition, defaultTimeout]
-    )),
+    keccak256(                        //
+      abi.encode(                     //
+        [uint256, address[]],         // NOTE: This is the
+        [channelNonce, participants]  // appInstanceIdentityHash
+      )                               //
+    ),                                //
     0,
     TIMEOUT,
     appStateHash

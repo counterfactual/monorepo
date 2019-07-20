@@ -23,7 +23,9 @@ contract MChallengeRegistryCore {
     pure
     returns (bytes32)
   {
-    return keccak256(abi.encode(appIdentity));
+    return keccak256(
+      abi.encode(appIdentity.channelNonce, appIdentity.participants)
+    );
   }
 
   /// @notice Compute a unique hash for the state of a channelized app instance

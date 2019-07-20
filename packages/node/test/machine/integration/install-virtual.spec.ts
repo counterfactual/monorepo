@@ -60,6 +60,7 @@ let proxyFactory: Contract;
 
 beforeAll(async () => {
   jest.setTimeout(10000);
+
   [provider, wallet, {}] = await connectToGanache();
 
   network = global["networkContext"];
@@ -78,14 +79,6 @@ beforeAll(async () => {
     new JsonRpcProvider(global["ganacheURL"])
   );
 
-  const xkeys = getRandomHDNodes(2);
-  multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-    xkeys.map(x => x.extendedKey),
-    0
-  );
-
-  xpubs = xkeys.map(x => x.neuter().extendedKey);
-
   twoPartyFixedOutcomeAppDefinition = await new ContractFactory(
     TwoPartyFixedOutcomeApp.abi,
     TwoPartyFixedOutcomeApp.bytecode,
@@ -95,137 +88,179 @@ beforeAll(async () => {
   proxyFactory = new Contract(network.ProxyFactory, ProxyFactory.abi, wallet);
 });
 
-async function createProxy() {
-  await proxyFactory.functions.createProxy(
-    network.MinimumViableMultisig,
-    new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-      multisigOwnerKeys.map(x => x.address)
-    ]),
-    { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
-  );
-}
+describe("Scenario: Install virtual app with and put on-chain", () => {
+  let globalChannelNonce = 0;
 
-async function fundWithETH(
-  wallet: Wallet,
-  proxyAddress: string,
-  amount: BigNumber
-) {
-  await wallet.sendTransaction({
-    to: proxyAddress,
-    value: amount
+  let createProxy: () => Promise<void>;
+
+  let fundWithETH: (
+    wallet: Wallet,
+    proxyAddress: string,
+    amount: BigNumber
+  ) => Promise<void>;
+
+  let fundWithDolphinCoin: (
+    wallet: Wallet,
+    proxyAddress: string,
+    amount: BigNumber
+  ) => Promise<void>;
+
+  let setupChannel: (
+    proxyAddress: string,
+    tokenAmounts: BigNumber,
+    tokenAddress: string
+  ) => Promise<StateChannel>;
+
+  let createTargetAppInstance: (stateChannel: StateChannel) => AppInstance;
+
+  let setStatesAndOutcomes: (
+    targetAppInstance: AppInstance,
+    stateChannel: StateChannel
+  ) => Promise<void>;
+
+  beforeEach(async () => {
+    const xkeys = getRandomHDNodes(2);
+
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
+
+    xpubs = xkeys.map(x => x.neuter().extendedKey);
+
+    globalChannelNonce += 1;
+
+    createProxy = async function() {
+      await proxyFactory.functions.createProxy(
+        network.MinimumViableMultisig,
+        new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+          multisigOwnerKeys.map(x => x.address)
+        ]),
+        { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
+      );
+    };
+
+    fundWithETH = async function(
+      wallet: Wallet,
+      proxyAddress: string,
+      amount: BigNumber
+    ) {
+      await wallet.sendTransaction({
+        to: proxyAddress,
+        value: amount
+      });
+    };
+
+    fundWithDolphinCoin = async function(
+      wallet: Wallet,
+      proxyAddress: string,
+      amount: BigNumber
+    ) {
+      await transferERC20Tokens(
+        proxyAddress,
+        erc20ContractAddress,
+        erc20Contract.abi,
+        amount
+      );
+    };
+
+    setupChannel = async function(
+      proxyAddress: string,
+      tokenAmounts: BigNumber,
+      tokenAddress: string
+    ) {
+      return StateChannel.setupChannel(
+        network.FreeBalanceApp,
+        proxyAddress,
+        xpubs
+      ).setFreeBalance(
+        createFreeBalanceStateWithFundedTokenAmounts(
+          multisigOwnerKeys.map<string>(key => key.address),
+          tokenAmounts,
+          [tokenAddress]
+        )
+      );
+    };
+
+    createTargetAppInstance = function(stateChannel: StateChannel) {
+      return new AppInstance(
+        stateChannel.multisigAddress,
+        multisigOwnerKeys.map(x => x.address),
+        /* default timeout */ 0,
+        /* appInterface */ {
+          addr: twoPartyFixedOutcomeAppDefinition.address,
+          stateEncoding: "uint256",
+          actionEncoding: undefined
+        },
+        true, // virtual
+        globalChannelNonce, // app sequence number
+        2, // latest state
+        1, // latest versionNumber
+        0, // latest timeout
+        /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+        {
+          playerAddrs: [AddressZero, AddressZero],
+          amount: Zero
+        },
+        undefined
+      );
+    };
+
+    setStatesAndOutcomes = async function(
+      targetAppInstance: AppInstance,
+      stateChannel: StateChannel
+    ) {
+      const setStateCommitment = new SetStateCommitment(
+        network,
+        targetAppInstance.identity,
+        targetAppInstance.hashOfLatestState,
+        targetAppInstance.versionNumber,
+        targetAppInstance.timeout
+      );
+
+      const setStateTx = setStateCommitment.getSignedTransaction([
+        // TODO: Replace with k-th signing keys later
+        multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
+      ]);
+
+      await wallet.sendTransaction({
+        ...setStateTx,
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      const setStateCommitmentForFreeBalance = new SetStateCommitment(
+        network,
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.hashOfLatestState,
+        stateChannel.freeBalance.versionNumber,
+        0 // make the timeout 0 so this ends without a challenge timeout
+      );
+
+      await wallet.sendTransaction({
+        ...setStateCommitmentForFreeBalance.getSignedTransaction([
+          multisigOwnerKeys[0].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          ),
+          multisigOwnerKeys[1].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          )
+        ]),
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      await appRegistry.functions.setOutcome(
+        targetAppInstance.identity,
+        targetAppInstance.encodedLatestState
+      );
+
+      await appRegistry.functions.setOutcome(
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.encodedLatestState
+      );
+    };
   });
-}
 
-async function fundWithDolphinCoin(
-  wallet: Wallet,
-  proxyAddress: string,
-  amount: BigNumber
-) {
-  await transferERC20Tokens(
-    proxyAddress,
-    erc20ContractAddress,
-    erc20Contract.abi,
-    amount
-  );
-}
-
-async function setupChannel(
-  proxyAddress: string,
-  tokenAmounts: BigNumber,
-  tokenAddress: string
-) {
-  return StateChannel.setupChannel(
-    network.FreeBalanceApp,
-    proxyAddress,
-    xpubs
-  ).setFreeBalance(
-    createFreeBalanceStateWithFundedTokenAmounts(
-      multisigOwnerKeys.map<string>(key => key.address),
-      tokenAmounts,
-      [tokenAddress]
-    )
-  );
-}
-
-function createTargetAppInstance(stateChannel: StateChannel) {
-  return new AppInstance(
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    /* default timeout */ 0,
-    /* appInterface */ {
-      addr: twoPartyFixedOutcomeAppDefinition.address,
-      stateEncoding: "uint256",
-      actionEncoding: undefined
-    },
-    true, // virtual
-    0, // app sequence number
-    2, // latest state
-    1, // latest versionNumber
-    0, // latest timeout
-    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
-    {
-      playerAddrs: [AddressZero, AddressZero],
-      amount: Zero
-    },
-    undefined
-  );
-}
-
-async function setStatesAndOutcomes(
-  targetAppInstance: AppInstance,
-  stateChannel: StateChannel
-) {
-  const setStateCommitment = new SetStateCommitment(
-    network,
-    targetAppInstance.identity,
-    targetAppInstance.hashOfLatestState,
-    targetAppInstance.versionNumber,
-    targetAppInstance.timeout
-  );
-
-  const setStateTx = setStateCommitment.getSignedTransaction([
-    // TODO: Replace with k-th signing keys later
-    multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
-    multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
-  ]);
-
-  await wallet.sendTransaction({
-    ...setStateTx,
-    gasLimit: SETSTATE_COMMITMENT_GAS
-  });
-
-  const setStateCommitmentForFreeBalance = new SetStateCommitment(
-    network,
-    stateChannel.freeBalance.identity,
-    stateChannel.freeBalance.hashOfLatestState,
-    stateChannel.freeBalance.versionNumber,
-    0 // make the timeout 0 so this ends without a challenge timeout
-  );
-
-  await wallet.sendTransaction({
-    ...setStateCommitmentForFreeBalance.getSignedTransaction([
-      multisigOwnerKeys[0].signDigest(
-        setStateCommitmentForFreeBalance.hashToSign()
-      ),
-      multisigOwnerKeys[1].signDigest(
-        setStateCommitmentForFreeBalance.hashToSign()
-      )
-    ]),
-    gasLimit: SETSTATE_COMMITMENT_GAS
-  });
-
-  await appRegistry.functions.setOutcome(
-    targetAppInstance.identity,
-    targetAppInstance.encodedLatestState
-  );
-
-  await appRegistry.functions.setOutcome(
-    stateChannel.freeBalance.identity,
-    stateChannel.freeBalance.encodedLatestState
-  );
-}
-
-describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
@@ -295,10 +330,8 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
 
     await createProxy();
   });
-});
 
-describe("Scenario: install virtual AppInstance, put on-chain", () => {
-  it("returns the ETH the app had locked up", async done => {
+  it("returns the ETH ", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       await fundWithETH(wallet, proxyAddress, parseEther("10"));
 

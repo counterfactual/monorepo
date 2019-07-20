@@ -64,8 +64,16 @@ describe("Set State Commitment", () => {
     });
 
     it("should contain expected AppIdentity argument", () => {
-      const [owner, participants, appDefinition, defaultTimeout] = desc.args[0];
-      expect(owner).toBe(appInstance.identity.owner);
+      const [
+        channelNonce,
+        participants,
+        appDefinition,
+        defaultTimeout
+      ] = desc.args[0];
+
+      expect(channelNonce).toEqual(
+        bigNumberify(appInstance.identity.channelNonce)
+      );
       expect(participants).toEqual(appInstance.identity.participants);
       expect(appDefinition).toBe(appInstance.identity.appDefinition);
       expect(defaultTimeout).toEqual(
