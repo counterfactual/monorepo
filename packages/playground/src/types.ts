@@ -91,7 +91,7 @@ export enum ErrorCode {
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
   AddressAlreadyRegistered = "address_already_registered",
-  ChallengeRegistryNotAvailable = "app_registry_not_available",
+  AppRegistryNotAvailable = "app_registry_not_available",
   UserAddressRequired = "user_address_required",
   NoUsersAvailable = "no_users_available",
   UnhandledError = "unhandled_error",

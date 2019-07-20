@@ -5,6 +5,7 @@ import { GameState, HighRollerAppState } from "./game-types";
 import { AppInstance } from "./mock-app-instance";
 
 export type ABIEncoding = string;
+export type Address = string;
 export type Bytes32 = string;
 
 export interface SignedStateHashUpdate {
@@ -25,8 +26,8 @@ export type AppInstanceInfo = {
 };
 
 export type AppABIEncodings = {
-  stateEncoding: ABIEncoding;
-  actionEncoding?: ABIEncoding;
+  stateEncoding: string;
+  actionEncoding?: string;
 };
 
 export interface INodeProvider {

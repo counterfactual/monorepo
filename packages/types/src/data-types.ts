@@ -2,7 +2,6 @@
 import { BigNumber } from "ethers/utils";
 
 import { AppInterface, SolidityABIEncoderV2Type } from ".";
-import { ABIEncoding } from "./simple-types";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -98,8 +97,8 @@ export type AppInstanceProposal = {
 };
 
 export type AppABIEncodings = {
-  stateEncoding: ABIEncoding;
-  actionEncoding: ABIEncoding | undefined;
+  stateEncoding: string;
+  actionEncoding: string | undefined;
 };
 
 export enum OutcomeType {
@@ -107,7 +106,7 @@ export enum OutcomeType {
 
   // CoinTransfer
   // Since no apps currently use this outcome
-  // type, do not use it in the node 
+  // type, do not use it in the node
   COIN_TRANSFER_DO_NOT_USE = 1,
 
   // tuple(address[], CoinTransfer[][], bytes32[])

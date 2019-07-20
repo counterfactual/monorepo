@@ -315,7 +315,7 @@ export namespace Node {
 
   export type WithdrawResult = {
     recipient: string;
-    amount: BigNumber;
+    txHash: string;
   };
 
   export type MethodParams =
