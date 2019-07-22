@@ -21,7 +21,7 @@ import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS } from "../../../types";
+import { NODE_EVENTS, DepositConfirmationMessage } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
@@ -125,7 +125,7 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
 
       retryCount -= 1;
@@ -135,7 +135,7 @@ export async function makeDeposit(
           NODE_EVENTS.DEPOSIT_FAILED,
           `Could not deposit after ${DEPOSIT_RETRY_COUNT} attempts`
         );
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
     }
   }
@@ -147,7 +147,18 @@ export async function makeDeposit(
 
   await txResponse!.wait(blocksNeededForConfirmation);
 
-  outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED);
+  const { messagingService, publicIdentifier, store } = requestHandler;
+  const [peerAddress] = await getPeersAddressFromChannel(
+    publicIdentifier,
+    store,
+    multisigAddress
+  );
+
+  await messagingService.send(peerAddress, {
+    from: publicIdentifier,
+    type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+    data: params
+  } as DepositConfirmationMessage);
 }
 
 export async function uninstallBalanceRefundApp(
