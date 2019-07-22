@@ -301,9 +301,6 @@ function computeStateChannelTransition(
   const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
   const responderFbAddress = stateChannel.getFreeBalanceAddrOf(responderXpub);
 
-  console.log("******** params!", JSON.stringify(params, null, 2));
-  console.log("******** initiatorBalanceDecrement is big num!", BigNumber.isBigNumber(initiatorBalanceDecrement));
-
   const {
     coinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
