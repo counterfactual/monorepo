@@ -78,8 +78,7 @@ export async function deposit(
       requestId: generateUUID(),
       params: {
         multisigAddress,
-        amount: parseEther(amount),
-        notifyCounterparty: true
+        amount: parseEther(amount)
       } as NodeTypes.DepositParams
     });
 

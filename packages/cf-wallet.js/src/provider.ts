@@ -158,17 +158,11 @@ export class Provider {
    *
    * @param multisigAddress string of the state channel multisig
    * @param amount BigNumber representing the deposit's value
-   * @param notifyCounterparty Boolean
    */
-  async deposit(
-    multisigAddress: string,
-    amount: BigNumber,
-    notifyCounterparty: boolean = true
-  ) {
+  async deposit(multisigAddress: string, amount: BigNumber) {
     await this.callRawNodeMethod(Node.RpcMethodName.DEPOSIT, {
       multisigAddress,
-      amount,
-      notifyCounterparty
+      amount
     });
   }
 
@@ -314,7 +308,9 @@ export class Provider {
                 type: EventType.ERROR,
                 data: {
                   errorName: "unexpected_message_type",
-                  message: `Unexpected response type. Expected ${methodName}, got ${response.result.type}`
+                  message: `Unexpected response type. Expected ${methodName}, got ${
+                    response.result.type
+                  }`
                 }
               },
               requestId

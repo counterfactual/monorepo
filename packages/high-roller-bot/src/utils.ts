@@ -78,8 +78,7 @@ export async function deposit(
       requestId: generateUUID(),
       params: {
         multisigAddress,
-        amount: parseEther(amount),
-        notifyCounterparty: true
+        amount: parseEther(amount)
       } as NodeTypes.DepositParams
     });
 
@@ -359,7 +358,7 @@ export type APIResourceType =
   | "app";
 
 export type APIResourceRelationships = {
-  [key in APIResourceType]?: APIDataContainer;
+  [key in APIResourceType]?: APIDataContainer
 };
 
 export type APIDataContainer<T = APIResourceAttributes> = {
