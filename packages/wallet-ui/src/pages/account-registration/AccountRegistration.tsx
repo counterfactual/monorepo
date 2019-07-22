@@ -106,6 +106,7 @@ export class AccountRegistration extends React.Component<
             <div className="error">{error.message}</div>
           ) : null}
           <FormButton
+            name="register"
             type="button"
             spinner={loading}
             disabled={loading || !userData.username}

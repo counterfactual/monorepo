@@ -4,6 +4,7 @@ import "./FormButton.scss";
 
 export type FormButtonProps = {
   className?: string;
+  name: string;
   spinner?: boolean;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -16,6 +17,7 @@ export type FormButtonProps = {
 const FormButton: React.FC<FormButtonProps> = ({
   children,
   onClick,
+  name,
   disabled = false,
   spinner = false,
   className = "button",
@@ -23,7 +25,7 @@ const FormButton: React.FC<FormButtonProps> = ({
 }: FormButtonProps) => {
   return (
     <button
-      data-test-selector={className || true}
+      data-test-selector={`${name || className || "generic"}-button`}
       disabled={disabled}
       onClick={onClick}
       className={className}

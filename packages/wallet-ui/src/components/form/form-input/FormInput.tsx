@@ -114,7 +114,7 @@ class FormInput extends React.Component<
           className={disabled ? "input-container disabled" : "input-container"}
         >
           <input
-            data-test-selector={name || "input"}
+            data-test-selector={`${name || type}-input`}
             name={name || "input"}
             className="input"
             autoFocus={autofocus || false}
@@ -133,7 +133,7 @@ class FormInput extends React.Component<
         {error ? (
           <div
             className="error"
-            data-test-selector={`error-${name || "input"}`}
+            data-test-selector={`error-${name || type}-input}`}
           >
             {error}
           </div>

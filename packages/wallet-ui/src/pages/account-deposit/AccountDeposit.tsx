@@ -120,6 +120,7 @@ export class AccountDeposit extends React.Component<
             <div className="error">Ups! something broke</div>
           ) : null}
           <FormButton
+            name="deposit"
             type="button"
             className="button"
             spinner={loading}
