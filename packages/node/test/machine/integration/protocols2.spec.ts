@@ -7,7 +7,6 @@ import {
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
-import { bigNumberify } from "ethers/utils";
 
 import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
@@ -119,8 +118,8 @@ describe("Three mininodes", () => {
         responderXpub: mininodeC.xpub,
         defaultTimeout: 100,
         initialState: appState,
-        initiatorBalanceDecrement: bigNumberify(0),
-        responderBalanceDecrement: bigNumberify(0),
+        initiatorBalanceDecrement: Zero,
+        responderBalanceDecrement: Zero,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       }
