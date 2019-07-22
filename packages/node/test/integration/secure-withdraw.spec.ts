@@ -63,11 +63,15 @@ describe("Node method follows spec - withdraw", () => {
       recipient
     );
 
-    const withdrawRes = ((await nodeA.rpcRouter.dispatch(
-      withdrawReq
-    )) as JsonRpcResponse).result.result as NodeTypes.WithdrawResult;
+    const {
+      result: {
+        result: { txHash }
+      }
+    } = await nodeA.rpcRouter.dispatch(withdrawReq);
 
-    expect(withdrawRes.txHash).toBeDefined();
+    expect(txHash).toBeDefined();
+    expect(txHash.length).toBe(64);
+    expect(txHash.substr(0, 2)).toBe("0x");
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()

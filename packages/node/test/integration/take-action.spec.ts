@@ -64,9 +64,13 @@ describe("Node method follows spec - takeAction", () => {
            * TEST #3
            * The database of Node C is correctly updated and querying it works
            */
-          const { state } = ((await nodeB.rpcRouter.dispatch(
+          const {
+            result: {
+              result: { state }
+            }
+          } = await nodeB.rpcRouter.dispatch(
             generateGetStateRequest(appInstanceId)
-          )) as JsonRpcResponse).result.result as NodeTypes.GetStateResult;
+          );
 
           expect(state).toEqual(expectedNewState);
 
@@ -82,9 +86,11 @@ describe("Node method follows spec - takeAction", () => {
          * TEST #2
          * The return value from the call to Node A includes the new state
          */
-        const { newState } = ((await nodeA.rpcRouter.dispatch(
-          takeActionReq
-        )) as JsonRpcResponse).result.result as NodeTypes.TakeActionResult;
+        const {
+          result: {
+            result: { newState }
+          }
+        } = await nodeA.rpcRouter.dispatch(takeActionReq);
 
         expect(newState).toEqual(expectedNewState);
       });

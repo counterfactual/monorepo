@@ -256,7 +256,7 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = (await node.rpcRouter.dispatch(
+    const { result } = await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: "chan_create",
@@ -265,11 +265,9 @@ export class NodeWrapper {
         },
         jsonrpc: "2.0"
       })
-    )) as JsonRpcResponse;
+    );
 
-    return {
-      ...multisigResponse.result
-    } as NodeTypes.CreateChannelTransactionResult;
+    return result as NodeTypes.CreateChannelTransactionResult;
   }
 }
 
