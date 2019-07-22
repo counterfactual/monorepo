@@ -804,7 +804,7 @@ function constructVirtualAppInstance(
 
   return new AppInstance(
     /* multisigAddress */ stateChannelBetweenEndpoints.multisigAddress,
-    /* signingKeys */
+    /* participants */
     sortAddresses([initiatorAddress, responderAddress]),
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
@@ -862,7 +862,7 @@ function constructTimeLockedPassThroughAppInstance(
 
   return new AppInstance(
     /* multisigAddress */ AddressZero,
-    /* signingKeys */
+    /* participants */
     sortAddresses([initiatorAddress, responderAddress, intermediaryAddress]),
     /* defaultTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* appInterface */ {

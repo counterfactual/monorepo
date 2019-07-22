@@ -1,6 +1,6 @@
 export type AppIdentity = {
   owner: string;
-  signingKeys: string[];
+  participants: string[];
   appDefinition: string;
   defaultTimeout: number;
 };

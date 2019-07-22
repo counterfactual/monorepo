@@ -41,7 +41,7 @@ export class AppInstance {
   get appIdentity(): AppIdentity {
     return {
       owner: this.owner,
-      signingKeys: this.signingKeys,
+      participants: this.participants,
       appDefinition: this.appDefinition,
       defaultTimeout: this.defaultTimeout
     };
@@ -49,7 +49,7 @@ export class AppInstance {
 
   constructor(
     readonly owner: string,
-    readonly signingKeys: string[],
+    readonly participants: string[],
     readonly appDefinition: string,
     readonly defaultTimeout: number
   ) {}
@@ -61,7 +61,7 @@ export class AppInstance {
         [
           `tuple(
             address owner,
-            address[] signingKeys,
+            address[] participants,
             address appDefinition,
             uint256 defaultTimeout
           )`

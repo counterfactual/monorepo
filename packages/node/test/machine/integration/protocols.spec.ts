@@ -68,13 +68,13 @@ describe("Three mininodes", () => {
 
     mr.assertNoPending();
 
-    const signingKeys = sortAddresses([
+    const participants = sortAddresses([
       xkeyKthAddress(mininodeA.xpub, 1),
       xkeyKthAddress(mininodeB.xpub, 1)
     ]);
 
     await mininodeA.ie.initiateProtocol(Protocol.Install, mininodeA.scm, {
-      signingKeys,
+      participants,
       initiatorXpub: mininodeA.xpub,
       responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB,

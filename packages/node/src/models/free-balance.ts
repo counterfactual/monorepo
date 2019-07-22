@@ -124,7 +124,8 @@ export function convertCoinTransfersMapToCoinTransfers(
  * into the locally more convenient data type CoinTransferMap and return that.
  *
  * Note that this function will also default the `to` addresses of a new token
- * to the 0th signing keys of the FreeBalanceApp AppInstance.
+ * to the 0th derived public addresses of the StateChannel, the same as all
+ * FreeBalanceApp AppInstances.
  *
  * @export
  * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
@@ -142,8 +143,8 @@ export function getBalancesFromFreeBalanceAppInstance(
   const coinTransfers = freeBalanceState.balancesIndexedByToken[
     tokenAddress
   ] || [
-    { to: freeBalanceAppInstance.signingKeys[0], amount: Zero },
-    { to: freeBalanceAppInstance.signingKeys[1], amount: Zero }
+    { to: freeBalanceAppInstance.participants[0], amount: Zero },
+    { to: freeBalanceAppInstance.participants[1], amount: Zero }
   ];
 
   return convertCoinTransfersToCoinTransfersMap(coinTransfers);

@@ -27,7 +27,7 @@ export const coinTransferInterpreterParamsStateEncoding = `
 export type AppInstanceJson = {
   identityHash: string;
   multisigAddress: string;
-  signingKeys: string[];
+  participants: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
   isVirtualApp: boolean;
