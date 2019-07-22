@@ -103,14 +103,10 @@ export class AppInstance {
   }
 
   public static fromJson(json: AppInstanceJson) {
-    // FIXME: Do recursive not shallow
-    const latestState = json.latestState;
-    for (const key in latestState) {
-      // @ts-ignore
-      if (latestState[key]["_hex"]) {
-        latestState[key] = bigNumberify(latestState[key] as BigNumber);
-      }
-    }
+    const latestState = JSON.parse(
+      JSON.stringify(json.latestState),
+      (key, val) => (val["_hex"] ? bigNumberify(val) : val)
+    );
 
     const ret = new AppInstance(
       json.multisigAddress,
