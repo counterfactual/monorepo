@@ -73,32 +73,34 @@ describe("<AccountRegistration />", () => {
   });
 
   it("should render a disabled Create Account button", () => {
-    const createAccountButton = component.find(testSelector("button"));
+    const createAccountButton = component.find(testSelector("register-button"));
     expect(createAccountButton.exists()).toBe(true);
     expect(createAccountButton.text()).toBe("Create account");
     expect(createAccountButton.prop("disabled")).toBe(true);
   });
 
   it("should render the form input fields", () => {
-    expect(component.find(testSelector("email")).exists()).toBe(true);
-    expect(component.find(testSelector("username")).exists()).toBe(true);
+    expect(component.find(testSelector("email-input")).exists()).toBe(true);
+    expect(component.find(testSelector("username-input")).exists()).toBe(true);
   });
 
   it("should enable button upon username input", () => {
-    component.find(testSelector("username")).simulate("change", {
+    component.find(testSelector("username-input")).simulate("change", {
       target: { value: "TEST", validity: { valid: true } }
     });
-    expect(component.find(testSelector("button")).prop("disabled")).toBe(false);
+    expect(
+      component.find(testSelector("register-button")).prop("disabled")
+    ).toBe(false);
   });
 
   it("should trigger User Creation upon click", () => {
-    component.find(testSelector("username")).simulate("change", {
+    component.find(testSelector("username-input")).simulate("change", {
       target: { value: "TEST", validity: { valid: true } }
     });
-    component.find(testSelector("email")).simulate("change", {
+    component.find(testSelector("email-input")).simulate("change", {
       target: { value: "TEST@gmail.com", validity: { valid: true } }
     });
-    component.find(testSelector("button")).simulate("click");
+    component.find(testSelector("register-button")).simulate("click");
     expect(props.history.location.pathname).toBe(RoutePath.SetupDeposit);
   });
 });
