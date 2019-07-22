@@ -213,7 +213,8 @@ async function post(
     const response = (await httpResponse.json()) as APIResponse;
 
     if (response.errors) {
-      throw response.errors[0] as APIError;
+      const error = response.errors[0] as APIError;
+      throw error;
     }
     return response;
   } catch (error) {
