@@ -167,7 +167,12 @@ export class AppInstance {
     } catch (e) {
       // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
       console.error(
-        "Attempted to setState on an app with an invalid state object",
+        `
+Attempted to setState on an app with an invalid state object.
+- appInstanceIdentityHash = ${this.identityHash}
+- newState = ${newState}
+- encodingExpected = ${this.appInterface.stateEncoding}
+`,
         newState
       );
       throw e;
