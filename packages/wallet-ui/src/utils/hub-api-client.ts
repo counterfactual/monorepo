@@ -325,7 +325,6 @@ export default class PlaygroundAPIClient {
         ...(json.data as APIResource).attributes
       };
     } catch (e) {
-      console.log("createAccount e", e);
       return Promise.reject(e);
     }
   }
