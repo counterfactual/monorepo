@@ -210,7 +210,7 @@ async function getDepositContext(
 
   const initialState = {
     threshold,
-    token: tokenAddress,
+    tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
   } as CoinBalanceRefundState;

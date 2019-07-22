@@ -13,7 +13,7 @@ contract ConditionalTransactionDelegateTarget {
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
   struct FreeBalanceAppState {
-    address[] tokens;
+    address[] tokenAddresses;
     // The inner array contains the list of CoinTransfers for a single asset type
     // The outer array contains the list of asset balances for respecitve assets
     // according to the indexing used in the `tokens` array above

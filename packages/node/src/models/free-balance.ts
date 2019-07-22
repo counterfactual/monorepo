@@ -51,7 +51,7 @@ export type FreeBalanceState = {
 };
 
 export type FreeBalanceStateJSON = {
-  tokens: string[];
+  tokenAddresses: string[];
   balances: CoinTransferJSON[][];
   activeApps: string[];
 };
@@ -97,7 +97,7 @@ export function createFreeBalance(
     OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: [MaxUint256], tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
+    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
   );
 }
 
@@ -130,7 +130,7 @@ export function convertCoinTransfersMapToCoinTransfers(
  * @export
  * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
  *
- * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokens
+ * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokenAddresses
  */
 export function getBalancesFromFreeBalanceAppInstance(
   freeBalanceAppInstance: AppInstance,
@@ -153,12 +153,12 @@ export function getBalancesFromFreeBalanceAppInstance(
 export function deserializeFreeBalanceState(
   freeBalanceStateJSON: FreeBalanceStateJSON
 ): FreeBalanceState {
-  const { activeApps, tokens, balances } = freeBalanceStateJSON;
+  const { activeApps, tokenAddresses, balances } = freeBalanceStateJSON;
   return {
-    balancesIndexedByToken: (tokens || []).reduce(
-      (acc, token, idx) => ({
+    balancesIndexedByToken: (tokenAddresses || []).reduce(
+      (acc, tokenAddress, idx) => ({
         ...acc,
-        [token]: balances[idx].map(({ to, amount }) => ({
+        [tokenAddress]: balances[idx].map(({ to, amount }) => ({
           to,
           amount: bigNumberify(amount._hex)
         }))
@@ -177,7 +177,7 @@ export function serializeFreeBalanceState(
 ): FreeBalanceStateJSON {
   return {
     activeApps: Object.keys(freeBalanceState.activeAppsMap),
-    tokens: Object.keys(freeBalanceState.balancesIndexedByToken),
+    tokenAddresses: Object.keys(freeBalanceState.balancesIndexedByToken),
     balances: Object.values(freeBalanceState.balancesIndexedByToken).map(
       balances =>
         balances.map(({ to, amount }) => ({

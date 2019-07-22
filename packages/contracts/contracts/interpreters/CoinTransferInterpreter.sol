@@ -18,7 +18,7 @@ contract CoinTransferInterpreter is Interpreter {
 
   struct Param {
     uint256[] limit;
-    address[] tokens;
+    address[] tokenAddresses;
   }
 
   function interpretOutcomeAndExecuteEffect(
@@ -30,15 +30,15 @@ contract CoinTransferInterpreter is Interpreter {
 
     Param memory params = abi.decode(encodedParams, (Param));
     uint256[] memory limitsRemaining = params.limit;
-    address[] memory tokens = params.tokens;
+    address[] memory tokenAddresses = params.tokenAddresses;
 
     LibOutcome.CoinTransfer[][] memory assetTransfers =
       abi.decode(input, (LibOutcome.CoinTransfer[][]));
 
-    for (uint256 tokenIndex = 0; tokenIndex < assetTransfers.length; tokenIndex++) {
-      address token = tokens[tokenIndex];
-      uint256 limitRemaining = limitsRemaining[tokenIndex];
-      LibOutcome.CoinTransfer[] memory transfers = assetTransfers[tokenIndex];
+    for (uint256 i = 0; i < assetTransfers.length; i++) {
+      address tokenAddress = tokenAddresses[i];
+      uint256 limitRemaining = limitsRemaining[i];
+      LibOutcome.CoinTransfer[] memory transfers = assetTransfers[i];
 
       for (uint256 transferIndex = 0; transferIndex < transfers.length; transferIndex++) {
         LibOutcome.CoinTransfer memory transfer = transfers[transferIndex];
@@ -52,12 +52,12 @@ contract CoinTransferInterpreter is Interpreter {
         require(amount <= limitRemaining, "Hit the transfer limit.");
         limitRemaining -= amount;
 
-        if (token == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
+        if (tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
           // note: send() is deliberately used instead of transfer() here
           // so that a revert does not stop the rest of the sends
           to.send(amount);
         } else {
-          ERC20(token).transfer(to, amount);
+          ERC20(tokenAddress).transfer(to, amount);
         }
       }
     }

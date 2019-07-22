@@ -14,13 +14,13 @@ export type CoinTransferInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
   limit: BigNumber[];
-  tokens: string[];
+  tokenAddresses: string[];
 };
 
 export const coinTransferInterpreterParamsStateEncoding = `
   tuple(
     uint256[] limit,
-    address[] tokens
+    address[] tokenAddresses
   )
 `;
 
@@ -52,7 +52,7 @@ export type AppInstanceJson = {
     // Derived from:
     // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
-    tokens: string[];
+    tokenAddresses: string[];
   };
 };
 
@@ -131,7 +131,7 @@ export type CoinBalanceRefundState = {
   recipient: string;
   multisig: string;
   threshold: BigNumber;
-  token: string;
+  tokenAddress: string;
 };
 
 export const coinBalanceRefundStateEncoding = `
@@ -139,6 +139,6 @@ export const coinBalanceRefundStateEncoding = `
     address recipient,
     address multisig,
     uint256 threshold,
-    address token
+    address tokenAddress
   )
 `;
