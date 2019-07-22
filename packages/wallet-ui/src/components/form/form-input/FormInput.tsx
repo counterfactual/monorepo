@@ -57,7 +57,6 @@ class FormInput extends React.Component<
 
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { type, disabled, error, change, name } = this.props;
-    console.log(event.target.validationMessage);
     const inputError =
       error || this.getError(event.target.validity, type, disabled);
     if (change) {
