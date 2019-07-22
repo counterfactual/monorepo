@@ -1,5 +1,5 @@
 import { Node, UninstallVirtualMessage } from "@counterfactual/node";
-import { Address, Node as NodeTypes } from "@counterfactual/types";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -87,7 +87,7 @@ function checkCrossDiagonalVictory(board: Board, player: number) {
 
 function respond(
   node: Node,
-  nodeAddress: Address,
+  nodeAddress: string,
   { data: { appInstanceId, newState } }
 ) {
   const { board, versionNumber, winner } = newState;

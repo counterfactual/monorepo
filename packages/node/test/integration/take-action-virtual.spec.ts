@@ -35,9 +35,8 @@ describe("Node method follows spec - takeAction virtual", () => {
     "Node A and C install an AppInstance via Node B, Node A takes action, " +
       "Node C confirms receipt of state update",
     () => {
-      it("sends takeAction with invalid appInstanceId", async () => {
+      it("sends takeAction with invalid appInstanceId", () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
-
         expect(nodeA.rpcRouter.dispatch(takeActionReq)).rejects.toEqual(
           NO_APP_INSTANCE_FOR_TAKE_ACTION
         );
@@ -60,24 +59,42 @@ describe("Node method follows spec - takeAction virtual", () => {
 
         nodeC.once(
           NODE_EVENTS.UPDATE_STATE,
-          async (msg: UpdateStateMessage) => {
+          async ({
+            data: { newState, appInstanceId: retAppInstanceId }
+          }: UpdateStateMessage) => {
             /**
              * TEST #1
              * The event emitted by Node C after an action is taken by A
              * sends the appInstanceId and the newState correctly.
              */
-            expect(msg.data.appInstanceId).toEqual(appInstanceId);
-            expect(msg.data.newState).toEqual(expectedNewState);
+            expect(retAppInstanceId).toEqual(appInstanceId);
+            expect(newState).toEqual(expectedNewState);
+
+            const req = generateGetStateRequest(appInstanceId);
 
             /**
              * TEST #3
              * The database of Node C is correctly updated and querying it works
              */
-            const { state } = ((await nodeC.rpcRouter.dispatch(
-              generateGetStateRequest(appInstanceId)
-            )) as JsonRpcResponse).result.result as NodeTypes.GetStateResult;
+            const {
+              result: {
+                result: { state: nodeCState }
+              }
+            } = (await nodeC.rpcRouter.dispatch(req)) as JsonRpcResponse;
 
-            expect(state).toEqual(expectedNewState);
+            expect(nodeCState).toEqual(expectedNewState);
+
+            /**
+             * TEST #4
+             * The database of Node A is correctly updated and querying it works
+             */
+            const {
+              result: {
+                result: { state: nodeAState }
+              }
+            } = (await nodeA.rpcRouter.dispatch(req)) as JsonRpcResponse;
+
+            expect(nodeAState).toEqual(expectedNewState);
 
             done();
           }

@@ -6,7 +6,8 @@ import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
   CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
-  NetworkContext
+  NetworkContext,
+  OutcomeType
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
@@ -139,6 +140,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         ],
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
+        OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred

@@ -1,5 +1,4 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
   AppInstanceJson,
@@ -20,7 +19,7 @@ export class AppInstance {
   readonly identityHash: string;
 
   // Application-specific fields
-  readonly appDefinition: Address;
+  readonly appDefinition: string;
   readonly abiEncodings: AppABIEncodings;
   readonly timeout: BigNumber;
 
@@ -31,7 +30,7 @@ export class AppInstance {
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 
-  readonly intermediaries?: Address[];
+  readonly intermediaries?: string[];
 
   constructor(
     info: AppInstanceInfo | AppInstanceJson,

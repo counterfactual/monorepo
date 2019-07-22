@@ -10,7 +10,7 @@ import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
-import { StateChannel } from "../../models";
+import { AppInstance } from "../../models";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   TokenIndexedCoinTransferMap
@@ -51,14 +51,20 @@ function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
   return false;
 }
 
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+// todo(xuanji): rename appInstanceId to identityHash
+/**
+ * Get the outcome of the app instance given, decode it according
+ * to the outcome type stored in the app instance model, and return
+ * a value uniformly across outcome type and whether the app is virtual
+ * or direct. This return value must not contain the intermediary.
+ */
 export async function computeTokenIndexedFreeBalanceIncrements(
   networkContext: NetworkContext,
-  stateChannel: StateChannel,
-  appInstanceId: string,
+  appInstance: AppInstance,
   provider: BaseProvider
 ): Promise<TokenIndexedCoinTransferMap> {
-  const appInstance = stateChannel.getAppInstance(appInstanceId);
-
   const appDefinition = new Contract(
     appInstance.appInterface.addr,
     CounterfactualApp.abi,
@@ -69,24 +75,21 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  // Temporary, better solution is to add outcomeType to AppInstance model
-  let outcomeType: OutcomeType | undefined;
-  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
-    outcomeType = OutcomeType.COIN_TRANSFER;
-  } else if (
-    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
-  ) {
-    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
+  const outcomeType = appInstance.toJson().outcomeType;
+
+  if (outcomeType === undefined) {
+    throw new Error("undefined outcomeType in appInstance");
   }
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
       let attempts = 1;
 
-      const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+      // todo(xuanji): factor out retryUntil function
+
       while (1) {
         outcome = await appDefinition.functions.computeOutcome(
           appInstance.encodedLatestState
@@ -112,6 +115,12 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
+
+      if (appInstance.twoPartyOutcomeInterpreterParams === undefined) {
+        throw new Error(
+          "app instance outcome type set to two party outcome, but twoPartyOutcomeInterpreterParams not defined"
+        );
+      }
 
       const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
 
