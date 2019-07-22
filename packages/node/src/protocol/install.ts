@@ -398,28 +398,28 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
       const limit: BigNumber[] = [];
-      const tokens: string[] = [];
+      const tokenAddresses: string[] = [];
 
       // Deposit is taking place by the initiator
       if (responderDepositTokenAddress === undefined) {
         limit.push(initiatorBalanceDecrement);
-        tokens.push(initiatorDepositTokenAddress);
+        tokenAddresses.push(initiatorDepositTokenAddress);
       } else if (
         initiatorDepositTokenAddress === responderDepositTokenAddress
       ) {
         limit.push(initiatorBalanceDecrement.add(responderBalanceDecrement));
-        tokens.push(initiatorDepositTokenAddress);
+        tokenAddresses.push(initiatorDepositTokenAddress);
       } else {
-        tokens.push(initiatorDepositTokenAddress);
+        tokenAddresses.push(initiatorDepositTokenAddress);
         limit.push(initiatorBalanceDecrement);
 
-        tokens.push(responderDepositTokenAddress);
+        tokenAddresses.push(responderDepositTokenAddress);
         limit.push(responderBalanceDecrement);
       }
 
       coinTransferInterpreterParams = {
         limit,
-        tokens
+        tokenAddresses
       };
       break;
     }
