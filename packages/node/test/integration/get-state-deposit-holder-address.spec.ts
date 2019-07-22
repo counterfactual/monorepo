@@ -1,6 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 
-import { jsonRpcDeserialize, JsonRpcResponse, Node } from "../../src";
+import { jsonRpcDeserialize, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 

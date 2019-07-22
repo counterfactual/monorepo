@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
-import { jsonRpcDeserialize, JsonRpcResponse } from "rpc-server";
+import { jsonRpcDeserialize } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
 
 import {

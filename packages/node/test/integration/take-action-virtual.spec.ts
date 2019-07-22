@@ -1,8 +1,6 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
 import {
-  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
