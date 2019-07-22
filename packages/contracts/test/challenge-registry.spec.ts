@@ -174,7 +174,7 @@ describe("ChallengeRegistry", () => {
       });
     });
 
-    describe("with signing keys", async () => {
+    describe("with participants", async () => {
       it("should work with higher versionNumber", async () => {
         expect(await latestVersionNumber()).to.eq(0);
         await setStateWithSignatures(1);

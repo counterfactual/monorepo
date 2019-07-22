@@ -48,7 +48,7 @@ contract MixinSetStateWithAction is
     AppChallenge storage challenge = appChallenges[identityHash];
 
     require(
-      correctKeysSignedAppChallengeUpdate(identityHash, appIdentity.signingKeys, req),
+      correctKeysSignedAppChallengeUpdate(identityHash, appIdentity.participants, req),
       "Call to setStateWithAction included incorrectly signed state update"
     );
 
@@ -66,7 +66,7 @@ contract MixinSetStateWithAction is
     require(
       correctKeySignedTheAction(
         appIdentity.appDefinition,
-        appIdentity.signingKeys,
+        appIdentity.participants,
         req,
         action
       ),
@@ -99,7 +99,7 @@ contract MixinSetStateWithAction is
 
   function correctKeysSignedAppChallengeUpdate(
     bytes32 identityHash,
-    address[] memory signingKeys,
+    address[] memory participants,
     SignedAppChallengeUpdateWithAppState memory req
   )
     private
@@ -112,12 +112,12 @@ contract MixinSetStateWithAction is
       req.versionNumber,
       req.timeout
     );
-    return verifySignatures(req.signatures, digest, signingKeys);
+    return verifySignatures(req.signatures, digest, participants);
   }
 
   function correctKeySignedTheAction(
     address appDefinition,
-    address[] memory signingKeys,
+    address[] memory participants,
     SignedAppChallengeUpdateWithAppState memory req,
     SignedAction memory action
   )
@@ -127,7 +127,7 @@ contract MixinSetStateWithAction is
   {
     address turnTaker = LibAppCaller.getTurnTaker(
       appDefinition,
-      signingKeys,
+      participants,
       req.appState
     );
 

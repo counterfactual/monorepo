@@ -199,7 +199,7 @@ export class StateChannel {
   }
 
   public getFreeBalanceAddrOf(xpub: string): string {
-    const [alice, bob] = this.freeBalanceAppInstance!.signingKeys;
+    const [alice, bob] = this.freeBalanceAppInstance!.participants;
 
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
@@ -457,10 +457,12 @@ export class StateChannel {
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
       throw Error("AppInstance passed to installApp has incorrect appSeqNo");
     } else {
-      const signingKeys = this.getSigningKeysFor(appInstance.appSeqNo);
-      if (!signingKeys.every((v, idx) => v === appInstance.signingKeys[idx])) {
+      const participants = this.getSigningKeysFor(appInstance.appSeqNo);
+      if (
+        !participants.every((v, idx) => v === appInstance.participants[idx])
+      ) {
         throw Error(
-          "AppInstance passed to installApp has incorrect signingKeys"
+          "AppInstance passed to installApp has incorrect participants"
         );
       }
     }

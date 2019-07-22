@@ -290,7 +290,7 @@ function computeStateChannelTransition(
     responderDepositTokenAddress,
     initiatorXpub,
     responderXpub,
-    signingKeys,
+    participants,
     initialState,
     appInterface,
     defaultTimeout,
@@ -317,7 +317,7 @@ function computeStateChannelTransition(
 
   const appInstanceToBeInstalled = new AppInstance(
     /* multisigAddress */ multisigAddress,
-    /* signingKeys */ signingKeys,
+    /* participants */ participants,
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
     /* isVirtualApp */ false,

@@ -81,7 +81,7 @@ export type InstallParams = {
   multisigAddress: string;
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
-  signingKeys: string[];
+  participants: string[];
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
