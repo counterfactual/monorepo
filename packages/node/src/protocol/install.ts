@@ -305,7 +305,6 @@ function computeStateChannelTransition(
     coinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
   } = computeInterpreterParameters(
-    stateChannel.freeBalance,
     outcomeType,
     initiatorDepositTokenAddress,
     responderDepositTokenAddress,
@@ -382,7 +381,6 @@ function computeStateChannelTransition(
  * object currently accepts both in its constructor and internally manages them.
  */
 function computeInterpreterParameters(
-  freeBalance: AppInstance,
   outcomeType: OutcomeType,
   initiatorDepositTokenAddress: string,
   responderDepositTokenAddress: string,
