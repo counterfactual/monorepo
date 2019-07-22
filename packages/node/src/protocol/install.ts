@@ -445,6 +445,7 @@ function computeInterpreterParameters(
         }
       };
     }
+
     default: {
       throw new Error(
         "The outcome type in this application logic contract is not supported yet."

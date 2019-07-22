@@ -812,9 +812,11 @@ function computeInterpreterParameters(
       };
       break;
     }
+
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       break;
     }
+
     default: {
       throw Error(`Not supported, and weird outcome type: ${outcomeType}`);
     }

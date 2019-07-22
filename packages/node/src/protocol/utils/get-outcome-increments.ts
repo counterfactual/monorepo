@@ -104,6 +104,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         await wait(1000 * attempts);
       }
     }
+
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       if (appInstance.twoPartyOutcomeInterpreterParams === undefined) {
         throw new Error(
