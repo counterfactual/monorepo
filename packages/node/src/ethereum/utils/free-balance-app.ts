@@ -34,25 +34,23 @@ export function encodeFreeBalanceAppState(state: FreeBalanceStateJSON) {
 export function flipTokenIndexedBalances(
   tokenIndexedBalances: TokenIndexedCoinTransferMap
 ): TokenIndexedCoinTransferMap {
-  // TODO: make functional
-  const flippedTokenBalances = {};
-  for (const tokenAddress of Object.keys(tokenIndexedBalances)) {
-    flippedTokenBalances[tokenAddress] = flip(
-      tokenIndexedBalances[tokenAddress]
-    );
-  }
-  return flippedTokenBalances;
+  return Object.entries(tokenIndexedBalances).reduce(
+    (ret, [tokenAddress, balances]) => ({
+      ...ret,
+      [tokenAddress]: flip(balances)
+    }),
+    {}
+  );
 }
 
 /**
  * Returns a mapping with all values negated
  */
-export function flip(a: CoinTransferMap): CoinTransferMap {
-  const ret = {};
-  for (const key of Object.keys(a)) {
-    ret[key] = Zero.sub(a[key]);
-  }
-  return ret;
+export function flip(coinTransferMap: CoinTransferMap): CoinTransferMap {
+  return Object.entries(coinTransferMap).reduce(
+    (acc, [to, amount]) => ({ ...acc, [to]: Zero.sub(amount) }),
+    {}
+  );
 }
 
 /**
