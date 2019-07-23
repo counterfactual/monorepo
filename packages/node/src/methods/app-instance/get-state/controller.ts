@@ -22,7 +22,7 @@ export default class GetStateController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      Promise.reject(NO_APP_INSTANCE_ID_FOR_GET_STATE);
+      throw new Error(NO_APP_INSTANCE_ID_FOR_GET_STATE);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);

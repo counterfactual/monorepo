@@ -1,5 +1,6 @@
 import {
   Controller,
+  JsonRpcResponse,
   jsonRpcSerializeAsResponse,
   Router,
   Rpc
@@ -24,14 +25,13 @@ export default class RpcRouter extends Router {
     this.requestHandler = requestHandler;
   }
 
-  async dispatch(rpc: Rpc) {
+  async dispatch(rpc: Rpc): Promise<JsonRpcResponse> {
     const controller = Object.values(Controller.rpcMethods).find(
       mapping => mapping.method === rpc.methodName
     );
 
     if (!controller) {
-      console.warn(`Cannot execute ${rpc.methodName}: no controller`);
-      return;
+      throw new Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
     const result = jsonRpcSerializeAsResponse(
@@ -71,5 +71,9 @@ export default class RpcRouter extends Router {
     }
 
     this.requestHandler[emitter].emit(event, eventData.result);
+  }
+
+  eventListenerCount(event: string): number {
+    return this.requestHandler.outgoing.listenerCount(event);
   }
 }

@@ -13,7 +13,7 @@ export async function install(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -34,7 +34,7 @@ export async function install(
       initiatorBalanceDecrement: proposal.initiatorDeposit,
       responderBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
-      signingKeys: stateChannel.getNextSigningKeys(),
+      participants: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,
       appInterface: {
         ...proposal.abiEncodings,

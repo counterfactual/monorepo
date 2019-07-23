@@ -85,7 +85,7 @@ let node: Node;
   try {
     const privateKey = process.env.PRIVATE_KEY;
     if (!privateKey) {
-      throw Error("No private key specified in env. Exiting.");
+      throw new Error("No private key specified in env. Exiting.");
     }
     const wallet = new ethers.Wallet(privateKey, provider);
     const user = {

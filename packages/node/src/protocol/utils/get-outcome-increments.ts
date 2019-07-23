@@ -96,7 +96,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         );
 
         const increments = computeCoinTransferIncrement(
-          (appInstance.state as CoinBalanceRefundState).token,
+          (appInstance.state as CoinBalanceRefundState).tokenAddress,
           outcome
         );
 
@@ -153,7 +153,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       };
     }
     default: {
-      throw Error("unknown interpreter");
+      throw new Error("unknown interpreter");
     }
   }
 }

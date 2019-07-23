@@ -17,7 +17,7 @@ export class MiddlewareContainer {
     const middleware = this.middlewares[opCode][0];
 
     if (middleware === undefined) {
-      throw Error(
+      throw new Error(
         `Attempted to run middleware for opcode ${opCode} but none existed`
       );
     }

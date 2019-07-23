@@ -1,9 +1,12 @@
+import { BigNumber, bigNumberify } from "ethers/utils";
+
 import {
   Protocol,
   SetupParams,
   TakeActionParams,
   UninstallParams,
   UninstallVirtualAppParams,
+  UpdateParams,
   WithdrawParams
 } from "../machine";
 import { StateChannel } from "../models";
@@ -39,11 +42,16 @@ export async function handleReceivedProtocolMessage(
     data: { protocol, seq, params }
   } = nodeMsg;
 
+  for (const key in params) {
+    if (params[key]["_hex"]) {
+      params[key] = bigNumberify(params[key] as BigNumber);
+    }
+  }
+
   if (seq === -1) return;
 
   let stateChannelsMap;
   let uninstallMsg;
-  let multisigAddress;
 
   if (protocol === Protocol.UninstallVirtualApp) {
     const {
@@ -88,7 +96,13 @@ export async function handleReceivedProtocolMessage(
 
     await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
   } else {
-    multisigAddress = params as UninstallParams;
+    const { multisigAddress } = params as
+      | UninstallParams
+      | WithdrawParams
+      | SetupParams
+      | TakeActionParams
+      | UpdateParams;
+
     await requestHandler.getShardedQueue(multisigAddress).add(async () => {
       stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         nodeMsg.data,
@@ -128,7 +142,6 @@ export async function handleReceivedProtocolMessage(
         break;
 
       case Protocol.Setup:
-        multisigAddress = (params as SetupParams).multisigAddress;
         const { initiatorXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
           from: publicIdentifier,
@@ -146,7 +159,6 @@ export async function handleReceivedProtocolMessage(
 
       case Protocol.TakeAction:
       case Protocol.Update:
-        multisigAddress = (params as TakeActionParams).multisigAddress;
         const { appIdentityHash } = params as TakeActionParams;
 
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;

@@ -279,7 +279,7 @@ export class Store {
     );
 
     if (!appInstanceProposal) {
-      return Promise.reject(
+      throw new Error(
         NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
@@ -298,7 +298,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      return Promise.reject(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);

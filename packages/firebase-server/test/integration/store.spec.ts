@@ -41,8 +41,8 @@ describe("Storage client can get / set", () => {
         y: null
       }
     };
-    expect(storeService.set([{ key, value }])).rejects.toEqual(
-      new Error(WRITE_NULL_TO_FIREBASE)
+    await expect(storeService.set([{ key, value }])).rejects.toThrowError(
+      WRITE_NULL_TO_FIREBASE
     );
   });
 
