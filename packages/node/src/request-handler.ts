@@ -2,6 +2,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import Queue from "p-queue";
 
 import { eventNameToImplementation, methodNameToImplementation } from "./api";
@@ -107,7 +108,17 @@ export class RequestHandler {
     const controllerCount = this.router.eventListenerCount(event);
 
     if (!controllerExecutionMethod && controllerCount === 0) {
-      throw new Error(`Recent ${event} which has no event handler`);
+      if (event === NODE_EVENTS.DEPOSIT_CONFIRMED) {
+        log.info(
+          `No event handler for counter depositing into channel: ${JSON.stringify(
+            msg,
+            undefined,
+            4
+          )}`
+        );
+      } else {
+        throw new Error(`Recent ${event} which has no event handler`);
+      }
     }
 
     if (controllerExecutionMethod) {

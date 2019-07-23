@@ -409,6 +409,8 @@ export async function collateralizeChannel(
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
   const depositReq = makeDepositRequest(multisigAddress, One, tokenAddress);
+  node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node1.rpcRouter.dispatch(depositReq);
   await node2.rpcRouter.dispatch(depositReq);
 }

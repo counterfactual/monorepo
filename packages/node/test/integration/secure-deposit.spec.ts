@@ -3,6 +3,7 @@ import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
+import log from "loglevel";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT } from "../../src/methods/errors";
@@ -14,6 +15,8 @@ import {
   makeDepositRequest,
   transferERC20Tokens
 } from "./utils";
+
+log.setLevel(log.levels.SILENT);
 
 describe("Node method follows spec - deposit", () => {
   let nodeA: Node;
@@ -90,6 +93,8 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress
     );
 
+    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
+    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
     await nodeA.rpcRouter.dispatch(erc20DepositRequest);
     await nodeB.rpcRouter.dispatch(erc20DepositRequest);
 

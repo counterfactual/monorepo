@@ -22,7 +22,7 @@ Some specific examples of this include:
 
 Any consumer of the Node should set up a handler for the event `DEPOSIT_CONFIRMED` so as to define how this Node behaves when a counter party has initiated a deposit and is asking this Node to make a counter deposit and collateralize the channel. The parameters passed with this event correspond to the same ones used by the initiator, tha is `DepositParams` (as defined in the `@counterfactual/types packages`).
 
-If no such handler is defined, an error is thrown `Recent depositConfirmedEvent which has no event handler` indicating the Node does not know how to handle a counter deposit request.
+If no such handler is defined, `No event handler for counter depositing into channel <info>` is printed indicating the Node does not know how to handle a counter deposit request.
 
 # Node API
 

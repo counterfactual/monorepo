@@ -86,7 +86,6 @@ export default class DepositController extends NodeController {
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
     const { provider } = requestHandler;
-
     const { multisigAddress, tokenAddress } = params;
 
     params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
