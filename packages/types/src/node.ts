@@ -167,7 +167,6 @@ export namespace Node {
     multisigAddress: string;
     amount: BigNumber;
     tokenAddress?: string;
-    notifyCounterparty?: boolean;
   };
 
   export type DepositResult = {
@@ -315,7 +314,7 @@ export namespace Node {
 
   export type WithdrawResult = {
     recipient: string;
-    amount: BigNumber;
+    txHash: string;
   };
 
   export type MethodParams =

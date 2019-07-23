@@ -28,8 +28,6 @@ export const HARD_CODED_ASSUMPTIONS = {
   freeBalanceDefaultTimeout: 172800
 };
 
-const VERSION_NUMBER_EXPIRY = 65536;
-
 const ERRORS = {
   APPS_NOT_EMPTY: (size: number) =>
     `Expected the appInstances list to be empty but size ${size}`,
@@ -49,6 +47,7 @@ function sortAddresses(addrs: string[]) {
 }
 
 export type SingleAssetTwoPartyIntermediaryAgreement = {
+  timeLockedPassThroughIdentityHash: string;
   capitalProvided: BigNumber;
   expiryBlock: number;
   beneficiaries: [string, string];
@@ -56,6 +55,7 @@ export type SingleAssetTwoPartyIntermediaryAgreement = {
 };
 
 type SingleAssetTwoPartyIntermediaryAgreementJSON = {
+  timeLockedPassThroughIdentityHash: string;
   capitalProvided: { _hex: string };
   expiryBlock: number;
   beneficiaries: [string, string];
@@ -114,7 +114,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
+      throw new Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -199,7 +199,7 @@ export class StateChannel {
   }
 
   public getFreeBalanceAddrOf(xpub: string): string {
-    const [alice, bob] = this.freeBalanceAppInstance!.signingKeys;
+    const [alice, bob] = this.freeBalanceAppInstance!.participants;
 
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
@@ -327,7 +327,7 @@ export class StateChannel {
     );
   }
 
-  public addVirtualAppInstance(appInstance: AppInstance) {
+  public addAppInstance(appInstance: AppInstance) {
     if (appInstance.appSeqNo !== this.numInstalledApps) {
       throw Error(
         `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
@@ -350,17 +350,12 @@ export class StateChannel {
     );
   }
 
-  public setState(
-    appInstanceIdentityHash: string,
-    state: SolidityABIEncoderV2Type
-  ) {
-    const appInstance = this.getAppInstance(appInstanceIdentityHash);
-
+  public removeAppInstance(appInstanceId: string) {
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
 
-    appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
+    appInstances.delete(appInstanceId);
 
     return new StateChannel(
       this.multisigAddress,
@@ -373,17 +368,17 @@ export class StateChannel {
     );
   }
 
-  public lockAppInstance(appInstanceIdentityHash: string) {
+  public setState(
+    appInstanceIdentityHash: string,
+    state: SolidityABIEncoderV2Type
+  ) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
 
-    appInstances.set(
-      appInstanceIdentityHash,
-      appInstance.lockState(VERSION_NUMBER_EXPIRY)
-    );
+    appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
 
     return new StateChannel(
       this.multisigAddress,
@@ -453,24 +448,6 @@ export class StateChannel {
     });
   }
 
-  public removeVirtualApp(targetIdentityHash: string) {
-    const appInstances = new Map<string, AppInstance>(
-      this.appInstances.entries()
-    );
-
-    appInstances.delete(targetIdentityHash);
-
-    return new StateChannel(
-      this.multisigAddress,
-      this.userNeuteredExtendedKeys,
-      appInstances,
-      this.singleAssetTwoPartyIntermediaryAgreements,
-      this.freeBalanceAppInstance,
-      this.monotonicNumInstalledApps,
-      this.createdAt
-    );
-  }
-
   public installApp(
     appInstance: AppInstance,
     tokenIndexedDecrements: TokenIndexedCoinTransferMap
@@ -480,10 +457,12 @@ export class StateChannel {
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
       throw Error("AppInstance passed to installApp has incorrect appSeqNo");
     } else {
-      const signingKeys = this.getSigningKeysFor(appInstance.appSeqNo);
-      if (!signingKeys.every((v, idx) => v === appInstance.signingKeys[idx])) {
+      const participants = this.getSigningKeysFor(appInstance.appSeqNo);
+      if (
+        !participants.every((v, idx) => v === appInstance.participants[idx])
+      ) {
         throw Error(
-          "AppInstance passed to installApp has incorrect signingKeys"
+          "AppInstance passed to installApp has incorrect participants"
         );
       }
     }
@@ -553,7 +532,7 @@ export class StateChannel {
 
     if (!ret) {
       throw Error(
-        `Could not find any eth virtual app agreements with for virtual app ${key}`
+        `Could not find any eth virtual app agreements with virtual app ${key}`
       );
     }
 
@@ -581,10 +560,8 @@ export class StateChannel {
       ].map(([key, val]) => [
         key,
         {
-          capitalProvided: { _hex: val.capitalProvided.toHexString() },
-          expiryBlock: val.expiryBlock,
-          beneficiaries: val.beneficiaries,
-          tokenAddress: val.tokenAddress
+          ...val,
+          capitalProvided: { _hex: val.capitalProvided.toHexString() }
         }
       ]),
       createdAt: this.createdAt
@@ -611,10 +588,8 @@ export class StateChannel {
           ([key, val]) => [
             key,
             {
-              capitalProvided: bigNumberify(val.capitalProvided._hex),
-              expiryBlock: val.expiryBlock,
-              beneficiaries: val.beneficiaries,
-              tokenAddress: val.tokenAddress
+              ...val,
+              capitalProvided: bigNumberify(val.capitalProvided._hex)
             }
           ]
         )

@@ -13,7 +13,7 @@ import {
   NO_APP_INSTANCE_ID_TO_UNINSTALL
 } from "../../errors";
 
-import { uninstallAppInstanceFromChannel } from "./operation";
+import { uninstallVirtualAppInstanceFromChannel } from "./operation";
 
 export default class UninstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL_VIRTUAL;
@@ -28,18 +28,24 @@ export default class UninstallVirtualController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+    const multisigAddressForStateChannelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
         params.intermediaryIdentifier,
         requestHandler.publicIdentifier
       ])
     );
 
-    const metachannel = await store.getChannelFromAppInstanceID(appInstanceId);
+    const stateChannelWithResponding = await store.getChannelFromAppInstanceID(
+      appInstanceId
+    );
 
     return [
-      requestHandler.getShardedQueue(metachannel.multisigAddress),
-      requestHandler.getShardedQueue(multisigAddress)
+      requestHandler.getShardedQueue(
+        stateChannelWithResponding.multisigAddress
+      ),
+      requestHandler.getShardedQueue(
+        multisigAddressForStateChannelWithIntermediary
+      )
     ];
   }
 
@@ -61,7 +67,13 @@ export default class UninstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<Node.UninstallVirtualResult> {
-    const { store, instructionExecutor, publicIdentifier } = requestHandler;
+    const {
+      store,
+      instructionExecutor,
+      publicIdentifier,
+      provider
+    } = requestHandler;
+
     const { appInstanceId, intermediaryIdentifier } = params;
 
     if (!appInstanceId) {
@@ -79,9 +91,10 @@ export default class UninstallVirtualController extends NodeController {
       stateChannel.userNeuteredExtendedKeys
     );
 
-    await uninstallAppInstanceFromChannel(
+    await uninstallVirtualAppInstanceFromChannel(
       store,
       instructionExecutor,
+      provider,
       publicIdentifier,
       to,
       intermediaryIdentifier,

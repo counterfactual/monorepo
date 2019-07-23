@@ -93,14 +93,14 @@ First we introduce a new type which we label `InstallParams`.
 | ----------------------- | -------------- | ------------------------------------------------------------------ |
 | `aliceBalanceDecrement` | `uint256`      | The proposed sub-deposit into the AppInstance of the first party   |
 | `bobBalanceDecrement`   | `uint256`      | The proposed sub-deposit into the AppInstance of the second party  |
-| `signingKeys`           | `address[]`    | The unique signing keys of the participants for this AppInstance   |
+| `participants`          | `address[]`    | The unique participants for this AppInstance                       |
 | `initialState`          | `object`       | An object representing the initial state of the AppInstance        |
 | `appInterface`          | `AppInterface` | The definition of the interface of the AppInstance to be installed |
 | `defaultTimeout`        | `uint256`      | The default challenge period length for this AppInstance           |
 | `interpreterAddress`    | `address`      | The address of an interpreter that will interpret the outcome      |
 | `interpreterParams`     | `bytes`        | Any parameters to be submitted to the interpreter upon execution   |
 
-> NOTE: `signingKeys` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Specifically the key is computed as the (`appSeqNo`)-th derived child of an extended public key that is the unique identifier for a state channel user.
+> NOTE: `participants` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Specifically the key is computed as the (`appSeqNo`)-th derived child of an extended public key that is the unique identifier for a state channel user.
 
 ### M1: Initiating signs `ConditionalTransaction`
 
@@ -109,7 +109,7 @@ First we introduce a new type which we label `InstallParams`.
 | `protocol`  | `"install"`                                                               |
 | `multisig`  | The address of the on-chain multisignature wallet for this `StateChannel` |
 | `params`    | An `InstallParams` object describing the proposed app                     |
-| `toXpub`    | The extended public key of the responder party                           |
+| `toXpub`    | The extended public key of the responder party                            |
 | `seq`       | `1`                                                                       |
 | `signature` | Signed copy of the `ConditionalTransaction` digest by initiator           |
 
@@ -119,7 +119,7 @@ First we introduce a new type which we label `InstallParams`.
 | ------------ | --------------------------------------------------------------- |
 | `protocol`   | `"install"`                                                     |
 | `multisig`   | The address of the on-chain Alice-Bob multisignature wallet     |
-| `toXpub`     | The extended public key of the initiator party                 |
+| `toXpub`     | The extended public key of the initiator party                  |
 | `seq`        | `-1`                                                            |
 | `signature`  | Signed copy of the `ConditionalTransaction` digest by responder |
 | `signature2` | Signed copy of the `FreeBalanceSetState` digest by responder    |
@@ -131,6 +131,6 @@ First we introduce a new type which we label `InstallParams`.
 | `protocol`  | `"install"`                                                  |
 | `multisig`  | The address of the on-chain Alice-Bob multisignature wallet  |
 | `params`    | An `InstallData` object describing the proposed app          |
-| `toXpub`    | The extended public key of the responder party              |
+| `toXpub`    | The extended public key of the responder party               |
 | `seq`       | `-1`                                                         |
 | `signature` | Signed copy of the `FreeBalanceSetState` digest by initiator |

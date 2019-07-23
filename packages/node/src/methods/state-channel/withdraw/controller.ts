@@ -107,9 +107,8 @@ export default class WithdrawController extends NodeController {
       gasLimit: 300000
     };
 
+    let txResponse: TransactionResponse;
     try {
-      let txResponse: TransactionResponse;
-
       if (provider instanceof JsonRpcProvider) {
         const signer = await provider.getSigner();
         txResponse = await signer.sendTransaction(tx);
@@ -132,8 +131,8 @@ export default class WithdrawController extends NodeController {
     }
 
     return {
-      amount,
-      recipient: params.recipient
+      recipient: params.recipient,
+      txHash: txResponse.hash!
     };
   }
 }

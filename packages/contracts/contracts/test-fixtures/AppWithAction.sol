@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "../interfaces/CounterfactualApp.sol";
 import "../libs/LibOutcome.sol";
 
-// There is a counter; signingKeys[1] _only_ is allowed to increment it
+// There is a counter; participants[1] _only_ is allowed to increment it
 
 
 contract AppWithAction is CounterfactualApp {
@@ -26,14 +26,14 @@ contract AppWithAction is CounterfactualApp {
    */
   function getTurnTaker(
     bytes calldata encodedState,
-    address[] calldata signingKeys
+    address[] calldata participants
   )
     external
     pure
     returns (address)
   {
     State memory state = abi.decode(encodedState, (State));
-    return signingKeys[state.counter > 0 ? 0 : 1];
+    return participants[state.counter > 0 ? 0 : 1];
   }
 
   function computeOutcome(bytes calldata)

@@ -68,20 +68,20 @@ describe("<AccountRegistration />", () => {
   });
 
   it("should render a Proceed button", () => {
-    const CTA = component.find(testSelector("button"));
+    const CTA = component.find(testSelector("deposit-button"));
     expect(CTA.exists()).toBe(true);
     expect(CTA.text()).toBe("Proceed");
   });
 
   it("should render the form input fields", () => {
-    expect(component.find(testSelector("amount")).exists()).toBe(true);
+    expect(component.find(testSelector("amount-input")).exists()).toBe(true);
   });
 
   it("should trigger User Creation upon click", () => {
-    component.find(testSelector("amount")).simulate("change", {
+    component.find(testSelector("amount-input")).simulate("change", {
       target: { value: "0.01", validity: { valid: true } }
     });
-    component.find(testSelector("button")).simulate("click");
+    component.find(testSelector("deposit-button")).simulate("click");
     expect(props.history.location.pathname).toBe(RoutePath.Channels);
   });
 });

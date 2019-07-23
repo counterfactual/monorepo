@@ -7,14 +7,14 @@ import { AppInstance } from "../../../../../src/models";
 describe("AppInstance", () => {
   it("should be able to instantiate", () => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const signingKeys = [
+    const participants = [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ];
 
     const appInstance = new AppInstance(
       multisigAddress,
-      signingKeys,
+      participants,
       Math.ceil(Math.random() * 2e10),
       {
         addr: getAddress(hexlify(randomBytes(20))),
@@ -37,7 +37,7 @@ describe("AppInstance", () => {
     expect(appInstance).not.toBe(null);
     expect(appInstance).not.toBe(undefined);
     expect(appInstance.multisigAddress).toBe(multisigAddress);
-    expect(appInstance.signingKeys).toBe(signingKeys);
+    expect(appInstance.participants).toBe(participants);
 
     // TODO: moar tests pl0x
   });

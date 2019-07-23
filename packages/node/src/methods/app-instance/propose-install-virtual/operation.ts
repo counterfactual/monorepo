@@ -1,10 +1,12 @@
-import { Node } from "@counterfactual/types";
+import { NetworkContext, Node } from "@counterfactual/types";
 
-import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import { getStateChannelWithOwners } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  getStateChannelWithOwners
+} from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
@@ -17,7 +19,8 @@ import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 export async function createProposedVirtualAppInstance(
   myIdentifier: string,
   store: Store,
-  params: Node.ProposeInstallVirtualParams
+  params: Node.ProposeInstallVirtualParams,
+  network: NetworkContext
 ): Promise<string> {
   const { intermediaries, proposedToIdentifier } = params;
 
@@ -25,7 +28,8 @@ export async function createProposedVirtualAppInstance(
     myIdentifier,
     proposedToIdentifier,
     intermediaries,
-    store
+    store,
+    network
   );
 
   const appInstanceProposal = new AppInstanceProposal(
@@ -83,7 +87,8 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
   initiatorXpub: string,
   responderXpub: string,
   intermediaries: string[],
-  store: Store
+  store: Store,
+  network: NetworkContext
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
@@ -99,12 +104,13 @@ export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
         .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
       intermediaries !== undefined
     ) {
-      const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
+      const multisigAddress = getCreate2MultisigAddress(
         [initiatorXpub, responderXpub],
-        intermediaries[0]
+        network.ProxyFactory,
+        network.MinimumViableMultisig
       );
 
-      stateChannel = StateChannel.createEmptyChannel(key, [
+      stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
         initiatorXpub,
         responderXpub
       ]);

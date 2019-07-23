@@ -62,14 +62,14 @@ contract HighRollerApp is CounterfactualApp {
   // NOTE: Function is being deprecated soon, do not modify!
   function getTurnTaker(
     bytes calldata encodedState,
-    address[] calldata signingKeys
+    address[] calldata participants
   )
     external
     pure
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return signingKeys[state.versionNumber % 2];
+    return participants[state.versionNumber % 2];
   }
 
   function applyAction(

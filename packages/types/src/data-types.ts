@@ -2,7 +2,6 @@
 import { BigNumber } from "ethers/utils";
 
 import { AppInterface, SolidityABIEncoderV2Type } from ".";
-import { ABIEncoding } from "./simple-types";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -15,20 +14,20 @@ export type CoinTransferInterpreterParams = {
   // Derived from:
   // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
   limit: BigNumber[];
-  tokens: string[];
+  tokenAddresses: string[];
 };
 
 export const coinTransferInterpreterParamsStateEncoding = `
   tuple(
     uint256[] limit,
-    address[] tokens
+    address[] tokenAddresses
   )
 `;
 
 export type AppInstanceJson = {
   identityHash: string;
   multisigAddress: string;
-  signingKeys: string[];
+  participants: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
   isVirtualApp: boolean;
@@ -53,7 +52,7 @@ export type AppInstanceJson = {
     // Derived from:
     // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
-    tokens: string[];
+    tokenAddresses: string[];
   };
 };
 
@@ -98,8 +97,8 @@ export type AppInstanceProposal = {
 };
 
 export type AppABIEncodings = {
-  stateEncoding: ABIEncoding;
-  actionEncoding: ABIEncoding | undefined;
+  stateEncoding: string;
+  actionEncoding: string | undefined;
 };
 
 export enum OutcomeType {
@@ -107,7 +106,7 @@ export enum OutcomeType {
 
   // CoinTransfer
   // Since no apps currently use this outcome
-  // type, do not use it in the node 
+  // type, do not use it in the node
   COIN_TRANSFER_DO_NOT_USE = 1,
 
   // tuple(address[], CoinTransfer[][], bytes32[])
@@ -132,7 +131,7 @@ export type CoinBalanceRefundState = {
   recipient: string;
   multisig: string;
   threshold: BigNumber;
-  token: string;
+  tokenAddress: string;
 };
 
 export const coinBalanceRefundStateEncoding = `
@@ -140,6 +139,6 @@ export const coinBalanceRefundStateEncoding = `
     address recipient,
     address multisig,
     uint256 threshold,
-    address token
+    address tokenAddress
   )
 `;

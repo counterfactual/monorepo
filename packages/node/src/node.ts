@@ -145,30 +145,20 @@ export class Node {
       this.provider
     );
 
-    // todo(xuanji): remove special cases
-    const makeSigner = (asIntermediary: boolean) => {
-      return async (args: any[]) => {
-        if (args.length !== 1 && args.length !== 2) {
-          throw Error("OP_SIGN middleware received wrong number of arguments.");
-        }
+    instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
+      if (args.length !== 1 && args.length !== 2) {
+        throw Error("OP_SIGN middleware received wrong number of arguments.");
+      }
 
-        const [commitment, overrideKeyIndex] = args;
-        const keyIndex = overrideKeyIndex || 0;
+      const [commitment, overrideKeyIndex] = args;
+      const keyIndex = overrideKeyIndex || 0;
 
-        const signingKey = new SigningKey(
-          this.signer.derivePath(`${keyIndex}`).privateKey
-        );
+      const signingKey = new SigningKey(
+        this.signer.derivePath(`${keyIndex}`).privateKey
+      );
 
-        return signingKey.signDigest(commitment.hashToSign(asIntermediary));
-      };
-    };
-
-    instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
-
-    instructionExecutor.register(
-      Opcode.OP_SIGN_AS_INTERMEDIARY,
-      makeSigner(true)
-    );
+      return signingKey.signDigest(commitment.hashToSign());
+    });
 
     instructionExecutor.register(
       Opcode.IO_SEND,
@@ -344,14 +334,15 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.protocolExecutionID);
-
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else {
+    } else if (this.requestHandler.isLegacyEvent(msg.type)) {
       await this.requestHandler.callEvent(msg.type, msg);
+    } else {
+      await this.rpcRouter.emit(msg.type, msg);
     }
   }
 

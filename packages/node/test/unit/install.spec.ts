@@ -45,7 +45,11 @@ describe("Can handle correct & incorrect installs", () => {
   let ie: InstructionExecutor;
 
   beforeAll(() => {
-    store = new Store(new MemoryStoreService(), "install.spec.ts-test-store");
+    store = new Store(
+      new MemoryStoreService(),
+      "install.spec.ts-test-store",
+      NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
+    );
     ie = new InstructionExecutor(
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
       {} as BaseProvider
@@ -105,7 +109,7 @@ describe("Can handle correct & incorrect installs", () => {
       fromMnemonic(Wallet.createRandom().mnemonic)
     ];
 
-    const signingKeys = xkeysToSortedKthAddresses(
+    const participants = xkeysToSortedKthAddresses(
       hdnodes.map(x => x.neuter().extendedKey),
       0
     );
@@ -123,8 +127,8 @@ describe("Can handle correct & incorrect installs", () => {
       ]
     );
 
-    expect(balancesForETHToken[signingKeys[0]]).toEqual(Zero);
-    expect(balancesForETHToken[signingKeys[1]]).toEqual(Zero);
+    expect(balancesForETHToken[participants[0]]).toEqual(Zero);
+    expect(balancesForETHToken[participants[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 

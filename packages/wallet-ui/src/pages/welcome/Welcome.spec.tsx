@@ -4,6 +4,7 @@ import { createMemoryHistory } from "history";
 import React from "react";
 import { MemoryRouter as Router, RouteComponentProps } from "react-router-dom";
 import { RoutePath } from "../../types";
+import { testSelector } from "../../utils/testSelector";
 import Welcome from "./Welcome";
 
 Enzyme.configure({ adapter: new Adapter() });
@@ -41,12 +42,13 @@ describe("<Welcome />", () => {
   });
 
   it("should render a Setup button", () => {
-    const button = component.find("button");
-    expect(button.text()).toBe("Setup Counterfactual");
+    expect(component.find(testSelector("setup-button")).text()).toBe(
+      "Setup Counterfactual"
+    );
   });
 
   it("should re-route to Account Creation upon Setup Button click", () => {
-    component.find("button").simulate("click");
+    component.find(testSelector("setup-button")).simulate("click");
     expect(props.history.location.pathname).toBe(RoutePath.SetupRegister);
   });
 });
