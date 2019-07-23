@@ -2,8 +2,9 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
-import "@counterfactual/contracts/contracts/interfaces/Interpreter.sol";
+
+import "../libs/LibOutcome.sol";
+import "../interfaces/Interpreter.sol";
 
 
 /**
