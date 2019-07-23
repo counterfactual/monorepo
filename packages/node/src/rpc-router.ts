@@ -72,4 +72,8 @@ export default class RpcRouter extends Router {
 
     this.requestHandler[emitter].emit(event, eventData.result);
   }
+
+  eventListenerCount(event: string): number {
+    return this.requestHandler.outgoing.listenerCount(event);
+  }
 }

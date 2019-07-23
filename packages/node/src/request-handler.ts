@@ -2,6 +2,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import Queue from "p-queue";
 
 import { eventNameToImplementation, methodNameToImplementation } from "./api";
@@ -104,12 +105,26 @@ export class RequestHandler {
    */
   public async callEvent(event: NodeEvents, msg: Node.NodeMessage) {
     const controllerExecutionMethod = this.events.get(event);
+    const controllerCount = this.router.eventListenerCount(event);
 
-    if (!controllerExecutionMethod) {
-      throw new Error(`Recent ${event} which has no event handler`);
+    if (!controllerExecutionMethod && controllerCount === 0) {
+      if (event === NODE_EVENTS.DEPOSIT_CONFIRMED) {
+        log.info(
+          `No event handler for counter depositing into channel: ${JSON.stringify(
+            msg,
+            undefined,
+            4
+          )}`
+        );
+      } else {
+        throw new Error(`Recent ${event} which has no event handler`);
+      }
     }
 
-    await controllerExecutionMethod(this, msg);
+    if (controllerExecutionMethod) {
+      await controllerExecutionMethod(this, msg);
+    }
+    this.router.emit(event, msg);
   }
 
   public async isLegacyEvent(event: NodeEvents) {

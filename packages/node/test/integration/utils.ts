@@ -153,8 +153,7 @@ export async function getProposedAppInstances(
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress?: string,
-  notifyCounterparty: boolean = false
+  tokenAddress?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -162,8 +161,7 @@ export function makeDepositRequest(
     params: {
       multisigAddress,
       amount,
-      tokenAddress,
-      notifyCounterparty
+      tokenAddress
     } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
@@ -411,6 +409,8 @@ export async function collateralizeChannel(
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
   const depositReq = makeDepositRequest(multisigAddress, One, tokenAddress);
+  node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node1.rpcRouter.dispatch(depositReq);
   await node2.rpcRouter.dispatch(depositReq);
 }
