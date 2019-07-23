@@ -11,12 +11,7 @@ import {
 import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import {
-  BigNumber,
-  bigNumberify,
-  defaultAbiCoder,
-  keccak256
-} from "ethers/utils";
+import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
