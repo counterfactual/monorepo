@@ -340,8 +340,13 @@ export class Node {
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else {
+    } else if (
+      isProtocolMessage(msg as NodeMessageWrappedProtocolMessage) &&
+      this.requestHandler.isLegacyEvent(msg.type)
+    ) {
       await this.requestHandler.callEvent(msg.type, msg);
+    } else {
+      await this.rpcRouter.emit(msg.type, msg);
     }
   }
 

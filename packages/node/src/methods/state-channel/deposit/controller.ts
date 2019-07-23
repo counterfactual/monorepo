@@ -7,6 +7,8 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
+import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
@@ -92,6 +94,23 @@ export default class DepositController extends NodeController {
     await installBalanceRefundApp(requestHandler, params);
     await makeDeposit(requestHandler, params);
     await uninstallBalanceRefundApp(requestHandler, params);
+
+    // send deposit confirmation to counter party _after_ the balance refund
+    // app is installed so as to prevent needing to handle the case of
+    // the counter party hitting the issue of
+    // "Cannot deposit while another deposit is occurring in the channel."
+    const { messagingService, publicIdentifier, store } = requestHandler;
+    const [counterpartyAddress] = await getPeersAddressFromChannel(
+      publicIdentifier,
+      store,
+      multisigAddress
+    );
+
+    await messagingService.send(counterpartyAddress, {
+      from: publicIdentifier,
+      type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+      data: params
+    } as DepositConfirmationMessage);
 
     return {
       multisigBalance: await provider.getBalance(multisigAddress)

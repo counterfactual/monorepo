@@ -106,7 +106,7 @@ export class RequestHandler {
     const controllerExecutionMethod = this.events.get(event);
     const controllerCount = this.router.eventListenerCount(event);
 
-    if (!controllerExecutionMethod || controllerCount === 0) {
+    if (!controllerExecutionMethod && controllerCount === 0) {
       throw new Error(`Recent ${event} which has no event handler`);
     }
 
@@ -114,6 +114,10 @@ export class RequestHandler {
       await controllerExecutionMethod(this, msg);
     }
     this.router.emit(event, msg);
+  }
+
+  public async isLegacyEvent(event: NodeEvents) {
+    return this.events.has(event);
   }
 
   public getShardedQueue(shardKey: string): Queue {

@@ -21,7 +21,7 @@ import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, DepositConfirmationMessage } from "../../../types";
+import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
@@ -146,19 +146,6 @@ export async function makeDeposit(
   });
 
   await txResponse!.wait(blocksNeededForConfirmation);
-
-  const { messagingService, publicIdentifier, store } = requestHandler;
-  const [peerAddress] = await getPeersAddressFromChannel(
-    publicIdentifier,
-    store,
-    multisigAddress
-  );
-
-  await messagingService.send(peerAddress, {
-    from: publicIdentifier,
-    type: NODE_EVENTS.DEPOSIT_CONFIRMED,
-    data: params
-  } as DepositConfirmationMessage);
 }
 
 export async function uninstallBalanceRefundApp(

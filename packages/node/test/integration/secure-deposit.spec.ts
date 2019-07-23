@@ -27,7 +27,7 @@ describe("Node method follows spec - deposit", () => {
     provider = new JsonRpcProvider(global["ganacheURL"]);
   });
 
-  it.only("has the right balance for both parties after deposits", async done => {
+  it("has the right balance for both parties after deposits", async done => {
     const multisigAddress = await createChannel(nodeA, nodeB);
     const depositReq = makeDepositRequest(multisigAddress, One);
 
