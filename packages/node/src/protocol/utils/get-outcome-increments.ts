@@ -96,7 +96,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         );
 
         const increments = computeCoinTransferIncrement(
-          (appInstance.state as CoinBalanceRefundState).token,
+          (appInstance.state as CoinBalanceRefundState).tokenAddress,
           outcome
         );
 

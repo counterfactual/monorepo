@@ -10,7 +10,7 @@ import {
 
 const freeBalanceAppStateEncoding = `
   tuple(
-    address[] tokens,
+    address[] tokenAddresses,
     tuple(
       address to,
       uint256 amount

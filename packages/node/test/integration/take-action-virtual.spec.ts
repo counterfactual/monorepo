@@ -18,6 +18,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
+  jest.setTimeout(15000);
+
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;

@@ -35,7 +35,7 @@ type AccountUserProps = {
 };
 
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
-  <div className="info" data-js="info-balance">
+  <div className="info" data-test-selector="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
     <Link to={RoutePath.SetupDeposit}>
       <div className="info-text">
@@ -47,7 +47,7 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
 );
 
 const AccountUser: React.FC<AccountUserProps> = ({ username }) => (
-  <div className="info" data-js="info-user">
+  <div className="info" data-test-selector="info-user">
     <img alt="" className="info-img" src="/assets/icon/account.svg" />
     <div className="info-text">
       <div className="info-header">Account</div>
@@ -100,8 +100,8 @@ export class AccountContext extends React.Component<AccountContextProps> {
         {!user.id ? (
           <div className="btn-container">
             <FormButton
+              name="login"
               className="btn"
-              data-js="btn-login"
               onClick={() => {
                 loginUser(ethAddress, signer, history);
               }}

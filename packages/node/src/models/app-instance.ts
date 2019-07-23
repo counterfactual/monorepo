@@ -91,7 +91,7 @@ export class AppInstance {
         : undefined,
       coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
-            tokens: coinTransferInterpreterParams.tokens,
+            tokenAddresses: coinTransferInterpreterParams.tokenAddresses,
             limit: coinTransferInterpreterParams.limit.map(limit => {
               return {
                 _hex: limit.toHexString()
@@ -136,7 +136,7 @@ export class AppInstance {
             limit: json.coinTransferInterpreterParams.limit.map(limit => {
               return bigNumberify(limit._hex);
             }),
-            tokens: json.coinTransferInterpreterParams.tokens
+            tokenAddresses: json.coinTransferInterpreterParams.tokenAddresses
           }
         : undefined
     );
@@ -199,7 +199,7 @@ export class AppInstance {
           limit: this.json.coinTransferInterpreterParams.limit.map(limit => {
             return bigNumberify(limit._hex);
           }),
-          tokens: this.json.coinTransferInterpreterParams.tokens
+          tokenAddresses: this.json.coinTransferInterpreterParams.tokenAddresses
         }
       : undefined;
   }

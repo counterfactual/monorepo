@@ -13,6 +13,7 @@ import {
   ActionType,
   ApplicationState,
   Deposit,
+  ErrorData,
   User,
   WalletState
 } from "../../store/types";
@@ -31,6 +32,7 @@ export type AccountDepositProps = RouteComponentProps & {
   user: User;
   walletState: WalletState;
   initialAmount?: number;
+  error: ErrorData;
 };
 
 type AccountDepositState = {
@@ -78,6 +80,17 @@ export class AccountDeposit extends React.Component<
     };
   }
 
+  componentDidUpdate(prevProps) {
+    if (this.props.error !== prevProps.error) {
+      console.error(
+        "AccountDeposit",
+        this.props.error.message,
+        this.props.error
+      );
+      this.setState({ ...this.state, loading: false });
+    }
+  }
+
   render() {
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
@@ -103,7 +116,11 @@ export class AccountDeposit extends React.Component<
             change={this.handleChange}
             error={error.message}
           />
+          {(error.message || error.code) && !error.field ? (
+            <div className="error">Ups! something broke</div>
+          ) : null}
           <FormButton
+            name="deposit"
             type="button"
             className="button"
             spinner={loading}
@@ -124,6 +141,7 @@ export class AccountDeposit extends React.Component<
 export default connect(
   (state: ApplicationState) => ({
     user: state.UserState.user,
+    error: state.WalletState.error,
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({

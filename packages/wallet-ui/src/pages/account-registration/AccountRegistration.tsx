@@ -52,8 +52,17 @@ export class AccountRegistration extends React.Component<
   };
 
   handleFormChange = (event: InputChangeProps) => {
-    this.setState({ ...this.state, [event.inputName]: event.value });
+    this.setState({
+      ...this.state,
+      [event.inputName]: event.value
+    });
   };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.error !== prevProps.error) {
+      this.setState({ ...this.state, loading: false });
+    }
+  }
 
   render() {
     const { wallet, addUser, error, history, registrationStatus } = this.props;
@@ -93,10 +102,11 @@ export class AccountRegistration extends React.Component<
             <b>Account will be linked to your Ethereum address: </b>
             {wallet.ethAddress}
           </div>
-          {error.code && !error.field ? (
+          {(error.message || error.code) && !error.field ? (
             <div className="error">{error.message}</div>
           ) : null}
           <FormButton
+            name="register"
             type="button"
             spinner={loading}
             disabled={loading || !userData.username}

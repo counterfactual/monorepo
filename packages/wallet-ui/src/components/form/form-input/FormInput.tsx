@@ -25,6 +25,19 @@ export type FormInputProps = {
   change?: ((props: InputChangeProps) => void) | undefined;
 };
 
+export const errorStatus = (type?: string) => ({
+  valid: { message: null },
+  valueMissing: { message: "Please fill out this field." },
+  typeMismatch: { message: `Please fill in a valid ${type}` },
+  tooShort: { message: "Please lengthen this text." },
+  tooLong: { message: "Please shorten this text." },
+  badInput: { message: "Please enter a number." },
+  stepMismatch: { message: "Please select a valid value." },
+  rangeOverflow: { message: "Please select a smaller value." },
+  rangeUnderflow: { message: "Please select a larger value." },
+  patternMismatch: { message: "Please match the requested format." }
+});
+
 class FormInput extends React.Component<
   FormInputProps,
   {
@@ -70,16 +83,11 @@ class FormInput extends React.Component<
     disabled?: boolean
   ): string | undefined {
     if (disabled || type === "file") return;
-    if (validity.valid) return;
-    if (validity.valueMissing) return "Please fill out this field.";
-    if (validity.typeMismatch) return `Please fill in a valid ${type}`;
-    if (validity.tooShort) return "Please lengthen this text.";
-    if (validity.tooLong) return "Please shorten this text.";
-    if (validity.badInput) return "Please enter a number.";
-    if (validity.stepMismatch) return "Please select a valid value.";
-    if (validity.rangeOverflow) return "Please select a smaller value.";
-    if (validity.rangeUnderflow) return "Please select a larger value.";
-    if (validity.patternMismatch) return "Please match the requested format.";
+    for (const errorType in validity) {
+      if (validity[errorType]) {
+        return errorStatus(type)[errorType].message;
+      }
+    }
     return "The value you entered for this field is invalid.";
   }
 
@@ -106,7 +114,7 @@ class FormInput extends React.Component<
           className={disabled ? "input-container disabled" : "input-container"}
         >
           <input
-            data-test-selector={name || "input"}
+            data-test-selector={`${name || type}-input`}
             name={name || "input"}
             className="input"
             autoFocus={autofocus || false}
@@ -125,7 +133,7 @@ class FormInput extends React.Component<
         {error ? (
           <div
             className="error"
-            data-test-selector={`error-${name || "input"}`}
+            data-test-selector={`error-${name || type}-input}`}
           >
             {error}
           </div>

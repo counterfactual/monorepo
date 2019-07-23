@@ -272,7 +272,7 @@ export class NodeWrapper {
 }
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  if (response === undefined) {
+  if (!response || !response.data) {
     return;
   }
 
