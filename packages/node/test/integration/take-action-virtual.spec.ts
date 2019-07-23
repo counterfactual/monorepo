@@ -1,8 +1,6 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
 import {
-  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
@@ -82,7 +80,7 @@ describe("Node method follows spec - takeAction virtual", () => {
               result: {
                 result: { state: nodeCState }
               }
-            } = (await nodeC.rpcRouter.dispatch(req)) as JsonRpcResponse;
+            } = await nodeC.rpcRouter.dispatch(req);
 
             expect(nodeCState).toEqual(expectedNewState);
 
@@ -94,7 +92,7 @@ describe("Node method follows spec - takeAction virtual", () => {
               result: {
                 result: { state: nodeAState }
               }
-            } = (await nodeA.rpcRouter.dispatch(req)) as JsonRpcResponse;
+            } = await nodeA.rpcRouter.dispatch(req);
 
             expect(nodeAState).toEqual(expectedNewState);
 
@@ -111,9 +109,11 @@ describe("Node method follows spec - takeAction virtual", () => {
          * TEST #2
          * The return value from the call to Node A includes the new state
          */
-        const { newState } = ((await nodeA.rpcRouter.dispatch(
-          takeActionReq
-        )) as JsonRpcResponse).result.result as NodeTypes.TakeActionResult;
+        const {
+          result: {
+            result: { newState }
+          }
+        } = await nodeA.rpcRouter.dispatch(takeActionReq);
 
         expect(newState).toEqual(expectedNewState);
       });
