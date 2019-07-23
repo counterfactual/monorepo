@@ -358,7 +358,7 @@ export type APIResourceType =
   | "app";
 
 export type APIResourceRelationships = {
-  [key in APIResourceType]?: APIDataContainer
+  [key in APIResourceType]?: APIDataContainer;
 };
 
 export type APIDataContainer<T = APIResourceAttributes> = {
