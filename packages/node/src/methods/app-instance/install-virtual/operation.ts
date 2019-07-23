@@ -1,4 +1,4 @@
-import { AppInstanceProposal, Node, OutcomeType } from "@counterfactual/types";
+import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";

@@ -814,6 +814,9 @@ function computeInterpreterParameters(
     }
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      console.warn(
+        "NOTE: There are not currently correct Virtual App interpreter parameters being set for the outcome type of SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER"
+      );
       break;
     }
 

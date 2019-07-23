@@ -9,7 +9,7 @@ import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 
 import { Protocol, xkeyKthAddress } from "../../../src/machine";
-import { sortAddresses } from "../../../src/machine/xkeys";
+// import { sortAddresses } from "../../../src/machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
 
@@ -25,10 +25,10 @@ let appDefinition: Contract;
 
 expect.extend({ toBeEq });
 
-enum ActionType {
-  SUBMIT_COUNTER_INCREMENT,
-  ACCEPT_INCREMENT
-}
+// enum ActionType {
+//   SUBMIT_COUNTER_INCREMENT,
+//   ACCEPT_INCREMENT
+// }
 
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
@@ -71,10 +71,10 @@ describe("Three mininodes", () => {
 
     mr.assertNoPending();
 
-    const signingKeys = sortAddresses([
-      xkeyKthAddress(mininodeA.xpub, 1),
-      xkeyKthAddress(mininodeB.xpub, 1)
-    ]);
+    // const signingKeys = sortAddresses([
+    //   xkeyKthAddress(mininodeA.xpub, 1),
+    //   xkeyKthAddress(mininodeB.xpub, 1)
+    // ]);
 
     const appState = ({
       finalized: false,
