@@ -33,9 +33,9 @@ describe("Node method follows spec - takeAction", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.rpcRouter.dispatch(takeActionReq)).rejects.toEqual(
-          NO_APP_INSTANCE_FOR_TAKE_ACTION
-        );
+        await expect(
+          nodeA.rpcRouter.dispatch(takeActionReq)
+        ).rejects.toThrowError(NO_APP_INSTANCE_FOR_TAKE_ACTION);
       });
 
       it("can take action", async done => {

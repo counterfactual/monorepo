@@ -37,6 +37,7 @@ describe("Node can create multisig, other owners get notified", () => {
           if (msg.data.owners === ownersABPublicIdentifiers) {
             const openChannelsNodeA = await getChannelAddresses(nodeA);
             const openChannelsNodeB = await getChannelAddresses(nodeB);
+
             expect(openChannelsNodeA.size).toEqual(1);
             expect(openChannelsNodeB.size).toEqual(1);
 

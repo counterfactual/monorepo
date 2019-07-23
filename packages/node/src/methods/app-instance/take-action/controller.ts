@@ -45,7 +45,7 @@ export default class TakeActionController extends NodeController {
     const { appInstanceId, action } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -54,9 +54,9 @@ export default class TakeActionController extends NodeController {
       appInstance.encodeAction(action);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        return Promise.reject(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        throw new Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
       }
-      return Promise.reject(STATE_OBJECT_NOT_ENCODABLE);
+      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 
@@ -92,13 +92,13 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<void> {
-    const { store, router } = requestHandler;
+    const { store, router, publicIdentifier } = requestHandler;
     const { appInstanceId, action } = params;
 
     const appInstance = await store.getAppInstance(appInstanceId);
 
     const msg = {
-      from: requestHandler.publicIdentifier,
+      from: publicIdentifier,
       type: NODE_EVENTS.UPDATE_STATE,
       data: { appInstanceId, action, newState: appInstance.state }
     } as UpdateStateMessage;
@@ -143,7 +143,7 @@ async function runTakeActionProtocol(
 
   const updatedStateChannel = stateChannelsMap.get(
     stateChannel.multisigAddress
-  ) as StateChannel;
+  )!;
 
   await store.saveStateChannel(updatedStateChannel);
 

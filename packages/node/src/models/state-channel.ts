@@ -93,7 +93,7 @@ export class StateChannel {
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (xpub.slice(0, 4) !== "xpub") {
-        throw Error(
+        throw new Error(
           `StateChannel constructor given invalid extended keys: ${userNeuteredExtendedKeys}`
         );
       }
@@ -151,7 +151,7 @@ export class StateChannel {
       }
     );
     if (appInstances.length !== 1) {
-      throw Error(
+      throw new Error(
         `No AppInstance of addr ${address} exists on channel: ${this.multisigAddress}`
       );
     }
@@ -190,7 +190,7 @@ export class StateChannel {
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
     if (topLevelKey !== alice && topLevelKey !== bob) {
-      throw Error(
+      throw new Error(
         `getMultisigOwnerAddrOf received invalid xpub not in multisigOwners: ${xpub}`
       );
     }
@@ -204,7 +204,7 @@ export class StateChannel {
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
     if (topLevelKey !== alice && topLevelKey !== bob) {
-      throw Error(
+      throw new Error(
         `getFreeBalanceAddrOf received invalid xpub without free balance account: ${xpub}`
       );
     }
@@ -329,7 +329,7 @@ export class StateChannel {
 
   public addAppInstance(appInstance: AppInstance) {
     if (appInstance.appSeqNo !== this.numInstalledApps) {
-      throw Error(
+      throw new Error(
         `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
       );
     }
@@ -430,7 +430,7 @@ export class StateChannel {
     >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
     if (!singleAssetTwoPartyIntermediaryAgreements.delete(targetIdentityHash)) {
-      throw Error(
+      throw new Error(
         `cannot find agreement with target hash ${targetIdentityHash}`
       );
     }
@@ -455,13 +455,15 @@ export class StateChannel {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
-      throw Error("AppInstance passed to installApp has incorrect appSeqNo");
+      throw new Error(
+        "AppInstance passed to installApp has incorrect appSeqNo"
+      );
     } else {
       const participants = this.getSigningKeysFor(appInstance.appSeqNo);
       if (
         !participants.every((v, idx) => v === appInstance.participants[idx])
       ) {
-        throw Error(
+        throw new Error(
           "AppInstance passed to installApp has incorrect participants"
         );
       }
@@ -496,7 +498,7 @@ export class StateChannel {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
-      throw Error(
+      throw new Error(
         `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${appToBeUninstalled.identityHash}`
       );
     }
@@ -506,7 +508,7 @@ export class StateChannel {
     );
 
     if (!appInstances.delete(appToBeUninstalled.identityHash)) {
-      throw Error(
+      throw new Error(
         `Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`
       );
     }
@@ -531,7 +533,7 @@ export class StateChannel {
     const ret = this.singleAssetTwoPartyIntermediaryAgreements.get(key);
 
     if (!ret) {
-      throw Error(
+      throw new Error(
         `Could not find any eth virtual app agreements with virtual app ${key}`
       );
     }
