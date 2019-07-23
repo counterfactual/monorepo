@@ -92,7 +92,7 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<void> {
-    const { store, outgoing } = requestHandler;
+    const { store, router } = requestHandler;
     const { appInstanceId, action } = params;
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -103,7 +103,7 @@ export default class TakeActionController extends NodeController {
       data: { appInstanceId, action, newState: appInstance.state }
     } as UpdateStateMessage;
 
-    outgoing.emit(msg.type, msg);
+    await router.emit(msg.type, msg, "outgoing");
   }
 }
 

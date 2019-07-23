@@ -153,7 +153,8 @@ export async function getProposedAppInstances(
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress?: string
+  tokenAddress?: string,
+  notifyCounterparty: boolean = false
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -161,7 +162,8 @@ export function makeDepositRequest(
     params: {
       multisigAddress,
       amount,
-      tokenAddress
+      tokenAddress,
+      notifyCounterparty
     } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
