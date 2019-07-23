@@ -70,7 +70,7 @@ describe("Node method follows spec - withdraw", () => {
     } = await nodeA.rpcRouter.dispatch(withdrawReq);
 
     expect(txHash).toBeDefined();
-    expect(txHash.length).toBe(64);
+    expect(txHash.length).toBe(66);
     expect(txHash.substr(0, 2)).toBe("0x");
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
