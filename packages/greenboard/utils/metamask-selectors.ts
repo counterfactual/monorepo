@@ -21,26 +21,40 @@ export const FIRST_TIME_FLOW_SELECTORS = {
 export const findItemByPartialTextMatch = async (
   driver: WebDriver,
   itemLocator: Locator,
-  partialText: string
+  partialText: string,
+  timeout: number = 3000
 ) => {
-  const items = await driver.findElements(itemLocator);
+  return new Promise(async (resolve, reject) => {
+    setTimeout(() => reject("Timeout"), timeout);
 
-  return promise.filter(items, async item => {
-    const text = await item.getText();
-    return text.toLowerCase().includes(partialText);
+    const items = await driver.findElements(itemLocator);
+
+    return resolve(
+      promise.filter(items, async item => {
+        const text = await item.getText();
+        return text.toLowerCase().includes(partialText);
+      })
+    );
   });
 };
 
 export const findItemByExactTextMatch = async (
   driver: WebDriver,
   itemLocator: Locator,
-  matchWithText: string
+  matchWithText: string,
+  timeout: number = 3000
 ) => {
-  const items = await driver.findElements(itemLocator);
+  return new Promise(async (resolve, reject) => {
+    setTimeout(() => reject("Timeout"), timeout);
 
-  return promise.filter(items, async item => {
-    const text = await item.getText();
-    return text === matchWithText;
+    const items = await driver.findElements(itemLocator);
+
+    return resolve(
+      promise.filter(items, async item => {
+        const text = await item.getText();
+        return text === matchWithText;
+      })
+    );
   });
 };
 
@@ -92,17 +106,23 @@ export const NETWORK_SELECTORS: {
 export const TRANSACTION_LIST_ITEM_TEXT_LOCATORS: {
   [key in MetamaskTransaction]: string;
 } = {
-  signatureRequest: "Signature Request"
+  signatureRequest: "Signature Request",
+  deposit: "Deposit"
 };
 
 export const NOTIFICATION_SELECTORS: {
   [key in MetamaskTransaction]: Locator;
 } = {
-  signatureRequest: By.css(".request-signature__container")
+  signatureRequest: By.css(".request-signature__container"),
+  deposit: By.css(".confirm-page-container-content")
 };
 
 export const REQUEST_SIGNATURE_SELECTORS = {
   signButton: By.css(".request-signature__footer__sign-button")
+};
+
+export const DEPOSIT_SELECTORS = {
+  confirmButton: By.css(".page-container__footer-button.btn-primary")
 };
 
 export const WALLET_AUTHORIZATION_MODAL_SELECTORS = {
