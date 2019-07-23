@@ -1,5 +1,3 @@
-import { Address } from "@counterfactual/types";
-
 import { AppInstance } from "../app-instance";
 
 export enum EventType {
@@ -20,8 +18,8 @@ export type InstallEventData = AppEventData;
 export type RejectInstallEventData = AppEventData;
 
 export type CreateMultisigEventData = {
-  owners: Address[];
-  multisigAddress: Address;
+  owners: string[];
+  multisigAddress: string;
 };
 
 export type ErrorEventData = {

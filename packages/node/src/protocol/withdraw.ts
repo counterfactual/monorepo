@@ -523,7 +523,7 @@ function addRefundAppToStateChannel(
     defaultTimeout,
     OutcomeType.REFUND_OUTCOME_TYPE,
     undefined,
-    { tokens: [tokenAddress], limit: [MaxUint256] }
+    { tokenAddresses: [tokenAddress], limit: [MaxUint256] }
   );
 
   return stateChannel.installApp(refundAppInstance, {

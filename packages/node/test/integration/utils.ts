@@ -1,7 +1,6 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
-  Address,
   AppABIEncodings,
   AppInstanceJson,
   AppInstanceProposal,
@@ -47,7 +46,7 @@ import {
 export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
-): Promise<Address> {
+): Promise<string> {
   const req = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
@@ -250,7 +249,7 @@ export function makeTTTProposalRequest(
 
 export function makeInstallVirtualRequest(
   appInstanceId: string,
-  intermediaries: Address[]
+  intermediaries: string[]
 ): Rpc {
   return jsonRpcDeserialize({
     params: {
@@ -289,6 +288,7 @@ export function makeTTTVirtualProposalRequest(
     ...installProposalParams,
     intermediaries
   };
+
   return jsonRpcDeserialize({
     params: installVirtualParams,
     id: Date.now(),
@@ -652,12 +652,16 @@ export async function makeProposeCall(
     responderDepositTokenAddress
   );
 
-  const response = (await nodeA.rpcRouter.dispatch(
+  const {
+    result: {
+      result: { appInstanceId }
+    }
+  } = (await nodeA.rpcRouter.dispatch(
     appInstanceProposalReq
   )) as JsonRpcResponse;
+
   return {
-    appInstanceId: (response.result.result as NodeTypes.ProposeInstallResult)
-      .appInstanceId,
+    appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
   };
 }
@@ -665,11 +669,11 @@ export async function makeProposeCall(
 export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
   amount: BigNumber,
-  tokens: string[]
+  tokenAddresses: string[]
 ): FreeBalanceState {
   const balancesIndexedByToken = {};
-  tokens.forEach(token => {
-    balancesIndexedByToken[token] = addresses.map(to => ({
+  tokenAddresses.forEach(tokenAddress => {
+    balancesIndexedByToken[tokenAddress] = addresses.map(to => ({
       to,
       amount
     }));

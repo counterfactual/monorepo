@@ -20,7 +20,9 @@ export const initialState = {
   ethereumBalance: Zero
 } as WalletState;
 
-export const connectToWallet = (): ThunkAction<
+export const connectToWallet = (
+  provider: Web3Provider
+): ThunkAction<
   void,
   ApplicationState,
   null,
@@ -36,6 +38,13 @@ export const connectToWallet = (): ThunkAction<
         ethAddress: ethereum.selectedAddress
       } as WalletState,
       type: ActionType.WalletSetAddress
+    });
+
+    const ethereumBalance = await provider.getBalance(ethereum.selectedAddress);
+
+    dispatch({
+      data: { ethereumBalance },
+      type: ActionType.WalletSetBalance
     });
   } catch (e) {
     dispatch({

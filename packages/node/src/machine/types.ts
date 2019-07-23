@@ -39,6 +39,7 @@ export type ProtocolMessage = {
   signature?: Signature;
   signature2?: Signature;
   signature3?: Signature;
+  signature4?: Signature;
 };
 
 export type SetupParams = {
@@ -80,7 +81,7 @@ export type InstallParams = {
   multisigAddress: string;
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
-  signingKeys: string[];
+  participants: string[];
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
   defaultTimeout: number;
@@ -118,7 +119,7 @@ export type UninstallVirtualAppParams = {
   responderXpub: string;
   intermediaryXpub: string;
   targetAppIdentityHash: string;
-  targetAppState: SolidityABIEncoderV2Type;
+  targetOutcome: string;
 };
 
 export type ProtocolParameters =

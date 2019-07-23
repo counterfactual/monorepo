@@ -5,7 +5,7 @@ import { createMemoryHistory } from "history";
 import React from "react";
 import { Provider } from "react-redux";
 import { MemoryRouter as Router } from "react-router-dom";
-import { FormButton } from "../../form";
+import { testSelector } from "../../../utils/testSelector";
 import store from "./../../../store/store";
 import { AccountContext, AccountContextProps } from "./AccountContext";
 import mock from "./AccountContext.mock.json";
@@ -52,16 +52,18 @@ describe("<AccountContext />", () => {
     });
 
     it("should render a Login button", () => {
-      const button = component.find(".btn-container [data-js='btn-login']");
+      const button = component.find(testSelector("login-button"));
 
-      expect(button.type()).toBe(FormButton);
+      expect(button.type()).toBe("button");
       expect(button.find(".icon").exists()).toBe(true);
       expect(button.find(".icon").prop("src")).toContain("login");
       expect(button.text()).toBe("Login");
     });
 
     it("should call loginUser() when clicking the Login button", () => {
-      const button = component.find(".btn-container [data-js='btn-login']");
+      const button = component.find(
+        ".btn-container [data-test-selector='login-button']"
+      );
 
       button.simulate("click");
 
@@ -96,18 +98,22 @@ describe("<AccountContext />", () => {
     });
 
     it("should render a balance information container", () => {
-      expect(component.find("[data-js='info-balance']").exists()).toBe(true);
+      expect(
+        component.find("[data-test-selector='info-balance']").exists()
+      ).toBe(true);
     });
 
     it("should render an user information container", () => {
-      expect(component.find("[data-js='info-user']").exists()).toBe(true);
+      expect(component.find("[data-test-selector='info-user']").exists()).toBe(
+        true
+      );
     });
 
     describe("Balance information", () => {
       let balanceWrapper: Enzyme.ReactWrapper;
 
       beforeEach(() => {
-        balanceWrapper = component.find("[data-js='info-balance']");
+        balanceWrapper = component.find("[data-test-selector='info-balance']");
       });
 
       it("should show the current balance", () => {
@@ -128,7 +134,7 @@ describe("<AccountContext />", () => {
       let userWrapper: Enzyme.ReactWrapper;
 
       beforeEach(() => {
-        userWrapper = component.find("[data-js='info-user']");
+        userWrapper = component.find("[data-test-selector='info-user']");
       });
 
       it("should show the current username", () => {

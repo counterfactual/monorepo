@@ -1,5 +1,4 @@
 import {
-  Address,
   AppABIEncodings,
   Node,
   OutcomeType,
@@ -42,7 +41,7 @@ export class AppFactory {
    * @param provider CFjs provider
    */
   constructor(
-    readonly appDefinition: Address,
+    readonly appDefinition: string,
     readonly encodings: AppABIEncodings,
     readonly provider: Provider
   ) {}

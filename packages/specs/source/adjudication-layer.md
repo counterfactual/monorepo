@@ -13,7 +13,7 @@ An app instance is uniquely identified by its `AppIdentity`.
 ```solidity
 struct AppIdentity {
     address owner;
-    address[] signingKeys;
+    address[] participants;
     address appDefinition;
     uint256 defaultTimeout;
 }
@@ -21,7 +21,7 @@ struct AppIdentity {
 
 - **`owner`**: The on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. We treat any function call where `msg.sender == owner` as authorized (all channel participants have agreed to it).
 
-- **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
+- **`participants`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
 
 - **`appDefinition`**: Address ofthe app definition contract.
 

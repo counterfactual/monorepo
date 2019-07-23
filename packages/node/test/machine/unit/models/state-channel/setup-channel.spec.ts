@@ -69,8 +69,8 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.timeout).toBe(fb.defaultTimeout);
     });
 
-    it("should use the multisig owners as the signing keys", () => {
-      expect(fb.signingKeys).toEqual(sc.multisigOwners);
+    it("should use the multisig owners as the participants", () => {
+      expect(fb.participants).toEqual(sc.multisigOwners);
     });
 
     it("should use the FreeBalanceAppApp as the app target", () => {
@@ -82,7 +82,7 @@ describe("StateChannel::setupChannel", () => {
       expect(fb.appSeqNo).toBe(0);
     });
 
-    it("should set the signingKeys as the userNeuteredExtendedKeys", () => {});
+    it("should set the participants as the userNeuteredExtendedKeys", () => {});
 
     it("should have 0 balances for Alice and Bob", () => {
       for (const amount of Object.values(

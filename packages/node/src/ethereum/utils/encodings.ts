@@ -3,7 +3,7 @@
 export const APP_IDENTITY = `
   tuple(
     address owner,
-    address[] signingKeys,
+    address[] participants,
     address appDefinition,
     uint256 defaultTimeout
   )`;

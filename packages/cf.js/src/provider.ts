@@ -1,5 +1,4 @@
 import {
-  Address,
   AppInstanceInfo,
   AppInstanceJson,
   IRpcNodeProvider,
@@ -121,7 +120,7 @@ export class Provider {
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: Address[]
+    intermediaries: string[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,

@@ -31,7 +31,7 @@ contract MChallengeRegistryCore {
   /// @param appStateHash The hash of the app state to be signed
   /// @param versionNumber The versionNumber corresponding to the version of the state
   /// @param timeout A dynamic timeout value representing the timeout for this state
-  /// @return A bytes32 hash of the arguments encoded with the signing keys for the channel
+  /// @return A bytes32 hash of the RLP encoded arguments
   function computeAppChallengeHash(
     bytes32 identityHash,
     bytes32 appStateHash,

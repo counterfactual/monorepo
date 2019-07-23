@@ -5,7 +5,7 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
-import { Address, AppInstanceInfo, cf } from "../../data/types";
+import { AppInstanceInfo, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;
 
@@ -30,7 +30,7 @@ export class AppWager {
   @State() opponent: {
     attributes: {
       username?: string;
-      ethAddress?: Address;
+      ethAddress?: string;
       nodeAddress?: string;
     };
   } = { attributes: {} };
