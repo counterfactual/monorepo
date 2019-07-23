@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/CommonOutcomes.sol";
 
 
 /// @title High Roller App
@@ -154,22 +154,22 @@ contract HighRollerApp is CounterfactualApp {
 
     // If P1 goes offline...
     if (appState.stage == Stage.WAITING_FOR_P1_COMMITMENT) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // If P2 goes offline...
     if (appState.stage == Stage.P1_COMMITTED_TO_HASH) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     }
 
     // If P1 goes offline...
     if (appState.stage == Stage.P2_COMMITTED_TO_NUM) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // If P1 tried to cheat...
     if (appState.stage == Stage.P1_TRIED_TO_SUBMIT_ZERO) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     }
 
     // Co-operative case
@@ -200,19 +200,19 @@ contract HighRollerApp is CounterfactualApp {
   function getWinningAmounts(uint256 num1, uint256 num2)
     internal
     pure
-    returns (LibOutcome.TwoPartyFixedOutcome)
+    returns (CommonOutcomes.TwoPartyFixedOutcome)
   {
     bytes32 randomSalt = calculateRandomSalt(num1, num2);
 
     (uint8 playerFirstTotal, uint8 playerSecondTotal) = highRoller(randomSalt);
 
     if (playerFirstTotal > playerSecondTotal)
-      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE;
+      return CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE;
 
     if (playerFirstTotal < playerSecondTotal)
-      return LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO;
+      return CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO;
 
-    return LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
+    return CommonOutcomes.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS;
 
   }
 

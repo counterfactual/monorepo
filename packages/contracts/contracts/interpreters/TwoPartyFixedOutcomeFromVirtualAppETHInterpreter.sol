@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 import "../interfaces/Interpreter.sol";
-import "../libs/LibOutcome.sol";
+import "../libs/CommonOutcomes.sol";
 
 
 /// @notice
@@ -32,9 +32,9 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
   )
     external
   {
-    LibOutcome.TwoPartyFixedOutcome twoPartyOutcome = abi.decode(
+    CommonOutcomes.TwoPartyFixedOutcome twoPartyOutcome = abi.decode(
       outcome,
-      (LibOutcome.TwoPartyFixedOutcome)
+      (CommonOutcomes.TwoPartyFixedOutcome)
     );
 
     SingleAssetTwoPartyIntermediaryAgreement memory agreement = abi.decode(
@@ -48,7 +48,7 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
     );
 
     if (
-      twoPartyOutcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE
+      twoPartyOutcome == CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE
     ) {
 
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
@@ -60,7 +60,7 @@ contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
       }
 
     } else if (
-      twoPartyOutcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO
+      twoPartyOutcome == CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO
     ) {
 
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {

@@ -15,7 +15,7 @@
     "transactionHash": "0xff2b147b8d9d83583ff9b6694da3fb31f7eee8910339b10ece218e1c3df4c911"
   },
   {
-    "contractName": "CoinTransferInterpreter",
+    "contractName": "CoinTransferListOfListsInterpreter",
     "address": "0x78D4A2c50b2EE6a99cE65b670Ec0BC6aa1BdD6B6",
     "transactionHash": "0x0ccfc304d35cb5e3d770f88c4e3de4270599667426851c5b254bd96e383065bd"
   },

@@ -10,7 +10,7 @@ import {
   AppInstanceProposal,
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
-  CoinTransferInterpreterParams,
+  CoinTransferListOfListsInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
@@ -28,7 +28,7 @@ export interface NetworkContext {
   ChallengeRegistry: string;
   ConditionalTransactionDelegateTarget: string;
   CoinBalanceRefundApp: string;
-  CoinTransferInterpreter: string;
+  CoinTransferListOfListsInterpreter: string;
   FreeBalanceApp: string;
   IdentityApp: string;
   MinimumViableMultisig: string;
@@ -43,7 +43,7 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
-  "CoinTransferInterpreter",
+  "CoinTransferListOfListsInterpreter",
   "IdentityApp",
   "FreeBalanceApp",
   "MinimumViableMultisig",
@@ -70,7 +70,7 @@ export {
   AppInterface,
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
-  CoinTransferInterpreterParams,
+  CoinTransferListOfListsInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
   ContractABI,
   SolidityABIEncoderV2Type,

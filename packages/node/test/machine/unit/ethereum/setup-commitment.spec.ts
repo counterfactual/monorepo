@@ -83,7 +83,9 @@ describe("SetupCommitment", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
-      expect(interpreterAddress).toBe(networkContext.CoinTransferInterpreter);
+      expect(interpreterAddress).toBe(
+        networkContext.CoinTransferListOfListsInterpreter
+      );
     });
   });
 });

@@ -4,8 +4,8 @@ import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
-  CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
+  CoinTransferListOfListsInterpreterParams,
   NetworkContext,
   OutcomeType
 } from "@counterfactual/types";
@@ -121,23 +121,26 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.defaultTimeout, // Re-use ETH FreeBalance timeout
         {
           addr: network.IdentityApp,
-          stateEncoding: "tuple(address to, uint256 amount)[][]",
+          stateEncoding:
+            "tuple(tuple(address to, uint256 amount)[][] transfers)",
           actionEncoding: undefined
         },
         false,
         stateChannel.numInstalledApps,
-        [
-          // ETH token index
-          [
-            { to: multisigOwnerKeys[0].address, amount: WeiPerEther },
-            { to: multisigOwnerKeys[1].address, amount: Zero }
-          ],
-          // ERC20 token index
-          [
-            { to: multisigOwnerKeys[0].address, amount: Zero },
-            { to: multisigOwnerKeys[1].address, amount: WeiPerEther }
+        {
+          transfers: [
+            // ETH token index
+            [
+              { to: multisigOwnerKeys[0].address, amount: WeiPerEther },
+              { to: multisigOwnerKeys[1].address, amount: Zero }
+            ],
+            // ERC20 token index
+            [
+              { to: multisigOwnerKeys[0].address, amount: Zero },
+              { to: multisigOwnerKeys[1].address, amount: WeiPerEther }
+            ]
           ]
-        ],
+        },
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
         OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
@@ -147,7 +150,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           limit: [parseEther("2"), parseEther("2")],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
-        } as CoinTransferInterpreterParams
+        } as CoinTransferListOfListsInterpreterParams
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {
@@ -218,7 +221,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigOwners,
         identityAppInstance.identityHash,
         stateChannel.freeBalance.identityHash,
-        network.CoinTransferInterpreter,
+        network.CoinTransferListOfListsInterpreter,
         defaultAbiCoder.encode(
           [coinTransferInterpreterParamsStateEncoding],
           [identityAppInstance.coinTransferInterpreterParams!]

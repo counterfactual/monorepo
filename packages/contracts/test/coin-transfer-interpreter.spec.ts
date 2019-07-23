@@ -1,4 +1,4 @@
-import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
+import CoinTransferListOfListsInterpreter from "@counterfactual/contracts/build/CoinTransferListOfListsInterpreter.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
@@ -13,6 +13,10 @@ type CoinTransfer = {
   amount: BigNumber;
 };
 
+type CoinTransferListOfLists = {
+  transfers: CoinTransfer[][];
+};
+
 function encodeParams(params: {
   limit: BigNumber[];
   tokenAddresses: string[];
@@ -23,17 +27,19 @@ function encodeParams(params: {
   );
 }
 
-function encodeState(state: CoinTransfer[][]) {
+function encodeOutcome(outcome: CoinTransferListOfLists) {
   return defaultAbiCoder.encode(
     [
       `
         tuple(
-          address to,
-          uint256 amount
-        )[][]
+          tuple(
+            address to,
+            uint256 amount
+          )[][] transfers
+        )
       `
     ],
-    [state]
+    [outcome]
   );
 }
 
@@ -44,11 +50,11 @@ describe("CoinTransferInterpreter", () => {
   let coinTransferInterpreter: Contract;
 
   async function interpretOutcomeAndExecuteEffect(
-    state: CoinTransfer[][],
+    outcome: CoinTransferListOfLists,
     params: { limit: BigNumber[]; tokenAddresses: string[] }
   ) {
     return await coinTransferInterpreter.functions.interpretOutcomeAndExecuteEffect(
-      encodeState(state),
+      encodeOutcome(outcome),
       encodeParams(params)
     );
   }
@@ -60,7 +66,7 @@ describe("CoinTransferInterpreter", () => {
 
     coinTransferInterpreter = await waffle.deployContract(
       wallet,
-      CoinTransferInterpreter
+      CoinTransferListOfListsInterpreter
     );
 
     // fund interpreter with ERC20 tokenAddresses
@@ -80,10 +86,13 @@ describe("CoinTransferInterpreter", () => {
     const to = hexlify(randomBytes(20));
     const amount = One;
 
-    await interpretOutcomeAndExecuteEffect([[{ to, amount }]], {
-      limit: [amount],
-      tokenAddresses: [AddressZero]
-    });
+    await interpretOutcomeAndExecuteEffect(
+      { transfers: [[{ to, amount }]] },
+      {
+        limit: [amount],
+        tokenAddresses: [AddressZero]
+      }
+    );
 
     expect(await provider.getBalance(to)).to.eq(One);
   });
@@ -96,7 +105,11 @@ describe("CoinTransferInterpreter", () => {
     const amount2 = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [[{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]],
+      {
+        transfers: [
+          [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
+        ]
+      },
       {
         limit: [amount1.add(amount2)],
         tokenAddresses: [AddressZero]
@@ -111,10 +124,13 @@ describe("CoinTransferInterpreter", () => {
     const to = hexlify(randomBytes(20));
     const amount = One;
 
-    await interpretOutcomeAndExecuteEffect([[{ to, amount }]], {
-      limit: [amount],
-      tokenAddresses: [erc20.address]
-    });
+    await interpretOutcomeAndExecuteEffect(
+      { transfers: [[{ to, amount }]] },
+      {
+        limit: [amount],
+        tokenAddresses: [erc20.address]
+      }
+    );
 
     expect(await erc20.functions.balanceOf(to)).to.eq(One);
   });
@@ -127,7 +143,11 @@ describe("CoinTransferInterpreter", () => {
     const amount2 = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [[{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]],
+      {
+        transfers: [
+          [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
+        ]
+      },
       {
         limit: [amount1.add(amount2)],
         tokenAddresses: [erc20.address]
@@ -143,7 +163,7 @@ describe("CoinTransferInterpreter", () => {
     const amount = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [[{ to, amount }], [{ to, amount }]],
+      { transfers: [[{ to, amount }], [{ to, amount }]] },
       {
         limit: [amount, amount],
         tokenAddresses: [AddressZero, erc20.address]
@@ -162,7 +182,12 @@ describe("CoinTransferInterpreter", () => {
     const amount2 = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [[{ to: to1, amount: amount1 }], [{ to: to2, amount: amount2 }]],
+      {
+        transfers: [
+          [{ to: to1, amount: amount1 }],
+          [{ to: to2, amount: amount2 }]
+        ]
+      },
       {
         limit: [amount1, amount2],
         tokenAddresses: [AddressZero, erc20.address]
@@ -181,10 +206,12 @@ describe("CoinTransferInterpreter", () => {
     const amount2 = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [
-        [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }],
-        [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
-      ],
+      {
+        transfers: [
+          [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }],
+          [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
+        ]
+      },
       {
         limit: [amount1.add(amount2), amount1.add(amount2)],
         tokenAddresses: [AddressZero, erc20.address]
@@ -206,10 +233,12 @@ describe("CoinTransferInterpreter", () => {
     const amount2 = One;
 
     await interpretOutcomeAndExecuteEffect(
-      [
-        [{ to: to2, amount: amount2 }, { to: to1, amount: amount1 }],
-        [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
-      ],
+      {
+        transfers: [
+          [{ to: to2, amount: amount2 }, { to: to1, amount: amount1 }],
+          [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }]
+        ]
+      },
       {
         limit: [amount1.add(amount2), amount1.add(amount2)],
         tokenAddresses: [AddressZero, erc20.address]

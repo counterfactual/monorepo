@@ -1,7 +1,7 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
-import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
+import CoinTransferListOfListsInterpreter from "@counterfactual/contracts/build/CoinTransferListOfListsInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
@@ -57,8 +57,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferInterpreter.abi,
-    CoinTransferInterpreter.bytecode,
+    CoinTransferListOfListsInterpreter.abi,
+    CoinTransferListOfListsInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -104,7 +104,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
       conditionalTransactionDelegateTarget.address,
     FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
-    CoinTransferInterpreter: coinTransferETHInterpreter.address,
+    CoinTransferListOfListsInterpreter: coinTransferETHInterpreter.address,
     CoinBalanceRefundApp: coinBalanceRefundContract.address,
     DolphinCoin: dolphinCoin.address,
     MinimumViableMultisig: mvmContract.address,

@@ -1,6 +1,6 @@
 import {
-  CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
+  CoinTransferListOfListsInterpreterParams,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcomeInterpreterParams
@@ -368,7 +368,7 @@ function computeStateChannelTransition(
  * inside of the client (the Node) by adding an "outcomeType" variable which
  * is a simplification of the actual decision a developer has to make with their app.
  *
- * TODO: update doc on how CoinTransferInterpreterParams work
+ * TODO: update doc on how CoinTransferListOfListsInterpreterParams work
  *
  * @param {OutcomeType} outcomeType - either COIN_TRANSFER or TWO_PARTY_FIXED_OUTCOME
  * @param {BigNumber} initiatorBalanceDecrement - amount Wei initiator deposits
@@ -389,7 +389,9 @@ function computeInterpreterParameters(
   initiatorFbAddress: string,
   responderFbAddress: string
 ) {
-  let coinTransferInterpreterParams: CoinTransferInterpreterParams | undefined;
+  let coinTransferInterpreterParams:
+    | CoinTransferListOfListsInterpreterParams
+    | undefined;
 
   let twoPartyOutcomeInterpreterParams:
     | TwoPartyFixedOutcomeInterpreterParams
@@ -464,7 +466,7 @@ function constructConditionalTransactionData(
 
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
-      interpreterAddress = network.CoinTransferInterpreter;
+      interpreterAddress = network.CoinTransferListOfListsInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         [coinTransferInterpreterParamsStateEncoding],
         [appInstance.coinTransferInterpreterParams]

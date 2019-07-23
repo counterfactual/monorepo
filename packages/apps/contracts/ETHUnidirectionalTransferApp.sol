@@ -4,7 +4,7 @@ pragma experimental "ABIEncoderV2";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/CommonOutcomes.sol";
 
 
 /// @title ETH Unidirectional Transfer App
@@ -15,7 +15,7 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.CoinTransfer[] transfers; // [sender, receiver]
+    CommonOutcomes.CoinTransfer[] transfers; // [sender, receiver]
     bool finalized;
   }
 

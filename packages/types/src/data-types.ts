@@ -10,9 +10,9 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
   amount: BigNumber;
 };
 
-export type CoinTransferInterpreterParams = {
+export type CoinTransferListOfListsInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/CoinTransferListOfListsInterpreter.sol#L18
   limit: BigNumber[];
   tokenAddresses: string[];
 };
@@ -50,7 +50,7 @@ export type AppInstanceJson = {
 
   coinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/CoinTransferListOfListsInterpreter.sol#L18
     limit: { _hex: string }[];
     tokenAddresses: string[];
   };
@@ -73,7 +73,7 @@ export type AppInstanceInfo = {
    * Interpreter-related Fields
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  coinTransferInterpreterParams?: CoinTransferListOfListsInterpreterParams;
 };
 
 export type AppInstanceProposal = {
@@ -93,7 +93,7 @@ export type AppInstanceProposal = {
    * Interpreter-related Fields
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  coinTransferInterpreterParams?: CoinTransferListOfListsInterpreterParams;
 };
 
 export type AppABIEncodings = {

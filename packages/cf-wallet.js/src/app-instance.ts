@@ -2,7 +2,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   AppInstanceJson,
-  CoinTransferInterpreterParams,
+  CoinTransferListOfListsInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
@@ -28,7 +28,7 @@ export class AppInstance {
   readonly responderDeposit: BigNumber;
 
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  readonly coinTransferInterpreterParams?: CoinTransferListOfListsInterpreterParams;
 
   readonly intermediaries?: string[];
 

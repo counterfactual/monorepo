@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/Interpreter.sol";
-import "../libs/LibOutcome.sol";
+import "../libs/CommonOutcomes.sol";
 
 
 /// @notice
@@ -25,23 +25,23 @@ contract TwoPartyFixedOutcomeETHInterpreter is Interpreter {
 
     Params memory params = abi.decode(encodedParams, (Params));
 
-    LibOutcome.TwoPartyFixedOutcome outcome = abi.decode(
+    CommonOutcomes.TwoPartyFixedOutcome outcome = abi.decode(
       encodedOutcome,
-      (LibOutcome.TwoPartyFixedOutcome)
+      (CommonOutcomes.TwoPartyFixedOutcome)
     );
 
-    if (outcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE) {
+    if (outcome == CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE) {
       params.playerAddrs[0].transfer(params.amount);
       return;
-    } else if (outcome == LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO) {
+    } else if (outcome == CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO) {
       params.playerAddrs[1].transfer(params.amount);
       return;
     }
 
-    /* 
+    /*
     A functioning app should return SPLIT_AND_SEND_TO_BOTH_ADDRS
     to indicate that the committed asset should be split, hence by right
-    we can revert here if the outcome is something other than that, since we 
+    we can revert here if the outcome is something other than that, since we
     would have handled all cases; instead we choose to handle all other outcomes
     as if they were SPLIT.
     */

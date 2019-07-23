@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../interfaces/CounterfactualApp.sol";
-import "../libs/LibOutcome.sol";
+import "../libs/CommonOutcomes.sol";
 
 // There is a counter; participants[1] _only_ is allowed to increment it
 
@@ -41,7 +41,7 @@ contract AppWithAction is CounterfactualApp {
     pure
     returns (bytes memory)
   {
-    return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+    return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
   }
 
   function applyAction(

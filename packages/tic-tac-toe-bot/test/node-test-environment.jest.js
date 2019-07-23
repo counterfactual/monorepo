@@ -30,7 +30,7 @@ class NodeEnvironment extends NodeJSEnvironment {
       ChallengeRegistry: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
       ETHBalanceRefundApp: AddressZero,
-      CoinTransferInterpreter: data.networkContext.CoinTransferInterpreter,
+      CoinTransferListOfListsInterpreter: data.networkContext.CoinTransferListOfListsInterpreter,
       FreeBalanceApp: AddressZero,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,

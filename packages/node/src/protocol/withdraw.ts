@@ -537,9 +537,9 @@ function addRefundAppToStateChannel(
  * Computes the ConditionalTransaction unsigned transaction pertaining to the
  * installation of the ETHBalanceRefundApp.
  *
- * Note that this app is hard-coded to the CoinTransferInterpreter. You can see this
+ * Note that this app is hard-coded to the CoinTransferListOfListsInterpreter. You can see this
  * by reviewing the `ETHBalanceRefundApp.sol` file which has an outcome structure
- * of LibOutcome.CoinTrasfer[].
+ * of CommonOutcomes.CoinTransfer[].
  *
  * @param {NetworkContext} network - Metadata on the current blockchain
  * @param {StateChannel} stateChannel - The post-refund-app-installed StateChannel
@@ -558,7 +558,7 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.multisigOwners,
     appInstance.identityHash,
     stateChannel.freeBalance.identityHash,
-    network.CoinTransferInterpreter,
+    network.CoinTransferListOfListsInterpreter,
     defaultAbiCoder.encode(
       [coinTransferInterpreterParamsStateEncoding],
       [appInstance.coinTransferInterpreterParams]

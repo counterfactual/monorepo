@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/CommonOutcomes.sol";
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 
@@ -13,7 +13,7 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.CoinTransfer[] coinTransfers;
+    CommonOutcomes.CoinTransfer[] coinTransfers;
   }
 
   function computeOutcome(bytes calldata encodedState)

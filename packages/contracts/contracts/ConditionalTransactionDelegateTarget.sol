@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "./ChallengeRegistry.sol";
-import "./libs/LibOutcome.sol";
+import "./libs/CommonOutcomes.sol";
 
 
 /// @title ConditionalTransactionDelegateTarget
@@ -17,7 +17,7 @@ contract ConditionalTransactionDelegateTarget {
     // The inner array contains the list of CoinTransfers for a single asset type
     // The outer array contains the list of asset balances for respecitve assets
     // according to the indexing used in the `tokens` array above
-    LibOutcome.CoinTransfer[][] balances;
+    CommonOutcomes.CoinTransfer[][] balances;
     bytes32[] activeApps;
   }
 
@@ -34,7 +34,7 @@ contract ConditionalTransactionDelegateTarget {
       "Free Balance app instance is not finalized yet"
     );
 
-    LibOutcome.CoinTransfer[][] memory outcome = abi.decode(
+    CommonOutcomes.CoinTransfer[][] memory outcome = abi.decode(
       challengeRegistry.getOutcome(freeBalanceAppIdentityHash),
       (FreeBalanceAppState)
     ).balances;

@@ -2,7 +2,7 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/contracts/contracts/libs/CommonOutcomes.sol";
 
 
 contract TicTacToeApp is CounterfactualApp {
@@ -112,16 +112,16 @@ contract TicTacToeApp is CounterfactualApp {
     AppState memory state = abi.decode(encodedState, (AppState));
 
     if (state.winner == 2) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
     } else if (state.winner == 1) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
     } else if (state.winner == GAME_DRAWN) {
-      return abi.encode(LibOutcome.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
+      return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS);
     } else {
       if (state.versionNumber % 2 == 0) {
-        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
+        return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_ONE);
       } else if (state.versionNumber % 2 == 1) {
-        return abi.encode(LibOutcome.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
+        return abi.encode(CommonOutcomes.TwoPartyFixedOutcome.SEND_TO_ADDR_TWO);
       }
     }
   }

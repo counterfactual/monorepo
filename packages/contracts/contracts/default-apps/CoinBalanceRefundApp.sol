@@ -3,7 +3,7 @@ pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
-import "../libs/LibOutcome.sol";
+import "../libs/CommonOutcomes.sol";
 
 
 contract CoinBalanceRefundApp {
@@ -24,7 +24,7 @@ contract CoinBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    LibOutcome.CoinTransfer[1][1] memory ret;
+    CommonOutcomes.CoinTransfer[1][1] memory ret;
 
     if (appState.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 

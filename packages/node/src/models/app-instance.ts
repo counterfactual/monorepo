@@ -3,7 +3,7 @@ import {
   AppIdentity,
   AppInstanceJson,
   AppInterface,
-  CoinTransferInterpreterParams,
+  CoinTransferListOfListsInterpreterParams,
   OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
@@ -62,7 +62,7 @@ export class AppInstance {
     latestTimeout: number,
     outcomeType: OutcomeType,
     twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams
+    coinTransferInterpreterParams?: CoinTransferListOfListsInterpreterParams
   ) {
     this.json = {
       multisigAddress,
@@ -183,7 +183,7 @@ export class AppInstance {
   }
 
   public get coinTransferInterpreterParams():
-    | CoinTransferInterpreterParams
+    | CoinTransferListOfListsInterpreterParams
     | undefined {
     return this.json.coinTransferInterpreterParams
       ? {
