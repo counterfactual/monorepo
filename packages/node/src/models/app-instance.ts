@@ -11,12 +11,7 @@ import {
 import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import {
-  BigNumber,
-  bigNumberify,
-  defaultAbiCoder,
-  keccak256
-} from "ethers/utils";
+import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -103,14 +98,10 @@ export class AppInstance {
   }
 
   public static fromJson(json: AppInstanceJson) {
-    // FIXME: Do recursive not shallow
-    const latestState = json.latestState;
-    for (const key in latestState) {
-      // @ts-ignore
-      if (latestState[key]["_hex"]) {
-        latestState[key] = bigNumberify(latestState[key] as BigNumber);
-      }
-    }
+    const latestState = JSON.parse(
+      JSON.stringify(json.latestState),
+      (key, val) => (val["_hex"] ? bigNumberify(val) : val)
+    );
 
     const ret = new AppInstance(
       json.multisigAddress,
