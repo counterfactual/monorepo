@@ -1,11 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
-import {
-  InstallVirtualMessage,
-  NODE_EVENTS,
-  ProposeVirtualMessage
-} from "../../src/types";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -42,18 +38,15 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
-        nodeA.once(
-          NODE_EVENTS.INSTALL_VIRTUAL,
-          async (msg: InstallVirtualMessage) => {
-            const [virtualAppNodeA] = await getInstalledAppInstances(nodeA);
+        nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, async () => {
+          const [virtualAppNodeA] = await getInstalledAppInstances(nodeA);
 
-            const [virtualAppNodeC] = await getInstalledAppInstances(nodeC);
+          const [virtualAppNodeC] = await getInstalledAppInstances(nodeC);
 
-            expect(virtualAppNodeA).toEqual(virtualAppNodeC);
+          expect(virtualAppNodeA).toEqual(virtualAppNodeC);
 
-            done();
-          }
-        );
+          done();
+        });
 
         nodeC.once(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,

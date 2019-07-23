@@ -85,10 +85,7 @@ export class PostgresStoreService implements Node.IStoreService {
     await connection.dropDatabase();
   }
 
-  async set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<void> {
+  async set(pairs: { key: string; value: any }[]): Promise<void> {
     const connection = this.connectionMgr.get();
 
     await connection.transaction(async transactionalEntityManager => {

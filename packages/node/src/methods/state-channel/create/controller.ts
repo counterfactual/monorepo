@@ -38,8 +38,7 @@ export default class CreateChannelController extends NodeController {
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
-    requestHandler: RequestHandler,
-    params: Node.CreateChannelParams
+    requestHandler: RequestHandler
   ): Promise<Queue[]> {
     return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
   }

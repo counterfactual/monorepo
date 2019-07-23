@@ -20,7 +20,7 @@ export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
  * @returns {NetworkContext} - the corresponding NetworkContext
  */
 export function getNetworkContextForNetworkName(
-  networkName: string
+  networkName: "ropsten" | "rinkeby" | "kovan"
 ): NetworkContext {
   log.info(`Configuring Node to use contracts on networkName: ${networkName}`);
   switch (networkName.toLocaleLowerCase()) {

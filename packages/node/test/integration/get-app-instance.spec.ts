@@ -26,7 +26,6 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     await createChannel(nodeA, nodeB);
 
     const proposedParams = makeTTTProposalRequest(
-      nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     ).parameters as NodeTypes.ProposeInstallParams;

@@ -45,22 +45,25 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult>;
 
   protected async beforeExecution(
+    // @ts-ignore
     requestHandler: RequestHandler,
+    // @ts-ignore
     params: Node.MethodParams
   ): Promise<void> {}
 
   protected async afterExecution(
+    // @ts-ignore
     requestHandler: RequestHandler,
+    // @ts-ignore
     params: Node.MethodParams
   ): Promise<void> {}
 
-  // This method is the logic by which the waiting on the queue happens
-  // per controller which needs to be overrided.
   protected async enqueueByShard(
+    // @ts-ignore
     requestHandler: RequestHandler,
+    // @ts-ignore
     params: Node.MethodParams
   ): Promise<Queue[]> {
-    // @ts-ignore
     return [];
   }
 }

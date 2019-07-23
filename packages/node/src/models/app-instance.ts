@@ -68,9 +68,11 @@ export class AppInstance {
   ) {}
 
   public static fromJson(json: AppInstanceJson) {
-    const serialized = JSON.parse(JSON.stringify(json), (key, val) =>
-      val["_hex"] ? bigNumberify(val) : val
-    );
+    const serialized = JSON.parse(JSON.stringify(json), (
+      // @ts-ignore
+      key,
+      val
+    ) => (val["_hex"] ? bigNumberify(val) : val));
     return new AppInstance(
       serialized.multisigAddress,
       serialized.participants,
@@ -107,8 +109,11 @@ export class AppInstance {
         coinTransferInterpreterParams: this.coinTransferInterpreterParams,
         identityHash: this.identityHash
       }),
-      (key, val) =>
-        BigNumber.isBigNumber(val) ? { _hex: val.toHexString() } : val
+      (
+        // @ts-ignore
+        key,
+        val
+      ) => (BigNumber.isBigNumber(val) ? { _hex: val.toHexString() } : val)
     );
   }
 
