@@ -5,7 +5,10 @@ import { jsonRpcMethod } from "rpc-server";
 import { getChannelFromCounterparty } from "../../../protocol/utils/get-channel-from-counterparty";
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
-import { hashOfOrderedPublicIdentifiers } from "../../../utils";
+import {
+  getStateChannelWithOwners,
+  hashOfOrderedPublicIdentifiers
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
@@ -65,10 +68,10 @@ export default class InstallVirtualController extends NodeController {
       );
     }
 
-    const stateChannelWithIntermediary = getChannelFromCounterparty(
-      new Map(Object.entries(await store.getAllChannels())),
+    const stateChannelWithIntermediary = await getStateChannelWithOwners(
       publicIdentifier,
-      intermediaries[0]
+      intermediaries[0],
+      store
     );
 
     if (!stateChannelWithIntermediary) {
