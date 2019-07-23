@@ -1,10 +1,16 @@
 import { WELCOME_SCREEN_SELECTORS } from "../utils/counterfactual-wallet-selectors";
 import { TestBrowser } from "../utils/test-browser";
+import { CounterfactualScreenName } from "../utils/types";
 
 jest.setTimeout(100000);
 
+let browser: TestBrowser;
+
+beforeAll(() => {
+  browser = new TestBrowser();
+});
+
 it("registers a new account", async () => {
-  const browser = new TestBrowser();
   const { setupCounterfactualButton } = WELCOME_SCREEN_SELECTORS;
 
   await browser.openMetamask();
@@ -23,5 +29,9 @@ it("registers a new account", async () => {
     "i.am.a@tea.pot"
   );
 
-  await browser.fillAccountDepositFormAndSubmit("0.1");
+  await browser.fillAccountDepositFormAndSubmit();
+
+  expect(await browser.getCurrentScreenName()).toEqual(
+    CounterfactualScreenName.Channels
+  );
 });
