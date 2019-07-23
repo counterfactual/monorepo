@@ -7,14 +7,16 @@ import "../interfaces/Interpreter.sol";
 import "../libs/LibOutcome.sol";
 
 
-/// @notice 
-/// 
+/// @notice
+///
 /// Interprets a finalized AppInstance whose outcome is of type
 /// CoinTransfer. While CoinTransfer outcome contains `to` and `coinAddress`
 /// fields, those fields are *ignored* by this interpreter. Only the `amount`
 /// field is used.
 
 contract CoinTransferFromVirtualAppInterpreter is Interpreter {
+
+  address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct Agreement {
     uint256 capitalProvided;
@@ -44,16 +46,28 @@ contract CoinTransferFromVirtualAppInterpreter is Interpreter {
       "Virtual App agreement has expired and is no longer valid."
     );
 
-    ERC20(agreement.tokenAddress).transfer(
-      agreement.beneficiaries[0],
-      outcome.amount
-    );
-    
-    ERC20(agreement.tokenAddress).transfer(
-      agreement.beneficiaries[1],
-      agreement.capitalProvided - outcome.amount
-    ); 
+    if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
+      agreement.beneficiaries[0].transfer(
+        outcome.amount
+      );
+
+      agreement.beneficiaries[1].transfer(
+        agreement.capitalProvided - outcome.amount
+      );
+
+    } else {
+
+      ERC20(agreement.tokenAddress).transfer(
+        agreement.beneficiaries[0],
+        outcome.amount
+      );
+
+      ERC20(agreement.tokenAddress).transfer(
+        agreement.beneficiaries[1],
+        agreement.capitalProvided - outcome.amount
+      );
+    }
   }
 
 }
