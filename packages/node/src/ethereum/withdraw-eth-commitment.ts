@@ -1,4 +1,4 @@
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { bigNumberify, BigNumberish } from "ethers/utils";
 
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -8,7 +8,7 @@ export class WithdrawETHCommitment extends MultisigCommitment {
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
     public readonly to: string,
-    public readonly value: BigNumber | number
+    public readonly value: BigNumberish
   ) {
     super(multisigAddress, multisigOwners);
   }

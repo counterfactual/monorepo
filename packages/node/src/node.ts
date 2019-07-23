@@ -334,14 +334,15 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.protocolExecutionID);
-
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else {
+    } else if (this.requestHandler.isLegacyEvent(msg.type)) {
       await this.requestHandler.callEvent(msg.type, msg);
+    } else {
+      await this.rpcRouter.emit(msg.type, msg);
     }
   }
 

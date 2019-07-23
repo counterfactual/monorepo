@@ -37,7 +37,10 @@ const Welcome: React.FC<RouteComponentProps> = ({ history }) => {
           for more.
         </p>
       </div>
-      <FormButton onClick={() => history.push(RoutePath.SetupRegister)}>
+      <FormButton
+        name="setup"
+        onClick={() => history.push(RoutePath.SetupRegister)}
+      >
         Setup Counterfactual
       </FormButton>
     </section>

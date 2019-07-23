@@ -27,10 +27,10 @@ contract LibAppCaller {
   /// @notice A helper method to get the turn taker for an app
   /// @param appDefinition An address of an app definition to call
   /// @param appState The ABI encoded version of some application state
-  /// @return An address representing the turn taker in the `signingKeys`
+  /// @return An address representing the turn taker in the `participants`
   function getTurnTaker(
     address appDefinition,
-    address[] memory signingKeys,
+    address[] memory participants,
     bytes memory appState
   )
     internal
@@ -38,7 +38,7 @@ contract LibAppCaller {
     returns (address)
   {
     return CounterfactualApp(appDefinition)
-      .getTurnTaker(appState, signingKeys);
+      .getTurnTaker(appState, participants);
   }
 
   /// @notice Execute the application's applyAction function to compute new state

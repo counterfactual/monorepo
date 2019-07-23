@@ -153,7 +153,8 @@ export async function getProposedAppInstances(
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress?: string
+  tokenAddress?: string,
+  notifyCounterparty: boolean = false
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -161,7 +162,8 @@ export function makeDepositRequest(
     params: {
       multisigAddress,
       amount,
-      tokenAddress
+      tokenAddress,
+      notifyCounterparty
     } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
@@ -650,12 +652,16 @@ export async function makeProposeCall(
     responderDepositTokenAddress
   );
 
-  const response = (await nodeA.rpcRouter.dispatch(
+  const {
+    result: {
+      result: { appInstanceId }
+    }
+  } = (await nodeA.rpcRouter.dispatch(
     appInstanceProposalReq
   )) as JsonRpcResponse;
+
   return {
-    appInstanceId: (response.result.result as NodeTypes.ProposeInstallResult)
-      .appInstanceId,
+    appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
   };
 }
@@ -663,11 +669,11 @@ export async function makeProposeCall(
 export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
   amount: BigNumber,
-  tokens: string[]
+  tokenAddresses: string[]
 ): FreeBalanceState {
   const balancesIndexedByToken = {};
-  tokens.forEach(token => {
-    balancesIndexedByToken[token] = addresses.map(to => ({
+  tokenAddresses.forEach(tokenAddress => {
+    balancesIndexedByToken[tokenAddress] = addresses.map(to => ({
       to,
       amount
     }));

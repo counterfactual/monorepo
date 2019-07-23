@@ -146,7 +146,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           // total limit of ETH and ERC20 token that can be transferred
           limit: [parseEther("2"), parseEther("2")],
           // The only assets being transferred are ETH and the ERC20 token
-          tokens: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
+          tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
         } as CoinTransferInterpreterParams
       );
 

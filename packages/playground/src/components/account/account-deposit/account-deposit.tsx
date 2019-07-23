@@ -1,7 +1,7 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
 import { Signer } from "ethers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 
 import AccountTunnel from "../../../data/account";
 import AppRegistryTunnel from "../../../data/app-registry";
@@ -17,7 +17,7 @@ import { UserSession } from "../../../types";
 export class AccountDeposit {
   @Element() el!: HTMLStencilElement;
 
-  @Prop() ethWeb3WalletBalance: BigNumber | number = 0;
+  @Prop() ethWeb3WalletBalance: BigNumberish = 0;
   @Prop() user: UserSession = {} as UserSession;
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() history: RouterHistory = {} as RouterHistory;

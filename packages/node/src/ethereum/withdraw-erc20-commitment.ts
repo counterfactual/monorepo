@@ -1,5 +1,5 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
-import { BigNumber, Interface } from "ethers/utils";
+import { BigNumberish, Interface } from "ethers/utils";
 
 import { MultisigCommitment } from "./multisig-commitment";
 import { MultisigOperation, MultisigTransaction } from "./types";
@@ -9,7 +9,7 @@ export class WithdrawERC20Commitment extends MultisigCommitment {
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
     public readonly to: string,
-    public readonly value: BigNumber | number,
+    public readonly value: BigNumberish,
     public readonly tokenAddress: string
   ) {
     super(multisigAddress, multisigOwners);

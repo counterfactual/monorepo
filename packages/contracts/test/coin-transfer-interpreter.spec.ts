@@ -37,16 +37,16 @@ describe("Swap Interpreter", () => {
     );
   }
 
-  function encodeParams(params: { limit: BigNumber[]; tokens: string[] }) {
+  function encodeParams(params: { limit: BigNumber[]; tokenAddresses: string[] }) {
     return defaultAbiCoder.encode(
-      [`tuple(uint256[] limit, address[] tokens)`],
+      [`tuple(uint256[] limit, address[] tokenAddresses)`],
       [params]
     );
   }
 
   async function interpretOutcomeAndExecuteEffect(
     state: CoinTransfer[][],
-    params: { limit: BigNumber[]; tokens: string[] }
+    params: { limit: BigNumber[]; tokenAddresses: string[] }
   ) {
     return await coinTransferInterpreter.functions.interpretOutcomeAndExecuteEffect(
       encodeState(state),
@@ -63,7 +63,7 @@ describe("Swap Interpreter", () => {
       CoinTransferInterpreter
     );
 
-    // fund interpreter with ERC20 tokens
+    // fund interpreter with ERC20 tokenAddresses
     await erc20.functions.transfer(
       coinTransferInterpreter.address,
       erc20.functions.balanceOf(wallet.address)
@@ -102,7 +102,7 @@ describe("Swap Interpreter", () => {
 
       const params = {
         limit: [new BigNumber(100000), new BigNumber(100000)],
-        tokens: [AddressZero, tokenAddr]
+        tokenAddresses: [AddressZero, tokenAddr]
       };
 
       await interpretOutcomeAndExecuteEffect(state, params);

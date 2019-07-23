@@ -32,6 +32,7 @@ describe("Node method follows spec - deposit", () => {
     const depositReq = makeDepositRequest(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
+
     await nodeA.rpcRouter.dispatch(depositReq);
     await nodeB.rpcRouter.dispatch(depositReq);
 
@@ -40,7 +41,6 @@ describe("Node method follows spec - deposit", () => {
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-
     expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 

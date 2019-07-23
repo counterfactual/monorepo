@@ -1,6 +1,6 @@
 import { Component, Element, Prop, State, Watch } from "@stencil/core";
 import { RouterHistory } from "@stencil/router";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 
 import AccountTunnel from "../../../data/account";
 import WalletTunnel from "../../../data/wallet";
@@ -17,13 +17,13 @@ const HUB_IS_DEPOSITING_ALERT =
 export class AccountExchange {
   @Element() el!: HTMLStencilElement;
   @Prop() user: UserSession = {} as UserSession;
-  @Prop() ethFreeBalanceWei: BigNumber | number = 0;
-  @Prop() ethMultisigBalance: BigNumber | number = 0;
-  @Prop() ethWeb3WalletBalance: BigNumber | number = 0;
+  @Prop() ethFreeBalanceWei: BigNumberish = 0;
+  @Prop() ethMultisigBalance: BigNumberish = 0;
+  @Prop() ethWeb3WalletBalance: BigNumberish = 0;
   @Prop() ethPendingDepositTxHash: string = "";
-  @Prop() ethPendingDepositAmountWei: BigNumber | number = 0;
+  @Prop() ethPendingDepositAmountWei: BigNumberish = 0;
   @Prop() ethPendingWithdrawalTxHash: string = "";
-  @Prop() ethPendingWithdrawalAmountWei: BigNumber | number = 0;
+  @Prop() ethPendingWithdrawalAmountWei: BigNumberish = 0;
   @Prop() network: string = "";
   @Prop() updateAccount: (e) => void = e => {};
   @Prop() deposit: (value: string) => Promise<any> = async () => ({});

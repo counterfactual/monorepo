@@ -71,7 +71,7 @@ export async function installBalanceRefundApp(
     multisigAddress: stateChannel.multisigAddress,
     initiatorBalanceDecrement: Zero,
     responderBalanceDecrement: Zero,
-    signingKeys: stateChannel.getNextSigningKeys(),
+    participants: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
@@ -210,7 +210,7 @@ async function getDepositContext(
 
   const initialState = {
     threshold,
-    token: tokenAddress,
+    tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
   } as CoinBalanceRefundState;

@@ -34,7 +34,7 @@ export async function install(
       initiatorBalanceDecrement: proposal.initiatorDeposit,
       responderBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
-      signingKeys: stateChannel.getNextSigningKeys(),
+      participants: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,
       appInterface: {
         ...proposal.abiEncodings,
