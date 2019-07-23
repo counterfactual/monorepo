@@ -14,9 +14,11 @@ import {
 } from "./chrome-selectors";
 import {
   ACCOUNT_DEPOSIT_SELECTORS,
-  ACCOUNT_REGISTRATION_SELECTORS
+  ACCOUNT_REGISTRATION_SELECTORS,
+  LAYOUT_HEADER_SELECTORS
 } from "./counterfactual-wallet-selectors";
 import {
+  DEPOSIT_SELECTORS,
   findItemByExactTextMatch,
   findItemByPartialTextMatch,
   FIRST_TIME_FLOW_SELECTORS,
@@ -27,6 +29,7 @@ import {
   WALLET_AUTHORIZATION_MODAL_SELECTORS
 } from "./metamask-selectors";
 import {
+  CounterfactualScreenName,
   MetamaskNetwork,
   MetamaskOptions,
   MetamaskTransaction,
@@ -43,9 +46,14 @@ export class TestBrowser {
     private readonly browser: WebDriver = {} as WebDriver,
     private homeUrl: string = "",
     private popupUrl: string = "",
-    private mainWindowHandle: string = "",
-    private previousContext?: TestBrowserContext,
-    private currentContext?: TestBrowserContext
+    private handlesByContext: {
+      [key in Exclude<TestBrowserContext, "counterfactual:wallet">]: string;
+    } = {
+      [TestBrowserContext.MetamaskMain]: "",
+      [TestBrowserContext.MetamaskPopup]: ""
+    },
+    private currentContext?: TestBrowserContext,
+    private locatorTimeout: number = 3000
   ) {
     const extension = resolve(__dirname, "../extension/metamask");
 
@@ -60,12 +68,15 @@ export class TestBrowser {
 
     this.browser = browserFactory
       .setChromeOptions(options)
-      .setAlertBehavior("ignore")
+      .setAlertBehavior("accept")
       .build();
 
     this.browser
       .getWindowHandle()
-      .then(handle => (this.mainWindowHandle = handle));
+      .then(
+        handle =>
+          (this.handlesByContext[TestBrowserContext.MetamaskMain] = handle)
+      );
   }
 
   /****************************************************************
@@ -214,9 +225,7 @@ export class TestBrowser {
    * other contexts before (Wallet UI, Metamask Popups).
    */
   async switchToMetamask() {
-    await this.browser.switchTo().window(this.mainWindowHandle);
-
-    this.updateContext(TestBrowserContext.MetamaskMain);
+    await this.updateContext(TestBrowserContext.MetamaskMain);
   }
 
   /**
@@ -233,11 +242,11 @@ export class TestBrowser {
     // the transaction and render the proper screen when forcing the
     // popup on a tab.
     const popupHandle = await this.openNewTab();
-    await this.browser.switchTo().window(popupHandle);
+    this.handlesByContext[TestBrowserContext.MetamaskPopup] = popupHandle;
+
+    await this.updateContext(TestBrowserContext.MetamaskPopup);
 
     await this.navigateTo(this.popupUrl);
-
-    this.updateContext(TestBrowserContext.MetamaskPopup);
 
     // Wait for popup to be ready.
     await this.waitForElement(NOTIFICATION_SELECTORS[transactionType]);
@@ -253,9 +262,24 @@ export class TestBrowser {
     await this.switchToMetamaskPopup("signatureRequest");
     await this.clickOnElement(signButton);
 
-    await this.close();
+    await this.closeTab();
 
-    this.switchToPreviousContext();
+    await this.switchToWallet();
+  }
+
+  /**
+   * Waits for the Deposit Confirmation popup to be opened,
+   * clicks the "Confirm" button and closes the popup.
+   */
+  async confirmDeposit() {
+    const { confirmButton } = DEPOSIT_SELECTORS;
+
+    await this.switchToMetamaskPopup("deposit");
+    await this.clickOnElement(confirmButton);
+
+    await this.closeTab();
+
+    await this.switchToWallet();
   }
 
   /****************************************************************
@@ -269,13 +293,7 @@ export class TestBrowser {
    */
   async switchToWallet() {
     await this.switchToMetamask();
-
-    const { pluginIframe } = MAIN_SCREEN_SELECTORS;
-    const iframe = await this.getElement(pluginIframe);
-
-    await this.browser.switchTo().frame(iframe);
-
-    this.updateContext(TestBrowserContext.CounterfactualWallet);
+    await this.updateContext(TestBrowserContext.CounterfactualWallet);
   }
 
   /**
@@ -311,13 +329,46 @@ export class TestBrowser {
     );
   }
 
-  async fillAccountDepositFormAndSubmit(depositAmount: string) {
+  /**
+   * Waits for the Deposit screen to show, then clicks the Proceed button.
+   * Confirms the deposit and waits for its completion. It'll timeout after
+   * 90 seconds without any response.
+   *
+   * @todo Add check for texts "Transferring funds", "Collateralizing deposit".
+   */
+  async fillAccountDepositFormAndSubmit() {
     const { formTitle, proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
+    const { logoContainer } = LAYOUT_HEADER_SELECTORS;
 
     await this.waitForElementToHaveText(formTitle, "Fund your account");
-
-    // await this.typeOnInput(amountInput, depositAmount);
     await this.clickOnElement(proceedButton);
+    await this.waitForElementToHaveText(proceedButton, "Check your wallet");
+    await this.confirmDeposit();
+    await this.waitForElement(logoContainer, 90000);
+  }
+
+  async getCurrentScreenName(): Promise<CounterfactualScreenName | void> {
+    if (this.currentContext !== TestBrowserContext.CounterfactualWallet) {
+      return;
+    }
+
+    const url = await this.browser.executeScript<string>(
+      "return document.location.href"
+    );
+
+    if (url.includes("setup/register")) {
+      return CounterfactualScreenName.OnboardingRegistration;
+    }
+
+    if (url.includes("setup/deposit")) {
+      return CounterfactualScreenName.OnboardingDeposit;
+    }
+
+    if (url.includes("channels")) {
+      return CounterfactualScreenName.Channels;
+    }
+
+    return CounterfactualScreenName.Welcome;
   }
 
   /****************************************************************
@@ -327,8 +378,15 @@ export class TestBrowser {
   /**
    * Closes the current window.
    */
-  async close() {
+  async closeTab() {
     await this.browser.close();
+  }
+
+  /**
+   * Closes the entire browser.
+   */
+  async closeBrowser() {
+    await this.browser.quit();
   }
 
   /**
@@ -337,16 +395,41 @@ export class TestBrowser {
    * @param selector
    */
   getElements(selector: Locator): Promise<WebElement[]> {
-    return this.browser.findElements(selector);
+    return new Promise(async (resolve, reject) => {
+      setTimeout(() => reject("Timeout"), this.locatorTimeout);
+      const result = await this.browser.findElements(selector);
+      resolve(result);
+    });
   }
 
   /**
-   * Returns a single element found by the given selector.
+   * Returns a single element found by the given selector. It'll retry up to
+   * 5 times to get the element immediately. This retry strategy is added
+   * to prevent stale references failures due to DOM locks.
    *
    * @param selector
    */
   getElement(selector: Locator): WebElementPromise {
-    return this.browser.wait(until.elementLocated(selector));
+    let result: WebElementPromise = {} as WebElementPromise;
+    const attempts = 0;
+
+    while (attempts < 5) {
+      try {
+        result = this.browser.wait(
+          until.elementLocated(selector),
+          this.locatorTimeout,
+          selector.toString()
+        );
+        break;
+      } catch (e) {
+        const error = e as Error;
+        if (!error.message.startsWith("StaleElementReferenceError")) {
+          throw e;
+        }
+      }
+    }
+
+    return result;
   }
 
   /**
@@ -354,8 +437,12 @@ export class TestBrowser {
    *
    * @param selector
    */
-  async waitForElement(selector: Locator) {
-    await this.browser.wait(until.elementLocated(selector));
+  async waitForElement(selector: Locator, timeout = this.locatorTimeout) {
+    await this.browser.wait(
+      until.elementLocated(selector),
+      timeout,
+      selector.toString()
+    );
   }
 
   /**
@@ -388,15 +475,32 @@ export class TestBrowser {
 
   /**
    * Waits for an element to contain a given text. Useful for checking, for example,
-   * if a button is showing a certain label to reflect state.
+   * if a button is showing a certain label to reflect state. It'll retry up to
+   * 5 times to get the element, with delays of 50ms. This retry strategy is added
+   * to prevent stale references failures due to DOM locks.
    *
    * @param selector
    * @param text
    */
-  async waitForElementToHaveText(selector: Locator, text: string) {
-    const element = this.getElement(selector);
+  async waitForElementToHaveText(selector: Locator, expectedText: string) {
+    let attempts = 0;
 
-    await this.browser.wait(until.elementTextContains(element, text));
+    while (attempts < 5) {
+      try {
+        const element = await this.getElement(selector);
+        const currentText = await element.getText();
+
+        return currentText.includes(expectedText);
+      } catch (e) {
+        const { message } = e as Error;
+        if (message.startsWith("StaleElementReferenceError")) {
+          await this.browser.sleep(50);
+          attempts += 1;
+        }
+      }
+    }
+
+    return false;
   }
 
   /**
@@ -415,7 +519,8 @@ export class TestBrowser {
     return findItemByPartialTextMatch(
       this.browser,
       elementLocator,
-      partialText
+      partialText,
+      this.locatorTimeout
     );
   }
 
@@ -429,7 +534,12 @@ export class TestBrowser {
    * @param partialText
    */
   async findElementByExactTextMatch(elementLocator: Locator, text: string) {
-    return findItemByExactTextMatch(this.browser, elementLocator, text);
+    return findItemByExactTextMatch(
+      this.browser,
+      elementLocator,
+      text,
+      this.locatorTimeout
+    );
   }
 
   /****************************************************************
@@ -467,23 +577,16 @@ export class TestBrowser {
    * @param newContext
    */
   private async updateContext(newContext: TestBrowserContext) {
-    this.previousContext = this.currentContext;
     this.currentContext = newContext;
-  }
 
-  /**
-   * Return the scope to the previous reference.
-   * Used, for example, to switch context after closing a Metamask
-   * Popup. The context can be either Metamask or the Wallet UI.
-   * Storing `previousContext` allows to switch to the correct context.
-   *
-   * @param newContext
-   */
-  private async switchToPreviousContext() {
-    const previousContext = this.previousContext;
+    if (newContext !== TestBrowserContext.CounterfactualWallet) {
+      await this.browser.switchTo().window(this.handlesByContext[newContext]);
+    } else {
+      const { pluginIframe } = MAIN_SCREEN_SELECTORS;
+      const iframe = await this.getElement(pluginIframe);
 
-    this.previousContext = this.currentContext;
-    this.currentContext = previousContext;
+      await this.browser.switchTo().frame(iframe);
+    }
   }
 
   /**
