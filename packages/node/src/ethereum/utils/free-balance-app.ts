@@ -35,8 +35,8 @@ export function flipTokenIndexedBalances(
   tokenIndexedBalances: TokenIndexedCoinTransferMap
 ): TokenIndexedCoinTransferMap {
   return Object.entries(tokenIndexedBalances).reduce(
-    (ret, [tokenAddress, balances]) => ({
-      ...ret,
+    (returnValueAccumulator, [tokenAddress, balances]) => ({
+      ...returnValueAccumulator,
       [tokenAddress]: flip(balances)
     }),
     {}
@@ -48,7 +48,10 @@ export function flipTokenIndexedBalances(
  */
 export function flip(coinTransferMap: CoinTransferMap): CoinTransferMap {
   return Object.entries(coinTransferMap).reduce(
-    (acc, [to, amount]) => ({ ...acc, [to]: Zero.sub(amount) }),
+    (returnValueAccumulator, [to, amount]) => ({
+      ...returnValueAccumulator,
+      [to]: Zero.sub(amount)
+    }),
     {}
   );
 }
