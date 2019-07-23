@@ -25,6 +25,8 @@ import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
+const DEPOSIT_RETRY_COUNT = 3;
+
 interface DepositContext {
   initialState: SolidityABIEncoderV2Type;
   appInterface: AppInterface;
@@ -92,7 +94,7 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-): Promise<boolean> {
+): Promise<void> {
   const { multisigAddress, amount, tokenAddress } = params;
   const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
@@ -107,7 +109,7 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  let retryCount = 3;
+  let retryCount = DEPOSIT_RETRY_COUNT;
   while (retryCount > 0) {
     try {
       if (tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
@@ -123,15 +125,17 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
-        return false;
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
 
       retryCount -= 1;
 
       if (retryCount === 0) {
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
-        return false;
+        outgoing.emit(
+          NODE_EVENTS.DEPOSIT_FAILED,
+          `Could not deposit after ${DEPOSIT_RETRY_COUNT} attempts`
+        );
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
     }
   }
@@ -142,8 +146,6 @@ export async function makeDeposit(
   });
 
   await txResponse!.wait(blocksNeededForConfirmation);
-
-  return true;
 }
 
 export async function uninstallBalanceRefundApp(

@@ -7,7 +7,7 @@ import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify } from "ethers/utils";
 
-import { JsonRpcResponse, Node } from "../../src";
+import { JsonRpcResponse, Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 import { setup, SetupContext } from "./setup";
@@ -40,6 +40,7 @@ describe("Node method follows spec - withdraw", () => {
 
     const depositReq = makeDepositRequest(multisigAddress, One);
 
+    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
     await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigBalance = await provider.getBalance(
@@ -105,6 +106,7 @@ describe("Node method follows spec - withdraw", () => {
       erc20ContractAddress
     );
 
+    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
     await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigTokenBalance = await erc20Contract.functions.balanceOf(

@@ -3,8 +3,9 @@ import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
+import log from "loglevel";
 
-import { Node } from "../../src";
+import { Node, NODE_EVENTS } from "../../src";
 import { INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT } from "../../src/methods/errors";
 
 import { setup, SetupContext } from "./setup";
@@ -14,6 +15,8 @@ import {
   makeDepositRequest,
   transferERC20Tokens
 } from "./utils";
+
+log.setLevel(log.levels.SILENT);
 
 describe("Node method follows spec - deposit", () => {
   let nodeA: Node;
@@ -27,21 +30,30 @@ describe("Node method follows spec - deposit", () => {
     provider = new JsonRpcProvider(global["ganacheURL"]);
   });
 
-  it("has the right balance for both parties after deposits", async () => {
+  it("has the right balance for both parties after deposits", async done => {
     const multisigAddress = await createChannel(nodeA, nodeB);
     const depositReq = makeDepositRequest(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
+    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
+      await nodeB.rpcRouter.dispatch(depositReq);
+      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+        preDepositBalance.add(2).toNumber()
+      );
+
+      const freeBalanceState = await getFreeBalanceState(
+        nodeA,
+        multisigAddress
+      );
+
+      expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
+      done();
+    });
+
+    // so that the deposit from Node B doesn't throw `Recent depositConfirmedEvent which has no event handler`
+    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
     await nodeA.rpcRouter.dispatch(depositReq);
-    await nodeB.rpcRouter.dispatch(depositReq);
-
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-      preDepositBalance.add(2).toNumber()
-    );
-
-    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
-    expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
   });
 
   it("updates balances correctly when depositing both ERC20 tokens and ETH", async () => {
@@ -81,6 +93,8 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress
     );
 
+    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
+    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
     await nodeA.rpcRouter.dispatch(erc20DepositRequest);
     await nodeB.rpcRouter.dispatch(erc20DepositRequest);
 

@@ -167,7 +167,6 @@ export namespace Node {
     multisigAddress: string;
     amount: BigNumber;
     tokenAddress?: string;
-    notifyCounterparty?: boolean;
   };
 
   export type DepositResult = {
