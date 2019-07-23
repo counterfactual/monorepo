@@ -12,7 +12,10 @@ import {
   EXTENSION_LIST_SELECTOR,
   METAMASK_EXTENSION_URL_SELECTOR
 } from "./chrome-selectors";
-import { ACCOUNT_REGISTRATION_SELECTORS } from "./counterfactual-wallet-selectors";
+import {
+  ACCOUNT_DEPOSIT_SELECTORS,
+  ACCOUNT_REGISTRATION_SELECTORS
+} from "./counterfactual-wallet-selectors";
 import {
   findItemByExactTextMatch,
   findItemByPartialTextMatch,
@@ -40,6 +43,7 @@ export class TestBrowser {
     private readonly browser: WebDriver = {} as WebDriver,
     private homeUrl: string = "",
     private popupUrl: string = "",
+    private mainWindowHandle: string = "",
     private previousContext?: TestBrowserContext,
     private currentContext?: TestBrowserContext
   ) {
@@ -58,6 +62,10 @@ export class TestBrowser {
       .setChromeOptions(options)
       .setAlertBehavior("ignore")
       .build();
+
+    this.browser
+      .getWindowHandle()
+      .then(handle => (this.mainWindowHandle = handle));
   }
 
   /****************************************************************
@@ -206,9 +214,7 @@ export class TestBrowser {
    * other contexts before (Wallet UI, Metamask Popups).
    */
   async switchToMetamask() {
-    const tabs = await this.browser.getAllWindowHandles();
-
-    await this.browser.switchTo().window(tabs[0]);
+    await this.browser.switchTo().window(this.mainWindowHandle);
 
     this.updateContext(TestBrowserContext.MetamaskMain);
   }
@@ -272,6 +278,15 @@ export class TestBrowser {
     this.updateContext(TestBrowserContext.CounterfactualWallet);
   }
 
+  /**
+   * Types in a username and an e-mail address for the "Create an account"
+   * step of the onboarding flow, then clicks the "Create an account"
+   * submit button. Then it'll wait for the button to show the "Check wallet"
+   * label.
+   *
+   * @param username
+   * @param email
+   */
   async fillAccountRegistrationFormAndSubmit(
     username: string,
     email: string = ""
@@ -285,6 +300,24 @@ export class TestBrowser {
     await this.typeOnInput(usernameInput, username);
     await this.typeOnInput(emailInput, email);
     await this.clickOnElement(createAccountButton);
+    await this.waitForElementToHaveText(
+      createAccountButton,
+      "Check your wallet"
+    );
+    await this.signTransaction();
+    await this.waitForElementToHaveText(
+      createAccountButton,
+      "Creating your account"
+    );
+  }
+
+  async fillAccountDepositFormAndSubmit(depositAmount: string) {
+    const { formTitle, proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
+
+    await this.waitForElementToHaveText(formTitle, "Fund your account");
+
+    // await this.typeOnInput(amountInput, depositAmount);
+    await this.clickOnElement(proceedButton);
   }
 
   /****************************************************************
@@ -351,6 +384,19 @@ export class TestBrowser {
    */
   async getTextFromElement(selector: Locator) {
     return this.getElement(selector).getText();
+  }
+
+  /**
+   * Waits for an element to contain a given text. Useful for checking, for example,
+   * if a button is showing a certain label to reflect state.
+   *
+   * @param selector
+   * @param text
+   */
+  async waitForElementToHaveText(selector: Locator, text: string) {
+    const element = this.getElement(selector);
+
+    await this.browser.wait(until.elementTextContains(element, text));
   }
 
   /**
@@ -461,7 +507,7 @@ export class TestBrowser {
   ) {
     await this.browser.sleep(millisecondsToWaitBeforeOpening);
 
-    await this.browser.executeScript("window.open('');");
+    await this.browser.executeScript(`window.open('','popup_${Date.now()}');`);
 
     await this.browser.sleep(millisecondsToWaitAfterOpening);
 

@@ -23,5 +23,5 @@ it("registers a new account", async () => {
     "i.am.a@tea.pot"
   );
 
-  await browser.signTransaction();
+  await browser.fillAccountDepositFormAndSubmit("0.1");
 });
