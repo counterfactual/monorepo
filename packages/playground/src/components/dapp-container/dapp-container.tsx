@@ -156,7 +156,7 @@ export class DappContainer {
 
   private async sendResponseForRequestUser(frameWindow: Window) {
     // if (!this.ethMultisigBalance) {
-    //   throw Error(
+    //   throw new Error(
     //     "Cannot send response for user request: no multisig balance found"
     //   );
     // }

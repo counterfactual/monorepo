@@ -70,7 +70,12 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ) {
     const { owners } = params;
-    const { publicIdentifier, instructionExecutor, store } = requestHandler;
+    const {
+      publicIdentifier,
+      instructionExecutor,
+      store,
+      outgoing
+    } = requestHandler;
 
     const [responderXpub] = owners.filter(x => x !== publicIdentifier);
 
@@ -93,7 +98,7 @@ export default class CreateChannelController extends NodeController {
       } as Node.CreateChannelResult
     };
 
-    requestHandler.outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg);
+    outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg);
   }
 
   private async sendMultisigDeployTx(
@@ -125,7 +130,7 @@ export default class CreateChannelController extends NodeController {
         );
 
         if (!tx.hash) {
-          return Promise.reject(
+          throw new Error(
             `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
           );
         }
@@ -138,6 +143,6 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    return Promise.reject(`${CHANNEL_CREATION_FAILED}: ${error}`);
+    throw new Error(`${CHANNEL_CREATION_FAILED}: ${error}`);
   }
 }

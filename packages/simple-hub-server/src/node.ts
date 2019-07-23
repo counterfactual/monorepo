@@ -226,7 +226,7 @@ export class NodeWrapper {
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {
-      throw Error("cannot pass empty provider without network");
+      throw new Error("cannot pass empty provider without network");
     }
 
     const node = await Node.create(

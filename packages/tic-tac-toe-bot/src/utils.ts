@@ -60,11 +60,11 @@ export async function deposit(
   const preDepositBalances = await getFreeBalance(node, multisigAddress);
 
   if (Object.keys(preDepositBalances).length !== 2) {
-    throw Error("Unexpected number of entries");
+    throw new Error("Unexpected number of entries");
   }
 
   if (!preDepositBalances[myFreeBalanceAddress]) {
-    throw Error("My address not found");
+    throw new Error("My address not found");
   }
 
   const [counterpartyFreeBalanceAddress] = Object.keys(
@@ -89,7 +89,7 @@ export async function deposit(
         preDepositBalances[myFreeBalanceAddress]
       )
     ) {
-      throw Error("My balance was not updated.");
+      throw new Error("My balance was not updated.");
     }
 
     console.info("Waiting for counter party to deposit same amount");
