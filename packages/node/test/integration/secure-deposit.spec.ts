@@ -27,44 +27,22 @@ describe("Node method follows spec - deposit", () => {
     provider = new JsonRpcProvider(global["ganacheURL"]);
   });
 
-  it.only("has the right balance for both parties after deposits", async done => {
+  it("has the right balance for both parties after deposits", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
-    const depositReq = makeDepositRequest(
-      multisigAddress,
-      One,
-      undefined,
-      true
-    );
+    const depositReq = makeDepositRequest(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
-    console.log("Node A", nodeA.publicIdentifier);
-    console.log("Node B", nodeB.publicIdentifier);
-
-    console.log("Depositing into node A");
-    // await nodeB.rpcRouter.dispatch(depositReq);
-
-    nodeB.rpcRouter.subscribeOnce("depositConfirmedEvent", async data => {
-      console.log("Deposited into nodeB?", data);
-
-      setTimeout(async () => {
-        const freeBalanceState = await getFreeBalanceState(
-          nodeA,
-          multisigAddress
-        );
-
-        expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
-
-        expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-          preDepositBalance.add(2).toNumber()
-        );
-
-        done();
-      }, 10000);
-    });
-
     await nodeA.rpcRouter.dispatch(depositReq);
-  }, 20000);
+    await nodeB.rpcRouter.dispatch(depositReq);
+
+    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
+      preDepositBalance.add(2).toNumber()
+    );
+
+    const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
+    expect(Object.values(freeBalanceState)).toMatchObject([One, One]);
+  });
 
   it("updates balances correctly when depositing both ERC20 tokens and ETH", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);

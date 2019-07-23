@@ -70,16 +70,6 @@ export default class RpcRouter extends Router {
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }
 
-    if (event === "depositConfirmedEvent") {
-      console.log(
-        this.requestHandler.publicIdentifier,
-        "Emitting via ",
-        emitter,
-        event,
-        eventData
-      );
-    }
-
     this.requestHandler[emitter].emit(event, eventData.result);
   }
 }
