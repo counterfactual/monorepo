@@ -5,7 +5,7 @@ import {
   OutcomeType,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
@@ -309,8 +309,8 @@ function computeStateChannelTransition(
     outcomeType,
     initiatorDepositTokenAddress,
     responderDepositTokenAddress,
-    bigNumberify(initiatorBalanceDecrement),
-    bigNumberify(responderBalanceDecrement),
+    initiatorBalanceDecrement,
+    responderBalanceDecrement,
     initiatorFbAddress,
     responderFbAddress
   );
@@ -334,10 +334,10 @@ function computeStateChannelTransition(
   if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
     tokenIndexedBalanceDecrement = {
       [initiatorDepositTokenAddress]: {
-        [initiatorFbAddress]: bigNumberify(initiatorBalanceDecrement)
+        [initiatorFbAddress]: initiatorBalanceDecrement
       },
       [responderDepositTokenAddress]: {
-        [responderFbAddress]: bigNumberify(responderBalanceDecrement)
+        [responderFbAddress]: responderBalanceDecrement
       }
     };
   } else {
@@ -346,8 +346,8 @@ function computeStateChannelTransition(
     // `initiatingFbAddress` would get overwritten
     tokenIndexedBalanceDecrement = {
       [initiatorDepositTokenAddress]: {
-        [initiatorFbAddress]: bigNumberify(initiatorBalanceDecrement),
-        [responderFbAddress]: bigNumberify(responderBalanceDecrement)
+        [initiatorFbAddress]: initiatorBalanceDecrement,
+        [responderFbAddress]: responderBalanceDecrement
       }
     };
   }
@@ -428,9 +428,7 @@ function computeInterpreterParameters(
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       twoPartyOutcomeInterpreterParams = {
         playerAddrs: [initiatorFbAddress, responderFbAddress],
-        amount: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        )
+        amount: initiatorBalanceDecrement.add(responderBalanceDecrement)
       };
       break;
     }
