@@ -1,3 +1,5 @@
+import { BigNumber, bigNumberify } from "ethers/utils";
+
 import {
   Protocol,
   SetupParams,
@@ -39,6 +41,12 @@ export async function handleReceivedProtocolMessage(
   const {
     data: { protocol, seq, params }
   } = nodeMsg;
+
+  for (const key in params) {
+    if (params[key]["_hex"]) {
+      params[key] = bigNumberify(params[key] as BigNumber);
+    }
+  }
 
   if (seq === -1) return;
 
