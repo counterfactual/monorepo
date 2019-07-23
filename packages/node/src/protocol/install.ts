@@ -5,7 +5,7 @@ import {
   OutcomeType,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
@@ -426,7 +426,9 @@ function computeInterpreterParameters(
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       twoPartyOutcomeInterpreterParams = {
         playerAddrs: [initiatorFbAddress, responderFbAddress],
-        amount: initiatorBalanceDecrement.add(responderBalanceDecrement)
+        amount: bigNumberify(initiatorBalanceDecrement).add(
+          responderBalanceDecrement
+        )
       };
       break;
     }
