@@ -1,5 +1,16 @@
-import { confirmFirebaseConfigurationEnvVars, confirmLocalFirebaseConfigurationEnvVars, devAndTestingEnvironments, FirebaseServiceFactory, FIREBASE_CONFIGURATION_ENV_KEYS } from "@counterfactual/firebase-client";
-import { CreateChannelMessage, DepositConfirmationMessage, MNEMONIC_PATH, Node } from "@counterfactual/node";
+import {
+  confirmFirebaseConfigurationEnvVars,
+  confirmLocalFirebaseConfigurationEnvVars,
+  devAndTestingEnvironments,
+  FIREBASE_CONFIGURATION_ENV_KEYS,
+  FirebaseServiceFactory
+} from "@counterfactual/firebase-client";
+import {
+  CreateChannelMessage,
+  DepositConfirmationMessage,
+  MNEMONIC_PATH,
+  Node
+} from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
@@ -7,9 +18,14 @@ import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
 import { jsonRpcDeserialize, JsonRpcResponse } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
-import { bindMultisigToUser, getPlaygroundSnapshot, getUsernameFromMultisigAddress, storePlaygroundSnapshot } from "./db";
-import informSlack from "./utils";
 
+import {
+  bindMultisigToUser,
+  getPlaygroundSnapshot,
+  getUsernameFromMultisigAddress,
+  storePlaygroundSnapshot
+} from "./db";
+import informSlack from "./utils";
 
 interface IClosableFirebaseServiceFactory extends FirebaseServiceFactory {
   closeServiceConnections(): Promise<void>;
@@ -41,7 +57,7 @@ class StandardFirebaseServiceFactory extends FirebaseServiceFactory
   constructor(params: any) {
     super(params);
   }
-  async closeServiceConnections() { }
+  async closeServiceConnections() {}
 }
 
 class LocalPersistentFirebaseServiceFactory extends FirebaseServiceFactory
@@ -220,9 +236,9 @@ export class NodeWrapper {
         STORE_KEY_PREFIX: "store"
       },
       provider ||
-      new JsonRpcProvider(
-        `https://${networkOrNetworkContext}.infura.io/11f02c6889494cb8b8f1919a5c536098`
-      ),
+        new JsonRpcProvider(
+          `https://${networkOrNetworkContext}.infura.io/11f02c6889494cb8b8f1919a5c536098`
+        ),
       networkOrNetworkContext
     );
 
@@ -258,8 +274,6 @@ export class NodeWrapper {
 }
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-
-  console.log('test-log onDepositConfirmed', response)
   if (!response || !response.data) {
     return;
   }
@@ -272,7 +286,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     `💰 *USER_DEPOSITED* (_${username}_) | User deposited ${formatEther(
       response.data.amount
     )} ETH <http://kovan.etherscan.io/address/${
-    response.data.multisigAddress
+      response.data.multisigAddress
     }|_(view on etherscan)_>.`
   );
 
@@ -295,7 +309,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
     `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
       response.data.amount
     )} ETH <http://kovan.etherscan.io/address/${
-    response.data.multisigAddress
+      response.data.multisigAddress
     }|_(view on etherscan)_>.`
   );
 }
