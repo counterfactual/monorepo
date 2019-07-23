@@ -171,7 +171,7 @@ export class PostgresStoreService implements Node.IStoreService {
 export function confirmPostgresConfigurationEnvVars() {
   for (const [key, value] of Object.entries(POSTGRES_CONFIGURATION_ENV_KEYS)) {
     if (!process.env[value]) {
-      throw Error(
+      throw new Error(
         `Postgres ${key} is not set via env var ${POSTGRES_CONFIGURATION_ENV_KEYS[key]}`
       );
     }

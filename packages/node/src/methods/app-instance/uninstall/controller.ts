@@ -28,7 +28,7 @@ export default class UninstallController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
     if (sc.freeBalance.identityHash === appInstanceId) {
-      return Promise.reject(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
+      throw new Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
     return [

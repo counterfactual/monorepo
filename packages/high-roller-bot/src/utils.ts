@@ -89,7 +89,7 @@ export async function deposit(
         preDepositBalances[myFreeBalanceAddress]
       )
     ) {
-      throw Error("My balance was not increased.");
+      throw new Error("My balance was not increased.");
     }
 
     console.info("Waiting for counter party to deposit same amount");

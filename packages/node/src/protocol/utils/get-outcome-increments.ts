@@ -153,7 +153,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       };
     }
     default: {
-      throw Error("unknown interpreter");
+      throw new Error("unknown interpreter");
     }
   }
 }

@@ -25,13 +25,13 @@ export default class UninstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<Queue[]> {
-    const { store } = requestHandler;
+    const { store, publicIdentifier } = requestHandler;
     const { appInstanceId } = params;
 
     const multisigAddressForStateChannelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
         params.intermediaryIdentifier,
-        requestHandler.publicIdentifier
+        publicIdentifier
       ])
     );
 
@@ -77,7 +77,7 @@ export default class UninstallVirtualController extends NodeController {
     const { appInstanceId, intermediaryIdentifier } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);

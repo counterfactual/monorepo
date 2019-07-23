@@ -238,7 +238,7 @@ describe("CF.js AppInstance", () => {
       ["on", "once", "off"].forEach(methodName => {
         expect(() =>
           appInstance[methodName]("fakeEvent", () => {})
-        ).toThrowError('"fakeEvent" is not a valid event');
+        ).toThrowError(new Error('"fakeEvent" is not a valid event'));
       });
     });
   });

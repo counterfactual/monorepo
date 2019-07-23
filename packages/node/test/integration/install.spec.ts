@@ -136,9 +136,11 @@ describe("Node method follows spec - install", () => {
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
-        expect(
+        appInstanceProposalReq.parameters["initialState"] = undefined;
+
+        await expect(
           nodeA.rpcRouter.dispatch(appInstanceProposalReq)
-        ).rejects.toEqual(NULL_INITIAL_STATE_FOR_PROPOSAL);
+        ).rejects.toThrowError(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );

@@ -147,7 +147,9 @@ export class Node {
 
     instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
-        throw Error("OP_SIGN middleware received wrong number of arguments.");
+        throw new Error(
+          "OP_SIGN middleware received wrong number of arguments."
+        );
       }
 
       const [commitment, overrideKeyIndex] = args;
@@ -197,7 +199,7 @@ export class Node {
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
-          throw Error(
+          throw new Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
           );
         }
@@ -215,19 +217,15 @@ export class Node {
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
       async (args: any[]) => {
+        const { store } = this.requestHandler;
+
         const [protocol, commitment, ...key] = args;
 
         if (protocol === Protocol.Withdraw) {
           const [multisigAddress] = key;
-          await this.requestHandler.store.storeWithdrawalCommitment(
-            multisigAddress,
-            commitment
-          );
+          await store.storeWithdrawalCommitment(multisigAddress, commitment);
         } else {
-          await this.requestHandler.store.setCommitment(
-            [protocol, ...key],
-            commitment
-          );
+          await store.setCommitment([protocol, ...key], commitment);
         }
       }
     );
@@ -350,7 +348,7 @@ export class Node {
     const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
-      throw Error(
+      throw new Error(
         "Node received message intended for machine but no handler was present"
       );
     }

@@ -199,7 +199,7 @@ export const devAndTestingEnvironments = new Set(["development", "test"]);
 export function confirmFirebaseConfigurationEnvVars() {
   for (const key of Object.keys(FIREBASE_CONFIGURATION_ENV_KEYS)) {
     if (!process.env[FIREBASE_CONFIGURATION_ENV_KEYS[key]]) {
-      throw Error(
+      throw new Error(
         `Firebase ${key} is not set via env var ${FIREBASE_CONFIGURATION_ENV_KEYS[key]}`
       );
     }
@@ -208,7 +208,7 @@ export function confirmFirebaseConfigurationEnvVars() {
 
 export function confirmLocalFirebaseConfigurationEnvVars() {
   if (!process.env.FIREBASE_SERVER_HOST || !process.env.FIREBASE_SERVER_PORT) {
-    throw Error(
+    throw new Error(
       "Firebase server hostname and port number must be set via FIREBASE_SERVER_HOST and FIREBASE_SERVER_PORT env vars"
     );
   }

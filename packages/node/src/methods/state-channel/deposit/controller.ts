@@ -40,18 +40,14 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<void> {
-    const { store, provider } = requestHandler;
+    const { store, provider, networkContext } = requestHandler;
     const { multisigAddress, amount, tokenAddress: tokenAddressParam } = params;
 
     const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     const channel = await store.getStateChannel(multisigAddress);
 
-    if (
-      channel.hasAppInstanceOfKind(
-        requestHandler.networkContext.CoinBalanceRefundApp
-      )
-    ) {
+    if (channel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)) {
       throw new Error(CANNOT_DEPOSIT);
     }
 

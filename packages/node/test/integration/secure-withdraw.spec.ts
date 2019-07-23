@@ -1,13 +1,12 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import { Node as NodeTypes } from "@counterfactual/types";
 import { randomBytes } from "crypto";
 import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify } from "ethers/utils";
 
-import { JsonRpcResponse, Node, NODE_EVENTS } from "../../src";
+import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 import { setup, SetupContext } from "./setup";
@@ -64,11 +63,15 @@ describe("Node method follows spec - withdraw", () => {
       recipient
     );
 
-    const withdrawRes = ((await nodeA.rpcRouter.dispatch(
-      withdrawReq
-    )) as JsonRpcResponse).result.result as NodeTypes.WithdrawResult;
+    const {
+      result: {
+        result: { txHash }
+      }
+    } = await nodeA.rpcRouter.dispatch(withdrawReq);
 
-    expect(withdrawRes.txHash).toBeDefined();
+    expect(txHash).toBeDefined();
+    expect(txHash.length).toBe(66);
+    expect(txHash.substr(0, 2)).toBe("0x");
 
     expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
       startingMultisigBalance.toNumber()

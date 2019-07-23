@@ -100,7 +100,7 @@ export class NodeListener {
       })!;
 
       if (!app) {
-        throw Error(
+        throw new Error(
           "You've received an installation proposal from a different Ethereum network"
         );
       }

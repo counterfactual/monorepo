@@ -61,14 +61,14 @@ export class MessageRouter {
   private routeMessage(message: any) {
     const { toXpub } = message;
     if (toXpub === undefined) {
-      throw Error("No toXpub found on message");
+      throw new Error("No toXpub found on message");
     }
     const deferred = this.deferrals.get(toXpub);
 
     if (deferred === undefined) {
       const toNode = this.nodesMap.get(toXpub);
       if (toNode === undefined) {
-        throw Error(`No node with xpub = ${toXpub} found`);
+        throw new Error(`No node with xpub = ${toXpub} found`);
       }
       toNode.dispatchMessage(message);
       return;
@@ -79,7 +79,7 @@ export class MessageRouter {
 
   public assertNoPending() {
     if (this.deferrals.size !== 0) {
-      throw Error("Pending IO_SEND_AND_WAIT deferrals detected");
+      throw new Error("Pending IO_SEND_AND_WAIT deferrals detected");
     }
   }
 }
