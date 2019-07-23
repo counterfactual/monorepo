@@ -2,7 +2,6 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { getChannelFromCounterparty } from "../../../protocol/utils/get-channel-from-counterparty";
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
 import {
