@@ -9,6 +9,7 @@ import {
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import log from "loglevel";
 
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
@@ -138,6 +139,13 @@ export function getCreate2MultisigAddress(
       ]
     ).slice(-40)
   );
+}
+
+/**
+ * Address used for a Node's free balance
+ */
+export function getFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
 
 const isBrowser =

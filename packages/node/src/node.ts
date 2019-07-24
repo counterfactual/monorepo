@@ -1,7 +1,7 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -19,7 +19,7 @@ import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, timeout } from "./utils";
+import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -131,8 +131,8 @@ export class Node {
   }
 
   @Memoize()
-  get ethFreeBalanceAddress(): string {
-    return getETHFreeBalanceAddress(this.publicIdentifier);
+  get freeBalanceAddress(): string {
+    return getFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -364,11 +364,4 @@ export class Node {
       );
     }
   }
-}
-
-/**
- * Address used for ETH free balance
- */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }
