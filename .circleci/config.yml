@@ -177,7 +177,7 @@ jobs:
           command: cd packages/wallet-ui && yarn start
           background: true
 
-          - run:
+      - run:
           name: Serve Simple Hub Server
           shell: /bin/sh
           command: cd packages/simple-hub-server && docker-compose up -d && yarn start
