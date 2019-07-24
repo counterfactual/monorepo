@@ -65,7 +65,7 @@ export default class DepositController extends NodeController {
 
       if (balance.lt(amount)) {
         throw new Error(
-          INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(address, amount, balance)
+          INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(tokenAddress, amount, balance)
         );
       }
     } else {
