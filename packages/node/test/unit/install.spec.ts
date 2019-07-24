@@ -1,5 +1,9 @@
+import {
+  EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT,
+  NetworkContext
+} from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { HashZero, Zero } from "ethers/constants";
+import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -12,6 +16,7 @@ import {
 } from "../../src";
 import {
   InstructionExecutor,
+  Protocol,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
@@ -23,36 +28,52 @@ import {
   FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
-import { EMPTY_NETWORK } from "../integration/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
 
-import { createProposedAppInstanceInfo } from "./utils";
+import { createAppInstanceProposalForTest } from "./utils";
+
+const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
+  (acc, contractName) => ({
+    ...acc,
+    [contractName]: AddressZero
+  }),
+  {} as NetworkContext
+);
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
   let ie: InstructionExecutor;
 
   beforeAll(() => {
-    store = new Store(new MemoryStoreService(), "install.spec.ts-test-store");
-    ie = new InstructionExecutor(EMPTY_NETWORK, {} as BaseProvider);
+    store = new Store(
+      new MemoryStoreService(),
+      "install.spec.ts-test-store",
+      NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
+    );
+    ie = new InstructionExecutor(
+      NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
+      {} as BaseProvider
+    );
   });
 
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
       install(store, ie, { appInstanceId: undefined! })
-    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
+    ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
-    await expect(install(store, ie, { appInstanceId: "" })).rejects.toEqual(
-      NO_APP_INSTANCE_ID_TO_INSTALL
-    );
+    await expect(
+      install(store, ie, { appInstanceId: "" })
+    ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
       install(store, ie, { appInstanceId: HashZero })
-    ).rejects.toEqual(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero));
+    ).rejects.toThrowError(
+      NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
+    );
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {
@@ -61,21 +82,19 @@ describe("Can handle correct & incorrect installs", () => {
     const mockedStore = mock(Store);
 
     const appInstanceId = hexlify(randomBytes(32));
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
+
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
-    );
-
-    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
-      NO_MULTISIG_FOR_APP_INSTANCE_ID
+    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenThrow(
+      new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID)
     );
 
     await expect(
       install(instance(mockedStore), ie, { appInstanceId })
-    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    ).rejects.toThrowError(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
@@ -92,13 +111,13 @@ describe("Can handle correct & incorrect installs", () => {
       fromMnemonic(Wallet.createRandom().mnemonic)
     ];
 
-    const signingKeys = xkeysToSortedKthAddresses(
+    const participants = xkeysToSortedKthAddresses(
       hdnodes.map(x => x.neuter().extendedKey),
       0
     );
 
     const stateChannel = StateChannel.setupChannel(
-      EMPTY_NETWORK.FreeBalanceApp,
+      AddressZero,
       multisigAddress,
       hdnodes.map(x => x.neuter().extendedKey)
     );
@@ -110,17 +129,15 @@ describe("Can handle correct & incorrect installs", () => {
       ]
     );
 
-    expect(balancesForETHToken[signingKeys[0]]).toEqual(Zero);
-    expect(balancesForETHToken[signingKeys[1]]).toEqual(Zero);
+    expect(balancesForETHToken[participants[0]]).toEqual(Zero);
+    expect(balancesForETHToken[participants[1]]).toEqual(Zero);
 
     await store.saveStateChannel(stateChannel);
 
-    const proposedAppInstanceInfo = createProposedAppInstanceInfo(
-      appInstanceId
-    );
+    const appInstanceProposal = createAppInstanceProposalForTest(appInstanceId);
 
-    when(mockedStore.getProposedAppInstanceInfo(appInstanceId)).thenResolve(
-      proposedAppInstanceInfo
+    when(mockedStore.getAppInstanceProposal(appInstanceId)).thenResolve(
+      appInstanceProposal
     );
 
     when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenResolve(
@@ -131,15 +148,19 @@ describe("Can handle correct & incorrect installs", () => {
     // and just returns a basic <string, StateChannel> map with the
     // expected multisigAddress in it.
     when(
-      mockedInstructionExecutor.runInstallProtocol(anything(), anything())
+      mockedInstructionExecutor.initiateProtocol(
+        Protocol.Install,
+        anything(),
+        anything()
+      )
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
-    // The AppInstanceInfo that's returned is the one that was installed, which
+    // The AppInstanceProposal that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
       install(store, ie, {
         appInstanceId
       })
-    ).resolves.toEqual(proposedAppInstanceInfo);
+    ).resolves.toEqual(appInstanceProposal);
   });
 });

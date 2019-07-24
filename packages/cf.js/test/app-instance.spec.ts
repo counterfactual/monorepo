@@ -7,7 +7,11 @@ import { AppInstance, AppInstanceEventType } from "../src/app-instance";
 import { jsonRpcMethodNames } from "../src/provider";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
-import { TEST_XPUBS, TestNodeProvider } from "./fixture";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TEST_XPUBS,
+  TestNodeProvider
+} from "./fixture";
 
 describe("CF.js AppInstance", () => {
   let nodeProvider: TestNodeProvider;
@@ -18,11 +22,13 @@ describe("CF.js AppInstance", () => {
     identityHash: "TEST_ID",
     abiEncodings: { actionEncoding: "uint256", stateEncoding: "uint256" },
     appDefinition: "0x1515151515151515151515151515151515151515",
-    myDeposit: bigNumberify(1000),
-    peerDeposit: bigNumberify(1000),
+    initiatorDeposit: bigNumberify(1000),
+    responderDeposit: bigNumberify(1000),
     timeout: bigNumberify(10),
     proposedByIdentifier: TEST_XPUBS[0],
-    proposedToIdentifier: TEST_XPUBS[1]
+    proposedToIdentifier: TEST_XPUBS[1],
+    initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   beforeEach(async () => {
@@ -39,7 +45,7 @@ describe("CF.js AppInstance", () => {
       expect.assertions(3);
 
       const expectedState = { someState: "4000" };
-      nodeProvider.onMethodRequest(Node.MethodName.GET_STATE, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.GET_STATE, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.GET_STATE]
         );
@@ -48,7 +54,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.GET_STATE,
+            type: Node.RpcMethodName.GET_STATE,
             result: {
               state: expectedState
             }
@@ -65,7 +71,7 @@ describe("CF.js AppInstance", () => {
       expect.assertions(4);
       const expectedAction = { action: "1337" };
       const expectedNewState = { val: "5337" };
-      nodeProvider.onMethodRequest(Node.MethodName.TAKE_ACTION, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.TAKE_ACTION, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
         );
@@ -76,7 +82,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.TAKE_ACTION,
+            type: Node.RpcMethodName.TAKE_ACTION,
             result: {
               newState: expectedNewState
             }
@@ -92,7 +98,7 @@ describe("CF.js AppInstance", () => {
     it("can be uninstalled", async () => {
       expect.assertions(2);
 
-      nodeProvider.onMethodRequest(Node.MethodName.UNINSTALL, request => {
+      nodeProvider.onMethodRequest(Node.RpcMethodName.UNINSTALL, request => {
         expect(request.methodName).toBe(
           jsonRpcMethodNames[Node.MethodName.UNINSTALL]
         );
@@ -102,7 +108,7 @@ describe("CF.js AppInstance", () => {
         nodeProvider.simulateMessageFromNode({
           jsonrpc: "2.0",
           result: {
-            type: Node.MethodName.UNINSTALL,
+            type: Node.RpcMethodName.UNINSTALL,
             result: {}
           },
           id: request.id as number
@@ -232,7 +238,7 @@ describe("CF.js AppInstance", () => {
       ["on", "once", "off"].forEach(methodName => {
         expect(() =>
           appInstance[methodName]("fakeEvent", () => {})
-        ).toThrowError('"fakeEvent" is not a valid event');
+        ).toThrowError(new Error('"fakeEvent" is not a valid event'));
       });
     });
   });

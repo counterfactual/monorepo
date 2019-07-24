@@ -2,14 +2,12 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import Queue from "p-queue";
 
-import {
-  eventNameToImplementation,
-  methodNameToImplementation
-} from "./api-router";
+import { eventNameToImplementation, methodNameToImplementation } from "./api";
 import { InstructionExecutor } from "./machine";
-import NodeRouter from "./rpc-router";
+import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
 
@@ -23,7 +21,7 @@ export class RequestHandler {
   private shardedQueues = new Map<string, Queue>();
 
   store: Store;
-  router: NodeRouter = {} as NodeRouter;
+  router!: RpcRouter;
 
   constructor(
     readonly publicIdentifier: string,
@@ -38,10 +36,10 @@ export class RequestHandler {
     storeKeyPrefix: string,
     readonly blocksNeededForConfirmation: number
   ) {
-    this.store = new Store(storeService, storeKeyPrefix);
+    this.store = new Store(storeService, storeKeyPrefix, networkContext);
   }
 
-  injectRouter(router: NodeRouter) {
+  injectRouter(router: RpcRouter) {
     this.router = router;
     this.mapPublicApiMethods();
     this.mapEventHandlers();
@@ -57,11 +55,13 @@ export class RequestHandler {
     method: Node.MethodName,
     req: Node.MethodRequest
   ): Promise<Node.MethodResponse> {
-    return {
+    const result = {
       type: req.type,
       requestId: req.requestId,
       result: await this.methods.get(method)(this, req.params)
     };
+
+    return result;
   }
 
   /**
@@ -78,7 +78,9 @@ export class RequestHandler {
           requestId: req.requestId,
           result: await this.methods.get(methodName)(this, req.params)
         };
-        this.router.emit(req.type, res, "outgoing");
+
+        // @ts-ignore
+        this.router.emit(req.methodName, res, "outgoing");
       });
     }
   }
@@ -103,12 +105,30 @@ export class RequestHandler {
    */
   public async callEvent(event: NodeEvents, msg: Node.NodeMessage) {
     const controllerExecutionMethod = this.events.get(event);
+    const controllerCount = this.router.eventListenerCount(event);
 
-    if (!controllerExecutionMethod) {
-      throw new Error(`Recent ${event} which has no event handler`);
+    if (!controllerExecutionMethod && controllerCount === 0) {
+      if (event === NODE_EVENTS.DEPOSIT_CONFIRMED) {
+        log.info(
+          `No event handler for counter depositing into channel: ${JSON.stringify(
+            msg,
+            undefined,
+            4
+          )}`
+        );
+      } else {
+        throw new Error(`Recent ${event} which has no event handler`);
+      }
     }
 
-    await controllerExecutionMethod(this, msg);
+    if (controllerExecutionMethod) {
+      await controllerExecutionMethod(this, msg);
+    }
+    this.router.emit(event, msg);
+  }
+
+  public async isLegacyEvent(event: NodeEvents) {
+    return this.events.has(event);
   }
 
   public getShardedQueue(shardKey: string): Queue {

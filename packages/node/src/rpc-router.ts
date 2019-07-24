@@ -1,5 +1,6 @@
 import {
   Controller,
+  JsonRpcResponse,
   jsonRpcSerializeAsResponse,
   Router,
   Rpc
@@ -9,7 +10,7 @@ import { RequestHandler } from "./request-handler";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
-export default class NodeRouter extends Router {
+export default class RpcRouter extends Router {
   private requestHandler: RequestHandler;
 
   constructor({
@@ -24,23 +25,29 @@ export default class NodeRouter extends Router {
     this.requestHandler = requestHandler;
   }
 
-  async dispatch(rpc: Rpc) {
+  async dispatch(rpc: Rpc): Promise<JsonRpcResponse> {
     const controller = Object.values(Controller.rpcMethods).find(
       mapping => mapping.method === rpc.methodName
     );
 
     if (!controller) {
-      console.warn(`Cannot execute ${rpc.methodName}: no controller`);
-      return;
+      throw new Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
-    return jsonRpcSerializeAsResponse(
-      await new controller.type()[controller.callback](
-        this.requestHandler,
-        rpc.parameters
-      ),
-      rpc.parameters["id"]
+    const result = jsonRpcSerializeAsResponse(
+      {
+        result: await new controller.type()[controller.callback](
+          this.requestHandler,
+          rpc.parameters
+        ),
+        type: rpc.methodName
+      },
+      rpc.id as number
     );
+
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
+
+    return result;
   }
 
   async subscribe(event: string, callback: AsyncCallback) {
@@ -64,5 +71,9 @@ export default class NodeRouter extends Router {
     }
 
     this.requestHandler[emitter].emit(event, eventData.result);
+  }
+
+  eventListenerCount(event: string): number {
+    return this.requestHandler.outgoing.listenerCount(event);
   }
 }

@@ -1,13 +1,16 @@
-import { Node } from "@counterfactual/types";
+import { NetworkContext, Node } from "@counterfactual/types";
 
-import { computeUniqueIdentifierForStateChannelThatWrapsVirtualApp } from "../../../machine";
-import { ProposedAppInstanceInfo, StateChannel } from "../../../models";
+import { AppInstanceProposal, StateChannel } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import { getChannelFromPeerAddress } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  getStateChannelWithOwners
+} from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
- * Creates a ProposedAppInstanceInfo to reflect the proposal received from
+ * Creates a AppInstanceProposal to reflect the proposal received from
  * the client.
  * @param myIdentifier
  * @param store
@@ -16,7 +19,8 @@ import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 export async function createProposedVirtualAppInstance(
   myIdentifier: string,
   store: Store,
-  params: Node.ProposeInstallVirtualParams
+  params: Node.ProposeInstallVirtualParams,
+  network: NetworkContext
 ): Promise<string> {
   const { intermediaries, proposedToIdentifier } = params;
 
@@ -24,20 +28,25 @@ export async function createProposedVirtualAppInstance(
     myIdentifier,
     proposedToIdentifier,
     intermediaries,
-    store
+    store,
+    network
   );
 
-  const proposedAppInstanceInfo = new ProposedAppInstanceInfo(
+  const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
-      proposedByIdentifier: myIdentifier
+      proposedByIdentifier: myIdentifier,
+      initiatorDepositTokenAddress:
+        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress:
+        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );
 
-  await store.addVirtualAppInstanceProposal(proposedAppInstanceInfo);
+  await store.addVirtualAppInstanceProposal(appInstanceProposal);
 
-  return proposedAppInstanceInfo.identityHash;
+  return appInstanceProposal.identityHash;
 }
 
 /**
@@ -45,12 +54,12 @@ export async function createProposedVirtualAppInstance(
  * Virtual AppInstance operations.
  * @param thisAddress
  * @param intermediaries
- * @param respondingAddress
+ * @param responderAddress
  */
 export function getNextNodeAddress(
   thisAddress: string,
   intermediaries: string[],
-  respondingAddress: string
+  responderAddress: string
 ): string {
   const intermediaryIndex = intermediaries.findIndex(
     intermediaryAddress => intermediaryAddress === thisAddress
@@ -61,7 +70,7 @@ export function getNextNodeAddress(
   }
 
   if (intermediaryIndex + 1 === intermediaries.length) {
-    return respondingAddress;
+    return responderAddress;
   }
 
   return intermediaries[intermediaryIndex + 1];
@@ -75,33 +84,35 @@ export function isNodeIntermediary(
 }
 
 export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   intermediaries: string[],
-  store: Store
+  store: Store,
+  network: NetworkContext
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
-    stateChannel = await getChannelFromPeerAddress(
-      initiatingXpub,
-      respondingXpub,
+    stateChannel = await getStateChannelWithOwners(
+      initiatorXpub,
+      responderXpub,
       store
     );
   } catch (e) {
     if (
       e
         .toString()
-        .includes(NO_CHANNEL_BETWEEN_NODES(initiatingXpub, respondingXpub)) &&
+        .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
       intermediaries !== undefined
     ) {
-      const key = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-        [initiatingXpub, respondingXpub],
-        intermediaries[0]
+      const multisigAddress = getCreate2MultisigAddress(
+        [initiatorXpub, responderXpub],
+        network.ProxyFactory,
+        network.MinimumViableMultisig
       );
 
-      stateChannel = StateChannel.createEmptyChannel(key, [
-        initiatingXpub,
-        respondingXpub
+      stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
+        initiatorXpub,
+        responderXpub
       ]);
 
       await store.saveStateChannel(stateChannel);

@@ -1,23 +1,24 @@
-import { InstructionExecutor } from "../../../machine";
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   appInstanceId: string
 ): Promise<void> {
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const stateChannelsMap = await instructionExecutor.runUninstallProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.Uninstall,
     new Map(Object.entries(await store.getAllChannels())),
     {
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: appInstance.identityHash
     }

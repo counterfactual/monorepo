@@ -1,18 +1,16 @@
 import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import {
-  Address,
   AppABIEncodings,
-  AppInstanceInfo,
+  AppInstanceJson,
+  AppInstanceProposal,
   ContractABI,
-  NetworkContext,
-  networkContextProps,
   Node as NodeTypes,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { v4 as generateUUID } from "uuid";
@@ -28,7 +26,6 @@ import {
   ProposeVirtualMessage,
   Rpc
 } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   FreeBalanceState
@@ -49,7 +46,7 @@ import {
 export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
-): Promise<Address> {
+): Promise<string> {
   const req = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
@@ -58,7 +55,7 @@ export async function getMultisigCreationTransactionHash(
       owners: xpubs
     }
   });
-  const response = (await node.router.dispatch(req)) as JsonRpcResponse;
+  const response = await node.rpcRouter.dispatch(req);
   const result = response.result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
@@ -80,35 +77,20 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstances(
-  node: Node
-): Promise<AppInstanceInfo[]> {
-  return getApps(node, APP_INSTANCE_STATUS.INSTALLED);
-}
-
-export async function getInstalledAppInstanceInfo(
+export async function getInstalledAppInstance(
   node: Node,
   appInstanceId: string
-): Promise<AppInstanceInfo> {
-  const allAppInstanceInfos = await getApps(
-    node,
-    APP_INSTANCE_STATUS.INSTALLED
-  );
-  return allAppInstanceInfos.filter(appInstanceInfo => {
-    return appInstanceInfo.identityHash === appInstanceId;
+): Promise<AppInstanceJson> {
+  const allAppInstances = await getInstalledAppInstances(node);
+  return allAppInstances.filter(appInstance => {
+    return appInstance.identityHash === appInstanceId;
   })[0];
 }
 
-export async function getProposedAppInstances(
-  node: Node
-): Promise<AppInstanceInfo[]> {
-  return getApps(node, APP_INSTANCE_STATUS.PROPOSED);
-}
-
-export async function getProposedAppInstanceInfo(
+export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
-): Promise<AppInstanceInfo> {
+): Promise<AppInstanceProposal> {
   const req = {
     requestId: generateUUID(),
     type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
@@ -135,36 +117,36 @@ export async function getFreeBalanceState(
     },
     jsonrpc: "2.0"
   });
-  const response = (await node.router.dispatch(req)) as JsonRpcResponse;
-  return response.result as NodeTypes.GetFreeBalanceStateResult;
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
+  return response.result.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
-export async function getApps(
-  node: Node,
-  appInstanceStatus: APP_INSTANCE_STATUS
-): Promise<AppInstanceInfo[]> {
-  let request: Rpc;
-  let response: JsonRpcResponse;
-  let result;
-  if (appInstanceStatus === APP_INSTANCE_STATUS.INSTALLED) {
-    request = jsonRpcDeserialize({
-      jsonrpc: "2.0",
-      id: Date.now(),
-      method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
-      params: {} as NodeTypes.GetAppInstancesParams
-    });
-    response = (await node.router.dispatch(request)) as JsonRpcResponse;
-    result = response.result as NodeTypes.GetAppInstancesResult;
-    return result.appInstances;
-  }
-  request = jsonRpcDeserialize({
+export async function getInstalledAppInstances(
+  node: Node
+): Promise<AppInstanceJson[]> {
+  const request = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
+    params: {} as NodeTypes.GetAppInstancesParams
+  });
+  const response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
+  const result = response.result.result as NodeTypes.GetAppInstancesResult;
+  return result.appInstances;
+}
+
+export async function getProposedAppInstances(
+  node: Node
+): Promise<AppInstanceProposal[]> {
+  const request = jsonRpcDeserialize({
     jsonrpc: "2.0",
     id: Date.now(),
     method: NodeTypes.RpcMethodName.GET_PROPOSED_APP_INSTANCES,
     params: {} as NodeTypes.GetProposedAppInstancesParams
   });
-  response = (await node.router.dispatch(request)) as JsonRpcResponse;
-  result = response.result as NodeTypes.GetProposedAppInstancesResult;
+  const response = (await node.rpcRouter.dispatch(request)) as JsonRpcResponse;
+  const result = response.result
+    .result as NodeTypes.GetProposedAppInstancesResult;
   return result.appInstances;
 }
 
@@ -188,7 +170,8 @@ export function makeDepositRequest(
 export function makeWithdrawRequest(
   multisigAddress: string,
   amount: BigNumber,
-  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  recipient?: string
 ): Rpc {
   return jsonRpcDeserialize({
     id: Date.now(),
@@ -196,34 +179,33 @@ export function makeWithdrawRequest(
     params: {
       tokenAddress,
       multisigAddress,
-      amount
+      amount,
+      recipient
     } as NodeTypes.WithdrawParams,
     jsonrpc: "2.0"
   });
 }
 
-export function makeInstallRequest(
-  appInstanceId: string
-): NodeTypes.MethodRequest {
-  return {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.INSTALL,
+export function makeInstallRequest(appInstanceId: string): Rpc {
+  return jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.INSTALL,
     params: {
       appInstanceId
-    } as NodeTypes.InstallParams
-  };
+    } as NodeTypes.InstallParams,
+    jsonrpc: "2.0"
+  });
 }
 
-export function makeRejectInstallRequest(
-  appInstanceId: string
-): NodeTypes.MethodRequest {
-  return {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.REJECT_INSTALL,
+export function makeRejectInstallRequest(appInstanceId: string): Rpc {
+  return jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.REJECT_INSTALL,
     params: {
       appInstanceId
-    } as NodeTypes.RejectInstallParams
-  };
+    } as NodeTypes.RejectInstallParams,
+    jsonrpc: "2.0"
+  });
 }
 
 export function makeTTTProposalRequest(
@@ -231,16 +213,20 @@ export function makeTTTProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const initialState =
     Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
 
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
-    myDeposit,
-    peerDeposit,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress,
     appDefinition,
     initialState,
     abiEncodings: {
@@ -261,16 +247,17 @@ export function makeTTTProposalRequest(
 
 export function makeInstallVirtualRequest(
   appInstanceId: string,
-  intermediaries: Address[]
-): NodeTypes.MethodRequest {
-  return {
+  intermediaries: string[]
+): Rpc {
+  return jsonRpcDeserialize({
     params: {
       appInstanceId,
       intermediaries
     } as NodeTypes.InstallVirtualParams,
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.INSTALL_VIRTUAL
-  };
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.INSTALL_VIRTUAL,
+    jsonrpc: "2.0"
+  });
 }
 
 export function makeTTTVirtualProposalRequest(
@@ -279,22 +266,27 @@ export function makeTTTVirtualProposalRequest(
   intermediaries: string[],
   appDefinition: string,
   initialState: SolidityABIEncoderV2Type = {},
-  myDeposit: BigNumber = Zero,
-  peerDeposit: BigNumber = Zero
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
     proposedByIdentifier,
     proposedToIdentifier,
     appDefinition,
     initialState,
-    myDeposit,
-    peerDeposit
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   ).parameters as NodeTypes.ProposeInstallParams;
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
     ...installProposalParams,
     intermediaries
   };
+
   return jsonRpcDeserialize({
     params: installVirtualParams,
     id: Date.now(),
@@ -305,42 +297,42 @@ export function makeTTTVirtualProposalRequest(
 
 /**
  * @param proposalParams The parameters of the installation proposal.
- * @param proposedAppInstanceInfo The proposed app instance contained in the Node.
+ * @param appInstanceProposal The proposed app instance contained in the Node.
  */
 export async function confirmProposedAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstanceInfo: AppInstanceInfo,
+  appInstanceProposal: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
   const proposalParams = methodParams as NodeTypes.ProposeInstallParams;
-  expect(proposalParams.abiEncodings).toEqual(
-    proposedAppInstanceInfo.abiEncodings
-  );
+  expect(proposalParams.abiEncodings).toEqual(appInstanceProposal.abiEncodings);
   expect(proposalParams.appDefinition).toEqual(
-    proposedAppInstanceInfo.appDefinition
+    appInstanceProposal.appDefinition
   );
 
   if (nonInitiatingNode) {
-    expect(proposalParams.myDeposit).toEqual(
-      proposedAppInstanceInfo.peerDeposit
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.responderDeposit
     );
-    expect(proposalParams.peerDeposit).toEqual(
-      proposedAppInstanceInfo.myDeposit
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
     );
   } else {
-    expect(proposalParams.myDeposit).toEqual(proposedAppInstanceInfo.myDeposit);
-    expect(proposalParams.peerDeposit).toEqual(
-      proposedAppInstanceInfo.peerDeposit
+    expect(proposalParams.initiatorDeposit).toEqual(
+      appInstanceProposal.initiatorDeposit
+    );
+    expect(proposalParams.responderDeposit).toEqual(
+      appInstanceProposal.responderDeposit
     );
   }
-  expect(proposalParams.timeout).toEqual(proposedAppInstanceInfo.timeout);
+  expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
 
 export function confirmProposedVirtualAppInstanceOnNode(
   methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceInfo,
+  proposedAppInstance: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
   confirmProposedAppInstanceOnNode(
@@ -353,14 +345,6 @@ export function confirmProposedVirtualAppInstanceOnNode(
     proposedAppInstance.intermediaries
   );
 }
-
-const emptyNetworkMap = new Map(
-  networkContextProps.map((i): [string, string] => [i, AddressZero])
-);
-export const EMPTY_NETWORK = Array.from(emptyNetworkMap.entries()).reduce(
-  (main, [key, value]) => ({ ...main, [key]: value }),
-  {}
-) as NetworkContext;
 
 export function generateGetStateRequest(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
@@ -421,11 +405,15 @@ export async function sleep(timeInMilliseconds: number) {
 export async function collateralizeChannel(
   node1: Node,
   node2: Node,
-  multisigAddress: string
+  multisigAddress: string,
+  amount: BigNumber = One,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
-  const depositReq = makeDepositRequest(multisigAddress, One);
-  await node1.router.dispatch(depositReq);
-  await node2.router.dispatch(depositReq);
+  const depositReq = makeDepositRequest(multisigAddress, amount, tokenAddress);
+  node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  await node1.rpcRouter.dispatch(depositReq);
+  await node2.rpcRouter.dispatch(depositReq);
 }
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
@@ -463,19 +451,19 @@ export async function installTTTApp(
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
       confirmProposedAppInstanceOnNode(
         appInstanceInstallationProposalRequest.parameters,
-        await getProposedAppInstanceInfo(nodeA, appInstanceId)
+        await getAppInstanceProposal(nodeA, appInstanceId)
       );
 
       const installRequest = makeInstallRequest(msg.data.appInstanceId);
-      nodeB.emit(installRequest.type, installRequest);
+      await nodeB.rpcRouter.dispatch(installRequest);
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstanceInfo(
+      const appInstanceNodeA = await getInstalledAppInstance(
         nodeA,
         appInstanceId
       );
-      const appInstanceNodeB = await getInstalledAppInstanceInfo(
+      const appInstanceNodeB = await getInstalledAppInstance(
         nodeB,
         appInstanceId
       );
@@ -483,11 +471,12 @@ export async function installTTTApp(
       resolve(appInstanceId);
     });
 
-    const response = (await nodeA.router.dispatch(
+    const response = await nodeA.rpcRouter.dispatch(
       appInstanceInstallationProposalRequest
-    )) as JsonRpcResponse;
+    );
 
-    const { appInstanceId } = response.result as NodeTypes.ProposeInstallResult;
+    const { appInstanceId } = response.result
+      .result as NodeTypes.ProposeInstallResult;
   });
 }
 
@@ -507,12 +496,12 @@ export async function installTTTAppVirtual(
 
     nodeC.on(
       NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      (msg: ProposeVirtualMessage) => {
+      async (msg: ProposeVirtualMessage) => {
         const installReq = makeInstallVirtualRequest(
           msg.data.appInstanceId,
           msg.data.params.intermediaries
         );
-        nodeC.emit(installReq.type, installReq);
+        await nodeC.rpcRouter.dispatch(installReq);
       }
     );
 
@@ -536,12 +525,17 @@ export async function confirmChannelCreation(
 
 export async function confirmAppInstanceInstallation(
   proposedParams: NodeTypes.ProposeInstallParams,
-  appInstanceInfo: AppInstanceInfo
+  appInstance: AppInstanceJson
 ) {
-  delete appInstanceInfo.proposedByIdentifier;
-  delete appInstanceInfo.intermediaries;
-  delete appInstanceInfo.identityHash;
-  expect(appInstanceInfo).toEqual(proposedParams);
+  expect(appInstance.appInterface.addr).toEqual(proposedParams.appDefinition);
+  expect(appInstance.appInterface.stateEncoding).toEqual(
+    proposedParams.abiEncodings.stateEncoding
+  );
+  expect(appInstance.appInterface.actionEncoding).toEqual(
+    proposedParams.abiEncodings.actionEncoding
+  );
+  expect(appInstance.defaultTimeout).toEqual(proposedParams.timeout.toNumber());
+  expect(appInstance.latestState).toEqual(proposedParams.initialState);
 }
 
 export async function getState(
@@ -549,10 +543,8 @@ export async function getState(
   appInstanceId: string
 ): Promise<SolidityABIEncoderV2Type> {
   const getStateReq = generateGetStateRequest(appInstanceId);
-  const getStateResult = (await nodeA.router.dispatch(
-    getStateReq
-  )) as JsonRpcResponse;
-  return (getStateResult.result as NodeTypes.GetStateResult).state;
+  const getStateResult = await nodeA.rpcRouter.dispatch(getStateReq);
+  return (getStateResult.result.result as NodeTypes.GetStateResult).state;
 }
 
 export async function makeTTTVirtualProposal(
@@ -571,19 +563,23 @@ export async function makeTTTVirtualProposal(
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
     initialState,
     One,
-    Zero
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    Zero,
+    CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
   const params = virtualAppInstanceProposalRequest.parameters as NodeTypes.ProposeInstallVirtualParams;
-  const response = (await nodeA.router.dispatch(
+  const {
+    result: {
+      result: { appInstanceId }
+    }
+  } = await nodeA.rpcRouter.dispatch(
     jsonRpcDeserialize({
       params,
       jsonrpc: "2.0",
       method: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
       id: Date.now()
     })
-  )) as JsonRpcResponse;
-  const appInstanceId = (response.result as NodeTypes.ProposeInstallVirtualResult)
-    .appInstanceId;
+  );
   expect(appInstanceId).toBeDefined();
   return { appInstanceId, params };
 }
@@ -597,12 +593,12 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaries
   );
-  node.router.emit(installVirtualReq.type, installVirtualReq);
+  node.rpcRouter.dispatch(installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
   const installRequest = makeInstallRequest(appInstanceId);
-  node.emit(installRequest.type, installRequest);
+  node.rpcRouter.dispatch(installRequest);
 }
 
 export async function makeVirtualProposeCall(
@@ -620,9 +616,9 @@ export async function makeVirtualProposeCall(
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
   );
 
-  const response = (await nodeA.router.dispatch(
+  const response = await nodeA.rpcRouter.dispatch(
     virtualAppInstanceProposalRequest
-  )) as JsonRpcResponse;
+  );
 
   return {
     appInstanceId: (response.result as NodeTypes.ProposeInstallVirtualResult)
@@ -633,7 +629,15 @@ export async function makeVirtualProposeCall(
 
 export async function makeProposeCall(
   nodeA: Node,
-  nodeB: Node
+  nodeB: Node,
+  appDefinition: string = (global[
+    "networkContext"
+  ] as NetworkContextForTestSuite).TicTacToeApp,
+  state: SolidityABIEncoderV2Type = {},
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
@@ -641,41 +645,42 @@ export async function makeProposeCall(
   const appInstanceProposalReq = makeTTTProposalRequest(
     nodeA.publicIdentifier,
     nodeB.publicIdentifier,
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-    {},
-    One,
-    Zero
+    appDefinition,
+    state,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
   );
 
-  const response = (await nodeA.router.dispatch(
-    appInstanceProposalReq
-  )) as JsonRpcResponse;
+  const {
+    result: {
+      result: { appInstanceId }
+    }
+  } = await nodeA.rpcRouter.dispatch(appInstanceProposalReq);
+
   return {
-    appInstanceId: (response.result as NodeTypes.ProposeInstallResult)
-      .appInstanceId,
+    appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
   };
 }
 
-export function sanitizeAppInstances(appInstances: AppInstanceInfo[]) {
-  appInstances.forEach((appInstance: AppInstanceInfo) => {
-    delete appInstance.myDeposit;
-    delete appInstance.peerDeposit;
-  });
-}
-
-export function createFreeBalanceStateWithFundedETHAmounts(
+export function createFreeBalanceStateWithFundedTokenAmounts(
   addresses: string[],
-  amount: BigNumber
+  amount: BigNumber,
+  tokenAddresses: string[]
 ): FreeBalanceState {
+  const balancesIndexedByToken = {};
+  tokenAddresses.forEach(tokenAddress => {
+    balancesIndexedByToken[tokenAddress] = addresses.map(to => ({
+      to,
+      amount
+    }));
+  });
+
   return {
-    activeAppsMap: {},
-    balancesIndexedByToken: {
-      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: addresses.map(to => ({
-        to,
-        amount
-      }))
-    }
+    balancesIndexedByToken,
+    activeAppsMap: {}
   };
 }
 

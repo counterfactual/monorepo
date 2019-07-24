@@ -1,10 +1,10 @@
 import React from "react";
-
-import "./FormButton.scss";
 import { WidgetSpinner } from "../../widget";
+import "./FormButton.scss";
 
 export type FormButtonProps = {
   className?: string;
+  name: string;
   spinner?: boolean;
   children?: React.ReactNode;
   disabled?: boolean;
@@ -17,6 +17,7 @@ export type FormButtonProps = {
 const FormButton: React.FC<FormButtonProps> = ({
   children,
   onClick,
+  name,
   disabled = false,
   spinner = false,
   className = "button",
@@ -24,12 +25,13 @@ const FormButton: React.FC<FormButtonProps> = ({
 }: FormButtonProps) => {
   return (
     <button
+      data-test-selector={`${name || className || "generic"}-button`}
       disabled={disabled}
       onClick={onClick}
       className={className}
       type={type}
     >
-      {spinner ? <WidgetSpinner /> : null}
+      {spinner ? <WidgetSpinner visible={spinner} color="white" /> : false}
       {children}
     </button>
   );

@@ -1,5 +1,6 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
+  CoinBalanceRefundState,
   NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcome
@@ -7,42 +8,63 @@ import {
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { defaultAbiCoder } from "ethers/utils";
 
-import { StateChannel } from "../../models";
+import { AppInstance } from "../../models";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  TokenIndexedCoinTransferMap
+} from "../../models/free-balance";
 
-function computeCoinTransferIncrement(outcome): { [s: string]: BigNumber } {
+/**
+ * Note that this is only used with `CoinBalanceRefundApp.sol`
+ */
+function computeCoinTransferIncrement(
+  token: string,
+  outcome: string
+): TokenIndexedCoinTransferMap {
   const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address,uint256)[]"],
+    ["tuple(address to, uint256 amount)[1][1]"],
     outcome
   );
 
-  const ret = {} as any;
+  const ret: TokenIndexedCoinTransferMap = {};
 
-  for (const pair of decoded) {
-    const [address, to] = pair;
-    ret[address] = to;
+  ret[token] = {};
+  const balances = decoded[0];
+
+  for (const pair of balances) {
+    const [address, amount] = pair;
+    ret[token][address] = amount;
   }
   return ret;
 }
 
-function anyNonzeroValues(arr: { [s: string]: BigNumber }): Boolean {
-  for (const key in arr) {
-    if (arr[key].gt(Zero)) {
-      return true;
+function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
+  for (const tokenAddress of Object.keys(map)) {
+    for (const address of Object.keys(map[tokenAddress])) {
+      if (map[tokenAddress][address].gt(Zero)) {
+        return true;
+      }
     }
   }
   return false;
 }
 
-export async function computeFreeBalanceIncrements(
-  networkContext: NetworkContext,
-  stateChannel: StateChannel,
-  appInstanceId: string,
-  provider: BaseProvider
-): Promise<{ [x: string]: BigNumber }> {
-  const appInstance = stateChannel.getAppInstance(appInstanceId);
+const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 
+// todo(xuanji): rename appInstanceId to identityHash
+/**
+ * Get the outcome of the app instance given, decode it according
+ * to the outcome type stored in the app instance model, and return
+ * a value uniformly across outcome type and whether the app is virtual
+ * or direct. This return value must not contain the intermediary.
+ */
+export async function computeTokenIndexedFreeBalanceIncrements(
+  networkContext: NetworkContext,
+  appInstance: AppInstance,
+  provider: BaseProvider
+): Promise<TokenIndexedCoinTransferMap> {
   const appDefinition = new Contract(
     appInstance.appInterface.addr,
     CounterfactualApp.abi,
@@ -53,30 +75,30 @@ export async function computeFreeBalanceIncrements(
     appInstance.encodedLatestState
   );
 
-  // Temporary, better solution is to add outcomeType to AppInstance model
-  let outcomeType: OutcomeType | undefined;
-  if (typeof appInstance.coinTransferInterpreterParams !== "undefined") {
-    outcomeType = OutcomeType.COIN_TRANSFER;
-  } else if (
-    typeof appInstance.twoPartyOutcomeInterpreterParams !== "undefined"
-  ) {
-    outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
+  const outcomeType = appInstance.toJson().outcomeType;
+
+  if (outcomeType === undefined) {
+    throw new Error("undefined outcomeType in appInstance");
   }
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
       // FIXME:
       // https://github.com/counterfactual/monorepo/issues/1371
 
       let attempts = 1;
 
-      const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+      // todo(xuanji): factor out retryUntil function
+
       while (1) {
         outcome = await appDefinition.functions.computeOutcome(
           appInstance.encodedLatestState
         );
 
-        const increments = computeCoinTransferIncrement(outcome);
+        const increments = computeCoinTransferIncrement(
+          (appInstance.state as CoinBalanceRefundState).tokenAddress,
+          outcome
+        );
 
         if (anyNonzeroValues(increments)) {
           return increments;
@@ -94,17 +116,29 @@ export async function computeFreeBalanceIncrements(
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
+      if (appInstance.twoPartyOutcomeInterpreterParams === undefined) {
+        throw new Error(
+          "app instance outcome type set to two party outcome, but twoPartyOutcomeInterpreterParams not defined"
+        );
+      }
+
       const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[0]]: total
+          }
         };
       }
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: total
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+            [appInstance.twoPartyOutcomeInterpreterParams!
+              .playerAddrs[1]]: total
+          }
         };
       }
 
@@ -112,12 +146,14 @@ export async function computeFreeBalanceIncrements(
       const i1 = total.sub(i0);
 
       return {
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
-        [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
+          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        }
       };
     }
     default: {
-      throw Error("unknown interpreter");
+      throw new Error("unknown interpreter");
     }
   }
 }

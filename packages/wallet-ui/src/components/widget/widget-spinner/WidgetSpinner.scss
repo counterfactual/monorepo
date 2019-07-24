@@ -2,12 +2,13 @@
 
 .spinner.spinner--circle {
   display: inline-block;
-  width: 14px;
+  width: 30px;
   height: 14px;
   padding-left: 5px;
 
   &.spinner--hidden {
     visibility: hidden;
+    display: none;
   }
 
   &.spinner--circle:after {

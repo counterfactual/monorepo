@@ -37,7 +37,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
       );
 
       try {
-        await nodeA.router.dispatch(takeActionReq);
+        await nodeA.rpcRouter.dispatch(takeActionReq);
       } catch (e) {
         expect(e.toString()).toMatch(INVALID_ACTION);
         done();

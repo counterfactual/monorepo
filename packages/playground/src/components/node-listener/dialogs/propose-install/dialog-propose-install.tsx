@@ -35,7 +35,7 @@ export class DialogProposeInstall {
     });
 
     if (!app) {
-      throw Error(
+      throw new Error(
         "You've received an installation proposal from a different Ethereum network"
       );
     }
@@ -49,7 +49,7 @@ export class DialogProposeInstall {
             <br />
             <strong>
               {window["ethers"].utils.formatEther(
-                this.message.data.params.myDeposit
+                this.message.data.params.initiatorDeposit
               )}{" "}
               ETH
             </strong>{" "}

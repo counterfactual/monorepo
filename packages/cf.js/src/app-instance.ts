@@ -1,7 +1,7 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
+  AppInstanceJson,
   CoinTransferInterpreterParams,
   Node,
   SolidityABIEncoderV2Type,
@@ -29,14 +29,14 @@ export class AppInstance {
   readonly identityHash: string;
 
   // Application-specific fields
-  readonly appDefinition: Address;
+  readonly appDefinition: string;
   readonly abiEncodings: AppABIEncodings;
   readonly timeout: BigNumber;
 
   // Funding-related fields
-  readonly myDeposit: BigNumber;
-  readonly peerDeposit: BigNumber;
-  readonly intermediaries?: Address[];
+  readonly initiatorDeposit: BigNumber;
+  readonly responderDeposit: BigNumber;
+  readonly intermediaries?: string[];
 
   /**
    * Interpreter-related Fields
@@ -49,17 +49,28 @@ export class AppInstance {
     key => AppInstanceEventType[key]
   );
 
-  constructor(info: AppInstanceInfo, readonly provider: Provider) {
+  constructor(
+    info: AppInstanceInfo | AppInstanceJson,
+    readonly provider: Provider
+  ) {
     this.identityHash = info.identityHash;
-    this.appDefinition = info.appDefinition;
-    this.abiEncodings = info.abiEncodings;
-    this.timeout = info.timeout;
-    this.myDeposit = info.myDeposit;
-    this.peerDeposit = info.peerDeposit;
-    this.twoPartyOutcomeInterpreterParams =
-      info.twoPartyOutcomeInterpreterParams;
-    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
-    this.intermediaries = info.intermediaries;
+
+    if (info["appInterface"] !== undefined) {
+      this.appDefinition = info["appInterface"].addr;
+      this.abiEncodings = {
+        stateEncoding: info["appInterface"].stateEncoding,
+        actionEncoding: info["appInterface"].actionEncoding
+      };
+      this.timeout = info["defaultTimeout"];
+    } else {
+      this.appDefinition = info["appDefinition"];
+      this.abiEncodings = info["abiEncodings"];
+      this.timeout = info["timeout"];
+    }
+
+    this.initiatorDeposit = info["initiatorDeposit"];
+    this.responderDeposit = info["responderDeposit"];
+    this.intermediaries = info["intermediaries"];
   }
 
   /**
@@ -77,7 +88,7 @@ export class AppInstance {
    */
   async getState(): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.GET_STATE,
+      Node.RpcMethodName.GET_STATE,
       {
         appInstanceId: this.identityHash
       }
@@ -99,7 +110,7 @@ export class AppInstance {
     action: SolidityABIEncoderV2Type
   ): Promise<SolidityABIEncoderV2Type> {
     const response = await this.provider.callRawNodeMethod(
-      Node.MethodName.TAKE_ACTION,
+      Node.RpcMethodName.TAKE_ACTION,
       {
         action,
         appInstanceId: this.identityHash
@@ -122,8 +133,8 @@ export class AppInstance {
 
     await this.provider.callRawNodeMethod(
       intermediaryIdentifier
-        ? Node.MethodName.UNINSTALL_VIRTUAL
-        : Node.MethodName.UNINSTALL,
+        ? Node.RpcMethodName.UNINSTALL_VIRTUAL
+        : Node.RpcMethodName.UNINSTALL,
       {
         intermediaryIdentifier,
         appInstanceId: this.identityHash

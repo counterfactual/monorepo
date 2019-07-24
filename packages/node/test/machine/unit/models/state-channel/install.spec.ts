@@ -8,8 +8,8 @@ import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   getBalancesFromFreeBalanceAppInstance
 } from "../../../../../src/models/free-balance";
-import { createFreeBalanceStateWithFundedETHAmounts } from "../../../../integration/utils";
-import { createAppInstance } from "../../../../unit/utils";
+import { createFreeBalanceStateWithFundedTokenAmounts } from "../../../../integration/utils";
+import { createAppInstanceForTest } from "../../../../unit/utils";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -33,22 +33,25 @@ describe("StateChannel::uninstallApp", () => {
       xpubs
     );
 
-    const appInstance = createAppInstance(sc1);
+    const appInstance = createAppInstanceForTest(sc1);
 
     appIdentityHash = appInstance.identityHash;
 
     // Give 1 ETH to Alice and to Bob so they can spend it on the new app
 
     sc1 = sc1.setFreeBalance(
-      createFreeBalanceStateWithFundedETHAmounts(
+      createFreeBalanceStateWithFundedTokenAmounts(
         [xkeyKthAddress(xpubs[0], 0), xkeyKthAddress(xpubs[1], 0)],
-        WeiPerEther
+        WeiPerEther,
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
       )
     );
 
     sc2 = sc1.installApp(appInstance, {
-      [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
-      [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
+      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [xkeyKthAddress(xpubs[0], 0)]: WeiPerEther,
+        [xkeyKthAddress(xpubs[1], 0)]: WeiPerEther
+      }
     });
   });
 

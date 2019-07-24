@@ -1,11 +1,14 @@
-import { InstructionExecutor } from "../../../machine";
+import { BaseProvider } from "ethers/providers";
+
+import { InstructionExecutor, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 
-export async function uninstallAppInstanceFromChannel(
+export async function uninstallVirtualAppInstanceFromChannel(
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
-  respondingXpub: string,
+  provider: BaseProvider,
+  initiatorXpub: string,
+  responderXpub: string,
   intermediaryXpub: string,
   appInstanceId: string
 ): Promise<void> {
@@ -15,13 +18,17 @@ export async function uninstallAppInstanceFromChannel(
 
   const currentChannels = new Map(Object.entries(await store.getAllChannels()));
 
-  const stateChannelsMap = await instructionExecutor.runUninstallVirtualAppProtocol(
+  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+    Protocol.UninstallVirtualApp,
     currentChannels,
     {
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       intermediaryXpub,
-      targetAppState: appInstance.state,
+      targetOutcome: await appInstance.computeOutcome(
+        appInstance.state,
+        provider
+      ),
       targetAppIdentityHash: appInstance.identityHash
     }
   );

@@ -10,7 +10,7 @@ import { fromMnemonic } from "ethers/utils/hdnode";
 
 import {
   AppInstance,
-  ProposedAppInstanceInfo,
+  AppInstanceProposal,
   StateChannel
 } from "../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
@@ -19,8 +19,8 @@ export function computeRandomXpub() {
   return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
 }
 
-export function createProposedAppInstanceInfo(appInstanceId: string) {
-  return new ProposedAppInstanceInfo(
+export function createAppInstanceProposalForTest(appInstanceId: string) {
+  return new AppInstanceProposal(
     {
       proposedByIdentifier: computeRandomXpub(),
       proposedToIdentifier: computeRandomXpub(),
@@ -29,26 +29,28 @@ export function createProposedAppInstanceInfo(appInstanceId: string) {
         stateEncoding: "tuple(address foo, uint256 bar)",
         actionEncoding: undefined
       } as AppABIEncodings,
-      myDeposit: Zero,
-      peerDeposit: Zero,
+      initiatorDeposit: Zero,
+      responderDeposit: Zero,
       timeout: One,
       initialState: {
         foo: AddressZero,
         bar: 0
       } as SolidityABIEncoderV2Type,
-      outcomeType: OutcomeType.COIN_TRANSFER
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     undefined,
     appInstanceId
   );
 }
 
-export function createAppInstance(stateChannel?: StateChannel) {
+export function createAppInstanceForTest(stateChannel?: StateChannel) {
   return new AppInstance(
     /* multisigAddress */ stateChannel
       ? stateChannel.multisigAddress
       : getAddress(hexlify(randomBytes(20))),
-    /* signingKeys */ stateChannel
+    /* participants */ stateChannel
       ? stateChannel.getSigningKeysFor(stateChannel.numInstalledApps)
       : [
           getAddress(hexlify(randomBytes(20))),
@@ -67,11 +69,11 @@ export function createAppInstance(stateChannel?: StateChannel) {
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestVersionNumber */ 0,
     /* latestTimeout */ Math.ceil(1000 * Math.random()),
+    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
       amount: Zero
     },
-    /* coinTransferInterpreterParams */ undefined,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    /* coinTransferInterpreterParams */ undefined
   );
 }

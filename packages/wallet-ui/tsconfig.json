@@ -5,7 +5,7 @@
     "jsx": "preserve",
     "isolatedModules": true,
     "declaration": false,
-    "types": ["jest", "node", "react", "react-dom"]
+    "types": ["jest", "node", "react", "react-dom", "web3"]
   },
   "include": ["src"]
 }

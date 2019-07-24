@@ -52,7 +52,7 @@ contract MixinSetState is
       require(
         correctKeysSignedAppChallengeUpdate(
           identityHash,
-          appIdentity.signingKeys,
+          appIdentity.participants,
           req
         ),
         "Call to setState included incorrectly signed state update"
@@ -77,7 +77,7 @@ contract MixinSetState is
 
   function correctKeysSignedAppChallengeUpdate(
     bytes32 identityHash,
-    address[] memory signingKeys,
+    address[] memory participants,
     SignedAppChallengeUpdate memory req
   )
     private
@@ -94,7 +94,7 @@ contract MixinSetState is
     return verifySignatures(
       req.signatures,
       digest,
-      signingKeys
+      participants
     );
   }
 

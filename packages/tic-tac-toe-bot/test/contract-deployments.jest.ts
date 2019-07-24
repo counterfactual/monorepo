@@ -1,6 +1,6 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
+import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
@@ -48,8 +48,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferETHInterpreter.abi,
-    CoinTransferETHInterpreter.bytecode,
+    CoinTransferInterpreter.abi,
+    CoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -90,7 +90,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ETHBalanceRefundApp: balanceRefundContract.address,
     FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
-    CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    CoinTransferInterpreter: coinTransferETHInterpreter.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,

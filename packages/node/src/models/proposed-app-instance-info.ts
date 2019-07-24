@@ -1,23 +1,20 @@
 import {
   AppABIEncodings,
-  AppInstanceInfo,
-  AppInterface,
   OutcomeType,
   SolidityABIEncoderV2Type
 } from "@counterfactual/types";
-import { AddressZero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance } from "./app-instance";
+import { StateChannel } from "./state-channel";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-
-export interface IProposedAppInstanceInfo {
+export interface IAppInstanceProposal {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumberish;
-  peerDeposit: BigNumberish;
+  initiatorDeposit: BigNumberish;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumberish;
+  responderDepositTokenAddress: string;
   timeout: BigNumberish;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -26,12 +23,14 @@ export interface IProposedAppInstanceInfo {
   outcomeType: OutcomeType;
 }
 
-export interface ProposedAppInstanceInfoJSON {
+export interface AppInstanceProposalJSON {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: { _hex: string };
-  peerDeposit: { _hex: string };
+  initiatorDeposit: { _hex: string };
+  initiatorDepositTokenAddress: string;
+  responderDeposit: { _hex: string };
+  responderDepositTokenAddress: string;
   timeout: { _hex: string };
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -50,12 +49,14 @@ export interface ProposedAppInstanceInfoJSON {
  * This class captures said state for the duration of the proposal being made and
  * the respecting `AppInstance` is installed.
  */
-export class ProposedAppInstanceInfo implements AppInstanceInfo {
+export class AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   initialState: SolidityABIEncoderV2Type;
   proposedByIdentifier: string;
@@ -64,14 +65,18 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
   outcomeType: OutcomeType;
 
   constructor(
-    proposeParams: IProposedAppInstanceInfo,
+    proposeParams: IAppInstanceProposal,
     channel?: StateChannel,
     overrideId?: string
   ) {
     this.appDefinition = proposeParams.appDefinition;
     this.abiEncodings = proposeParams.abiEncodings;
-    this.myDeposit = bigNumberify(proposeParams.myDeposit);
-    this.peerDeposit = bigNumberify(proposeParams.peerDeposit);
+    this.initiatorDeposit = bigNumberify(proposeParams.initiatorDeposit);
+    this.initiatorDepositTokenAddress =
+      proposeParams.initiatorDepositTokenAddress;
+    this.responderDeposit = bigNumberify(proposeParams.responderDeposit);
+    this.responderDepositTokenAddress =
+      proposeParams.responderDepositTokenAddress;
     this.timeout = bigNumberify(proposeParams.timeout);
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
@@ -81,66 +86,45 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     this.identityHash = overrideId || this.getIdentityHashFor(channel!);
   }
 
-  // TODO: Note the construction of this is duplicated from the machine
   getIdentityHashFor(stateChannel: StateChannel) {
-    const proposedAppInterface: AppInterface = {
-      addr: this.appDefinition,
-      ...this.abiEncodings
-    };
+    return this.toAppInstanceFor(stateChannel).identityHash;
+  }
 
-    let signingKeys: string[];
-    let isVirtualApp: boolean;
-
-    if ((this.intermediaries || []).length > 0) {
-      isVirtualApp = true;
-
-      const appSeqNo = stateChannel.numInstalledApps;
-
-      const [intermediaryXpub] = this.intermediaries!;
-
-      // https://github.com/counterfactual/specs/blob/master/09-install-virtual-app-protocol.md#derived-fields
-      signingKeys = [xkeyKthAddress(intermediaryXpub, appSeqNo)].concat(
-        xkeysToSortedKthAddresses(
-          [this.proposedByIdentifier, this.proposedToIdentifier],
-          appSeqNo
-        )
-      );
-    } else {
-      isVirtualApp = false;
-      signingKeys = stateChannel.getNextSigningKeys();
-    }
-
-    const owner = isVirtualApp ? AddressZero : stateChannel.multisigAddress;
-
-    const proposedAppInstance = new AppInstance(
-      owner,
-      signingKeys,
+  toAppInstanceFor(stateChannel: StateChannel) {
+    return new AppInstance(
+      stateChannel.multisigAddress,
+      stateChannel.getNextSigningKeys(),
       bigNumberify(this.timeout).toNumber(),
-      proposedAppInterface,
-      isVirtualApp,
-      isVirtualApp ? 1337 : stateChannel.numInstalledApps,
+      {
+        addr: this.appDefinition,
+        ...this.abiEncodings
+      },
+      (this.intermediaries || []).length > 0,
+      stateChannel.numInstalledApps,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
+      -1,
       undefined,
-      {
-        limit: bigNumberify(this.myDeposit).add(this.peerDeposit),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      }
+      // this is not relevant here as it gets set properly later in the context
+      // of the channel during an install, and it's not used to calculate
+      // the AppInstance ID so there won't be a possible mismatch between
+      // a proposed AppInstance ID and an installed AppInstance ID
+      undefined
     );
-
-    return proposedAppInstance.identityHash;
   }
 
-  toJson(): ProposedAppInstanceInfoJSON {
+  toJson(): AppInstanceProposalJSON {
     return {
       identityHash: this.identityHash,
       appDefinition: this.appDefinition,
       abiEncodings: this.abiEncodings,
-      myDeposit: { _hex: this.myDeposit.toHexString() },
-      peerDeposit: { _hex: this.peerDeposit.toHexString() },
+      initiatorDeposit: { _hex: this.initiatorDeposit.toHexString() },
+      initiatorDepositTokenAddress: this.initiatorDepositTokenAddress,
+      responderDeposit: { _hex: this.responderDeposit.toHexString() },
+      responderDepositTokenAddress: this.responderDepositTokenAddress,
       initialState: this.initialState,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
@@ -150,12 +134,14 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
     };
   }
 
-  static fromJson(json: ProposedAppInstanceInfoJSON): ProposedAppInstanceInfo {
-    const proposeParams: IProposedAppInstanceInfo = {
+  static fromJson(json: AppInstanceProposalJSON): AppInstanceProposal {
+    const proposeParams: IAppInstanceProposal = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
-      myDeposit: bigNumberify(json.myDeposit._hex),
-      peerDeposit: bigNumberify(json.peerDeposit._hex),
+      initiatorDeposit: bigNumberify(json.initiatorDeposit._hex),
+      initiatorDepositTokenAddress: json.initiatorDepositTokenAddress,
+      responderDeposit: bigNumberify(json.responderDeposit._hex),
+      responderDepositTokenAddress: json.responderDepositTokenAddress,
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,
@@ -164,10 +150,6 @@ export class ProposedAppInstanceInfo implements AppInstanceInfo {
       outcomeType: json.outcomeType
     };
 
-    return new ProposedAppInstanceInfo(
-      proposeParams,
-      undefined,
-      json.identityHash
-    );
+    return new AppInstanceProposal(proposeParams, undefined, json.identityHash);
   }
 }

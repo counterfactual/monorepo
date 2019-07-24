@@ -2,7 +2,11 @@ import { BigNumber } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
-import { AppABIEncodings, AppInstanceInfo } from "./data-types";
+import {
+  AppABIEncodings,
+  AppInstanceJson,
+  AppInstanceProposal
+} from "./data-types";
 import { SolidityABIEncoderV2Type } from "./simple-types";
 
 export interface INodeProvider {
@@ -36,10 +40,20 @@ export namespace Node {
     onReceive(address: string, callback: (msg: Node.NodeMessage) => void);
   }
 
+  /**
+   * An interface for a stateful storage service with an API very similar to Firebase's API.
+   * Values are addressed by paths, which are separated by the forward slash separator `/`.
+   * `get` must return values whose paths have prefixes that match the provided path,
+   * keyed by the remaining path.
+   * `set` allows multiple values and paths to be atomically set. In Firebase, passing `null`
+   * as `value` deletes the entry at the given prefix, and passing objects with null subvalues
+   * deletes entries at the path extended by the subvalue's path within the object. `set` must
+   * have the same behaviour if the `allowDelete` flag is passed; otherwise, any null values or
+   * subvalues throws an error.
+   * todo(xuanji): rename `key` to `path`
+   */
   export interface IStoreService {
     get(key: string): Promise<any>;
-    // Multiple pairs could be written simultaneously if an atomic write
-    // among multiple records is required
     set(
       pairs: { key: string; value: any }[],
       allowDelete?: Boolean
@@ -64,6 +78,7 @@ export namespace Node {
     GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
+    GET_STATE_CHANNEL = "getStateChannel",
     INSTALL = "install",
     INSTALL_VIRTUAL = "installVirtual",
     PROPOSE_INSTALL = "proposeInstall",
@@ -152,7 +167,6 @@ export namespace Node {
     multisigAddress: string;
     amount: BigNumber;
     tokenAddress?: string;
-    notifyCounterparty?: boolean;
   };
 
   export type DepositResult = {
@@ -164,7 +178,7 @@ export namespace Node {
   };
 
   export type GetAppInstanceDetailsResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceJson;
   };
 
   export type GetStateDepositHolderAddressParams = {
@@ -178,7 +192,7 @@ export namespace Node {
   export type GetAppInstancesParams = {};
 
   export type GetAppInstancesResult = {
-    appInstances: AppInstanceInfo[];
+    appInstances: AppInstanceJson[];
   };
 
   export type GetChannelAddressesParams = {};
@@ -199,7 +213,7 @@ export namespace Node {
   export type GetProposedAppInstancesParams = {};
 
   export type GetProposedAppInstancesResult = {
-    appInstances: AppInstanceInfo[];
+    appInstances: AppInstanceProposal[];
   };
 
   export type GetProposedAppInstanceParams = {
@@ -207,7 +221,7 @@ export namespace Node {
   };
 
   export type GetProposedAppInstanceResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceProposal;
   };
 
   export type GetStateParams = {
@@ -223,7 +237,7 @@ export namespace Node {
   };
 
   export type InstallResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceJson;
   };
 
   export type InstallVirtualParams = InstallParams & {
@@ -235,8 +249,10 @@ export namespace Node {
   export type ProposeInstallParams = {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
-    myDeposit: BigNumber;
-    peerDeposit: BigNumber;
+    initiatorDeposit: BigNumber;
+    initiatorDepositTokenAddress?: string;
+    responderDeposit: BigNumber;
+    responderDepositTokenAddress?: string;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
@@ -298,7 +314,7 @@ export namespace Node {
 
   export type WithdrawResult = {
     recipient: string;
-    amount: BigNumber;
+    txHash: string;
   };
 
   export type MethodParams =
@@ -340,7 +356,7 @@ export namespace Node {
   };
 
   export type RejectInstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceProposal;
   };
 
   export type UninstallEventData = {

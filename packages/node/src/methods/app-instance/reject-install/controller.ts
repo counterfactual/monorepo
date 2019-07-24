@@ -19,7 +19,7 @@ export default class RejectInstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(appInstanceId)
+        await store.getMultisigAddressFromAppInstance(appInstanceId)
       )
     ];
   }
@@ -29,28 +29,30 @@ export default class RejectInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
   ): Promise<Node.RejectInstallResult> {
+    const { store, messagingService, publicIdentifier } = requestHandler;
+
     const { appInstanceId } = params;
 
-    const proposedAppInstanceInfo = await requestHandler.store.getProposedAppInstanceInfo(
+    const appInstanceProposal = await store.getAppInstanceProposal(
       appInstanceId
     );
 
-    if (proposedAppInstanceInfo.intermediaries) {
+    if (appInstanceProposal.intermediaries) {
       return rejectInstallVirtualController(requestHandler, params);
     }
 
-    await requestHandler.store.removeAppInstanceProposal(appInstanceId);
+    await store.removeAppInstanceProposal(appInstanceId);
 
     const rejectProposalMsg: RejectProposalMessage = {
-      from: requestHandler.publicIdentifier,
+      from: publicIdentifier,
       type: NODE_EVENTS.REJECT_INSTALL,
       data: {
         appInstanceId
       }
     };
 
-    await requestHandler.messagingService.send(
-      proposedAppInstanceInfo.proposedByIdentifier,
+    await messagingService.send(
+      appInstanceProposal.proposedByIdentifier,
       rejectProposalMsg
     );
 

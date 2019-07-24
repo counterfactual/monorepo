@@ -1,7 +1,7 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { ABIEncoding } from "./simple-types";
+import { AppInterface, SolidityABIEncoderV2Type } from ".";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -12,17 +12,78 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type CoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-  limit: BigNumber;
-  tokenAddress: string;
+  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  limit: BigNumber[];
+  tokenAddresses: string[];
+};
+
+export const coinTransferInterpreterParamsStateEncoding = `
+  tuple(
+    uint256[] limit,
+    address[] tokenAddresses
+  )
+`;
+
+export type AppInstanceJson = {
+  identityHash: string;
+  multisigAddress: string;
+  participants: string[];
+  defaultTimeout: number;
+  appInterface: AppInterface;
+  isVirtualApp: boolean;
+  appSeqNo: number;
+  latestState: SolidityABIEncoderV2Type;
+  latestVersionNumber: number;
+  latestTimeout: number;
+
+  outcomeType: number;
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
+    playerAddrs: [string, string];
+    amount: { _hex: string };
+  };
+
+  coinTransferInterpreterParams?: {
+    // Derived from:
+    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    limit: { _hex: string }[];
+    tokenAddresses: string[];
+  };
 };
 
 export type AppInstanceInfo = {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  myDeposit: BigNumber;
-  peerDeposit: BigNumber;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
+  timeout: BigNumber;
+  proposedByIdentifier: string; // xpub
+  proposedToIdentifier: string; // xpub
+  intermediaries?: string[];
+
+  /**
+   * Interpreter-related Fields
+   */
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+};
+
+export type AppInstanceProposal = {
+  identityHash: string;
+  appDefinition: string;
+  abiEncodings: AppABIEncodings;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress: string;
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
@@ -36,15 +97,26 @@ export type AppInstanceInfo = {
 };
 
 export type AppABIEncodings = {
-  stateEncoding: ABIEncoding;
-  actionEncoding: ABIEncoding | undefined;
+  stateEncoding: string;
+  actionEncoding: string | undefined;
 };
 
-// Interpreter.sol::OutcomeType
 export enum OutcomeType {
   TWO_PARTY_FIXED_OUTCOME = 0,
-  TWO_PARTY_DYNAMIC_OUTCOME = 1,
-  COIN_TRANSFER = 2
+
+  // CoinTransfer
+  // Since no apps currently use this outcome
+  // type, do not use it in the node
+  COIN_TRANSFER_DO_NOT_USE = 1,
+
+  // tuple(address[], CoinTransfer[][], bytes32[])
+  FREE_BALANCE_OUTCOME_TYPE = 2,
+
+  // CoinTransfer[1][1]
+  REFUND_OUTCOME_TYPE = 3,
+
+  // CoinTransfer[2]
+  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
 }
 
 // TwoPartyFixedOutcome.sol::Outcome
@@ -54,11 +126,18 @@ export enum TwoPartyFixedOutcome {
   SPLIT_AND_SEND_TO_BOTH_ADDRS = 2
 }
 
+export type CoinBalanceRefundState = {
+  recipient: string;
+  multisig: string;
+  threshold: BigNumber;
+  tokenAddress: string;
+};
+
 export const coinBalanceRefundStateEncoding = `
   tuple(
     address recipient,
     address multisig,
     uint256 threshold,
-    address token
+    address tokenAddress
   )
 `;

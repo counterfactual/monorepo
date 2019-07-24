@@ -1,6 +1,6 @@
 import {
-  Address,
   AppInstanceInfo,
+  AppInstanceJson,
   IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
@@ -67,7 +67,7 @@ export class Provider {
    * @return Installed AppInstance
    */
   async install(appInstanceId: string): Promise<AppInstance> {
-    const response = await this.callRawNodeMethod(Node.MethodName.INSTALL, {
+    const response = await this.callRawNodeMethod(Node.RpcMethodName.INSTALL, {
       appInstanceId
     });
     const { appInstance } = response.result as Node.InstallResult;
@@ -89,10 +89,10 @@ export class Provider {
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: Address[]
+    intermediaries: string[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.INSTALL_VIRTUAL,
+      Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
         intermediaries
@@ -110,7 +110,7 @@ export class Provider {
    * @param appInstanceId ID of the app instance to reject
    */
   async rejectInstall(appInstanceId: string) {
-    await this.callRawNodeMethod(Node.MethodName.REJECT_INSTALL, {
+    await this.callRawNodeMethod(Node.RpcMethodName.REJECT_INSTALL, {
       appInstanceId
     });
   }
@@ -123,9 +123,9 @@ export class Provider {
    * @param owners The channel's owning addresses
    * @return transactionHash for the channel creation
    */
-  async createChannel(owners: Address[]): Promise<string> {
+  async createChannel(owners: string[]): Promise<string> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.CREATE_CHANNEL,
+      Node.RpcMethodName.CREATE_CHANNEL,
       {
         owners
       }
@@ -156,19 +156,13 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @param amount BigNumber representing the deposit's value
-   * @param notifyCounterparty Boolean
    */
-  async deposit(
-    multisigAddress: Address,
-    amount: BigNumber,
-    notifyCounterparty: boolean = true
-  ) {
-    await this.callRawNodeMethod(Node.MethodName.DEPOSIT, {
+  async deposit(multisigAddress: string, amount: BigNumber) {
+    await this.callRawNodeMethod(Node.RpcMethodName.DEPOSIT, {
       multisigAddress,
-      amount,
-      notifyCounterparty
+      amount
     });
   }
 
@@ -178,16 +172,16 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @param amount BigNumber representing the deposit's value
-   * @param recipient Address of the party that should receive the withdrawn funds
+   * @param recipient string of the party that should receive the withdrawn funds
    */
   async withdraw(
-    multisigAddress: Address,
+    multisigAddress: string,
     amount: BigNumber,
-    recipient: Address
+    recipient: string
   ) {
-    await this.callRawNodeMethod(Node.MethodName.WITHDRAW, {
+    await this.callRawNodeMethod(Node.RpcMethodName.WITHDRAW, {
       multisigAddress,
       recipient,
       amount
@@ -200,14 +194,14 @@ export class Provider {
    *
    * @async
    *
-   * @param multisigAddress Address of the state channel multisig
+   * @param multisigAddress string of the state channel multisig
    * @return GetFreeBalanceStateResult
    */
   async getFreeBalanceState(
-    multisigAddress: Address
+    multisigAddress: string
   ): Promise<Node.GetFreeBalanceStateResult> {
     const response = await this.callRawNodeMethod(
-      Node.MethodName.GET_FREE_BALANCE_STATE,
+      Node.RpcMethodName.GET_FREE_BALANCE_STATE,
       {
         multisigAddress
       }
@@ -264,7 +258,7 @@ export class Provider {
    * @param params Method-specific parameter object
    */
   async callRawNodeMethod(
-    methodName: Node.MethodName,
+    methodName: Node.RpcMethodName,
     params: Node.MethodParams
   ): Promise<Node.MethodResponse> {
     const requestId = new Date().valueOf();
@@ -273,9 +267,13 @@ export class Provider {
       const request = jsonRpcDeserialize({
         params,
         jsonrpc: "2.0",
-        method: jsonRpcMethodNames[methodName],
+        method: methodName,
         id: requestId
       });
+      // // @ts-ignore
+      // request.params = request.parameters;
+      // // @ts-ignore
+      // request.type = jsonRpcMethodNames[methodName];
 
       if (!request.methodName) {
         return this.handleNodeError({
@@ -310,9 +308,7 @@ export class Provider {
                 type: EventType.ERROR,
                 data: {
                   errorName: "unexpected_message_type",
-                  message: `Unexpected response type. Expected ${methodName}, got ${
-                    response.result.type
-                  }`
+                  message: `Unexpected response type. Expected ${methodName}, got ${response.result.type}`
                 }
               },
               requestId
@@ -350,7 +346,7 @@ export class Provider {
    */
   async getOrCreateAppInstance(
     id: string,
-    info?: AppInstanceInfo
+    info?: AppInstanceInfo | AppInstanceJson
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
       let newInfo;
@@ -358,7 +354,7 @@ export class Provider {
         newInfo = info;
       } else {
         const { result } = await this.callRawNodeMethod(
-          Node.MethodName.GET_APP_INSTANCE_DETAILS,
+          Node.RpcMethodName.GET_APP_INSTANCE_DETAILS,
           { appInstanceId: id }
         );
         newInfo = (result as Node.GetAppInstanceDetailsResult).appInstance;

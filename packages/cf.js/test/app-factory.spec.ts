@@ -34,35 +34,38 @@ describe("CF.js AppFactory", () => {
       const expectedState = { val: "4000" };
       const expectedAppInstanceId = "TEST_ID";
 
-      nodeProvider.onMethodRequest(Node.MethodName.PROPOSE_INSTALL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
-        );
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.PROPOSE_INSTALL,
+        request => {
+          expect(request.methodName).toBe(
+            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
+          );
 
-        const params = request.parameters as Node.ProposeInstallParams;
+          const params = request.parameters as Node.ProposeInstallParams;
 
-        expect(params.initialState).toBe(expectedState);
-        expect(params.myDeposit).toEqual(expectedDeposit);
+          expect(params.initialState).toBe(expectedState);
+          expect(params.initiatorDeposit).toEqual(expectedDeposit);
 
-        nodeProvider.simulateMessageFromNode({
-          jsonrpc: "2.0",
-          result: {
-            type: Node.MethodName.PROPOSE_INSTALL,
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
             result: {
-              appInstanceId: expectedAppInstanceId
-            }
-          },
-          id: request.id as number
-        });
-      });
+              type: Node.RpcMethodName.PROPOSE_INSTALL,
+              result: {
+                appInstanceId: expectedAppInstanceId
+              }
+            },
+            id: request.id as number
+          });
+        }
+      );
 
       const appInstanceId = await appFactory.proposeInstall({
         proposedToIdentifier: TEST_XPUBS[0],
-        peerDeposit: expectedDeposit,
-        myDeposit: expectedDeposit,
+        responderDeposit: expectedDeposit,
+        initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
-        outcomeType: OutcomeType.COIN_TRANSFER
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       });
 
       expect(appInstanceId).toBe(expectedAppInstanceId);
@@ -77,7 +80,7 @@ describe("CF.js AppFactory", () => {
       const expectedIntermediaries = [TEST_XPUBS[1]];
 
       nodeProvider.onMethodRequest(
-        Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+        Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
           expect(request.methodName).toBe(
             jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
@@ -85,11 +88,11 @@ describe("CF.js AppFactory", () => {
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaries).toBe(expectedIntermediaries);
-          expect(params.myDeposit).toEqual(expectedDeposit);
+          expect(params.initiatorDeposit).toEqual(expectedDeposit);
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
-              type: Node.MethodName.PROPOSE_INSTALL_VIRTUAL,
+              type: Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
               result: {
                 appInstanceId: expectedAppInstanceId
               }
@@ -100,8 +103,8 @@ describe("CF.js AppFactory", () => {
       );
       const appInstanceId = await appFactory.proposeInstallVirtual({
         proposedToIdentifier: TEST_XPUBS[0],
-        peerDeposit: expectedDeposit,
-        myDeposit: expectedDeposit,
+        responderDeposit: expectedDeposit,
+        initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
         intermediaries: expectedIntermediaries
@@ -113,16 +116,16 @@ describe("CF.js AppFactory", () => {
       try {
         await appFactory.proposeInstall({
           proposedToIdentifier: TEST_XPUBS[0],
-          peerDeposit: parseEther("0.5"),
-          myDeposit: "$%GARBAGE$%",
+          responderDeposit: parseEther("0.5"),
+          initiatorDeposit: "$%GARBAGE$%",
           timeout: "100",
           initialState: { val: "4000" },
-          outcomeType: OutcomeType.COIN_TRANSFER
+          outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
         });
-        done.fail("Expected an error for invalid myDeposit");
+        done.fail("Expected an error for invalid initiatorDeposit");
       } catch (e) {
         expect(e.data.errorName).toBe("invalid_param");
-        expect(e.data.extra.paramName).toBe("myDeposit");
+        expect(e.data.extra.paramName).toBe("initiatorDeposit");
         done();
       }
     });

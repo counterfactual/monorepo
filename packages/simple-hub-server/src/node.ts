@@ -226,7 +226,7 @@ export class NodeWrapper {
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {
-      throw Error("cannot pass empty provider without network");
+      throw new Error("cannot pass empty provider without network");
     }
 
     const node = await Node.create(
@@ -256,27 +256,23 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = {
-      result: await node.router.dispatch(
-        jsonRpcDeserialize({
-          id: Date.now(),
-          method: "chan_create",
-          params: {
-            owners: [node.publicIdentifier, nodeAddress]
-          },
-          jsonrpc: "2.0"
-        })
-      )
-    };
+    const { result } = await node.rpcRouter.dispatch(
+      jsonRpcDeserialize({
+        id: Date.now(),
+        method: "chan_create",
+        params: {
+          owners: [node.publicIdentifier, nodeAddress]
+        },
+        jsonrpc: "2.0"
+      })
+    );
 
-    return {
-      ...multisigResponse.result
-    } as NodeTypes.CreateChannelTransactionResult;
+    return result as NodeTypes.CreateChannelTransactionResult;
   }
 }
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  if (response === undefined) {
+  if (!response || !response.data) {
     return;
   }
 
@@ -293,7 +289,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
   );
 
   try {
-    await NodeWrapper.getInstance().router.dispatch(
+    await NodeWrapper.getInstance().rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: "chan_deposit",

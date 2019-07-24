@@ -2,13 +2,10 @@ import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
-import { JsonRpcProvider } from "ethers/providers";
+import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
-import {
-  computeUniqueIdentifierForStateChannelThatWrapsVirtualApp,
-  xkeyKthAddress
-} from "../../../src/machine";
+import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
@@ -62,8 +59,8 @@ describe("Three mininodes", () => {
     const mr = new MessageRouter([mininodeA, mininodeB, mininodeC]);
 
     mininodeA.scm = await mininodeA.ie.runSetupProtocol({
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -71,18 +68,18 @@ describe("Three mininodes", () => {
 
     mr.assertNoPending();
 
-    const signingKeys = sortAddresses([
+    const participants = sortAddresses([
       xkeyKthAddress(mininodeA.xpub, 1),
       xkeyKthAddress(mininodeB.xpub, 1)
     ]);
 
-    await mininodeA.ie.runInstallProtocol(mininodeA.scm, {
-      signingKeys,
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+    await mininodeA.ie.initiateProtocol(Protocol.Install, mininodeA.scm, {
+      participants,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB,
-      initiatingBalanceDecrement: Zero,
-      respondingBalanceDecrement: Zero,
+      initiatorBalanceDecrement: Zero,
+      responderBalanceDecrement: Zero,
       initialState: {
         counter: 0
       },
@@ -93,7 +90,8 @@ describe("Three mininodes", () => {
       },
       defaultTimeout: 40,
       outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
-      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
     });
 
     const appInstances = mininodeA.scm.get(multisigAB)!.appInstances;
@@ -102,10 +100,10 @@ describe("Three mininodes", () => {
       return key !== mininodeA.scm.get(multisigAB)!.freeBalance.identityHash;
     });
 
-    await mininodeA.ie.runUninstallProtocol(mininodeA.scm, {
+    await mininodeA.ie.initiateProtocol(Protocol.Uninstall, mininodeA.scm, {
       appIdentityHash: key,
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeB.xpub,
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeB.xpub,
       multisigAddress: multisigAB
     });
 
@@ -114,8 +112,8 @@ describe("Three mininodes", () => {
     mininodeB.scm.set(
       multisigBC,
       (await mininodeB.ie.runSetupProtocol({
-        initiatingXpub: mininodeB.xpub,
-        respondingXpub: mininodeC.xpub,
+        initiatorXpub: mininodeB.xpub,
+        responderXpub: mininodeC.xpub,
         multisigAddress: multisigBC
       })).get(multisigBC)!
     );
@@ -126,68 +124,105 @@ describe("Three mininodes", () => {
     expect(mininodeB.scm.size).toBe(2);
     expect(mininodeC.scm.size).toBe(1);
 
-    await mininodeA.ie.runInstallVirtualAppProtocol(mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      intermediaryXpub: mininodeB.xpub,
-      respondingXpub: mininodeC.xpub,
-      defaultTimeout: 100,
-      appInterface: {
-        addr: appDefinition.address,
-        stateEncoding: "tuple(uint256 counter)",
-        actionEncoding: "tuple(uint8 actionType, uint256 increment)"
-      },
-      initialState: {
-        counter: 0
-      },
-      initiatingBalanceDecrement: bigNumberify(0),
-      respondingBalanceDecrement: bigNumberify(0),
-      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-    });
-
-    expect(mininodeA.scm.size).toBe(2);
-
-    const unqiueIdentifierForStateChannelWrappingVirtualApp = computeUniqueIdentifierForStateChannelThatWrapsVirtualApp(
-      [mininodeA.xpub, mininodeC.xpub],
-      mininodeB.xpub
+    await mininodeA.ie.initiateProtocol(
+      Protocol.InstallVirtualApp,
+      mininodeA.scm,
+      {
+        initiatorXpub: mininodeA.xpub,
+        intermediaryXpub: mininodeB.xpub,
+        responderXpub: mininodeC.xpub,
+        defaultTimeout: 100,
+        appInterface: {
+          addr: appDefinition.address,
+          stateEncoding: "tuple(uint256 counter)",
+          actionEncoding: "tuple(uint8 actionType, uint256 increment)"
+        },
+        initialState: {
+          counter: 0
+        },
+        initiatorBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      }
     );
 
-    const [appInstance] = [
-      ...mininodeA.scm
-        .get(unqiueIdentifierForStateChannelWrappingVirtualApp)!
-        .appInstances.values()
+    await mininodeA.ie.initiateProtocol(
+      Protocol.InstallVirtualApp,
+      mininodeA.scm,
+      {
+        initiatorXpub: mininodeA.xpub,
+        intermediaryXpub: mininodeB.xpub,
+        responderXpub: mininodeC.xpub,
+        defaultTimeout: 100,
+        appInterface: {
+          addr: appDefinition.address,
+          stateEncoding: "tuple(uint256 counter)",
+          actionEncoding: "tuple(uint8 actionType, uint256 increment)"
+        },
+        initialState: {
+          counter: 0
+        },
+        initiatorBalanceDecrement: bigNumberify(0),
+        responderBalanceDecrement: bigNumberify(0),
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      }
+    );
+
+    // Expecting size to be 3 because: AB, AC, and ABC
+    expect(mininodeA.scm.size).toBe(3);
+    expect(mininodeB.scm.size).toBe(3);
+    expect(mininodeC.scm.size).toBe(3);
+
+    const multisigAC = getCreate2MultisigAddress(
+      [mininodeA.xpub, mininodeC.xpub],
+      network.ProxyFactory,
+      network.MinimumViableMultisig
+    );
+
+    const [virtualAppInstance] = [
+      ...mininodeA.scm.get(multisigAC)!.appInstances.values()
     ];
 
-    expect(appInstance.isVirtualApp);
+    expect(virtualAppInstance.isVirtualApp);
 
-    await mininodeA.ie.runUpdateProtocol(mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
-      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
-      appIdentityHash: appInstance.identityHash,
+    await mininodeA.ie.initiateProtocol(Protocol.Update, mininodeA.scm, {
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeC.xpub,
+      multisigAddress: multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
       newState: {
         counter: 1
       }
     });
 
-    await mininodeA.ie.runTakeActionProtocol(mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      respondingXpub: mininodeC.xpub,
-      multisigAddress: unqiueIdentifierForStateChannelWrappingVirtualApp,
-      appIdentityHash: appInstance.identityHash,
+    await mininodeA.ie.initiateProtocol(Protocol.TakeAction, mininodeA.scm, {
+      initiatorXpub: mininodeA.xpub,
+      responderXpub: mininodeC.xpub,
+      multisigAddress: multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
       action: {
         actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
         increment: 1
       }
     });
 
-    await mininodeA.ie.runUninstallVirtualAppProtocol(mininodeA.scm, {
-      initiatingXpub: mininodeA.xpub,
-      intermediaryXpub: mininodeB.xpub,
-      respondingXpub: mininodeC.xpub,
-      targetAppIdentityHash: appInstance.identityHash,
-      targetAppState: {
-        counter: 2
+    await mininodeA.ie.initiateProtocol(
+      Protocol.UninstallVirtualApp,
+      mininodeA.scm,
+      {
+        initiatorXpub: mininodeA.xpub,
+        intermediaryXpub: mininodeB.xpub,
+        responderXpub: mininodeC.xpub,
+        targetAppIdentityHash: virtualAppInstance.identityHash,
+        targetOutcome: await virtualAppInstance.computeOutcome(
+          {
+            counter: 2
+          },
+          appDefinition.provider as BaseProvider
+        )
       }
-    });
+    );
   });
 });

@@ -1,4 +1,3 @@
-import { Bytes32 } from "@counterfactual/types";
 import {
   BigNumber,
   joinSignature,
@@ -27,7 +26,7 @@ export function sortSignaturesBySignerAddress(
 }
 
 export function signaturesToBytesSortedBySignerAddress(
-  digest: Bytes32,
+  digest: string,
   ...signatures: Signature[]
 ): string {
   return signaturesToBytes(

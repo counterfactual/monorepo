@@ -22,11 +22,11 @@ export default class GetAppInstanceDetailsController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      Promise.reject(NO_APP_INSTANCE_ID_TO_GET_DETAILS);
+      throw new Error(NO_APP_INSTANCE_ID_TO_GET_DETAILS);
     }
 
     return {
-      appInstance: await store.getAppInstanceInfo(appInstanceId)
+      appInstance: (await store.getAppInstance(appInstanceId)).toJson()
     };
   }
 }

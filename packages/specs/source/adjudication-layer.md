@@ -13,7 +13,7 @@ An app instance is uniquely identified by its `AppIdentity`.
 ```solidity
 struct AppIdentity {
     address owner;
-    address[] signingKeys;
+    address[] participants;
     address appDefinition;
     uint256 defaultTimeout;
 }
@@ -21,7 +21,7 @@ struct AppIdentity {
 
 - **`owner`**: The on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. We treat any function call where `msg.sender == owner` as authorized (all channel participants have agreed to it).
 
-- **`signingKeys`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
+- **`participants`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
 
 - **`appDefinition`**: Address ofthe app definition contract.
 
@@ -81,13 +81,13 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 **Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding versionNumber, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
 
-**Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiating a challenge. A function call to the `ChallengeRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
+**Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiator a challenge. A function call to the `ChallengeRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
 
 ### Responding to a Challenge
 
 **Cancelling the challenge**. In the simplest case, you and your counterparty can always sign a piece of data that declares "we would both like to cancel this challenge and resume off-chain". In this case, simply provide the contract with this evidence and the challenge can be deleted and ignored.
 
-**Progressing the challenge on-chain**. If the counterparty that initiated the challenge is not willing to continue the application off-chain, but their challenge is indeed a valid one (perhaps you were offline temporarily), then you can respond to the challenge on-chain (and in doing so, issue a new challenge) if there exists an implementation for `applyAction` and `getTurnTaker`. In this case, much like is the case when initiating a challenge, you simply provide an encoded action and requisite signatures to re-issue the challenge but in the opposite direction.
+**Progressing the challenge on-chain**. If the counterparty that initiated the challenge is not willing to continue the application off-chain, but their challenge is indeed a valid one (perhaps you were offline temporarily), then you can respond to the challenge on-chain (and in doing so, issue a new challenge) if there exists an implementation for `applyAction` and `getTurnTaker`. In this case, much like is the case when initiator a challenge, you simply provide an encoded action and requisite signatures to re-issue the challenge but in the opposite direction.
 
 **Handling a malicious challenge**. If the counterparty submitted stale state that is [provably malicious](#provably-malicious-challenges), then the contract supports claiming this by submitting a provably newer state that convicts them and rewards the honest party (i.e., you in this case).
 
@@ -108,7 +108,7 @@ Interpreters read outcomes in order to produce an effect. The interpreter must b
 Two interpreters are currently defined, although more can be added independently by add
 
 - TwoPartyFixedOutcomeETHInterpreter splits a fixed amount of ETH based on a TwoPartyFixedOutcome. The parameters consist of two beneficiary addresses and the total amount of Eth, and the params are encoded as `tuple(address[2], uint256)`.
-- CoinTransferETHInterpreter sends ETH based on an CoinTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
+- CoinTransferInterpreter sends ETH based on an CoinTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
 
 The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After an outcome is stored, the adjudication layer allows a commitment to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` call the intepreter on the outcome.
 

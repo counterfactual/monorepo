@@ -1,8 +1,6 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
 import {
-  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
@@ -35,9 +33,9 @@ describe("Node method follows spec - takeAction", () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
 
-        expect(nodeA.router.dispatch(takeActionReq)).rejects.toEqual(
-          NO_APP_INSTANCE_FOR_TAKE_ACTION
-        );
+        await expect(
+          nodeA.rpcRouter.dispatch(takeActionReq)
+        ).rejects.toThrowError(NO_APP_INSTANCE_FOR_TAKE_ACTION);
       });
 
       it("can take action", async done => {
@@ -64,9 +62,13 @@ describe("Node method follows spec - takeAction", () => {
            * TEST #3
            * The database of Node C is correctly updated and querying it works
            */
-          const { state } = ((await nodeB.router.dispatch(
+          const {
+            result: {
+              result: { state }
+            }
+          } = await nodeB.rpcRouter.dispatch(
             generateGetStateRequest(appInstanceId)
-          )) as JsonRpcResponse).result as NodeTypes.GetStateResult;
+          );
 
           expect(state).toEqual(expectedNewState);
 
@@ -82,9 +84,11 @@ describe("Node method follows spec - takeAction", () => {
          * TEST #2
          * The return value from the call to Node A includes the new state
          */
-        const { newState } = ((await nodeA.router.dispatch(
-          takeActionReq
-        )) as JsonRpcResponse).result as NodeTypes.TakeActionResult;
+        const {
+          result: {
+            result: { newState }
+          }
+        } = await nodeA.rpcRouter.dispatch(takeActionReq);
 
         expect(newState).toEqual(expectedNewState);
       });

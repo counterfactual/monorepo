@@ -2,11 +2,15 @@ import { AppInterface } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import { FreeBalanceStateJSON } from "../../models/free-balance";
+import {
+  CoinTransferMap,
+  FreeBalanceStateJSON,
+  TokenIndexedCoinTransferMap
+} from "../../models/free-balance";
 
 const freeBalanceAppStateEncoding = `
   tuple(
-    address[] tokens,
+    address[] tokenAddresses,
     tuple(
       address to,
       uint256 amount
@@ -27,15 +31,29 @@ export function encodeFreeBalanceAppState(state: FreeBalanceStateJSON) {
   return defaultAbiCoder.encode([freeBalanceAppStateEncoding], [state]);
 }
 
+export function flipTokenIndexedBalances(
+  tokenIndexedBalances: TokenIndexedCoinTransferMap
+): TokenIndexedCoinTransferMap {
+  return Object.entries(tokenIndexedBalances).reduce(
+    (returnValueAccumulator, [tokenAddress, balances]) => ({
+      ...returnValueAccumulator,
+      [tokenAddress]: flip(balances)
+    }),
+    {}
+  );
+}
+
 /**
  * Returns a mapping with all values negated
  */
-export function flip(a: { [s: string]: BigNumber }) {
-  const ret = {};
-  for (const key of Object.keys(a)) {
-    ret[key] = Zero.sub(a[key]);
-  }
-  return ret;
+export function flip(coinTransferMap: CoinTransferMap): CoinTransferMap {
+  return Object.entries(coinTransferMap).reduce(
+    (returnValueAccumulator, [to, amount]) => ({
+      ...returnValueAccumulator,
+      [to]: Zero.sub(amount)
+    }),
+    {}
+  );
 }
 
 /**
@@ -63,7 +81,9 @@ export function merge(
 
   for (const key of Object.keys(increments)) {
     if (!base[key]) {
-      throw Error(`mismatch ${Object.keys(base)} ${Object.keys(increments)}`);
+      throw new Error(
+        `mismatch ${Object.keys(base)} ${Object.keys(increments)}`
+      );
     }
   }
 

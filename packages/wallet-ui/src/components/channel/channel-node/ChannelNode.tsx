@@ -1,20 +1,6 @@
 import React from "react";
-
 import { ChannelTree } from "../channel-tree/ChannelTree";
-
 import "./ChannelNode.scss";
-
-type ChannelNodeProps = {
-  type: "hub" | "user" | "app";
-  name: string;
-  ethAddress: string;
-  children?: React.ReactNode;
-};
-
-type ChannelNodeState = {
-  expanded: boolean;
-  showingMenu: boolean;
-};
 
 type ChannelMenuProps = {
   type: "hub" | "user" | "app";
@@ -37,6 +23,18 @@ const ChannelMenu: React.FC<ChannelMenuProps> = ({ type, visible }) => (
     ) : null}
   </menu>
 );
+
+export type ChannelNodeProps = {
+  type: "hub" | "user" | "app";
+  name: string;
+  ethAddress: string;
+  children?: React.ReactNode;
+};
+
+type ChannelNodeState = {
+  expanded: boolean;
+  showingMenu: boolean;
+};
 
 class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
   constructor(props: ChannelNodeProps) {
@@ -63,7 +61,6 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
   render() {
     const { type, name, ethAddress, children } = this.props;
     const { expanded, showingMenu } = this.state;
-
     return (
       <li className="channel-node">
         <div className={`channel-node-wrapper channel-node-wrapper--${type}`}>
@@ -73,9 +70,7 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
                 onClick={this.toggleVisibility}
                 className="channel-control-toggle"
                 alt="toggle"
-                src={`/assets/icon/toggle-${
-                  expanded ? "collapse" : "expand"
-                }.svg`}
+                src={`/assets/icon/arrow${expanded ? "-active" : ""}.svg`}
               />
             ) : (
               <span className="channel-control-toggle-placeholder" />
@@ -83,7 +78,9 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
             <img
               onClick={this.toggleVisibility}
               alt={type}
-              src={`/assets/icon/channel-${type}.svg`}
+              src={`/assets/icon/channel-${type}${
+                showingMenu ? "-active" : ""
+              }.svg`}
               className="channel-icon"
             />
           </nav>
@@ -97,9 +94,12 @@ class ChannelNode extends React.Component<ChannelNodeProps, ChannelNodeState> {
             <React.Fragment>
               <button
                 onClick={this.toggleMenu}
-                className="btn channel-control-menu"
+                className="channel-control-menu"
               >
-                Menu
+                <img
+                  alt="open-menu"
+                  src={`/assets/icon/dots${showingMenu ? "-active" : ""}.svg`}
+                />
               </button>
               <ChannelMenu type={type} visible={showingMenu} />
             </React.Fragment>
