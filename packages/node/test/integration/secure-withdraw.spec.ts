@@ -8,6 +8,7 @@ import { getAddress, hexlify } from "ethers/utils";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
+import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -16,6 +17,8 @@ import {
   makeWithdrawRequest,
   transferERC20Tokens
 } from "./utils";
+
+expect.extend({ toBeEq });
 
 describe("Node method follows spec - withdraw", () => {
   let nodeA: Node;
@@ -46,15 +49,11 @@ describe("Node method follows spec - withdraw", () => {
       multisigAddress
     );
 
-    expect(postDepositMultisigBalance.toNumber()).toEqual(
-      startingMultisigBalance.toNumber() + 1
-    );
+    expect(postDepositMultisigBalance).toBeEq(startingMultisigBalance.add(One));
 
     const recipient = getAddress(hexlify(randomBytes(20)));
 
-    expect((await provider.getBalance(recipient)).toNumber()).toEqual(
-      Zero.toNumber()
-    );
+    expect(await provider.getBalance(recipient)).toBeEq(Zero);
 
     const withdrawReq = makeWithdrawRequest(
       multisigAddress,
@@ -73,13 +72,11 @@ describe("Node method follows spec - withdraw", () => {
     expect(txHash.length).toBe(66);
     expect(txHash.substr(0, 2)).toBe("0x");
 
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-      startingMultisigBalance.toNumber()
+    expect(await provider.getBalance(multisigAddress)).toBeEq(
+      startingMultisigBalance
     );
 
-    expect((await provider.getBalance(recipient)).toNumber()).toEqual(
-      One.toNumber()
-    );
+    expect(await provider.getBalance(recipient)).toBeEq(One);
   });
 
   it("has the right balance for both parties after withdrawal of ERC20 tokens", async () => {
@@ -116,15 +113,13 @@ describe("Node method follows spec - withdraw", () => {
       multisigAddress
     );
 
-    expect(postDepositMultisigTokenBalance.toNumber()).toEqual(
-      startingMultisigTokenBalance.toNumber() + 1
+    expect(postDepositMultisigTokenBalance).toBeEq(
+      startingMultisigTokenBalance.add(One)
     );
 
     const recipient = getAddress(hexlify(randomBytes(20)));
 
-    expect(
-      (await erc20Contract.functions.balanceOf(recipient)).toNumber()
-    ).toEqual(Zero.toNumber());
+    expect(await erc20Contract.functions.balanceOf(recipient)).toBeEq(Zero);
 
     const withdrawReq = makeWithdrawRequest(
       multisigAddress,
@@ -135,12 +130,10 @@ describe("Node method follows spec - withdraw", () => {
 
     await nodeA.rpcRouter.dispatch(withdrawReq);
 
-    expect(
-      (await erc20Contract.functions.balanceOf(multisigAddress)).toNumber()
-    ).toEqual(startingMultisigTokenBalance.toNumber());
+    expect(await erc20Contract.functions.balanceOf(multisigAddress)).toBeEq(
+      startingMultisigTokenBalance
+    );
 
-    expect(
-      (await erc20Contract.functions.balanceOf(recipient)).toNumber()
-    ).toEqual(One.toNumber());
+    expect(await erc20Contract.functions.balanceOf(recipient)).toBeEq(One);
   });
 });
