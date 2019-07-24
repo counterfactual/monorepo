@@ -30,7 +30,7 @@ The currently supported outcome types are:
 
 - CoinTransfer
 
-  - This is used for transferring an arbitrary amount of ETH to some address.
+  - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
 
 - FREE_BALANCE_OUTCOME_TYPE
 
@@ -41,7 +41,7 @@ The currently supported outcome types are:
   - This is used to calculate how much an address receives.
 
 - SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
-  - This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
+  - (Currently not supported) This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
 
 ## Note:
 
