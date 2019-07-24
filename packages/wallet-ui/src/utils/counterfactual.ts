@@ -1,4 +1,9 @@
-import { bigNumberify, BigNumberish, computeAddress, parseEther } from "ethers/utils";
+import {
+  bigNumberify,
+  BigNumberish,
+  computeAddress,
+  parseEther
+} from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import { BalanceRequest, Deposit, User } from "../store/types";
 import { CounterfactualEvent, CounterfactualMethod } from "../types";
@@ -52,6 +57,14 @@ export async function forMultisig(): Promise<string> {
     const data = await window.ethereum.send(CounterfactualEvent.CreateChannel);
     return resolve(data.result.data.multisigAddress);
   });
+}
+
+// !TODO
+export async function requestWithdraw({ amount, multisigAddress }: Deposit) {
+  return window.ethereum.send(CounterfactualMethod.RequestDeposit, [
+    amount,
+    multisigAddress
+  ]);
 }
 
 export async function requestDeposit({ amount, multisigAddress }: Deposit) {

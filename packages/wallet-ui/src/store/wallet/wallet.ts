@@ -112,6 +112,59 @@ export const deposit = (
   }
 };
 
+export enum WalletWithdrawTransition {
+  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
+  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
+}
+
+export const withdraw = (
+  transaction: Deposit,
+  provider: Web3Provider,
+  history?: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType | WalletWithdrawTransition>
+> => async dispatch => {
+  try {
+    // 1. Ask Metamask to do the deposit. !
+    dispatch({ type: WalletWithdrawTransition.CheckWallet });
+    // await requestWithdraw(transaction); // IMPLEMENT THIS!
+
+    // 2. Wait until the deposit is completed in both sides. !
+    dispatch({ type: WalletWithdrawTransition.WaitForFunds });
+    // const counterfactualBalance = await forFunds({
+    //   multisigAddress: transaction.multisigAddress,
+    //   nodeAddress: transaction.nodeAddress
+    // });
+
+    // 3. Get the Metamask balance.
+    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+
+    // 4. Update the balance.
+    dispatch({
+      data: { ethereumBalance, counterfactualBalance: Zero },
+      type: ActionType.WalletSetBalance
+    });
+
+    // Optional: Redirect to Channels.
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
+};
+
 export const reducers = function(
   state = initialState,
   action: StoreAction<WalletState, WalletDepositTransition>
@@ -120,6 +173,7 @@ export const reducers = function(
     case ActionType.WalletSetAddress:
     case ActionType.WalletSetBalance:
     case ActionType.WalletDeposit:
+    case ActionType.WalletWithdraw:
     case ActionType.WalletError:
       return {
         ...state,

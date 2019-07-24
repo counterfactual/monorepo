@@ -5,6 +5,9 @@ export enum RoutePath {
   Root = "/",
   SetupRegister = "/setup/register",
   SetupDeposit = "/setup/deposit",
+  Deposit = "/deposit",
+  Balance = "/balance",
+  Withdraw = "/withdraw",
   Channels = "/channels"
 }
 
