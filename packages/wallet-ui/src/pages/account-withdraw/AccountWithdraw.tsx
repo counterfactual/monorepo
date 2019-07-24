@@ -17,7 +17,8 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
+import { WalletDepositTransition, withdraw } from "../../store/wallet/wallet";
+import { RoutePath } from "../../types";
 import "./AccountWithdraw.scss";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
@@ -28,7 +29,7 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
 );
 
 export type AccountWithdrawProps = RouteComponentProps & {
-  deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
+  withdraw: (data: Deposit, provider: Web3Provider, history?: History) => void;
   user: User;
   walletState: WalletState;
   initialAmount?: number;
@@ -36,6 +37,12 @@ export type AccountWithdrawProps = RouteComponentProps & {
 };
 
 type AccountWithdrawState = {
+  withdrawCaseVariables: {
+    halfWidget: boolean;
+    header: string;
+    ctaButtonText: string;
+    headerDetails: string;
+  };
   loading: boolean;
   amount: BigNumberish;
 };
@@ -49,8 +56,22 @@ export class AccountWithdraw extends React.Component<
 
   constructor(props: AccountWithdrawProps) {
     super(props);
-
+    let withdrawCaseVariables = {
+      halfWidget: true,
+      header: "Withdraw",
+      ctaButtonText: "Withdraw",
+      headerDetails: ``
+    };
+    if (props.history.location.pathname === RoutePath.Withdraw) {
+      withdrawCaseVariables = {
+        halfWidget: false,
+        header: "Withdraw Funds",
+        ctaButtonText: "Proceed",
+        headerDetails: `Please enter how much ETH you want to withdraw:`
+      };
+    }
     this.state = {
+      withdrawCaseVariables,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -82,26 +103,26 @@ export class AccountWithdraw extends React.Component<
 
   componentDidUpdate(prevProps) {
     if (this.props.error !== prevProps.error) {
-      console.error(
-        "AccountWithdraw",
-        this.props.error.message,
-        this.props.error
-      );
       this.setState({ ...this.state, loading: false });
     }
   }
 
   render() {
-    const { walletState, deposit, history, user } = this.props;
+    const { walletState, withdraw, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status } = walletState;
-    const { amount, loading } = this.state;
+    const { amount, loading, withdrawCaseVariables } = this.state;
+    const {
+      halfWidget,
+      header,
+      headerDetails,
+      ctaButtonText
+    } = withdrawCaseVariables;
+
     return (
-      <WidgetScreen header={"Withdraw"} exitable={false}>
+      <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
-          <div className="details">
-            Please enter how much ETH you want to withdraw:
-          </div>
+          <div className="details">{headerDetails}</div>
           <FormInput
             label={<BalanceLabel available={formatEther(ethereumBalance)} />}
             className="input--balance"
@@ -126,10 +147,10 @@ export class AccountWithdraw extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.createDepositData(user, amount), provider, history);
+              withdraw(this.createDepositData(user, amount), provider, history);
             }}
           >
-            {!loading ? "Proceed" : this.buttonText[status]}
+            {!loading ? ctaButtonText : this.buttonText[status]}
           </FormButton>
         </form>
       </WidgetScreen>
@@ -144,7 +165,7 @@ export default connect(
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    deposit: (data: Deposit, provider: Web3Provider, history?: History) =>
-      dispatch(deposit(data, provider, history))
+    withdraw: (data: Deposit, provider: Web3Provider, history?: History) =>
+      dispatch(withdraw(data, provider, history))
   })
 )(AccountWithdraw);

@@ -38,7 +38,7 @@ const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
       <Switch>
         <Route
           exact
-          path={`(${RoutePath.Root}|${RoutePath.Channels})`}
+          path={`(${RoutePath.Root}|${RoutePath.Channels}|${RoutePath.Balance})`}
           component={LayoutHeader}
         />
       </Switch>
