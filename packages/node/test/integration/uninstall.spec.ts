@@ -17,11 +17,11 @@ import {
 
 expect.extend({ toBeEq });
 
-describe("Node method follows spec - uninstall", () => {
+describe("Node A and B install apps of different outcome types, then uninstall them to test outcomes types and interpreters", () => {
   let nodeA: Node;
   let nodeB: Node;
 
-  describe("Node A and B install apps of different outcome types, then uninstall them", () => {
+  describe("Tests for different outcomes of the TwoPartyFixedOutcome type", () => {
     let appInstanceId: string;
     let multisigAddress: string;
     const depositAmount = One;
