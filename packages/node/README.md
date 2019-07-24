@@ -18,6 +18,8 @@ Some specific examples of this include:
 - storing state commitments (delegating to an arbitrary, possibly non-local service implementing a desired interface)
 - implementing a custom Write-Ahead-Log to tweak performance/security properties
 
+We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
+
 ## Apps and their OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
