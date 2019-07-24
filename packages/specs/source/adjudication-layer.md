@@ -12,22 +12,16 @@ An app instance is uniquely identified by its `AppIdentity`.
 
 ```solidity
 struct AppIdentity {
-    address owner;
-    address[] participants;
-    address appDefinition;
-    uint256 defaultTimeout;
+  uint256 channelNonce;
+  address[] participants;
 }
 ```
 
-- **`owner`**: The on-chain state deposit holder is a multisignature wallet with an `execTransaction` function on it. This field records the address of that multisig. We treat any function call where `msg.sender == owner` as authorized (all channel participants have agreed to it).
+- **`participants`**: These are the keys expected to have signed any state updates that are meant to be validated by the `ChallengeRegistry`.
 
-- **`participants`**: In addition to using `owner` to authorize a function call, it is also possible to pass in signatures directly into the `ChallengeRegistry` itself. In this case, this field is used to validate signatures against to.
+- **`channelNonce`**: A number used to identify uniqueness of the AppInstance
 
-- **`appDefinition`**: Address ofthe app definition contract.
-
-- **`defaultTimeout`**: Should the application that this data structure is describing ever be put on-chain, this property describes how long the timeout period would be if that challenge ever gets responded to on-chain. In the case of a challenge _initially_ being put on chain, the timeout period is a required parameter regardless, so this field is not used in that case.
-
-The hash of the app identity, defined as `keccak256(abi.encode(appIdentity))`, uniquely identifies the app instance as well.
+The hash of the app identity, defined as `keccak256(abi.encode(appIdentity.channelNonce, appIdentity.participants))`, uniquely identifies the app instance as well.
 
 ## Challenges
 
@@ -79,7 +73,7 @@ Since the contract that Counterfactual relies on for managing challenges is a si
 
 ### Initiating a Challenge
 
-**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding versionNumber, a timeout parameter, and the signatures required for those three data (or, alternatively, a transaction where `msg.sender` is `owner` in the `AppIdentity`). This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
+**Counterparty is unresponsive**. In the event that one user becomes unresponsive in the state channel application, it is always possible to simply submit the latest state of the application to the `ChallengeRegistry` contract. This requires submitting an `AppIdentity` object, the hash of the latest state, its corresponding versionNumber, a timeout parameter, and the signatures required for those three data. This initiates a challenge and places an `AppChallenge` object in the storage of the contract assuming all of the information provided is adequate.
 
 **Counterparty is unresponsive _and_ a valid action exists**. In the case that an application adheres to the `AppDefinition` interface and provides valid `applyAction` and `getTurnTaker` functions, an action can additionally be taken when initiator a challenge. A function call to the `ChallengeRegistry` with the latest state parameters exactly as in the case above but with an additional parameter for an encoded action and the requisite signatures by the valid turn taker can be made. In this case, a challenge is added the same as above but the state is progressed one step forward.
 

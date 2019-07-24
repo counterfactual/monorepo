@@ -1,7 +1,12 @@
 import { AppIdentity } from "@counterfactual/types";
 import * as chai from "chai";
 import { solidity } from "ethereum-waffle";
-import { defaultAbiCoder, keccak256, solidityPack } from "ethers/utils";
+import {
+  BigNumberish,
+  defaultAbiCoder,
+  keccak256,
+  solidityPack
+} from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
 
@@ -9,7 +14,7 @@ export const expect = chai.use(solidity).expect;
 export const computeAppChallengeHash = (
   id: string,
   appStateHash: string,
-  versionNumber: number,
+  versionNumber: BigNumberish,
   timeout: number
 ) =>
   keccak256(
@@ -33,41 +38,29 @@ export const computeActionHash = (
     )
   );
 
-export class AppInstance {
+export class AppIdentityTestClass {
   get identityHash(): string {
-    return this.hashOfEncoding();
+    return keccak256(
+      defaultAbiCoder.encode(
+        ["uint256", "address[]"],
+        [this.channelNonce, this.participants]
+      )
+    );
   }
 
   get appIdentity(): AppIdentity {
     return {
-      owner: this.owner,
       participants: this.participants,
       appDefinition: this.appDefinition,
-      defaultTimeout: this.defaultTimeout
+      defaultTimeout: this.defaultTimeout,
+      channelNonce: this.channelNonce
     };
   }
 
   constructor(
-    readonly owner: string,
     readonly participants: string[],
     readonly appDefinition: string,
-    readonly defaultTimeout: number
+    readonly defaultTimeout: number,
+    readonly channelNonce: number
   ) {}
-
-  // appIdentity
-  public hashOfEncoding(): string {
-    return keccak256(
-      defaultAbiCoder.encode(
-        [
-          `tuple(
-            address owner,
-            address[] participants,
-            address appDefinition,
-            uint256 defaultTimeout
-          )`
-        ],
-        [this.appIdentity]
-      )
-    );
-  }
 }
