@@ -18,6 +18,11 @@ export type CoinTransferInterpreterParams = {
   tokenAddresses: string[];
 };
 
+export type SingleAssetTwoPartyCoinTransferInterpreterParams = {
+  limit: BigNumber;
+  tokenAddress: string;
+};
+
 export const coinTransferInterpreterParamsStateEncoding = `
   tuple(
     uint256[] limit,

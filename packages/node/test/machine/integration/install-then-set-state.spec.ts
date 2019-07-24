@@ -147,7 +147,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           limit: [parseEther("2"), parseEther("2")],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
-        } as CoinTransferInterpreterParams
+        } as CoinTransferInterpreterParams,
+        undefined
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {

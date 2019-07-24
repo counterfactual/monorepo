@@ -5,7 +5,7 @@ pragma experimental "ABIEncoderV2";
 library LibOutcome {
 
   struct CoinTransfer {
-    address to;
+    address payable to;
     uint256 amount;
   }
 

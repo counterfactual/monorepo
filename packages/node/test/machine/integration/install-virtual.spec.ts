@@ -201,6 +201,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
           amount: Zero,
           tokenAddress: AddressZero
         },
+        undefined,
         undefined
       );
     };

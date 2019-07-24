@@ -21,7 +21,7 @@ import { MiniNode } from "./mininode";
 let network: NetworkContext;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
-let appDefinition: Contract;
+let ethUnidirectionalTransferApp: Contract;
 
 expect.extend({ toBeEq });
 
@@ -34,7 +34,7 @@ beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
 
-  appDefinition = await new ContractFactory(
+  ethUnidirectionalTransferApp = await new ContractFactory(
     ETHUnidirectionalTransferApp.abi,
     ETHUnidirectionalTransferApp.bytecode,
     wallet
@@ -85,7 +85,7 @@ describe("Three mininodes", () => {
     } as unknown) as SolidityABIEncoderV2Type;
 
     const appInterface = {
-      addr: appDefinition.address,
+      addr: ethUnidirectionalTransferApp.address,
       stateEncoding:
         "tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)",
       actionEncoding: "tuple(uint256 transferAmount)"
@@ -147,7 +147,7 @@ describe("Three mininodes", () => {
         targetAppIdentityHash: appInstance.identityHash,
         targetOutcome: await appInstance.computeOutcome(
           appState,
-          appDefinition.provider as BaseProvider
+          ethUnidirectionalTransferApp.provider as BaseProvider
         )
       }
     );

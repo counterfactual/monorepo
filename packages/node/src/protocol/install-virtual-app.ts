@@ -9,6 +9,7 @@ import {
   CoinTransferInterpreterParams,
   NetworkContext,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { AddressZero, Zero } from "ethers/constants";
@@ -796,6 +797,10 @@ function computeInterpreterParameters(
     | TwoPartyFixedOutcomeInterpreterParams
     | undefined = undefined;
 
+  const singleAssetTwoPartyCoinTransferInterpreterParams:
+    | SingleAssetTwoPartyCoinTransferInterpreterParams
+    | undefined = undefined;
+
   // debug
   if (outcomeType === undefined) {
     throw Error("This really should have been caught earlier");
@@ -814,8 +819,8 @@ function computeInterpreterParameters(
     }
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
-      console.warn(
-        "NOTE: There are not currently correct Virtual App interpreter parameters being set for the outcome type of SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER"
+      console.error(
+        "IMPORTANT: There are not currently correct Virtual App interpreter parameters being set for the outcome type of SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER. This means that your funds are NOT secured by the blockchain. The Node represents your state as though they are; but they are not."
       );
       break;
     }
@@ -826,7 +831,8 @@ function computeInterpreterParameters(
   }
   return {
     coinTransferInterpreterParams,
-    twoPartyOutcomeInterpreterParams
+    twoPartyOutcomeInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
   };
 }
 
@@ -918,7 +924,8 @@ function constructTimeLockedPassThroughAppInstance(
 
   const {
     coinTransferInterpreterParams,
-    twoPartyOutcomeInterpreterParams
+    twoPartyOutcomeInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
   } = computeInterpreterParameters(
     outcomeType,
     initiatorAddress,
@@ -956,7 +963,8 @@ function constructTimeLockedPassThroughAppInstance(
     /* latestTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
+    /* singleAssetTwoPartyCoinTransferInterpreterParams */ singleAssetTwoPartyCoinTransferInterpreterParams
   );
 }
 

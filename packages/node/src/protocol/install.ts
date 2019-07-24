@@ -483,6 +483,14 @@ function constructConditionalTransactionData(
       );
       break;
     }
+    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      interpreterAddress = network.SingleAssetTwoPartyCoinTransferInterpreter;
+      interpreterParams = defaultAbiCoder.encode(
+        ["tuple(uint256 limit, address tokenAddress)"],
+        [appInstance.singleAssetTwoPartyCoinTransferInterpreterParams]
+      );
+      break;
+    }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       interpreterAddress = network.TwoPartyFixedOutcomeInterpreter;
       interpreterParams = defaultAbiCoder.encode(

@@ -13,6 +13,7 @@ import {
   CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
 } from "./data-types";
@@ -33,6 +34,7 @@ export interface NetworkContext {
   IdentityApp: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
+  SingleAssetTwoPartyCoinTransferInterpreter: string;
   TimeLockedPassThrough: string;
   TwoPartyFixedOutcomeInterpreter: string;
   TwoPartyFixedOutcomeFromVirtualAppInterpreter: string;
@@ -48,6 +50,7 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "FreeBalanceApp",
   "MinimumViableMultisig",
   "ProxyFactory",
+  "SingleAssetTwoPartyCoinTransferInterpreter",
   "TimeLockedPassThrough",
   "TwoPartyFixedOutcomeInterpreter",
   "TwoPartyFixedOutcomeFromVirtualAppInterpreter"
@@ -79,6 +82,7 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
 };

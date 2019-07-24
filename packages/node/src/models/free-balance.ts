@@ -97,7 +97,8 @@ export function createFreeBalance(
     OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
+    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] },
+    undefined
   );
 }
 

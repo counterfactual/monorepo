@@ -5,6 +5,7 @@ import {
   AppInterface,
   CoinTransferInterpreterParams,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -64,7 +65,8 @@ export class AppInstance {
     public readonly latestTimeout: number,
     public readonly outcomeType: OutcomeType,
     public readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    public readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams
+    public readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams,
+    public readonly singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams
   ) {}
 
   public static fromJson(json: AppInstanceJson) {
@@ -85,7 +87,8 @@ export class AppInstance {
       serialized.latestTimeout,
       serialized.outcomeType,
       serialized.twoPartyOutcomeInterpreterParams,
-      serialized.coinTransferInterpreterParams
+      serialized.coinTransferInterpreterParams,
+      serialized.singleAssetTwoPartyCoinTransferInterpreterParams
     );
   }
 
@@ -107,6 +110,8 @@ export class AppInstance {
         outcomeType: this.outcomeType,
         twoPartyOutcomeInterpreterParams: this.twoPartyOutcomeInterpreterParams,
         coinTransferInterpreterParams: this.coinTransferInterpreterParams,
+        singleAssetTwoPartyCoinTransferInterpreterParams: this
+          .singleAssetTwoPartyCoinTransferInterpreterParams,
         identityHash: this.identityHash
       }),
       (

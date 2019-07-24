@@ -11,7 +11,7 @@ contract CoinBalanceRefundApp {
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct AppState {
-    address recipient;
+    address payable recipient;
     address multisig;
     uint256 threshold;
     address tokenAddress;
