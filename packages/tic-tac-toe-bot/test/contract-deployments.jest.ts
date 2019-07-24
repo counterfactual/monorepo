@@ -1,8 +1,8 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
 import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import BalanceRefundApp from "@counterfactual/contracts/build/ETHBalanceRefundApp.json";
 import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
@@ -17,9 +17,9 @@ export type NetworkContextForTestSuite = NetworkContext & {
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
-  const balanceRefundContract = await new ContractFactory(
-    BalanceRefundApp.abi,
-    BalanceRefundApp.bytecode,
+  const coinBalanceRefundContract = await new ContractFactory(
+    CoinBalanceRefundApp.abi,
+    CoinBalanceRefundApp.bytecode,
     wallet
   ).deploy();
 
@@ -53,7 +53,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const TwoPartyFixedOutcomeInterpreter = await new ContractFactory(
+  const twoPartyFixedOutcomeInterpreter = await new ContractFactory(
     TwoPartyFixedOutcomeInterpreter.abi,
     TwoPartyFixedOutcomeInterpreter.bytecode,
     wallet
@@ -87,14 +87,14 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
-    ETHBalanceRefundApp: balanceRefundContract.address,
+    CoinBalanceRefundApp: coinBalanceRefundContract.address,
     FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
     CoinTransferInterpreter: coinTransferETHInterpreter.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,
-    TwoPartyFixedOutcomeInterpreter: TwoPartyFixedOutcomeInterpreter.address,
+    TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   } as NetworkContextForTestSuite;
