@@ -1,8 +1,14 @@
-Here are some diagrams to help you understand the node.
+## Diagrams
 
-If you are reading this on github.com, please use this Chrome extension to render the diagrams: https://chrome.google.com/webstore/detail/mermaid-diagrams/phfcghedmopjadpojhmmaffjmfiakfil
+These diagrams are available to help you understand the underlying architecture of the Node.
 
-Ownership - arrows indicate "has a pointer to"
+If you are reading this on GitHub, please use either of these Chrome extensions to render the diagrams: 
+
+- [mermaid-diagrams](https://chrome.google.com/webstore/detail/mermaid-diagrams/phfcghedmopjadpojhmmaffjmfiakfil)
+- [mermaid](https://chrome.google.com/webstore/detail/github-%20-mermaid/goiiopgdnkogdbjmncgedmgpoajilohe)
+
+### Ownership
+> arrows indicate "has a pointer to"
 
 ```mermaid
 graph LR
@@ -17,7 +23,8 @@ graph LR
 end
 ```
 
-Control Flow - arrows mostly indicate "calls"
+### Control Flow
+> arrows mostly indicate "calls"
 
 ```mermaid
 graph LR
