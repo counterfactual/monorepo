@@ -4,6 +4,7 @@ const ARTIFACTS = [
   artifacts.require("ChallengeRegistry"),
   artifacts.require("CoinBalanceRefundApp"),
   artifacts.require("CoinTransferInterpreter"),
+  artifacts.require("CoinTransferFromVirtualAppInterpreter"),
   artifacts.require("ConditionalTransactionDelegateTarget"),
   artifacts.require("FreeBalanceApp"),
   artifacts.require("IdentityApp"),

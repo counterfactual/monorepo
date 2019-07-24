@@ -25,9 +25,11 @@ contract CoinTransferFromVirtualAppInterpreter is Interpreter {
     address tokenAddress;
   }
 
+  function () external payable { }
+
   function interpretOutcomeAndExecuteEffect(
     bytes calldata encodedOutcome,
-    bytes calldata params
+    bytes calldata encodedParams
   )
     external
   {
@@ -37,7 +39,7 @@ contract CoinTransferFromVirtualAppInterpreter is Interpreter {
     );
 
     Agreement memory agreement = abi.decode(
-      params,
+      encodedParams,
       (Agreement)
     );
 

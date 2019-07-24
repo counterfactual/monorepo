@@ -18,5 +18,10 @@
     "contractName": "UnidirectionalTransferApp",
     "address": "0x6346bD6fb9247FBBC2a0Cf341D812B1b10b95c78",
     "transactionHash": "0x8e47ab5efc52a8345fefe17d02c2d4b73d56aac9408fa7ebfc38b8c2a5489cda"
+  },
+  {
+    "contractName": "ETHUnidirectionalTransferApp",
+    "address": "0x452166f663228EB537faEAC5fd9948387F3f96AA",
+    "transactionHash": "0xc6fabe047c6d53d5190860c2cc635d79bb8c0161e63cb6bb4dff8b4ca2576d6a"
   }
 ]

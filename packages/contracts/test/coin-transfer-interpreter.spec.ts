@@ -23,7 +23,7 @@ function encodeParams(params: {
   );
 }
 
-function encodeState(state: CoinTransfer[][]) {
+function encodeOutcome(state: CoinTransfer[][]) {
   return defaultAbiCoder.encode(
     [
       `
@@ -48,7 +48,7 @@ describe("CoinTransferInterpreter", () => {
     params: { limit: BigNumber[]; tokenAddresses: string[] }
   ) {
     return await coinTransferInterpreter.functions.interpretOutcomeAndExecuteEffect(
-      encodeState(state),
+      encodeOutcome(state),
       encodeParams(params)
     );
   }

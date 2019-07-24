@@ -58,5 +58,10 @@
     "contractName": "TwoPartyFixedOutcomeFromVirtualAppInterpreter",
     "address": "0xbe3b02162DEd206C6f2B565e19ffd5258a8AebfF",
     "transactionHash": "0xbee64dc9b1f4f9f60a84f6dfd49c37c332168f3edc29efe6fe34813e95b2cdb9"
+  },
+  {
+    "contractName": "CoinTransferFromVirtualAppInterpreter",
+    "address": "0x2D45D6933603CE6cD07B8e7D88A92DF5E0641506",
+    "transactionHash": "0xc61ef2c4f7ee2891425709313f59f18e778c547268414f25d196dc17c9fbe1ae"
   }
 ]
