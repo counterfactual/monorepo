@@ -10,7 +10,7 @@ beforeAll(() => {
   browser = new TestBrowser();
 });
 
-it("registers a new account", async () => {
+it("registers a new account and goes to /channels", async () => {
   const { setupCounterfactualButton } = WELCOME_SCREEN_SELECTORS;
 
   await browser.openMetamask();

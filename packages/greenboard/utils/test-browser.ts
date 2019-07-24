@@ -37,6 +37,7 @@ import {
 } from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
+export const LOCATOR_TIMEOUT = 10000;
 
 /**
  * Creates a Chrome browser, with a build of the Metamask + CF extension.
@@ -53,7 +54,7 @@ export class TestBrowser {
       [TestBrowserContext.MetamaskPopup]: ""
     },
     private currentContext?: TestBrowserContext,
-    private locatorTimeout: number = 3000
+    private locatorTimeout: number = LOCATOR_TIMEOUT
   ) {
     const extension = resolve(__dirname, "../extension/metamask");
 
