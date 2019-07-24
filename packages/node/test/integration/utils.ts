@@ -424,7 +424,9 @@ export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
       resolve(msg.data.multisigAddress);
     });
 
-    await getMultisigCreationTransactionHash(nodeA, [
+    // trigger channel creation but only resolve with the multisig address
+    // as acknowledged by the node
+    getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
