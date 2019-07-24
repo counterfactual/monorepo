@@ -56,7 +56,8 @@ export async function getMultisigCreationTransactionHash(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  const result = response.result as NodeTypes.CreateChannelTransactionResult;
+  const result = response.result
+    .result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
 
