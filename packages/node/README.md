@@ -18,6 +18,31 @@ Some specific examples of this include:
 - storing state commitments (delegating to an arbitrary, possibly non-local service implementing a desired interface)
 - implementing a custom Write-Ahead-Log to tweak performance/security properties
 
+## Apps and their OutcomeTypes
+
+Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
+
+The currently supported outcome types are:
+
+- TWO_PARTY_FIXED_OUTCOME
+
+  - This is only used when the installed app is collateralized with ETH (for now) and indicates that the total amount allocated to the app will be sent to one of the two parties OR gets split evenly.
+
+- CoinTransfer
+
+  - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
+
+- FREE_BALANCE_OUTCOME_TYPE
+
+  - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
+
+- REFUND_OUTCOME_TYPE
+
+  - This is used to calculate how much an address receives.
+
+- SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+  - (Currently not supported) This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
+
 ## Note:
 
 Any consumer of the Node should set up a handler for the event `DEPOSIT_CONFIRMED` so as to define how this Node behaves when a counter party has initiated a deposit and is asking this Node to make a counter deposit and collateralize the channel. The parameters passed with this event correspond to the same ones used by the initiator, tha is `DepositParams` (as defined in the `@counterfactual/types packages`).
