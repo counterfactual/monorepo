@@ -22,7 +22,7 @@ export class Chain {
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
-      throw Error("No GANACHE_PORT found. Aborting!");
+      throw new Error("No GANACHE_PORT found. Aborting!");
     }
 
     const balance = parseEther(initialBalance).toString();

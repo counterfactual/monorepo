@@ -31,7 +31,7 @@ export function getNetworkContextForNetworkName(
     case "kovan":
       return getNetworkContextFromNetworksFile(KovanContracts);
     default:
-      throw Error(
+      throw new Error(
         `${INVALID_NETWORK_NAME}: ${networkName}. \n
          The following networks are supported:
          ${Array.from(SUPPORTED_NETWORKS.values())}`

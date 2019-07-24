@@ -1,7 +1,7 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -19,7 +19,7 @@ import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, timeout } from "./utils";
+import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -131,8 +131,8 @@ export class Node {
   }
 
   @Memoize()
-  get ethFreeBalanceAddress(): string {
-    return getETHFreeBalanceAddress(this.publicIdentifier);
+  get freeBalanceAddress(): string {
+    return getFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -147,7 +147,9 @@ export class Node {
 
     instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
-        throw Error("OP_SIGN middleware received wrong number of arguments.");
+        throw new Error(
+          "OP_SIGN middleware received wrong number of arguments."
+        );
       }
 
       const [commitment, overrideKeyIndex] = args;
@@ -197,7 +199,7 @@ export class Node {
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
-          throw Error(
+          throw new Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
           );
         }
@@ -215,19 +217,15 @@ export class Node {
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
       async (args: any[]) => {
+        const { store } = this.requestHandler;
+
         const [protocol, commitment, ...key] = args;
 
         if (protocol === Protocol.Withdraw) {
           const [multisigAddress] = key;
-          await this.requestHandler.store.storeWithdrawalCommitment(
-            multisigAddress,
-            commitment
-          );
+          await store.storeWithdrawalCommitment(multisigAddress, commitment);
         } else {
-          await this.requestHandler.store.setCommitment(
-            [protocol, ...key],
-            commitment
-          );
+          await store.setCommitment([protocol, ...key], commitment);
         }
       }
     );
@@ -334,14 +332,15 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.protocolExecutionID);
-
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else {
+    } else if (this.requestHandler.isLegacyEvent(msg.type)) {
       await this.requestHandler.callEvent(msg.type, msg);
+    } else {
+      await this.rpcRouter.emit(msg.type, msg);
     }
   }
 
@@ -349,7 +348,7 @@ export class Node {
     const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
-      throw Error(
+      throw new Error(
         "Node received message intended for machine but no handler was present"
       );
     }
@@ -365,11 +364,4 @@ export class Node {
       );
     }
   }
-}
-
-/**
- * Address used for ETH free balance
- */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }

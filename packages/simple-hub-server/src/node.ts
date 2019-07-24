@@ -16,7 +16,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
-import { jsonRpcDeserialize, JsonRpcResponse } from "rpc-server";
+import { jsonRpcDeserialize } from "rpc-server";
 import { v4 as generateUUID } from "uuid";
 
 import {
@@ -226,7 +226,7 @@ export class NodeWrapper {
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {
-      throw Error("cannot pass empty provider without network");
+      throw new Error("cannot pass empty provider without network");
     }
 
     const node = await Node.create(
@@ -256,7 +256,7 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const multisigResponse = (await node.rpcRouter.dispatch(
+    const { result } = await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: "chan_create",
@@ -265,16 +265,14 @@ export class NodeWrapper {
         },
         jsonrpc: "2.0"
       })
-    )) as JsonRpcResponse;
+    );
 
-    return {
-      ...multisigResponse.result
-    } as NodeTypes.CreateChannelTransactionResult;
+    return result as NodeTypes.CreateChannelTransactionResult;
   }
 }
 
 export async function onDepositConfirmed(response: DepositConfirmationMessage) {
-  if (response === undefined) {
+  if (!response || !response.data) {
     return;
   }
 

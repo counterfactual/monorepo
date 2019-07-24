@@ -48,8 +48,8 @@ export default class InstallController extends NodeController {
     } = requestHandler;
 
     const [responderAddress] = await getPeersAddressFromAppInstanceID(
-      requestHandler.publicIdentifier,
-      requestHandler.store,
+      publicIdentifier,
+      store,
       params.appInstanceId
     );
 

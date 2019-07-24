@@ -59,19 +59,21 @@ describe("Can handle correct & incorrect installs", () => {
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
       install(store, ie, { appInstanceId: undefined! })
-    ).rejects.toEqual(NO_APP_INSTANCE_ID_TO_INSTALL);
+    ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
-    await expect(install(store, ie, { appInstanceId: "" })).rejects.toEqual(
-      NO_APP_INSTANCE_ID_TO_INSTALL
-    );
+    await expect(
+      install(store, ie, { appInstanceId: "" })
+    ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
       install(store, ie, { appInstanceId: HashZero })
-    ).rejects.toEqual(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero));
+    ).rejects.toThrowError(
+      NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
+    );
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {
@@ -86,13 +88,13 @@ describe("Can handle correct & incorrect installs", () => {
       appInstanceProposal
     );
 
-    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenReject(
-      NO_MULTISIG_FOR_APP_INSTANCE_ID
+    when(mockedStore.getChannelFromAppInstanceID(appInstanceId)).thenThrow(
+      new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID)
     );
 
     await expect(
       install(instance(mockedStore), ie, { appInstanceId })
-    ).rejects.toEqual(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    ).rejects.toThrowError(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {

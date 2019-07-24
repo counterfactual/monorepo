@@ -28,7 +28,7 @@ describe("Checks that all the needed contracts have been deployed on each test n
             !CONTRACTS_TO_SKIP.has(contractName) &&
             !networkDeployments.has(contractName)
           ) {
-            throw Error(contractNotDeployed(contractName, networkName));
+            throw new Error(contractNotDeployed(contractName, networkName));
           }
         }
       );

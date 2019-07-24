@@ -117,7 +117,6 @@ export enum OutcomeType {
 
   // CoinTransfer[2]
   SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
-
 }
 
 // TwoPartyFixedOutcome.sol::Outcome
