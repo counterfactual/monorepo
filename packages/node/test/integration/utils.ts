@@ -434,7 +434,11 @@ export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
 export async function installTTTApp(
   nodeA: Node,
   nodeB: Node,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityABIEncoderV2Type,
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<string> {
   const initialTTTState: SolidityABIEncoderV2Type = initialState
     ? initialState
@@ -445,7 +449,11 @@ export async function installTTTApp(
       nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-      initialTTTState
+      initialTTTState,
+      initiatorDeposit,
+      initiatorDepositTokenAddress,
+      responderDeposit,
+      responderDepositTokenAddress
     );
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
