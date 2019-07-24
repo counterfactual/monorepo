@@ -11,10 +11,7 @@ import { BaseProvider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  TokenIndexedCoinTransferMap
-} from "../../models/free-balance";
+import { TokenIndexedCoinTransferMap } from "../../models/free-balance";
 
 /**
  * Note that this is only used with `CoinBalanceRefundApp.sol`
@@ -114,41 +111,40 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       }
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
-
       if (appInstance.twoPartyOutcomeInterpreterParams === undefined) {
         throw new Error(
           "app instance outcome type set to two party outcome, but twoPartyOutcomeInterpreterParams not defined"
         );
       }
 
-      const total = appInstance.twoPartyOutcomeInterpreterParams!.amount;
+      const {
+        amount,
+        playerAddrs,
+        tokenAddress
+      } = appInstance.twoPartyOutcomeInterpreterParams;
+
+      const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
         return {
-          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
-            [appInstance.twoPartyOutcomeInterpreterParams!
-              .playerAddrs[0]]: total
+          [tokenAddress]: {
+            [playerAddrs[0]]: amount
           }
         };
       }
 
       if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
         return {
-          [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
-            [appInstance.twoPartyOutcomeInterpreterParams!
-              .playerAddrs[1]]: total
+          [tokenAddress]: {
+            [playerAddrs[1]]: amount
           }
         };
       }
 
-      const i0 = total.div(2);
-      const i1 = total.sub(i0);
-
       return {
-        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[0]]: i0,
-          [appInstance.twoPartyOutcomeInterpreterParams!.playerAddrs[1]]: i1
+        [tokenAddress]: {
+          [playerAddrs[0]]: amount.div(2),
+          [playerAddrs[1]]: amount.sub(amount.div(2))
         }
       };
     }

@@ -893,7 +893,8 @@ function constructTimeLockedPassThroughAppInstance(
       playerAddrs: [initiatorAddress, responderAddress],
       amount: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
-      )
+      ),
+      tokenAddress: AddressZero
     },
     /* coinTransferInterpreterParams */ undefined
   );

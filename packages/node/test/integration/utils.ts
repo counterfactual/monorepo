@@ -600,7 +600,7 @@ export function installTTTVirtual(
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
   const installRequest = makeInstallRequest(appInstanceId);
-  node.rpcRouter.dispatch(installRequest);
+  return node.rpcRouter.dispatch(installRequest);
 }
 
 export async function makeVirtualProposeCall(

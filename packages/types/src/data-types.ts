@@ -5,9 +5,10 @@ import { AppInterface, SolidityABIEncoderV2Type } from ".";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
+  // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
   playerAddrs: [string, string];
   amount: BigNumber;
+  tokenAddress: string;
 };
 
 export type CoinTransferInterpreterParams = {
@@ -43,9 +44,10 @@ export type AppInstanceJson = {
    */
   twoPartyOutcomeInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
+    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
+    tokenAddress: string;
   };
 
   coinTransferInterpreterParams?: {

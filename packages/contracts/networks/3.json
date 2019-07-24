@@ -60,8 +60,8 @@
     "transactionHash": "0xf72613601b80eea7efd6544fbf1cad692406b844cb1b25fc51289fb84c3a3414"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeETHInterpreter",
-    "address": "0x08a40fBea3765e70fc44348Cb87256C48754ddDb",
-    "transactionHash": "0x10a4e8b4e69e79ef4db3e33a6b47763283a68f855477f57d885ba6540641c5db"
+    "contractName": "TwoPartyFixedOutcomeInterpreter",
+    "address": "0x43A9A00Ba48fFe0Fc09840FB4B1F047d71f8A546",
+    "transactionHash": "0x9908549bb3947b64b5932ad0ad488d5e3ff55bd72e769403a7b6f402317214d4"
   }
 ]
