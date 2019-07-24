@@ -145,7 +145,7 @@ jobs:
           paths:
             - packages/*/dist
             - packages/*/build
-            - metamask/*/dist
+            - metamask/dist/chrome
 
   greenboard-run:
     <<: *defaults
@@ -166,9 +166,8 @@ jobs:
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - run:
-          name: Run X virtual framebuffer for Selenium
-          command: Xvfb :99 -screen 0 1280x1024x24
-          background: true
+          name: List Metemask build
+          command: ls metamask/dist && ls metamask/dist/chrome
 
       - run:
           name: Copy Metamask dist into extension
