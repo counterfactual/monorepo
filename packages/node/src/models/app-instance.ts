@@ -10,12 +10,7 @@ import {
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
-import {
-  BigNumber,
-  bigNumberify,
-  defaultAbiCoder,
-  keccak256
-} from "ethers/utils";
+import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";

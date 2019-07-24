@@ -63,4 +63,5 @@ export class AppIdentityTestClass {
     readonly defaultTimeout: number,
     readonly channelNonce: number
   ) {}
+
 }
