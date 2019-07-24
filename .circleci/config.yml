@@ -170,8 +170,8 @@ jobs:
           command: ls metamask/dist && ls metamask/dist/chrome
 
       - run:
-          name: Copy Metamask dist into extension
-          command: mkdir packages/greenboard/extension && cp metamask/dist/chrome packages/greenboard/extension
+          name: Link Metamask dist into extension
+          command: ln -s metamask/dist/chrome packages/greenboard/extension/metamask
 
       - run:
           name: Open Wallet UI
