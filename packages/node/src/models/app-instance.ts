@@ -4,12 +4,14 @@ import {
   AppInstanceJson,
   AppInterface,
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
+import { MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -149,6 +151,92 @@ export class AppInstance {
       [this.appInterface.stateEncoding],
       [this.latestState]
     );
+  }
+
+  @Memoize()
+  get interpreterParams() {
+    if (!this.isVirtualApp) {
+      switch (this.outcomeType) {
+        case OutcomeType.REFUND_OUTCOME_TYPE: {
+          return defaultAbiCoder.encode(
+            [coinTransferInterpreterParamsStateEncoding],
+            [this.coinTransferInterpreterParams]
+          );
+        }
+
+        case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+          return defaultAbiCoder.encode(
+            ["tuple(uint256 limit, address tokenAddress)"],
+            [this.singleAssetTwoPartyCoinTransferInterpreterParams]
+          );
+        }
+
+        case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+          return defaultAbiCoder.encode(
+            ["tuple(address[2] playerAddrs, uint256 amount)"],
+            [this.twoPartyOutcomeInterpreterParams]
+          );
+        }
+
+        default: {
+          throw new Error(
+            "The outcome type in this application logic contract is not supported yet."
+          );
+        }
+      }
+    } else {
+      switch (this.outcomeType) {
+        case OutcomeType.REFUND_OUTCOME_TYPE: {
+          throw new Error(
+            "REFUND_OUTCOME_TYPE is a non-supported OutcomeType for a Virtual App"
+          );
+        }
+
+        case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+          // CoinTransferFromVirtualAppInterpreter.sol
+          const {
+            limit,
+            tokenAddress
+          } = this.singleAssetTwoPartyCoinTransferInterpreterParams!;
+          return defaultAbiCoder.encode(
+            [
+              `
+                tuple(
+                  uint256 capitalProvided,
+                  uint256 expiryBlock,
+                  address payable capitalProvider,
+                  address virtualAppUser,
+                  address tokenAddress,
+              )
+              `
+            ],
+            [
+              {
+                tokenAddress,
+                capitalProvided: limit,
+                expiryBlock: MaxUint256, // FIXME: This means ALL VirtualApps have infinite timeout
+                // FIXME: These addresses are definitely wrong
+                capitalProvider: this.participants[0],
+                virtualAppUser: this.participants[1]
+              }
+            ]
+          );
+        }
+
+        case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+          // TODO: https://github.com/counterfactual/monorepo/pull/1996
+          throw new Error(
+            "TWO_PARTY_FIXED_OUTCOME is a non-supported OutcomeType for a Virtual App"
+          );
+        }
+
+        default: {
+          throw new Error(
+            "The outcome type in this application logic contract is not supported yet."
+          );
+        }
+      }
+    }
   }
 
   public get state() {

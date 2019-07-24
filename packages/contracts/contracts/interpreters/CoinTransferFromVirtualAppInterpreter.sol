@@ -13,15 +13,20 @@ import "../libs/LibOutcome.sol";
 /// CoinTransfer. While CoinTransfer outcome contains `to` and `coinAddress`
 /// fields, those fields are *ignored* by this interpreter. Only the `amount`
 /// field is used.
-
-contract CoinTransferFromVirtualAppInterpreter is Interpreter {
+///
+/// TODO: Use the `capitalProvided` field to ensure sum of amounts ==
+///       capitalProvided.
+contract SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
+  is Interpreter
+{
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
-  struct Agreement {
+  struct VirtualAppIntermediaryAgreement {
     uint256 capitalProvided;
     uint256 expiryBlock;
-    address payable[2] beneficiaries;
+    address payable capitalProvider;
+    address payable virtualAppUser;
     address tokenAddress;
   }
 
@@ -33,14 +38,14 @@ contract CoinTransferFromVirtualAppInterpreter is Interpreter {
   )
     external
   {
-    LibOutcome.CoinTransfer memory outcome = abi.decode(
+    LibOutcome.CoinTransfer[2] memory outcome = abi.decode(
       encodedOutcome,
-      (LibOutcome.CoinTransfer)
+      (LibOutcome.CoinTransfer[2])
     );
 
-    Agreement memory agreement = abi.decode(
+    VirtualAppIntermediaryAgreement memory agreement = abi.decode(
       encodedParams,
-      (Agreement)
+      (VirtualAppIntermediaryAgreement)
     );
 
     require(
@@ -50,25 +55,41 @@ contract CoinTransferFromVirtualAppInterpreter is Interpreter {
 
     if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
-      agreement.beneficiaries[0].transfer(
-        outcome.amount
-      );
-
-      agreement.beneficiaries[1].transfer(
-        agreement.capitalProvided - outcome.amount
-      );
+      if (outcome[0].to == agreement.virtualAppUser) {
+        outcome[0].to.transfer(outcome[0].amount);
+        agreement.capitalProvider.transfer(
+          agreement.capitalProvided - outcome[0].amount
+        );
+      } else if (outcome[1].to == agreement.virtualAppUser) {
+        outcome[1].to.transfer(outcome[1].amount);
+        agreement.capitalProvider.transfer(
+          agreement.capitalProvided - outcome[1].amount
+        );
+      } else {
+        agreement.capitalProvider.transfer(agreement.capitalProvided);
+      }
 
     } else {
 
-      ERC20(agreement.tokenAddress).transfer(
-        agreement.beneficiaries[0],
-        outcome.amount
-      );
+      if (outcome[0].to == agreement.virtualAppUser) {
+        ERC20(agreement.tokenAddress).transfer(outcome[0].to, outcome[0].amount);
+        ERC20(agreement.tokenAddress).transfer(
+          agreement.capitalProvider,
+          agreement.capitalProvided - outcome[0].amount
+        );
+      } else if (outcome[1].to == agreement.virtualAppUser) {
+        ERC20(agreement.tokenAddress).transfer(outcome[1].to, outcome[1].amount);
+        ERC20(agreement.tokenAddress).transfer(
+          agreement.capitalProvider,
+          agreement.capitalProvided - outcome[1].amount
+        );
+      } else {
+        ERC20(agreement.tokenAddress).transfer(
+          agreement.capitalProvider,
+          agreement.capitalProvided
+        );
+      }
 
-      ERC20(agreement.tokenAddress).transfer(
-        agreement.beneficiaries[1],
-        agreement.capitalProvided - outcome.amount
-      );
     }
   }
 

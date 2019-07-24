@@ -50,7 +50,8 @@ export type SingleAssetTwoPartyIntermediaryAgreement = {
   timeLockedPassThroughIdentityHash: string;
   capitalProvided: BigNumber;
   expiryBlock: number;
-  beneficiaries: [string, string];
+  capitalProvider: string;
+  virtualAppUser: string;
   tokenAddress: string;
 };
 
@@ -58,7 +59,8 @@ type SingleAssetTwoPartyIntermediaryAgreementJSON = {
   timeLockedPassThroughIdentityHash: string;
   capitalProvided: { _hex: string };
   expiryBlock: number;
-  beneficiaries: [string, string];
+  capitalProvider: string;
+  virtualAppUser: string;
   tokenAddress: string;
 };
 

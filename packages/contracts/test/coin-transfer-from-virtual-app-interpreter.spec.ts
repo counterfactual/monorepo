@@ -1,5 +1,5 @@
-import CoinTransferFromVirtualAppInterpreter from "@counterfactual/contracts/build/CoinTransferFromVirtualAppInterpreter.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter from "@counterfactual/contracts/build/SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -22,7 +22,8 @@ type CoinTransfer = {
 type InterpreterParams = {
   capitalProvided: BigNumberish;
   expiryBlock: BigNumberish;
-  beneficiaries: [string, string];
+  capitalProvider: string;
+  virtualAppUser: string;
   tokenAddress: string;
 };
 
@@ -33,7 +34,8 @@ const encodeParams = (params: InterpreterParams) =>
         tuple(
           uint256 capitalProvided,
           uint256 expiryBlock,
-          address[2] beneficiaries,
+          address capitalProvider,
+          address virtualAppUser,
           address tokenAddress
         )
       `
@@ -54,7 +56,7 @@ const encodeOutcome = (outcome: CoinTransfer) =>
     [outcome]
   );
 
-describe("CoinTransferFromVirtualAppInterpreter", () => {
+describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
   let erc20: Contract;
@@ -77,7 +79,7 @@ describe("CoinTransferFromVirtualAppInterpreter", () => {
 
     coinTransferFromVirtualAppInterpreter = await waffle.deployContract(
       wallet,
-      CoinTransferFromVirtualAppInterpreter
+      SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
     );
 
     // fund interpreter with ERC20 tokenAddresses
@@ -103,7 +105,8 @@ describe("CoinTransferFromVirtualAppInterpreter", () => {
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
-        beneficiaries: [to, lender],
+        capitalProvider: to,
+        virtualAppUser: lender,
         tokenAddress: AddressZero
       }
     );
@@ -126,7 +129,8 @@ describe("CoinTransferFromVirtualAppInterpreter", () => {
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
-        beneficiaries: [to, lender],
+        capitalProvider: to,
+        virtualAppUser: lender,
         tokenAddress: AddressZero
       }
     );
@@ -145,7 +149,8 @@ describe("CoinTransferFromVirtualAppInterpreter", () => {
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
-        beneficiaries: [to, lender],
+        capitalProvider: to,
+        virtualAppUser: lender,
         tokenAddress: erc20.address
       }
     );
@@ -168,7 +173,8 @@ describe("CoinTransferFromVirtualAppInterpreter", () => {
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
-        beneficiaries: [to, lender],
+        capitalProvider: to,
+        virtualAppUser: lender,
         tokenAddress: erc20.address
       }
     );

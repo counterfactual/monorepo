@@ -1,9 +1,5 @@
-import {
-  coinTransferInterpreterParamsStateEncoding,
-  NetworkContext,
-  OutcomeType
-} from "@counterfactual/types";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
@@ -471,32 +467,20 @@ function constructConditionalTransactionData(
 ): ConditionalTransaction {
   const appInstance = stateChannel.mostRecentlyInstalledAppInstance();
 
+  const interpreterParams = appInstance.interpreterParams;
   let interpreterAddress: string;
-  let interpreterParams: string;
 
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
       interpreterAddress = network.CoinTransferInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        [coinTransferInterpreterParamsStateEncoding],
-        [appInstance.coinTransferInterpreterParams]
-      );
       break;
     }
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       interpreterAddress = network.SingleAssetTwoPartyCoinTransferInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit, address tokenAddress)"],
-        [appInstance.singleAssetTwoPartyCoinTransferInterpreterParams]
-      );
       break;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       interpreterAddress = network.TwoPartyFixedOutcomeInterpreter;
-      interpreterParams = defaultAbiCoder.encode(
-        ["tuple(address[2] playerAddrs, uint256 amount, address tokenAddress)"],
-        [appInstance.twoPartyOutcomeInterpreterParams]
-      );
       break;
     }
     default: {

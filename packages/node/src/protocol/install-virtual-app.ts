@@ -26,11 +26,12 @@ import {
 } from "../machine/types";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 /**
  * As specified in TwoPartyFixedOutcomeFromVirtualAppInterpreter.sol, *
@@ -44,12 +45,13 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   tuple(
     uint256 capitalProvided,
     uint256 expiryBlock,
-    address[2] beneficiaries,
+    address capitalProvider,
+    address virtualAppUser,
     address tokenAddress
   )
 `;
 
-export const encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams = params =>
+export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>
   defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
@@ -105,8 +107,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -334,8 +336,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithInitiating.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
@@ -354,8 +356,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithResponding.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithResponding.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
@@ -608,8 +610,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -797,7 +799,7 @@ function computeInterpreterParameters(
     | TwoPartyFixedOutcomeInterpreterParams
     | undefined = undefined;
 
-  const singleAssetTwoPartyCoinTransferInterpreterParams:
+  let singleAssetTwoPartyCoinTransferInterpreterParams:
     | SingleAssetTwoPartyCoinTransferInterpreterParams
     | undefined = undefined;
 
@@ -819,9 +821,13 @@ function computeInterpreterParameters(
     }
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
-      console.error(
-        "IMPORTANT: There are not currently correct Virtual App interpreter parameters being set for the outcome type of SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER. This means that your funds are NOT secured by the blockchain. The Node represents your state as though they are; but they are not."
-      );
+      singleAssetTwoPartyCoinTransferInterpreterParams = {
+        // FIXME: This method computeInterpreterParameters only supports ETH
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        limit: bigNumberify(initiatingBalanceDecrement).add(
+          respondingBalanceDecrement
+        )
+      };
       break;
     }
 
@@ -878,7 +884,8 @@ function constructVirtualAppInstance(
     /* latestTimeout */ defaultTimeout,
     /* outcomeType */ OutcomeType.COIN_TRANSFER_DO_NOT_USE,
     /* twoPartyOutcomeInterpreterParams */ undefined,
-    /* coinTransferInterpreterParams */ undefined
+    /* coinTransferInterpreterParams */ undefined,
+    /* singleAssetTwoPartyCoinTransferInterpreterParams */ undefined
   );
 }
 
@@ -1071,7 +1078,8 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
       ),
-      beneficiaries: [initiatorAddress, intermediaryAddress]
+      capitalProvider: intermediaryAddress,
+      virtualAppUser: initiatorAddress
     },
     {
       [initiatorAddress]: initiatorBalanceDecrement,
@@ -1168,7 +1176,8 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),
-        beneficiaries: [initiatorAddress, intermediaryAddress]
+        capitalProvider: intermediaryAddress,
+        virtualAppUser: initiatorAddress
       },
       {
         [initiatorAddress]: initiatorBalanceDecrement,
@@ -1187,7 +1196,8 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),
-        beneficiaries: [intermediaryAddress, responderAddress]
+        capitalProvider: intermediaryAddress,
+        virtualAppUser: responderAddress
       },
       {
         [intermediaryAddress]: initiatorBalanceDecrement,
@@ -1276,7 +1286,8 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),
-        beneficiaries: [intermediaryAddress, responderAddress]
+        capitalProvider: intermediaryAddress,
+        virtualAppUser: responderAddress
       },
       {
         [intermediaryAddress]: initiatorBalanceDecrement,

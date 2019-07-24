@@ -19,10 +19,11 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
 {
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
-  struct SingleAssetTwoPartyIntermediaryAgreement {
+  struct VirtualAppIntermediaryAgreement {
     uint256 capitalProvided;
     uint256 expiryBlock;
-    address payable[2] beneficiaries;
+    address payable capitalProvider;
+    address payable virtualAppUser;
     address tokenAddress;
   }
 
@@ -37,9 +38,9 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
       (LibOutcome.TwoPartyFixedOutcome)
     );
 
-    SingleAssetTwoPartyIntermediaryAgreement memory agreement = abi.decode(
+    VirtualAppIntermediaryAgreement memory agreement = abi.decode(
       params,
-      (SingleAssetTwoPartyIntermediaryAgreement)
+      (VirtualAppIntermediaryAgreement)
     );
 
     require(
@@ -52,10 +53,10 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
     ) {
 
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-        agreement.beneficiaries[0].transfer(agreement.capitalProvided);
+        agreement.virtualAppUser.transfer(agreement.capitalProvided);
       } else {
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[0], agreement.capitalProvided
+          agreement.virtualAppUser, agreement.capitalProvided
         );
       }
 
@@ -64,32 +65,33 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
     ) {
 
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-        agreement.beneficiaries[1].transfer(agreement.capitalProvided);
+        agreement.capitalProvider.transfer(agreement.capitalProvided);
       } else {
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[1], agreement.capitalProvided
+          agreement.capitalProvider, agreement.capitalProvided
         );
       }
+
     } else {
 
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
-        agreement.beneficiaries[0].transfer(
+        agreement.virtualAppUser.transfer(
           agreement.capitalProvided / 2
         );
 
 
-        agreement.beneficiaries[1].transfer(
+        agreement.capitalProvider.transfer(
           agreement.capitalProvided - agreement.capitalProvided / 2
         );
 
       } else {
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[0], agreement.capitalProvided / 2
+          agreement.virtualAppUser, agreement.capitalProvided / 2
         );
 
         ERC20(agreement.tokenAddress).transfer(
-          agreement.beneficiaries[1],
+          agreement.capitalProvider,
           agreement.capitalProvided - agreement.capitalProvided / 2
         );
       }
