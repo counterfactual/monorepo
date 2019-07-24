@@ -120,10 +120,10 @@ export class AppInstance {
   @Memoize()
   public get identity(): AppIdentity {
     return {
-      participants: this.json.participants,
-      appDefinition: this.json.appInterface.addr,
-      defaultTimeout: this.json.defaultTimeout,
-      channelNonce: this.json.appSeqNo
+      participants: this.participants,
+      appDefinition: this.appInterface.addr,
+      defaultTimeout: this.defaultTimeout,
+      channelNonce: this.appSeqNo
     };
   }
 
