@@ -10,7 +10,7 @@ import { BaseProvider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
-import { TokenIndexedCoinTransferMap } from "../../models/free-balance";
+import { TokenIndexedCoinTransferMap, CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../models/free-balance";
 
 /**
  * Note that this is only used with `CoinBalanceRefundApp.sol`

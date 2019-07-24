@@ -43,14 +43,14 @@ const encodeParams = (params: InterpreterParams) =>
     [params]
   );
 
-const encodeOutcome = (outcome: CoinTransfer) =>
+const encodeOutcome = (outcome: [CoinTransfer, CoinTransfer]) =>
   defaultAbiCoder.encode(
     [
       `
         tuple(
           address to,
           uint256 amount
-        )
+        )[2]
       `
     ],
     [outcome]
@@ -63,7 +63,7 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
   let coinTransferFromVirtualAppInterpreter: Contract;
 
   async function interpretOutcomeAndExecuteEffect(
-    outcome: CoinTransfer,
+    outcome: [CoinTransfer, CoinTransfer],
     params: InterpreterParams
   ) {
     return await coinTransferFromVirtualAppInterpreter.functions.interpretOutcomeAndExecuteEffect(
@@ -97,11 +97,12 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
 
   it("Can distribute ETH coins correctly in full", async () => {
     const to = hexlify(randomBytes(20));
+    const randomAddress = hexlify(randomBytes(20));
     const lender = hexlify(randomBytes(20));
     const capitalProvided = One;
 
     await interpretOutcomeAndExecuteEffect(
-      { to, amount: capitalProvided },
+      [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
@@ -120,12 +121,13 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
   //        I'm not entirely sure.
   it.skip("Can distribute ETH coins correctly partially", async () => {
     const to = hexlify(randomBytes(20));
+    const randomAddress = hexlify(randomBytes(20));
     const lender = hexlify(randomBytes(20));
     const capitalProvided = One;
     const amount = capitalProvided.div(2);
 
     await interpretOutcomeAndExecuteEffect(
-      { to, amount },
+      [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
@@ -141,11 +143,12 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
 
   it("Can distribute ERC20 only correctly in full", async () => {
     const to = hexlify(randomBytes(20));
+    const randomAddress = hexlify(randomBytes(20));
     const lender = hexlify(randomBytes(20));
     const capitalProvided = One;
 
     await interpretOutcomeAndExecuteEffect(
-      { to, amount: capitalProvided },
+      [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,
@@ -164,12 +167,13 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
   //        I'm not entirely sure.
   it.skip("Can distribute ERC20 coins correctly partially", async () => {
     const to = hexlify(randomBytes(20));
+    const randomAddress = hexlify(randomBytes(20));
     const lender = hexlify(randomBytes(20));
     const capitalProvided = One;
     const amount = capitalProvided.div(2);
 
     await interpretOutcomeAndExecuteEffect(
-      { to, amount },
+      [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
         expiryBlock: (await provider.getBlockNumber()) + 100,

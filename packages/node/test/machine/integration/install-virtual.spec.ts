@@ -370,16 +370,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-<<<<<<< HEAD
-        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
-||||||| merged common ancestors
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
-=======
         network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
         encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
->>>>>>> Handle SingleAssetCoinTransfer for virtual apps
       );
 
       await wallet.sendTransaction({

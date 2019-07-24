@@ -58,5 +58,15 @@
     "contractName": "SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter",
     "address": "0x2D45D6933603CE6cD07B8e7D88A92DF5E0641506",
     "transactionHash": "0xc61ef2c4f7ee2891425709313f59f18e778c547268414f25d196dc17c9fbe1ae"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0x62507485DD6811293b1CE709BdB3EdAFC98972a6",
+    "transactionHash": "0x29e408818f6b798bcad699a8a77f8b2ea55f511084413c25ec01857e771cacc9"
+  },
+  {
+    "contractName": "SingleAssetTwoPartyCoinTransferInterpreter",
+    "address": "0x8Ae186B32bC63ab1aE4DF001bB71D278195AeED4",
+    "transactionHash": "0xf29493801d46dab5beb0aa50bb17a90908b89de8cba721054aea77e99a32a431"
   }
 ]
