@@ -14,8 +14,8 @@ import {
 import AppWithAction from "../build/AppWithAction.json";
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
-import { AppInstance, expect } from "./utils";
-const { signaturesToBytes } = utils;
+import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
+const { signaturesToBytes, signaturesToBytesSortedBySignerAddress } = utils;
 
 enum ActionType {
   SUBMIT_COUNTER_INCREMENT,
@@ -64,7 +64,7 @@ describe("ChallengeRegistry Challenge", () => {
   let appRegistry: Contract;
   let appDefinition: Contract;
 
-  let setStateAsOwner: (versionNumber: number, appState?: string) => Promise<void>;
+  let setState: (versionNumber: number, appState?: string) => Promise<void>;
   let latestState: () => Promise<string>;
   let latestVersionNumber: () => Promise<number>;
   let respondToChallenge: (
@@ -85,11 +85,11 @@ describe("ChallengeRegistry Challenge", () => {
   });
 
   beforeEach(async () => {
-    const appInstance = new AppInstance(
-      wallet.address,
+    const appInstance = new AppIdentityTestClass(
       [ALICE.address, BOB.address],
       appDefinition.address,
-      10
+      10,
+      123456
     );
 
     latestState = async () =>
@@ -100,13 +100,25 @@ describe("ChallengeRegistry Challenge", () => {
       (await appRegistry.functions.getAppChallenge(appInstance.identityHash))
         .versionNumber;
 
-    setStateAsOwner = (versionNumber: number, appState?: string) =>
-      appRegistry.functions.setState(appInstance.appIdentity, {
+    setState = async (versionNumber: number, appState?: string) => {
+      const stateHash = keccak256(appState || HashZero);
+      const digest = computeAppChallengeHash(
+        appInstance.identityHash,
+        stateHash,
         versionNumber,
-        appStateHash: appState || HashZero,
+        ONCHAIN_CHALLENGE_TIMEOUT
+      );
+      await appRegistry.functions.setState(appInstance.appIdentity, {
+        versionNumber,
+        appStateHash: stateHash,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: HashZero
+        signatures: signaturesToBytesSortedBySignerAddress(
+          digest,
+          await new SigningKey(ALICE.privateKey).signDigest(digest),
+          await new SigningKey(BOB.privateKey).signDigest(digest)
+        )
       });
+    };
 
     respondToChallenge = (state: any, action: any, actionSig: any) =>
       appRegistry.functions.respondToChallenge(
@@ -121,7 +133,7 @@ describe("ChallengeRegistry Challenge", () => {
   it("Can call respondToChallenge", async () => {
     expect(await latestVersionNumber()).to.eq(0);
 
-    await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
+    await setState(1, encodeState(PRE_STATE));
 
     expect(await latestVersionNumber()).to.eq(1);
 
@@ -138,7 +150,7 @@ describe("ChallengeRegistry Challenge", () => {
   });
 
   it("Cannot call respondToChallenge with incorrect turn taker", async () => {
-    await setStateAsOwner(1, keccak256(encodeState(PRE_STATE)));
+    await setState(1, encodeState(PRE_STATE));
 
     const signer = new SigningKey(ALICE.privateKey);
     const thingToSign = keccak256(encodeAction(ACTION));

@@ -19,8 +19,8 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
 /**
  * Representation of an AppInstance.
  *
- * @property owner The address of the multisignature wallet on-chain for the
- *           state channel that hold the state this AppInstance controls.
+ * @property multisigAddress The address of the multisignature wallet on-chain for
+ *           the state channel that holds the state this AppInstance controls.
 
  * @property participants The sorted array of public keys used by the users of
  *           this AppInstance for which n-of-n consensus is needed on updates.
@@ -151,10 +151,10 @@ export class AppInstance {
   @Memoize()
   public get identity(): AppIdentity {
     return {
-      owner: this.json.multisigAddress,
       participants: this.json.participants,
       appDefinition: this.json.appInterface.addr,
-      defaultTimeout: this.json.defaultTimeout
+      defaultTimeout: this.json.defaultTimeout,
+      channelNonce: this.json.appSeqNo
     };
   }
 

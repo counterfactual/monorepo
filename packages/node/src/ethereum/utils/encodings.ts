@@ -2,7 +2,6 @@
 //       these are not struct declarations but simply multi-line tuple encodings.
 export const APP_IDENTITY = `
   tuple(
-    address owner,
     address[] participants,
     address appDefinition,
     uint256 defaultTimeout

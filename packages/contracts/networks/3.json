@@ -5,11 +5,6 @@
     "transactionHash": "0x0332f7d59738290d69c26650ea151278a50699a50d74a3ffc02e27466e7e6f19"
   },
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0x627989FD5269ed3596515B25933695d320b831a9",
-    "transactionHash": "0xf38f094b86559748ee5c1a5b4f89bec5b055eb7436afad0097e95ac9355563a1"
-  },
-  {
     "contractName": "CoinBalanceRefundApp",
     "address": "0x62222411971c5a919a0F48bC4ea4eb615B6C1aFd",
     "transactionHash": "0xff2b147b8d9d83583ff9b6694da3fb31f7eee8910339b10ece218e1c3df4c911"
@@ -50,13 +45,23 @@
     "transactionHash": "0x5cccb5a68828ec2d394a7c9a4a71d1d99d680d501cedc2d06df73f3c4be0a32d"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeETHInterpreter",
-    "address": "0x69CCa6b1880b63Ab39dE03aF07A60921B45A4864",
-    "transactionHash": "0x25698951b6f732802d4e1afd3fe810a90627c3a41cb0f7559d1cc5e9ab0769d1"
-  },
-  {
     "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
     "address": "0x29ed7F1f4A863B468dE1Fe6dC33F2A08AE530f5B",
     "transactionHash": "0x036280aa2ef9e6e7a5bb8eafb1bb8feac3fcbe74190010ba43d614d12a9ad409"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0xE668a1E6C205A799F964A138cA6Be63e05b47eaf",
+    "transactionHash": "0x06dbffe47396aa05bc1591babdf8a46342359d659e74c150084e978fa2a2e1e1"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0x167f53654A45216ac62320646E66Be6B7887E101",
+    "transactionHash": "0xf72613601b80eea7efd6544fbf1cad692406b844cb1b25fc51289fb84c3a3414"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeETHInterpreter",
+    "address": "0x08a40fBea3765e70fc44348Cb87256C48754ddDb",
+    "transactionHash": "0x10a4e8b4e69e79ef4db3e33a6b47763283a68f855477f57d885ba6540641c5db"
   }
 ]
