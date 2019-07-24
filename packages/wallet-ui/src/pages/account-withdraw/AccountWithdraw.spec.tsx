@@ -13,7 +13,7 @@ import {
   Deposit,
   ErrorData
 } from "../../store/types";
-import { deposit } from "../../store/wallet/wallet.mock";
+import { withdraw } from "../../store/wallet/wallet.mock";
 import { RoutePath } from "../../types";
 import { testSelector } from "../../utils/testSelector";
 import store from "./../../store/store";
@@ -45,8 +45,11 @@ function setup() {
       walletState: state.WalletState
     }),
     (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-      deposit: (data: Deposit, provider: Web3ProviderMock, history?: History) =>
-        dispatch(deposit(data, provider, history))
+      withdraw: (
+        data: Deposit,
+        provider: Web3ProviderMock,
+        history?: History
+      ) => dispatch(withdraw(data, provider, history))
     })
   )(Component);
 
@@ -75,7 +78,7 @@ describe("<AccountRegistration />", () => {
   it("should render a Proceed button", () => {
     const CTA = component.find(testSelector("deposit-button"));
     expect(CTA.exists()).toBe(true);
-    expect(CTA.text()).toBe("Proceed");
+    expect(["Proceed", "Withdraw"]).toContain(CTA.text());
   });
 
   it("should render the form input fields", () => {

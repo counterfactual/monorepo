@@ -70,7 +70,7 @@ describe("<AccountRegistration />", () => {
   it("should render a Proceed button", () => {
     const CTA = component.find(testSelector("deposit-button"));
     expect(CTA.exists()).toBe(true);
-    expect(CTA.text()).toBe("Proceed");
+    expect(["Proceed", "Deposit"]).toContain(CTA.text());
   });
 
   it("should render the form input fields", () => {
