@@ -107,6 +107,93 @@ jobs:
           name: Run Tic-Tac-Toe tests
           command: cd packages/dapp-tic-tac-toe && yarn test
 
+  greenboard-prepare:
+    <<: *defaults
+    docker:
+      - image: circleci/node:8.15
+    steps:
+      - <<: *restore_code
+
+      - checkout
+
+      - <<: *restore_dep
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run:
+          name: Clone Metamask fork
+          command: git clone --depth 1 --single-branch --branch joel/for-wallet-ui git@github.com:prototypal/metamask-extension ./metamask
+      - run:
+          name: Install Gulp
+          command: npm i -g gulp-cli
+      - run:
+          name: Update CF.js IIFE
+          command: cp packages/cf.js/dist/index-iife.js metamask/app/vendor/counterfactual/node/cf.js.iife.js
+      - run:
+          name: Update Firebase Client IIFE
+          command: cp packages/firebase-client/dist/index.iife.js metamask/app/vendor/counterfactual/node/firebase-client.iife.js
+      - run:
+          name: Update Node IIFE
+          command: cp packages/node/dist/index.iife.js metamask/app/vendor/counterfactual/node/node.iife.js
+      - run:
+          name: Install dependencies
+          command: cd metamask && npm ci
+      - run:
+          name: Build Metamask extension with CF IIFEs
+          command: cd metamask && gulp build
+
+      - persist_to_workspace:
+          root: /home/circleci/project
+          paths:
+            - packages/*/dist
+            - packages/*/build
+            - metamask/*/dist
+
+  greenboard-run:
+    <<: *defaults
+    docker:
+      - image: circleci/node:10.15.3-browsers
+    steps:
+      - <<: *restore_code
+
+      - checkout
+
+      - <<: *restore_dep
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
+
+      - run:
+          name: Run X virtual framebuffer for Selenium
+          command: Xvfb :99 -screen 0 1280x1024x24
+          background: true
+
+      - run:
+          name: Copy Metamask dist into extension
+          command: mkdir packages/greenboard/extension && cp metamask/dist/chrome packages/greenboard/extension
+
+      - run:
+          name: Open Wallet UI
+          command: cd packages/wallet-ui && yarn start
+          background: true
+
+      - run:
+          name: Raise database
+          command: cd packages/simple-hub-server && docker-compose up -d
+
+      - run:
+          name: Open Simple Hub Server
+          command: cd packages/simple-hub-server && yarn start
+
+      - run:
+          name: Run Greenboard (E2E tests)
+          command: cd packages/greenboard && yarn test
+
   run-tslint:
     <<: *defaults
     steps:
@@ -178,6 +265,15 @@ workflows:
       - run-playground-tests:
           requires:
             - build
+
+      - greenboard-prepare:
+          requires:
+            - build
+
+      - greenboard-run:
+          requires:
+            - build
+            - greenboard-prepare
 
       - ensure-updated-lockfiles:
           requires:
