@@ -17,7 +17,7 @@ export async function installVirtual(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);

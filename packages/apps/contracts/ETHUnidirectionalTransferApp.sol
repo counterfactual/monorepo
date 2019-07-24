@@ -26,7 +26,7 @@ contract ETHUnidirectionalTransferApp is CounterfactualApp {
 
   /// @dev getTurnTaker always returns sender's address to enforce unidirectionality.
   function getTurnTaker(
-    bytes calldata encodedState, address[] calldata /* signingKeys */
+    bytes calldata encodedState, address[] calldata /* participants */
   )
     external
     pure

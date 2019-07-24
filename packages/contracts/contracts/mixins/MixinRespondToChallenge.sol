@@ -20,7 +20,7 @@ contract MixinRespondToChallenge is
   /// @param appState The ABI encoded latest signed application state
   /// @param action The ABI encoded action the submitter wishes to take
   /// @param actionSignature A bytes string of a single signature by the address of the
-  /// signing key for which it is their turn to take the submitted `action`
+  /// participant for which it is their turn to take the submitted `action`
   /// @param claimFinal If set, the caller claims that the action progresses the state
   /// to a terminal / finalized state
   /// @dev This function is only callable when the application has an open challenge
@@ -57,7 +57,7 @@ contract MixinRespondToChallenge is
 
     address turnTaker = getTurnTaker(
       appIdentity.appDefinition,
-      appIdentity.signingKeys,
+      appIdentity.participants,
       appState
     );
 

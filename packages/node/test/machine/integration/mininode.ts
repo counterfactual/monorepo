@@ -13,7 +13,7 @@ import { getRandomHDNodes } from "./random-signing-keys";
 const makeSigner = (hdNode: HDNode) => {
   return async (args: [EthereumCommitment] | [EthereumCommitment, number]) => {
     if (args.length !== 1 && args.length !== 2) {
-      throw Error("OP_SIGN middleware received wrong number of arguments.");
+      throw new Error("OP_SIGN middleware received wrong number of arguments.");
     }
 
     const [commitment, overrideKeyIndex] = args;

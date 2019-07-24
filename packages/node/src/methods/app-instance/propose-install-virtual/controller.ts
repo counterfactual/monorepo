@@ -32,12 +32,12 @@ export default class ProposeInstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
-    const { store } = requestHandler;
+    const { store, publicIdentifier } = requestHandler;
     const { proposedToIdentifier } = params;
 
     const multisigAddress = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
-        requestHandler.publicIdentifier,
+        publicIdentifier,
         params.intermediaries[0]
       ])
     );
@@ -46,10 +46,7 @@ export default class ProposeInstallVirtualController extends NodeController {
 
     try {
       const metachannelAddress = await store.getMultisigAddressFromOwnersHash(
-        hashOfOrderedPublicIdentifiers([
-          requestHandler.publicIdentifier,
-          proposedToIdentifier
-        ])
+        hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
       );
       queues.push(requestHandler.getShardedQueue(metachannelAddress));
     } catch (e) {
@@ -73,7 +70,7 @@ export default class ProposeInstallVirtualController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
     // TODO: check if channel is open with the first intermediary
     // and that there are sufficient funds

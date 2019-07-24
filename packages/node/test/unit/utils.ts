@@ -50,7 +50,7 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
     /* multisigAddress */ stateChannel
       ? stateChannel.multisigAddress
       : getAddress(hexlify(randomBytes(20))),
-    /* signingKeys */ stateChannel
+    /* participants */ stateChannel
       ? stateChannel.getSigningKeysFor(stateChannel.numInstalledApps)
       : [
           getAddress(hexlify(randomBytes(20))),

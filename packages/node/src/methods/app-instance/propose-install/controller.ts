@@ -24,7 +24,7 @@ import { createProposedAppInstance } from "./operation";
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
  * to the peer with whom this AppInstance is specified to be installed.
- * @param params
+ *
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default class ProposeInstallController extends NodeController {
@@ -37,16 +37,17 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
-    const { store } = requestHandler;
+    const { store, publicIdentifier } = requestHandler;
+
     const {
       proposedToIdentifier,
       initiatorDeposit,
-      initiatorDepositTokenAddress: initiatorDepositTokenAddressParam,
       responderDeposit,
+      initiatorDepositTokenAddress: initiatorDepositTokenAddressParam,
       responderDepositTokenAddress: responderDepositTokenAddressParam
     } = params;
 
-    const myIdentifier = requestHandler.publicIdentifier;
+    const myIdentifier = publicIdentifier;
 
     const multisigAddress = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([myIdentifier, proposedToIdentifier])
@@ -92,10 +93,10 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
     const { store, publicIdentifier, messagingService } = requestHandler;
-    const { initialState } = params;
+    const { initialState, proposedToIdentifier } = params;
 
     if (!initialState) {
-      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
 
     const appInstanceId = await createProposedAppInstance(
@@ -110,7 +111,7 @@ export default class ProposeInstallController extends NodeController {
       data: { params, appInstanceId }
     };
 
-    await messagingService.send(params.proposedToIdentifier, proposalMsg);
+    await messagingService.send(proposedToIdentifier, proposalMsg);
 
     return {
       appInstanceId

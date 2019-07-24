@@ -67,8 +67,8 @@ export const CounterfactualErrorCodeDetail = {
   },
   address_already_registered: {
     code: "address_already_registered",
-    message: "The address has already been registered",
-    field: "email"
+    message: "The address has already been registered, please login instead",
+    field: ""
   },
   app_registry_not_available: {
     code: "app_registry_not_available",
@@ -78,7 +78,7 @@ export const CounterfactualErrorCodeDetail = {
   user_address_required: {
     code: "user_address_required",
     message: "The user address is required for this operation",
-    field: "email"
+    field: ""
   },
   no_users_available: {
     code: "no_users_available",
@@ -206,19 +206,21 @@ async function post(
   authType: "Bearer" | "Signature" = "Signature"
 ): Promise<APIResponse> {
   const requestTimeout = timeout();
+  try {
+    const httpResponse = await request("POST", endpoint, data, token, authType);
+    requestTimeout.cancel();
 
-  const httpResponse = await request("POST", endpoint, data, token, authType);
+    const response = (await httpResponse.json()) as APIResponse;
 
-  requestTimeout.cancel();
-
-  const response = (await httpResponse.json()) as APIResponse;
-
-  if (response.errors) {
-    const error = response.errors[0] as APIError;
+    if (response.errors) {
+      const error = response.errors[0] as APIError;
+      throw error;
+    }
+    return response;
+  } catch (error) {
+    requestTimeout.cancel();
     throw error;
   }
-
-  return response;
 }
 
 // async function remove(

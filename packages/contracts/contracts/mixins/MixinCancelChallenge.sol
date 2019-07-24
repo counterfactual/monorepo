@@ -15,7 +15,7 @@ contract MixinCancelChallenge is
 
   /// @notice Unanimously agree to cancel a challenge
   /// @param appIdentity an AppIdentity object pointing to the app being cancelled
-  /// @param signatures Signatures by all signing keys of the currently latest challenged
+  /// @param signatures Signatures by all participants of the currently latest challenged
   /// state; an indication of agreement of this state and valid to cancel a challenge
   /// @dev Note this function is only callable when the application has an open challenge
   function cancelChallenge(
@@ -47,7 +47,7 @@ contract MixinCancelChallenge is
 
     if (msg.sender != appIdentity.owner) {
       require(
-        verifySignatures(signatures, stateHash, appIdentity.signingKeys),
+        verifySignatures(signatures, stateHash, appIdentity.participants),
         "Invalid signatures"
       );
     }

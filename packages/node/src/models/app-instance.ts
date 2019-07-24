@@ -11,12 +11,7 @@ import {
 import { Contract } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import {
-  BigNumber,
-  bigNumberify,
-  defaultAbiCoder,
-  keccak256
-} from "ethers/utils";
+import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -27,7 +22,7 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
  * @property owner The address of the multisignature wallet on-chain for the
  *           state channel that hold the state this AppInstance controls.
 
- * @property signingKeys The sorted array of public keys used by the users of
+ * @property participants The sorted array of public keys used by the users of
  *           this AppInstance for which n-of-n consensus is needed on updates.
 
  * @property defaultTimeout The default timeout used when a new update is made.
@@ -57,7 +52,7 @@ export class AppInstance {
 
   constructor(
     multisigAddress: string,
-    signingKeys: string[],
+    participants: string[],
     defaultTimeout: number,
     appInterface: AppInterface,
     isVirtualApp: boolean,
@@ -71,7 +66,7 @@ export class AppInstance {
   ) {
     this.json = {
       multisigAddress,
-      signingKeys,
+      participants,
       defaultTimeout,
       appInterface,
       isVirtualApp,
@@ -91,7 +86,7 @@ export class AppInstance {
         : undefined,
       coinTransferInterpreterParams: coinTransferInterpreterParams
         ? {
-            tokens: coinTransferInterpreterParams.tokens,
+            tokenAddresses: coinTransferInterpreterParams.tokenAddresses,
             limit: coinTransferInterpreterParams.limit.map(limit => {
               return {
                 _hex: limit.toHexString()
@@ -103,18 +98,14 @@ export class AppInstance {
   }
 
   public static fromJson(json: AppInstanceJson) {
-    // FIXME: Do recursive not shallow
-    const latestState = json.latestState;
-    for (const key in latestState) {
-      // @ts-ignore
-      if (latestState[key]["_hex"]) {
-        latestState[key] = bigNumberify(latestState[key] as BigNumber);
-      }
-    }
+    const latestState = JSON.parse(
+      JSON.stringify(json.latestState),
+      (key, val) => (val["_hex"] ? bigNumberify(val) : val)
+    );
 
     const ret = new AppInstance(
       json.multisigAddress,
-      json.signingKeys,
+      json.participants,
       json.defaultTimeout,
       json.appInterface,
       json.isVirtualApp,
@@ -136,7 +127,7 @@ export class AppInstance {
             limit: json.coinTransferInterpreterParams.limit.map(limit => {
               return bigNumberify(limit._hex);
             }),
-            tokens: json.coinTransferInterpreterParams.tokens
+            tokenAddresses: json.coinTransferInterpreterParams.tokenAddresses
           }
         : undefined
     );
@@ -161,7 +152,7 @@ export class AppInstance {
   public get identity(): AppIdentity {
     return {
       owner: this.json.multisigAddress,
-      signingKeys: this.json.signingKeys,
+      participants: this.json.participants,
       appDefinition: this.json.appInterface.addr,
       defaultTimeout: this.json.defaultTimeout
     };
@@ -199,7 +190,7 @@ export class AppInstance {
           limit: this.json.coinTransferInterpreterParams.limit.map(limit => {
             return bigNumberify(limit._hex);
           }),
-          tokens: this.json.coinTransferInterpreterParams.tokens
+          tokenAddresses: this.json.coinTransferInterpreterParams.tokenAddresses
         }
       : undefined;
   }
@@ -235,8 +226,8 @@ export class AppInstance {
     return this.json.multisigAddress;
   }
 
-  public get signingKeys() {
-    return this.json.signingKeys;
+  public get participants() {
+    return this.json.participants;
   }
 
   public get isVirtualApp() {

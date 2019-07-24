@@ -8,7 +8,7 @@ import "../libs/LibOutcome.sol";
 contract FreeBalanceApp is CounterfactualApp {
 
   struct FreeBalanceAppState {
-    address[] tokens;
+    address[] tokenAddresses;
     // The inner array contains the list of CoinTransfers for a single asset type
     // The outer array contains the list of asset balances for respecitve assets
     // according to the indexing used in the `tokens` array above

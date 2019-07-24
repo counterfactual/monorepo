@@ -81,7 +81,7 @@ class Wager extends Component {
         contractAddress = getContractAddress(KovanContracts, contractName);
         break;
       default:
-        throw Error(
+        throw new Error(
           `The App has not been deployed to network ID ${networkVersion}`
         );
     }

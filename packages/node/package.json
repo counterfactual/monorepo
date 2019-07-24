@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.2.20",
+  "version": "0.2.24",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -44,15 +44,15 @@
     "rollup-plugin-typescript2": "0.22.0",
     "truffle": "5.0.27",
     "ts-jest": "24.0.2",
-    "ts-mockito": "2.3.1",
+    "ts-mockito": "2.3.2",
     "tslint": "5.18.0",
     "typescript": "3.5.3"
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.2.1",
-    "@counterfactual/contracts": "0.1.8",
+    "@counterfactual/contracts": "0.1.9",
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/types": "0.0.24",
+    "@counterfactual/types": "0.0.25",
     "ethers": "4.0.33",
     "eventemitter3": "^4.0.0",
     "loglevel": "^1.6.1",
