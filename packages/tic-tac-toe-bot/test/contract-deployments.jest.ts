@@ -7,8 +7,8 @@ import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json"
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeInterpreter.json";
 import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
+import TwoPartyFixedOutcomeInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
