@@ -165,21 +165,26 @@ jobs:
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
+      - setup_remote_docker
+
       - run:
           name: Link Metamask dist into extension
           command: ln -s metamask/dist/chrome packages/greenboard/extension
 
       - run:
           name: Open Wallet UI
+          shell: /bin/sh
           command: cd packages/wallet-ui && yarn start
           background: true
 
       - run:
           name: Raise database
+          shell: /bin/sh
           command: cd packages/simple-hub-server && docker-compose up -d
 
       - run:
           name: Open Simple Hub Server
+          shell: /bin/sh
           command: cd packages/simple-hub-server && yarn start
 
       - run:
