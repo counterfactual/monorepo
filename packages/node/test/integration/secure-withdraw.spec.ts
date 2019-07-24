@@ -4,7 +4,7 @@ import { randomBytes } from "crypto";
 import { Contract } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { getAddress, hexlify } from "ethers/utils";
+import { getAddress, hexlify, parseEther } from "ethers/utils";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
@@ -20,7 +20,7 @@ import {
 
 expect.extend({ toBeEq });
 
-describe("Node method follows spec - withdraw", () => {
+describe.only("Node method follows spec - withdraw", () => {
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
@@ -31,6 +31,71 @@ describe("Node method follows spec - withdraw", () => {
     nodeB = context["B"].node;
     provider = new JsonRpcProvider(global["ganacheURL"]);
   });
+
+  it.only("should reproduce the errors connext sees", async () => {
+    const depositAmount = parseEther("0.1");
+    const multisigAddress = await createChannel(nodeA, nodeB);
+    expect(multisigAddress).toBeDefined();
+
+    const startingMultisigBalance = await provider.getBalance(multisigAddress);
+
+    const depositReq = makeDepositRequest(multisigAddress, depositAmount);
+
+    const p = new Promise((resolve, reject) => {
+      nodeB.once(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {
+        resolve()
+      });
+      nodeB.once(NODE_EVENTS.DEPOSIT_FAILED, () => {
+        reject()
+      });
+    })
+    await nodeA.rpcRouter.dispatch(depositReq);
+    await p;
+
+    const postDepositMultisigBalance = await provider.getBalance(
+      multisigAddress
+    );
+
+    expect(postDepositMultisigBalance).toBeEq(startingMultisigBalance.add(depositAmount));
+
+    const recipient = getAddress(hexlify(randomBytes(20)));
+
+    expect(await provider.getBalance(recipient)).toBeEq(Zero);
+
+    const withdrawalAmount = parseEther("0.01");
+
+    const withdrawReq = makeWithdrawRequest(
+      multisigAddress,
+      withdrawalAmount,
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    );
+
+    const {
+      result: {
+        result: { txHash }
+      }
+    } = await nodeA.rpcRouter.dispatch(withdrawReq);
+
+    expect(txHash).toBeDefined();
+    expect(txHash.length).toBe(66);
+    expect(txHash.substr(0, 2)).toBe("0x");
+
+    // get tx info
+    const txInfo = await provider.getTransaction(txHash);
+
+    const expectedBal = depositAmount.sub(withdrawalAmount);
+
+    expect(await provider.getBalance(multisigAddress)).toBeEq(
+      expectedBal
+    );
+
+    expect(txInfo.to).toBe(recipient);
+    // FIXME: what address sends transactions by default?
+    // expect(txInfo.from).toBe(nodeA.freeBalanceAddress);
+    expect(txInfo.value).toBeEq(withdrawalAmount);
+
+    expect(await provider.getBalance(recipient)).toBeEq(withdrawalAmount);
+  })
 
   it("has the right balance for both parties after withdrawal", async () => {
     const multisigAddress = await createChannel(nodeA, nodeB);
