@@ -38,7 +38,7 @@ graph LR
     storeServiceSet["set"]
   end
   
-  subgraph NodeController["NodeController (RPC)"]
+  subgraph "NodeController (RPC)"
     rpcExecute["executeMethod"]-->storeServiceSet
     dispatch-->rpcExecute
     callMethod-->rpcExecute
@@ -70,7 +70,7 @@ graph LR
     OP_SIGN-->signDigest
   end
   
-  subgraph EventController["NodeController (Event)"]
+  subgraph "NodeController (Event)"
     eventExecute["executeMethod"]-->storeServiceSet
     onReceivedMessage-->eventExecute
   end
