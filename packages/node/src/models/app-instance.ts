@@ -9,9 +9,13 @@ import {
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { AddressZero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
+import {
+  BigNumber,
+  bigNumberify,
+  defaultAbiCoder,
+  keccak256
+} from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -48,90 +52,39 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
 export class AppInstance {
-  private readonly json: AppInstanceJson;
-
   constructor(
-    multisigAddress: string,
-    participants: string[],
-    defaultTimeout: number,
-    appInterface: AppInterface,
-    isVirtualApp: boolean,
-    appSeqNo: number,
-    latestState: any,
-    latestVersionNumber: number,
-    latestTimeout: number,
-    outcomeType: OutcomeType,
-    twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams
-  ) {
-    this.json = {
-      multisigAddress,
-      participants,
-      defaultTimeout,
-      appInterface,
-      isVirtualApp,
-      appSeqNo,
-      latestState,
-      latestVersionNumber,
-      latestTimeout,
-      identityHash: AddressZero,
-      outcomeType: outcomeType,
-      twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
-        ? {
-            playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
-            amount: {
-              _hex: twoPartyOutcomeInterpreterParams.amount.toHexString()
-            }
-          }
-        : undefined,
-      coinTransferInterpreterParams: coinTransferInterpreterParams
-        ? {
-            tokenAddresses: coinTransferInterpreterParams.tokenAddresses,
-            limit: coinTransferInterpreterParams.limit.map(limit => {
-              return {
-                _hex: limit.toHexString()
-              };
-            })
-          }
-        : undefined
-    };
-  }
+    public readonly multisigAddress: string,
+    public readonly participants: string[],
+    public readonly defaultTimeout: number,
+    public readonly appInterface: AppInterface,
+    public readonly isVirtualApp: boolean,
+    public readonly appSeqNo: number,
+    public readonly latestState: any,
+    public readonly latestVersionNumber: number,
+    public readonly latestTimeout: number,
+    public readonly outcomeType: OutcomeType,
+    public readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
+    public readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams
+  ) {}
 
   public static fromJson(json: AppInstanceJson) {
-    const latestState = JSON.parse(
-      JSON.stringify(json.latestState),
-      (key, val) => (val["_hex"] ? bigNumberify(val) : val)
+    const serialized = JSON.parse(JSON.stringify(json), (key, val) =>
+      val["_hex"] ? bigNumberify(val) : val
     );
-
-    const ret = new AppInstance(
-      json.multisigAddress,
-      json.participants,
-      json.defaultTimeout,
-      json.appInterface,
-      json.isVirtualApp,
-      json.appSeqNo,
-      latestState,
-      json.latestVersionNumber,
-      json.latestTimeout,
-      json.outcomeType,
-      json.twoPartyOutcomeInterpreterParams
-        ? {
-            playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,
-            amount: bigNumberify(
-              json.twoPartyOutcomeInterpreterParams.amount._hex
-            )
-          }
-        : undefined,
-      json.coinTransferInterpreterParams
-        ? {
-            limit: json.coinTransferInterpreterParams.limit.map(limit => {
-              return bigNumberify(limit._hex);
-            }),
-            tokenAddresses: json.coinTransferInterpreterParams.tokenAddresses
-          }
-        : undefined
+    return new AppInstance(
+      serialized.multisigAddress,
+      serialized.participants,
+      serialized.defaultTimeout,
+      serialized.appInterface,
+      serialized.isVirtualApp,
+      serialized.appSeqNo,
+      serialized.latestState,
+      serialized.latestVersionNumber,
+      serialized.latestTimeout,
+      serialized.outcomeType,
+      serialized.twoPartyOutcomeInterpreterParams,
+      serialized.coinTransferInterpreterParams
     );
-    return ret;
   }
 
   public toJson(): AppInstanceJson {
@@ -139,7 +92,23 @@ export class AppInstance {
     // an example would be having an `undefined` value for the `actionEncoding`
     // of an AppInstance that's not turn based
     return JSON.parse(
-      JSON.stringify({ ...this.json, identityHash: this.identityHash })
+      JSON.stringify({
+        multisigAddress: this.multisigAddress,
+        participants: this.participants,
+        defaultTimeout: this.defaultTimeout,
+        appInterface: this.appInterface,
+        isVirtualApp: this.isVirtualApp,
+        appSeqNo: this.appSeqNo,
+        latestState: this.latestState,
+        latestVersionNumber: this.latestVersionNumber,
+        latestTimeout: this.latestTimeout,
+        outcomeType: this.outcomeType,
+        twoPartyOutcomeInterpreterParams: this.twoPartyOutcomeInterpreterParams,
+        coinTransferInterpreterParams: this.coinTransferInterpreterParams,
+        identityHash: this.identityHash
+      }),
+      (key, val) =>
+        BigNumber.isBigNumber(val) ? { _hex: val.toHexString() } : val
     );
   }
 
@@ -166,91 +135,29 @@ export class AppInstance {
   @Memoize()
   public get encodedLatestState() {
     return defaultAbiCoder.encode(
-      [this.json.appInterface.stateEncoding],
-      [this.json.latestState]
+      [this.appInterface.stateEncoding],
+      [this.latestState]
     );
   }
 
-  // TODO: All these getters seems a bit silly, would be nice to improve
-  //       the implementation to make it cleaner.
-
   public get state() {
-    return this.json.latestState;
+    return this.latestState;
   }
 
   public get versionNumber() {
-    return this.json.latestVersionNumber;
-  }
-
-  public get coinTransferInterpreterParams():
-    | CoinTransferInterpreterParams
-    | undefined {
-    return this.json.coinTransferInterpreterParams
-      ? {
-          limit: this.json.coinTransferInterpreterParams.limit.map(limit => {
-            return bigNumberify(limit._hex);
-          }),
-          tokenAddresses: this.json.coinTransferInterpreterParams.tokenAddresses
-        }
-      : undefined;
-  }
-
-  public get twoPartyOutcomeInterpreterParams() {
-    return this.json.twoPartyOutcomeInterpreterParams
-      ? {
-          playerAddrs: this.json.twoPartyOutcomeInterpreterParams.playerAddrs,
-          amount: bigNumberify(
-            this.json.twoPartyOutcomeInterpreterParams.amount._hex
-          )
-        }
-      : undefined;
+    return this.latestVersionNumber;
   }
 
   public get timeout() {
-    return this.json.latestTimeout;
-  }
-
-  public get appInterface() {
-    return this.json.appInterface;
-  }
-
-  public get defaultTimeout() {
-    return this.json.defaultTimeout;
-  }
-
-  public get appSeqNo() {
-    return this.json.appSeqNo;
-  }
-
-  public get multisigAddress() {
-    return this.json.multisigAddress;
-  }
-
-  public get participants() {
-    return this.json.participants;
-  }
-
-  public get isVirtualApp() {
-    return this.json.isVirtualApp;
-  }
-
-  public lockState(versionNumber: number) {
-    return AppInstance.fromJson({
-      ...this.json,
-      latestState: this.json.latestState,
-      latestVersionNumber: versionNumber
-    });
+    return this.latestTimeout;
   }
 
   public setState(
     newState: SolidityABIEncoderV2Type,
-    timeout: number = this.json.defaultTimeout
+    timeout: number = this.defaultTimeout
   ) {
     try {
-      defaultAbiCoder.encode(
-        [this.json.appInterface.stateEncoding],
-        [newState]
-      );
+      defaultAbiCoder.encode([this.appInterface.stateEncoding], [newState]);
     } catch (e) {
       // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
       console.error(
@@ -260,7 +167,7 @@ export class AppInstance {
     }
 
     return AppInstance.fromJson({
-      ...this.json,
+      ...this.toJson(),
       latestState: newState,
       latestVersionNumber: this.versionNumber + 1,
       latestTimeout: timeout
@@ -300,16 +207,13 @@ export class AppInstance {
 
   public encodeAction(action: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [this.json.appInterface.actionEncoding!],
+      [this.appInterface.actionEncoding!],
       [action]
     );
   }
 
   public encodeState(state: SolidityABIEncoderV2Type) {
-    return defaultAbiCoder.encode(
-      [this.json.appInterface.stateEncoding],
-      [state]
-    );
+    return defaultAbiCoder.encode([this.appInterface.stateEncoding], [state]);
   }
 
   public decodeAppState(
