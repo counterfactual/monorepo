@@ -172,20 +172,16 @@ jobs:
           command: ln -s metamask/dist/chrome packages/greenboard/extension
 
       - run:
-          name: Open Wallet UI
+          name: Serve Wallet UI
           shell: /bin/sh
           command: cd packages/wallet-ui && yarn start
           background: true
 
-      - run:
-          name: Raise database
+          - run:
+          name: Serve Simple Hub Server
           shell: /bin/sh
-          command: cd packages/simple-hub-server && docker-compose up -d
-
-      - run:
-          name: Open Simple Hub Server
-          shell: /bin/sh
-          command: cd packages/simple-hub-server && yarn start
+          command: cd packages/simple-hub-server && docker-compose up -d && yarn start
+          background: true
 
       - run:
           name: Run Greenboard (E2E tests)
