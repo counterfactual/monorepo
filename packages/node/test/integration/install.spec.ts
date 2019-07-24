@@ -72,6 +72,7 @@ describe("Node method follows spec - install", () => {
             nodeA,
             multisigAddress
           );
+
           preInstallETHBalanceNodeA =
             ethFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
 
@@ -80,10 +81,21 @@ describe("Node method follows spec - install", () => {
             multisigAddress,
             erc20TokenAddress
           );
+
           preInstallERC20BalanceNodeB =
             erc20FreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
 
-          makeInstallCall(nodeB, msg.data.appInstanceId);
+          // FIXME: This test file uses an ETH token for the initiator deposit
+          // and an ERC20 token for the responding deposit. This is not allowed
+          // with the TWO_PARTY_FIXED_OUTCOME outcome type. To fix this, please
+          // change this test to use a COIN_TRANSFER outcome type or something else
+          expect(
+            makeInstallCall(nodeB, msg.data.appInstanceId)
+          ).rejects.toThrowError(
+            "For a TWO_PARTY_FIXED_OUTCOME there cannot be two kinds of tokens deposited."
+          );
+          done();
+          /// End of FIXME
         });
 
         nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
@@ -95,6 +107,7 @@ describe("Node method follows spec - install", () => {
             nodeA,
             multisigAddress
           );
+
           postInstallETHBalanceNodeA =
             ethFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
 
@@ -107,8 +120,10 @@ describe("Node method follows spec - install", () => {
             multisigAddress,
             erc20TokenAddress
           );
+
           postInstallERC20BalanceNodeB =
             erc20FreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
+
           expect(
             postInstallERC20BalanceNodeB.lt(preInstallERC20BalanceNodeB)
           ).toEqual(true);
@@ -126,7 +141,9 @@ describe("Node method follows spec - install", () => {
           One,
           erc20TokenAddress
         );
+
         appInstanceId = result.appInstanceId;
+
         proposalParams = result.params;
       });
 

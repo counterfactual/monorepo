@@ -1,9 +1,7 @@
 import {
-  CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
-  OutcomeType,
-  TwoPartyFixedOutcomeInterpreterParams
+  OutcomeType
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -389,12 +387,6 @@ function computeInterpreterParameters(
   initiatorFbAddress: string,
   responderFbAddress: string
 ) {
-  let coinTransferInterpreterParams: CoinTransferInterpreterParams | undefined;
-
-  let twoPartyOutcomeInterpreterParams:
-    | TwoPartyFixedOutcomeInterpreterParams
-    | undefined;
-
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
       const limit: BigNumber[] = [];
@@ -417,20 +409,37 @@ function computeInterpreterParameters(
         limit.push(responderBalanceDecrement);
       }
 
-      coinTransferInterpreterParams = {
-        limit,
-        tokenAddresses
+      return {
+        twoPartyOutcomeInterpreterParams: undefined,
+        coinTransferInterpreterParams: {
+          limit,
+          tokenAddresses
+        }
       };
-      break;
     }
+
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      twoPartyOutcomeInterpreterParams = {
-        playerAddrs: [initiatorFbAddress, responderFbAddress],
-        amount: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        )
+      const tokenAddress = initiatorDepositTokenAddress;
+
+      if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+        throw new Error(
+          "For a TWO_PARTY_FIXED_OUTCOME there cannot be two kinds of tokens deposited."
+        );
+      }
+
+      return {
+        coinTransferInterpreterParams: undefined,
+        twoPartyOutcomeInterpreterParams: {
+          tokenAddress,
+          playerAddrs: [initiatorFbAddress, responderFbAddress] as [
+            string,
+            string
+          ],
+          amount: bigNumberify(initiatorBalanceDecrement).add(
+            responderBalanceDecrement
+          )
+        }
       };
-      break;
     }
     default: {
       throw new Error(
@@ -438,8 +447,6 @@ function computeInterpreterParameters(
       );
     }
   }
-
-  return { coinTransferInterpreterParams, twoPartyOutcomeInterpreterParams };
 }
 
 /**
@@ -474,7 +481,7 @@ function constructConditionalTransactionData(
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       interpreterAddress = network.TwoPartyFixedOutcomeETHInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        ["tuple(address[2] playerAddrs, uint256 amount, address tokenAddress)"],
         [appInstance.twoPartyOutcomeInterpreterParams]
       );
       break;

@@ -8,6 +8,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
   // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
   playerAddrs: [string, string];
   amount: BigNumber;
+  tokenAddress: string;
 };
 
 export type CoinTransferInterpreterParams = {
@@ -46,6 +47,7 @@ export type AppInstanceJson = {
     // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
+    tokenAddress: string;
   };
 
   coinTransferInterpreterParams?: {
