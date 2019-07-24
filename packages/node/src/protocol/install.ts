@@ -479,7 +479,7 @@ function constructConditionalTransactionData(
       break;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      interpreterAddress = network.TwoPartyFixedOutcomeETHInterpreter;
+      interpreterAddress = network.TwoPartyFixedOutcomeInterpreter;
       interpreterParams = defaultAbiCoder.encode(
         ["tuple(address[2] playerAddrs, uint256 amount, address tokenAddress)"],
         [appInstance.twoPartyOutcomeInterpreterParams]

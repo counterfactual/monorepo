@@ -10,7 +10,7 @@ const ARTIFACTS = [
   artifacts.require("MinimumViableMultisig"),
   artifacts.require("ProxyFactory"),
   artifacts.require("TimeLockedPassThrough"),
-  artifacts.require("TwoPartyFixedOutcomeETHInterpreter"),
+  artifacts.require("TwoPartyFixedOutcomeInterpreter"),
   artifacts.require("TwoPartyFixedOutcomeFromVirtualAppETHInterpreter")
 ];
 

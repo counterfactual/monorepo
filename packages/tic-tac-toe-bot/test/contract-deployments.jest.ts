@@ -7,7 +7,7 @@ import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json"
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeETHInterpreter.json";
+import TwoPartyFixedOutcomeInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeInterpreter.json";
 import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
@@ -53,9 +53,9 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const twoPartyFixedOutcomeETHInterpreter = await new ContractFactory(
-    TwoPartyFixedOutcomeETHInterpreter.abi,
-    TwoPartyFixedOutcomeETHInterpreter.bytecode,
+  const TwoPartyFixedOutcomeInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeInterpreter.abi,
+    TwoPartyFixedOutcomeInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -94,8 +94,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,
-    TwoPartyFixedOutcomeETHInterpreter:
-      twoPartyFixedOutcomeETHInterpreter.address,
+    TwoPartyFixedOutcomeInterpreter: TwoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   } as NetworkContextForTestSuite;
