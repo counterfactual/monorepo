@@ -10,6 +10,7 @@ import { ConditionalTransaction } from "../ethereum/conditional-transaction-comm
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, InstallParams, ProtocolMessage } from "../machine/types";
+import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
@@ -423,7 +424,10 @@ function computeInterpreterParameters(
 
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
         throw new Error(
-          "For a TWO_PARTY_FIXED_OUTCOME there cannot be two kinds of tokens deposited."
+          TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
+            initiatorDepositTokenAddress,
+            responderDepositTokenAddress
+          )
         );
       }
 

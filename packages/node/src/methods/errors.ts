@@ -118,6 +118,12 @@ export const NULL_INITIAL_STATE_FOR_PROPOSAL =
 export const STATE_OBJECT_NOT_ENCODABLE =
   "The state object is not encodable by the AppInstance's state encoding";
 
+export const TWO_PARTY_OUTCOME_DIFFERENT_ASSETS = (
+  assetA: string,
+  assetB: string
+) =>
+  `For a TWO_PARTY_FIXED_OUTCOME there cannot be two kinds of tokens deposited: ${assetA} and ${assetB}`;
+
 export const VIRTUAL_APP_INSTALLATION_FAIL =
   "Failed to install the virtual App Instance";
 
