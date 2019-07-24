@@ -50,6 +50,7 @@ describe("Node method follows spec - install", () => {
           nodeA,
           nodeB,
           multisigAddress,
+          One,
           erc20TokenAddress
         );
 
