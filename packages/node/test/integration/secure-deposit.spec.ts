@@ -78,11 +78,7 @@ describe("Node method follows spec - deposit", () => {
     await expect(
       nodeA.rpcRouter.dispatch(erc20DepositRequest)
     ).rejects.toThrowError(
-      INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(
-        await nodeA.signerAddress(),
-        One,
-        Zero
-      )
+      INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT(erc20ContractAddress, One, Zero)
     );
 
     await transferERC20Tokens(await nodeA.signerAddress());
