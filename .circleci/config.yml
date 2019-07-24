@@ -166,12 +166,8 @@ jobs:
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - run:
-          name: List Metemask build
-          command: ls metamask/dist && ls metamask/dist/chrome
-
-      - run:
           name: Link Metamask dist into extension
-          command: ln -s metamask/dist/chrome packages/greenboard/extension/metamask
+          command: ln -s metamask/dist/chrome packages/greenboard/extension
 
       - run:
           name: Open Wallet UI

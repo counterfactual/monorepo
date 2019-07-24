@@ -56,7 +56,7 @@ export class TestBrowser {
     private currentContext?: TestBrowserContext,
     private locatorTimeout: number = LOCATOR_TIMEOUT
   ) {
-    const extension = resolve(__dirname, "../extension/metamask");
+    const extension = resolve(__dirname, "../extension");
 
     const browserFactory = new Builder().forBrowser("chrome");
 
