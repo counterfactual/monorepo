@@ -1,7 +1,12 @@
 import { INVALID_ACTION, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
-import { createChannel, generateTakeActionRequest, installApp } from "./utils";
+import {
+  Apps,
+  createChannel,
+  generateTakeActionRequest,
+  installApp
+} from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
@@ -25,7 +30,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
       await createChannel(nodeA, nodeB);
-      const appInstanceId = await installApp(nodeA, nodeB);
+      const appInstanceId = await installApp(nodeA, nodeB, Apps.TicTacToe);
 
       const takeActionReq = generateTakeActionRequest(
         appInstanceId,

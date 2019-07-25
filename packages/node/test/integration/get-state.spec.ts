@@ -7,6 +7,7 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 import { setup, SetupContext } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
+  Apps,
   createChannel,
   generateGetStateRequest,
   getState,
@@ -37,7 +38,7 @@ describe("Node method follows spec - getAppInstances", () => {
       nodeB.publicIdentifier,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     ).parameters as NodeTypes.ProposeInstallParams;
-    const appInstanceId = await installApp(nodeA, nodeB);
+    const appInstanceId = await installApp(nodeA, nodeB, Apps.TicTacToe);
     const state = await getState(nodeA, appInstanceId);
 
     const initialState = initialEmptyTTTState();

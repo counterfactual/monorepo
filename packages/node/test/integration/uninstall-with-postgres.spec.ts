@@ -7,6 +7,7 @@ import {
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
+  Apps,
   createChannel,
   generateUninstallRequest,
   getInstalledAppInstances,
@@ -35,7 +36,12 @@ describe("Node method follows spec - uninstall", () => {
 
       await createChannel(nodeA, nodeB);
 
-      const appInstanceId = await installApp(nodeA, nodeB, initialState);
+      const appInstanceId = await installApp(
+        nodeA,
+        nodeB,
+        Apps.TicTacToe,
+        initialState
+      );
 
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);

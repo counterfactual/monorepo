@@ -445,15 +445,21 @@ export async function installApp(
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<string> {
-  const initialTTTState: SolidityABIEncoderV2Type = initialState
-    ? initialState
-    : initialEmptyTTTState();
+  let appDefinition: string;
+  let initialAppState: SolidityABIEncoderV2Type;
+
+  switch (app) {
+    case Apps.TicTacToe:
+      appDefinition = (global["networkContext"] as NetworkContextForTestSuite)
+        .TicTacToeApp;
+      initialAppState = initialState ? initialState : initialEmptyTTTState();
+  }
 
   return new Promise(async resolve => {
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
       nodeB.publicIdentifier,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-      initialTTTState,
+      appDefinition,
+      initialAppState,
       initiatorDeposit,
       initiatorDepositTokenAddress,
       responderDeposit,
