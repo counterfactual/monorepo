@@ -2437,9 +2437,9 @@
     "@resolver-engine/imports" "^0.2.2"
     debug "^3.1.0"
 
-"@resolver-engine/imports-fs@^0.3.2":
+"@resolver-engine/imports-fs@^0.3.3":
   version "0.3.3"
-  resolved "https://registry.npmjs.org/@resolver-engine/imports-fs/-/imports-fs-0.3.3.tgz#4085db4b8d3c03feb7a425fbfcf5325c0d1e6c1b"
+  resolved "https://registry.yarnpkg.com/@resolver-engine/imports-fs/-/imports-fs-0.3.3.tgz#4085db4b8d3c03feb7a425fbfcf5325c0d1e6c1b"
   integrity sha512-7Pjg/ZAZtxpeyCFlZR5zqYkz+Wdo84ugB5LApwriT8XFeQoLwGUj4tZFFvvCuxaNCcqZzCYbonJgmGObYBzyCA==
   dependencies:
     "@resolver-engine/fs" "^0.3.3"
@@ -2455,7 +2455,7 @@
     debug "^3.1.0"
     hosted-git-info "^2.6.0"
 
-"@resolver-engine/imports@^0.3.2", "@resolver-engine/imports@^0.3.3":
+"@resolver-engine/imports@^0.3.3":
   version "0.3.3"
   resolved "https://registry.npmjs.org/@resolver-engine/imports/-/imports-0.3.3.tgz#badfb513bb3ff3c1ee9fd56073e3144245588bcc"
   integrity sha512-anHpS4wN4sRMwsAbMXhMfOD/y4a4Oo0Cw/5+rue7hSwGWsDOQaAU1ClK1OxjUC35/peazxEl8JaSRRS+Xb8t3Q==
@@ -8118,16 +8118,16 @@ ethereum-common@^0.0.18:
   resolved "https://registry.npmjs.org/ethereum-common/-/ethereum-common-0.0.18.tgz#2fdc3576f232903358976eb39da783213ff9523f"
   integrity sha1-L9w1dvIykDNYl26znaeDIT/5Uj8=
 
-ethereum-waffle@2.0.12:
-  version "2.0.12"
-  resolved "https://registry.npmjs.org/ethereum-waffle/-/ethereum-waffle-2.0.12.tgz#181a09e16dfbf60aa2417a8cfd5deb3ae16b9049"
-  integrity sha512-dtSyLoPBMe52l3LzTjOwOkLwMFFWm4+AEGyC2XSPUUF+OdAhBiLF4QlzaTlzizkhbmorEtDhkhlD7a4XpLeIYQ==
+ethereum-waffle@2.0.15:
+  version "2.0.15"
+  resolved "https://registry.yarnpkg.com/ethereum-waffle/-/ethereum-waffle-2.0.15.tgz#035d64011912c204393ca0b32883a6658dcc4344"
+  integrity sha512-vlPvihUlLonXwMyK062O6NOKtjNgB6TGqyfVBxb/+MIMKtot+fff4CyoG7jBQhThQHssuLsxMUKYDvdchDScIA==
   dependencies:
-    "@resolver-engine/imports" "^0.3.2"
-    "@resolver-engine/imports-fs" "^0.3.2"
+    "@resolver-engine/imports" "^0.3.3"
+    "@resolver-engine/imports-fs" "^0.3.3"
     ethers "^4.0.0"
-    ganache-core "2.5.6-beta.0"
-    solc "^0.5.1"
+    ganache-core "^2.5.7"
+    solc "^0.5.10"
 
 ethereumjs-abi@0.6.5:
   version "0.6.5"
@@ -8213,7 +8213,7 @@ ethereumjs-tx@1.3.7, ethereumjs-tx@^1.1.1, ethereumjs-tx@^1.2.0, ethereumjs-tx@^
     ethereum-common "^0.0.18"
     ethereumjs-util "^5.0.0"
 
-ethereumjs-util@5.2.0, ethereumjs-util@^5.0.0, ethereumjs-util@^5.0.1, ethereumjs-util@^5.1.1, ethereumjs-util@^5.1.2, ethereumjs-util@^5.1.3, ethereumjs-util@^5.1.5, ethereumjs-util@^5.2.0:
+ethereumjs-util@5.2.0, ethereumjs-util@^5.0.0, ethereumjs-util@^5.0.1, ethereumjs-util@^5.1.1, ethereumjs-util@^5.1.2, ethereumjs-util@^5.1.3, ethereumjs-util@^5.1.5:
   version "5.2.0"
   resolved "https://registry.npmjs.org/ethereumjs-util/-/ethereumjs-util-5.2.0.tgz#3e0c0d1741471acf1036052d048623dee54ad642"
   integrity sha512-CJAKdI0wgMbQFLlLRtZKGcy/L6pzVRgelIZqRqNbuVFM3K9VEnyfbcvz0ncWMRNCe4kaHWjwRYQcYMucmwsnWA==
@@ -8266,20 +8266,6 @@ ethereumjs-vm@2.6.0, ethereumjs-vm@^2.1.0, ethereumjs-vm@^2.3.4, ethereumjs-vm@^
     merkle-patricia-tree "^2.3.2"
     rustbn.js "~0.2.0"
     safe-buffer "^5.1.1"
-
-ethereumjs-wallet@0.6.2:
-  version "0.6.2"
-  resolved "https://registry.npmjs.org/ethereumjs-wallet/-/ethereumjs-wallet-0.6.2.tgz#67244b6af3e8113b53d709124b25477b64aeccda"
-  integrity sha512-DHEKPV9lYORM7dL8602dkb+AgdfzCYz2lxpdYQoD3OwG355LLDuivW9rGuLpDMCry/ORyBYV6n+QCo/71SwACg==
-  dependencies:
-    aes-js "^3.1.1"
-    bs58check "^2.1.2"
-    ethereumjs-util "^5.2.0"
-    hdkey "^1.0.0"
-    safe-buffer "^5.1.2"
-    scrypt.js "^0.2.0"
-    utf8 "^3.0.0"
-    uuid "^3.3.2"
 
 ethereumjs-wallet@0.6.3:
   version "0.6.3"
@@ -9295,10 +9281,10 @@ ganache-cli@6.4.5:
     source-map-support "0.5.9"
     yargs "11.1.0"
 
-ganache-core@2.5.6-beta.0:
-  version "2.5.6-beta.0"
-  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.6-beta.0.tgz#34e0b7d97369dde857b4d2617befc1c1a18c6afd"
-  integrity sha512-25GzUbk2Ul6VcjEgykPr6jyq8W9EH+pVY87mU347EBDHv8f7KnnqerNyniEefJfQX5WcWGnl4QKf2PPfJMCfAw==
+ganache-core@2.5.7:
+  version "2.5.7"
+  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
+  integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
@@ -9327,13 +9313,13 @@ ganache-core@2.5.6-beta.0:
     web3-provider-engine "14.1.0"
     websocket "1.0.26"
   optionalDependencies:
-    ethereumjs-wallet "0.6.2"
+    ethereumjs-wallet "0.6.3"
     web3 "1.0.0-beta.35"
 
-ganache-core@2.5.7:
-  version "2.5.7"
-  resolved "https://registry.npmjs.org/ganache-core/-/ganache-core-2.5.7.tgz#03c74c8cb20dc1266990d0f7fb4ed3f71f55f6b3"
-  integrity sha512-/v5ak4QiJzOCVhyXtx/2QeDXjDdZovAhX6EIiqnH2ng9aKzG5h59Y5ZyS1xzX2pkLKDY0uRA1WIBdScsEJyi9A==
+ganache-core@^2.5.7:
+  version "2.6.0"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.6.0.tgz#19001547893ff9f6d494fcaed66c52edd808f3c0"
+  integrity sha512-TAT8XCjORmRpWko9QWKWGbdZ8/3nblKgralUWdySHXZyGBVRoHyEzjygMYZoblSXXCWuYEmx+T1u73Di1tE0mA==
   dependencies:
     abstract-leveldown "3.0.0"
     async "2.6.1"
@@ -10081,7 +10067,7 @@ hash.js@^1.0.0, hash.js@^1.0.3:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
 
-hdkey@^1.0.0, hdkey@^1.1.0:
+hdkey@^1.1.0:
   version "1.1.1"
   resolved "https://registry.npmjs.org/hdkey/-/hdkey-1.1.1.tgz#c2b3bfd5883ff9529b72f2f08b28be0972a9f64a"
   integrity sha512-DvHZ5OuavsfWs5yfVJZestsnc3wzPvLWNk6c2nRUfo6X+OtxypGt20vDDf7Ba+MJzjL3KS1og2nw2eBbLCOUTA==
@@ -17855,14 +17841,6 @@ scrypt.js@0.2.0:
     scrypt "^6.0.2"
     scryptsy "^1.2.1"
 
-scrypt.js@^0.2.0:
-  version "0.2.1"
-  resolved "https://registry.npmjs.org/scrypt.js/-/scrypt.js-0.2.1.tgz#cc3f751933d6bac7a4bedf5301d7596e8146cdcd"
-  integrity sha512-XMoqxwABdotuW+l+qACmJ/h0kVSCgMPZXpbncA/zyBO90z/NnDISzVw+xJ4tUY+X/Hh0EFT269OYHm26VCPgmA==
-  dependencies:
-    scrypt "^6.0.2"
-    scryptsy "^1.2.1"
-
 scrypt.js@^0.3.0:
   version "0.3.0"
   resolved "https://registry.npmjs.org/scrypt.js/-/scrypt.js-0.3.0.tgz#6c62d61728ad533c8c376a2e5e3e86d41a95c4c0"
@@ -18322,7 +18300,7 @@ sol-explore@^1.6.2:
   resolved "https://registry.npmjs.org/sol-explore/-/sol-explore-1.6.2.tgz#43ae8c419fd3ac056a05f8a9d1fb1022cd41ecc2"
   integrity sha1-Q66MQZ/TrAVqBfip0fsQIs1B7MI=
 
-solc@0.5.10, solc@^0.5.1:
+solc@0.5.10, solc@^0.5.10:
   version "0.5.10"
   resolved "https://registry.npmjs.org/solc/-/solc-0.5.10.tgz#e57d789b1028f3d35f7989e5134d6ddc0e3b32aa"
   integrity sha512-Stdrh/MDkopsXYPRzPehTNYuV80Grr2CnQMuFvWj+EeRVbe3piGHxW47KebWn1sGdmK8FLaMfUehccqJP0KovQ==
