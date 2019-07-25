@@ -10,10 +10,11 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
+  Apps,
   createChannel,
   generateGetStateRequest,
   generateTakeActionRequest,
-  installTTTApp
+  installApp
 } from "./utils";
 
 describe("Node method follows spec - takeAction", () => {
@@ -41,7 +42,7 @@ describe("Node method follows spec - takeAction", () => {
       it("can take action", async done => {
         await createChannel(nodeA, nodeB);
 
-        const appInstanceId = await installTTTApp(nodeA, nodeB);
+        const appInstanceId = await installApp(nodeA, nodeB, Apps.TicTacToe);
 
         const expectedNewState = {
           board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],
