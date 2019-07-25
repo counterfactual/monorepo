@@ -57,7 +57,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
