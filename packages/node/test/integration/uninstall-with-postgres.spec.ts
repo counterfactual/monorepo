@@ -10,7 +10,7 @@ import {
   createChannel,
   generateUninstallRequest,
   getInstalledAppInstances,
-  installTTTApp
+  installApp
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -35,7 +35,7 @@ describe("Node method follows spec - uninstall", () => {
 
       await createChannel(nodeA, nodeB);
 
-      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
+      const appInstanceId = await installApp(nodeA, nodeB, initialState);
 
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);

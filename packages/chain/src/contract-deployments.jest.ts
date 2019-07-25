@@ -1,3 +1,4 @@
+import SimpleCoinTransferApp from "@counterfactual/apps/build/SimpleCoinTransferApp.json";
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
@@ -15,6 +16,7 @@ import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
 export type NetworkContextForTestSuite = NetworkContext & {
+  SimpleCoinTransferApp: string;
   TicTacToeApp: string;
   DolphinCoin: string;
 };
@@ -86,6 +88,12 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const simpleCoinTransferApp = await new ContractFactory(
+    SimpleCoinTransferApp.abi,
+    SimpleCoinTransferApp.bytecode,
+    wallet
+  ).deploy();
+
   const tttContract = await new ContractFactory(
     TicTacToeApp.abi,
     TicTacToeApp.bytecode,
@@ -109,6 +117,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     DolphinCoin: dolphinCoin.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
+    SimpleCoinTransferApp: simpleCoinTransferApp.address,
     TicTacToeApp: tttContract.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,

@@ -37,6 +37,11 @@ import {
   tttStateEncoding
 } from "./tic-tac-toe";
 
+export enum Apps {
+  TicTacToe = 0,
+  CoinTransfer = 1
+}
+
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -430,9 +435,10 @@ export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   });
 }
 
-export async function installTTTApp(
+export async function installApp(
   nodeA: Node,
   nodeB: Node,
+  app: Apps,
   initialState?: SolidityABIEncoderV2Type,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,

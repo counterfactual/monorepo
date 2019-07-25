@@ -4,6 +4,7 @@ require("ts-node/register");
 require("dotenv").config();
 
 module.exports = {
+  contracts_build_directory: "./build",
   compilers: {
     solc: {
       version: "../../node_modules/solc"

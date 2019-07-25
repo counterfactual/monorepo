@@ -33,6 +33,7 @@ export interface NetworkContext {
   IdentityApp: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
+  SingleTransferETHInterpreter: string;
   TimeLockedPassThrough: string;
   TwoPartyFixedOutcomeInterpreter: string;
   TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
@@ -48,6 +49,7 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "FreeBalanceApp",
   "MinimumViableMultisig",
   "ProxyFactory",
+  "SingleTransferETHInterpreter",
   "TimeLockedPassThrough",
   "TwoPartyFixedOutcomeInterpreter",
   "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"

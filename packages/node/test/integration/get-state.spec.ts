@@ -10,7 +10,7 @@ import {
   createChannel,
   generateGetStateRequest,
   getState,
-  installTTTApp,
+  installApp,
   makeTTTProposalRequest
 } from "./utils";
 
@@ -37,7 +37,7 @@ describe("Node method follows spec - getAppInstances", () => {
       nodeB.publicIdentifier,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     ).parameters as NodeTypes.ProposeInstallParams;
-    const appInstanceId = await installTTTApp(nodeA, nodeB);
+    const appInstanceId = await installApp(nodeA, nodeB);
     const state = await getState(nodeA, appInstanceId);
 
     const initialState = initialEmptyTTTState();

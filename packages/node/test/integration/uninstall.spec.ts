@@ -7,12 +7,13 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   collateralizeChannel,
   createChannel,
   generateUninstallRequest,
   getFreeBalanceState,
   getInstalledAppInstances,
-  installTTTApp
+  installApp
 } from "./utils";
 
 expect.extend({ toBeEq });
@@ -51,9 +52,10 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     });
 
     it("installs an app with the TwoPartyFixedOutcome outcome and expects Node A to win total", async done => {
-      appInstanceId = await installTTTApp(
+      appInstanceId = await installApp(
         nodeA,
         nodeB,
+        Apps.TicTacToe,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -79,9 +81,10 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     it("installs an app with the TwoPartyFixedOutcome outcome and expects Node B to win total", async done => {
       initialState.winner = 1;
 
-      const appInstanceId = await installTTTApp(
+      const appInstanceId = await installApp(
         nodeA,
         nodeB,
+        Apps.TicTacToe,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -107,9 +110,10 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     it("installs an app with the TwoPartyFixedOutcome outcome and expects the funds to be split between the nodes", async done => {
       initialState.winner = 3;
 
-      const appInstanceId = await installTTTApp(
+      const appInstanceId = await installApp(
         nodeA,
         nodeB,
+        Apps.TicTacToe,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -130,6 +134,26 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+    });
+  });
+
+  describe.only("Tests for different outcomes of the CoinTransfer type", () => {
+    let multisigAddress: string;
+    const depositAmount = One;
+
+    beforeAll(async () => {
+      const context: SetupContext = await setup(global);
+      nodeA = context["A"].node;
+      nodeB = context["B"].node;
+
+      multisigAddress = await createChannel(nodeA, nodeB);
+
+      await collateralizeChannel(nodeA, nodeB, multisigAddress, depositAmount);
+    });
+
+    it("Node A sends a one time ETH transfer to Node B", async () => {
+      const freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
+      console.log(freeBalanceETH);
     });
   });
 });
