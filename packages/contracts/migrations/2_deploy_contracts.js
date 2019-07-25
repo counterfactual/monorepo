@@ -11,7 +11,7 @@ const ARTIFACTS = [
   artifacts.require("ProxyFactory"),
   artifacts.require("TimeLockedPassThrough"),
   artifacts.require("TwoPartyFixedOutcomeInterpreter"),
-  artifacts.require("TwoPartyFixedOutcomeFromVirtualAppETHInterpreter")
+  artifacts.require("TwoPartyFixedOutcomeFromVirtualAppInterpreter")
 ];
 
 module.exports = (deployer, network) => {

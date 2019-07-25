@@ -34,8 +34,8 @@ class NodeEnvironment extends NodeJSEnvironment {
       FreeBalanceApp: AddressZero,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
-      TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
-        data.networkContext.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      TwoPartyFixedOutcomeFromVirtualAppInterpreter:
+        data.networkContext.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       TicTacToeApp: data.networkContext.TicTacToeApp
     };
 

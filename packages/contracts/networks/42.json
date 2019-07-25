@@ -40,7 +40,7 @@
     "transactionHash": "0xde7a76e301768399494a9f7dd319270b4e51e56ec73f88e22214a70a56ead409"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
+    "contractName": "TwoPartyFixedOutcomeFromVirtualAppInterpreter",
     "address": "0x15b7EE87083e340B1F1e3d534Ad445B5c832c25C",
     "transactionHash": "0x00a8ab37766ad01cdd45f16f6b5fc1daf671422fe6977d7366d45e3ff0e6b728"
   },
