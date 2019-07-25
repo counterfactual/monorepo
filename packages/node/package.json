@@ -31,7 +31,7 @@
     "chai": "4.2.0",
     "dotenv-extended": "2.4.0",
     "dotenv-safe": "6.1.0",
-    "ethereum-waffle": "2.0.12",
+    "ethereum-waffle": "2.0.15",
     "ganache-cli": "6.4.5",
     "ganache-core": "2.5.7",
     "jest": "24.8.0",
