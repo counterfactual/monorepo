@@ -209,7 +209,6 @@ export function makeRejectInstallRequest(appInstanceId: string): Rpc {
 }
 
 export function makeTTTProposalRequest(
-  proposedByIdentifier: string,
   proposedToIdentifier: string,
   appDefinition: string,
   state: SolidityABIEncoderV2Type = {},
@@ -261,7 +260,6 @@ export function makeInstallVirtualRequest(
 }
 
 export function makeTTTVirtualProposalRequest(
-  proposedByIdentifier: string,
   proposedToIdentifier: string,
   intermediaries: string[],
   appDefinition: string,
@@ -272,7 +270,6 @@ export function makeTTTVirtualProposalRequest(
   responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
   const installProposalParams = makeTTTProposalRequest(
-    proposedByIdentifier,
     proposedToIdentifier,
     appDefinition,
     initialState,
@@ -417,7 +414,7 @@ export async function collateralizeChannel(
 }
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
@@ -446,9 +443,8 @@ export async function installTTTApp(
     ? initialState
     : initialEmptyTTTState();
 
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
-      nodeA.publicIdentifier,
       nodeB.publicIdentifier,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
       initialTTTState,
@@ -496,7 +492,7 @@ export async function installTTTAppVirtual(
   nodeC: Node,
   initialState?: SolidityABIEncoderV2Type
 ): Promise<string> {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     nodeA.on(
       NODE_EVENTS.INSTALL_VIRTUAL,
       async (msg: InstallVirtualMessage) => {
@@ -567,7 +563,6 @@ export async function makeTTTVirtualProposal(
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
   const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
-    nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
@@ -620,7 +615,6 @@ export async function makeVirtualProposeCall(
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
   const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
-    nodeA.publicIdentifier,
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
     (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
@@ -653,7 +647,6 @@ export async function makeProposeCall(
   params: NodeTypes.ProposeInstallParams;
 }> {
   const appInstanceProposalReq = makeTTTProposalRequest(
-    nodeA.publicIdentifier,
     nodeB.publicIdentifier,
     appDefinition,
     state,

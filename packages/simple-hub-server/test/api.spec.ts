@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/node";
-import { Node as NodeTypes } from "@counterfactual/types";
 import {
   HttpStatusCode,
   JsonApiDocument,
@@ -40,8 +39,6 @@ import {
   USR_CHARLIE,
   USR_CHARLIE_KNEX
 } from "./mock-data";
-
-// jest.setTimeout(10000);
 
 const api = mountApi();
 
@@ -111,12 +108,10 @@ describe("simple-hub-server", () => {
       table.unique(["username"], "uk_users__username");
     });
 
-    NodeWrapper.createStateChannelFor = jest.fn(async (userAddress: string) => {
-      return Promise.resolve({
-        transactionHash:
-          "0xf517872f3c466c2e1520e35ad943d833fdca5a6739cfea9e686c4c1b3ab1022e"
-      } as NodeTypes.CreateChannelTransactionResult);
-    });
+    NodeWrapper.createStateChannelFor = jest.fn(async () => ({
+      transactionHash:
+        "0xf517872f3c466c2e1520e35ad943d833fdca5a6739cfea9e686c4c1b3ab1022e"
+    }));
   });
 
   beforeAll(done => {

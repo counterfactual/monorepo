@@ -15,8 +15,7 @@ export default class GetAppInstancesController extends NodeController {
   public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
-    requestHandler: RequestHandler,
-    params: Node.GetAppInstancesParams
+    requestHandler: RequestHandler
   ): Promise<Node.GetAppInstancesResult> {
     const { store } = requestHandler;
 

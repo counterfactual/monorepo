@@ -72,11 +72,6 @@ export default class WithdrawController extends NodeController {
     return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
 
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {}
-
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams

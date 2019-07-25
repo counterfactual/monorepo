@@ -1,11 +1,7 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
-import {
-  NODE_EVENTS,
-  ProposeVirtualMessage,
-  RejectProposalMessage
-} from "../../src/types";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import {
   SetupContext,
@@ -45,13 +41,10 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
 
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
 
-        nodeA.on(
-          NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
-          async (msg: RejectProposalMessage) => {
-            expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
-            done();
-          }
-        );
+        nodeA.on(NODE_EVENTS.REJECT_INSTALL_VIRTUAL, async () => {
+          expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
+          done();
+        });
 
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,

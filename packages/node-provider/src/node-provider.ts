@@ -119,7 +119,7 @@ export default class NodeProvider implements INodeProvider {
 
     this.log("connect", "Attempting to connect");
 
-    return new Promise<NodeProvider>((resolve, reject) => {
+    return new Promise<NodeProvider>(resolve => {
       window.addEventListener("message", event => {
         if (event.data === "cf-node-provider:port") {
           this.log(

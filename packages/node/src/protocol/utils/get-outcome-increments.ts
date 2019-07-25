@@ -1,7 +1,6 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
   CoinBalanceRefundState,
-  NetworkContext,
   OutcomeType,
   TwoPartyFixedOutcome
 } from "@counterfactual/types";
@@ -58,7 +57,6 @@ const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
  * or direct. This return value must not contain the intermediary.
  */
 export async function computeTokenIndexedFreeBalanceIncrements(
-  networkContext: NetworkContext,
   appInstance: AppInstance,
   provider: BaseProvider
 ): Promise<TokenIndexedCoinTransferMap> {

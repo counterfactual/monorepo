@@ -5,7 +5,7 @@ import { BigNumber } from "ethers/utils";
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { xkeyKthAddress } from "../../src/machine";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
-import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -60,7 +60,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
@@ -128,7 +128,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
@@ -168,7 +168,6 @@ describe("Node method follows spec - install", () => {
 
       it("sends proposal with null initial state", async () => {
         const appInstanceProposalReq = makeTTTProposalRequest(
-          nodeA.publicIdentifier,
           nodeB.publicIdentifier,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
