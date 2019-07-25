@@ -6,6 +6,7 @@ import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { xkeyKthAddress } from "../../src/machine";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -18,6 +19,8 @@ import {
   makeTTTProposalRequest,
   transferERC20Tokens
 } from "./utils";
+
+expect.extend({ toBeLt });
 
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
@@ -72,13 +75,9 @@ describe("Node method follows spec - install", () => {
             CONVENTION_FOR_ETH_TOKEN_ADDRESS
           );
 
-          expect(
-            postInstallETHBalanceNodeA.lt(preInstallETHBalanceNodeA)
-          ).toEqual(true);
+          expect(postInstallETHBalanceNodeA).toBeLt(preInstallETHBalanceNodeA);
 
-          expect(
-            postInstallETHBalanceNodeB.lt(preInstallETHBalanceNodeB)
-          ).toEqual(true);
+          expect(postInstallETHBalanceNodeB).toBeLt(preInstallETHBalanceNodeB);
 
           done();
         });
@@ -144,13 +143,13 @@ describe("Node method follows spec - install", () => {
             erc20TokenAddress
           );
 
-          expect(
-            postInstallERC20BalanceNodeA.lt(preInstallERC20BalanceNodeA)
-          ).toEqual(true);
+          expect(postInstallERC20BalanceNodeA).toBeLt(
+            preInstallERC20BalanceNodeA
+          );
 
-          expect(
-            postInstallERC20BalanceNodeB.lt(preInstallERC20BalanceNodeB)
-          ).toEqual(true);
+          expect(postInstallERC20BalanceNodeB).toBeLt(
+            preInstallERC20BalanceNodeB
+          );
 
           done();
         });
