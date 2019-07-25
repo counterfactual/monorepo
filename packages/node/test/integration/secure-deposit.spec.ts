@@ -7,6 +7,7 @@ import log from "loglevel";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT } from "../../src/methods/errors";
+import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -15,6 +16,8 @@ import {
   makeDepositRequest,
   transferERC20Tokens
 } from "./utils";
+
+expect.extend({ toBeEq });
 
 log.setLevel(log.levels.SILENT);
 
@@ -38,8 +41,8 @@ describe("Node method follows spec - deposit", () => {
 
     nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
       await nodeB.rpcRouter.dispatch(depositReq);
-      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-        preDepositBalance.add(2).toNumber()
+      expect(await provider.getBalance(multisigAddress)).toBeEq(
+        preDepositBalance.add(2)
       );
 
       const freeBalanceState = await getFreeBalanceState(
@@ -123,8 +126,8 @@ describe("Node method follows spec - deposit", () => {
     await nodeA.rpcRouter.dispatch(ethDepositReq);
     await nodeB.rpcRouter.dispatch(ethDepositReq);
 
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-      preDepositBalance.add(2).toNumber()
+    expect(await provider.getBalance(multisigAddress)).toBeEq(
+      preDepositBalance.add(2)
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
