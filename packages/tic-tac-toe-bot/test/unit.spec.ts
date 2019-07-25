@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { bigNumberify } from "ethers/utils";
 
 import { takeTurn } from "../src/bot";
 
@@ -6,7 +6,7 @@ function bigNumberifyBoard(board) {
   return board.reduce((board, row) => {
     board.push(
       row.reduce((row, square) => {
-        row.push(ethers.utils.bigNumberify(square));
+        row.push(bigNumberify(square));
 
         return row;
       }, [])
