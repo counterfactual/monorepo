@@ -5,10 +5,11 @@ import { Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   confirmAppInstanceInstallation,
   createChannel,
   getInstalledAppInstance,
-  installTTTApp,
+  installApp,
   makeTTTProposalRequest
 } from "./utils";
 
@@ -30,8 +31,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     ).parameters as NodeTypes.ProposeInstallParams;
 
-    const appInstanceId = await installTTTApp(nodeA, nodeB);
-    return;
+    const appInstanceId = await installApp(nodeA, nodeB, Apps.TicTacToe);
 
     const appInstanceNodeA = await getInstalledAppInstance(
       nodeA,
