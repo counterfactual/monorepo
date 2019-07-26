@@ -10,13 +10,15 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   collateralizeChannel,
   createChannel,
+  getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
+  makeAppProposalRequest,
   makeInstallCall,
   makeProposeCall,
-  makeTTTProposalRequest,
   transferERC20Tokens
 } from "./utils";
 
@@ -85,8 +87,8 @@ describe("Node method follows spec - install", () => {
         await makeProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          {},
+          Apps.TicTacToe,
+          undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
           One,
@@ -157,8 +159,8 @@ describe("Node method follows spec - install", () => {
         await makeProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          {},
+          Apps.TicTacToe,
+          undefined,
           One,
           erc20TokenAddress,
           One,
@@ -167,9 +169,12 @@ describe("Node method follows spec - install", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appInstanceProposalReq = makeTTTProposalRequest(
+        const appContext = getAppContext(Apps.TicTacToe);
+        const appInstanceProposalReq = makeAppProposalRequest(
           nodeB.publicIdentifier,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          appContext.appDefinition,
+          appContext.abiEncodings,
+          appContext.initialState
         );
 
         appInstanceProposalReq.parameters["initialState"] = undefined;
