@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/local-ganache-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.12",
+    "@counterfactual/contracts": "0.1.13",
     "@counterfactual/types": "0.0.27",
     "ethers": "4.0.33",
     "truffle": "5.0.27",
