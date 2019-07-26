@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.2.27",
+  "version": "0.2.28",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -18,8 +18,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/apps": "0.1.1",
-    "@counterfactual/local-ganache-server": "0.0.1",
+    "@counterfactual/apps": "0.1.2",
+    "@counterfactual/local-ganache-server": "0.0.2",
     "@counterfactual/firebase-server": "0.0.1",
     "@counterfactual/postgresql-node-connector": "0.0.3",
     "@types/chai": "4.1.7",
@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@counterfactual/cf.js": "0.2.1",
-    "@counterfactual/contracts": "0.1.12",
+    "@counterfactual/contracts": "0.1.13",
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/types": "0.0.27",
     "ethers": "4.0.33",

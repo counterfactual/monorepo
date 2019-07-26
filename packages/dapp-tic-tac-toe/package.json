@@ -6,7 +6,7 @@
     "node": "10.15.3"
   },
   "dependencies": {
-    "@counterfactual/apps": "0.1.1",
+    "@counterfactual/apps": "0.1.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-router-dom": "^5.0.0",

@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/simple-hub-server",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "An example backend server for the Playground app that acts as a hub.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.2.27",
+    "@counterfactual/node": "0.2.28",
     "@counterfactual/types": "0.0.27",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
