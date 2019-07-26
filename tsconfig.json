@@ -10,6 +10,7 @@
     "noLib": false,
     "removeComments": true,
     "declaration": true,
+    "declarationMap": true,
     "forceConsistentCasingInFileNames": true,
     "moduleResolution": "node",
     "resolveJsonModule": true,
