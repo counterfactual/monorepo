@@ -1,51 +1,20 @@
-import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
   CoinBalanceRefundState,
   OutcomeType,
-  TwoPartyFixedOutcome
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
+  TwoPartyFixedOutcome,
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { Contract } from "ethers";
-import { Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
-import { TokenIndexedCoinTransferMap } from "../../models/free-balance";
+import {
+  CoinTransfer,
+  TokenIndexedCoinTransferMap
+} from "../../models/free-balance";
+import { wait } from "../../utils";
 
-/**
- * Note that this is only used with `CoinBalanceRefundApp.sol`
- */
-function computeCoinTransferIncrement(
-  token: string,
-  outcome: string
-): TokenIndexedCoinTransferMap {
-  const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[1][1]"],
-    outcome
-  );
-
-  const ret: TokenIndexedCoinTransferMap = {};
-
-  ret[token] = {};
-  const balances = decoded[0];
-
-  for (const pair of balances) {
-    const [address, amount] = pair;
-    ret[token][address] = amount;
-  }
-  return ret;
-}
-
-const anyNonzeroValues = (
-  tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap
-) =>
-  Object.values(tokenIndexedCoinTransferMap).some(coinTransferMap =>
-    Object.values(coinTransferMap).some(amount => amount.gt(Zero))
-  );
-
-const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
-
-// todo(xuanji): rename appInstanceId to identityHash
 /**
  * Get the outcome of the app instance given, decode it according
  * to the outcome type stored in the app instance model, and return
@@ -58,102 +27,172 @@ export async function computeTokenIndexedFreeBalanceIncrements(
 ): Promise<TokenIndexedCoinTransferMap> {
   const { outcomeType } = appInstance;
 
-  let outcome = await appInstance.computeOutcomeWithCurrentState(provider);
+  const encodedOutcome = await appInstance.computeOutcomeWithCurrentState(
+    provider
+  );
 
+  // TODO: This should probably be an error on the model
   if (outcomeType === undefined) {
-    throw new Error("undefined outcomeType in appInstance");
+    throw new Error(
+      "computeTokenIndexedFreeBalanceIncrements was called and received undefined outcomeType when calling computeOutcome on AppInstance"
+    );
   }
 
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
-      // FIXME:
-      // https://github.com/counterfactual/monorepo/issues/1371
+      return handleRefundAppState(encodedOutcome, appInstance);
+    }
+    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+      return handleTwoPartyFixedOutcome(
+        encodedOutcome,
+        appInstance.twoPartyOutcomeInterpreterParams!
+      );
+    }
+    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      return handleSingleAssetTwoPartyCoinTransfer(
+        encodedOutcome,
+        appInstance.singleAssetTwoPartyCoinTransferInterpreterParams!
+      );
+    }
+    default: {
+      throw new Error(
+        "computeTokenIndexedFreeBalanceIncrements received an AppInstance with unknown OutcomeType"
+      );
+    }
+  }
 
-      let attempts = 1;
+  /**
+   * The REFUND_OUTCOME_TYPE is in a special situation because it is
+   * a `view` function. Since we do not have any encapsulation of a
+   * getter for blockchain-based data, we naively re-query our only
+   * hook to the chain (i.e., the `provider` variable) several times
+   * until, at least one time out of 10, the values we see on chain
+   * indicate a nonzero free balance increment.
+   */
+  // FIXME:
+  // https://github.com/counterfactual/monorepo/issues/1371
+  async function handleRefundAppState(
+    encodedOutcome: string,
+    appInstance: AppInstance
+  ): Promise<TokenIndexedCoinTransferMap> {
+    let mutableOutcome = encodedOutcome;
+    let attempts = 1;
+    while (attempts <= 10) {
+      const [[{ to, amount }]] = decodeRefundAppState(mutableOutcome);
 
-      // todo(xuanji): factor out retryUntil function
-
-      while (1) {
-        outcome = await appInstance.computeOutcomeWithCurrentState(provider);
-
-        const increments = computeCoinTransferIncrement(
-          (appInstance.state as CoinBalanceRefundState).tokenAddress,
-          outcome
-        );
-
-        if (anyNonzeroValues(increments)) {
-          return increments;
-        }
-
-        attempts += 1;
-
-        if (attempts === 10) {
-          throw new Error("Failed to get a outcome after 10 attempts");
-        }
-
-        await wait(1000 * attempts);
+      if (amount.gt(0)) {
+        return {
+          [(appInstance.state as CoinBalanceRefundState).tokenAddress]: {
+            [to]: amount
+          }
+        };
       }
+
+      attempts += 1;
+
+      await wait(1000 * attempts);
+
+      // Note this statement queries the blockchain each time and
+      // is the main reason for this 10-iteration while block.
+      mutableOutcome = await appInstance.computeOutcomeWithCurrentState(
+        provider
+      );
     }
 
-    case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      if (appInstance.twoPartyOutcomeInterpreterParams === undefined) {
-        throw new Error(
-          "app instance outcome type set to two party outcome, but twoPartyOutcomeInterpreterParams not defined"
-        );
-      }
+    throw new Error(
+      "When attempting to check for a deposit having been made to the multisig, did not find any non-zero deposits."
+    );
+  }
 
-      const {
-        amount,
-        playerAddrs,
-        tokenAddress
-      } = appInstance.twoPartyOutcomeInterpreterParams;
+  function handleTwoPartyFixedOutcome(
+    encodedOutcome: string,
+    interpreterParams: TwoPartyFixedOutcomeInterpreterParams
+  ): TokenIndexedCoinTransferMap {
+    if (!interpreterParams) {
+      throw new Error(
+        "AppInstance outcomeType was TWO_PARTY_FIXED_OUTCOME, but twoPartyOutcomeInterpreterParams on AppInstance was undefined"
+      );
+    }
 
-      const [decoded] = defaultAbiCoder.decode(["uint256"], outcome);
+    const { amount, playerAddrs, tokenAddress } = interpreterParams;
 
-      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_ONE)) {
+    switch (decodeTwoPartyFixedOutcome(encodedOutcome)) {
+      case TwoPartyFixedOutcome.SEND_TO_ADDR_ONE:
         return {
           [tokenAddress]: {
             [playerAddrs[0]]: amount
           }
         };
-      }
-
-      if (decoded.eq(TwoPartyFixedOutcome.SEND_TO_ADDR_TWO)) {
+      case TwoPartyFixedOutcome.SEND_TO_ADDR_TWO:
         return {
           [tokenAddress]: {
             [playerAddrs[1]]: amount
           }
         };
-      }
-
-      return {
-        [tokenAddress]: {
-          [playerAddrs[0]]: amount.div(2),
-          [playerAddrs[1]]: amount.sub(amount.div(2))
-        }
-      };
-    }
-
-    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
-      const {
-        tokenAddress
-      } = appInstance.singleAssetTwoPartyCoinTransferInterpreterParams!;
-
-      const [decoded] = defaultAbiCoder.decode(
-        ["tuple(address to, uint256 amount)[2]"],
-        outcome
-      );
-
-      return {
-        [tokenAddress]: {
-          [decoded[0].to]: decoded[0].amount,
-          [decoded[1].to]: decoded[1].amount
-        }
-      };
-    }
-
-    default: {
-      throw new Error("unknown outcomeType");
+      case TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS:
+      default:
+        return {
+          [tokenAddress]: {
+            [playerAddrs[0]]: amount.div(2),
+            [playerAddrs[1]]: amount.sub(amount.div(2))
+          }
+        };
     }
   }
+
+  function handleSingleAssetTwoPartyCoinTransfer(
+    encodedOutcome: string,
+    interpreterParams: SingleAssetTwoPartyCoinTransferInterpreterParams
+  ): TokenIndexedCoinTransferMap {
+    if (!interpreterParams) {
+      throw new Error(
+        "AppInstance outcomeType was SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER, but singleAssetTwoPartyCoinTransferInterpreterParams on AppInstance was undefined"
+      );
+    }
+
+    const { tokenAddress } = interpreterParams;
+
+    const [
+      { to: to1, amount: amount1 },
+      { to: to2, amount: amount2 }
+    ] = decodeSingleAssetTwoPartyCoinTransfer(encodedOutcome);
+
+    return {
+      [tokenAddress]: {
+        [to1 as string]: amount1 as BigNumber,
+        [to2 as string]: amount2 as BigNumber
+      }
+    };
+  }
+}
+
+function decodeRefundAppState(encodedOutcome: string): [[CoinTransfer]] {
+  const [[[{ to, amount }]]] = defaultAbiCoder.decode(
+    ["tuple(address to, uint256 amount)[1][1]"],
+    encodedOutcome
+  );
+
+  return [[{ to, amount }]];
+}
+
+function decodeTwoPartyFixedOutcome(
+  encodedOutcome: string
+): TwoPartyFixedOutcome {
+  const [twoPartyFixedOutcome] = defaultAbiCoder.decode(
+    ["uint256"],
+    encodedOutcome
+  ) as [BigNumber];
+
+  return twoPartyFixedOutcome.toNumber();
+}
+
+function decodeSingleAssetTwoPartyCoinTransfer(
+  encodedOutcome: string
+): [CoinTransfer, CoinTransfer] {
+  const [[[to1, amount1], [to2, amount2]]] = defaultAbiCoder.decode(
+    ["tuple(address to, uint256 amount)[2]"],
+    encodedOutcome
+  );
+
+  return [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }];
 }

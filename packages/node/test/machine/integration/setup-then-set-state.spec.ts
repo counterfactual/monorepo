@@ -38,6 +38,8 @@ let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
+jest.setTimeout(10000);
+
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];

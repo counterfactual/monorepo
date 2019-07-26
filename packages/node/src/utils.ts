@@ -174,3 +174,5 @@ export function debugLog(...messages: any[]) {
     console.error("Failed to log: ", e);
   }
 }
+
+export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
