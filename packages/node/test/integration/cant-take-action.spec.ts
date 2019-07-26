@@ -30,7 +30,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
       await createChannel(nodeA, nodeB);
-      const appInstanceId = await installApp(nodeA, nodeB, Apps.TicTacToe);
+      const [appInstanceId] = await installApp(nodeA, nodeB, Apps.TicTacToe);
 
       const takeActionReq = generateTakeActionRequest(
         appInstanceId,

@@ -53,8 +53,10 @@ describe("SimpleTwoPartySwapApp", () => {
     it("can compute outcome with update", async () => {
       const senderAddr = mkAddress("0xa");
       const receiverAddr = mkAddress("0xB");
+
       const tokenAmt = new BigNumber(10000);
       const ethAmt = new BigNumber(500);
+
       const preState: SimpleSwapAppState = {
         coinTransfers: [
           {
@@ -82,6 +84,7 @@ describe("SimpleTwoPartySwapApp", () => {
       };
 
       const ret = await computeOutcome(preState);
+
       expect(ret).to.eq(
         defaultAbiCoder.encode(
           [`tuple(address to, uint256 amount)[]`],

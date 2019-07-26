@@ -36,7 +36,7 @@ describe("Node method follows spec - uninstall", () => {
 
       await createChannel(nodeA, nodeB);
 
-      const appInstanceId = await installApp(
+      const [appInstanceId] = await installApp(
         nodeA,
         nodeB,
         Apps.TicTacToe,

@@ -13,5 +13,10 @@
     "contractName": "TicTacToeApp",
     "address": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
     "transactionHash": "0x4d735dc50a6194065a6af00ecf8e91569aec02e147ac9adb3847aa5b967b7559"
+  },
+  {
+    "contractName": "UnidirectionalTransferApp",
+    "address": "0x6346bD6fb9247FBBC2a0Cf341D812B1b10b95c78",
+    "transactionHash": "0x8e47ab5efc52a8345fefe17d02c2d4b73d56aac9408fa7ebfc38b8c2a5489cda"
   }
 ]

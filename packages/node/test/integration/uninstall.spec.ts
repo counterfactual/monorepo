@@ -52,7 +52,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     });
 
     it("installs an app with the TwoPartyFixedOutcome outcome and expects Node A to win total", async done => {
-      appInstanceId = await installApp(
+      [appInstanceId] = await installApp(
         nodeA,
         nodeB,
         Apps.TicTacToe,
@@ -81,7 +81,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     it("installs an app with the TwoPartyFixedOutcome outcome and expects Node B to win total", async done => {
       initialState.winner = 1;
 
-      const appInstanceId = await installApp(
+      [appInstanceId] = await installApp(
         nodeA,
         nodeB,
         Apps.TicTacToe,
@@ -110,7 +110,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     it("installs an app with the TwoPartyFixedOutcome outcome and expects the funds to be split between the nodes", async done => {
       initialState.winner = 3;
 
-      const appInstanceId = await installApp(
+      [appInstanceId] = await installApp(
         nodeA,
         nodeB,
         Apps.TicTacToe,
