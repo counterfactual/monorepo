@@ -1048,7 +1048,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
     stateChannelWithAllThreeParties,
     virtualAppInstance.identityHash,
-    await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
+    await virtualAppInstance.computeOutcomeWithCurrentState(provider),
     network,
     params
   );
@@ -1246,7 +1246,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
     stateChannelWithAllThreeParties,
     virtualAppInstance.identityHash,
-    await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
+    await virtualAppInstance.computeOutcomeWithCurrentState(provider),
     network,
     params
   );

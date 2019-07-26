@@ -56,17 +56,9 @@ export async function computeTokenIndexedFreeBalanceIncrements(
   appInstance: AppInstance,
   provider: BaseProvider
 ): Promise<TokenIndexedCoinTransferMap> {
-  const appDefinition = new Contract(
-    appInstance.appInterface.addr,
-    CounterfactualApp.abi,
-    provider
-  );
-
   const { outcomeType } = appInstance;
 
-  let outcome = await appDefinition.functions.computeOutcome(
-    appInstance.encodedLatestState
-  );
+  let outcome = await appInstance.computeOutcomeWithCurrentState(provider);
 
   if (outcomeType === undefined) {
     throw new Error("undefined outcomeType in appInstance");
@@ -82,9 +74,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       // todo(xuanji): factor out retryUntil function
 
       while (1) {
-        outcome = await appDefinition.functions.computeOutcome(
-          appInstance.encodedLatestState
-        );
+        outcome = await appInstance.computeOutcomeWithCurrentState(provider);
 
         const increments = computeCoinTransferIncrement(
           (appInstance.state as CoinBalanceRefundState).tokenAddress,

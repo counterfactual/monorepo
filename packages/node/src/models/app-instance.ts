@@ -280,9 +280,15 @@ Attempted to setState on an app with an invalid state object.
     state: SolidityABIEncoderV2Type,
     provider: BaseProvider
   ): Promise<string> {
-    return await this.toEthersContract(provider).functions.computeOutcome(
+    return this.toEthersContract(provider).functions.computeOutcome(
       this.encodeState(state)
     );
+  }
+
+  public async computeOutcomeWithCurrentState(
+    provider: BaseProvider
+  ): Promise<string> {
+    return this.computeOutcome(this.state, provider);
   }
 
   public async computeStateTransition(

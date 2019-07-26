@@ -625,8 +625,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
     timeLockedPassThroughAppInstance.state["targetAppIdentityHash"] // TODO: type
   );
 
-  const expectedOutcome = await virtualAppInstance.computeOutcome(
-    virtualAppInstance.state,
+  const expectedOutcome = await virtualAppInstance.computeOutcomeWithCurrentState(
     provider
   );
 
