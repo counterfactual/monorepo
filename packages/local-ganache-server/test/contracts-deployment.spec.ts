@@ -6,11 +6,18 @@ import { LocalGanacheServer } from "../src";
 describe("Contracts get deployed as expected", () => {
   jest.setTimeout(10000);
 
-  it("can spin up a new configured chain", async () => {
-    const chain = new LocalGanacheServer([Wallet.createRandom().mnemonic]);
+  let chain: LocalGanacheServer;
 
+  beforeAll(async () => {
+    chain = new LocalGanacheServer([Wallet.createRandom().mnemonic]);
     await chain.runMigrations();
+  });
 
+  afterAll(async () => {
+    await chain.server.close();
+  });
+
+  it("can spin up a new configured chain", async () => {
     const { networkContext } = chain;
 
     // This is not officially part of the NetworkContext but it's deployed
