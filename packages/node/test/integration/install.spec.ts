@@ -168,7 +168,7 @@ describe("Node method follows spec - install", () => {
         );
       });
 
-      it.only("sends proposal with null initial state", async () => {
+      it("sends proposal with null initial state", async () => {
         const appContext = getAppContext(Apps.TicTacToe);
         const appInstanceProposalReq = makeAppProposalRequest(
           nodeB.publicIdentifier,
