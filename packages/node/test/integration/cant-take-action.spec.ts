@@ -1,4 +1,4 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 
 import { INVALID_ACTION, Node } from "../../src";
 

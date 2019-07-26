@@ -1,5 +1,5 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   AppABIEncodings,
   AppInstanceJson,
