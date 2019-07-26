@@ -305,7 +305,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
         encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
@@ -370,7 +370,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
         encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 

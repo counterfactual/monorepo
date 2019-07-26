@@ -1,9 +1,5 @@
-import ETHUnidirectionalTransferApp from "@counterfactual/apps/build/ETHUnidirectionalTransferApp.json";
-import {
-  NetworkContext,
-  OutcomeType,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import UnidirectionalTransferApp from "@counterfactual/apps/build/UnidirectionalTransferApp.json";
+import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
@@ -21,7 +17,7 @@ import { MiniNode } from "./mininode";
 let network: NetworkContext;
 let provider: JsonRpcProvider;
 let wallet: Wallet;
-let ethUnidirectionalTransferApp: Contract;
+let unidirectionalTransferApp: Contract;
 
 expect.extend({ toBeEq });
 
@@ -34,9 +30,9 @@ beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
 
-  ethUnidirectionalTransferApp = await new ContractFactory(
-    ETHUnidirectionalTransferApp.abi,
-    ETHUnidirectionalTransferApp.bytecode,
+  unidirectionalTransferApp = await new ContractFactory(
+    UnidirectionalTransferApp.abi,
+    UnidirectionalTransferApp.bytecode,
     wallet
   ).deploy();
 });
@@ -76,19 +72,28 @@ describe("Three mininodes", () => {
     //   xkeyKthAddress(mininodeB.xpub, 1)
     // ]);
 
-    const appState = ({
+    const appState = {
+      stage: 0, // POST_FUND
       finalized: false,
       transfers: [
         [xkeyKthAddress(mininodeA.xpub, 0), Zero],
         [xkeyKthAddress(mininodeC.xpub, 0), Zero]
-      ]
-    } as unknown) as SolidityABIEncoderV2Type;
+      ],
+      turnNum: 0
+    };
 
     const appInterface = {
-      addr: ethUnidirectionalTransferApp.address,
-      stateEncoding:
-        "tuple(tuple(address to, uint256 amount)[2] transfers, bool finalized)",
-      actionEncoding: "tuple(uint256 transferAmount)"
+      addr: unidirectionalTransferApp.address,
+      stateEncoding: `tuple(
+          uint8 stage,
+          tuple(
+            address to,
+            uint256 amount
+          )[2] transfers,
+          uint256 turnNum,
+          bool finalized
+        )`,
+      actionEncoding: "tuple(uint8 actionType, uint256 amount)"
     };
 
     mr.assertNoPending();
@@ -147,7 +152,7 @@ describe("Three mininodes", () => {
         targetAppIdentityHash: appInstance.identityHash,
         targetOutcome: await appInstance.computeOutcome(
           appState,
-          ethUnidirectionalTransferApp.provider as BaseProvider
+          unidirectionalTransferApp.provider as BaseProvider
         )
       }
     );

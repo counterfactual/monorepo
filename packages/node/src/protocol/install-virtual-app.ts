@@ -27,7 +27,6 @@ import {
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -107,7 +106,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
@@ -336,7 +335,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithInitiating.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
@@ -356,7 +355,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithResponding.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithResponding.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
@@ -610,7 +609,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       encodeSingleAssetTwoPartyIntermediaryAgreementParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
