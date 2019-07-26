@@ -4,14 +4,9 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit } from "../../utils/counterfactual";
-import {
-  ActionType,
-  ApplicationState,
-  Deposit,
-  StoreAction,
-  WalletState
-} from "../types";
+import { forFunds, requestDeposit, requestWithdraw } from "../../utils/counterfactual";
+import log from "../../utils/log";
+import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "../types";
 
 export const initialState = {
   ethAddress: "",
@@ -129,22 +124,23 @@ export const withdraw = (
 > => async dispatch => {
   try {
     // 1. Ask Metamask to do the deposit. !
+    log('withdraw', transaction)
     dispatch({ type: WalletWithdrawTransition.CheckWallet });
-    // await requestWithdraw(transaction); // IMPLEMENT THIS!
+    const responsew = await requestWithdraw(transaction); // IMPLEMENT THIS!
+    log('withdraw responsew', responsew)
 
     // 2. Wait until the deposit is completed in both sides. !
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
-    // const counterfactualBalance = await forFunds({
-    //   multisigAddress: transaction.multisigAddress,
-    //   nodeAddress: transaction.nodeAddress
-    // });
+    const counterfactualBalance = await forFunds(transaction);
+    log('withdraw counterfactualBalance', counterfactualBalance)
 
     // 3. Get the Metamask balance.
     const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+    log('withdraw ethereumBalance', ethereumBalance)
 
     // 4. Update the balance.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance: Zero },
+      data: { ethereumBalance, counterfactualBalance },
       type: ActionType.WalletSetBalance
     });
 

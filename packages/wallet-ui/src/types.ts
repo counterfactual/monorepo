@@ -21,6 +21,7 @@ export enum CounterfactualMethod {
   SetUser = "counterfactual:set:user",
   RequestUser = "counterfactual:request:user",
   RequestDeposit = "counterfactual:request:deposit",
+  RequestWithdraw = "counterfactual:request:withdraw",
   RequestBalances = "counterfactual:request:balances",
   RequestChannels = "counterfactual:request:channels",
   RequestChannel = "counterfactual:request:channel"
