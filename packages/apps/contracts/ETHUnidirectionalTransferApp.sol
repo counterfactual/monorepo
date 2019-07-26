@@ -10,8 +10,7 @@ import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 /// @title Unidirectional Transfer App
 /// @notice This contract allows unidirectional coin transfers using the
 ///         takeAction paradigm.
-// FIXME: Remove ETH from prefix of contract name
-contract ETHUnidirectionalTransferApp is CounterfactualApp {
+contract UnidirectionalTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;
 

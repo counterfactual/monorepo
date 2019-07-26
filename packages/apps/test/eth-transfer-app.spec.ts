@@ -5,7 +5,7 @@ import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import { BigNumber, BigNumberish, defaultAbiCoder } from "ethers/utils";
 
-import ETHUnidirectionalTransferApp from "../build/ETHUnidirectionalTransferApp.json";
+import UnidirectionalTransferApp from "../build/UnidirectionalTransferApp.json";
 
 const { expect } = chai.use(waffle.solidity);
 
@@ -20,7 +20,7 @@ enum AppStage {
   CHANNEL_CLOSED
 }
 
-type ETHUnidirectionalTransferAppState = {
+type UnidirectionalTransferAppState = {
   stage: AppStage;
   transfers: CoinTransfer[];
   turnNum: BigNumberish;
@@ -32,7 +32,7 @@ enum ActionType {
   END_CHANNEL
 }
 
-type ETHUnidirectionalTransferAppAction = {
+type UnidirectionalTransferAppAction = {
   actionType: ActionType;
   amount: BigNumber;
 };
@@ -45,7 +45,7 @@ const singleAssetTwoPartyCoinTransferEncoding = `
   tuple(address to, uint256 amount)[2]
 `;
 
-const ethUnidirectionalTransferAppStateEncoding = `
+const unidirectionalTransferAppStateEncoding = `
   tuple(
     uint8 stage,
     ${singleAssetTwoPartyCoinTransferEncoding} transfers,
@@ -53,7 +53,7 @@ const ethUnidirectionalTransferAppStateEncoding = `
     bool finalized
   )`;
 
-const ethUnidirectionalTransferAppActionEncoding = `
+const unidirectionalTransferAppActionEncoding = `
   tuple(
     uint8 actionType,
     uint256 amount
@@ -61,41 +61,39 @@ const ethUnidirectionalTransferAppActionEncoding = `
 
 const decodeAppState = (
   encodedAppState: string
-): ETHUnidirectionalTransferAppState =>
+): UnidirectionalTransferAppState =>
   defaultAbiCoder.decode(
-    [ethUnidirectionalTransferAppStateEncoding],
+    [unidirectionalTransferAppStateEncoding],
     encodedAppState
   )[0];
 
 const encodeAppState = (state: SolidityABIEncoderV2Type) =>
-  defaultAbiCoder.encode([ethUnidirectionalTransferAppStateEncoding], [state]);
+  defaultAbiCoder.encode([unidirectionalTransferAppStateEncoding], [state]);
 
 const encodeAppAction = (state: SolidityABIEncoderV2Type) =>
-  defaultAbiCoder.encode([ethUnidirectionalTransferAppActionEncoding], [state]);
+  defaultAbiCoder.encode([unidirectionalTransferAppActionEncoding], [state]);
 
-describe("ETHUnidirectionalTransferApp", () => {
-  let ethUnidirectionalTransferApp: Contract;
+describe("UnidirectionalTransferApp", () => {
+  let unidirectionalTransferApp: Contract;
 
   const applyAction = (
     state: SolidityABIEncoderV2Type,
     action: SolidityABIEncoderV2Type
   ) =>
-    ethUnidirectionalTransferApp.functions.applyAction(
+    unidirectionalTransferApp.functions.applyAction(
       encodeAppState(state),
       encodeAppAction(action)
     );
 
   const computeOutcome = (state: SolidityABIEncoderV2Type) =>
-    ethUnidirectionalTransferApp.functions.computeOutcome(
-      encodeAppState(state)
-    );
+    unidirectionalTransferApp.functions.computeOutcome(encodeAppState(state));
 
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = (await waffle.getWallets(provider))[0];
-    ethUnidirectionalTransferApp = await waffle.deployContract(
+    unidirectionalTransferApp = await waffle.deployContract(
       wallet,
-      ETHUnidirectionalTransferApp
+      UnidirectionalTransferApp
     );
   });
 
@@ -106,7 +104,7 @@ describe("ETHUnidirectionalTransferApp", () => {
     const senderAmt = new BigNumber(10000);
     const amount = new BigNumber(10);
 
-    const preState: ETHUnidirectionalTransferAppState = {
+    const preState: UnidirectionalTransferAppState = {
       stage: AppStage.POST_FUND,
       transfers: [
         { to: senderAddr, amount: senderAmt },
@@ -116,7 +114,7 @@ describe("ETHUnidirectionalTransferApp", () => {
       finalized: false
     };
 
-    const action: ETHUnidirectionalTransferAppAction = {
+    const action: UnidirectionalTransferAppAction = {
       amount,
       actionType: ActionType.SEND_MONEY
     };
@@ -135,7 +133,7 @@ describe("ETHUnidirectionalTransferApp", () => {
 
     const senderAmt = new BigNumber(10000);
 
-    const preState: ETHUnidirectionalTransferAppState = {
+    const preState: UnidirectionalTransferAppState = {
       stage: AppStage.POST_FUND,
       transfers: [
         { to: senderAddr, amount: senderAmt },
@@ -145,7 +143,7 @@ describe("ETHUnidirectionalTransferApp", () => {
       finalized: false
     };
 
-    const action: ETHUnidirectionalTransferAppAction = {
+    const action: UnidirectionalTransferAppAction = {
       actionType: ActionType.END_CHANNEL,
       amount: Zero
     };
