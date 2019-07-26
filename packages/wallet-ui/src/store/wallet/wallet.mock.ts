@@ -39,7 +39,9 @@ export const connectToWallet = (): ThunkAction<
 };
 
 export const deposit = (
+  // @ts-ignore
   transaction: Deposit,
+  // @ts-ignore
   provider: Web3Provider,
   history?: History
 ): ThunkAction<
