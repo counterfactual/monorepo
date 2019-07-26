@@ -1,5 +1,7 @@
+import { EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT } from "@counterfactual/types";
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -18,7 +20,13 @@ export class LocalGanacheServer {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
-  networkContext: NetworkContextForTestSuite = Object.create(null);
+  networkContext: NetworkContextForTestSuite = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
+    (acc, contractName) => ({ ...acc, [contractName]: AddressZero }),
+    {
+      TicTacToeApp: AddressZero,
+      DolphinCoin: AddressZero
+    } as NetworkContextForTestSuite
+  );
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
@@ -55,8 +63,8 @@ export class LocalGanacheServer {
   }
 
   async createConfiguredChain(): Promise<NetworkContextForTestSuite> {
-    const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    this.networkContext = await deployTestArtifactsToChain(wallet);
-    return this.networkContext;
+    return (this.networkContext = await deployTestArtifactsToChain(
+      new Wallet(this.fundedPrivateKey, this.provider)
+    ));
   }
 }
