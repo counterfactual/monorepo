@@ -1,4 +1,5 @@
 import { IRpcNodeProvider, Node } from "@counterfactual/types";
+import { AddressZero } from "ethers/constants";
 import EventEmitter from "eventemitter3";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
@@ -13,6 +14,16 @@ export const TEST_OWNERS = [
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE",
   "0x54601F103dD6AE110aEf7F9007670f593d24a6ac"
 ];
+
+/**
+ * We use 0x00...000 to represent an identifier for the ETH token
+ * in places where values are indexed on token address. Of course,
+ * in practice, there is no "token address" for ETH because it is a
+ * native asset on the ethereum blockchain, but using this as an index
+ * is convenient for storing this data in the same data structure that
+ * also carries data about ERC20 tokens.
+ */
+export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
 export class TestNodeProvider implements IRpcNodeProvider {
   public postedMessages: Rpc[] = [];

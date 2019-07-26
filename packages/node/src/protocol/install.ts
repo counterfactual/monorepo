@@ -1,8 +1,7 @@
 import {
-  CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
-  OutcomeType,
-  TwoPartyFixedOutcomeInterpreterParams
+  OutcomeType
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -11,7 +10,9 @@ import { ConditionalTransaction } from "../ethereum/conditional-transaction-comm
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, InstallParams, ProtocolMessage } from "../machine/types";
+import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
+import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -23,7 +24,7 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   /**
-   * Sequence 0 of the INSTALL_PROTOCOL requires the initiating party
+   * Sequence 0 of the INSTALL_PROTOCOL requires the initiator party
    * to sign the ConditionalTransactionCommitment for the as-yet un-funded
    * newly proposed AppInstance, wait for a countersignature, and then when
    * received countersign the _also received_ free balance state update to
@@ -41,7 +42,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     } = context;
 
     const {
-      respondingXpub,
+      responderXpub,
       multisigAddress,
       outcomeType
     } = params as InstallParams;
@@ -75,14 +76,14 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID,
         params,
         protocol: Protocol.Install,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnConditionalTransaction,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(respondingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(responderXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -115,7 +116,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(respondingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(responderXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -144,7 +145,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Install,
-        toXpub: respondingXpub,
+        toXpub: responderXpub,
         signature: mySignatureOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
@@ -152,7 +153,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   },
 
   /**
-   * Sequence 1 of the INSTALL_PROTOCOL requires the responding party
+   * Sequence 1 of the INSTALL_PROTOCOL requires the responder party
    * to countersignsign the ConditionalTransactionCommitment and then sign
    * the update to the free balance object, wait for the intitiating party to
    * sign _that_ and then finish the protocol.
@@ -171,7 +172,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const counterpartySignatureOnConditionalTransaction = signature;
 
     const {
-      initiatingXpub,
+      initiatorXpub,
       multisigAddress,
       outcomeType
     } = params as InstallParams;
@@ -192,7 +193,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -239,7 +240,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       {
         protocolExecutionID,
         protocol: Protocol.Install,
-        toXpub: initiatingXpub,
+        toXpub: initiatorXpub,
         signature: mySignatureOnConditionalTransaction,
         signature2: mySignatureOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
@@ -247,7 +248,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     assertIsValidSignature(
-      preProtocolStateChannel.getFreeBalanceAddrOf(initiatingXpub),
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -282,12 +283,13 @@ function computeStateChannelTransition(
   params: InstallParams
 ): StateChannel {
   const {
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    tokenAddress,
-    initiatingXpub,
-    respondingXpub,
-    signingKeys,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement,
+    initiatorDepositTokenAddress,
+    responderDepositTokenAddress,
+    initiatorXpub,
+    responderXpub,
+    participants,
     initialState,
     appInterface,
     defaultTimeout,
@@ -295,24 +297,25 @@ function computeStateChannelTransition(
     outcomeType
   } = params;
 
-  const initiatingFbAddress = stateChannel.getFreeBalanceAddrOf(initiatingXpub);
-  const respondingFbAddress = stateChannel.getFreeBalanceAddrOf(respondingXpub);
+  const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
+  const responderFbAddress = stateChannel.getFreeBalanceAddrOf(responderXpub);
 
   const {
     coinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
   } = computeInterpreterParameters(
     outcomeType,
-    tokenAddress,
-    initiatingBalanceDecrement,
-    respondingBalanceDecrement,
-    initiatingFbAddress,
-    respondingFbAddress
+    initiatorDepositTokenAddress,
+    responderDepositTokenAddress,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement,
+    initiatorFbAddress,
+    responderFbAddress
   );
 
   const appInstanceToBeInstalled = new AppInstance(
     /* multisigAddress */ multisigAddress,
-    /* signingKeys */ signingKeys,
+    /* participants */ participants,
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
     /* isVirtualApp */ false,
@@ -320,15 +323,37 @@ function computeStateChannelTransition(
     /* latestState */ initialState,
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
+    /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
-    /* tokenAddress */ tokenAddress
+    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
   );
 
-  return stateChannel.installApp(appInstanceToBeInstalled, {
-    [initiatingFbAddress]: initiatingBalanceDecrement,
-    [respondingFbAddress]: respondingBalanceDecrement
-  });
+  let tokenIndexedBalanceDecrement: TokenIndexedCoinTransferMap;
+  if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+    tokenIndexedBalanceDecrement = {
+      [initiatorDepositTokenAddress]: {
+        [initiatorFbAddress]: initiatorBalanceDecrement
+      },
+      [responderDepositTokenAddress]: {
+        [responderFbAddress]: responderBalanceDecrement
+      }
+    };
+  } else {
+    // If the decrements are on the same token, the previous block
+    // sets the decrement only on the `respondingFbAddress` and the
+    // `initiatingFbAddress` would get overwritten
+    tokenIndexedBalanceDecrement = {
+      [initiatorDepositTokenAddress]: {
+        [initiatorFbAddress]: initiatorBalanceDecrement,
+        [responderFbAddress]: responderBalanceDecrement
+      }
+    };
+  }
+
+  return stateChannel.installApp(
+    appInstanceToBeInstalled,
+    tokenIndexedBalanceDecrement
+  );
 }
 
 /**
@@ -342,11 +367,13 @@ function computeStateChannelTransition(
  * inside of the client (the Node) by adding an "outcomeType" variable which
  * is a simplification of the actual decision a developer has to make with their app.
  *
+ * TODO: update doc on how CoinTransferInterpreterParams work
+ *
  * @param {OutcomeType} outcomeType - either COIN_TRANSFER or TWO_PARTY_FIXED_OUTCOME
- * @param {BigNumber} initiatingBalanceDecrement - amount Wei initiating deposits
- * @param {BigNumber} respondingBalanceDecrement - amount Wei responding deposits
- * @param {string} initiatingFbAddress - the address of the recipient of initiating
- * @param {string} respondingFbAddress - the address of the recipient of responding
+ * @param {BigNumber} initiatorBalanceDecrement - amount Wei initiator deposits
+ * @param {BigNumber} responderBalanceDecrement - amount Wei responder deposits
+ * @param {string} initiatorFbAddress - the address of the recipient of initiator
+ * @param {string} responderFbAddress - the address of the recipient of responder
  *
  * @returns An object with the required parameters for both interpreter types, one
  * will be undefined and the other will be a correctly structured POJO. The AppInstance
@@ -354,36 +381,69 @@ function computeStateChannelTransition(
  */
 function computeInterpreterParameters(
   outcomeType: OutcomeType,
-  tokenAddress: string,
-  initiatingBalanceDecrement: BigNumber,
-  respondingBalanceDecrement: BigNumber,
-  initiatingFbAddress: string,
-  respondingFbAddress: string
+  initiatorDepositTokenAddress: string,
+  responderDepositTokenAddress: string,
+  initiatorBalanceDecrement: BigNumber,
+  responderBalanceDecrement: BigNumber,
+  initiatorFbAddress: string,
+  responderFbAddress: string
 ) {
-  let coinTransferInterpreterParams: CoinTransferInterpreterParams | undefined;
-
-  let twoPartyOutcomeInterpreterParams:
-    | TwoPartyFixedOutcomeInterpreterParams
-    | undefined;
-
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
-      coinTransferInterpreterParams = {
-        tokenAddress,
-        limit: bigNumberify(initiatingBalanceDecrement).add(
-          respondingBalanceDecrement
-        )
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
+      const limit: BigNumber[] = [];
+      const tokenAddresses: string[] = [];
+
+      // Deposit is taking place by the initiator
+      if (responderDepositTokenAddress === undefined) {
+        limit.push(initiatorBalanceDecrement);
+        tokenAddresses.push(initiatorDepositTokenAddress);
+      } else if (
+        initiatorDepositTokenAddress === responderDepositTokenAddress
+      ) {
+        limit.push(initiatorBalanceDecrement.add(responderBalanceDecrement));
+        tokenAddresses.push(initiatorDepositTokenAddress);
+      } else {
+        tokenAddresses.push(initiatorDepositTokenAddress);
+        limit.push(initiatorBalanceDecrement);
+
+        tokenAddresses.push(responderDepositTokenAddress);
+        limit.push(responderBalanceDecrement);
+      }
+
+      return {
+        twoPartyOutcomeInterpreterParams: undefined,
+        coinTransferInterpreterParams: {
+          limit,
+          tokenAddresses
+        }
       };
-      break;
     }
+
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      twoPartyOutcomeInterpreterParams = {
-        playerAddrs: [initiatingFbAddress, respondingFbAddress],
-        amount: bigNumberify(initiatingBalanceDecrement).add(
-          respondingBalanceDecrement
-        )
+      const tokenAddress = initiatorDepositTokenAddress;
+
+      if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+        throw new Error(
+          TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
+            initiatorDepositTokenAddress,
+            responderDepositTokenAddress
+          )
+        );
+      }
+
+      return {
+        coinTransferInterpreterParams: undefined,
+        twoPartyOutcomeInterpreterParams: {
+          tokenAddress,
+          playerAddrs: [initiatorFbAddress, responderFbAddress] as [
+            string,
+            string
+          ],
+          amount: bigNumberify(initiatorBalanceDecrement).add(
+            responderBalanceDecrement
+          )
+        }
       };
-      break;
     }
     default: {
       throw new Error(
@@ -391,8 +451,6 @@ function computeInterpreterParameters(
       );
     }
   }
-
-  return { coinTransferInterpreterParams, twoPartyOutcomeInterpreterParams };
 }
 
 /**
@@ -416,18 +474,18 @@ function constructConditionalTransactionData(
   let interpreterParams: string;
 
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
-      interpreterAddress = network.CoinTransferETHInterpreter;
+    case OutcomeType.REFUND_OUTCOME_TYPE: {
+      interpreterAddress = network.CoinTransferInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(uint256 limit, address tokenAddress)"],
+        [coinTransferInterpreterParamsStateEncoding],
         [appInstance.coinTransferInterpreterParams]
       );
       break;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      interpreterAddress = network.TwoPartyFixedOutcomeETHInterpreter;
+      interpreterAddress = network.TwoPartyFixedOutcomeInterpreter;
       interpreterParams = defaultAbiCoder.encode(
-        ["tuple(address[2] playerAddrs, uint256 amount)"],
+        ["tuple(address[2] playerAddrs, uint256 amount, address tokenAddress)"],
         [appInstance.twoPartyOutcomeInterpreterParams]
       );
       break;

@@ -1,15 +1,16 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
-import CoinTransferETHInterpreter from "@counterfactual/contracts/build/CoinTransferETHInterpreter.json";
+import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeETHInterpreter.json";
+import TimeLockedPassThrough from "@counterfactual/contracts/build/TimeLockedPassThrough.json";
 import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
+import TwoPartyFixedOutcomeInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
@@ -56,14 +57,14 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferETHInterpreter.abi,
-    CoinTransferETHInterpreter.bytecode,
+    CoinTransferInterpreter.abi,
+    CoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
-  const twoPartyFixedOutcomeETHInterpreter = await new ContractFactory(
-    TwoPartyFixedOutcomeETHInterpreter.abi,
-    TwoPartyFixedOutcomeETHInterpreter.bytecode,
+  const twoPartyFixedOutcomeInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeInterpreter.abi,
+    TwoPartyFixedOutcomeInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -91,20 +92,26 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const timeLockedPassThrough = await new ContractFactory(
+    TimeLockedPassThrough.abi,
+    TimeLockedPassThrough.bytecode,
+    wallet
+  ).deploy();
+
   return {
     ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
     FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
-    CoinTransferETHInterpreter: coinTransferETHInterpreter.address,
+    CoinTransferInterpreter: coinTransferETHInterpreter.address,
     CoinBalanceRefundApp: coinBalanceRefundContract.address,
     DolphinCoin: dolphinCoin.address,
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToeApp: tttContract.address,
-    TwoPartyFixedOutcomeETHInterpreter:
-      twoPartyFixedOutcomeETHInterpreter.address,
+    TimeLockedPassThrough: timeLockedPassThrough.address,
+    TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   } as NetworkContextForTestSuite;

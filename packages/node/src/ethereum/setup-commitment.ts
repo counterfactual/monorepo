@@ -13,7 +13,8 @@ export class SetupCommitment extends MultisigCommitment {
     public readonly networkContext: NetworkContext,
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    public readonly freeBalanceAppIdentity: AppIdentity
+    public readonly freeBalanceAppIdentity: AppIdentity,
+    public readonly freeBalanceInterpreterParams: string
   ) {
     super(multisigAddress, multisigOwners);
   }
@@ -25,7 +26,8 @@ export class SetupCommitment extends MultisigCommitment {
       data: iface.functions.executeEffectOfFreeBalance.encode([
         this.networkContext.ChallengeRegistry,
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.CoinTransferETHInterpreter
+        this.networkContext.CoinTransferInterpreter,
+        this.freeBalanceInterpreterParams
       ]),
       operation: MultisigOperation.DelegateCall
     };

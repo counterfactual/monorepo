@@ -26,7 +26,7 @@ export default class UpdateStateController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(appInstanceId)
+        await store.getMultisigAddressFromAppInstance(appInstanceId)
       )
     ];
   }
@@ -39,7 +39,7 @@ export default class UpdateStateController extends NodeController {
     const { appInstanceId, newState } = params;
 
     if (!appInstanceId) {
-      return Promise.reject(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -48,9 +48,9 @@ export default class UpdateStateController extends NodeController {
       appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        return Promise.reject(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        throw new Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
       }
-      return Promise.reject(STATE_OBJECT_NOT_ENCODABLE);
+      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 
@@ -63,7 +63,7 @@ export default class UpdateStateController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const respondingXpub = getCounterpartyAddress(
+    const responderXpub = getCounterpartyAddress(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
@@ -73,7 +73,7 @@ export default class UpdateStateController extends NodeController {
       store,
       instructionExecutor,
       publicIdentifier,
-      respondingXpub,
+      responderXpub,
       newState
     );
 
@@ -85,8 +85,8 @@ async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
   instructionExecutor: InstructionExecutor,
-  initiatingXpub: string,
-  respondingXpub: string,
+  initiatorXpub: string,
+  responderXpub: string,
   newState: SolidityABIEncoderV2Type
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
@@ -97,8 +97,8 @@ async function runUpdateStateProtocol(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub,
-      respondingXpub,
+      initiatorXpub,
+      responderXpub,
       appIdentityHash,
       newState,
       multisigAddress: stateChannel.multisigAddress

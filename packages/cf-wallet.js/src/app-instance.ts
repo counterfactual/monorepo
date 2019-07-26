@@ -1,11 +1,11 @@
 import {
-  Address,
   AppABIEncodings,
   AppInstanceInfo,
+  AppInstanceJson,
   CoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { Provider } from "./provider";
 
@@ -19,30 +19,43 @@ export class AppInstance {
   readonly identityHash: string;
 
   // Application-specific fields
-  readonly appDefinition: Address;
+  readonly appDefinition: string;
   readonly abiEncodings: AppABIEncodings;
   readonly timeout: BigNumber;
 
   // Funding-related fields
-  readonly myDeposit: BigNumber;
-  readonly peerDeposit: BigNumber;
+  readonly initiatorDeposit: BigNumber;
+  readonly responderDeposit: BigNumber;
 
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
 
-  readonly intermediaries?: Address[];
+  readonly intermediaries?: string[];
 
-  constructor(info: AppInstanceInfo, readonly provider: Provider) {
+  constructor(
+    info: AppInstanceInfo | AppInstanceJson,
+    readonly provider: Provider
+  ) {
     this.identityHash = info.identityHash;
-    this.appDefinition = info.appDefinition;
-    this.abiEncodings = info.abiEncodings;
-    this.myDeposit = info.myDeposit;
-    this.peerDeposit = info.peerDeposit;
-    this.timeout = info.timeout;
-    this.twoPartyOutcomeInterpreterParams =
-      info.twoPartyOutcomeInterpreterParams;
-    this.coinTransferInterpreterParams = info.coinTransferInterpreterParams;
-    this.intermediaries = info.intermediaries;
+
+    if ("appInterface" in info) {
+      const { appInterface, defaultTimeout } = <AppInstanceJson>info;
+      this.appDefinition = appInterface.addr;
+      this.abiEncodings = {
+        stateEncoding: appInterface.stateEncoding,
+        actionEncoding: appInterface.actionEncoding
+      };
+      this.timeout = bigNumberify(defaultTimeout);
+    } else {
+      const { appDefinition, abiEncodings, timeout } = <AppInstanceInfo>info;
+      this.appDefinition = appDefinition;
+      this.abiEncodings = abiEncodings;
+      this.timeout = timeout;
+    }
+
+    this.initiatorDeposit = info["initiatorDeposit"];
+    this.responderDeposit = info["responderDeposit"];
+    this.intermediaries = info["intermediaries"];
   }
 
   /**

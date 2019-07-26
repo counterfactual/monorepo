@@ -2,7 +2,11 @@ import { BigNumber } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
-import { AppABIEncodings, AppInstanceInfo } from "./data-types";
+import {
+  AppABIEncodings,
+  AppInstanceJson,
+  AppInstanceProposal
+} from "./data-types";
 import { SolidityABIEncoderV2Type } from "./simple-types";
 
 export interface INodeProvider {
@@ -163,7 +167,6 @@ export namespace Node {
     multisigAddress: string;
     amount: BigNumber;
     tokenAddress?: string;
-    notifyCounterparty?: boolean;
   };
 
   export type DepositResult = {
@@ -175,7 +178,7 @@ export namespace Node {
   };
 
   export type GetAppInstanceDetailsResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceJson;
   };
 
   export type GetStateDepositHolderAddressParams = {
@@ -189,7 +192,7 @@ export namespace Node {
   export type GetAppInstancesParams = {};
 
   export type GetAppInstancesResult = {
-    appInstances: AppInstanceInfo[];
+    appInstances: AppInstanceJson[];
   };
 
   export type GetChannelAddressesParams = {};
@@ -210,7 +213,7 @@ export namespace Node {
   export type GetProposedAppInstancesParams = {};
 
   export type GetProposedAppInstancesResult = {
-    appInstances: AppInstanceInfo[];
+    appInstances: AppInstanceProposal[];
   };
 
   export type GetProposedAppInstanceParams = {
@@ -218,7 +221,7 @@ export namespace Node {
   };
 
   export type GetProposedAppInstanceResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceProposal;
   };
 
   export type GetStateParams = {
@@ -234,7 +237,7 @@ export namespace Node {
   };
 
   export type InstallResult = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceJson;
   };
 
   export type InstallVirtualParams = InstallParams & {
@@ -246,8 +249,10 @@ export namespace Node {
   export type ProposeInstallParams = {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
-    myDeposit: BigNumber;
-    peerDeposit: BigNumber;
+    initiatorDeposit: BigNumber;
+    initiatorDepositTokenAddress?: string;
+    responderDeposit: BigNumber;
+    responderDepositTokenAddress?: string;
     timeout: BigNumber;
     initialState: SolidityABIEncoderV2Type;
     proposedToIdentifier: string;
@@ -309,7 +314,7 @@ export namespace Node {
 
   export type WithdrawResult = {
     recipient: string;
-    amount: BigNumber;
+    txHash: string;
   };
 
   export type MethodParams =
@@ -351,7 +356,7 @@ export namespace Node {
   };
 
   export type RejectInstallEventData = {
-    appInstance: AppInstanceInfo;
+    appInstance: AppInstanceProposal;
   };
 
   export type UninstallEventData = {

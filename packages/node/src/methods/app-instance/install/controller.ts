@@ -31,7 +31,7 @@ export default class InstallController extends NodeController {
 
     return [
       requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromstring(sc.multisigAddress)
+        await store.getMultisigAddressFromAppInstance(sc.multisigAddress)
       )
     ];
   }
@@ -47,13 +47,17 @@ export default class InstallController extends NodeController {
       messagingService
     } = requestHandler;
 
-    const [respondingAddress] = await getPeersAddressFromAppInstanceID(
-      requestHandler.publicIdentifier,
-      requestHandler.store,
+    const [responderAddress] = await getPeersAddressFromAppInstanceID(
+      publicIdentifier,
+      store,
       params.appInstanceId
     );
 
-    const appInstanceInfo = await install(store, instructionExecutor, params);
+    const appInstanceProposal = await install(
+      store,
+      instructionExecutor,
+      params
+    );
 
     const installApprovalMsg: InstallMessage = {
       from: publicIdentifier,
@@ -62,10 +66,12 @@ export default class InstallController extends NodeController {
     };
 
     // TODO: Remove this and add a handler in protocolMessageEventController
-    await messagingService.send(respondingAddress, installApprovalMsg);
+    await messagingService.send(responderAddress, installApprovalMsg);
 
     return {
-      appInstance: appInstanceInfo
+      appInstance: (await store.getAppInstance(
+        appInstanceProposal.identityHash
+      )).toJson()
     };
   }
 }

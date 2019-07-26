@@ -1,6 +1,6 @@
 import {
-  Address,
   AppInstanceInfo,
+  AppInstanceJson,
   IRpcNodeProvider,
   Node
 } from "@counterfactual/types";
@@ -120,7 +120,7 @@ export class Provider {
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: Address[]
+    intermediaries: string[]
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,
@@ -232,9 +232,7 @@ export class Provider {
                 type: EventType.ERROR,
                 data: {
                   errorName: "unexpected_message_type",
-                  message: `Unexpected response type. Expected ${methodName}, got ${
-                    response.result.type
-                  }`
+                  message: `Unexpected response type. Expected ${methodName}, got ${response.result.type}`
                 }
               },
               requestId
@@ -271,7 +269,7 @@ export class Provider {
    */
   async getOrCreateAppInstance(
     id: string,
-    info?: AppInstanceInfo
+    info?: AppInstanceInfo | AppInstanceJson
   ): Promise<AppInstance> {
     if (!(id in this.appInstances)) {
       let newInfo;

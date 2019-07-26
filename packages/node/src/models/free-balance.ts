@@ -1,11 +1,17 @@
+import { OutcomeType } from "@counterfactual/types";
 import { AddressZero, MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
-import { getCoinBucketAppInterface } from "../ethereum/utils/funds-bucket";
-import { xkeysToSortedKthAddresses } from "../machine";
+import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
+import { xkeysToSortedKthAddresses } from "../machine/xkeys";
 
-import { AppInstance } from ".";
-import { HARD_CODED_ASSUMPTIONS } from "./state-channel";
+import { AppInstance } from "./app-instance";
+
+const HARD_CODED_ASSUMPTIONS = {
+  freeBalanceInitialStateTimeout: 172800,
+  // We assume the Free Balance is the first app ever installed
+  appSequenceNumberForFreeBalance: 0
+};
 
 /**
  * We use 0x00...000 to represent an identifier for the ETH token
@@ -19,6 +25,10 @@ export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
 export type CoinTransferMap = {
   [to: string]: BigNumber;
+};
+
+export type TokenIndexedCoinTransferMap = {
+  [tokenAddress: string]: CoinTransferMap;
 };
 
 export type CoinTransfer = {
@@ -41,7 +51,7 @@ export type FreeBalanceState = {
 };
 
 export type FreeBalanceStateJSON = {
-  tokens: string[];
+  tokenAddresses: string[];
   balances: CoinTransferJSON[][];
   activeApps: string[];
 };
@@ -78,15 +88,16 @@ export function createFreeBalance(
     multisigAddress,
     sortedTopLevelKeys,
     freeBalanceTimeout,
-    getCoinBucketAppInterface(coinBucketAddress),
+    getFreeBalanceAppInterface(coinBucketAddress),
     false,
     HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
     serializeFreeBalanceState(initialState),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: MaxUint256, tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS }
+    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
   );
 }
 
@@ -102,29 +113,24 @@ export function convertCoinTransfersToCoinTransfersMap(
 export function convertCoinTransfersMapToCoinTransfers(
   coinTransfersMap: CoinTransferMap
 ): CoinTransfer[] {
-  const balances: CoinTransfer[] = [];
-
-  for (const addr of Object.keys(coinTransfersMap)) {
-    balances.push({
-      to: addr,
-      amount: coinTransfersMap[addr]
-    });
-  }
-
-  return balances;
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
 }
 
 /**
- * Given an AppInstance whose state is HexFreeBalanceState, convert the state
+ * Given an AppInstance whose state is FreeBalanceState, convert the state
  * into the locally more convenient data type CoinTransferMap and return that.
  *
  * Note that this function will also default the `to` addresses of a new token
- * to the 0th signing keys of the FreeBalanceApp AppInstance.
+ * to the 0th derived public addresses of the StateChannel, the same as all
+ * FreeBalanceApp AppInstances.
  *
  * @export
  * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
  *
- * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokens
+ * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokenAddresses
  */
 export function getBalancesFromFreeBalanceAppInstance(
   freeBalanceAppInstance: AppInstance,
@@ -137,8 +143,8 @@ export function getBalancesFromFreeBalanceAppInstance(
   const coinTransfers = freeBalanceState.balancesIndexedByToken[
     tokenAddress
   ] || [
-    { to: freeBalanceAppInstance.signingKeys[0], amount: Zero },
-    { to: freeBalanceAppInstance.signingKeys[1], amount: Zero }
+    { to: freeBalanceAppInstance.participants[0], amount: Zero },
+    { to: freeBalanceAppInstance.participants[1], amount: Zero }
   ];
 
   return convertCoinTransfersToCoinTransfersMap(coinTransfers);
@@ -147,12 +153,12 @@ export function getBalancesFromFreeBalanceAppInstance(
 export function deserializeFreeBalanceState(
   freeBalanceStateJSON: FreeBalanceStateJSON
 ): FreeBalanceState {
-  const { activeApps, tokens, balances } = freeBalanceStateJSON;
+  const { activeApps, tokenAddresses, balances } = freeBalanceStateJSON;
   return {
-    balancesIndexedByToken: (tokens || []).reduce(
-      (acc, token, idx) => ({
+    balancesIndexedByToken: (tokenAddresses || []).reduce(
+      (acc, tokenAddress, idx) => ({
         ...acc,
-        [token]: balances[idx].map(({ to, amount }) => ({
+        [tokenAddress]: balances[idx].map(({ to, amount }) => ({
           to,
           amount: bigNumberify(amount._hex)
         }))
@@ -171,7 +177,7 @@ export function serializeFreeBalanceState(
 ): FreeBalanceStateJSON {
   return {
     activeApps: Object.keys(freeBalanceState.activeAppsMap),
-    tokens: Object.keys(freeBalanceState.balancesIndexedByToken),
+    tokenAddresses: Object.keys(freeBalanceState.balancesIndexedByToken),
     balances: Object.values(freeBalanceState.balancesIndexedByToken).map(
       balances =>
         balances.map(({ to, amount }) => ({

@@ -48,16 +48,14 @@ contract MixinSetState is
       "setState was called on an app that has already been finalized"
     );
 
-    if (msg.sender != appIdentity.owner) {
-      require(
-        correctKeysSignedAppChallengeUpdate(
-          identityHash,
-          appIdentity.signingKeys,
-          req
-        ),
-        "Call to setState included incorrectly signed state update"
-      );
-    }
+    require(
+      correctKeysSignedAppChallengeUpdate(
+        identityHash,
+        appIdentity.participants,
+        req
+      ),
+      "Call to setState included incorrectly signed state update"
+    );
 
     require(
       req.versionNumber > challenge.versionNumber,
@@ -77,7 +75,7 @@ contract MixinSetState is
 
   function correctKeysSignedAppChallengeUpdate(
     bytes32 identityHash,
-    address[] memory signingKeys,
+    address[] memory participants,
     SignedAppChallengeUpdate memory req
   )
     private
@@ -94,7 +92,7 @@ contract MixinSetState is
     return verifySignatures(
       req.signatures,
       digest,
-      signingKeys
+      participants
     );
   }
 

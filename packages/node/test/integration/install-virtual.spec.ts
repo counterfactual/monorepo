@@ -1,8 +1,6 @@
 import { Node as NodeTypes } from "@counterfactual/types";
-import { One, Zero } from "ethers/constants";
 
 import { Node } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import {
   InstallVirtualMessage,
   NODE_EVENTS,
@@ -14,7 +12,7 @@ import {
   collateralizeChannel,
   confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
   createChannel,
-  getApps,
+  getInstalledAppInstances,
   getProposedAppInstances,
   installTTTVirtual,
   makeTTTVirtualProposal
@@ -47,27 +45,12 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         nodeA.once(
           NODE_EVENTS.INSTALL_VIRTUAL,
           async (msg: InstallVirtualMessage) => {
-            const [virtualAppNodeA] = await getApps(
-              nodeA,
-              APP_INSTANCE_STATUS.INSTALLED
-            );
+            const [virtualAppNodeA] = await getInstalledAppInstances(nodeA);
 
-            const [virtualAppNodeC] = await getApps(
-              nodeC,
-              APP_INSTANCE_STATUS.INSTALLED
-            );
-
-            expect(virtualAppNodeA.myDeposit).toEqual(One);
-            expect(virtualAppNodeA.peerDeposit).toEqual(Zero);
-            expect(virtualAppNodeC.myDeposit).toEqual(Zero);
-            expect(virtualAppNodeC.peerDeposit).toEqual(One);
-
-            delete virtualAppNodeA.myDeposit;
-            delete virtualAppNodeA.peerDeposit;
-            delete virtualAppNodeC.myDeposit;
-            delete virtualAppNodeC.peerDeposit;
+            const [virtualAppNodeC] = await getInstalledAppInstances(nodeC);
 
             expect(virtualAppNodeA).toEqual(virtualAppNodeC);
+
             done();
           }
         );

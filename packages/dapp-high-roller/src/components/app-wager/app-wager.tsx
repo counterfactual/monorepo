@@ -6,7 +6,7 @@ import { RouterHistory } from "@stencil/router";
 
 import CounterfactualTunnel from "../../data/counterfactual";
 import { HighRollerAppState, HighRollerStage } from "../../data/game-types";
-import { Address, AppInstanceInfo, cf } from "../../data/types";
+import { AppInstanceInfo, cf } from "../../data/types";
 
 const { HashZero } = ethers.constants;
 
@@ -32,7 +32,7 @@ export class AppWager {
   @State() opponent: {
     attributes: {
       username?: string;
-      ethAddress?: Address;
+      ethAddress?: string;
       nodeAddress?: string;
     };
   } = { attributes: {} };
@@ -74,9 +74,7 @@ export class AppWager {
       const bet = ethers.utils.parseEther(this.betAmount);
 
       if (currentEthBalance.lt(bet)) {
-        this.error = `Insufficient funds: You need at least ${
-          this.betAmount
-        } ETH to play.`;
+        this.error = `Insufficient funds: You need at least ${this.betAmount} ETH to play.`;
         return;
       }
 
@@ -91,8 +89,8 @@ export class AppWager {
       await this.appFactory.proposeInstallVirtual({
         initialState,
         proposedToIdentifier: this.opponent.attributes.nodeAddress as string,
-        peerDeposit: ethers.utils.parseEther(this.betAmount),
-        myDeposit: ethers.utils.parseEther(this.betAmount),
+        responderDeposit: ethers.utils.parseEther(this.betAmount),
+        initiatorDeposit: ethers.utils.parseEther(this.betAmount),
         timeout: 172800,
         intermediaries: [this.intermediary]
       });

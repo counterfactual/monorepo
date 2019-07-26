@@ -91,7 +91,7 @@ class Wager extends Component {
         contractAddress = getContractAddress(KovanContracts, contractName);
         break;
       default:
-        throw Error(
+        throw new Error(
           `The App has not been deployed to network ID ${networkVersion}`
         );
     }
@@ -139,10 +139,10 @@ class Wager extends Component {
     this.setState({
       appInstance: await appFactory.proposeInstallVirtual({
         proposedToIdentifier: opponent.nodeAddress,
-        peerDeposit: window.ethers.utils.parseEther(
+        responderDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
-        myDeposit: window.ethers.utils.parseEther(
+        initiatorDeposit: window.ethers.utils.parseEther(
           this.props.gameInfo.betAmount
         ),
         timeout: 172800,

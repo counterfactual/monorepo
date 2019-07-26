@@ -24,7 +24,7 @@ export async function getUserFromStoredToken(): Promise<{
 }> {
   const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
-  return data.result || {};
+  return data.result;
 }
 
 export async function storeTokenFromUser({ token }: User): Promise<void> {
@@ -61,50 +61,39 @@ export async function requestDeposit({ amount, multisigAddress }: Deposit) {
   ]);
 }
 
-export async function whenDepositStartsThen(callback: Function) {
-  const data = await window.ethereum.send(
-    CounterfactualEvent.RequestDepositStart
-  );
-  return callback(data);
-}
-
 export async function forFunds({
   multisigAddress,
   nodeAddress
 }: BalanceRequest): Promise<BigNumberish> {
-  return new Promise(async resolve => {
-    const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
+  const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
 
-    const freeBalance = (await window.ethereum.send(
-      CounterfactualMethod.RequestBalances,
-      [multisigAddress]
-    )).result;
+  const freeBalance = (await window.ethereum.send(
+    CounterfactualMethod.RequestBalances,
+    [multisigAddress]
+  )).result;
+  const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
 
-    const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+  const counterpartyFreeBalanceAddress = Object.keys(freeBalance).find(
+    address => address !== freeBalanceAddress
+  ) as string;
 
-    const counterpartyFreeBalanceAddress = Object.keys(freeBalance).find(
-      address => address !== freeBalanceAddress
-    ) as string;
+  const myBalance = bigNumberify(freeBalance[freeBalanceAddress]);
 
-    const myBalance = bigNumberify(freeBalance[freeBalanceAddress]);
+  const counterpartyBalance = bigNumberify(
+    freeBalance[counterpartyFreeBalanceAddress]
+  );
 
-    const counterpartyBalance = bigNumberify(
-      freeBalance[counterpartyFreeBalanceAddress]
-    );
+  const enoughCounterpartyBalance = counterpartyBalance.gte(
+    MINIMUM_EXPECTED_BALANCE
+  );
+  const enoughMyBalance = myBalance.gte(MINIMUM_EXPECTED_BALANCE);
+  if (enoughCounterpartyBalance && enoughMyBalance) {
+    return myBalance;
+  }
 
-    const enoughCounterpartyBalance = counterpartyBalance.gte(
-      MINIMUM_EXPECTED_BALANCE
-    );
-    const enoughMyBalance = myBalance.gte(MINIMUM_EXPECTED_BALANCE);
-
-    if (enoughCounterpartyBalance && enoughMyBalance) {
-      return resolve(myBalance);
-    }
-
-    // !TODO: This should die in a fire :-)
-    await delay(1000);
-    return forFunds({ multisigAddress, nodeAddress });
-  });
+  // !TODO: This should die in a fire :-)
+  await delay(1000);
+  return forFunds({ multisigAddress, nodeAddress });
 }
 
 export async function getChannelAddresses(): Promise<string[]> {

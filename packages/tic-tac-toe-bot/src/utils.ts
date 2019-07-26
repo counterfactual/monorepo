@@ -60,11 +60,11 @@ export async function deposit(
   const preDepositBalances = await getFreeBalance(node, multisigAddress);
 
   if (Object.keys(preDepositBalances).length !== 2) {
-    throw Error("Unexpected number of entries");
+    throw new Error("Unexpected number of entries");
   }
 
   if (!preDepositBalances[myFreeBalanceAddress]) {
-    throw Error("My address not found");
+    throw new Error("My address not found");
   }
 
   const [counterpartyFreeBalanceAddress] = Object.keys(
@@ -78,8 +78,7 @@ export async function deposit(
       requestId: generateUUID(),
       params: {
         multisigAddress,
-        amount: parseEther(amount),
-        notifyCounterparty: true
+        amount: parseEther(amount)
       } as NodeTypes.DepositParams
     });
 
@@ -90,7 +89,7 @@ export async function deposit(
         preDepositBalances[myFreeBalanceAddress]
       )
     ) {
-      throw Error("My balance was not updated.");
+      throw new Error("My balance was not updated.");
     }
 
     console.info("Waiting for counter party to deposit same amount");
@@ -358,7 +357,7 @@ export type APIResourceType =
   | "app";
 
 export type APIResourceRelationships = {
-  [key in APIResourceType]?: APIDataContainer
+  [key in APIResourceType]?: APIDataContainer;
 };
 
 export type APIDataContainer<T = APIResourceAttributes> = {
@@ -377,7 +376,7 @@ export enum ErrorCode {
   SignatureRequired = "signature_required",
   InvalidSignature = "invalid_signature",
   AddressAlreadyRegistered = "address_already_registered",
-  ChallengeRegistryNotAvailable = "app_registry_not_available",
+  AppRegistryNotAvailable = "app_registry_not_available",
   UserAddressRequired = "user_address_required",
   NoUsersAvailable = "no_users_available",
   UnhandledError = "unhandled_error",

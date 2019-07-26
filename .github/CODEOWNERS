@@ -7,7 +7,6 @@
 /packages/high-roller-bot @cf19drofxots
 /packages/machine @snario
 /packages/node @cf19drofxots
-/packages/node @cf19drofxots
 /packages/node-provider @ebryn
 /packages/playground @joelalejandro
 /packages/simple-hub-server @joelalejandro
@@ -15,3 +14,4 @@
 /packages/tic-tac-toe-bot @cf19drofxots
 /packages/types @snario
 /packages/typescript-typings @snario
+/packages/wallet-ui @joelalejandro @spersico

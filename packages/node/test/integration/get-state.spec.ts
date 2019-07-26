@@ -26,7 +26,7 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {
     const getStateReq = generateGetStateRequest(generateUUID());
-    expect(nodeA.rpcRouter.dispatch(getStateReq)).rejects.toEqual(
+    await expect(nodeA.rpcRouter.dispatch(getStateReq)).rejects.toThrowError(
       NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
   });

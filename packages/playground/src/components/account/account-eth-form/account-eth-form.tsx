@@ -1,5 +1,5 @@
 import { Component, Event, EventEmitter, Prop } from "@stencil/core";
-import { BigNumber } from "ethers/utils";
+import { BigNumberish } from "ethers/utils";
 
 @Component({
   tag: "account-eth-form",
@@ -15,7 +15,7 @@ export class AccountEthForm {
   @Prop() provideFaucetLink: boolean = false;
   @Prop() min: number = 0.01;
   @Prop() max: number = 1;
-  @Prop() available: BigNumber | number = 0;
+  @Prop() available: BigNumberish = 0;
   @Prop({ mutable: true }) value: string | number = "";
   @Prop({ mutable: true }) error: string = "";
   @Prop() loading: boolean = false;
@@ -36,9 +36,7 @@ export class AccountEthForm {
     const value = Number(this.value);
 
     if (!value || value < this.min || value > this.max) {
-      this.error = `Enter an amount larger than ${this.min} and smaller than ${
-        this.max
-      }.`;
+      this.error = `Enter an amount larger than ${this.min} and smaller than ${this.max}.`;
       return;
     }
 

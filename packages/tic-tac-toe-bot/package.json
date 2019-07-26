@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/tic-tac-toe-bot",
-  "version": "0.0.18",
+  "version": "0.0.20",
   "description": "A bot for the Tic Tac Toe Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -35,19 +35,19 @@
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
     "@counterfactual/dapp-tic-tac-toe": "0.1.2",
-    "@counterfactual/node": "0.2.17",
-    "@counterfactual/types": "0.0.22",
+    "@counterfactual/node": "0.2.26",
+    "@counterfactual/types": "0.0.26",
     "eventemitter3": "^4.0.0"
   },
   "devDependencies": {
     "@counterfactual/firebase-server": "0.0.1",
     "env-cmd": "9.0.3",
-    "ethers": "4.0.32",
+    "ethers": "4.0.33",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
-    "ts-node": "8.2.0",
+    "ts-node": "8.3.0",
     "tslint": "5.18.0",
-    "typescript": "3.5.1",
+    "typescript": "3.5.3",
     "uuid": "3.3.2"
   }
 }

@@ -1,33 +1,7 @@
+import { Deferred } from "../../../src/deferred";
 import { Opcode } from "../../../src/machine";
 
 import { MiniNode } from "./mininode";
-
-/// copied from node
-/// see also: https://twitter.com/joseph_silber/status/809176159858655234
-class Deferred<T> {
-  private internalPromise: Promise<T>;
-  private internalResolve!: (value?: T | PromiseLike<T>) => void;
-  private internalReject!: (reason?: any) => void;
-
-  constructor() {
-    this.internalPromise = new Promise<T>((resolve, reject) => {
-      this.internalResolve = resolve;
-      this.internalReject = reject;
-    });
-  }
-
-  get promise(): Promise<T> {
-    return this.internalPromise;
-  }
-
-  resolve = (value?: T | PromiseLike<T>): void => {
-    this.internalResolve(value);
-  };
-
-  reject = (reason?: any): void => {
-    this.internalReject(reason);
-  };
-}
 
 export class MessageRouter {
   private nodesMap: Map<string, MiniNode>;
@@ -61,14 +35,14 @@ export class MessageRouter {
   private routeMessage(message: any) {
     const { toXpub } = message;
     if (toXpub === undefined) {
-      throw Error("No toXpub found on message");
+      throw new Error("No toXpub found on message");
     }
     const deferred = this.deferrals.get(toXpub);
 
     if (deferred === undefined) {
       const toNode = this.nodesMap.get(toXpub);
       if (toNode === undefined) {
-        throw Error(`No node with xpub = ${toXpub} found`);
+        throw new Error(`No node with xpub = ${toXpub} found`);
       }
       toNode.dispatchMessage(message);
       return;
@@ -79,7 +53,7 @@ export class MessageRouter {
 
   public assertNoPending() {
     if (this.deferrals.size !== 0) {
-      throw Error("Pending IO_SEND_AND_WAIT deferrals detected");
+      throw new Error("Pending IO_SEND_AND_WAIT deferrals detected");
     }
   }
 }

@@ -18,6 +18,39 @@ Some specific examples of this include:
 - storing state commitments (delegating to an arbitrary, possibly non-local service implementing a desired interface)
 - implementing a custom Write-Ahead-Log to tweak performance/security properties
 
+We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
+
+## Apps and their OutcomeTypes
+
+Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
+
+The currently supported outcome types are:
+
+- TWO_PARTY_FIXED_OUTCOME
+
+  - This is only used when the installed app is collateralized with ETH (for now) and indicates that the total amount allocated to the app will be sent to one of the two parties OR gets split evenly.
+
+- CoinTransfer
+
+  - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
+
+- FREE_BALANCE_OUTCOME_TYPE
+
+  - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
+
+- REFUND_OUTCOME_TYPE
+
+  - This is used to calculate how much an address receives.
+
+- SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+  - (Currently not supported) This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
+
+## Note:
+
+Any consumer of the Node should set up a handler for the event `DEPOSIT_CONFIRMED` so as to define how this Node behaves when a counter party has initiated a deposit and is asking this Node to make a counter deposit and collateralize the channel. The parameters passed with this event correspond to the same ones used by the initiator, tha is `DepositParams` (as defined in the `@counterfactual/types packages`).
+
+If no such handler is defined, `No event handler for counter depositing into channel <info>` is printed indicating the Node does not know how to handle a counter deposit request.
+
 # Node API
 
 ## Message Format
@@ -55,15 +88,19 @@ Requests that a peer start the install protocol for an app instance. At the same
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `initiatorDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the proposer's side of the app. If not specified, this defaults to ETH.
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
+- `responderDepositTokenAddress?: string`
+  - An optional string indicating whether an ERC20 token should be used for funding the peer's side of the app. If not specified, this defaults to ETH.
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
@@ -85,14 +122,14 @@ Requests that a peer start the install protocol for a virtual app instance. At t
 Params:
 
 - `proposedToIdentifier: string`
-  - Address of the peer responding to the installation request of the app
+  - Public identifier of the peer responding to the installation request of the app
 - `appDefinition: string`
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
@@ -264,7 +301,7 @@ Creates a channel by deploying a multisignature wallet contract.
 
 Params:
 
-- `owners: Address[]`
+- `owners: string[]`
   - the addresses who should be the owners of the multisig
 
 Result:
@@ -280,7 +317,7 @@ Gets the (multisig) addresses of all the channels that are open on the Node.
 
 Result:
 
-- `addresses: Address[]`
+- `addresses: string[]`
   - the list of multisig addresses representing the open channels on the Node.
 
 ### Method: `deposit`
@@ -315,6 +352,29 @@ Result:
 
 - `multisigAddress: string`
   - the address of the multisig (i.e. the state deposit holder)
+
+### Method: `withdraw`
+
+If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+- `recipient?: string`
+- `tokenAddress?: string`
+
+Result:
+
+- `recipient: string`
+  - The address to whom the withdrawal is made
+- `txHash: string`
+  - The hash of the transaction in which the funds are transferred from the state deposit holder to the recipient
+
+Error(s):
+
+- "Insufficient funds"
+- "Withdraw Failed"
 
 ### Method: `getFreeBalance`
 
@@ -405,9 +465,9 @@ Data:
 - `CreateChannelResult`
   - `counterpartyXpub: string`
     - Xpub of the counterparty that the channel was opened with
-  - `multisigAddress: Address`
+  - `multisigAddress: string`
     - The address of the multisig that was created
-  - `owners: Address[]`
+  - `owners: string[]`
     - The list of multisig owners of the created channel
 
 ## Data Types
@@ -423,9 +483,9 @@ An instance of an installed app.
   - On-chain address of App Definition contract
 - `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
   - ABI encodings used for states and actions of this app
-- `myDeposit: BigNumber`
+- `initiatorDeposit: BigNumber`
   - Amount of the asset deposited by this user
-- `peerDeposit: BigNumber`
+- `responderDeposit: BigNumber`
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized

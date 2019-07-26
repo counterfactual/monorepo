@@ -1,8 +1,6 @@
-import { Node as NodeTypes } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 
 import {
-  JsonRpcResponse,
   NO_APP_INSTANCE_FOR_TAKE_ACTION,
   Node,
   NODE_EVENTS,
@@ -20,6 +18,8 @@ import {
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
+  jest.setTimeout(15000);
+
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
@@ -37,10 +37,9 @@ describe("Node method follows spec - takeAction virtual", () => {
     () => {
       it("sends takeAction with invalid appInstanceId", async () => {
         const takeActionReq = generateTakeActionRequest("", validAction);
-
-        expect(nodeA.rpcRouter.dispatch(takeActionReq)).rejects.toEqual(
-          NO_APP_INSTANCE_FOR_TAKE_ACTION
-        );
+        await expect(
+          nodeA.rpcRouter.dispatch(takeActionReq)
+        ).rejects.toThrowError(NO_APP_INSTANCE_FOR_TAKE_ACTION);
       });
 
       it("can take action", async done => {
@@ -60,24 +59,42 @@ describe("Node method follows spec - takeAction virtual", () => {
 
         nodeC.once(
           NODE_EVENTS.UPDATE_STATE,
-          async (msg: UpdateStateMessage) => {
+          async ({
+            data: { newState, appInstanceId: retAppInstanceId }
+          }: UpdateStateMessage) => {
             /**
              * TEST #1
              * The event emitted by Node C after an action is taken by A
              * sends the appInstanceId and the newState correctly.
              */
-            expect(msg.data.appInstanceId).toEqual(appInstanceId);
-            expect(msg.data.newState).toEqual(expectedNewState);
+            expect(retAppInstanceId).toEqual(appInstanceId);
+            expect(newState).toEqual(expectedNewState);
+
+            const req = generateGetStateRequest(appInstanceId);
 
             /**
              * TEST #3
              * The database of Node C is correctly updated and querying it works
              */
-            const { state } = ((await nodeC.rpcRouter.dispatch(
-              generateGetStateRequest(appInstanceId)
-            )) as JsonRpcResponse).result.result as NodeTypes.GetStateResult;
+            const {
+              result: {
+                result: { state: nodeCState }
+              }
+            } = await nodeC.rpcRouter.dispatch(req);
 
-            expect(state).toEqual(expectedNewState);
+            expect(nodeCState).toEqual(expectedNewState);
+
+            /**
+             * TEST #4
+             * The database of Node A is correctly updated and querying it works
+             */
+            const {
+              result: {
+                result: { state: nodeAState }
+              }
+            } = await nodeA.rpcRouter.dispatch(req);
+
+            expect(nodeAState).toEqual(expectedNewState);
 
             done();
           }
@@ -92,9 +109,11 @@ describe("Node method follows spec - takeAction virtual", () => {
          * TEST #2
          * The return value from the call to Node A includes the new state
          */
-        const { newState } = ((await nodeA.rpcRouter.dispatch(
-          takeActionReq
-        )) as JsonRpcResponse).result.result as NodeTypes.TakeActionResult;
+        const {
+          result: {
+            result: { newState }
+          }
+        } = await nodeA.rpcRouter.dispatch(takeActionReq);
 
         expect(newState).toEqual(expectedNewState);
       });

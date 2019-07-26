@@ -1,6 +1,7 @@
 import ERC20 from "@counterfactual/contracts/build/ERC20.json";
 import {
   AppInterface,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   NetworkContext,
   Node,
@@ -23,6 +24,8 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
+
+const DEPOSIT_RETRY_COUNT = 3;
 
 interface DepositContext {
   initialState: SolidityABIEncoderV2Type;
@@ -65,17 +68,18 @@ export async function installBalanceRefundApp(
 
   const installParams: InstallParams = {
     initialState: depositContext.initialState,
-    initiatingXpub: publicIdentifier,
-    respondingXpub: peerAddress,
+    initiatorXpub: publicIdentifier,
+    responderXpub: peerAddress,
     multisigAddress: stateChannel.multisigAddress,
-    initiatingBalanceDecrement: Zero,
-    respondingBalanceDecrement: Zero,
-    signingKeys: stateChannel.getNextSigningKeys(),
+    initiatorBalanceDecrement: Zero,
+    responderBalanceDecrement: Zero,
+    participants: stateChannel.getNextSigningKeys(),
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: OutcomeType.COIN_TRANSFER,
-    tokenAddress: tokenAddress! // params object is mutated in caller
+    outcomeType: OutcomeType.REFUND_OUTCOME_TYPE,
+    initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
@@ -90,7 +94,7 @@ export async function installBalanceRefundApp(
 export async function makeDeposit(
   requestHandler: RequestHandler,
   params: Node.DepositParams
-): Promise<boolean> {
+): Promise<void> {
   const { multisigAddress, amount, tokenAddress } = params;
   const { provider, blocksNeededForConfirmation, outgoing } = requestHandler;
 
@@ -105,7 +109,7 @@ export async function makeDeposit(
 
   let txResponse: TransactionResponse;
 
-  let retryCount = 3;
+  let retryCount = DEPOSIT_RETRY_COUNT;
   while (retryCount > 0) {
     try {
       if (tokenAddress === CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
@@ -121,15 +125,17 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
-        return false;
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
 
       retryCount -= 1;
 
       if (retryCount === 0) {
-        console.error(`${DEPOSIT_FAILED}: ${e}`);
-        return false;
+        outgoing.emit(
+          NODE_EVENTS.DEPOSIT_FAILED,
+          `Could not deposit after ${DEPOSIT_RETRY_COUNT} attempts`
+        );
+        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
       }
     }
   }
@@ -140,8 +146,6 @@ export async function makeDeposit(
   });
 
   await txResponse!.wait(blocksNeededForConfirmation);
-
-  return true;
 }
 
 export async function uninstallBalanceRefundApp(
@@ -176,8 +180,8 @@ export async function uninstallBalanceRefundApp(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: publicIdentifier,
-      respondingXpub: peerAddress,
+      initiatorXpub: publicIdentifier,
+      responderXpub: peerAddress,
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }
@@ -208,10 +212,10 @@ async function getDepositContext(
 
   const initialState = {
     threshold,
-    token: tokenAddress,
+    tokenAddress,
     recipient: xkeyKthAddress(publicIdentifier, 0),
     multisig: multisigAddress
-  };
+  } as CoinBalanceRefundState;
 
   return {
     initialState,

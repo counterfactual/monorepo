@@ -1,5 +1,5 @@
 import { Component, Element, Prop } from "@stencil/core";
-import { BigNumber } from "ethers/utils";
+import { BigNumberish } from "ethers/utils";
 
 import AccountTunnel from "../../../../data/account";
 import { UserSession } from "../../../../types";
@@ -11,7 +11,7 @@ import { UserSession } from "../../../../types";
 })
 export class HeaderBalance {
   @Element() el!: HTMLStencilElement;
-  @Prop() ethFreeBalanceWei: BigNumber | number = 0;
+  @Prop() ethFreeBalanceWei: BigNumberish = 0;
   @Prop() ethPendingDepositAmountWei?: number;
   @Prop({ mutable: true }) user: UserSession = {} as UserSession;
 

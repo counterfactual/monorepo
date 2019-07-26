@@ -1,8 +1,10 @@
 import CounterfactualApp from "@counterfactual/contracts/build/CounterfactualApp.json";
 import {
   AppIdentity,
+  AppInstanceJson,
   AppInterface,
   CoinTransferInterpreterParams,
+  OutcomeType,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -18,46 +20,13 @@ import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./free-balance";
-
-export type AppInstanceJson = {
-  multisigAddress: string;
-  signingKeys: string[];
-  defaultTimeout: number;
-  appInterface: AppInterface;
-  isVirtualApp: boolean;
-  appSeqNo: number;
-  latestState: SolidityABIEncoderV2Type;
-  latestVersionNumber: number;
-  latestTimeout: number;
-
-  /**
-   * Interpreter-related Fields
-   */
-  twoPartyOutcomeInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeETHInterpreter.sol#L10
-    playerAddrs: [string, string];
-    amount: { _hex: string };
-  };
-
-  coinTransferInterpreterParams?: {
-    // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferETHInterpreter.sol#L18
-    limit: { _hex: string };
-    tokenAddress: string;
-  };
-
-  tokenAddress: string;
-};
-
 /**
  * Representation of an AppInstance.
  *
- * @property owner The address of the multisignature wallet on-chain for the
- *           state channel that hold the state this AppInstance controls.
+ * @property multisigAddress The address of the multisignature wallet on-chain for
+ *           the state channel that holds the state this AppInstance controls.
 
- * @property signingKeys The sorted array of public keys used by the users of
+ * @property participants The sorted array of public keys used by the users of
  *           this AppInstance for which n-of-n consensus is needed on updates.
 
  * @property defaultTimeout The default timeout used when a new update is made.
@@ -82,98 +51,65 @@ export type AppInstanceJson = {
  *           and the amount that is to be distributed for an app
  *           where the interpreter type is TWO_PARTY_FIXED_OUTCOME
  */
-// TODO: dont forget dependnecy versionNumber docstring
 export class AppInstance {
-  private readonly json: AppInstanceJson;
-
   constructor(
-    multisigAddress: string,
-    signingKeys: string[],
-    defaultTimeout: number,
-    appInterface: AppInterface,
-    isVirtualApp: boolean,
-    appSeqNo: number,
-    latestState: any,
-    latestVersionNumber: number,
-    latestTimeout: number,
-    twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    coinTransferInterpreterParams?: CoinTransferInterpreterParams,
-    tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
-  ) {
-    this.json = {
-      multisigAddress,
-      signingKeys,
-      defaultTimeout,
-      appInterface,
-      isVirtualApp,
-      appSeqNo,
-      latestState,
-      latestVersionNumber,
-      latestTimeout,
-      tokenAddress,
-      twoPartyOutcomeInterpreterParams: twoPartyOutcomeInterpreterParams
-        ? {
-            playerAddrs: twoPartyOutcomeInterpreterParams.playerAddrs,
-            amount: {
-              _hex: twoPartyOutcomeInterpreterParams.amount.toHexString()
-            }
-          }
-        : undefined,
-      coinTransferInterpreterParams: coinTransferInterpreterParams
-        ? {
-            tokenAddress,
-            limit: {
-              _hex: coinTransferInterpreterParams.limit.toHexString()
-            }
-          }
-        : undefined
-    };
-  }
+    public readonly multisigAddress: string,
+    public readonly participants: string[],
+    public readonly defaultTimeout: number,
+    public readonly appInterface: AppInterface,
+    public readonly isVirtualApp: boolean,
+    public readonly appSeqNo: number,
+    public readonly latestState: any,
+    public readonly latestVersionNumber: number,
+    public readonly latestTimeout: number,
+    public readonly outcomeType: OutcomeType,
+    public readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
+    public readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams
+  ) {}
 
   public static fromJson(json: AppInstanceJson) {
-    // FIXME: Do recursive not shallow
-    const latestState = json.latestState;
-    for (const key in latestState) {
-      // @ts-ignore
-      if (latestState[key]["_hex"]) {
-        latestState[key] = bigNumberify(latestState[key] as BigNumber);
-      }
-    }
-
-    const ret = new AppInstance(
-      json.multisigAddress,
-      json.signingKeys,
-      json.defaultTimeout,
-      json.appInterface,
-      json.isVirtualApp,
-      json.appSeqNo,
-      latestState,
-      json.latestVersionNumber,
-      json.latestTimeout,
-      json.twoPartyOutcomeInterpreterParams
-        ? {
-            playerAddrs: json.twoPartyOutcomeInterpreterParams.playerAddrs,
-            amount: bigNumberify(
-              json.twoPartyOutcomeInterpreterParams.amount._hex
-            )
-          }
-        : undefined,
-      json.coinTransferInterpreterParams
-        ? {
-            tokenAddress: json.tokenAddress,
-            limit: bigNumberify(json.coinTransferInterpreterParams.limit._hex)
-          }
-        : undefined,
-      json.tokenAddress
+    const serialized = JSON.parse(JSON.stringify(json), (key, val) =>
+      val["_hex"] ? bigNumberify(val) : val
     );
-    return ret;
+    return new AppInstance(
+      serialized.multisigAddress,
+      serialized.participants,
+      serialized.defaultTimeout,
+      serialized.appInterface,
+      serialized.isVirtualApp,
+      serialized.appSeqNo,
+      serialized.latestState,
+      serialized.latestVersionNumber,
+      serialized.latestTimeout,
+      serialized.outcomeType,
+      serialized.twoPartyOutcomeInterpreterParams,
+      serialized.coinTransferInterpreterParams
+    );
   }
 
   public toJson(): AppInstanceJson {
     // removes any fields which have an `undefined` value, as that's invalid JSON
     // an example would be having an `undefined` value for the `actionEncoding`
     // of an AppInstance that's not turn based
-    return JSON.parse(JSON.stringify(this.json));
+    return JSON.parse(
+      JSON.stringify({
+        multisigAddress: this.multisigAddress,
+        participants: this.participants,
+        defaultTimeout: this.defaultTimeout,
+        appInterface: this.appInterface,
+        isVirtualApp: this.isVirtualApp,
+        appSeqNo: this.appSeqNo,
+        latestState: this.latestState,
+        latestVersionNumber: this.latestVersionNumber,
+        latestTimeout: this.latestTimeout,
+        outcomeType: this.outcomeType,
+        twoPartyOutcomeInterpreterParams: this.twoPartyOutcomeInterpreterParams,
+        coinTransferInterpreterParams: this.coinTransferInterpreterParams,
+        identityHash: this.identityHash
+      }),
+      (key, val) =>
+        BigNumber.isBigNumber(val) ? { _hex: val.toHexString() } : val
+    );
   }
 
   @Memoize()
@@ -184,10 +120,10 @@ export class AppInstance {
   @Memoize()
   public get identity(): AppIdentity {
     return {
-      owner: this.json.multisigAddress,
-      signingKeys: this.json.signingKeys,
-      appDefinition: this.json.appInterface.addr,
-      defaultTimeout: this.json.defaultTimeout
+      participants: this.participants,
+      appDefinition: this.appInterface.addr,
+      defaultTimeout: this.defaultTimeout,
+      channelNonce: this.appSeqNo
     };
   }
 
@@ -199,93 +135,29 @@ export class AppInstance {
   @Memoize()
   public get encodedLatestState() {
     return defaultAbiCoder.encode(
-      [this.json.appInterface.stateEncoding],
-      [this.json.latestState]
+      [this.appInterface.stateEncoding],
+      [this.latestState]
     );
   }
 
-  // TODO: All these getters seems a bit silly, would be nice to improve
-  //       the implementation to make it cleaner.
-
   public get state() {
-    return this.json.latestState;
+    return this.latestState;
   }
 
   public get versionNumber() {
-    return this.json.latestVersionNumber;
-  }
-
-  public get coinTransferInterpreterParams() {
-    return this.json.coinTransferInterpreterParams
-      ? {
-          tokenAddress: this.json.tokenAddress,
-          limit: bigNumberify(
-            this.json.coinTransferInterpreterParams.limit._hex
-          )
-        }
-      : undefined;
-  }
-
-  public get twoPartyOutcomeInterpreterParams() {
-    return this.json.twoPartyOutcomeInterpreterParams
-      ? {
-          playerAddrs: this.json.twoPartyOutcomeInterpreterParams.playerAddrs,
-          amount: bigNumberify(
-            this.json.twoPartyOutcomeInterpreterParams.amount._hex
-          )
-        }
-      : undefined;
+    return this.latestVersionNumber;
   }
 
   public get timeout() {
-    return this.json.latestTimeout;
-  }
-
-  public get appInterface() {
-    return this.json.appInterface;
-  }
-
-  public get defaultTimeout() {
-    return this.json.defaultTimeout;
-  }
-
-  public get appSeqNo() {
-    return this.json.appSeqNo;
-  }
-
-  public get multisigAddress() {
-    return this.json.multisigAddress;
-  }
-
-  public get signingKeys() {
-    return this.json.signingKeys;
-  }
-
-  public get isVirtualApp() {
-    return this.json.isVirtualApp;
-  }
-
-  public get tokenAddress() {
-    return this.json.tokenAddress;
-  }
-
-  public lockState(versionNumber: number) {
-    return AppInstance.fromJson({
-      ...this.json,
-      latestState: this.json.latestState,
-      latestVersionNumber: versionNumber
-    });
+    return this.latestTimeout;
   }
 
   public setState(
     newState: SolidityABIEncoderV2Type,
-    timeout: number = this.json.defaultTimeout
+    timeout: number = this.defaultTimeout
   ) {
     try {
-      defaultAbiCoder.encode(
-        [this.json.appInterface.stateEncoding],
-        [newState]
-      );
+      defaultAbiCoder.encode([this.appInterface.stateEncoding], [newState]);
     } catch (e) {
       // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
       console.error(
@@ -295,11 +167,20 @@ export class AppInstance {
     }
 
     return AppInstance.fromJson({
-      ...this.json,
+      ...this.toJson(),
       latestState: newState,
       latestVersionNumber: this.versionNumber + 1,
       latestTimeout: timeout
     });
+  }
+
+  public async computeOutcome(
+    state: SolidityABIEncoderV2Type,
+    provider: BaseProvider
+  ): Promise<string> {
+    return await this.toEthersContract(provider).functions.computeOutcome(
+      this.encodeState(state)
+    );
   }
 
   public async computeStateTransition(
@@ -326,16 +207,13 @@ export class AppInstance {
 
   public encodeAction(action: SolidityABIEncoderV2Type) {
     return defaultAbiCoder.encode(
-      [this.json.appInterface.actionEncoding!],
+      [this.appInterface.actionEncoding!],
       [action]
     );
   }
 
   public encodeState(state: SolidityABIEncoderV2Type) {
-    return defaultAbiCoder.encode(
-      [this.json.appInterface.stateEncoding],
-      [state]
-    );
+    return defaultAbiCoder.encode([this.appInterface.stateEncoding], [state]);
   }
 
   public decodeAppState(

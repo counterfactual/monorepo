@@ -1,5 +1,4 @@
 import { Node } from "../../src";
-import { APP_INSTANCE_STATUS } from "../../src/db-schema";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 import { timeout } from "../../src/utils";
 
@@ -10,7 +9,7 @@ import {
 import {
   createChannel,
   generateUninstallRequest,
-  getApps,
+  getInstalledAppInstances,
   installTTTApp
 } from "./utils";
 
@@ -44,13 +43,13 @@ describe("Node method follows spec - uninstall", () => {
         // FIXME: There is some timing issue with postgres @snario noticed
         await timeout(1000);
 
-        expect(await getApps(nodeB, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
+        expect(await getInstalledAppInstances(nodeB)).toEqual([]);
         done();
       });
 
       await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
 
-      expect(await getApps(nodeA, APP_INSTANCE_STATUS.INSTALLED)).toEqual([]);
+      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
     });
   });
 });

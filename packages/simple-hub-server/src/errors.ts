@@ -6,7 +6,7 @@ enum errorTypes {
   UsernameRequired = "UsernameRequired",
   EmailRequired = "EmailRequired",
   AddressAlreadyRegistered = "AddressAlreadyRegistered",
-  ChallengeRegistryNotAvailable = "ChallengeRegistryNotAvailable",
+  AppRegistryNotAvailable = "AppRegistryNotAvailable",
   UserAddressRequired = "UserAddressRequired",
   NoUsersAvailable = "NoUsersAvailable",
   UnhandledError = "UnhandledError",
@@ -19,7 +19,7 @@ enum errorTypes {
 const errors: {
   [key in errorTypes]: (args?: {
     [key: string]: string | number | boolean;
-  }) => JsonApiError
+  }) => JsonApiError;
 } = {
   SignatureRequired: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
@@ -46,7 +46,7 @@ const errors: {
     code: "address_already_registered"
   }),
 
-  ChallengeRegistryNotAvailable: (): JsonApiError => ({
+  AppRegistryNotAvailable: (): JsonApiError => ({
     status: HttpStatusCode.BadRequest,
     code: "app_registry_not_available"
   }),

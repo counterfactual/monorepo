@@ -1,7 +1,7 @@
-import { Node } from "@counterfactual/types";
+import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
-import { AppInstanceProposal, StateChannel } from "../../../models";
+import { StateChannel } from "../../../models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
@@ -17,7 +17,7 @@ export async function installVirtual(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -29,8 +29,8 @@ export async function installVirtual(
       Protocol.InstallVirtualApp,
       new Map(Object.entries(await store.getAllChannels())),
       {
-        initiatingXpub: proposal.proposedToIdentifier,
-        respondingXpub: proposal.proposedByIdentifier,
+        initiatorXpub: proposal.proposedToIdentifier,
+        responderXpub: proposal.proposedByIdentifier,
         intermediaryXpub: proposal.intermediaries![0],
         defaultTimeout: proposal.timeout.toNumber(),
         appInterface: {
@@ -38,9 +38,10 @@ export async function installVirtual(
           ...proposal.abiEncodings
         },
         initialState: proposal.initialState,
-        initiatingBalanceDecrement: proposal.myDeposit,
-        respondingBalanceDecrement: proposal.peerDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        initiatorBalanceDecrement: proposal.initiatorDeposit,
+        responderBalanceDecrement: proposal.responderDeposit,
+        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        outcomeType: proposal.outcomeType
       }
     );
   } catch (e) {

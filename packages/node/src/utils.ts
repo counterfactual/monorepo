@@ -1,6 +1,5 @@
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import Proxy from "@counterfactual/contracts/build/Proxy.json";
-import { Address } from "@counterfactual/types";
 import {
   BigNumber,
   getAddress,
@@ -10,13 +9,15 @@ import {
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
+import log from "loglevel";
 
-import { xkeysToSortedKthAddresses } from "./machine";
+import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
 import { Store } from "./store";
 
-export function hashOfOrderedPublicIdentifiers(addresses: Address[]): string {
+export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
   return hashMessage(addresses.sort().join(""));
 }
 
@@ -47,18 +48,18 @@ export async function getPeersAddressFromChannel(
   myIdentifier: string,
   store: Store,
   multisigAddress: string
-): Promise<Address[]> {
+): Promise<string[]> {
   const stateChannel = await store.getStateChannel(multisigAddress);
   const owners = stateChannel.userNeuteredExtendedKeys;
   return owners.filter(owner => owner !== myIdentifier);
 }
 
 export async function getPeersAddressFromAppInstanceID(
-  myIdentifier: Address,
+  myIdentifier: string,
   store: Store,
   appInstanceId: string
-): Promise<Address[]> {
-  const multisigAddress = await store.getMultisigAddressFromstring(
+): Promise<string[]> {
+  const multisigAddress = await store.getMultisigAddressFromAppInstance(
     appInstanceId
   );
 
@@ -72,8 +73,8 @@ export async function getPeersAddressFromAppInstanceID(
 }
 
 export function getCounterpartyAddress(
-  myIdentifier: Address,
-  appInstanceAddresses: Address[]
+  myIdentifier: string,
+  appInstanceAddresses: string[]
 ) {
   return appInstanceAddresses.filter(address => {
     return address !== myIdentifier;
@@ -138,4 +139,38 @@ export function getCreate2MultisigAddress(
       ]
     ).slice(-40)
   );
+}
+
+/**
+ * Address used for a Node's free balance
+ */
+export function getFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
+}
+
+const isBrowser =
+  typeof window !== "undefined" &&
+  {}.toString.call(window) === "[object Window]";
+
+export function debugLog(...messages: any[]) {
+  try {
+    const logPrefix = "NodeDebugLog";
+    if (isBrowser) {
+      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
+        // for some reason `debug` doesn't actually log in the browser
+        log.info(logPrefix, messages);
+        log.trace();
+      }
+      // node.js side
+    } else if (
+      process.env.LOG_LEVEL !== undefined &&
+      process.env.LOG_LEVEL === "DEBUG"
+    ) {
+      log.debug(logPrefix, JSON.stringify(messages, null, 4));
+      log.trace();
+      log.debug("\n");
+    }
+  } catch (e) {
+    console.error("Failed to log: ", e);
+  }
 }

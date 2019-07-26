@@ -12,13 +12,8 @@ contract ConditionalTransactionDelegateTarget {
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
   uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
-  struct CoinTransferParams {
-    uint256 limit;
-    address tokenAddress;
-  }
-
   struct FreeBalanceAppState {
-    address[] tokens;
+    address[] tokenAddresses;
     // The inner array contains the list of CoinTransfers for a single asset type
     // The outer array contains the list of asset balances for respecitve assets
     // according to the indexing used in the `tokens` array above
@@ -29,7 +24,8 @@ contract ConditionalTransactionDelegateTarget {
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address coinTransferETHInterpreterAddress
+    address coinTransferInterpreterAddress,
+    bytes memory coinTransferInterpreterParams
   )
     public
   {
@@ -46,21 +42,14 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      abi.encode(
-        CoinTransferParams(
-          // This is the `limit` param, which for the case of the
-          // FreeBalance is set to the max amount.
-          MAX_UINT256,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        )
-      )
+      coinTransferInterpreterParams
     );
 
     (
       bool success,
       // solium-disable-next-line no-unused-vars
       bytes memory returnData
-    ) = coinTransferETHInterpreterAddress.delegatecall(payload);
+    ) = coinTransferInterpreterAddress.delegatecall(payload);
 
     require(
       success,

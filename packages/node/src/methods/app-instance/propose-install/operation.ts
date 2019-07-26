@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { AppInstanceProposal } from "../../../models";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import { getStateChannelWithOwners } from "../../../utils";
 
@@ -25,7 +26,11 @@ export async function createProposedAppInstance(
   const appInstanceProposal = new AppInstanceProposal(
     {
       ...params,
-      proposedByIdentifier: myIdentifier
+      proposedByIdentifier: myIdentifier,
+      initiatorDepositTokenAddress:
+        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress:
+        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
     channel
   );

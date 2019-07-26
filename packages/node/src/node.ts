@@ -1,9 +1,8 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
-import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
@@ -15,12 +14,12 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { deployTestArtifactsToChain } from "./network-configuration";
+import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { timeout } from "./utils";
+import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -79,35 +78,28 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: string | NetworkContext,
-    readonly blocksNeededForConfirmation?: number
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
-    this.blocksNeededForConfirmation = REASONABLE_NUM_BLOCKS_TO_WAIT;
-    if (typeof networkContext === "string") {
-      this.networkContext = deployTestArtifactsToChain(networkContext);
 
-      if (
-        blocksNeededForConfirmation &&
-        blocksNeededForConfirmation > REASONABLE_NUM_BLOCKS_TO_WAIT
-      ) {
-        this.blocksNeededForConfirmation = blocksNeededForConfirmation;
-      }
+    if (typeof networkContext === "string") {
+      this.networkContext = getNetworkContextForNetworkName(networkContext);
     } else {
-      // Used for testing / ganache
       this.networkContext = networkContext;
     }
+
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    log.info(
+    debugLog(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    log.info(`Node signer address: ${this.signer.address}`);
-    log.info(`Node public identifier: ${this.publicIdentifier}`);
+    debugLog(`Node signer address: ${this.signer.address}`);
+    debugLog(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -139,8 +131,8 @@ export class Node {
   }
 
   @Memoize()
-  get ethFreeBalanceAddress(): string {
-    return getETHFreeBalanceAddress(this.publicIdentifier);
+  get freeBalanceAddress(): string {
+    return getFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -153,30 +145,22 @@ export class Node {
       this.provider
     );
 
-    // todo(xuanji): remove special cases
-    const makeSigner = (asIntermediary: boolean) => {
-      return async (args: any[]) => {
-        if (args.length !== 1 && args.length !== 2) {
-          throw Error("OP_SIGN middleware received wrong number of arguments.");
-        }
-
-        const [commitment, overrideKeyIndex] = args;
-        const keyIndex = overrideKeyIndex || 0;
-
-        const signingKey = new SigningKey(
-          this.signer.derivePath(`${keyIndex}`).privateKey
+    instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
+      if (args.length !== 1 && args.length !== 2) {
+        throw new Error(
+          "OP_SIGN middleware received wrong number of arguments."
         );
+      }
 
-        return signingKey.signDigest(commitment.hashToSign(asIntermediary));
-      };
-    };
+      const [commitment, overrideKeyIndex] = args;
+      const keyIndex = overrideKeyIndex || 0;
 
-    instructionExecutor.register(Opcode.OP_SIGN, makeSigner(false));
+      const signingKey = new SigningKey(
+        this.signer.derivePath(`${keyIndex}`).privateKey
+      );
 
-    instructionExecutor.register(
-      Opcode.OP_SIGN_AS_INTERMEDIARY,
-      makeSigner(true)
-    );
+      return signingKey.signDigest(commitment.hashToSign());
+    });
 
     instructionExecutor.register(
       Opcode.IO_SEND,
@@ -215,10 +199,8 @@ export class Node {
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
-          throw Error(
-            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${
-              data.protocol
-            }`
+          throw new Error(
+            `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
           );
         }
 
@@ -235,19 +217,15 @@ export class Node {
     instructionExecutor.register(
       Opcode.WRITE_COMMITMENT,
       async (args: any[]) => {
+        const { store } = this.requestHandler;
+
         const [protocol, commitment, ...key] = args;
 
         if (protocol === Protocol.Withdraw) {
           const [multisigAddress] = key;
-          await this.requestHandler.store.storeWithdrawalCommitment(
-            multisigAddress,
-            commitment
-          );
+          await store.storeWithdrawalCommitment(multisigAddress, commitment);
         } else {
-          await this.requestHandler.store.setCommitment(
-            [protocol, ...key],
-            commitment
-          );
+          await store.setCommitment([protocol, ...key], commitment);
         }
       }
     );
@@ -354,14 +332,15 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.protocolExecutionID);
-
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else {
+    } else if (this.requestHandler.isLegacyEvent(msg.type)) {
       await this.requestHandler.callEvent(msg.type, msg);
+    } else {
+      await this.rpcRouter.emit(msg.type, msg);
     }
   }
 
@@ -369,7 +348,7 @@ export class Node {
     const key = msg.data.protocolExecutionID;
 
     if (!this.ioSendDeferrals.has(key)) {
-      throw Error(
+      throw new Error(
         "Node received message intended for machine but no handler was present"
       );
     }
@@ -384,39 +363,5 @@ export class Node {
         { error, msg }
       );
     }
-  }
-}
-
-/**
- * Address used for ETH free balance
- */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
-}
-
-const isBrowser =
-  typeof window !== "undefined" &&
-  {}.toString.call(window) === "[object Window]";
-
-export function debugLog(...messages: any[]) {
-  try {
-    const logPrefix = "NodeDebugLog";
-    if (isBrowser) {
-      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
-        // for some reason `debug` doesn't actually log in the browser
-        log.info(logPrefix, messages);
-        log.trace();
-      }
-      // node.js side
-    } else if (
-      process.env.LOG_LEVEL !== undefined &&
-      process.env.LOG_LEVEL === "DEBUG"
-    ) {
-      log.debug(logPrefix, JSON.stringify(messages, null, 4));
-      log.trace();
-      log.debug("\n");
-    }
-  } catch (e) {
-    console.error("Failed to log: ", e);
   }
 }

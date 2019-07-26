@@ -1,7 +1,14 @@
+import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import { NetworkContext } from "@counterfactual/types";
+import {
+  CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
+  NetworkContext,
+  OutcomeType
+} from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -19,7 +26,10 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { createFreeBalanceStateWithFundedETHAmounts } from "../../integration/utils";
+import {
+  createFreeBalanceStateWithFundedTokenAmounts,
+  transferERC20Tokens
+} from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -66,13 +76,17 @@ beforeAll(async () => {
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
-  it("returns the funds the app had locked up", async done => {
+  it("returns the funds the app had locked up for both ETH and ERC20", async done => {
     const xkeys = getRandomHDNodes(2);
 
     const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
       xkeys.map(x => x.extendedKey),
       0
     );
+
+    const erc20TokenAddress = (global[
+      "networkContext"
+    ] as NetworkContextForTestSuite).DolphinCoin;
 
     const proxyFactory = new Contract(
       network.ProxyFactory,
@@ -87,9 +101,10 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         xkeys.map(x => x.neuter().extendedKey),
         1
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedETHAmounts(
+        createFreeBalanceStateWithFundedTokenAmounts(
           multisigOwnerKeys.map(key => key.address),
-          WeiPerEther
+          WeiPerEther,
+          [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
         )
       );
 
@@ -112,24 +127,38 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         false,
         stateChannel.numInstalledApps,
         [
+          // ETH token index
           [
             { to: multisigOwnerKeys[0].address, amount: WeiPerEther },
+            { to: multisigOwnerKeys[1].address, amount: Zero }
+          ],
+          // ERC20 token index
+          [
+            { to: multisigOwnerKeys[0].address, amount: Zero },
             { to: multisigOwnerKeys[1].address, amount: WeiPerEther }
           ]
         ],
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
+        OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
         undefined,
         {
-          limit: parseEther("2"),
-          tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        },
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+          // total limit of ETH and ERC20 token that can be transferred
+          limit: [parseEther("2"), parseEther("2")],
+          // The only assets being transferred are ETH and the ERC20 token
+          tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
+        } as CoinTransferInterpreterParams
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {
-        [multisigOwnerKeys[0].address]: WeiPerEther,
-        [multisigOwnerKeys[1].address]: WeiPerEther
+        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+          [multisigOwnerKeys[0].address]: WeiPerEther,
+          [multisigOwnerKeys[1].address]: Zero
+        },
+        [erc20TokenAddress]: {
+          [multisigOwnerKeys[0].address]: Zero,
+          [multisigOwnerKeys[1].address]: WeiPerEther
+        }
       });
 
       const setStateCommitment = new SetStateCommitment(
@@ -189,9 +218,9 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigOwners,
         identityAppInstance.identityHash,
         stateChannel.freeBalance.identityHash,
-        network.CoinTransferETHInterpreter,
+        network.CoinTransferInterpreter,
         defaultAbiCoder.encode(
-          ["tuple(uint256 limit, address tokenAddress)"],
+          [coinTransferInterpreterParamsStateEncoding],
           [identityAppInstance.coinTransferInterpreterParams!]
         )
       );
@@ -205,8 +234,15 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         to: proxyAddress,
-        value: parseEther("2")
+        value: parseEther("1")
       });
+
+      await transferERC20Tokens(
+        proxyAddress,
+        erc20TokenAddress,
+        DolphinCoin.abi,
+        parseEther("1")
+      );
 
       await wallet.sendTransaction({
         ...multisigDelegateCallTx,
@@ -218,8 +254,21 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         WeiPerEther
       );
       expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
-        WeiPerEther
+        Zero
       );
+
+      const erc20Contract = new Contract(
+        erc20TokenAddress,
+        DolphinCoin.abi,
+        new JsonRpcProvider(global["ganacheURL"])
+      );
+
+      expect(
+        await erc20Contract.functions.balanceOf(multisigOwnerKeys[0].address)
+      ).toBeEq(Zero);
+      expect(
+        await erc20Contract.functions.balanceOf(multisigOwnerKeys[1].address)
+      ).toBeEq(WeiPerEther);
 
       done();
     });

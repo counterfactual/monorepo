@@ -1,8 +1,7 @@
-import { Node } from "@counterfactual/types";
+import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
-import { AppInstanceProposal, StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
+import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
@@ -14,7 +13,7 @@ export async function install(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    return Promise.reject(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -30,12 +29,12 @@ export async function install(
       [stateChannel.multisigAddress, stateChannel]
     ]),
     {
-      initiatingXpub: proposal.proposedToIdentifier,
-      respondingXpub: proposal.proposedByIdentifier,
-      initiatingBalanceDecrement: proposal.myDeposit,
-      respondingBalanceDecrement: proposal.peerDeposit,
+      initiatorXpub: proposal.proposedToIdentifier,
+      responderXpub: proposal.proposedByIdentifier,
+      initiatorBalanceDecrement: proposal.initiatorDeposit,
+      responderBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
-      signingKeys: stateChannel.getNextSigningKeys(),
+      participants: stateChannel.getNextSigningKeys(),
       initialState: proposal.initialState,
       appInterface: {
         ...proposal.abiEncodings,
@@ -43,7 +42,8 @@ export async function install(
       },
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
-      tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
+      responderDepositTokenAddress: proposal.responderDepositTokenAddress
     }
   );
 

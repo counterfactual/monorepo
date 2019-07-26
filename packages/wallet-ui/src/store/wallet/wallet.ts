@@ -3,25 +3,34 @@ import { Web3Provider } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { RoutePath } from "../types";
-import { forFunds, requestDeposit } from "../utils/counterfactual";
-import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "./types";
+import { RoutePath } from "../../types";
+import { forFunds, requestDeposit } from "../../utils/counterfactual";
+import {
+  ActionType,
+  ApplicationState,
+  Deposit,
+  StoreAction,
+  WalletState
+} from "../types";
 
-const { ethereum } = window;
-const initialState = {
+export const initialState = {
   ethAddress: "",
   error: {},
   counterfactualBalance: Zero,
   ethereumBalance: Zero
 } as WalletState;
 
-export const connectToWallet = (): ThunkAction<
+export const connectToWallet = (
+  provider: Web3Provider
+): ThunkAction<
   void,
   ApplicationState,
   null,
   Action<ActionType>
 > => async dispatch => {
   try {
+    const { ethereum } = window;
+
     await ethereum.enable();
 
     dispatch({
@@ -29,6 +38,13 @@ export const connectToWallet = (): ThunkAction<
         ethAddress: ethereum.selectedAddress
       } as WalletState,
       type: ActionType.WalletSetAddress
+    });
+
+    const ethereumBalance = await provider.getBalance(ethereum.selectedAddress);
+
+    dispatch({
+      data: { ethereumBalance },
+      type: ActionType.WalletSetBalance
     });
   } catch (e) {
     dispatch({

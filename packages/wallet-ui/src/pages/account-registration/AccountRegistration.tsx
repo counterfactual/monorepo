@@ -15,7 +15,7 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { addUser, UserAddTransition } from "../../store/user";
+import { addUser, UserAddTransition } from "../../store/user/user";
 import "./AccountRegistration.scss";
 
 export type AccountRegistrationProps = RouteComponentProps & {
@@ -26,7 +26,7 @@ export type AccountRegistrationProps = RouteComponentProps & {
 };
 
 export type AccountRegistrationState = User & { loading: boolean };
-class AccountRegistration extends React.Component<
+export class AccountRegistration extends React.Component<
   AccountRegistrationProps,
   AccountRegistrationState
 > {
@@ -52,12 +52,21 @@ class AccountRegistration extends React.Component<
   };
 
   handleFormChange = (event: InputChangeProps) => {
-    this.setState({ ...this.state, [event.inputName]: event.value });
+    this.setState({
+      ...this.state,
+      [event.inputName]: event.value
+    });
   };
+
+  componentDidUpdate(prevProps) {
+    if (this.props.error !== prevProps.error) {
+      this.setState({ ...this.state, loading: false });
+    }
+  }
 
   render() {
     const { wallet, addUser, error, history, registrationStatus } = this.props;
-    const { loading } = this.state;
+    const { loading, ...userData } = this.state;
     const { signer } = this.context;
     return (
       <WidgetScreen
@@ -93,17 +102,17 @@ class AccountRegistration extends React.Component<
             <b>Account will be linked to your Ethereum address: </b>
             {wallet.ethAddress}
           </div>
-          {error.code && !error.field ? (
+          {(error.message || error.code) && !error.field ? (
             <div className="error">{error.message}</div>
           ) : null}
           <FormButton
+            name="register"
             type="button"
-            className="button"
             spinner={loading}
-            disabled={loading}
+            disabled={loading || !userData.username}
             onClick={() => {
               this.setState({ loading: true });
-              addUser(this.state, signer, history);
+              addUser(userData, signer, history);
             }}
           >
             {!loading ? "Create account" : this.buttonText[registrationStatus]}

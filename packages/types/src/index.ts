@@ -6,8 +6,12 @@ import {
 import {
   AppABIEncodings,
   AppInstanceInfo,
+  AppInstanceJson,
+  AppInstanceProposal,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   OutcomeType,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
@@ -16,7 +20,6 @@ import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
-  Bytes32,
   ContractABI,
   SolidityABIEncoderV2Type
 } from "./simple-types";
@@ -25,30 +28,32 @@ export interface NetworkContext {
   ChallengeRegistry: string;
   ConditionalTransactionDelegateTarget: string;
   CoinBalanceRefundApp: string;
-  CoinTransferETHInterpreter: string;
+  CoinTransferInterpreter: string;
   FreeBalanceApp: string;
   IdentityApp: string;
   MinimumViableMultisig: string;
   ProxyFactory: string;
-  TwoPartyFixedOutcomeETHInterpreter: string;
+  TimeLockedPassThrough: string;
+  TwoPartyFixedOutcomeInterpreter: string;
   TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
 }
 
 // Keep in sync with above
-export const networkContextProps = [
+export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
-  "CoinTransferETHInterpreter",
+  "CoinTransferInterpreter",
   "IdentityApp",
   "FreeBalanceApp",
   "MinimumViableMultisig",
   "ProxyFactory",
-  "TwoPartyFixedOutcomeETHInterpreter",
+  "TimeLockedPassThrough",
+  "TwoPartyFixedOutcomeInterpreter",
   "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
 ];
 
-export interface ContractMigration {
+export interface DeployedContractNetworksFileEntry {
   contractName: string;
   address: string;
   transactionHash: string;
@@ -60,12 +65,15 @@ export {
   AppABIEncodings,
   AppIdentity,
   AppInstanceInfo,
+  AppInstanceProposal,
+  AppInstanceJson,
   AppInterface,
+  CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
   CoinTransferInterpreterParams,
+  coinTransferInterpreterParamsStateEncoding,
   ContractABI,
   SolidityABIEncoderV2Type,
-  Bytes32,
   INodeProvider,
   IRpcNodeProvider,
   Node,

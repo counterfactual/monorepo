@@ -84,7 +84,7 @@ export class NodeListener {
 
       const currentEthBalance = this.ethMultisigBalance;
       const minimumEthBalance = window["ethers"].utils.bigNumberify(
-        proposeInstallParams.myDeposit
+        proposeInstallParams.initiatorDeposit
       );
 
       if (currentEthBalance.lt(minimumEthBalance)) {
@@ -108,7 +108,7 @@ export class NodeListener {
       })!;
 
       if (!app) {
-        throw Error(
+        throw new Error(
           "You've received an installation proposal from a different Ethereum network"
         );
       }

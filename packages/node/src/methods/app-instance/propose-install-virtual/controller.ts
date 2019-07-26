@@ -18,7 +18,7 @@ import {
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
- * proposal to the intermediaries and the responding Node.
+ * proposal to the intermediaries and the responder Node.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
@@ -32,12 +32,12 @@ export default class ProposeInstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
-    const { store } = requestHandler;
+    const { store, publicIdentifier } = requestHandler;
     const { proposedToIdentifier } = params;
 
     const multisigAddress = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([
-        requestHandler.publicIdentifier,
+        publicIdentifier,
         params.intermediaries[0]
       ])
     );
@@ -46,10 +46,7 @@ export default class ProposeInstallVirtualController extends NodeController {
 
     try {
       const metachannelAddress = await store.getMultisigAddressFromOwnersHash(
-        hashOfOrderedPublicIdentifiers([
-          requestHandler.publicIdentifier,
-          proposedToIdentifier
-        ])
+        hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
       );
       queues.push(requestHandler.getShardedQueue(metachannelAddress));
     } catch (e) {
@@ -64,11 +61,16 @@ export default class ProposeInstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Node.ProposeInstallVirtualResult> {
-    const { store, publicIdentifier, messagingService } = requestHandler;
+    const {
+      store,
+      publicIdentifier,
+      messagingService,
+      networkContext
+    } = requestHandler;
     const { initialState } = params;
 
     if (!initialState) {
-      return Promise.reject(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
     // TODO: check if channel is open with the first intermediary
     // and that there are sufficient funds
@@ -78,7 +80,8 @@ export default class ProposeInstallVirtualController extends NodeController {
     const appInstanceId = await createProposedVirtualAppInstance(
       publicIdentifier,
       store,
-      params
+      params,
+      networkContext
     );
 
     const proposalMsg: ProposeVirtualMessage = {

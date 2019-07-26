@@ -55,19 +55,20 @@ export const DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
   "appInstanceIdToProposedAppInstance";
 
 export const DB_NAMESPACE_ALL_COMMITMENTS = "allCommitments";
+
 /**
- * Namespace providing a lookup table from a appInstanceId to the AppInstanceInfo
+ * Namespace providing a lookup table from a appInstanceId to the AppInstance
  * that was installed.
  */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_INFO =
-  "appInstanceIdToAppInstanceInfo";
+export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE =
+  "appInstanceIdToAppInstance";
 
 /**
  * Namespace providing a lookup table from an appIdentityHash and protocol to the
  * corresponding commitment transaction.
  */
 export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
-  "appInstanceHashToCommitment";
+  "appIdentityHashToCommitment";
 
 /**
  * Namespace for storing withdrawals

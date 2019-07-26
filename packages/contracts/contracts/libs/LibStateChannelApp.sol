@@ -15,8 +15,8 @@ contract LibStateChannelApp {
 
   // A minimal structure that uniquely identifies a single instance of an App
   struct AppIdentity {
-    address owner;
-    address[] signingKeys;
+    uint256 channelNonce;
+    address[] participants;
     address appDefinition;
     uint256 defaultTimeout;
   }

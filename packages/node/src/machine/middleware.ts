@@ -6,7 +6,6 @@ export class MiddlewareContainer {
     [Opcode.IO_SEND]: [],
     [Opcode.IO_SEND_AND_WAIT]: [],
     [Opcode.OP_SIGN]: [],
-    [Opcode.OP_SIGN_AS_INTERMEDIARY]: [],
     [Opcode.WRITE_COMMITMENT]: []
   };
 
@@ -18,7 +17,7 @@ export class MiddlewareContainer {
     const middleware = this.middlewares[opCode][0];
 
     if (middleware === undefined) {
-      throw Error(
+      throw new Error(
         `Attempted to run middleware for opcode ${opCode} but none existed`
       );
     }

@@ -18,7 +18,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {
-    it("can't take invalid action", async done => {
+    it("can't take invalid action", async () => {
       const validAction = {
         actionType: 1,
         playX: 0,
@@ -36,12 +36,9 @@ describe("Node method follows spec - fails with improper action taken", () => {
         validAction
       );
 
-      try {
-        await nodeA.rpcRouter.dispatch(takeActionReq);
-      } catch (e) {
-        expect(e.toString()).toMatch(INVALID_ACTION);
-        done();
-      }
+      await expect(
+        nodeA.rpcRouter.dispatch(takeActionReq)
+      ).rejects.toThrowError(INVALID_ACTION);
     });
   });
 });

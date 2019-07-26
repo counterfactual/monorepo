@@ -13,10 +13,11 @@ import {
   ActionType,
   ApplicationState,
   Deposit,
+  ErrorData,
   User,
   WalletState
 } from "../../store/types";
-import { deposit, WalletDepositTransition } from "../../store/wallet";
+import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
 import "./AccountDeposit.scss";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
@@ -26,11 +27,12 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   </div>
 );
 
-type AccountDepositProps = RouteComponentProps & {
+export type AccountDepositProps = RouteComponentProps & {
   deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
   user: User;
   walletState: WalletState;
-  initialAmount: number;
+  initialAmount?: number;
+  error: ErrorData;
 };
 
 type AccountDepositState = {
@@ -38,7 +40,7 @@ type AccountDepositState = {
   amount: BigNumberish;
 };
 
-class AccountDeposit extends React.Component<
+export class AccountDeposit extends React.Component<
   AccountDepositProps,
   AccountDepositState
 > {
@@ -66,25 +68,34 @@ class AccountDeposit extends React.Component<
     [WalletDepositTransition.WaitForFunds]: "Transfering funds"
   };
 
-  createDepositData: () => Deposit = () => {
-    const { user } = this.props;
-    const { multisigAddress, nodeAddress, ethAddress } = user;
-    const { amount } = this.state;
-
+  createDepositData(
+    { multisigAddress, nodeAddress, ethAddress }: User,
+    amount: BigNumberish
+  ): Deposit {
     return {
       nodeAddress,
       ethAddress,
       amount,
       multisigAddress: multisigAddress as string
     };
-  };
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.error !== prevProps.error) {
+      console.error(
+        "AccountDeposit",
+        this.props.error.message,
+        this.props.error
+      );
+      this.setState({ ...this.state, loading: false });
+    }
+  }
 
   render() {
-    const { walletState, deposit, history } = this.props;
+    const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status } = walletState;
     const { amount, loading } = this.state;
-
     return (
       <WidgetScreen header={"Fund your account"} exitable={false}>
         <form>
@@ -97,6 +108,7 @@ class AccountDeposit extends React.Component<
             className="input--balance"
             type="number"
             unit="ETH"
+            name="amount"
             min={0.02}
             max={Number(ethereumBalance)}
             value={formatEther(amount)}
@@ -104,14 +116,18 @@ class AccountDeposit extends React.Component<
             change={this.handleChange}
             error={error.message}
           />
+          {(error.message || error.code) && !error.field ? (
+            <div className="error">Ups! something broke</div>
+          ) : null}
           <FormButton
+            name="deposit"
             type="button"
             className="button"
             spinner={loading}
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.createDepositData(), provider, history);
+              deposit(this.createDepositData(user, amount), provider, history);
             }}
           >
             {!loading ? "Proceed" : this.buttonText[status]}
@@ -125,6 +141,7 @@ class AccountDeposit extends React.Component<
 export default connect(
   (state: ApplicationState) => ({
     user: state.UserState.user,
+    error: state.WalletState.error,
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({

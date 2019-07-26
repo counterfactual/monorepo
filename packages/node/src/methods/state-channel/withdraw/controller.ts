@@ -32,13 +32,6 @@ export default class WithdrawController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
-  }
-
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {
     const { store, publicIdentifier, networkContext } = requestHandler;
 
     const stateChannel = await store.getStateChannel(params.multisigAddress);
@@ -75,7 +68,14 @@ export default class WithdrawController extends NodeController {
         )
       );
     }
+
+    return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.WithdrawParams
+  ): Promise<void> {}
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
@@ -86,7 +86,8 @@ export default class WithdrawController extends NodeController {
       provider,
       wallet,
       publicIdentifier,
-      blocksNeededForConfirmation
+      blocksNeededForConfirmation,
+      outgoing
     } = requestHandler;
 
     const { multisigAddress, amount, recipient } = params;
@@ -98,7 +99,7 @@ export default class WithdrawController extends NodeController {
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
     if (!commitment) {
-      throw Error("no commitment found");
+      throw new Error("no commitment found");
     }
 
     const tx = {
@@ -107,9 +108,8 @@ export default class WithdrawController extends NodeController {
       gasLimit: 300000
     };
 
+    let txResponse: TransactionResponse;
     try {
-      let txResponse: TransactionResponse;
-
       if (provider instanceof JsonRpcProvider) {
         const signer = await provider.getSigner();
         txResponse = await signer.sendTransaction(tx);
@@ -117,7 +117,7 @@ export default class WithdrawController extends NodeController {
         txResponse = await wallet.sendTransaction(tx);
       }
 
-      requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_STARTED, {
+      outgoing.emit(NODE_EVENTS.WITHDRAWAL_STARTED, {
         value: amount,
         txHash: txResponse.hash
       });
@@ -127,13 +127,13 @@ export default class WithdrawController extends NodeController {
         blocksNeededForConfirmation
       );
     } catch (e) {
-      requestHandler.outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
+      outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
       throw new Error(`${WITHDRAWAL_FAILED}: ${e}`);
     }
 
     return {
-      amount,
-      recipient: params.recipient
+      recipient: params.recipient,
+      txHash: txResponse.hash!
     };
   }
 }

@@ -12,7 +12,7 @@ Using our Tic-Tac-Toe example, if Alice decides to place an X on the board, Alic
 
 ## Roles
 
-Two users run the protocol. They are designated as `initiating` and `responding`.
+Two users run the protocol. They are designated as `initiator` and `responder`.
 
 ## Messages
 
@@ -23,14 +23,16 @@ Two users run the protocol. They are designated as `initiating` and `responding`
 For the below messages, the digest that is signed is represented as the following (reference: computeAppChallengeHash)
 
 ```typescript
-appIdentityHash := keccak256(
+keccak256(
   ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
   [
     0x19,
-    keccak256(encode(
-      [address, address[], address, uint256 ],
-      [owner, signingKeys, appDefinition, defaultTimeout]
-    )),
+    keccak256(                        //
+      abi.encode(                     //
+        [uint256, address[]],         // NOTE: This is the
+        [channelNonce, participants]  // appInstanceIdentityHash
+      )                               //
+    ),                                //
     0,
     TIMEOUT,
     appStateHash
@@ -51,20 +53,20 @@ appIdentityHash := keccak256(
 | ------------- | --------------------------------------- |
 | `protocol`    | `"update"`                              |
 | `params`      | An `UpdateParams` object                |
-| `fromAddress` | The address of `initiating`             |
-| `toAddress`   | The address of `responding`             |
+| `fromAddress` | The address of `initiator`             |
+| `toAddress`   | The address of `responder`             |
 | `seq`         | `1`                                     |
-| `signature`   | `initiating`'s signed commitment digest |
+| `signature`   | `initiator`'s signed commitment digest |
 
 ### The **`SetStateAck`** Message
 
 | Field         | Description                             |
 | ------------- | --------------------------------------- |
 | `protocol`    | `"update"`                              |
-| `fromAddress` | The address of `responding`             |
-| `toAddress`   | The address of `initiating`             |
+| `fromAddress` | The address of `responder`             |
+| `toAddress`   | The address of `initiator`             |
 | `seq`         | `2`                                     |
-| `signature`   | `responding`'s signed commitment digest |
+| `signature`   | `responder`'s signed commitment digest |
 
 ## Commitments
 

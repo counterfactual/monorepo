@@ -1,6 +1,8 @@
+import { BigNumberish } from "ethers/utils";
+
 export type AppIdentity = {
-  owner: string;
-  signingKeys: string[];
+  channelNonce: BigNumberish;
+  participants: string[];
   appDefinition: string;
   defaultTimeout: number;
 };
