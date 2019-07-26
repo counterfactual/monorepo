@@ -1,18 +1,15 @@
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
-import {
-  NODE_EVENTS,
-  ProposeVirtualMessage,
-  RejectProposalMessage
-} from "../../src/types";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import {
   SetupContext,
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
-  confirmProposedVirtualAppInstanceOnNode,
+  Apps,
+  confirmProposedVirtualAppInstance,
   createChannel,
   getProposedAppInstances,
   makeRejectInstallRequest,
@@ -45,13 +42,10 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
 
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
 
-        nodeA.on(
-          NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
-          async (msg: RejectProposalMessage) => {
-            expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
-            done();
-          }
-        );
+        nodeA.on(NODE_EVENTS.REJECT_INSTALL_VIRTUAL, async () => {
+          expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
+          done();
+        });
 
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
@@ -61,12 +55,12 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceA
             );
 
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceC
             );
@@ -86,7 +80,12 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           }
         );
 
-        const result = await makeVirtualProposeCall(nodeA, nodeC, nodeB);
+        const result = await makeVirtualProposeCall(
+          nodeA,
+          nodeC,
+          nodeB,
+          Apps.TicTacToe
+        );
 
         proposalParams = result.params;
       });

@@ -38,6 +38,11 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
     const { store, publicIdentifier } = requestHandler;
+    const { initialState } = params;
+
+    if (!initialState) {
+      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+    }
 
     const {
       proposedToIdentifier,
@@ -93,11 +98,7 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
     const { store, publicIdentifier, messagingService } = requestHandler;
-    const { initialState, proposedToIdentifier } = params;
-
-    if (!initialState) {
-      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
-    }
+    const { proposedToIdentifier } = params;
 
     const appInstanceId = await createProposedAppInstance(
       publicIdentifier,

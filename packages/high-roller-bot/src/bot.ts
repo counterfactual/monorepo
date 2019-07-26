@@ -34,7 +34,12 @@ function computeCommitHash(appSalt: string, chosenNumber: number) {
   return solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
 }
 
-function respond(node: Node, nodeAddress: string, msg: UpdateStateMessage) {
+function respond(
+  node: Node,
+  // @ts-ignore
+  nodeAddress: string,
+  msg: UpdateStateMessage
+) {
   const data: NodeTypes.UpdateStateEventData = msg.data;
   const { appInstanceId } = data;
   const newState = data.newState as HighRollerAppState;

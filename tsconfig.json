@@ -4,6 +4,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "noImplicitAny": false,
+    "noUnusedParameters": true,
     "noUnusedLocals": true,
     "noImplicitReturns": true,
     "noLib": false,

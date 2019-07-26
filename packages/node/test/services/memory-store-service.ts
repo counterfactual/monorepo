@@ -45,7 +45,7 @@ export class MemoryStoreService implements Node.IStoreService {
 }
 
 export class MemoryStoreServiceFactory implements Node.ServiceFactory {
-  createStoreService(serviceKey: string) {
+  createStoreService() {
     return new MemoryStoreService();
   }
 }

@@ -284,7 +284,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   },
 
   1 /* Intermediary */: async function*(context: Context) {
-    const { message: m1, stateChannelsMap, network, provider } = context;
+    const { message: m1, stateChannelsMap, network } = context;
 
     const {
       params,
@@ -310,8 +310,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelsMap,
       (virtualAppInstanceIdentityHash as unknown) as string,
       (virtualAppInstanceDefaultOutcome as unknown) as string,
-      network,
-      provider
+      network
     );
 
     const initiatorAddress = stateChannelWithInitiating.getMultisigOwnerAddrOf(
@@ -840,8 +839,7 @@ function constructTimeLockedPassThroughAppInstance(
   virtualAppInstanceIdentityHash: string,
   virtualAppDefaultOutcome: string,
   network: NetworkContext,
-  params: InstallVirtualAppParams,
-  provider: BaseProvider
+  params: InstallVirtualAppParams
 ): AppInstance {
   const {
     intermediaryXpub,
@@ -973,8 +971,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     virtualAppInstance.identityHash,
     await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
     network,
-    params,
-    provider
+    params
   );
 
   const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
@@ -1029,8 +1026,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   stateChannelsMap: Map<string, StateChannel>,
   virtualAppInstanceIdentityHash: string,
   virtualAppInstanceDefaultOutcome: string,
-  network: NetworkContext,
-  provider: BaseProvider
+  network: NetworkContext
 ): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
     initiatorBalanceDecrement,
@@ -1052,8 +1048,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     virtualAppInstanceIdentityHash,
     virtualAppInstanceDefaultOutcome,
     network,
-    params,
-    provider
+    params
   );
 
   const channelWithInitiating = stateChannelsMap.get(
@@ -1174,8 +1169,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     virtualAppInstance.identityHash,
     await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
     network,
-    params,
-    provider
+    params
   );
 
   const stateChannelWithIntermediary = stateChannelsMap.get(

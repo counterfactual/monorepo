@@ -520,7 +520,6 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
   );
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    network,
     stateChannelWithAllThreeParties.getAppInstance(
       timeLockedPassThroughAppInstance.identityHash
     ),
@@ -638,7 +637,6 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
   }
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    network,
     stateChannelWithAllThreeParties.getAppInstance(
       timeLockedPassThroughAppInstance.identityHash
     ),
@@ -747,7 +745,6 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
   //       equal to the amount in the agreement (i.e., `capitalProvided`).
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    network,
     stateChannelWithAllThreeParties.getAppInstance(
       timeLockedPassThroughAppInstance.identityHash
     ),

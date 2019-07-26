@@ -108,12 +108,11 @@ async function proposeStateTransition(
 ): Promise<[SetStateCommitment, string]> {
   const { appIdentityHash, multisigAddress } = params as UninstallParams;
 
-  const { network, stateChannelsMap } = context;
+  const { stateChannelsMap } = context;
 
   const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    network,
     sc.getAppInstance(appIdentityHash),
     provider
   );

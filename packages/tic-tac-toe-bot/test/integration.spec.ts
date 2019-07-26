@@ -1,7 +1,6 @@
 import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
 import { MNEMONIC_PATH, Node, NodeConfig } from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
@@ -132,24 +131,20 @@ describe("ttt-bot", () => {
 
       nodeAlice.on("updateStateEvent", message => {
         if (
-          ethers.utils
-            .bigNumberify(message.data.newState.versionNumber)
-            .toNumber() === 2
+          bigNumberify(message.data.newState.versionNumber).toNumber() === 2
         ) {
           const { board } = message.data.newState;
 
           expect(
             board
               .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
-              .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
-              .length
+              .filter(val => bigNumberify(val).toString() === "1").length
           ).toBe(1);
 
           expect(
             board
               .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
-              .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
-              .length
+              .filter(val => bigNumberify(val).toString() === "2").length
           ).toBe(1);
 
           expect(message.data.appInstanceId).toBe(appInstanceId);

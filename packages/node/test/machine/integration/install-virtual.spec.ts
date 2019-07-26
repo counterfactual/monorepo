@@ -1,9 +1,9 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -100,7 +100,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   let fundWithDolphinCoin: (
-    wallet: Wallet,
     proxyAddress: string,
     amount: BigNumber
   ) => Promise<void>;
@@ -152,7 +151,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     };
 
     fundWithDolphinCoin = async function(
-      wallet: Wallet,
       proxyAddress: string,
       amount: BigNumber
     ) {
@@ -264,7 +262,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
 
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
+      await fundWithDolphinCoin(proxyAddress, parseEther("10"));
 
       let stateChannel = await setupChannel(
         proxyAddress,
