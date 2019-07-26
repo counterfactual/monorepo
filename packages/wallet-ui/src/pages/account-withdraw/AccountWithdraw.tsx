@@ -17,7 +17,7 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { WalletDepositTransition, withdraw } from "../../store/wallet/wallet";
+import { WalletWithdrawTransition, withdraw } from "../../store/wallet/wallet";
 import { RoutePath } from "../../types";
 import "./AccountWithdraw.scss";
 
@@ -85,8 +85,8 @@ export class AccountWithdraw extends React.Component<
   };
 
   buttonText = {
-    [WalletDepositTransition.CheckWallet]: "Check your wallet",
-    [WalletDepositTransition.WaitForFunds]: "Transfering funds"
+    [WalletWithdrawTransition.CheckWallet]: "Check your wallet",
+    [WalletWithdrawTransition.WaitForFunds]: "Transfering funds"
   };
 
   createDepositData(
