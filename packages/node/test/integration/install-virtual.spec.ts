@@ -5,13 +5,14 @@ import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   collateralizeChannel,
-  confirmProposedVirtualAppInstanceOnNode as confirmProposedVirtualAppInstance,
+  confirmProposedVirtualAppInstance,
   createChannel,
   getInstalledAppInstances,
   getProposedAppInstances,
   installTTTVirtual,
-  makeTTTVirtualProposal
+  makeVirtualProposal
 } from "./utils";
 
 describe("Node method follows spec - proposeInstallVirtual", () => {
@@ -73,7 +74,12 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
           }
         );
 
-        const result = await makeTTTVirtualProposal(nodeA, nodeC, nodeB);
+        const result = await makeVirtualProposal(
+          nodeA,
+          nodeC,
+          nodeB,
+          Apps.TicTacToe
+        );
         proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
       });
     }

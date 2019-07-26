@@ -10,11 +10,12 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
+  Apps,
   collateralizeChannel,
   createChannel,
   generateGetStateRequest,
   generateTakeActionRequest,
-  installTTTAppVirtual
+  installVirtualApp
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
@@ -49,7 +50,12 @@ describe("Node method follows spec - takeAction virtual", () => {
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
-        const appInstanceId = await installTTTAppVirtual(nodeA, nodeB, nodeC);
+        const appInstanceId = await installVirtualApp(
+          nodeA,
+          nodeB,
+          nodeC,
+          Apps.TicTacToe
+        );
 
         const expectedNewState = {
           board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],

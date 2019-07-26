@@ -31,11 +31,13 @@ import {
   FreeBalanceState
 } from "../../src/models/free-balance";
 
-import {
-  initialEmptyTTTState,
-  tttActionEncoding,
-  tttStateEncoding
-} from "./tic-tac-toe";
+import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
+
+interface AppContext {
+  appDefinition: string;
+  abiEncodings: AppABIEncodings;
+  initialState: SolidityABIEncoderV2Type;
+}
 
 export enum Apps {
   TicTacToe
@@ -60,7 +62,8 @@ export async function getMultisigCreationTransactionHash(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  const result = response.result as NodeTypes.CreateChannelTransactionResult;
+  const result = response.result
+    .result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
 
@@ -212,18 +215,16 @@ export function makeRejectInstallRequest(appInstanceId: string): Rpc {
   });
 }
 
-export function makeTTTProposalRequest(
+export function makeAppProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
-  state: SolidityABIEncoderV2Type = {},
+  abiEncodings: AppABIEncodings,
+  initialState: SolidityABIEncoderV2Type,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
-  const initialState =
-    Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
-
   const params: NodeTypes.ProposeInstallParams = {
     proposedToIdentifier,
     initiatorDeposit,
@@ -232,10 +233,7 @@ export function makeTTTProposalRequest(
     responderDepositTokenAddress,
     appDefinition,
     initialState,
-    abiEncodings: {
-      stateEncoding: tttStateEncoding,
-      actionEncoding: tttActionEncoding
-    } as AppABIEncodings,
+    abiEncodings,
     timeout: One,
     outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
   };
@@ -263,19 +261,21 @@ export function makeInstallVirtualRequest(
   });
 }
 
-export function makeTTTVirtualProposalRequest(
+export function makeVirtualProposalRequest(
   proposedToIdentifier: string,
   intermediaries: string[],
   appDefinition: string,
+  abiEncodings: AppABIEncodings,
   initialState: SolidityABIEncoderV2Type = {},
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
-  const installProposalParams = makeTTTProposalRequest(
+  const installProposalParams = makeAppProposalRequest(
     proposedToIdentifier,
     appDefinition,
+    abiEncodings,
     initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
@@ -300,7 +300,7 @@ export function makeTTTVirtualProposalRequest(
  * @param proposalParams The parameters of the installation proposal.
  * @param appInstanceProposal The proposed app instance contained in the Node.
  */
-export async function confirmProposedAppInstanceOnNode(
+export async function confirmProposedAppInstance(
   methodParams: NodeTypes.MethodParams,
   appInstanceProposal: AppInstanceProposal,
   nonInitiatingNode: boolean = false
@@ -331,12 +331,12 @@ export async function confirmProposedAppInstanceOnNode(
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
 
-export function confirmProposedVirtualAppInstanceOnNode(
+export function confirmProposedVirtualAppInstance(
   methodParams: NodeTypes.MethodParams,
   proposedAppInstance: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
-  confirmProposedAppInstanceOnNode(
+  confirmProposedAppInstance(
     methodParams,
     proposedAppInstance,
     nonInitiatingNode
@@ -443,30 +443,25 @@ export async function installApp(
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
-): Promise<string> {
-  let appDefinition: string;
-  let initialAppState: SolidityABIEncoderV2Type;
-
-  switch (app) {
-    case Apps.TicTacToe:
-      appDefinition = (global["networkContext"] as NetworkContextForTestSuite)
-        .TicTacToeApp;
-      initialAppState = initialState ? initialState : initialEmptyTTTState();
-  }
+): Promise<[string, NodeTypes.ProposeInstallParams]> {
+  const appContext = getAppContext(app, initialState);
+  let proposedParams: NodeTypes.ProposeInstallParams;
 
   return new Promise(async resolve => {
-    const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
+    const appInstanceInstallationProposalRequest = makeAppProposalRequest(
       nodeB.publicIdentifier,
-      appDefinition,
-      initialAppState,
+      appContext.appDefinition,
+      appContext.abiEncodings,
+      appContext.initialState,
       initiatorDeposit,
       initiatorDepositTokenAddress,
       responderDeposit,
       responderDepositTokenAddress
     );
+    proposedParams = appInstanceInstallationProposalRequest.parameters as NodeTypes.ProposeInstallParams;
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-      confirmProposedAppInstanceOnNode(
+      confirmProposedAppInstance(
         appInstanceInstallationProposalRequest.parameters,
         await getAppInstanceProposal(nodeA, appInstanceId)
       );
@@ -485,7 +480,7 @@ export async function installApp(
         appInstanceId
       );
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-      resolve(appInstanceId);
+      resolve([appInstanceId, proposedParams]);
     });
 
     const response = await nodeA.rpcRouter.dispatch(
@@ -497,10 +492,11 @@ export async function installApp(
   });
 }
 
-export async function installTTTAppVirtual(
+export async function installVirtualApp(
   nodeA: Node,
   nodeB: Node,
   nodeC: Node,
+  app: Apps,
   initialState?: SolidityABIEncoderV2Type
 ): Promise<string> {
   return new Promise(async resolve => {
@@ -522,7 +518,7 @@ export async function installTTTAppVirtual(
       }
     );
 
-    await makeTTTVirtualProposal(nodeA, nodeC, nodeB, initialState);
+    await makeVirtualProposal(nodeA, nodeC, nodeB, app, initialState);
   });
 }
 
@@ -564,20 +560,24 @@ export async function getState(
   return (getStateResult.result.result as NodeTypes.GetStateResult).state;
 }
 
-export async function makeTTTVirtualProposal(
+export async function makeVirtualProposal(
   nodeA: Node,
   nodeC: Node,
   nodeB: Node,
-  initialState: SolidityABIEncoderV2Type = {}
+  app: Apps,
+  initialState?: SolidityABIEncoderV2Type
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
+  const appContext = getAppContext(app, initialState);
+
+  const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-    initialState,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
     One,
     CONVENTION_FOR_ETH_TOKEN_ADDRESS,
     Zero,
@@ -596,7 +596,7 @@ export async function makeTTTVirtualProposal(
       id: Date.now()
     })
   );
-  expect(appInstanceId).toBeDefined();
+  // expect(appInstanceId).toBeDefined();
   return { appInstanceId, params };
 }
 
@@ -620,15 +620,21 @@ export function makeInstallCall(node: Node, appInstanceId: string) {
 export async function makeVirtualProposeCall(
   nodeA: Node,
   nodeC: Node,
-  nodeB: Node
+  nodeB: Node,
+  app: Apps,
+  initialState?: SolidityABIEncoderV2Type
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
+  const appContext = getAppContext(app, initialState);
+
+  const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState
   );
 
   const response = await nodeA.rpcRouter.dispatch(
@@ -645,10 +651,8 @@ export async function makeVirtualProposeCall(
 export async function makeProposeCall(
   nodeA: Node,
   nodeB: Node,
-  appDefinition: string = (global[
-    "networkContext"
-  ] as NetworkContextForTestSuite).TicTacToeApp,
-  state: SolidityABIEncoderV2Type = {},
+  app: Apps,
+  initialState?: SolidityABIEncoderV2Type,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -657,10 +661,12 @@ export async function makeProposeCall(
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
 }> {
-  const appInstanceProposalReq = makeTTTProposalRequest(
+  const appContext = getAppContext(app, initialState);
+  const appInstanceProposalReq = makeAppProposalRequest(
     nodeB.publicIdentifier,
-    appDefinition,
-    state,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
     responderDeposit,
@@ -724,4 +730,31 @@ export async function transferERC20Tokens(
   expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
 
   return balanceAfter;
+}
+
+export function getAppContext(
+  app: Apps,
+  initialState?: SolidityABIEncoderV2Type
+): AppContext {
+  let appDefinition: string;
+  let abiEncodings: AppABIEncodings;
+  let initialAppState: SolidityABIEncoderV2Type;
+
+  switch (app) {
+    case Apps.TicTacToe:
+      appDefinition = (global["networkContext"] as NetworkContextForTestSuite)
+        .TicTacToeApp;
+      initialAppState = initialState ? initialState : initialEmptyTTTState();
+      abiEncodings = tttAbiEncodings;
+      break;
+
+    default:
+      throw new Error(`Proposing the specified app is not supported: ${app}`);
+  }
+
+  return {
+    appDefinition,
+    abiEncodings,
+    initialState: initialAppState
+  };
 }

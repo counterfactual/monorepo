@@ -5,8 +5,9 @@ import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   collateralizeChannel,
-  confirmProposedAppInstanceOnNode,
+  confirmProposedAppInstance,
   createChannel,
   getAppInstanceProposal,
   getInstalledAppInstances,
@@ -45,7 +46,7 @@ describe("Node method follows spec - rejectInstall", () => {
 
         // node B then decides to reject the proposal
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          await confirmProposedAppInstanceOnNode(
+          await confirmProposedAppInstance(
             params,
             await getAppInstanceProposal(nodeA, appInstanceId)
           );
@@ -56,7 +57,7 @@ describe("Node method follows spec - rejectInstall", () => {
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
-        const result = await makeProposeCall(nodeA, nodeB);
+        const result = await makeProposeCall(nodeA, nodeB, Apps.TicTacToe);
         appInstanceId = result.appInstanceId;
         params = result.params;
       });
