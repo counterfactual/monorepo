@@ -67,10 +67,10 @@ const decodeAppState = (
     encodedAppState
   )[0];
 
-const encodeState = (state: SolidityABIEncoderV2Type) =>
+const encodeAppState = (state: SolidityABIEncoderV2Type) =>
   defaultAbiCoder.encode([ethUnidirectionalTransferAppStateEncoding], [state]);
 
-const encodeAction = (state: SolidityABIEncoderV2Type) =>
+const encodeAppAction = (state: SolidityABIEncoderV2Type) =>
   defaultAbiCoder.encode([ethUnidirectionalTransferAppActionEncoding], [state]);
 
 describe("ETHUnidirectionalTransferApp", () => {
@@ -81,12 +81,14 @@ describe("ETHUnidirectionalTransferApp", () => {
     action: SolidityABIEncoderV2Type
   ) =>
     ethUnidirectionalTransferApp.functions.applyAction(
-      encodeState(state),
-      encodeAction(action)
+      encodeAppState(state),
+      encodeAppAction(action)
     );
 
   const computeOutcome = (state: SolidityABIEncoderV2Type) =>
-    ethUnidirectionalTransferApp.functions.computeOutcome(encodeState(state));
+    ethUnidirectionalTransferApp.functions.computeOutcome(
+      encodeAppState(state)
+    );
 
   before(async () => {
     const provider = waffle.createMockProvider();
