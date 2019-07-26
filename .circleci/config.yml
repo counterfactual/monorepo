@@ -178,7 +178,7 @@ jobs:
       - run:
           name: Serve Simple Hub Server
           shell: /bin/sh
-          command: cd packages/simple-hub-server && NODE_ENV=test yarn start
+          command: cd packages/simple-hub-server && yarn start:e2e
           background: true
 
       - run:
