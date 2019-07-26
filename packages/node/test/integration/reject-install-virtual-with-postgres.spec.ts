@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
@@ -8,7 +9,6 @@ import {
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
-  Apps,
   confirmProposedVirtualAppInstance,
   createChannel,
   getProposedAppInstances,
@@ -84,7 +84,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           nodeA,
           nodeC,
           nodeB,
-          Apps.TicTacToe
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
         proposalParams = result.params;

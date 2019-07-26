@@ -1,3 +1,5 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
+
 import { Node } from "../../src";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 import { timeout } from "../../src/utils";
@@ -7,7 +9,6 @@ import {
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
-  Apps,
   createChannel,
   generateUninstallRequest,
   getInstalledAppInstances,
@@ -39,7 +40,7 @@ describe("Node method follows spec - uninstall", () => {
       const [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        Apps.TicTacToe,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
         initialState
       );
 

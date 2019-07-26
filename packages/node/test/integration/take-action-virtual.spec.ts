@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { One, Zero } from "ethers/constants";
 
 import {
@@ -10,7 +11,6 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
-  Apps,
   collateralizeChannel,
   createChannel,
   generateGetStateRequest,
@@ -54,7 +54,7 @@ describe("Node method follows spec - takeAction virtual", () => {
           nodeA,
           nodeB,
           nodeC,
-          Apps.TicTacToe
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
 
         const expectedNewState = {

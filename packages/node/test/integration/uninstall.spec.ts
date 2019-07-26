@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { One, Two, Zero } from "ethers/constants";
 
 import { Node } from "../../src";
@@ -7,7 +8,6 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
-  Apps,
   collateralizeChannel,
   createChannel,
   generateUninstallRequest,
@@ -55,7 +55,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        Apps.TicTacToe,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -84,7 +84,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        Apps.TicTacToe,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -113,7 +113,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        Apps.TicTacToe,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,

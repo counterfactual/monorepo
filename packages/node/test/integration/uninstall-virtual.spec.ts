@@ -1,9 +1,10 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
+
 import { Node } from "../../src";
 import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
-  Apps,
   collateralizeChannel,
   createChannel,
   generateUninstallVirtualRequest,
@@ -44,7 +45,7 @@ describe("Node method follows spec - uninstall virtual", () => {
           nodeA,
           nodeB,
           nodeC,
-          Apps.TicTacToe,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
           initialState
         );
 

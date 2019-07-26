@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
@@ -5,7 +6,6 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 import { setup, SetupContext } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
-  Apps,
   createChannel,
   generateGetStateRequest,
   getState,
@@ -34,7 +34,7 @@ describe("Node method follows spec - getAppInstances", () => {
     const [appInstanceId, params] = await installApp(
       nodeA,
       nodeB,
-      Apps.TicTacToe
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     );
     const state = await getState(nodeA, appInstanceId);
 

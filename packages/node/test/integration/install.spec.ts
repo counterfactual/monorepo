@@ -10,7 +10,6 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
-  Apps,
   collateralizeChannel,
   createChannel,
   getAppContext,
@@ -87,7 +86,7 @@ describe("Node method follows spec - install", () => {
         await makeProposeCall(
           nodeA,
           nodeB,
-          Apps.TicTacToe,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
           undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -159,7 +158,7 @@ describe("Node method follows spec - install", () => {
         await makeProposeCall(
           nodeA,
           nodeB,
-          Apps.TicTacToe,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
           undefined,
           One,
           erc20TokenAddress,
@@ -169,7 +168,9 @@ describe("Node method follows spec - install", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appContext = getAppContext(Apps.TicTacToe);
+        const appContext = getAppContext(
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
         const appInstanceProposalReq = makeAppProposalRequest(
           nodeB.publicIdentifier,
           appContext.appDefinition,

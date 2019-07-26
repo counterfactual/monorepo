@@ -39,10 +39,6 @@ interface AppContext {
   initialState: SolidityABIEncoderV2Type;
 }
 
-export enum Apps {
-  TicTacToe
-}
-
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -437,14 +433,14 @@ export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
 export async function installApp(
   nodeA: Node,
   nodeB: Node,
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<[string, NodeTypes.ProposeInstallParams]> {
-  const appContext = getAppContext(app, initialState);
+  const appContext = getAppContext(appDefinition, initialState);
   let proposedParams: NodeTypes.ProposeInstallParams;
 
   return new Promise(async resolve => {
@@ -496,7 +492,7 @@ export async function installVirtualApp(
   nodeA: Node,
   nodeB: Node,
   nodeC: Node,
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type
 ): Promise<string> {
   return new Promise(async resolve => {
@@ -518,7 +514,7 @@ export async function installVirtualApp(
       }
     );
 
-    await makeVirtualProposal(nodeA, nodeC, nodeB, app, initialState);
+    await makeVirtualProposal(nodeA, nodeC, nodeB, appDefinition, initialState);
   });
 }
 
@@ -564,13 +560,13 @@ export async function makeVirtualProposal(
   nodeA: Node,
   nodeC: Node,
   nodeB: Node,
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const appContext = getAppContext(app, initialState);
+  const appContext = getAppContext(appDefinition, initialState);
 
   const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
@@ -621,13 +617,13 @@ export async function makeVirtualProposeCall(
   nodeA: Node,
   nodeC: Node,
   nodeB: Node,
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const appContext = getAppContext(app, initialState);
+  const appContext = getAppContext(appDefinition, initialState);
 
   const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
@@ -651,7 +647,7 @@ export async function makeVirtualProposeCall(
 export async function makeProposeCall(
   nodeA: Node,
   nodeB: Node,
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -661,7 +657,7 @@ export async function makeProposeCall(
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
 }> {
-  const appContext = getAppContext(app, initialState);
+  const appContext = getAppContext(appDefinition, initialState);
   const appInstanceProposalReq = makeAppProposalRequest(
     nodeB.publicIdentifier,
     appContext.appDefinition,
@@ -733,23 +729,22 @@ export async function transferERC20Tokens(
 }
 
 export function getAppContext(
-  app: Apps,
+  appDefinition: string,
   initialState?: SolidityABIEncoderV2Type
 ): AppContext {
-  let appDefinition: string;
   let abiEncodings: AppABIEncodings;
   let initialAppState: SolidityABIEncoderV2Type;
 
-  switch (app) {
-    case Apps.TicTacToe:
-      appDefinition = (global["networkContext"] as NetworkContextForTestSuite)
-        .TicTacToeApp;
+  switch (appDefinition) {
+    case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
       initialAppState = initialState ? initialState : initialEmptyTTTState();
       abiEncodings = tttAbiEncodings;
       break;
 
     default:
-      throw new Error(`Proposing the specified app is not supported: ${app}`);
+      throw new Error(
+        `Proposing the specified app is not supported: ${appDefinition}`
+      );
   }
 
   return {

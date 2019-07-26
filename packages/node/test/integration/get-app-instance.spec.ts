@@ -1,8 +1,9 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
+
 import { Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {
-  Apps,
   confirmAppInstanceInstallation,
   createChannel,
   getInstalledAppInstance,
@@ -25,7 +26,7 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
     const [appInstanceId, proposedParams] = await installApp(
       nodeA,
       nodeB,
-      Apps.TicTacToe
+      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     );
 
     const appInstanceNodeA = await getInstalledAppInstance(

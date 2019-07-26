@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { One, Zero } from "ethers/constants";
 
 import {
@@ -10,7 +11,6 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
-  Apps,
   createChannel,
   generateGetStateRequest,
   generateTakeActionRequest,
@@ -42,7 +42,11 @@ describe("Node method follows spec - takeAction", () => {
       it("can take action", async done => {
         await createChannel(nodeA, nodeB);
 
-        const [appInstanceId] = await installApp(nodeA, nodeB, Apps.TicTacToe);
+        const [appInstanceId] = await installApp(
+          nodeA,
+          nodeB,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
 
         const expectedNewState = {
           board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],

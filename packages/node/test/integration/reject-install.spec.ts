@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
@@ -5,7 +6,6 @@ import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
-  Apps,
   collateralizeChannel,
   confirmProposedAppInstance,
   createChannel,
@@ -57,7 +57,11 @@ describe("Node method follows spec - rejectInstall", () => {
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
-        const result = await makeProposeCall(nodeA, nodeB, Apps.TicTacToe);
+        const result = await makeProposeCall(
+          nodeA,
+          nodeB,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
         appInstanceId = result.appInstanceId;
         params = result.params;
       });
