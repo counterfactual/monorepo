@@ -41,13 +41,13 @@ describe("CoinTransferInterpreter", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
   let erc20: Contract;
-  let coinTransferInterpreter: Contract;
+  let multiAssetMultiPartyCoinTransferInterpreter: Contract;
 
   async function interpretOutcomeAndExecuteEffect(
     state: CoinTransfer[][],
     params: { limit: BigNumber[]; tokenAddresses: string[] }
   ) {
-    return await coinTransferInterpreter.functions.interpretOutcomeAndExecuteEffect(
+    return await multiAssetMultiPartyCoinTransferInterpreter.functions.interpretOutcomeAndExecuteEffect(
       encodeOutcome(state),
       encodeParams(params)
     );
@@ -58,20 +58,20 @@ describe("CoinTransferInterpreter", () => {
     wallet = (await waffle.getWallets(provider))[0];
     erc20 = await waffle.deployContract(wallet, DolphinCoin);
 
-    coinTransferInterpreter = await waffle.deployContract(
+    multiAssetMultiPartyCoinTransferInterpreter = await waffle.deployContract(
       wallet,
       CoinTransferInterpreter
     );
 
     // fund interpreter with ERC20 tokenAddresses
     await erc20.functions.transfer(
-      coinTransferInterpreter.address,
+      multiAssetMultiPartyCoinTransferInterpreter.address,
       erc20.functions.balanceOf(wallet.address)
     );
 
     // fund interpreter with ETH
     await wallet.sendTransaction({
-      to: coinTransferInterpreter.address,
+      to: multiAssetMultiPartyCoinTransferInterpreter.address,
       value: new BigNumber(100)
     });
   });

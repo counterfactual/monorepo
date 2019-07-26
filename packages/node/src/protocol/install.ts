@@ -37,11 +37,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       network
     } = context;
 
-    const {
-      responderXpub,
-      multisigAddress,
-      outcomeType
-    } = params as InstallParams;
+    const { responderXpub, multisigAddress } = params as InstallParams;
 
     const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
 
@@ -54,7 +50,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const conditionalTransactionData = constructConditionalTransactionData(
       network,
-      outcomeType,
       postProtocolStateChannel
     );
 
@@ -167,11 +162,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     // Aliasing `signature` to this variable name for code clarity
     const counterpartySignatureOnConditionalTransaction = signature;
 
-    const {
-      initiatorXpub,
-      multisigAddress,
-      outcomeType
-    } = params as InstallParams;
+    const { initiatorXpub, multisigAddress } = params as InstallParams;
 
     const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
 
@@ -184,7 +175,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const conditionalTransactionData = constructConditionalTransactionData(
       network,
-      outcomeType,
       postProtocolStateChannel
     );
 
@@ -297,7 +287,7 @@ function computeStateChannelTransition(
   const responderFbAddress = stateChannel.getFreeBalanceAddrOf(responderXpub);
 
   const {
-    coinTransferInterpreterParams,
+    multiAssetMultiPartyCoinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams
   } = computeInterpreterParameters(
     outcomeType,
@@ -321,7 +311,7 @@ function computeStateChannelTransition(
     /* defaultTimeout */ defaultTimeout,
     /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams
+    /* multiAssetMultiPartyCoinTransferInterpreterParams */ multiAssetMultiPartyCoinTransferInterpreterParams
   );
 
   let tokenIndexedBalanceDecrement: TokenIndexedCoinTransferMap;
@@ -363,7 +353,7 @@ function computeStateChannelTransition(
  * inside of the client (the Node) by adding an "outcomeType" variable which
  * is a simplification of the actual decision a developer has to make with their app.
  *
- * TODO: update doc on how CoinTransferInterpreterParams work
+ * TODO: update doc on how MultiAssetMultiPartyCoinTransferInterpreterParams work
  *
  * @param {OutcomeType} outcomeType - either COIN_TRANSFER or TWO_PARTY_FIXED_OUTCOME
  * @param {BigNumber} initiatorBalanceDecrement - amount Wei initiator deposits
@@ -408,7 +398,7 @@ function computeInterpreterParameters(
 
       return {
         twoPartyOutcomeInterpreterParams: undefined,
-        coinTransferInterpreterParams: {
+        multiAssetMultiPartyCoinTransferInterpreterParams: {
           limit,
           tokenAddresses
         }
@@ -428,7 +418,7 @@ function computeInterpreterParameters(
       }
 
       return {
-        coinTransferInterpreterParams: undefined,
+        multiAssetMultiPartyCoinTransferInterpreterParams: undefined,
         twoPartyOutcomeInterpreterParams: {
           tokenAddress,
           playerAddrs: [initiatorFbAddress, responderFbAddress] as [
@@ -461,27 +451,40 @@ function computeInterpreterParameters(
  * @returns {ConditionalTransaction} A ConditionalTransaction object, ready to sign.
  */
 function constructConditionalTransactionData(
-  network: NetworkContext,
-  outcomeType: OutcomeType,
+  networkContext: NetworkContext,
   stateChannel: StateChannel
 ): ConditionalTransaction {
   const appInstance = stateChannel.mostRecentlyInstalledAppInstance();
+  return new ConditionalTransaction(
+    networkContext,
+    stateChannel.multisigAddress,
+    stateChannel.multisigOwners,
+    appInstance.identityHash,
+    stateChannel.freeBalance.identityHash,
+    getInterpreterAddressFromOutcomeType(
+      appInstance.outcomeType,
+      networkContext
+    ),
+    appInstance.encodedInterpreterParams
+  );
+}
 
-  const interpreterParams = appInstance.interpreterParams;
-  let interpreterAddress: string;
-
+function getInterpreterAddressFromOutcomeType(
+  outcomeType: OutcomeType,
+  networkContext: NetworkContext
+) {
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
-      interpreterAddress = network.CoinTransferInterpreter;
-      break;
+      return networkContext.CoinTransferInterpreter;
+    }
+    case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
+      return networkContext.CoinTransferInterpreter;
     }
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
-      interpreterAddress = network.SingleAssetTwoPartyCoinTransferInterpreter;
-      break;
+      return networkContext.SingleAssetTwoPartyCoinTransferInterpreter;
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      interpreterAddress = network.TwoPartyFixedOutcomeInterpreter;
-      break;
+      return networkContext.TwoPartyFixedOutcomeInterpreter;
     }
     default: {
       throw new Error(
@@ -489,14 +492,4 @@ function constructConditionalTransactionData(
       );
     }
   }
-
-  return new ConditionalTransaction(
-    network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    appInstance.identityHash,
-    stateChannel.freeBalance.identityHash,
-    interpreterAddress,
-    interpreterParams
-  );
 }

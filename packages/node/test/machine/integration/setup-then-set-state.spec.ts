@@ -2,7 +2,7 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
@@ -118,8 +118,8 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         stateChannel.multisigOwners,
         stateChannel.freeBalance.identity,
         defaultAbiCoder.encode(
-          [coinTransferInterpreterParamsStateEncoding],
-          [stateChannel.freeBalance.coinTransferInterpreterParams]
+          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+          [stateChannel.freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
         )
       );
 

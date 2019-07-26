@@ -45,13 +45,13 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       return handleTwoPartyFixedOutcome(
         encodedOutcome,
-        appInstance.twoPartyOutcomeInterpreterParams!
+        appInstance.twoPartyOutcomeInterpreterParams
       );
     }
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       return handleSingleAssetTwoPartyCoinTransfer(
         encodedOutcome,
-        appInstance.singleAssetTwoPartyCoinTransferInterpreterParams!
+        appInstance.singleAssetTwoPartyCoinTransferInterpreterParams
       );
     }
     default: {
@@ -108,12 +108,6 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     encodedOutcome: string,
     interpreterParams: TwoPartyFixedOutcomeInterpreterParams
   ): TokenIndexedCoinTransferMap {
-    if (!interpreterParams) {
-      throw new Error(
-        "AppInstance outcomeType was TWO_PARTY_FIXED_OUTCOME, but twoPartyOutcomeInterpreterParams on AppInstance was undefined"
-      );
-    }
-
     const { amount, playerAddrs, tokenAddress } = interpreterParams;
 
     switch (decodeTwoPartyFixedOutcome(encodedOutcome)) {
@@ -144,12 +138,6 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     encodedOutcome: string,
     interpreterParams: SingleAssetTwoPartyCoinTransferInterpreterParams
   ): TokenIndexedCoinTransferMap {
-    if (!interpreterParams) {
-      throw new Error(
-        "AppInstance outcomeType was SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER, but singleAssetTwoPartyCoinTransferInterpreterParams on AppInstance was undefined"
-      );
-    }
-
     const { tokenAddress } = interpreterParams;
 
     const [

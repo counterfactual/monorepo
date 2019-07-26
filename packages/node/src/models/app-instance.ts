@@ -3,10 +3,11 @@ import {
   AppIdentity,
   AppInstanceJson,
   AppInterface,
-  CoinTransferInterpreterParams,
-  coinTransferInterpreterParamsStateEncoding,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
+  singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
@@ -46,7 +47,7 @@ import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
  * @property latestTimeout The timeout used in the latest signed state update.
 
- * @property coinTransferInterpreterParams The limit / maximum amount of funds
+ * @property multiAssetMultiPartyCoinTransferInterpreterParams The limit / maximum amount of funds
  *           to be distributed for an app where the interpreter type is COIN_TRANSFER
 
  * @property twoPartyOutcomeInterpreterParams Addresses of the two beneficiaries
@@ -65,11 +66,44 @@ export class AppInstance {
     public readonly latestVersionNumber: number,
     public readonly latestTimeout: number,
     public readonly outcomeType: OutcomeType,
-    public readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams,
-    public readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams,
-    public readonly singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams
+    private readonly twoPartyOutcomeInterpreterParamsInternal?: TwoPartyFixedOutcomeInterpreterParams,
+    private readonly multiAssetMultiPartyCoinTransferInterpreterParamsInternal?: MultiAssetMultiPartyCoinTransferInterpreterParams,
+    private readonly singleAssetTwoPartyCoinTransferInterpreterParamsInternal?: SingleAssetTwoPartyCoinTransferInterpreterParams
   ) {}
 
+  get twoPartyOutcomeInterpreterParams() {
+    if (this.outcomeType !== OutcomeType.TWO_PARTY_FIXED_OUTCOME) {
+      throw new Error(
+        `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not TWO_PARTY_FIXED_OUTCOME`
+      );
+    }
+
+    return this.twoPartyOutcomeInterpreterParamsInternal!;
+  }
+
+  get multiAssetMultiPartyCoinTransferInterpreterParams() {
+    if (
+      this.outcomeType !== OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER &&
+      // NOTE: The RefundAppState outcome type reuses the same property on this model
+      this.outcomeType !== OutcomeType.REFUND_OUTCOME_TYPE
+    ) {
+      throw new Error(
+        `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER`
+      );
+    }
+
+    return this.multiAssetMultiPartyCoinTransferInterpreterParamsInternal!;
+  }
+
+  get singleAssetTwoPartyCoinTransferInterpreterParams() {
+    if (this.outcomeType !== OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER) {
+      throw new Error(
+        `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER `
+      );
+    }
+
+    return this.singleAssetTwoPartyCoinTransferInterpreterParamsInternal!;
+  }
   public static fromJson(json: AppInstanceJson) {
     const serialized = JSON.parse(JSON.stringify(json), (
       // @ts-ignore
@@ -88,7 +122,7 @@ export class AppInstance {
       serialized.latestTimeout,
       serialized.outcomeType,
       serialized.twoPartyOutcomeInterpreterParams,
-      serialized.coinTransferInterpreterParams,
+      serialized.multiAssetMultiPartyCoinTransferInterpreterParams,
       serialized.singleAssetTwoPartyCoinTransferInterpreterParams
     );
   }
@@ -109,10 +143,12 @@ export class AppInstance {
         latestVersionNumber: this.latestVersionNumber,
         latestTimeout: this.latestTimeout,
         outcomeType: this.outcomeType,
-        twoPartyOutcomeInterpreterParams: this.twoPartyOutcomeInterpreterParams,
-        coinTransferInterpreterParams: this.coinTransferInterpreterParams,
+        twoPartyOutcomeInterpreterParams: this
+          .twoPartyOutcomeInterpreterParamsInternal,
+        multiAssetMultiPartyCoinTransferInterpreterParams: this
+          .multiAssetMultiPartyCoinTransferInterpreterParamsInternal,
         singleAssetTwoPartyCoinTransferInterpreterParams: this
-          .singleAssetTwoPartyCoinTransferInterpreterParams,
+          .singleAssetTwoPartyCoinTransferInterpreterParamsInternal,
         identityHash: this.identityHash
       }),
       (
@@ -153,19 +189,19 @@ export class AppInstance {
   }
 
   @Memoize()
-  get interpreterParams() {
+  get encodedInterpreterParams() {
     if (!this.isVirtualApp) {
       switch (this.outcomeType) {
         case OutcomeType.REFUND_OUTCOME_TYPE: {
           return defaultAbiCoder.encode(
-            [coinTransferInterpreterParamsStateEncoding],
-            [this.coinTransferInterpreterParams]
+            [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+            [this.multiAssetMultiPartyCoinTransferInterpreterParams]
           );
         }
 
         case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
           return defaultAbiCoder.encode(
-            ["tuple(uint256 limit, address tokenAddress)"],
+            [singleAssetTwoPartyCoinTransferInterpreterParamsEncoding],
             [this.singleAssetTwoPartyCoinTransferInterpreterParams]
           );
         }

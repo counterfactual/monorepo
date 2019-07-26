@@ -1,6 +1,6 @@
 import {
   coinBalanceRefundStateEncoding,
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext,
   OutcomeType
 } from "@counterfactual/types";
@@ -560,8 +560,8 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.freeBalance.identityHash,
     network.CoinTransferInterpreter,
     defaultAbiCoder.encode(
-      [coinTransferInterpreterParamsStateEncoding],
-      [appInstance.coinTransferInterpreterParams]
+      [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+      [appInstance.multiAssetMultiPartyCoinTransferInterpreterParams]
     )
   );
 }

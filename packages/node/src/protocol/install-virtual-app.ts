@@ -6,7 +6,7 @@
  */
 
 import {
-  CoinTransferInterpreterParams,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
   NetworkContext,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
@@ -789,8 +789,8 @@ function computeInterpreterParameters(
   initiatingBalanceDecrement: BigNumber,
   respondingBalanceDecrement: BigNumber
 ) {
-  const coinTransferInterpreterParams:
-    | CoinTransferInterpreterParams
+  const multiAssetMultiPartyCoinTransferInterpreterParams:
+    | MultiAssetMultiPartyCoinTransferInterpreterParams
     | undefined = undefined;
 
   let twoPartyOutcomeInterpreterParams:
@@ -834,7 +834,7 @@ function computeInterpreterParameters(
     }
   }
   return {
-    coinTransferInterpreterParams,
+    multiAssetMultiPartyCoinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams,
     singleAssetTwoPartyCoinTransferInterpreterParams
   };
@@ -861,7 +861,8 @@ function constructVirtualAppInstance(
     responderXpub,
     defaultTimeout,
     appInterface,
-    initialState
+    initialState,
+    outcomeType
   } = params;
 
   const seqNo = stateChannelBetweenEndpoints.numInstalledApps;
@@ -880,9 +881,9 @@ function constructVirtualAppInstance(
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
-    /* outcomeType */ OutcomeType.COIN_TRANSFER_DO_NOT_USE,
+    /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ undefined,
-    /* coinTransferInterpreterParams */ undefined,
+    /* multiAssetMultiPartyCoinTransferInterpreterParams */ undefined,
     /* singleAssetTwoPartyCoinTransferInterpreterParams */ undefined
   );
 }
@@ -928,7 +929,7 @@ function constructTimeLockedPassThroughAppInstance(
   const HARD_CODED_CHALLENGE_TIMEOUT = 100;
 
   const {
-    coinTransferInterpreterParams,
+    multiAssetMultiPartyCoinTransferInterpreterParams,
     twoPartyOutcomeInterpreterParams,
     singleAssetTwoPartyCoinTransferInterpreterParams
   } = computeInterpreterParameters(
@@ -972,7 +973,7 @@ function constructTimeLockedPassThroughAppInstance(
     /* latestTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* outcomeType */ outcomeType,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* coinTransferInterpreterParams */ coinTransferInterpreterParams,
+    /* multiAssetMultiPartyCoinTransferInterpreterParams */ multiAssetMultiPartyCoinTransferInterpreterParams,
     /* singleAssetTwoPartyCoinTransferInterpreterParams */ singleAssetTwoPartyCoinTransferInterpreterParams
   );
 }

@@ -1,5 +1,5 @@
 import {
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext
 } from "@counterfactual/types";
 import { defaultAbiCoder } from "ethers/utils";
@@ -119,6 +119,7 @@ function proposeStateTransition(
     multisigAddress,
     [initiatorXpub, responderXpub]
   );
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
@@ -144,8 +145,8 @@ export function constructSetupCommitment(
     stateChannel.multisigOwners,
     freeBalance.identity,
     defaultAbiCoder.encode(
-      [coinTransferInterpreterParamsStateEncoding],
-      [freeBalance.coinTransferInterpreterParams]
+      [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+      [freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
     )
   );
 }

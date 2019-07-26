@@ -34,7 +34,7 @@ The currently supported outcome types are:
 
   - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
 
-- FREE_BALANCE_OUTCOME_TYPE
+- MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
 
   - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
 

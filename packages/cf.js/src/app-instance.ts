@@ -2,7 +2,7 @@ import {
   AppABIEncodings,
   AppInstanceInfo,
   AppInstanceJson,
-  CoinTransferInterpreterParams,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
   Node,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams
@@ -42,7 +42,7 @@ export class AppInstance {
    * Interpreter-related Fields
    */
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  readonly coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  readonly multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
 
   private readonly eventEmitter: EventEmitter = new EventEmitter();
   private readonly validEventTypes = Object.keys(AppInstanceEventType).map(

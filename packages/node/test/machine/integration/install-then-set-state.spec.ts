@@ -4,8 +4,8 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
-  CoinTransferInterpreterParams,
-  coinTransferInterpreterParamsStateEncoding,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext,
   OutcomeType
 } from "@counterfactual/types";
@@ -140,14 +140,14 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         ],
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
-        OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
+        OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred
           limit: [parseEther("2"), parseEther("2")],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
-        } as CoinTransferInterpreterParams,
+        } as MultiAssetMultiPartyCoinTransferInterpreterParams,
         undefined
       );
 
@@ -221,8 +221,8 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.freeBalance.identityHash,
         network.CoinTransferInterpreter,
         defaultAbiCoder.encode(
-          [coinTransferInterpreterParamsStateEncoding],
-          [identityAppInstance.coinTransferInterpreterParams!]
+          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+          [identityAppInstance.multiAssetMultiPartyCoinTransferInterpreterParams!]
         )
       );
 
