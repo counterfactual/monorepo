@@ -12,30 +12,6 @@ import { defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import { TokenIndexedCoinTransferMap } from "../../models/free-balance";
 
-/**
- * Note that this is only used with `CoinBalanceRefundApp.sol`
- */
-function computeCoinTransferIncrement(
-  token: string,
-  outcome: string
-): TokenIndexedCoinTransferMap {
-  const [decoded] = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[1][1]"],
-    outcome
-  );
-
-  const ret: TokenIndexedCoinTransferMap = {};
-
-  ret[token] = {};
-  const balances = decoded[0];
-
-  for (const pair of balances) {
-    const [address, amount] = pair;
-    ret[token][address] = amount;
-  }
-  return ret;
-}
-
 function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
   for (const tokenAddress of Object.keys(map)) {
     for (const address of Object.keys(map[tokenAddress])) {
@@ -90,10 +66,16 @@ export async function computeTokenIndexedFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const increments = computeCoinTransferIncrement(
-          (appInstance.state as CoinBalanceRefundState).tokenAddress,
+        const [[{ to, amount }]] = defaultAbiCoder.decode(
+          ["tuple(address to, uint256 amount)[1][1]"],
           outcome
         );
+
+        const increments = {
+          [(appInstance.state as CoinBalanceRefundState).tokenAddress]: {
+            [to]: amount
+          }
+        };
 
         if (anyNonzeroValues(increments)) {
           return increments;
