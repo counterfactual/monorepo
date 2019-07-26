@@ -9,7 +9,7 @@ import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TimeLockedPassThrough from "@counterfactual/contracts/build/TimeLockedPassThrough.json";
-import TwoPartyFixedOutcomeFromVirtualAppETHInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.json";
+import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
 import TwoPartyFixedOutcomeInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
@@ -80,9 +80,9 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const twoPartyFixedOutcomeFromVirtualAppETHInterpreter = await new ContractFactory(
-    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.abi,
-    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.bytecode,
+  const twoPartyFixedOutcomeFromVirtualAppInterpreter = await new ContractFactory(
+    TwoPartyFixedOutcomeFromVirtualAppInterpreter.abi,
+    TwoPartyFixedOutcomeFromVirtualAppInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -112,7 +112,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     TicTacToeApp: tttContract.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
-    TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
-      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+    TwoPartyFixedOutcomeFromVirtualAppInterpreter:
+      twoPartyFixedOutcomeFromVirtualAppInterpreter.address
   } as NetworkContextForTestSuite;
 }

@@ -17,8 +17,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.11",
-    "@counterfactual/types": "0.0.26",
+    "@counterfactual/contracts": "0.1.12",
+    "@counterfactual/types": "0.0.27",
     "ethers": "4.0.33",
     "truffle": "5.0.27",
     "typescript": "3.5.3"
