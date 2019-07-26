@@ -165,8 +165,6 @@ jobs:
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
-      - run: chmod +x /usr/local/bin/chromedriver # see: https://discuss.circleci.com/t/selenium-says-chrome-is-unreachable-works-fine-locally/29335/2
-
       - run:
           name: Link Metamask dist into extension
           command: ln -s metamask/dist/chrome packages/greenboard/extension

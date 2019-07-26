@@ -64,7 +64,6 @@ export class TestBrowser {
     options.addArguments(
       `--load-extension=${extension}`,
       `--disable-web-security`,
-      `--disable-dev-shm-usage`,
       `--user-data-dir=/tmp/greenboard`
     );
 
