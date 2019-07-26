@@ -1,13 +1,13 @@
 import { EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT } from "@counterfactual/types";
 import { Wallet } from "ethers";
 
-import { Chain } from "../src";
+import { LocalGanacheServer } from "../src";
 
 describe("Contracts get deployed as expected", () => {
   jest.setTimeout(10000);
 
   it("can spin up a new configured chain", async () => {
-    const chain = new Chain([Wallet.createRandom().mnemonic]);
+    const chain = new LocalGanacheServer([Wallet.createRandom().mnemonic]);
     const networkContext = await chain.createConfiguredChain();
 
     // This is not officially part of the NetworkContext but it's deployed

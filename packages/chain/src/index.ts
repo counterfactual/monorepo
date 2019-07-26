@@ -14,7 +14,7 @@ dotenvExtended.load();
 
 export const CF_PATH = "m/44'/60'/0'/25446";
 
-export class Chain {
+export class LocalGanacheServer {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
