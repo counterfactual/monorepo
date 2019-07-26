@@ -5,7 +5,8 @@ import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
-  confirmProposedVirtualAppInstanceOnNode,
+  Apps,
+  confirmProposedVirtualAppInstance,
   createChannel,
   getProposedAppInstances,
   makeRejectInstallRequest,
@@ -45,11 +46,11 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceA
             );
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceC
             );
@@ -67,7 +68,12 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           }
         );
 
-        const result = await makeVirtualProposeCall(nodeA, nodeC, nodeB);
+        const result = await makeVirtualProposeCall(
+          nodeA,
+          nodeC,
+          nodeB,
+          Apps.TicTacToe
+        );
         proposalParams = result.params;
       });
     }

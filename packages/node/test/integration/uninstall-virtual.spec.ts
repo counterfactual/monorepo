@@ -3,11 +3,12 @@ import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
+  Apps,
   collateralizeChannel,
   createChannel,
   generateUninstallVirtualRequest,
   getInstalledAppInstances,
-  installTTTAppVirtual
+  installVirtualApp
 } from "./utils";
 
 describe("Node method follows spec - uninstall virtual", () => {
@@ -39,10 +40,11 @@ describe("Node method follows spec - uninstall virtual", () => {
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
-        const appInstanceId = await installTTTAppVirtual(
+        const appInstanceId = await installVirtualApp(
           nodeA,
           nodeB,
           nodeC,
+          Apps.TicTacToe,
           initialState
         );
 
