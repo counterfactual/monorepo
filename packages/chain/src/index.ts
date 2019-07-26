@@ -14,6 +14,8 @@ import {
 
 dotenvExtended.load();
 
+export { NetworkContextForTestSuite };
+
 export const CF_PATH = "m/44'/60'/0'/25446";
 
 export class LocalGanacheServer {
@@ -46,6 +48,7 @@ export class LocalGanacheServer {
       };
       accounts.push(entry);
     });
+
     accounts.push({
       balance,
       secretKey: this.fundedPrivateKey
@@ -62,9 +65,9 @@ export class LocalGanacheServer {
     this.provider = new Web3Provider(this.server.provider);
   }
 
-  async createConfiguredChain(): Promise<NetworkContextForTestSuite> {
-    return (this.networkContext = await deployTestArtifactsToChain(
+  async runMigrations() {
+    this.networkContext = await deployTestArtifactsToChain(
       new Wallet(this.fundedPrivateKey, this.provider)
-    ));
+    );
   }
 }

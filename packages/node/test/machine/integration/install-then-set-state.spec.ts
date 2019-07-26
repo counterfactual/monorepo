@@ -1,8 +1,8 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   CoinTransferInterpreterParams,
   coinTransferInterpreterParamsStateEncoding,

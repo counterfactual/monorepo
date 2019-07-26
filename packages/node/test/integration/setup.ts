@@ -1,4 +1,4 @@
-import { CF_PATH } from "@counterfactual/chain";
+import { CF_PATH } from "@counterfactual/local-ganache-server";
 import { PostgresServiceFactory } from "@counterfactual/postgresql-node-connector";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";

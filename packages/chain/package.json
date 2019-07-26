@@ -1,5 +1,5 @@
 {
-  "name": "@counterfactual/chain",
+  "name": "@counterfactual/local-ganache-server",
   "version": "0.0.2",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
