@@ -65,6 +65,7 @@ export class TestBrowser {
       `--load-extension=${extension}`,
       `--disable-web-security`,
       `--disable-dev-shm-usage`,
+      `--remote-debugging-port=9222`,
       `--user-data-dir=/tmp/greenboard`
     );
 

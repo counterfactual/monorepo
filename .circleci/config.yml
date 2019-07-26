@@ -165,16 +165,6 @@ jobs:
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
-      - setup_remote_docker
-
-      - run:
-          name: Enable Dockerize
-          command: |
-            wget https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-linux-amd64-v0.6.1.tar.gz
-            sudo rm -rf /usr/local/bin/dockerize
-            sudo tar -C /usr/local/bin -xzvf dockerize-linux-amd64-v0.6.1.tar.gz
-            rm dockerize-linux-amd64-v0.6.1.tar.gz
-
       - run:
           name: Link Metamask dist into extension
           command: ln -s metamask/dist/chrome packages/greenboard/extension
@@ -188,7 +178,7 @@ jobs:
       - run:
           name: Serve Simple Hub Server
           shell: /bin/sh
-          command: cd packages/simple-hub-server && docker-compose up -d && dockerize -wait localhost:5432 -timeout 1m && yarn start
+          command: cd packages/simple-hub-server && NODE_ENV=test yarn start
           background: true
 
       - run:
