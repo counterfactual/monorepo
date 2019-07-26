@@ -66,7 +66,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
           appInstance.encodedLatestState
         );
 
-        const [[{ to, amount }]] = defaultAbiCoder.decode(
+        const [[[{ to, amount }]]] = defaultAbiCoder.decode(
           ["tuple(address to, uint256 amount)[1][1]"],
           outcome
         );
