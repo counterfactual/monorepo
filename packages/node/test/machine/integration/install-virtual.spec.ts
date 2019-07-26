@@ -275,7 +275,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         capitalProvider,
         virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: erc20Contract.address,
         /**
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
@@ -347,7 +346,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         capitalProvider,
         virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         timeLockedPassThroughIdentityHash: HashZero
       };

@@ -49,7 +49,6 @@ function sortAddresses(addrs: string[]) {
 export type SingleAssetTwoPartyIntermediaryAgreement = {
   timeLockedPassThroughIdentityHash: string;
   capitalProvided: BigNumber;
-  expiryBlock: number;
   capitalProvider: string;
   virtualAppUser: string;
   tokenAddress: string;
@@ -58,7 +57,6 @@ export type SingleAssetTwoPartyIntermediaryAgreement = {
 type SingleAssetTwoPartyIntermediaryAgreementJSON = {
   timeLockedPassThroughIdentityHash: string;
   capitalProvided: { _hex: string };
-  expiryBlock: number;
   capitalProvider: string;
   virtualAppUser: string;
   tokenAddress: string;

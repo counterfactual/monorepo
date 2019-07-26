@@ -11,7 +11,6 @@ import {
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import {
   BigNumber,
@@ -203,7 +202,6 @@ export class AppInstance {
               `
                 tuple(
                   uint256 capitalProvided,
-                  uint256 expiryBlock,
                   address payable capitalProvider,
                   address virtualAppUser,
                   address tokenAddress,
@@ -214,7 +212,6 @@ export class AppInstance {
               {
                 tokenAddress,
                 capitalProvided: limit,
-                expiryBlock: MaxUint256, // FIXME: This means ALL VirtualApps have infinite timeout
                 // FIXME: These addresses are definitely wrong
                 capitalProvider: this.participants[0],
                 virtualAppUser: this.participants[1]

@@ -21,7 +21,6 @@ type CoinTransfer = {
 
 type InterpreterParams = {
   capitalProvided: BigNumberish;
-  expiryBlock: BigNumberish;
   capitalProvider: string;
   virtualAppUser: string;
   tokenAddress: string;
@@ -33,7 +32,6 @@ const encodeParams = (params: InterpreterParams) =>
       `
         tuple(
           uint256 capitalProvided,
-          uint256 expiryBlock,
           address capitalProvider,
           address virtualAppUser,
           address tokenAddress
@@ -105,7 +103,6 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
       [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
-        expiryBlock: (await provider.getBlockNumber()) + 100,
         capitalProvider: to,
         virtualAppUser: lender,
         tokenAddress: AddressZero
@@ -130,7 +127,6 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
       [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
-        expiryBlock: (await provider.getBlockNumber()) + 100,
         capitalProvider: to,
         virtualAppUser: lender,
         tokenAddress: AddressZero
@@ -151,7 +147,6 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
       [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
-        expiryBlock: (await provider.getBlockNumber()) + 100,
         capitalProvider: to,
         virtualAppUser: lender,
         tokenAddress: erc20.address
@@ -176,7 +171,6 @@ describe("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter", () => {
       [{ to, amount: capitalProvided }, { to: randomAddress, amount: Zero }],
       {
         capitalProvided,
-        expiryBlock: (await provider.getBlockNumber()) + 100,
         capitalProvider: to,
         virtualAppUser: lender,
         tokenAddress: erc20.address

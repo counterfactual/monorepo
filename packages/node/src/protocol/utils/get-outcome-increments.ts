@@ -10,7 +10,7 @@ import { BaseProvider } from "ethers/providers";
 import { defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
-import { TokenIndexedCoinTransferMap, CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../models/free-balance";
+import { TokenIndexedCoinTransferMap } from "../../models/free-balance";
 
 /**
  * Note that this is only used with `CoinBalanceRefundApp.sol`
@@ -62,11 +62,11 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     provider
   );
 
+  const { outcomeType } = appInstance;
+
   let outcome = await appDefinition.functions.computeOutcome(
     appInstance.encodedLatestState
   );
-
-  const outcomeType = appInstance.toJson().outcomeType;
 
   if (outcomeType === undefined) {
     throw new Error("undefined outcomeType in appInstance");
@@ -143,18 +143,25 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         }
       };
     }
+
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      const {
+        tokenAddress
+      } = appInstance.singleAssetTwoPartyCoinTransferInterpreterParams!;
+
       const [decoded] = defaultAbiCoder.decode(
         ["tuple(address to, uint256 amount)[2]"],
         outcome
       );
+
       return {
-        [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
+        [tokenAddress]: {
           [decoded[0].to]: decoded[0].amount,
           [decoded[1].to]: decoded[1].amount
         }
       };
     }
+
     default: {
       throw new Error("unknown outcomeType");
     }

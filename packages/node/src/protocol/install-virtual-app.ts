@@ -43,7 +43,6 @@ import { assertIsValidSignature } from "./utils/signature-validator";
 const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   tuple(
     uint256 capitalProvided,
-    uint256 expiryBlock,
     address capitalProvider,
     address virtualAppUser,
     address tokenAddress
@@ -962,6 +961,10 @@ function constructTimeLockedPassThroughAppInstance(
     {
       challengeRegistryAddress: network.ChallengeRegistry,
       targetAppIdentityHash: virtualAppInstanceIdentityHash,
+      // FIXME: This number _should_ be MaxUint256 so that we can have no timeouts for
+      //        virtual apps at the moment, but it needs to be Zero for now otherwise
+      //        calling computeOutcome won't work on it because it relies on another
+      //        app's outcome which; in the challenge registry, is 0x.
       switchesOutcomeAt: Zero,
       defaultOutcome: virtualAppDefaultOutcome
     },
@@ -1073,7 +1076,6 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
       tokenAddress,
       timeLockedPassThroughIdentityHash:
         timeLockedPassThroughAppInstance.identityHash,
-      expiryBlock: 100_000_000_000,
       capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
         responderBalanceDecrement
       ),
@@ -1171,7 +1173,6 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        expiryBlock: 100_000_000_000,
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),
@@ -1191,7 +1192,6 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        expiryBlock: 100_000_000_000,
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),
@@ -1281,7 +1281,6 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        expiryBlock: 100_000_000_000,
         capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
           responderBalanceDecrement
         ),

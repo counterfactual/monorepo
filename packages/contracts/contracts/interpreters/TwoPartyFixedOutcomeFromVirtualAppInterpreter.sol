@@ -1,6 +1,7 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 import "../interfaces/Interpreter.sol";
@@ -17,11 +18,13 @@ import "../libs/LibOutcome.sol";
 contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
   Interpreter
 {
+
+  using SafeMath for uint256;
+
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct VirtualAppIntermediaryAgreement {
     uint256 capitalProvided;
-    uint256 expiryBlock;
     address payable capitalProvider;
     address payable virtualAppUser;
     address tokenAddress;
@@ -41,11 +44,6 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
     VirtualAppIntermediaryAgreement memory agreement = abi.decode(
       params,
       (VirtualAppIntermediaryAgreement)
-    );
-
-    require(
-      block.number < agreement.expiryBlock,
-      "Virtual App agreement has expired and is no longer valid."
     );
 
     if (
@@ -77,22 +75,22 @@ contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
       if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
         agreement.virtualAppUser.transfer(
-          agreement.capitalProvided / 2
+          agreement.capitalProvided.div(2)
         );
 
 
         agreement.capitalProvider.transfer(
-          agreement.capitalProvided - agreement.capitalProvided / 2
+          agreement.capitalProvided.sub(agreement.capitalProvided.div(2))
         );
 
       } else {
         ERC20(agreement.tokenAddress).transfer(
-          agreement.virtualAppUser, agreement.capitalProvided / 2
+          agreement.virtualAppUser, agreement.capitalProvided.div(2)
         );
 
         ERC20(agreement.tokenAddress).transfer(
           agreement.capitalProvider,
-          agreement.capitalProvided - agreement.capitalProvided / 2
+          agreement.capitalProvided.sub(agreement.capitalProvided.div(2))
         );
       }
 

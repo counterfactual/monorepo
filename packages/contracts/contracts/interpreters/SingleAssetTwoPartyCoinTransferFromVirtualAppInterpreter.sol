@@ -1,6 +1,7 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/ERC20.sol";
 
 import "../interfaces/Interpreter.sol";
@@ -13,18 +14,16 @@ import "../libs/LibOutcome.sol";
 /// CoinTransfer. While CoinTransfer outcome contains `to` and `coinAddress`
 /// fields, those fields are *ignored* by this interpreter. Only the `amount`
 /// field is used.
-///
-/// TODO: Use the `capitalProvided` field to ensure sum of amounts ==
-///       capitalProvided.
 contract SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
   is Interpreter
 {
+
+  using SafeMath for uint256;
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct VirtualAppIntermediaryAgreement {
     uint256 capitalProvided;
-    uint256 expiryBlock;
     address payable capitalProvider;
     address payable virtualAppUser;
     address tokenAddress;
@@ -49,8 +48,8 @@ contract SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
     );
 
     require(
-      block.number < agreement.expiryBlock,
-      "Virtual App agreement has expired and is no longer valid."
+      outcome[0].amount.add(outcome[1].amount) == agreement.capitalProvided,
+      "Invalid outcome. Sum of amounts must equal to capital provided."
     );
 
     if (agreement.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
@@ -58,12 +57,12 @@ contract SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
       if (outcome[0].to == agreement.virtualAppUser) {
         outcome[0].to.transfer(outcome[0].amount);
         agreement.capitalProvider.transfer(
-          agreement.capitalProvided - outcome[0].amount
+          agreement.capitalProvided.sub(outcome[0].amount)
         );
       } else if (outcome[1].to == agreement.virtualAppUser) {
         outcome[1].to.transfer(outcome[1].amount);
         agreement.capitalProvider.transfer(
-          agreement.capitalProvided - outcome[1].amount
+          agreement.capitalProvided.sub(outcome[1].amount)
         );
       } else {
         agreement.capitalProvider.transfer(agreement.capitalProvided);
@@ -75,13 +74,13 @@ contract SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter
         ERC20(agreement.tokenAddress).transfer(outcome[0].to, outcome[0].amount);
         ERC20(agreement.tokenAddress).transfer(
           agreement.capitalProvider,
-          agreement.capitalProvided - outcome[0].amount
+          agreement.capitalProvided.sub(outcome[0].amount)
         );
       } else if (outcome[1].to == agreement.virtualAppUser) {
         ERC20(agreement.tokenAddress).transfer(outcome[1].to, outcome[1].amount);
         ERC20(agreement.tokenAddress).transfer(
           agreement.capitalProvider,
-          agreement.capitalProvided - outcome[1].amount
+          agreement.capitalProvided.sub(outcome[1].amount)
         );
       } else {
         ERC20(agreement.tokenAddress).transfer(
