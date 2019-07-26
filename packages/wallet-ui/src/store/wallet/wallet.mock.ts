@@ -82,7 +82,9 @@ export enum WalletWithdrawTransition {
 }
 
 export const withdraw = (
+  // @ts-ignore
   transaction: Deposit,
+  // @ts-ignore
   provider: Web3Provider,
   history?: History
 ): ThunkAction<
