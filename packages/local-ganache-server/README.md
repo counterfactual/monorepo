@@ -1,4 +1,4 @@
-# [@counterfactual/chain](https://github.com/counterfactual/monorepo/tree/master/packages/chain) <img align="right" src="../../logo.svg" height="80px" />
+# [@counterfactual/local-ganache-server](https://github.com/counterfactual/monorepo/tree/master/packages/local-ganache-server) <img align="right" src="../../logo.svg" height="80px" />
 
 This package encapsulates the minimum necessary blockchain context that needs to be setup for the `@counterfactual/node` package to function as intended.
 
