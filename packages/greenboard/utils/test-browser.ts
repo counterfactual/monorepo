@@ -63,6 +63,7 @@ export class TestBrowser {
     const options = new Options();
     options.addArguments(
       `--no-sandbox`,
+      `--disable-set-uid-sandbox`,
       `--load-extension=${extension}`,
       `--disable-web-security`,
       `--disable-dev-shm-usage`,
