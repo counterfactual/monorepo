@@ -62,9 +62,9 @@ export class TestBrowser {
 
     const options = new Options();
     options.addArguments(
+      `--no-sandbox`,
       `--load-extension=${extension}`,
       `--disable-web-security`,
-      `--no-sandbox`,
       `--disable-dev-shm-usage`,
       `--user-data-dir=/tmp/greenboard`
     );
