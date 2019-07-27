@@ -1,5 +1,6 @@
 import {
   CoinBalanceRefundState,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcome,
@@ -40,7 +41,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
 
   switch (outcomeType) {
     case OutcomeType.REFUND_OUTCOME_TYPE: {
-      return handleRefundAppState(encodedOutcome, appInstance);
+      return handleRefundAppState(encodedOutcome, appInstance, provider);
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       return handleTwoPartyFixedOutcome(
@@ -54,104 +55,118 @@ export async function computeTokenIndexedFreeBalanceIncrements(
         appInstance.singleAssetTwoPartyCoinTransferInterpreterParams
       );
     }
+    case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
+      return handleMultiAssetMultiPartyCoinTransfer(
+        encodedOutcome,
+        appInstance.multiAssetMultiPartyCoinTransferInterpreterParams
+      );
+    }
     default: {
       throw new Error(
         "computeTokenIndexedFreeBalanceIncrements received an AppInstance with unknown OutcomeType"
       );
     }
   }
+}
 
-  /**
-   * The REFUND_OUTCOME_TYPE is in a special situation because it is
-   * a `view` function. Since we do not have any encapsulation of a
-   * getter for blockchain-based data, we naively re-query our only
-   * hook to the chain (i.e., the `provider` variable) several times
-   * until, at least one time out of 10, the values we see on chain
-   * indicate a nonzero free balance increment.
-   */
-  // FIXME:
-  // https://github.com/counterfactual/monorepo/issues/1371
-  async function handleRefundAppState(
-    encodedOutcome: string,
-    appInstance: AppInstance
-  ): Promise<TokenIndexedCoinTransferMap> {
-    let mutableOutcome = encodedOutcome;
-    let attempts = 1;
-    while (attempts <= 10) {
-      const [[{ to, amount }]] = decodeRefundAppState(mutableOutcome);
+/**
+ * The REFUND_OUTCOME_TYPE is in a special situation because it is
+ * a `view` function. Since we do not have any encapsulation of a
+ * getter for blockchain-based data, we naively re-query our only
+ * hook to the chain (i.e., the `provider` variable) several times
+ * until, at least one time out of 10, the values we see on chain
+ * indicate a nonzero free balance increment.
+ */
+// FIXME:
+// https://github.com/counterfactual/monorepo/issues/1371
+async function handleRefundAppState(
+  encodedOutcome: string,
+  appInstance: AppInstance,
+  provider: BaseProvider
+): Promise<TokenIndexedCoinTransferMap> {
+  let mutableOutcome = encodedOutcome;
+  let attempts = 1;
+  while (attempts <= 10) {
+    const [[{ to, amount }]] = decodeRefundAppState(mutableOutcome);
 
-      if (amount.gt(0)) {
-        return {
-          [(appInstance.state as CoinBalanceRefundState).tokenAddress]: {
-            [to]: amount
-          }
-        };
-      }
-
-      attempts += 1;
-
-      await wait(1000 * attempts);
-
-      // Note this statement queries the blockchain each time and
-      // is the main reason for this 10-iteration while block.
-      mutableOutcome = await appInstance.computeOutcomeWithCurrentState(
-        provider
-      );
+    if (amount.gt(0)) {
+      return {
+        [(appInstance.state as CoinBalanceRefundState).tokenAddress]: {
+          [to]: amount
+        }
+      };
     }
 
-    throw new Error(
-      "When attempting to check for a deposit having been made to the multisig, did not find any non-zero deposits."
-    );
+    attempts += 1;
+
+    await wait(1000 * attempts);
+
+    // Note this statement queries the blockchain each time and
+    // is the main reason for this 10-iteration while block.
+    mutableOutcome = await appInstance.computeOutcomeWithCurrentState(provider);
   }
 
-  function handleTwoPartyFixedOutcome(
-    encodedOutcome: string,
-    interpreterParams: TwoPartyFixedOutcomeInterpreterParams
-  ): TokenIndexedCoinTransferMap {
-    const { amount, playerAddrs, tokenAddress } = interpreterParams;
+  throw new Error(
+    "When attempting to check for a deposit having been made to the multisig, did not find any non-zero deposits."
+  );
+}
 
-    switch (decodeTwoPartyFixedOutcome(encodedOutcome)) {
-      case TwoPartyFixedOutcome.SEND_TO_ADDR_ONE:
-        return {
-          [tokenAddress]: {
-            [playerAddrs[0]]: amount
-          }
-        };
-      case TwoPartyFixedOutcome.SEND_TO_ADDR_TWO:
-        return {
-          [tokenAddress]: {
-            [playerAddrs[1]]: amount
-          }
-        };
-      case TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS:
-      default:
-        return {
-          [tokenAddress]: {
-            [playerAddrs[0]]: amount.div(2),
-            [playerAddrs[1]]: amount.sub(amount.div(2))
-          }
-        };
+function handleTwoPartyFixedOutcome(
+  encodedOutcome: string,
+  interpreterParams: TwoPartyFixedOutcomeInterpreterParams
+): TokenIndexedCoinTransferMap {
+  const { amount, playerAddrs, tokenAddress } = interpreterParams;
+
+  switch (decodeTwoPartyFixedOutcome(encodedOutcome)) {
+    case TwoPartyFixedOutcome.SEND_TO_ADDR_ONE:
+      return {
+        [tokenAddress]: {
+          [playerAddrs[0]]: amount
+        }
+      };
+    case TwoPartyFixedOutcome.SEND_TO_ADDR_TWO:
+      return {
+        [tokenAddress]: {
+          [playerAddrs[1]]: amount
+        }
+      };
+    case TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS:
+    default:
+      return {
+        [tokenAddress]: {
+          [playerAddrs[0]]: amount.div(2),
+          [playerAddrs[1]]: amount.sub(amount.div(2))
+        }
+      };
+  }
+}
+
+function handleMultiAssetMultiPartyCoinTransfer(
+  // @ts-ignore
+  encodedOutcome: string,
+  // @ts-ignore
+  interpreterParams: MultiAssetMultiPartyCoinTransferInterpreterParams
+): TokenIndexedCoinTransferMap {
+  throw new Error("UnimplementedError");
+}
+
+function handleSingleAssetTwoPartyCoinTransfer(
+  encodedOutcome: string,
+  interpreterParams: SingleAssetTwoPartyCoinTransferInterpreterParams
+): TokenIndexedCoinTransferMap {
+  const { tokenAddress } = interpreterParams;
+
+  const [
+    { to: to1, amount: amount1 },
+    { to: to2, amount: amount2 }
+  ] = decodeSingleAssetTwoPartyCoinTransfer(encodedOutcome);
+
+  return {
+    [tokenAddress]: {
+      [to1 as string]: amount1 as BigNumber,
+      [to2 as string]: amount2 as BigNumber
     }
-  }
-
-  function handleSingleAssetTwoPartyCoinTransfer(
-    encodedOutcome: string,
-    interpreterParams: SingleAssetTwoPartyCoinTransferInterpreterParams
-  ): TokenIndexedCoinTransferMap {
-    const { tokenAddress } = interpreterParams;
-
-    const [
-      { to: to1, amount: amount1 },
-      { to: to2, amount: amount2 }
-    ] = decodeSingleAssetTwoPartyCoinTransfer(encodedOutcome);
-
-    return {
-      [tokenAddress]: {
-        [to1 as string]: amount1 as BigNumber,
-        [to2 as string]: amount2 as BigNumber
-      }
-    };
-  }
+  };
 }
 
 function decodeRefundAppState(encodedOutcome: string): [[CoinTransfer]] {
@@ -184,3 +199,18 @@ function decodeSingleAssetTwoPartyCoinTransfer(
 
   return [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }];
 }
+
+// TODO: This is actually the same as in free-balance.ts
+//
+// function decodeMultiAssetMultiPartyCoinTransfer(
+//   encodedOutcome: string
+// ): CoinTransfer[][] {
+//   const [coinTransferListOfLists] = defaultAbiCoder.decode(
+//     ["tuple(address to, uint256 amount)[2]"],
+//     encodedOutcome
+//   );
+
+//   return coinTransferListOfLists.map(coinTransferList =>
+//     coinTransferList.map(({ to, amount }) => ({ to, amount }))
+//   );
+// }
