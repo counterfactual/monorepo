@@ -248,7 +248,7 @@ describe("Store > User", () => {
         await callAction<User, UserState, UserAddTransition>(getUser, {
           reducers,
           initialState,
-          actionParameters: [provider],
+          actionParameters: [provider, history],
           finalActionType: ActionType.WalletSetBalance
         });
         fail(
@@ -267,7 +267,7 @@ describe("Store > User", () => {
       >(getUser, {
         reducers,
         initialState,
-        actionParameters: [provider],
+        actionParameters: [provider, history],
         finalActionType: ActionType.WalletSetBalance
       });
 
