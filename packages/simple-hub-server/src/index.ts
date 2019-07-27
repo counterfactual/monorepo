@@ -1,8 +1,9 @@
+import { NetworkContext } from "@counterfactual/types";
 import { Log, LogLevel } from "logepi";
-
 import mountApi from "./api";
 import { detectDBAndSchema } from "./db";
 import { NodeWrapper, serviceFactoryPromise } from "./node";
+
 
 const BANNED_MNEMONICS = new Set([
   "science amused table oyster text message core mirror patch bubble provide industry",
@@ -35,7 +36,11 @@ const API_TIMEOUT = 5 * 60 * 1000;
   await detectDBAndSchema();
 
   await NodeWrapper.createNodeSingleton(
-    process.env.ETHEREUM_NETWORK || "kovan",
+    (process.env.ETHEREUM_NETWORK || "kovan") as
+    | "kovan"
+    | "rinkeby"
+    | "ropsten"
+    | NetworkContext,
     process.env.NODE_MNEMONIC
   );
 
@@ -62,3 +67,4 @@ process.on("SIGINT", async () => {
 });
 
 export * from "./types";
+
