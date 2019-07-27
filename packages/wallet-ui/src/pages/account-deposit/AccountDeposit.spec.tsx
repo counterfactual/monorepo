@@ -67,7 +67,7 @@ describe("<AccountRegistration />", () => {
     props = mock.props;
   });
 
-  it("should render a Proceed button", () => {
+  it("should render a Proceed or Withdraw button", () => {
     const CTA = component.find(testSelector("deposit-button"));
     expect(CTA.exists()).toBe(true);
     expect(["Proceed", "Deposit"]).toContain(CTA.text());
@@ -77,7 +77,7 @@ describe("<AccountRegistration />", () => {
     expect(component.find(testSelector("amount-input")).exists()).toBe(true);
   });
 
-  it("should trigger User Creation upon click", () => {
+  it("should redirect to /channels after clicking the button", () => {
     component.find(testSelector("amount-input")).simulate("change", {
       target: { value: "0.01", validity: { valid: true } }
     });

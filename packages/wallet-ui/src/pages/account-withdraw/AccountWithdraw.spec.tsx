@@ -63,7 +63,7 @@ function setup() {
   return { props, component, node: AccountWithdraw };
 }
 
-describe("<AccountRegistration />", () => {
+describe("<AccountWithdraw />", () => {
   let instance: Enzyme.CommonWrapper<AccountWithdrawProps, {}, React.Component>;
   let component: Enzyme.ReactWrapper;
   let props: RouteComponentProps;
@@ -75,7 +75,7 @@ describe("<AccountRegistration />", () => {
     props = mock.props;
   });
 
-  it("should render a Proceed button", () => {
+  it("should render a Proceed button or Withdraw", () => {
     const CTA = component.find(testSelector("deposit-button"));
     expect(CTA.exists()).toBe(true);
     expect(["Proceed", "Withdraw"]).toContain(CTA.text());
@@ -85,7 +85,7 @@ describe("<AccountRegistration />", () => {
     expect(component.find(testSelector("amount-input")).exists()).toBe(true);
   });
 
-  it("should trigger User Creation upon click", () => {
+  it("should redirect to /channels after clicking the button", () => {
     component.find(testSelector("amount-input")).simulate("change", {
       target: { value: "0.01", validity: { valid: true } }
     });

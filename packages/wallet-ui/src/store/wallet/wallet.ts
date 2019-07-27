@@ -123,20 +123,17 @@ export const withdraw = (
   Action<ActionType | WalletWithdrawTransition>
 > => async dispatch => {
   try {
-    // 1. Ask Metamask to do the deposit. !
-    log('withdraw', transaction)
+    // 1. Ask Metamask to do the withdraw. !
     dispatch({ type: WalletWithdrawTransition.CheckWallet });
-    const responsew = await requestWithdraw(transaction); // IMPLEMENT THIS!
-    log('withdraw responsew', responsew)
+    const response = await requestWithdraw(transaction); // IMPLEMENT THIS!
+    log('withdraw response', response)
 
-    // 2. Wait until the deposit is completed in both sides. !
+    // 2. Wait until the withdraw is completed in both sides. !
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
     const counterfactualBalance = await forFunds(transaction);
-    log('withdraw counterfactualBalance', counterfactualBalance)
 
     // 3. Get the Metamask balance.
     const ethereumBalance = await provider.getBalance(transaction.ethAddress);
-    log('withdraw ethereumBalance', ethereumBalance)
 
     // 4. Update the balance.
     dispatch({
