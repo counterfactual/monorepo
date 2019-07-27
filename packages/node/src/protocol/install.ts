@@ -1,5 +1,11 @@
-import { NetworkContext, OutcomeType } from "@counterfactual/types";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import {
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  NetworkContext,
+  OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
+  TwoPartyFixedOutcomeInterpreterParams
+} from "@counterfactual/types";
+import { BigNumber } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
@@ -288,7 +294,8 @@ function computeStateChannelTransition(
 
   const {
     multiAssetMultiPartyCoinTransferInterpreterParams,
-    twoPartyOutcomeInterpreterParams
+    twoPartyOutcomeInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
   } = computeInterpreterParameters(
     outcomeType,
     initiatorDepositTokenAddress,
@@ -310,8 +317,9 @@ function computeStateChannelTransition(
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,
     /* outcomeType */ outcomeType,
-    /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
-    /* multiAssetMultiPartyCoinTransferInterpreterParams */ multiAssetMultiPartyCoinTransferInterpreterParams
+    twoPartyOutcomeInterpreterParams,
+    multiAssetMultiPartyCoinTransferInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
   );
 
   let tokenIndexedBalanceDecrement: TokenIndexedCoinTransferMap;
@@ -373,41 +381,13 @@ function computeInterpreterParameters(
   responderBalanceDecrement: BigNumber,
   initiatorFbAddress: string,
   responderFbAddress: string
-) {
+): {
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
+} {
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
-      const limit: BigNumber[] = [];
-      const tokenAddresses: string[] = [];
-
-      // Deposit is taking place by the initiator
-      if (responderDepositTokenAddress === undefined) {
-        limit.push(initiatorBalanceDecrement);
-        tokenAddresses.push(initiatorDepositTokenAddress);
-      } else if (
-        initiatorDepositTokenAddress === responderDepositTokenAddress
-      ) {
-        limit.push(initiatorBalanceDecrement.add(responderBalanceDecrement));
-        tokenAddresses.push(initiatorDepositTokenAddress);
-      } else {
-        tokenAddresses.push(initiatorDepositTokenAddress);
-        limit.push(initiatorBalanceDecrement);
-
-        tokenAddresses.push(responderDepositTokenAddress);
-        limit.push(responderBalanceDecrement);
-      }
-
-      return {
-        twoPartyOutcomeInterpreterParams: undefined,
-        multiAssetMultiPartyCoinTransferInterpreterParams: {
-          limit,
-          tokenAddresses
-        }
-      };
-    }
-
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-      const tokenAddress = initiatorDepositTokenAddress;
-
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
         throw new Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
@@ -418,16 +398,47 @@ function computeInterpreterParameters(
       }
 
       return {
-        multiAssetMultiPartyCoinTransferInterpreterParams: undefined,
         twoPartyOutcomeInterpreterParams: {
-          tokenAddress,
-          playerAddrs: [initiatorFbAddress, responderFbAddress] as [
-            string,
-            string
-          ],
-          amount: bigNumberify(initiatorBalanceDecrement).add(
-            responderBalanceDecrement
+          tokenAddress: initiatorDepositTokenAddress,
+          playerAddrs: [initiatorFbAddress, responderFbAddress],
+          amount: initiatorBalanceDecrement.add(responderBalanceDecrement)
+        }
+      };
+    }
+
+    case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
+      return initiatorDepositTokenAddress === responderDepositTokenAddress
+        ? {
+            multiAssetMultiPartyCoinTransferInterpreterParams: {
+              limit: [initiatorBalanceDecrement.add(responderBalanceDecrement)],
+              tokenAddresses: [initiatorDepositTokenAddress]
+            }
+          }
+        : {
+            multiAssetMultiPartyCoinTransferInterpreterParams: {
+              limit: [initiatorBalanceDecrement, responderBalanceDecrement],
+              tokenAddresses: [
+                initiatorDepositTokenAddress,
+                responderDepositTokenAddress
+              ]
+            }
+          };
+    }
+
+    case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
+      if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+        throw new Error(
+          TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
+            initiatorDepositTokenAddress,
+            responderDepositTokenAddress
           )
+        );
+      }
+
+      return {
+        singleAssetTwoPartyCoinTransferInterpreterParams: {
+          limit: initiatorBalanceDecrement.add(responderBalanceDecrement),
+          tokenAddress: initiatorDepositTokenAddress
         }
       };
     }
@@ -474,11 +485,8 @@ function getInterpreterAddressFromOutcomeType(
   networkContext: NetworkContext
 ) {
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
-      return networkContext.CoinTransferInterpreter;
-    }
     case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
-      return networkContext.CoinTransferInterpreter;
+      return networkContext.MultiAssetMultiPartyCoinTransferInterpreter;
     }
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       return networkContext.SingleAssetTwoPartyCoinTransferInterpreter;

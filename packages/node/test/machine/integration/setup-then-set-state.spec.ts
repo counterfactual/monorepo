@@ -70,7 +70,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1
@@ -119,7 +119,10 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         stateChannel.freeBalance.identity,
         defaultAbiCoder.encode(
           [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-          [stateChannel.freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
+          [
+            stateChannel.freeBalance
+              .multiAssetMultiPartyCoinTransferInterpreterParams
+          ]
         )
       );
 

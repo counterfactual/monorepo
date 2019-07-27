@@ -13,7 +13,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type MultiAssetMultiPartyCoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
   limit: BigNumber[];
   tokenAddresses: string[];
 };
@@ -32,6 +32,10 @@ export const multiAssetMultiPartyCoinTransferInterpreterParamsEncoding = `
 
 export const singleAssetTwoPartyCoinTransferInterpreterParamsEncoding = `
   tuple(uint256 limit, address tokenAddress)
+`;
+
+export const twoPartyFixedOutcomeInterpreterParamsEncoding = `
+  tuple(address[2] playerAddrs, uint256 amount)
 `;
 
 export type AppInstanceJson = {
@@ -61,9 +65,14 @@ export type AppInstanceJson = {
 
   multiAssetMultiPartyCoinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
     tokenAddresses: string[];
+  };
+
+  singleAssetTwoPartyCoinTransferInterpreterParams?: {
+    limit: { _hex: string };
+    tokenAddress: string;
   };
 };
 
@@ -85,6 +94,7 @@ export type AppInstanceInfo = {
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
 
 export type AppInstanceProposal = {
@@ -105,6 +115,7 @@ export type AppInstanceProposal = {
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
 
 export type AppABIEncodings = {
@@ -118,9 +129,6 @@ export enum OutcomeType {
 
   // CoinTransfer[][]
   MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
-
-  // CoinTransfer
-  COIN_TRANSFER,
 
   // CoinTransfer[2]
   SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER

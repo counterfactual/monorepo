@@ -9,11 +9,12 @@ import {
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   SolidityABIEncoderV2Type,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  twoPartyFixedOutcomeInterpreterParamsEncoding
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
@@ -79,9 +80,7 @@ export class AppInstance {
 
   get multiAssetMultiPartyCoinTransferInterpreterParams() {
     if (
-      this.outcomeType !== OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER &&
-      // NOTE: The RefundAppState outcome type reuses the same property on this model
-      this.outcomeType !== OutcomeType.COIN_TRANSFER
+      this.outcomeType !== OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
     ) {
       throw new Error(
         `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER`
@@ -124,32 +123,25 @@ export class AppInstance {
     // removes any fields which have an `undefined` value, as that's invalid JSON
     // an example would be having an `undefined` value for the `actionEncoding`
     // of an AppInstance that's not turn based
-    return JSON.parse(
-      JSON.stringify({
-        multisigAddress: this.multisigAddress,
-        participants: this.participants,
-        defaultTimeout: this.defaultTimeout,
-        appInterface: this.appInterface,
-        isVirtualApp: this.isVirtualApp,
-        appSeqNo: this.appSeqNo,
-        latestState: this.latestState,
-        latestVersionNumber: this.latestVersionNumber,
-        latestTimeout: this.latestTimeout,
-        outcomeType: this.outcomeType,
-        twoPartyOutcomeInterpreterParams: this
-          .twoPartyOutcomeInterpreterParamsInternal,
-        multiAssetMultiPartyCoinTransferInterpreterParams: this
-          .multiAssetMultiPartyCoinTransferInterpreterParamsInternal,
-        singleAssetTwoPartyCoinTransferInterpreterParams: this
-          .singleAssetTwoPartyCoinTransferInterpreterParamsInternal,
-        identityHash: this.identityHash
-      }),
-      (
-        // @ts-ignore
-        key,
-        val
-      ) => (BigNumber.isBigNumber(val) ? { _hex: val.toHexString() } : val)
-    );
+    return bigNumberifyJson({
+      multisigAddress: this.multisigAddress,
+      participants: this.participants,
+      defaultTimeout: this.defaultTimeout,
+      appInterface: this.appInterface,
+      isVirtualApp: this.isVirtualApp,
+      appSeqNo: this.appSeqNo,
+      latestState: this.latestState,
+      latestVersionNumber: this.latestVersionNumber,
+      latestTimeout: this.latestTimeout,
+      outcomeType: this.outcomeType,
+      twoPartyOutcomeInterpreterParams: this
+        .twoPartyOutcomeInterpreterParamsInternal,
+      multiAssetMultiPartyCoinTransferInterpreterParams: this
+        .multiAssetMultiPartyCoinTransferInterpreterParamsInternal,
+      singleAssetTwoPartyCoinTransferInterpreterParams: this
+        .singleAssetTwoPartyCoinTransferInterpreterParamsInternal,
+      identityHash: this.identityHash
+    });
   }
 
   @Memoize()
@@ -182,16 +174,9 @@ export class AppInstance {
   }
 
   @Memoize()
-  get encodedInterpreterParams() {
+  public get encodedInterpreterParams() {
     if (!this.isVirtualApp) {
       switch (this.outcomeType) {
-        case OutcomeType.COIN_TRANSFER: {
-          return defaultAbiCoder.encode(
-            [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-            [this.multiAssetMultiPartyCoinTransferInterpreterParams]
-          );
-        }
-
         case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
           return defaultAbiCoder.encode(
             [singleAssetTwoPartyCoinTransferInterpreterParamsEncoding],
@@ -199,9 +184,16 @@ export class AppInstance {
           );
         }
 
+        case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
+          return defaultAbiCoder.encode(
+            [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+            [this.multiAssetMultiPartyCoinTransferInterpreterParams]
+          );
+        }
+
         case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
           return defaultAbiCoder.encode(
-            ["tuple(address[2] playerAddrs, uint256 amount)"],
+            [twoPartyFixedOutcomeInterpreterParamsEncoding],
             [this.twoPartyOutcomeInterpreterParams]
           );
         }
@@ -214,12 +206,6 @@ export class AppInstance {
       }
     } else {
       switch (this.outcomeType) {
-        case OutcomeType.COIN_TRANSFER: {
-          throw new Error(
-            "COIN_TRANSFER is a non-supported OutcomeType for a Virtual App"
-          );
-        }
-
         case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
           // CoinTransferFromVirtualAppInterpreter.sol
           const {
@@ -249,10 +235,38 @@ export class AppInstance {
           );
         }
 
-        case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
-          // TODO: https://github.com/counterfactual/monorepo/pull/1996
+        case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
           throw new Error(
-            "TWO_PARTY_FIXED_OUTCOME is a non-supported OutcomeType for a Virtual App"
+            "Unimplemented Error. There is no interpreter params encoded for the (virtual app case of) MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER OutcomeType on the AppInstance model."
+          );
+        }
+
+        case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
+          const {
+            amount,
+            playerAddrs,
+            tokenAddress
+          } = this.twoPartyOutcomeInterpreterParams;
+          return defaultAbiCoder.encode(
+            [
+              `
+                tuple(
+                  uint256 capitalProvided,
+                  address payable capitalProvider,
+                  address virtualAppUser,
+                  address tokenAddress,
+              )
+              `
+            ],
+            [
+              {
+                tokenAddress,
+                capitalProvided: amount,
+                // FIXME: Also definitely wrong
+                capitalProvider: playerAddrs[0],
+                virtualAppUser: playerAddrs[1]
+              }
+            ]
           );
         }
 

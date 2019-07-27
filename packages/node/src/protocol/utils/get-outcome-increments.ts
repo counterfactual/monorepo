@@ -33,10 +33,16 @@ export async function computeTokenIndexedFreeBalanceIncrements(
     encodedOutcomeOverride ||
     (await appInstance.computeOutcomeWithCurrentState(provider));
 
+  // FIXME: This is a very sketchy way of handling this edge-case
+  if (appInstance.state["threshold"] !== undefined) {
+    return handleRefundAppOutcomeSpecialCase(
+      encodedOutcome,
+      appInstance,
+      provider
+    );
+  }
+
   switch (outcomeType) {
-    case OutcomeType.COIN_TRANSFER: {
-      return handleCoinTransferOutcome(encodedOutcome, appInstance, provider);
-    }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       return handleTwoPartyFixedOutcome(
         encodedOutcome,
@@ -64,7 +70,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
 }
 
 /**
- * The COIN_TRANSFER is in a special situation because it is
+ * This is in a special situation because it is
  * a `view` function. Since we do not have any encapsulation of a
  * getter for blockchain-based data, we naively re-query our only
  * hook to the chain (i.e., the `provider` variable) several times
@@ -73,7 +79,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
  */
 // FIXME:
 // https://github.com/counterfactual/monorepo/issues/1371
-async function handleCoinTransferOutcome(
+async function handleRefundAppOutcomeSpecialCase(
   encodedOutcome: string,
   appInstance: AppInstance,
   provider: BaseProvider
@@ -81,7 +87,7 @@ async function handleCoinTransferOutcome(
   let mutableOutcome = encodedOutcome;
   let attempts = 1;
   while (attempts <= 10) {
-    const [[{ to, amount }]] = decodeRefundAppState(mutableOutcome);
+    const [{ to, amount }] = decodeRefundAppState(mutableOutcome);
 
     if (amount.gt(0)) {
       return {
@@ -163,13 +169,13 @@ function handleSingleAssetTwoPartyCoinTransfer(
   };
 }
 
-function decodeRefundAppState(encodedOutcome: string): [[CoinTransfer]] {
-  const [[[{ to, amount }]]] = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[1][1]"],
+function decodeRefundAppState(encodedOutcome: string): [CoinTransfer] {
+  const [[{ to, amount }]] = defaultAbiCoder.decode(
+    ["tuple(address to, uint256 amount)[2]"],
     encodedOutcome
   );
 
-  return [[{ to, amount }]];
+  return [{ to, amount }];
 }
 
 function decodeTwoPartyFixedOutcome(

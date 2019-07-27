@@ -10,7 +10,7 @@
     "transactionHash": "0xff2b147b8d9d83583ff9b6694da3fb31f7eee8910339b10ece218e1c3df4c911"
   },
   {
-    "contractName": "CoinTransferInterpreter",
+    "contractName": "MultiAssetMultiPartyCoinTransferInterpreter",
     "address": "0x78D4A2c50b2EE6a99cE65b670Ec0BC6aa1BdD6B6",
     "transactionHash": "0x0ccfc304d35cb5e3d770f88c4e3de4270599667426851c5b254bd96e383065bd"
   },
@@ -18,11 +18,6 @@
     "contractName": "ConditionalTransactionDelegateTarget",
     "address": "0x99f56452E12644FB08c7151901697e02724aee42",
     "transactionHash": "0x7dfdb12becd4175e3f3d002c3c9ff45e23530c18cfe10c41b8a09676b29d823a"
-  },
-  {
-    "contractName": "FreeBalanceApp",
-    "address": "0xCccd27Ef44787cBd7431BeA980503f15F92c4792",
-    "transactionHash": "0x840fb904797b7b2bb8f9efc56db66e7ec633925cba5bdddb79f1e61a67d422c6"
   },
   {
     "contractName": "IdentityApp",

@@ -115,7 +115,7 @@ function proposeStateTransition(
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network.FreeBalanceApp,
+    context.network.IdentityApp,
     multisigAddress,
     [initiatorXpub, responderXpub]
   );

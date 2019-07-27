@@ -45,7 +45,7 @@ const SETSTATE_COMMITMENT_GAS = 6e9;
 
 // Also we can't estimate the install commitment gas b/c it uses
 // delegatecall for the conditional transaction
-const INSTALL_COMMITMENT_GAS = 6e9;
+const CONDITIONAL_TX_DELEGATECALL_GAS = 6e9;
 
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -96,7 +96,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       let stateChannel = StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxyAddress,
         xkeys.map(x => x.neuter().extendedKey),
         1
@@ -144,7 +144,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred
-          limit: [parseEther("2"), parseEther("2")],
+          limit: [parseEther("1"), parseEther("1")],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
         } as MultiAssetMultiPartyCoinTransferInterpreterParams,
@@ -219,10 +219,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigOwners,
         identityAppInstance.identityHash,
         stateChannel.freeBalance.identityHash,
-        network.CoinTransferInterpreter,
+        network.MultiAssetMultiPartyCoinTransferInterpreter,
         defaultAbiCoder.encode(
           [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-          [identityAppInstance.multiAssetMultiPartyCoinTransferInterpreterParams!]
+          [
+            identityAppInstance.multiAssetMultiPartyCoinTransferInterpreterParams!
+          ]
         )
       );
 
@@ -247,7 +249,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         ...multisigDelegateCallTx,
-        gasLimit: INSTALL_COMMITMENT_GAS
+        gasLimit: CONDITIONAL_TX_DELEGATECALL_GAS
       });
 
       expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);

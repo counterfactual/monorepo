@@ -1,5 +1,5 @@
-import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/contracts/build/MultiAssetMultiPartyCoinTransferInterpreter.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, One } from "ethers/constants";
@@ -37,7 +37,7 @@ function encodeOutcome(state: CoinTransfer[][]) {
   );
 }
 
-describe("CoinTransferInterpreter", () => {
+describe("MultiAssetMultiPartyCoinTransferInterpreter", () => {
   let provider: Web3Provider;
   let wallet: Wallet;
   let erc20: Contract;
@@ -60,7 +60,7 @@ describe("CoinTransferInterpreter", () => {
 
     multiAssetMultiPartyCoinTransferInterpreter = await waffle.deployContract(
       wallet,
-      CoinTransferInterpreter
+      MultiAssetMultiPartyCoinTransferInterpreter
     );
 
     // fund interpreter with ERC20 tokenAddresses

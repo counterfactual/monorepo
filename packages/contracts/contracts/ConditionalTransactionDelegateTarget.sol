@@ -10,7 +10,6 @@ import "./libs/LibOutcome.sol";
 contract ConditionalTransactionDelegateTarget {
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
-  uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
   struct FreeBalanceAppState {
     address[] tokenAddresses;

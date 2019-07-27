@@ -22,7 +22,7 @@ describe("StateChannel::setupChannel", () => {
 
   beforeAll(() => {
     sc = StateChannel.setupChannel(
-      networkContext.FreeBalanceApp,
+      networkContext.IdentityApp,
       multisigAddress,
       userNeuteredExtendedKeys
     );
@@ -74,7 +74,7 @@ describe("StateChannel::setupChannel", () => {
     });
 
     it("should use the FreeBalanceAppApp as the app target", () => {
-      expect(fb.appInterface.addr).toBe(networkContext.FreeBalanceApp);
+      expect(fb.appInterface.addr).toBe(networkContext.IdentityApp);
       expect(fb.appInterface.actionEncoding).toBe(undefined);
     });
 

@@ -1,12 +1,11 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/contracts/build/CoinBalanceRefundApp.json";
-import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import FreeBalanceApp from "@counterfactual/contracts/build/FreeBalanceApp.json";
 import IdentityApp from "@counterfactual/contracts/build/IdentityApp.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/contracts/build/MultiAssetMultiPartyCoinTransferInterpreter.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import SingleAssetTwoPartyCoinTransferInterpreter from "@counterfactual/contracts/build/SingleAssetTwoPartyCoinTransferInterpreter.json";
 import TimeLockedPassThrough from "@counterfactual/contracts/build/TimeLockedPassThrough.json";
@@ -33,12 +32,6 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
-  const freeBalanceAppContract = await new ContractFactory(
-    FreeBalanceApp.abi,
-    FreeBalanceApp.bytecode,
-    wallet
-  ).deploy();
-
   const identityApp = await new ContractFactory(
     IdentityApp.abi,
     IdentityApp.bytecode,
@@ -58,8 +51,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferInterpreter.abi,
-    CoinTransferInterpreter.bytecode,
+    MultiAssetMultiPartyCoinTransferInterpreter.abi,
+    MultiAssetMultiPartyCoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -109,9 +102,9 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ChallengeRegistry: challengeRegistry.address,
     ConditionalTransactionDelegateTarget:
       conditionalTransactionDelegateTarget.address,
-    FreeBalanceApp: freeBalanceAppContract.address,
     IdentityApp: identityApp.address,
-    CoinTransferInterpreter: coinTransferETHInterpreter.address,
+    MultiAssetMultiPartyCoinTransferInterpreter:
+      coinTransferETHInterpreter.address,
     CoinBalanceRefundApp: coinBalanceRefundContract.address,
     DolphinCoin: dolphinCoin.address,
     MinimumViableMultisig: mvmContract.address,

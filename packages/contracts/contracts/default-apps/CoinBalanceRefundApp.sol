@@ -27,21 +27,26 @@ contract CoinBalanceRefundApp {
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
 
-    LibOutcome.CoinTransfer memory ret;
+    // NOTE: This is an inefficient data type for what is being
+    // communicated here (i.e., recipient + amount of one person)
+    // but it is easier to do this in the short-term so we can re-
+    // use the SingleAssetTwoPartyCoinTransferInterpreter and client
+    // side code that handles that interpreter.
+    LibOutcome.CoinTransfer[2] memory ret;
 
     if (appState.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
 
-      ret.amount = address(appState.multisig).balance.sub(appState.threshold);
+      ret[0].amount = address(appState.multisig).balance.sub(appState.threshold);
 
     } else {
 
       // solium-disable-next-line operator-whitespace
-      ret.amount = ERC20(appState.tokenAddress)
+      ret[0].amount = ERC20(appState.tokenAddress)
         .balanceOf(appState.multisig).sub(appState.threshold);
 
     }
 
-    ret.to = appState.recipient;
+    ret[0].to = appState.recipient;
 
     return abi.encode(ret);
   }

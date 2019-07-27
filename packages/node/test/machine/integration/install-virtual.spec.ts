@@ -166,7 +166,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       tokenAddress: string
     ) {
       return StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxyAddress,
         xpubs
       ).setFreeBalance(

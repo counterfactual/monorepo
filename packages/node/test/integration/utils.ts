@@ -27,6 +27,7 @@ import {
   Rpc
 } from "../../src";
 import {
+  CoinTransfer,
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   FreeBalanceState
 } from "../../src/models/free-balance";
@@ -221,24 +222,22 @@ export function makeAppProposalRequest(
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
-  const params: NodeTypes.ProposeInstallParams = {
-    proposedToIdentifier,
-    initiatorDeposit,
-    initiatorDepositTokenAddress,
-    responderDeposit,
-    responderDepositTokenAddress,
-    appDefinition,
-    initialState,
-    abiEncodings,
-    timeout: One,
-    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
-  };
-
   return jsonRpcDeserialize({
-    params,
     id: Date.now(),
     method: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
-    jsonrpc: "2.0"
+    jsonrpc: "2.0",
+    params: {
+      proposedToIdentifier,
+      initiatorDeposit,
+      initiatorDepositTokenAddress,
+      responderDeposit,
+      responderDepositTokenAddress,
+      appDefinition,
+      initialState,
+      abiEncodings,
+      timeout: One,
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+    } as NodeTypes.ProposeInstallParams
   });
 }
 
@@ -686,17 +685,15 @@ export function createFreeBalanceStateWithFundedTokenAmounts(
   amount: BigNumber,
   tokenAddresses: string[]
 ): FreeBalanceState {
-  const balancesIndexedByToken = {};
-  tokenAddresses.forEach(tokenAddress => {
-    balancesIndexedByToken[tokenAddress] = addresses.map(to => ({
-      to,
-      amount
-    }));
-  });
-
   return {
-    balancesIndexedByToken,
-    activeAppsMap: {}
+    activeAppsMap: {},
+    balancesIndexedByToken: tokenAddresses.reduce(
+      (balancesIndexedByToken, tokenAddress) => ({
+        ...balancesIndexedByToken,
+        [tokenAddress]: addresses.map(to => ({ to, amount }))
+      }),
+      {} as { [tokenAddress: string]: CoinTransfer[] }
+    )
   };
 }
 

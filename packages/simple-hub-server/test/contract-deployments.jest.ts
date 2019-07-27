@@ -1,6 +1,6 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import CoinTransferInterpreter from "@counterfactual/contracts/build/CoinTransferInterpreter.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/contracts/build/MultiAssetMultiPartyCoinTransferInterpreter.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/contracts/build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
 import { ContractFactory, Wallet } from "ethers";
@@ -25,8 +25,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
-    CoinTransferInterpreter.abi,
-    CoinTransferInterpreter.bytecode,
+    MultiAssetMultiPartyCoinTransferInterpreter.abi,
+    MultiAssetMultiPartyCoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
@@ -40,7 +40,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     MinimumViableMultisig: mvmContract.address,
     ProxyFactory: proxyFactoryContract.address,
     TicTacToe: tttContract.address,
-    CoinTransferInterpreter: coinTransferETHInterpreter.address,
+    MultiAssetMultiPartyCoinTransferInterpreter:
+      coinTransferETHInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppInterpreter:
       twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
   };
