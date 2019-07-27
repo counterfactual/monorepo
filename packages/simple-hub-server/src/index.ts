@@ -5,7 +5,6 @@ import mountApi from "./api";
 import { detectDBAndSchema } from "./db";
 import { NodeWrapper, serviceFactoryPromise } from "./node";
 
-
 const BANNED_MNEMONICS = new Set([
   "science amused table oyster text message core mirror patch bubble provide industry",
   "impulse exile artwork when toss canal entire electric protect custom adult erupt"
