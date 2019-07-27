@@ -7,8 +7,10 @@ import { ThunkDispatch } from "redux-thunk";
 import "./App.scss";
 import { LayoutHeader } from "./components/layout";
 import {
+  AccountBalance,
   AccountDeposit,
   AccountRegistration,
+  AccountWithdraw,
   Channels,
   Welcome
 } from "./pages";
@@ -36,7 +38,7 @@ const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
       <Switch>
         <Route
           exact
-          path={`(${RoutePath.Root}|${RoutePath.Channels})`}
+          path={`(${RoutePath.Root}|${RoutePath.Channels}|${RoutePath.Balance})`}
           component={LayoutHeader}
         />
       </Switch>
@@ -49,6 +51,9 @@ const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
           />
           <Route path={RoutePath.SetupDeposit} component={AccountDeposit} />
           <Route path={RoutePath.Channels} component={Channels} />
+          <Route path={RoutePath.Balance} component={AccountBalance} />
+          <Route path={RoutePath.Deposit} component={AccountDeposit} />
+          <Route path={RoutePath.Withdraw} component={AccountWithdraw} />
         </Switch>
       </main>
     </Router>

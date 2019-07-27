@@ -37,7 +37,7 @@ type AccountUserProps = {
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
   <div className="info" data-test-selector="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
-    <Link to={RoutePath.SetupDeposit}>
+    <Link to={RoutePath.Balance}>
       <div className="info-text">
         <div className="info-header">Balance</div>
         <div className="info-content">{balance} ETH</div>

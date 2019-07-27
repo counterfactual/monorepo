@@ -17,9 +17,9 @@ import {
   User,
   WalletState
 } from "../../store/types";
-import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
+import { WalletWithdrawTransition, withdraw } from "../../store/wallet/wallet";
 import { RoutePath } from "../../types";
-import "./AccountDeposit.scss";
+import "./AccountWithdraw.scss";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   <div className="balance-label">
@@ -28,16 +28,16 @@ const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   </div>
 );
 
-export type AccountDepositProps = RouteComponentProps & {
-  deposit: (data: Deposit, provider: Web3Provider, history?: History) => void;
+export type AccountWithdrawProps = RouteComponentProps & {
+  withdraw: (data: Deposit, provider: Web3Provider, history?: History) => void;
   user: User;
   walletState: WalletState;
   initialAmount?: number;
   error: ErrorData;
 };
 
-type AccountDepositState = {
-  depositCaseVariables: {
+type AccountWithdrawState = {
+  withdrawCaseVariables: {
     halfWidget: boolean;
     header: string;
     ctaButtonText: string;
@@ -47,33 +47,31 @@ type AccountDepositState = {
   amount: BigNumberish;
 };
 
-export class AccountDeposit extends React.Component<
-  AccountDepositProps,
-  AccountDepositState
+export class AccountWithdraw extends React.Component<
+  AccountWithdrawProps,
+  AccountWithdrawState
 > {
   static contextType = EthereumService;
   context!: React.ContextType<typeof EthereumService>;
 
-  constructor(props: AccountDepositProps) {
+  constructor(props: AccountWithdrawProps) {
     super(props);
-
-    let depositCaseVariables = {
+    let withdrawCaseVariables = {
       halfWidget: true,
-      header: "Deposit",
-      ctaButtonText: "Deposit",
+      header: "Withdraw",
+      ctaButtonText: "Withdraw",
       headerDetails: ``
     };
-    if (props.history.location.pathname === RoutePath.SetupDeposit) {
-      depositCaseVariables = {
+    if (props.history.location.pathname === RoutePath.Withdraw) {
+      withdrawCaseVariables = {
         halfWidget: false,
-        header: "Fund your account",
+        header: "Withdraw Funds",
         ctaButtonText: "Proceed",
-        headerDetails: `In order to use State Channel apps, you need to deposit funds into your account.
-      Please enter how much ETH you want to deposit:`
+        headerDetails: `Please enter how much ETH you want to withdraw:`
       };
     }
     this.state = {
-      depositCaseVariables,
+      withdrawCaseVariables,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -87,8 +85,8 @@ export class AccountDeposit extends React.Component<
   };
 
   buttonText = {
-    [WalletDepositTransition.CheckWallet]: "Check your wallet",
-    [WalletDepositTransition.WaitForFunds]: "Transfering funds"
+    [WalletWithdrawTransition.CheckWallet]: "Check your wallet",
+    [WalletWithdrawTransition.WaitForFunds]: "Transfering funds"
   };
 
   createDepositData(
@@ -110,16 +108,16 @@ export class AccountDeposit extends React.Component<
   }
 
   render() {
-    const { walletState, deposit, history, user } = this.props;
+    const { walletState, withdraw, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status } = walletState;
-    const { amount, loading, depositCaseVariables } = this.state;
+    const { amount, loading, withdrawCaseVariables } = this.state;
     const {
       halfWidget,
       header,
       headerDetails,
       ctaButtonText
-    } = depositCaseVariables;
+    } = withdrawCaseVariables;
 
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
@@ -149,7 +147,7 @@ export class AccountDeposit extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.createDepositData(user, amount), provider, history);
+              withdraw(this.createDepositData(user, amount), provider, history);
             }}
           >
             {!loading ? ctaButtonText : this.buttonText[status]}
@@ -167,7 +165,7 @@ export default connect(
     walletState: state.WalletState
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    deposit: (data: Deposit, provider: Web3Provider, history?: History) =>
-      dispatch(deposit(data, provider, history))
+    withdraw: (data: Deposit, provider: Web3Provider, history?: History) =>
+      dispatch(withdraw(data, provider, history))
   })
-)(AccountDeposit);
+)(AccountWithdraw);

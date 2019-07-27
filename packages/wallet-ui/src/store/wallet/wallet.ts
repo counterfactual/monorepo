@@ -4,14 +4,9 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit } from "../../utils/counterfactual";
-import {
-  ActionType,
-  ApplicationState,
-  Deposit,
-  StoreAction,
-  WalletState
-} from "../types";
+import { forFunds, requestDeposit, requestWithdraw } from "../../utils/counterfactual";
+import log from "../../utils/log";
+import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "../types";
 
 export const initialState = {
   ethAddress: "",
@@ -112,6 +107,57 @@ export const deposit = (
   }
 };
 
+export enum WalletWithdrawTransition {
+  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
+  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
+}
+
+export const withdraw = (
+  transaction: Deposit,
+  provider: Web3Provider,
+  history?: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType | WalletWithdrawTransition>
+> => async dispatch => {
+  try {
+    // 1. Ask Metamask to do the withdraw. !
+    dispatch({ type: WalletWithdrawTransition.CheckWallet });
+    const response = await requestWithdraw(transaction); // IMPLEMENT THIS!
+    log('withdraw response', response)
+
+    // 2. Wait until the withdraw is completed in both sides. !
+    dispatch({ type: WalletWithdrawTransition.WaitForFunds });
+    const counterfactualBalance = await forFunds(transaction);
+
+    // 3. Get the Metamask balance.
+    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+
+    // 4. Update the balance.
+    dispatch({
+      data: { ethereumBalance, counterfactualBalance },
+      type: ActionType.WalletSetBalance
+    });
+
+    // Optional: Redirect to Channels.
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
+};
+
 export const reducers = function(
   state = initialState,
   action: StoreAction<WalletState, WalletDepositTransition>
@@ -120,6 +166,7 @@ export const reducers = function(
     case ActionType.WalletSetAddress:
     case ActionType.WalletSetBalance:
     case ActionType.WalletDeposit:
+    case ActionType.WalletWithdraw:
     case ActionType.WalletError:
       return {
         ...state,

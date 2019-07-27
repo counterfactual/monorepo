@@ -54,6 +54,18 @@ export async function forMultisig(): Promise<string> {
   });
 }
 
+export async function requestWithdraw({
+  amount,
+  multisigAddress,
+  ethAddress
+}: Deposit) {
+  return window.ethereum.send(CounterfactualMethod.RequestWithdraw, [
+    amount,
+    multisigAddress,
+    ethAddress
+  ]);
+}
+
 export async function requestDeposit({ amount, multisigAddress }: Deposit) {
   return window.ethereum.send(CounterfactualMethod.RequestDeposit, [
     amount,

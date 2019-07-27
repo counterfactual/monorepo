@@ -14,9 +14,8 @@ export type ChannelsProps = {
 
 export class Channels extends React.Component<ChannelsProps> {
   componentDidMount() {
-    const { getAllChannels } = this.props;
-
-    getAllChannels();
+    // const { getAllChannels } = this.props;
+    // getAllChannels();
   }
 
   render() {

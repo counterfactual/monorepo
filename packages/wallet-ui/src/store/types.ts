@@ -45,6 +45,7 @@ export enum ActionType {
   WalletSetAddress = "WALLET_SET_ADDRESS",
   WalletError = "WALLET_ERROR",
   WalletDeposit = "WALLET_DEPOSIT",
+  WalletWithdraw = "WALLET_WITHDRAW",
   WalletSetBalance = "WALLET_SET_BALANCE",
   ChannelsGetAll = "CHANNELS_GET_ALL",
   ChannelsError = "CHANNELS_ERROR"

@@ -12,7 +12,14 @@
   overflow: auto;
   width: 100%;
   height: 100%;
+  &.half {
+    position: static;
+    height: auto;
 
+    .logo {
+      display: none;
+    }
+  }
   .button {
     width: 100%;
   }
