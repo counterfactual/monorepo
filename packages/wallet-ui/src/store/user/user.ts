@@ -4,22 +4,9 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../../types";
-import {
-  buildRegistrationSignaturePayload,
-  buildSignatureMessageForLogin,
-  forMultisig,
-  getNodeAddress,
-  getUserFromStoredToken,
-  storeTokenFromUser
-} from "../../utils/counterfactual";
+import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
-import {
-  ActionType,
-  ApplicationState,
-  StoreAction,
-  User,
-  UserState
-} from "../types";
+import { ActionType, ApplicationState, StoreAction, User, UserState } from "../types";
 
 export const initialState = {
   user: {},
@@ -127,7 +114,8 @@ export const loginUser = (
 };
 
 export const getUser = (
-  provider: Web3Provider
+  provider: Web3Provider,
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -139,6 +127,7 @@ export const getUser = (
     const { balance, user } = await getUserFromStoredToken();
 
     if (!user) {
+      history.push(RoutePath.Root);
       return;
     }
 
@@ -155,6 +144,7 @@ export const getUser = (
       data: { counterfactualBalance, ethereumBalance },
       type: ActionType.WalletSetBalance
     });
+    history.push(RoutePath.Channels);
   } catch (error) {
     dispatchError(dispatch, error);
   }
