@@ -18,6 +18,7 @@ import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
+import { SigningKeysGenerator } from "./signing-keys-generator";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
@@ -28,6 +29,11 @@ export interface NodeConfig {
 }
 
 const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
+
+// FIXME: move this to types package
+export interface IPrivateKeyGenerator {
+  (s: string): Promise<string>;
+}
 
 export class Node {
   private readonly incoming: EventEmitter;
@@ -58,6 +64,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
+    privateKeyGenerator: IPrivateKeyGenerator,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -66,6 +73,7 @@ export class Node {
       nodeConfig,
       provider,
       networkOrNetworkContext,
+      new SigningKeysGenerator(privateKeyGenerator),
       blocksNeededForConfirmation
     );
 
@@ -78,6 +86,7 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
+    private readonly signingKeyGenerator: SigningKeysGenerator,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
@@ -156,7 +165,7 @@ export class Node {
       const keyIndex = overrideKeyIndex || 0;
 
       const signingKey = new SigningKey(
-        this.signer.derivePath(`${keyIndex}`).privateKey
+        await this.signingKeyGenerator.getSigningKey(keyIndex)
       );
 
       return signingKey.signDigest(commitment.hashToSign());
