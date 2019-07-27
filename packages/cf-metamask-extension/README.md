@@ -12,7 +12,7 @@ You can either download a zip from the custom fork or build a version by yoursel
 
 The extension can be downloaded from the current integration branch on [prototypal/metamask-extension](https://github.com/prototypal/metamask-extension/blob/alon/cfnode-background/cf_builds/chrome.zip) (click to download the zipped extension).
 
-:warning: It's possible the integration build is outdated at times. Read on the following section to build a fresh version.
+:warning: _It's possible the integration build is outdated at times. Read on the following section to build a fresh version._
 
 ### Build the extension
 
@@ -70,7 +70,7 @@ The MetaMask Counterfactual extension is now loaded.
 
 ### Playground
 
-:warning: The Playground is being deprecated in favor of a new Wallet experience being built at the [`wallet-ui`](https://github.com/counterfactual/monorepo/tree/master/packages/wallet-ui). While it's not a finished product yet, we recommend you try using it before using the Playground. Read on the next section for more information.
+:warning: _The Playground [is being deprecated](https://github.com/counterfactual/monorepo/issues/2033) in favor of a new Wallet experience being built at the [`wallet-ui`](https://github.com/counterfactual/monorepo/tree/master/packages/wallet-ui). While it's not a finished product yet, we recommend you try using it before using the Playground. Read on the next section for more information._
 
 Presently, the custom build is loading the [@counterfactual/playground](../packages/playground) project as the main UI inside of the extension. It will appear inside of an `iframe` inside the MetaMask Chrome extension's extended view itself in place of the transactions screen that you would see normally.
 
