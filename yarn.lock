@@ -7912,17 +7912,17 @@ eth-ens-namehash@2.0.8:
     idna-uts46-hx "^2.3.1"
     js-sha3 "^0.5.7"
 
-eth-gas-reporter@0.2.4:
-  version "0.2.4"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.4.tgz#6f288746fafb6f6d637d36ff7dd98538c9290275"
-  integrity sha512-uEIf6WcpXIEe2oYkZA4QMaJn0I8GpXaUeNX1+1hu470wjY3VyRVHuBIU/nv629FzbkTAvNQtTV44C42Mh59WuA==
+eth-gas-reporter@0.2.7:
+  version "0.2.7"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.7.tgz#b9a6ba19049ca0e270dfb30b2bc5f48d8432e397"
+  integrity sha512-0PGEsw+lxCTFkVyNMQwNGPJiGOj0rxohAB5tKDgChfEqc1WJYQXAXQi6Lb9+X8UG9R04ia0xRqfnZQE+2C2SMA==
   dependencies:
     abi-decoder "^2.0.1"
     cli-table3 "^0.5.0"
     colors "^1.1.2"
     ethers "^4.0.28"
     fs-readdir-recursive "^1.1.0"
-    lodash "^4.17.11"
+    lodash "^4.17.14"
     mocha "^5.2.0"
     req-cwd "^2.0.0"
     request "^2.88.0"
