@@ -38,7 +38,7 @@ The currently supported outcome types are:
 
   - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
 
-- REFUND_OUTCOME_TYPE
+- COIN_TRANSFER
 
   - This is used to calculate how much an address receives.
 

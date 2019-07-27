@@ -13,15 +13,11 @@ import {
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
-import {
-  BigNumber,
-  bigNumberify,
-  defaultAbiCoder,
-  keccak256
-} from "ethers/utils";
+import { BigNumber, defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
+import { bigNumberifyJson } from "../utils";
 
 /**
  * Representation of an AppInstance.
@@ -85,7 +81,7 @@ export class AppInstance {
     if (
       this.outcomeType !== OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER &&
       // NOTE: The RefundAppState outcome type reuses the same property on this model
-      this.outcomeType !== OutcomeType.REFUND_OUTCOME_TYPE
+      this.outcomeType !== OutcomeType.COIN_TRANSFER
     ) {
       throw new Error(
         `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER`
@@ -105,25 +101,22 @@ export class AppInstance {
     return this.singleAssetTwoPartyCoinTransferInterpreterParamsInternal!;
   }
   public static fromJson(json: AppInstanceJson) {
-    const serialized = JSON.parse(JSON.stringify(json), (
-      // @ts-ignore
-      key,
-      val
-    ) => (val["_hex"] ? bigNumberify(val) : val));
+    const deserialized = bigNumberifyJson(json);
+
     return new AppInstance(
-      serialized.multisigAddress,
-      serialized.participants,
-      serialized.defaultTimeout,
-      serialized.appInterface,
-      serialized.isVirtualApp,
-      serialized.appSeqNo,
-      serialized.latestState,
-      serialized.latestVersionNumber,
-      serialized.latestTimeout,
-      serialized.outcomeType,
-      serialized.twoPartyOutcomeInterpreterParams,
-      serialized.multiAssetMultiPartyCoinTransferInterpreterParams,
-      serialized.singleAssetTwoPartyCoinTransferInterpreterParams
+      deserialized.multisigAddress,
+      deserialized.participants,
+      deserialized.defaultTimeout,
+      deserialized.appInterface,
+      deserialized.isVirtualApp,
+      deserialized.appSeqNo,
+      deserialized.latestState,
+      deserialized.latestVersionNumber,
+      deserialized.latestTimeout,
+      deserialized.outcomeType,
+      deserialized.twoPartyOutcomeInterpreterParams,
+      deserialized.multiAssetMultiPartyCoinTransferInterpreterParams,
+      deserialized.singleAssetTwoPartyCoinTransferInterpreterParams
     );
   }
 
@@ -192,7 +185,7 @@ export class AppInstance {
   get encodedInterpreterParams() {
     if (!this.isVirtualApp) {
       switch (this.outcomeType) {
-        case OutcomeType.REFUND_OUTCOME_TYPE: {
+        case OutcomeType.COIN_TRANSFER: {
           return defaultAbiCoder.encode(
             [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
             [this.multiAssetMultiPartyCoinTransferInterpreterParams]
@@ -221,9 +214,9 @@ export class AppInstance {
       }
     } else {
       switch (this.outcomeType) {
-        case OutcomeType.REFUND_OUTCOME_TYPE: {
+        case OutcomeType.COIN_TRANSFER: {
           throw new Error(
-            "REFUND_OUTCOME_TYPE is a non-supported OutcomeType for a Virtual App"
+            "COIN_TRANSFER is a non-supported OutcomeType for a Virtual App"
           );
         }
 

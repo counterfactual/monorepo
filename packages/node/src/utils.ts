@@ -7,7 +7,8 @@ import {
   Interface,
   keccak256,
   solidityKeccak256,
-  solidityPack
+  solidityPack,
+  bigNumberify
 } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 import log from "loglevel";
@@ -176,3 +177,10 @@ export function debugLog(...messages: any[]) {
 }
 
 export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export const bigNumberifyJson = (json: object) =>
+  JSON.parse(JSON.stringify(json), (
+    // @ts-ignore
+    key,
+    val
+  ) => (val["_hex"] ? bigNumberify(val) : val));

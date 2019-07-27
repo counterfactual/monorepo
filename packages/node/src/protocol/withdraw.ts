@@ -521,7 +521,7 @@ function addRefundAppToStateChannel(
     },
     0,
     defaultTimeout,
-    OutcomeType.REFUND_OUTCOME_TYPE,
+    OutcomeType.COIN_TRANSFER,
     undefined,
     { tokenAddresses: [tokenAddress], limit: [MaxUint256] }
   );

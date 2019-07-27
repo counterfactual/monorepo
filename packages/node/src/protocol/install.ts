@@ -375,7 +375,7 @@ function computeInterpreterParameters(
   responderFbAddress: string
 ) {
   switch (outcomeType) {
-    case OutcomeType.REFUND_OUTCOME_TYPE: {
+    case OutcomeType.COIN_TRANSFER: {
       const limit: BigNumber[] = [];
       const tokenAddresses: string[] = [];
 
@@ -474,7 +474,7 @@ function getInterpreterAddressFromOutcomeType(
   networkContext: NetworkContext
 ) {
   switch (outcomeType) {
-    case OutcomeType.REFUND_OUTCOME_TYPE: {
+    case OutcomeType.COIN_TRANSFER: {
       return networkContext.CoinTransferInterpreter;
     }
     case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {

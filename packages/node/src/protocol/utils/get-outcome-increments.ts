@@ -24,24 +24,18 @@ import { wait } from "../../utils";
  */
 export async function computeTokenIndexedFreeBalanceIncrements(
   appInstance: AppInstance,
-  provider: BaseProvider
+  provider: BaseProvider,
+  encodedOutcomeOverride: string = ""
 ): Promise<TokenIndexedCoinTransferMap> {
   const { outcomeType } = appInstance;
 
-  const encodedOutcome = await appInstance.computeOutcomeWithCurrentState(
-    provider
-  );
-
-  // TODO: This should probably be an error on the model
-  if (outcomeType === undefined) {
-    throw new Error(
-      "computeTokenIndexedFreeBalanceIncrements was called and received undefined outcomeType when calling computeOutcome on AppInstance"
-    );
-  }
+  const encodedOutcome =
+    encodedOutcomeOverride ||
+    (await appInstance.computeOutcomeWithCurrentState(provider));
 
   switch (outcomeType) {
-    case OutcomeType.REFUND_OUTCOME_TYPE: {
-      return handleRefundAppState(encodedOutcome, appInstance, provider);
+    case OutcomeType.COIN_TRANSFER: {
+      return handleCoinTransferOutcome(encodedOutcome, appInstance, provider);
     }
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       return handleTwoPartyFixedOutcome(
@@ -70,7 +64,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
 }
 
 /**
- * The REFUND_OUTCOME_TYPE is in a special situation because it is
+ * The COIN_TRANSFER is in a special situation because it is
  * a `view` function. Since we do not have any encapsulation of a
  * getter for blockchain-based data, we naively re-query our only
  * hook to the chain (i.e., the `provider` variable) several times
@@ -79,7 +73,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
  */
 // FIXME:
 // https://github.com/counterfactual/monorepo/issues/1371
-async function handleRefundAppState(
+async function handleCoinTransferOutcome(
   encodedOutcome: string,
   appInstance: AppInstance,
   provider: BaseProvider

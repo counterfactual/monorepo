@@ -12,7 +12,7 @@ import {
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero, MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -862,7 +862,9 @@ function constructVirtualAppInstance(
     defaultTimeout,
     appInterface,
     initialState,
-    outcomeType
+    outcomeType,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement
   } = params;
 
   const seqNo = stateChannelBetweenEndpoints.numInstalledApps;
@@ -870,21 +872,32 @@ function constructVirtualAppInstance(
   const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
   const responderAddress = xkeyKthAddress(responderXpub, seqNo);
 
+  const {
+    multiAssetMultiPartyCoinTransferInterpreterParams,
+    twoPartyOutcomeInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
+  } = computeInterpreterParameters(
+    outcomeType,
+    initiatorAddress,
+    responderAddress,
+    initiatorBalanceDecrement,
+    responderBalanceDecrement
+  );
+
   return new AppInstance(
     /* multisigAddress */ stateChannelBetweenEndpoints.multisigAddress,
-    /* participants */
-    sortAddresses([initiatorAddress, responderAddress]),
-    /* defaultTimeout */ defaultTimeout,
-    /* appInterface */ appInterface,
+    /* participants */ sortAddresses([initiatorAddress, responderAddress]),
+    defaultTimeout,
+    appInterface,
     /* isVirtualApp */ true,
     /* appSeqNo */ seqNo,
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
-    /* outcomeType */ outcomeType,
-    /* twoPartyOutcomeInterpreterParams */ undefined,
-    /* multiAssetMultiPartyCoinTransferInterpreterParams */ undefined,
-    /* singleAssetTwoPartyCoinTransferInterpreterParams */ undefined
+    outcomeType,
+    twoPartyOutcomeInterpreterParams,
+    multiAssetMultiPartyCoinTransferInterpreterParams,
+    singleAssetTwoPartyCoinTransferInterpreterParams
   );
 }
 
@@ -966,7 +979,7 @@ function constructTimeLockedPassThroughAppInstance(
       //        virtual apps at the moment, but it needs to be Zero for now otherwise
       //        calling computeOutcome won't work on it because it relies on another
       //        app's outcome which; in the challenge registry, is 0x.
-      switchesOutcomeAt: Zero,
+      switchesOutcomeAt: MaxUint256,
       defaultOutcome: virtualAppDefaultOutcome
     },
     /* versionNumber */ 0,

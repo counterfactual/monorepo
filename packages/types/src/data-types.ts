@@ -119,8 +119,8 @@ export enum OutcomeType {
   // CoinTransfer[][]
   MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
 
-  // CoinTransfer[1][1]
-  REFUND_OUTCOME_TYPE,
+  // CoinTransfer
+  COIN_TRANSFER,
 
   // CoinTransfer[2]
   SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
