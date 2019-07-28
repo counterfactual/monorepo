@@ -14,7 +14,7 @@ import "../libs/LibOutcome.sol";
 /// hence two different commitments to this interpreter are to be made in the
 /// two direct channels, where the commitments differ in the
 /// params.beneficiaries field.
-contract TwoPartyFixedOutcomeFromVirtualAppETHInterpreter is
+contract TwoPartyFixedOutcomeFromVirtualAppInterpreter is
   Interpreter
 {
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);

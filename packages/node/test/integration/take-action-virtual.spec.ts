@@ -1,3 +1,4 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { One, Zero } from "ethers/constants";
 
 import {
@@ -14,7 +15,7 @@ import {
   createChannel,
   generateGetStateRequest,
   generateTakeActionRequest,
-  installTTTAppVirtual
+  installVirtualApp
 } from "./utils";
 
 describe("Node method follows spec - takeAction virtual", () => {
@@ -49,7 +50,12 @@ describe("Node method follows spec - takeAction virtual", () => {
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
-        const appInstanceId = await installTTTAppVirtual(nodeA, nodeB, nodeC);
+        const appInstanceId = await installVirtualApp(
+          nodeA,
+          nodeB,
+          nodeC,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
 
         const expectedNewState = {
           board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],

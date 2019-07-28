@@ -40,11 +40,6 @@
     "transactionHash": "0x7fe06ed378dfe656d0329bca8f160492064d024038802cb40a49822baa781a60"
   },
   {
-    "contractName": "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter",
-    "address": "0xab39f5aA1Bc1cB5442268b075f535c296aAee980",
-    "transactionHash": "0x74f228bdd1a59c8ff06d203eb68793376f4a0d48147b03b6949f489cb5dabdae"
-  },
-  {
     "contractName": "Migrations",
     "address": "0xE668a1E6C205A799F964A138cA6Be63e05b47eaf",
     "transactionHash": "0x06dbffe47396aa05bc1591babdf8a46342359d659e74c150084e978fa2a2e1e1"
@@ -58,5 +53,10 @@
     "contractName": "TwoPartyFixedOutcomeInterpreter",
     "address": "0x5AC29B1D3607fcE8216cC95F9E009A61c0048e6D",
     "transactionHash": "0xb1890209b3b60a357fc11620829325288acfcd8a2b43cc67d1558737a8f9dd13"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeFromVirtualAppInterpreter",
+    "address": "0xbe3b02162DEd206C6f2B565e19ffd5258a8AebfF",
+    "transactionHash": "0xbee64dc9b1f4f9f60a84f6dfd49c37c332168f3edc29efe6fe34813e95b2cdb9"
   }
 ]

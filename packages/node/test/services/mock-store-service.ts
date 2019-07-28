@@ -1,11 +1,11 @@
 import { Node } from "@counterfactual/types";
 
 class MockStoreService implements Node.IStoreService {
-  get(key: string): Promise<any> {
+  get() {
     return Promise.resolve(true);
   }
 
-  set(pairs: { key: string; value: any }[]): Promise<void> {
+  set() {
     return Promise.resolve();
   }
 }

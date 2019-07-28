@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
+  <a href="https://lernajs.io/"><img src="https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg"/></a>
   <a href="https://counterfactual.com/chat"><img src="https://img.shields.io/discord/500370633901735947.svg"/></a>
   <a href="https://github.com/renovatebot/renovate"><img src="https://badges.renovateapi.com/github/counterfactual/monorepo"/></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>

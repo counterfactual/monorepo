@@ -1,3 +1,4 @@
+import { NetworkContext } from "@counterfactual/types";
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
@@ -35,7 +36,11 @@ const API_TIMEOUT = 5 * 60 * 1000;
   await detectDBAndSchema();
 
   await NodeWrapper.createNodeSingleton(
-    process.env.ETHEREUM_NETWORK || "kovan",
+    (process.env.ETHEREUM_NETWORK || "kovan") as
+      | "kovan"
+      | "rinkeby"
+      | "ropsten"
+      | NetworkContext,
     process.env.NODE_MNEMONIC
   );
 

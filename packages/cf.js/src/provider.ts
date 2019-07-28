@@ -155,7 +155,7 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   on(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
+    // this.validateEventType(eventType);
     this.eventEmitter.on(eventType, callback);
   }
 
@@ -166,7 +166,7 @@ export class Provider {
    * @param callback Function to be called when event is fired.
    */
   once(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
+    // this.validateEventType(eventType);
     this.eventEmitter.once(eventType, callback);
   }
 
@@ -177,7 +177,7 @@ export class Provider {
    * @param callback Original callback passed to subscribe call.
    */
   off(eventType: EventType, callback: (e: CounterfactualEvent) => void) {
-    this.validateEventType(eventType);
+    // this.validateEventType(eventType);
     this.eventEmitter.off(eventType, callback);
   }
 
@@ -287,14 +287,12 @@ export class Provider {
     return this.appInstances[id];
   }
 
-  /**
-   * @ignore
-   */
-  private validateEventType(eventType: EventType) {
-    // if (!this.validEventTypes.includes(eventType)) {
-    //   throw new Error(`"${eventType}" is not a valid event`);
-    // }
-  }
+  // FIXME: Either implement this or remove it
+  // private validateEventType(eventType: EventType) {
+  //   if (!this.validEventTypes.includes(eventType)) {
+  //     throw new Error(`"${eventType}" is not a valid event`);
+  //   }
+  // }
 
   /**
    * @ignore

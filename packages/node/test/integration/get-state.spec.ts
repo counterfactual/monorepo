@@ -1,5 +1,4 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { v4 as generateUUID } from "uuid";
 
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
@@ -10,8 +9,7 @@ import {
   createChannel,
   generateGetStateRequest,
   getState,
-  installTTTApp,
-  makeTTTProposalRequest
+  installApp
 } from "./utils";
 
 describe("Node method follows spec - getAppInstances", () => {
@@ -33,12 +31,11 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right state for an installed AppInstance", async () => {
     await createChannel(nodeA, nodeB);
-    const params = makeTTTProposalRequest(
-      nodeA.publicIdentifier,
-      nodeB.publicIdentifier,
+    const [appInstanceId, params] = await installApp(
+      nodeA,
+      nodeB,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-    ).parameters as NodeTypes.ProposeInstallParams;
-    const appInstanceId = await installTTTApp(nodeA, nodeB);
+    );
     const state = await getState(nodeA, appInstanceId);
 
     const initialState = initialEmptyTTTState();

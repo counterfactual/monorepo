@@ -1,9 +1,9 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -17,7 +17,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams } from "../../../src/protocol/install-virtual-app";
+import { encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams } from "../../../src/protocol/install-virtual-app";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
   transferERC20Tokens
@@ -100,7 +100,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   let fundWithDolphinCoin: (
-    wallet: Wallet,
     proxyAddress: string,
     amount: BigNumber
   ) => Promise<void>;
@@ -152,7 +151,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     };
 
     fundWithDolphinCoin = async function(
-      wallet: Wallet,
       proxyAddress: string,
       amount: BigNumber
     ) {
@@ -264,7 +262,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
 
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
+      await fundWithDolphinCoin(proxyAddress, parseEther("10"));
 
       let stateChannel = await setupChannel(
         proxyAddress,
@@ -283,7 +281,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
          * to how the protocol actually sets up virtual apps. This is because, in this
          * test case, we care mostly about retrieving _some_ outcome within the
-         * TwoPartyFixedOutcomeFromVirtualAppETHInterpreter such that it is used to
+         * TwoPartyFixedOutcomeFromVirtualAppInterpreter such that it is used to
          * distribute funds.
          */
         timeLockedPassThroughIdentityHash: HashZero
@@ -307,8 +305,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -370,8 +368,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
       );
 
       await wallet.sendTransaction({

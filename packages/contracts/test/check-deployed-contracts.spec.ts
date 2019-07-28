@@ -16,8 +16,13 @@ const NETWORK_NAME_TO_ID = {
 const CONTRACTS_TO_SKIP = new Set([""]);
 
 describe("Checks that all the needed contracts have been deployed on each test net", () => {
-  const networks = ["kovan", "ropsten", "rinkeby"];
-  networks.forEach((networkName: string) => {
+  const networks: ["kovan", "ropsten", "rinkeby"] = [
+    "kovan",
+    "ropsten",
+    "rinkeby"
+  ];
+
+  networks.forEach((networkName: "kovan" | "ropsten" | "rinkeby") => {
     it(`checks deployments on ${networkName}`, () => {
       const networkDeployments = extractContractNamesFromDeployments(
         networkName
@@ -40,7 +45,9 @@ function contractNotDeployed(contractName: string, networkName: string) {
   return `Contract ${contractName} has not been deployed to the ${networkName} name`;
 }
 
-function extractContractNamesFromDeployments(networkName: string): Set<string> {
+function extractContractNamesFromDeployments(
+  networkName: "ropsten" | "rinkeby" | "kovan"
+): Set<string> {
   return new Set(
     Array.from<DeployedContractNetworksFileEntry>(
       JSON.parse(

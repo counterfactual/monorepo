@@ -57,7 +57,7 @@ export class Node {
     storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: string | NetworkContext,
+    networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -77,7 +77,7 @@ export class Node {
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: string | NetworkContext,
+    networkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();

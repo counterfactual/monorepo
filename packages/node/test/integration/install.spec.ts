@@ -1,23 +1,27 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { One } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { xkeyKthAddress } from "../../src/machine";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
-import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
+  getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
+  makeAppProposalRequest,
   makeInstallCall,
   makeProposeCall,
-  makeTTTProposalRequest,
   transferERC20Tokens
 } from "./utils";
+
+expect.extend({ toBeLt });
 
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
@@ -57,7 +61,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
@@ -72,13 +76,9 @@ describe("Node method follows spec - install", () => {
             CONVENTION_FOR_ETH_TOKEN_ADDRESS
           );
 
-          expect(
-            postInstallETHBalanceNodeA.lt(preInstallETHBalanceNodeA)
-          ).toEqual(true);
+          expect(postInstallETHBalanceNodeA).toBeLt(preInstallETHBalanceNodeA);
 
-          expect(
-            postInstallETHBalanceNodeB.lt(preInstallETHBalanceNodeB)
-          ).toEqual(true);
+          expect(postInstallETHBalanceNodeB).toBeLt(preInstallETHBalanceNodeB);
 
           done();
         });
@@ -87,7 +87,7 @@ describe("Node method follows spec - install", () => {
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          {},
+          undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
           One,
@@ -129,7 +129,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
@@ -144,13 +144,13 @@ describe("Node method follows spec - install", () => {
             erc20TokenAddress
           );
 
-          expect(
-            postInstallERC20BalanceNodeA.lt(preInstallERC20BalanceNodeA)
-          ).toEqual(true);
+          expect(postInstallERC20BalanceNodeA).toBeLt(
+            preInstallERC20BalanceNodeA
+          );
 
-          expect(
-            postInstallERC20BalanceNodeB.lt(preInstallERC20BalanceNodeB)
-          ).toEqual(true);
+          expect(postInstallERC20BalanceNodeB).toBeLt(
+            preInstallERC20BalanceNodeB
+          );
 
           done();
         });
@@ -159,7 +159,7 @@ describe("Node method follows spec - install", () => {
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          {},
+          undefined,
           One,
           erc20TokenAddress,
           One,
@@ -168,10 +168,14 @@ describe("Node method follows spec - install", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appInstanceProposalReq = makeTTTProposalRequest(
-          nodeA.publicIdentifier,
-          nodeB.publicIdentifier,
+        const appContext = getAppContext(
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
+        const appInstanceProposalReq = makeAppProposalRequest(
+          nodeB.publicIdentifier,
+          appContext.appDefinition,
+          appContext.abiEncodings,
+          appContext.initialState
         );
 
         appInstanceProposalReq.parameters["initialState"] = undefined;

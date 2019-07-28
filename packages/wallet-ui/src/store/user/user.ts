@@ -127,7 +127,8 @@ export const loginUser = (
 };
 
 export const getUser = (
-  provider: Web3Provider
+  provider: Web3Provider,
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -139,6 +140,7 @@ export const getUser = (
     const { balance, user } = await getUserFromStoredToken();
 
     if (!user) {
+      history.push(RoutePath.Root);
       return;
     }
 
@@ -155,6 +157,7 @@ export const getUser = (
       data: { counterfactualBalance, ethereumBalance },
       type: ActionType.WalletSetBalance
     });
+    history.push(RoutePath.Channels);
   } catch (error) {
     dispatchError(dispatch, error);
   }

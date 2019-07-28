@@ -26,11 +26,11 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 /**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.sol, *
+ * As specified in TwoPartyFixedOutcomeFromVirtualAppInterpreter.sol, *
  * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
  *       know how to interpret it. However, the encoder encodes it the same way
  *       without specifying it anyway, so that's why beneficiaries is address[2]
- *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppETHInterpreter.
+ *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppInterpreter.
  *
  */
 const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
@@ -42,7 +42,7 @@ const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
   )
 `;
 
-export const encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams = params =>
+export const encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams = params =>
   defaultAbiCoder.encode(
     [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
     [params]
@@ -98,8 +98,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -284,7 +284,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   },
 
   1 /* Intermediary */: async function*(context: Context) {
-    const { message: m1, stateChannelsMap, network, provider } = context;
+    const { message: m1, stateChannelsMap, network } = context;
 
     const {
       params,
@@ -310,8 +310,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelsMap,
       (virtualAppInstanceIdentityHash as unknown) as string,
       (virtualAppInstanceDefaultOutcome as unknown) as string,
-      network,
-      provider
+      network
     );
 
     const initiatorAddress = stateChannelWithInitiating.getMultisigOwnerAddrOf(
@@ -328,8 +327,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithInitiating.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithInitiating.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
@@ -348,8 +347,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithResponding.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithResponding.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           timeLockedPassThroughAppInstance.state["targetAppIdentityHash"]
         )
@@ -602,8 +601,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.multisigOwners,
       timeLockedPassThroughAppInstance.identityHash,
       stateChannelWithIntermediary.freeBalance.identityHash,
-      network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-      encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(
+      network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+      encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(
         stateChannelWithIntermediary.getSingleAssetTwoPartyIntermediaryAgreementFromVirtualApp(
           virtualAppInstance.identityHash
         )
@@ -825,7 +824,7 @@ function constructVirtualAppInstance(
  *
  * NOTE: This AppInstance is currently HARD-CODED to only work with interpreters
  *       that can understand the TwoPartyFixedOutcome outcome type. Currently
- *       we use the TwoPartyFixedOutcomeFromVirtualAppETHInterpreter for all
+ *       we use the TwoPartyFixedOutcomeFromVirtualAppInterpreter for all
  *       commitments between users and intermediaries to handle Virtual Apps.
  *
  * @param {StateChannel} threePartyStateChannel - The StateChannel object with all 3
@@ -840,8 +839,7 @@ function constructTimeLockedPassThroughAppInstance(
   virtualAppInstanceIdentityHash: string,
   virtualAppDefaultOutcome: string,
   network: NetworkContext,
-  params: InstallVirtualAppParams,
-  provider: BaseProvider
+  params: InstallVirtualAppParams
 ): AppInstance {
   const {
     intermediaryXpub,
@@ -973,8 +971,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     virtualAppInstance.identityHash,
     await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
     network,
-    params,
-    provider
+    params
   );
 
   const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
@@ -1029,8 +1026,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   stateChannelsMap: Map<string, StateChannel>,
   virtualAppInstanceIdentityHash: string,
   virtualAppInstanceDefaultOutcome: string,
-  network: NetworkContext,
-  provider: BaseProvider
+  network: NetworkContext
 ): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
     initiatorBalanceDecrement,
@@ -1052,8 +1048,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     virtualAppInstanceIdentityHash,
     virtualAppInstanceDefaultOutcome,
     network,
-    params,
-    provider
+    params
   );
 
   const channelWithInitiating = stateChannelsMap.get(
@@ -1174,8 +1169,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     virtualAppInstance.identityHash,
     await virtualAppInstance.computeOutcome(virtualAppInstance.state, provider),
     network,
-    params,
-    provider
+    params
   );
 
   const stateChannelWithIntermediary = stateChannelsMap.get(

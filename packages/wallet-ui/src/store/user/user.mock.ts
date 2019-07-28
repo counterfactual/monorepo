@@ -36,6 +36,7 @@ export const USER_MOCK_DATA = {
 
 export const addUser = (
   userData: User,
+  // @ts-ignore
   signer: JsonRpcSigner,
   history: History
 ): ThunkAction<

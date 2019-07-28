@@ -87,6 +87,7 @@ function checkCrossDiagonalVictory(board: Board, player: number) {
 
 function respond(
   node: Node,
+  // @ts-ignore
   nodeAddress: string,
   { data: { appInstanceId, newState } }
 ) {

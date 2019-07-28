@@ -52,7 +52,7 @@ export class MockMessagePort {
   }
 
   postMessage(message: string, transferables: MockMessagePort[]) {
-    this.onMessageCallback.forEach(callback =>
+    this.onMessageCallback.forEach(_ =>
       createMockMessageEvent(message, transferables)
     );
   }
@@ -81,6 +81,7 @@ export function mockAddEventListenerFunction(
 export function mockPostMessageFunction(context: Context) {
   return (
     message: string,
+    // @ts-ignore https://github.com/microsoft/TypeScript/issues/9458
     target: string,
     transferables: MockMessagePort[]
   ) => {

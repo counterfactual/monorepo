@@ -1,5 +1,7 @@
+import { EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT } from "@counterfactual/types";
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { parseEther } from "ethers/utils";
 import { fromMnemonic } from "ethers/utils/hdnode";
@@ -12,13 +14,21 @@ import {
 
 dotenvExtended.load();
 
+export { NetworkContextForTestSuite };
+
 export const CF_PATH = "m/44'/60'/0'/25446";
 
-export class Chain {
+export class LocalGanacheServer {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
-  networkContext: NetworkContextForTestSuite = Object.create(null);
+  networkContext: NetworkContextForTestSuite = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
+    (acc, contractName) => ({ ...acc, [contractName]: AddressZero }),
+    {
+      TicTacToeApp: AddressZero,
+      DolphinCoin: AddressZero
+    } as NetworkContextForTestSuite
+  );
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
@@ -38,6 +48,7 @@ export class Chain {
       };
       accounts.push(entry);
     });
+
     accounts.push({
       balance,
       secretKey: this.fundedPrivateKey
@@ -54,9 +65,9 @@ export class Chain {
     this.provider = new Web3Provider(this.server.provider);
   }
 
-  async createConfiguredChain(): Promise<NetworkContextForTestSuite> {
-    const wallet = new Wallet(this.fundedPrivateKey, this.provider);
-    this.networkContext = await deployTestArtifactsToChain(wallet);
-    return this.networkContext;
+  async runMigrations() {
+    this.networkContext = await deployTestArtifactsToChain(
+      new Wallet(this.fundedPrivateKey, this.provider)
+    );
   }
 }
