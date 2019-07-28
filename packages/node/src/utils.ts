@@ -2,13 +2,13 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import Proxy from "@counterfactual/contracts/build/Proxy.json";
 import {
   BigNumber,
+  bigNumberify,
   getAddress,
   hashMessage,
   Interface,
   keccak256,
   solidityKeccak256,
-  solidityPack,
-  bigNumberify
+  solidityPack
 } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 import log from "loglevel";
