@@ -36,16 +36,12 @@ function computeCoinTransferIncrement(
   return ret;
 }
 
-function anyNonzeroValues(map: TokenIndexedCoinTransferMap): Boolean {
-  for (const tokenAddress of Object.keys(map)) {
-    for (const address of Object.keys(map[tokenAddress])) {
-      if (map[tokenAddress][address].gt(Zero)) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
+const anyNonzeroValues = (
+  tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap
+) =>
+  Object.values(tokenIndexedCoinTransferMap).some(coinTransferMap =>
+    Object.values(coinTransferMap).some(amount => amount.gt(Zero))
+  );
 
 const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
 
