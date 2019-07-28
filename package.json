@@ -10,10 +10,10 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "build": "sh build.sh",
+    "build": "lerna run build",
     "clean": "git clean -Xdf --exclude=\"!.env\"",
     "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
-    "test": "lerna run --stream --concurrency 1 test",
+    "test": "lerna run --stream test",
     "test:ci-non-playground": "lerna run --ignore @counterfactual/playground --ignore @counterfactual/simple-hub-server --ignore @counterfactual/dapp-tic-tac-toe --ignore @counterfactual/dapp-high-roller --stream --concurrency 1 test",
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",

@@ -18,6 +18,7 @@
   },
   "devDependencies": {
     "@counterfactual/contracts": "0.1.13",
+    "@counterfactual/apps": "0.1.2",
     "@counterfactual/types": "0.0.27",
     "ethers": "4.0.33",
     "typescript": "3.5.3"
