@@ -173,6 +173,10 @@ describe("Utils > Counterfactual", () => {
         [MULTISIG_MOCK_ADDRESS]
       );
     });
+    // TODO: It seems like the number in the setTimeout call is set such that
+    // it is _likely_ that running "force retry" two times exactly is equal
+    // to the number of miliseconds specified. Right now it is 1750ms but if
+    // you bump it to 3000ms you will see it get called THREE times, not TWO.
     it("should retry if the counterdeposit is not complete", async done => {
       enableEthereumMockBehavior("forceRetryOnWaitForFunds");
 
@@ -196,7 +200,7 @@ describe("Utils > Counterfactual", () => {
           [MULTISIG_MOCK_ADDRESS]
         );
         done();
-      }, 1500);
+      }, 1750);
     });
   });
 
