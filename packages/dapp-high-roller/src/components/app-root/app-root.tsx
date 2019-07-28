@@ -21,8 +21,22 @@ declare var ethers;
 declare var web3;
 declare var ethereum;
 
-const { solidityKeccak256 } = ethers.utils;
+const {
+  bigNumberify,
+  computeAddress,
+  solidityKeccak256,
+  HDNode
+} = ethers.utils;
 const { HashZero } = ethers.constants;
+const { fromExtendedKey } = HDNode;
+
+function xkeyKthAddress(xkey: string, k: number): string {
+  return computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+}
+
+function xkeyKthHDNode(xkey: string, k: number): any {
+  return fromExtendedKey(xkey).derivePath(`${k}`);
+}
 
 @Component({
   tag: "app-root",
@@ -125,8 +139,16 @@ export class AppRoot {
   async componentDidLoad() {
     if (window === window.parent) {
       // dApp not running in iFrame
-      const data = await ethereum.send("counterfactual:request:user");
-      const account = data.result;
+      const userResult = await ethereum.send("counterfactual:request:user");
+      const account = userResult.result;
+      const balancesResult = await ethereum.send(
+        "counterfactual:request:balances",
+        [account.multisigAddress]
+      );
+      const freeBalance = balancesResult.result;
+      const freeBalanceAddress = xkeyKthAddress(account.nodeAddress, 0);
+      const myBalance = bigNumberify(freeBalance[freeBalanceAddress]);
+      account.balance = myBalance;
       this.updateAccount(account);
       this.userDataReceived = true;
     } else {
@@ -155,7 +177,7 @@ export class AppRoot {
   updateAccount(account: any) {
     this.state = { ...this.state, account };
 
-    ga("set", "userId", account.user.id);
+    ga("set", "userId", account.id);
   }
 
   updateOpponent(opponent: any) {

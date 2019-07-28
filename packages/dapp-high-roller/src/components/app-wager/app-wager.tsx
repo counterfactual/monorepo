@@ -70,7 +70,9 @@ export class AppWager {
         versionNumber: 0
       };
 
-      const currentEthBalance = ethers.utils.parseEther(this.account.balance);
+      const currentEthBalance = ethers.utils.parseEther(
+        this.account.balance.toString(10)
+      );
       const bet = ethers.utils.parseEther(this.betAmount);
 
       if (currentEthBalance.lt(bet)) {
