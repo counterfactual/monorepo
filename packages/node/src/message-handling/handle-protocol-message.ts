@@ -27,7 +27,7 @@ import { bigNumberifyJson, hashOfOrderedPublicIdentifiers } from "../utils";
  */
 export async function handleReceivedProtocolMessage(
   requestHandler: RequestHandler,
-  nodeMsg: NodeMessageWrappedProtocolMessage
+  msg: NodeMessageWrappedProtocolMessage
 ) {
   const {
     publicIdentifier,
@@ -36,11 +36,11 @@ export async function handleReceivedProtocolMessage(
     router
   } = requestHandler;
 
-  const {
-    data: { protocol, seq, params }
-  } = nodeMsg;
+  const deserializedMsg = bigNumberifyJson(msg);
 
-  const deserializedParams = bigNumberifyJson(params);
+  const { data } = deserializedMsg;
+
+  const { protocol, seq, params } = data;
 
   if (seq === -1) return;
 
@@ -53,7 +53,7 @@ export async function handleReceivedProtocolMessage(
       intermediaryXpub,
       responderXpub,
       targetAppIdentityHash
-    } = deserializedParams as UninstallVirtualAppParams;
+    } = params as UninstallVirtualAppParams;
 
     let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([initiatorXpub, intermediaryXpub])
@@ -69,7 +69,7 @@ export async function handleReceivedProtocolMessage(
       .getShardedQueue(channelWithIntermediary)
       .add(async () => {
         stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-          nodeMsg.data,
+          data,
           new Map<string, StateChannel>(
             Object.entries(await store.getAllChannels())
           )
@@ -91,7 +91,7 @@ export async function handleReceivedProtocolMessage(
 
     await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
   } else {
-    const { multisigAddress } = deserializedParams as
+    const { multisigAddress } = params as
       | UninstallParams
       | WithdrawParams
       | SetupParams
@@ -100,7 +100,7 @@ export async function handleReceivedProtocolMessage(
 
     await requestHandler.getShardedQueue(multisigAddress).add(async () => {
       stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        nodeMsg.data,
+        data,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
         )
@@ -117,8 +117,7 @@ export async function handleReceivedProtocolMessage(
           from: publicIdentifier,
           type: NODE_EVENTS.UNINSTALL,
           data: {
-            appInstanceId: (deserializedParams as UninstallParams)
-              .appIdentityHash
+            appInstanceId: (params as UninstallParams).appIdentityHash
           }
         } as UninstallMessage;
 
@@ -130,7 +129,7 @@ export async function handleReceivedProtocolMessage(
           from: publicIdentifier,
           type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
           data: {
-            amount: (deserializedParams as WithdrawParams).amount
+            amount: (params as WithdrawParams).amount
           }
         };
 
@@ -138,7 +137,7 @@ export async function handleReceivedProtocolMessage(
         break;
 
       case Protocol.Setup:
-        const { initiatorXpub } = deserializedParams as SetupParams;
+        const { initiatorXpub } = params as SetupParams;
         const setupMsg: CreateChannelMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.CREATE_CHANNEL,
@@ -155,7 +154,7 @@ export async function handleReceivedProtocolMessage(
 
       case Protocol.TakeAction:
       case Protocol.Update:
-        const { appIdentityHash } = deserializedParams as TakeActionParams;
+        const { appIdentityHash } = params as TakeActionParams;
 
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 
