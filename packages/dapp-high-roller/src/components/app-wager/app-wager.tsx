@@ -49,7 +49,7 @@ export class AppWager {
   async componentWillLoad() {
     this.provideRouterHistory(this.history);
 
-    this.myName = this.account.user.username;
+    this.myName = this.account.username;
     return await this.matchmake();
   }
 
@@ -145,7 +145,7 @@ export class AppWager {
             users: {
               data: {
                 type: "users",
-                id: this.account.user.id
+                id: this.account.id
               }
             },
             matchedUser: {
@@ -161,8 +161,8 @@ export class AppWager {
             type: "users",
             id: this.account.user.id,
             attributes: {
-              username: this.account.user.username,
-              ethAddress: this.account.user.ethAddress
+              username: this.account.username,
+              ethAddress: this.account.ethAddress
             }
           },
           {

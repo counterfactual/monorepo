@@ -96,7 +96,7 @@ export class AppWaiting {
     this.cfProvider.once("updateState", () => {
       this.goToGame(this.opponentName, this.appInstance.id);
     });
-    this.myName = this.account.user.username;
+    this.myName = this.account.username;
     this.opponentName = this.opponent.attributes.username;
   }
 
