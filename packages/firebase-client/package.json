@@ -10,8 +10,8 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "build": "tsc -p . && rollup -c",
-    "build:watch": "tsc -p . && rollup -c -w",
+    "build": "tsc -b . && rollup -c",
+    "build:watch": "tsc -b . && rollup -c -w",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
