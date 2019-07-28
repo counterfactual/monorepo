@@ -1,6 +1,12 @@
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { ActionType, ApplicationState, ChannelsMap, ChannelsState, StoreAction } from "../types";
+import {
+  ActionType,
+  ApplicationState,
+  ChannelsMap,
+  ChannelsState,
+  StoreAction
+} from "../types";
 
 export const initialState = {
   channels: {} as ChannelsMap

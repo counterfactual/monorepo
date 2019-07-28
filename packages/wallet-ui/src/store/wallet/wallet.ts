@@ -4,9 +4,19 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit, requestWithdraw } from "../../utils/counterfactual";
+import {
+  forFunds,
+  requestDeposit,
+  requestWithdraw
+} from "../../utils/counterfactual";
 import log from "../../utils/log";
-import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "../types";
+import {
+  ActionType,
+  ApplicationState,
+  Deposit,
+  StoreAction,
+  WalletState
+} from "../types";
 
 export const initialState = {
   ethAddress: "",
@@ -126,7 +136,7 @@ export const withdraw = (
     // 1. Ask Metamask to do the withdraw. !
     dispatch({ type: WalletWithdrawTransition.CheckWallet });
     const response = await requestWithdraw(transaction); // IMPLEMENT THIS!
-    log('withdraw response', response)
+    log("withdraw response", response);
 
     // 2. Wait until the withdraw is completed in both sides. !
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
