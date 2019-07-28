@@ -16,6 +16,8 @@
     "test:e2e": "echo 'E2E tests are disabled, skipping'"
   },
   "dependencies": {
+    "@counterfactual/cf.js": "0.2.3",
+    "@counterfactual/types": "0.0.27",
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3"
   },
