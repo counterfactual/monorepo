@@ -38,9 +38,9 @@ export async function handleReceivedProtocolMessage(
 
   const deserializedMsg = bigNumberifyJson(msg);
 
-  const {
-    data: { protocol, seq, params }
-  } = deserializedMsg;
+  const { data } = deserializedMsg;
+
+  const { protocol, seq, params } = data;
 
   if (seq === -1) return;
 
@@ -69,7 +69,7 @@ export async function handleReceivedProtocolMessage(
       .getShardedQueue(channelWithIntermediary)
       .add(async () => {
         stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-          deserializedMsg.data,
+          data,
           new Map<string, StateChannel>(
             Object.entries(await store.getAllChannels())
           )
@@ -100,7 +100,7 @@ export async function handleReceivedProtocolMessage(
 
     await requestHandler.getShardedQueue(multisigAddress).add(async () => {
       stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        deserializedMsg.data,
+        data,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
         )
