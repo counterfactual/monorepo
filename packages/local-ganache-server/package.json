@@ -19,9 +19,9 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/contracts": "0.1.13",
-    "@counterfactual/types": "0.0.27",
-    "@counterfactual/apps": "0.1.2",
+    "@counterfactual/contracts": "0.1.14",
+    "@counterfactual/types": "0.0.28",
+    "@counterfactual/apps": "0.1.3",
     "ganache-core": "2.5.7",
     "ethers": "4.0.33"
   }
