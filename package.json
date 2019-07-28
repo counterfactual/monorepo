@@ -10,7 +10,7 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "build": "lerna run build",
+    "build": "lerna run build --ignore @counterfactual/wallet-ui && lerna run build --scope=**/wallet-ui",
     "clean": "git clean -Xdf --exclude=\"!.env\"",
     "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
     "test": "lerna run --stream test",
