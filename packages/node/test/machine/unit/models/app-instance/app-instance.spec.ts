@@ -32,6 +32,7 @@ describe("AppInstance", () => {
         amount: Zero,
         tokenAddress: AddressZero
       },
+      undefined,
       undefined
     );
 

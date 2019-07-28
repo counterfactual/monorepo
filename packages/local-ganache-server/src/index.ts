@@ -22,18 +22,20 @@ export class LocalGanacheServer {
   provider: Web3Provider;
   fundedPrivateKey: string;
   server: any;
-  networkContext: NetworkContextForTestSuite = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
-    (acc, contractName) => ({ ...acc, [contractName]: AddressZero }),
-    {
-      TicTacToeApp: AddressZero,
-      DolphinCoin: AddressZero
-    } as NetworkContextForTestSuite
-  );
+  networkContext: NetworkContextForTestSuite;
 
   constructor(mnemonics: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
       throw new Error("No GANACHE_PORT found. Aborting!");
     }
+
+    this.networkContext = EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT.reduce(
+      (acc, contractName) => ({ ...acc, [contractName]: AddressZero }),
+      {
+        TicTacToeApp: AddressZero,
+        DolphinCoin: AddressZero
+      } as NetworkContextForTestSuite
+    );
 
     const balance = parseEther(initialBalance).toString();
 

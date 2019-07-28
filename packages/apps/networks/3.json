@@ -1,22 +1,47 @@
 [
   {
     "contractName": "HighRollerApp",
-    "address": "0x903217387B06a84F4dD0bEA565Ad8765Fc7cAA58",
-    "transactionHash": "0xc0ca508261cdb2401542a8cacf58e3430cbe0ec669887cee1fe98023ac7894a1"
+    "address": "0xe99AC20B16d5C9117441Cd5D868434a17858Ff4a",
+    "transactionHash": "0xe11c198b6ab614f941dc6963b35aef9a6c686ce4b3b4e89063377885f4d27785"
   },
   {
     "contractName": "NimApp",
-    "address": "0x62626FeC623C4C869F3DB3A63753D762F36d8AA9",
-    "transactionHash": "0xb267ff382776c0b28e037d8a4b8fc6c489314fc571e00c6ac472bdf15e1de8ba"
+    "address": "0xfF1Ae3EDEc2Fc1c10fd4516fF71C6a017dCf789A",
+    "transactionHash": "0xbb307880e96c06cf63ac263f88cbd5715c429f18c8611a5e9aba0aaa5d0f0504"
   },
   {
     "contractName": "TicTacToeApp",
-    "address": "0xe40b051B8c3697D2cB0527c1d2405D26BE595DeC",
-    "transactionHash": "0x4d735dc50a6194065a6af00ecf8e91569aec02e147ac9adb3847aa5b967b7559"
+    "address": "0x8793a520a67865BC68Aa1B6E0Aa4fb8797903f44",
+    "transactionHash": "0xa1a04a4a79e0187ec121eefa64c6ce8b5edcdb4a8de809b5673b62c542ad4e23"
   },
   {
     "contractName": "UnidirectionalTransferApp",
-    "address": "0x6346bD6fb9247FBBC2a0Cf341D812B1b10b95c78",
-    "transactionHash": "0x8e47ab5efc52a8345fefe17d02c2d4b73d56aac9408fa7ebfc38b8c2a5489cda"
+    "address": "0x7aD94439C4C4A959AfDf131260780a2eC349C93d",
+    "transactionHash": "0x345ea8efd54d418897f474c39001b3f35c4d07bdf0825361d215a49bf5202453"
+  },
+  {
+    "contractName": "HighRollerApp",
+    "address": "0xfF532Ae788D2309ad436dc7edD1647CA5fd573ef",
+    "transactionHash": "0xf1b63d37c7bfbae521850d327d31f4622a3df5ec001b329e012f23a4bb318660"
+  },
+  {
+    "contractName": "NimApp",
+    "address": "0x0e3CA38e42CF5469A17Ad8f473e45521bEE930Ae",
+    "transactionHash": "0xc7ecfda33eee1f79756202047b025ca8071404b404969d2f619cd03f558292e2"
+  },
+  {
+    "contractName": "TicTacToeApp",
+    "address": "0xFf2e0568896fa5c1762F7904d2005b4e1c3647fF",
+    "transactionHash": "0xa3022d3406aa1480ac4ba6fb94e534a6ff51d25d7f65ab97d3159434a5ea9ac1"
+  },
+  {
+    "contractName": "UnidirectionalTransferApp",
+    "address": "0x366235caCa13101BF3428c58414553Fc0A52D73f",
+    "transactionHash": "0x1dde1840eaddef2bd95978fb655e0e8d5a616d2eedd243d55de6f40202a6352b"
+  },
+  {
+    "contractName": "SimpleTwoPartySwapApp",
+    "address": "0x8F11E6e4beDbD542d75aD94D860173adCcE06D6B",
+    "transactionHash": "0x9f06dfb4a1fb6075ba154a79c09db4a17d78205bb95d81c4ae08be92e491abee"
   }
 ]

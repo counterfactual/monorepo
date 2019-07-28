@@ -1,5 +1,3 @@
-import { BigNumber, bigNumberify } from "ethers/utils";
-
 import {
   Protocol,
   SetupParams,
@@ -20,7 +18,7 @@ import {
   UpdateStateMessage,
   WithdrawMessage
 } from "../types";
-import { hashOfOrderedPublicIdentifiers } from "../utils";
+import { bigNumberifyJson, hashOfOrderedPublicIdentifiers } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
@@ -42,11 +40,7 @@ export async function handleReceivedProtocolMessage(
     data: { protocol, seq, params }
   } = nodeMsg;
 
-  for (const key in params) {
-    if (params[key]["_hex"]) {
-      params[key] = bigNumberify(params[key] as BigNumber);
-    }
-  }
+  const deserializedParams = bigNumberifyJson(params);
 
   if (seq === -1) return;
 
@@ -59,7 +53,8 @@ export async function handleReceivedProtocolMessage(
       intermediaryXpub,
       responderXpub,
       targetAppIdentityHash
-    } = params as UninstallVirtualAppParams;
+    } = deserializedParams as UninstallVirtualAppParams;
+
     let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([initiatorXpub, intermediaryXpub])
     );
@@ -96,7 +91,7 @@ export async function handleReceivedProtocolMessage(
 
     await router.emit(uninstallMsg.type, uninstallMsg, "outgoing");
   } else {
-    const { multisigAddress } = params as
+    const { multisigAddress } = deserializedParams as
       | UninstallParams
       | WithdrawParams
       | SetupParams
@@ -122,7 +117,8 @@ export async function handleReceivedProtocolMessage(
           from: publicIdentifier,
           type: NODE_EVENTS.UNINSTALL,
           data: {
-            appInstanceId: (params as UninstallParams).appIdentityHash
+            appInstanceId: (deserializedParams as UninstallParams)
+              .appIdentityHash
           }
         } as UninstallMessage;
 
@@ -134,7 +130,7 @@ export async function handleReceivedProtocolMessage(
           from: publicIdentifier,
           type: NODE_EVENTS.WITHDRAWAL_CONFIRMED,
           data: {
-            amount: (params as WithdrawParams).amount
+            amount: (deserializedParams as WithdrawParams).amount
           }
         };
 
@@ -142,7 +138,7 @@ export async function handleReceivedProtocolMessage(
         break;
 
       case Protocol.Setup:
-        const { initiatorXpub } = params as SetupParams;
+        const { initiatorXpub } = deserializedParams as SetupParams;
         const setupMsg: CreateChannelMessage = {
           from: publicIdentifier,
           type: NODE_EVENTS.CREATE_CHANNEL,
@@ -159,7 +155,7 @@ export async function handleReceivedProtocolMessage(
 
       case Protocol.TakeAction:
       case Protocol.Update:
-        const { appIdentityHash } = params as TakeActionParams;
+        const { appIdentityHash } = deserializedParams as TakeActionParams;
 
         const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
 

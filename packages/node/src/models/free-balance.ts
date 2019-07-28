@@ -94,10 +94,11 @@ export function createFreeBalance(
     serializeFreeBalanceState(initialState),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
+    OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
     undefined,
     // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] }
+    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] },
+    undefined
   );
 }
 

@@ -11,18 +11,31 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
   tokenAddress: string;
 };
 
-export type CoinTransferInterpreterParams = {
+export type MultiAssetMultiPartyCoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+  // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
   limit: BigNumber[];
   tokenAddresses: string[];
 };
 
-export const coinTransferInterpreterParamsStateEncoding = `
+export type SingleAssetTwoPartyCoinTransferInterpreterParams = {
+  limit: BigNumber;
+  tokenAddress: string;
+};
+
+export const multiAssetMultiPartyCoinTransferInterpreterParamsEncoding = `
   tuple(
     uint256[] limit,
     address[] tokenAddresses
   )
+`;
+
+export const singleAssetTwoPartyCoinTransferInterpreterParamsEncoding = `
+  tuple(uint256 limit, address tokenAddress)
+`;
+
+export const twoPartyFixedOutcomeInterpreterParamsEncoding = `
+  tuple(address[2] playerAddrs, uint256 amount)
 `;
 
 export type AppInstanceJson = {
@@ -50,11 +63,16 @@ export type AppInstanceJson = {
     tokenAddress: string;
   };
 
-  coinTransferInterpreterParams?: {
+  multiAssetMultiPartyCoinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/CoinTransferInterpreter.sol#L18
+    // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
     tokenAddresses: string[];
+  };
+
+  singleAssetTwoPartyCoinTransferInterpreterParams?: {
+    limit: { _hex: string };
+    tokenAddress: string;
   };
 };
 
@@ -75,7 +93,8 @@ export type AppInstanceInfo = {
    * Interpreter-related Fields
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
 
 export type AppInstanceProposal = {
@@ -95,7 +114,8 @@ export type AppInstanceProposal = {
    * Interpreter-related Fields
    */
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
-  coinTransferInterpreterParams?: CoinTransferInterpreterParams;
+  multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
 
 export type AppABIEncodings = {
@@ -104,18 +124,11 @@ export type AppABIEncodings = {
 };
 
 export enum OutcomeType {
-  TWO_PARTY_FIXED_OUTCOME = 0,
+  // uint8
+  TWO_PARTY_FIXED_OUTCOME,
 
-  // CoinTransfer
-  // Since no apps currently use this outcome
-  // type, do not use it in the node
-  COIN_TRANSFER_DO_NOT_USE = 1,
-
-  // tuple(address[], CoinTransfer[][], bytes32[])
-  FREE_BALANCE_OUTCOME_TYPE = 2,
-
-  // CoinTransfer[1][1]
-  REFUND_OUTCOME_TYPE = 3,
+  // CoinTransfer[][]
+  MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
 
   // CoinTransfer[2]
   SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER

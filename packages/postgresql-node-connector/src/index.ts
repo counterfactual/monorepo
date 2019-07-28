@@ -49,6 +49,9 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
 
   async connectDb(): Promise<Connection> {
     await this.connection.connect();
+    console.info(
+      `Connected to PostgreSQL at postresql://${this.configuration.username}@${this.configuration.host}:${this.configuration.port}`
+    );
     await this.connection.query(`
       CREATE TABLE IF NOT EXISTS "${this.tableName}"
       (
@@ -69,7 +72,6 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
   }
 
   createStoreService(storeServiceKey: string): Node.IStoreService {
-    console.log("Connected to Postgres");
     return new PostgresStoreService(this.connectionManager, storeServiceKey);
   }
 }

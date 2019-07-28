@@ -1,27 +1,27 @@
 [
   {
     "contractName": "HighRollerApp",
-    "address": "0x144F1A5C2db59B58f2c73d09A2acb27a57E47618",
-    "transactionHash": "0xbc846c2975903128678ee562003f1d46b2c090e48ae618dbb0f74aa0e1e0f4d4"
+    "address": "0x9F13f1f6810554CAe575E34e74F6dF6dA190aE3B",
+    "transactionHash": "0x27fdbb8a602891b74142ca31afa02334c5ed74ed888cce01970da4c641b72df7"
   },
   {
     "contractName": "NimApp",
-    "address": "0x4D1FeB96EcE430A783F5a17755670cfDcA8b72f5",
-    "transactionHash": "0xae985ed5ca48ae49858b19a432916d5f56d4eee9b1bc890d3361791e12e78c75"
+    "address": "0xE8D589d61BB6C790cdE42d03D9493F10443eC831",
+    "transactionHash": "0xb422be30c60ee09d45c63fc09d64f3a81aedff3a8c2e2a74bb6fd013066443fc"
   },
   {
     "contractName": "TicTacToeApp",
-    "address": "0x62507485DD6811293b1CE709BdB3EdAFC98972a6",
-    "transactionHash": "0x37dc4549c8a521ff6a0bdf062216ec352cc95d6bf0fe5d34e2be6c952ec4d7e7"
-  },
-  {
-    "contractName": "SimpleTwoPartySwapApp",
-    "address": "0x92E0bC808f7549c7f8f37b45960D6dCFd343d909",
-    "transactionHash": "0x865d7f5eb1db74d6cd0c69cecdea8dc1aec59708ab0e0ddd1ecfb09886848e17"
+    "address": "0x3d2623d5fcAf027BD3c9286E4Fb0CdEF52807532",
+    "transactionHash": "0x025500ae8cf12ccdd75c052bd9f0b661b264c39fafb2bf98102fb2c463fde7b6"
   },
   {
     "contractName": "UnidirectionalTransferApp",
-    "address": "0x0f85520C9896706D417c304083a0A7a2939fFD9D",
-    "transactionHash": "0x44dc5f460fdce090a98ad7b9fcf3d5701984372a12cdead2bdc70b67d98ea428"
+    "address": "0x474a10cc52d9B23CA7a23dcD44dF7865dA7440a0",
+    "transactionHash": "0x6770823e035704448121a204381db6bffc7d15dbb2c6be6f60241fda3cc3f4d1"
+  },
+  {
+    "contractName": "SimpleTwoPartySwapApp",
+    "address": "0x7303B03ab307a8920eb013B01ee049E84FA9C6ba",
+    "transactionHash": "0x9d166322f7ce7573cf0c09cb4288d1c929eb5662440fbcb0fc5ec331b09b9d12"
   }
 ]

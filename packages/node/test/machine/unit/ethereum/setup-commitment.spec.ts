@@ -1,5 +1,5 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
+import { multiAssetMultiPartyCoinTransferInterpreterParamsEncoding } from "@counterfactual/types";
 import {
   defaultAbiCoder,
   getAddress,
@@ -36,7 +36,7 @@ describe("SetupCommitment", () => {
 
   // State channel testing values
   const stateChannel = StateChannel.setupChannel(
-    networkContext.FreeBalanceApp,
+    networkContext.IdentityApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );
@@ -50,8 +50,8 @@ describe("SetupCommitment", () => {
       stateChannel.multisigOwners,
       freeBalance.identity,
       defaultAbiCoder.encode(
-        [coinTransferInterpreterParamsStateEncoding],
-        [freeBalance.coinTransferInterpreterParams]
+        [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+        [freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
       )
     ).getTransactionDetails();
   });
@@ -83,7 +83,9 @@ describe("SetupCommitment", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
-      expect(interpreterAddress).toBe(networkContext.CoinTransferInterpreter);
+      expect(interpreterAddress).toBe(
+        networkContext.MultiAssetMultiPartyCoinTransferInterpreter
+      );
     });
   });
 });

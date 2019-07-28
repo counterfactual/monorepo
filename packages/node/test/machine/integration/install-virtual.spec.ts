@@ -17,7 +17,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams } from "../../../src/protocol/install-virtual-app";
+import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
   transferERC20Tokens
@@ -47,10 +47,8 @@ let multisigOwnerKeys: SigningKey[];
 
 let xpubs: string[];
 
-const beneficiaries: [string, string] = [
-  Wallet.createRandom().address,
-  Wallet.createRandom().address
-];
+const capitalProvider = Wallet.createRandom().address;
+const virtualAppUser = Wallet.createRandom().address;
 
 expect.extend({ toBeEq });
 
@@ -168,7 +166,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       tokenAddress: string
     ) {
       return StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxyAddress,
         xpubs
       ).setFreeBalance(
@@ -201,6 +199,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
           amount: Zero,
           tokenAddress: AddressZero
         },
+        undefined,
         undefined
       );
     };
@@ -273,9 +272,9 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       const targetAppInstance = createTargetAppInstance(stateChannel);
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: erc20Contract.address,
         /**
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
@@ -306,7 +305,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
         network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -317,13 +316,14 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[0])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[1])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(virtualAppUser)).toBeEq(
         parseEther("5")
       );
+
       done();
     });
 
@@ -343,9 +343,9 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       const targetAppInstance = createTargetAppInstance(stateChannel);
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         timeLockedPassThroughIdentityHash: HashZero
       };
@@ -369,7 +369,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
         network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppInterpreterParams(agreement)
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -380,13 +380,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await provider.getBalance(beneficiaries[0])).toBeEq(
+      expect(await provider.getBalance(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await provider.getBalance(beneficiaries[1])).toBeEq(
-        parseEther("5")
-      );
+      expect(await provider.getBalance(virtualAppUser)).toBeEq(parseEther("5"));
 
       done();
     });
