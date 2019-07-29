@@ -9,7 +9,6 @@ import {
   ProtocolParameters,
   UninstallParams
 } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -24,7 +23,6 @@ import { assertIsValidSignature } from "./utils/signature-validator";
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
     const { responderXpub } = context.message.params;
-    const responderAddress = xkeyKthAddress(responderXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -32,25 +30,36 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      uninstallCommitment
+    ];
 
-    const { signature: theirSig } = yield [
+    const {
+      signature: counterpartySignature,
+      signerAddress: counterpartySignerAddress
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Uninstall,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySig,
+        signature: mySignature,
+        signerAddress: mySignerAddress,
         seq: 1
       } as ProtocolMessage
     ];
 
-    assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
+    assertIsValidSignature(
+      counterpartySignerAddress,
+      uninstallCommitment,
+      counterpartySignature
+    );
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
-      mySig,
-      theirSig
+      mySignature,
+      counterpartySignature
     ]);
 
     yield [
@@ -62,7 +71,6 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   },
   1: async function*(context: Context) {
     const { initiatorXpub } = context.message.params;
-    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -70,15 +78,23 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const theirSig = context.message.signature!;
+    const counterpartySignature = context.message.signature!;
+    const counterpartySignerAddress = context.message.signerAddress!;
 
-    assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
+    assertIsValidSignature(
+      counterpartySignerAddress,
+      uninstallCommitment,
+      counterpartySignature
+    );
 
-    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      uninstallCommitment
+    ];
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
-      mySig,
-      theirSig
+      mySignature,
+      counterpartySignature
     ]);
 
     yield [
@@ -94,7 +110,8 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Uninstall,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
-        signature: mySig,
+        signature: mySignature,
+        signerAddress: mySignerAddress,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
