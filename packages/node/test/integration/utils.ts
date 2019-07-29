@@ -560,7 +560,8 @@ export async function makeVirtualProposal(
   nodeC: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityABIEncoderV2Type,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -574,9 +575,9 @@ export async function makeVirtualProposal(
     appContext.abiEncodings,
     appContext.initialState,
     One,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    tokenAddress,
     Zero,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    tokenAddress
   );
   const params = virtualAppInstanceProposalRequest.parameters as NodeTypes.ProposeInstallVirtualParams;
   const {
