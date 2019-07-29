@@ -17,7 +17,8 @@ import {
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams,
-  twoPartyFixedOutcomeInterpreterParamsEncoding
+  twoPartyFixedOutcomeInterpreterParamsEncoding,
+  virtualAppAgreementEncoding
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
@@ -86,5 +87,6 @@ export {
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   twoPartyFixedOutcomeInterpreterParamsEncoding,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  virtualAppAgreementEncoding
 };

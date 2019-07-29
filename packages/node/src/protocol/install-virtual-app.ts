@@ -10,7 +10,8 @@ import {
   NetworkContext,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  virtualAppAgreementEncoding
 } from "@counterfactual/types";
 import { AddressZero, MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
@@ -31,28 +32,8 @@ import { getCreate2MultisigAddress } from "../utils";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-/**
- * As specified in TwoPartyFixedOutcomeFromVirtualAppInterpreter.sol, *
- * NOTE: It seems like you can't put "payable" inside this string, ethers doesn't
- *       know how to interpret it. However, the encoder encodes it the same way
- *       without specifying it anyway, so that's why beneficiaries is address[2]
- *       despite what you see in TwoPartyFixedOutcomeFromVirtualAppInterpreter.
- *
- */
-const SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING = `
-  tuple(
-    uint256 capitalProvided,
-    address capitalProvider,
-    address virtualAppUser,
-    address tokenAddress
-  )
-`;
-
 export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>
-  defaultAbiCoder.encode(
-    [SINGLE_ASSET_TWO_PARTY_INTERMEDIARY_AGREEMENT_ENCODING],
-    [params]
-  );
+  defaultAbiCoder.encode([virtualAppAgreementEncoding], [params]);
 
 const protocol = Protocol.InstallVirtualApp;
 
