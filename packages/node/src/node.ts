@@ -30,11 +30,6 @@ export interface NodeConfig {
 
 const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
-// FIXME: move this to types package
-export interface IPrivateKeyGenerator {
-  (s: string): Promise<string>;
-}
-
 export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;

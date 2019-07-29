@@ -61,6 +61,10 @@ export namespace Node {
     reset?(): Promise<void>;
   }
 
+  export interface IPrivateKeyGenerator {
+    (s: string): Promise<string>;
+  }
+
   export enum ErrorType {
     ERROR = "error"
   }

@@ -54,7 +54,7 @@
     "@counterfactual/cf.js": "0.2.3",
     "@counterfactual/contracts": "0.1.14",
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/types": "0.0.28",
+    "@counterfactual/types": "0.0.29",
     "ethers": "4.0.33",
     "eventemitter3": "^4.0.0",
     "loglevel": "^1.6.1",
