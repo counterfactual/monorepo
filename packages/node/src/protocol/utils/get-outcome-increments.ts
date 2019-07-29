@@ -12,6 +12,7 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import {
   CoinTransfer,
+  convertCoinTransfersToCoinTransfersMap,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
 import { wait } from "../../utils";
@@ -142,12 +143,21 @@ function handleTwoPartyFixedOutcome(
 }
 
 function handleMultiAssetMultiPartyCoinTransfer(
-  // @ts-ignore
   encodedOutcome: string,
-  // @ts-ignore
   interpreterParams: MultiAssetMultiPartyCoinTransferInterpreterParams
 ): TokenIndexedCoinTransferMap {
-  throw new Error("UnimplementedError");
+  const decodedTransfers = decodeMultiAssetMultiPartyCoinTransfer(
+    encodedOutcome
+  );
+
+  return interpreterParams.tokenAddresses.reduce(
+    (tokenIndexedTransfers, tokenAddress: string, index: number) => {
+      return (tokenIndexedTransfers[
+        tokenAddress
+      ] = convertCoinTransfersToCoinTransfersMap(decodedTransfers[index]));
+    },
+    {}
+  );
 }
 
 function handleSingleAssetTwoPartyCoinTransfer(
@@ -200,17 +210,15 @@ function decodeSingleAssetTwoPartyCoinTransfer(
   return [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }];
 }
 
-// TODO: This is actually the same as in free-balance.ts
-//
-// function decodeMultiAssetMultiPartyCoinTransfer(
-//   encodedOutcome: string
-// ): CoinTransfer[][] {
-//   const [coinTransferListOfLists] = defaultAbiCoder.decode(
-//     ["tuple(address to, uint256 amount)[2]"],
-//     encodedOutcome
-//   );
+function decodeMultiAssetMultiPartyCoinTransfer(
+  encodedOutcome: string
+): CoinTransfer[][] {
+  const [coinTransferListOfLists] = defaultAbiCoder.decode(
+    ["tuple(address to, uint256 amount)[][]"],
+    encodedOutcome
+  );
 
-//   return coinTransferListOfLists.map(coinTransferList =>
-//     coinTransferList.map(({ to, amount }) => ({ to, amount }))
-//   );
-// }
+  return coinTransferListOfLists.map(coinTransferList =>
+    coinTransferList.map(({ to, amount }) => ({ to, amount }))
+  );
+}
