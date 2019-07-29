@@ -80,7 +80,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const counterpartySignature = context.message.signature!;
-    const counterpartySignerAddress = context.message.signerAddress;
+    const counterpartySignerAddress = context.message.signerAddress!;
     assertIsValidSignature(
       counterpartySignerAddress,
       setupCommitment,
