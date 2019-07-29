@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@counterfactual/contracts": "0.1.14",
-    "@counterfactual/types": "0.0.28",
+    "@counterfactual/types": "0.0.29",
     "@counterfactual/apps": "0.1.4",
     "ganache-core": "2.5.7",
     "ethers": "4.0.33"

@@ -1,5 +1,6 @@
 import {
   CoinBalanceRefundState,
+  multiAssetMultiPartyCoinTransferEncoding,
   MultiAssetMultiPartyCoinTransferInterpreterParams,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
@@ -14,7 +15,7 @@ import {
   CoinTransfer,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
-import { wait } from "../../utils";
+import { convertCoinTransfersToCoinTransfersMap, wait } from "../../utils";
 
 /**
  * Get the outcome of the app instance given, decode it according
@@ -142,12 +143,25 @@ function handleTwoPartyFixedOutcome(
 }
 
 function handleMultiAssetMultiPartyCoinTransfer(
-  // @ts-ignore
   encodedOutcome: string,
-  // @ts-ignore
   interpreterParams: MultiAssetMultiPartyCoinTransferInterpreterParams
 ): TokenIndexedCoinTransferMap {
-  throw new Error("UnimplementedError");
+  const decodedTransfers = decodeMultiAssetMultiPartyCoinTransfer(
+    encodedOutcome
+  );
+
+  return interpreterParams.tokenAddresses.reduce(
+    (
+      tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap,
+      tokenAddress: string,
+      index: number
+    ) => {
+      return (tokenIndexedCoinTransferMap[
+        tokenAddress
+      ] = convertCoinTransfersToCoinTransfersMap(decodedTransfers[index]));
+    },
+    {}
+  );
 }
 
 function handleSingleAssetTwoPartyCoinTransfer(
@@ -200,17 +214,15 @@ function decodeSingleAssetTwoPartyCoinTransfer(
   return [{ to: to1, amount: amount1 }, { to: to2, amount: amount2 }];
 }
 
-// TODO: This is actually the same as in free-balance.ts
-//
-// function decodeMultiAssetMultiPartyCoinTransfer(
-//   encodedOutcome: string
-// ): CoinTransfer[][] {
-//   const [coinTransferListOfLists] = defaultAbiCoder.decode(
-//     ["tuple(address to, uint256 amount)[2]"],
-//     encodedOutcome
-//   );
+function decodeMultiAssetMultiPartyCoinTransfer(
+  encodedOutcome: string
+): CoinTransfer[][] {
+  const [coinTransferListOfLists] = defaultAbiCoder.decode(
+    [multiAssetMultiPartyCoinTransferEncoding],
+    encodedOutcome
+  );
 
-//   return coinTransferListOfLists.map(coinTransferList =>
-//     coinTransferList.map(({ to, amount }) => ({ to, amount }))
-//   );
-// }
+  return coinTransferListOfLists.map(coinTransferList =>
+    coinTransferList.map(({ to, amount }) => ({ to, amount }))
+  );
+}

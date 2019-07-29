@@ -4,6 +4,7 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
 import { xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { convertCoinTransfersToCoinTransfersMap } from "../utils";
 
 import { AppInstance } from "./app-instance";
 
@@ -100,24 +101,6 @@ export function createFreeBalance(
     { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] },
     undefined
   );
-}
-
-export function convertCoinTransfersToCoinTransfersMap(
-  coinTransfers: CoinTransfer[]
-): CoinTransferMap {
-  return (coinTransfers || []).reduce(
-    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
-    {}
-  );
-}
-
-export function convertCoinTransfersMapToCoinTransfers(
-  coinTransfersMap: CoinTransferMap
-): CoinTransfer[] {
-  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
-    to,
-    amount
-  }));
 }
 
 /**

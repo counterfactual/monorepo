@@ -47,6 +47,13 @@ export const virtualAppAgreementEncoding = `
   )
 `;
 
+export const multiAssetMultiPartyCoinTransferEncoding = `
+    tuple(
+      address to,
+      uint256 amount
+    )[][]
+`;
+
 export type AppInstanceJson = {
   identityHash: string;
   multisigAddress: string;
