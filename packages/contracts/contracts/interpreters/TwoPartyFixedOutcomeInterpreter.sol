@@ -8,7 +8,7 @@ import "../libs/LibOutcome.sol";
 
 
 /// @notice
-/// Asset: ETH
+/// Asset: Single Asset, ETH or ERC20
 /// OutcomeType: TwoPartyFixedOutcome
 /// The committed coins are sent to one of params.playerAddrs
 /// or split in half according to the outcome

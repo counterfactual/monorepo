@@ -38,6 +38,15 @@ export const twoPartyFixedOutcomeInterpreterParamsEncoding = `
   tuple(address[2] playerAddrs, uint256 amount)
 `;
 
+export const virtualAppAgreementEncoding = `
+  tuple(
+    uint256 capitalProvided,
+    address capitalProvider,
+    address virtualAppUser,
+    address tokenAddress,
+  )
+`;
+
 export type AppInstanceJson = {
   identityHash: string;
   multisigAddress: string;

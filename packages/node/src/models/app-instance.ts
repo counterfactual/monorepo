@@ -10,7 +10,8 @@ import {
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   SolidityABIEncoderV2Type,
   TwoPartyFixedOutcomeInterpreterParams,
-  twoPartyFixedOutcomeInterpreterParamsEncoding
+  twoPartyFixedOutcomeInterpreterParamsEncoding,
+  virtualAppAgreementEncoding
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BaseProvider } from "ethers/providers";
@@ -248,16 +249,7 @@ export class AppInstance {
             tokenAddress
           } = this.twoPartyOutcomeInterpreterParams;
           return defaultAbiCoder.encode(
-            [
-              `
-                tuple(
-                  uint256 capitalProvided,
-                  address payable capitalProvider,
-                  address virtualAppUser,
-                  address tokenAddress,
-              )
-              `
-            ],
+            [virtualAppAgreementEncoding],
             [
               {
                 tokenAddress,
