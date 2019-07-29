@@ -170,7 +170,10 @@ export class Node {
         )
       );
 
-      return signingKey.signDigest(commitment.hashToSign());
+      return [
+        signingKey.signDigest(commitment.hashToSign()),
+        signingKey.address
+      ];
     });
 
     instructionExecutor.register(

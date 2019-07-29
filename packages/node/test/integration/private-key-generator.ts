@@ -4,7 +4,6 @@ export class TestPrivateKeyGenerator {
   private uniqueIDToGeneratedPrivateKeys: Map<string, string>;
 
   constructor() {
-    console.log("new instance of test private key generator");
     this.uniqueIDToGeneratedPrivateKeys = new Map();
   }
 
@@ -14,12 +13,11 @@ export class TestPrivateKeyGenerator {
         "A string value must be supplied to generate a private key"
       );
     }
+    // FIXME: why is this not defined after the class is instantiated...
     if (!this.uniqueIDToGeneratedPrivateKeys) {
       this.uniqueIDToGeneratedPrivateKeys = new Map();
     }
 
-    console.log("generating new private key", uniqueID);
-    console.log(this.uniqueIDToGeneratedPrivateKeys);
     if (this.uniqueIDToGeneratedPrivateKeys.has(uniqueID)) {
       return Promise.resolve(
         this.uniqueIDToGeneratedPrivateKeys.get(uniqueID)!

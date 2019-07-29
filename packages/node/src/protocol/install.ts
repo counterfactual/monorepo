@@ -59,10 +59,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const [mySignatureOnConditionalTransaction, signerAddress1] = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
+    console.log("signed with address: ", signerAddress1);
 
     const {
       signature: counterpartySignatureOnConditionalTransaction,
@@ -118,10 +119,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnFreeBalanceStateUpdate
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const [mySignatureOnFreeBalanceStateUpdate, signerAddress2] = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
+    console.log("signed with address: ", signerAddress2);
 
     const signedFreeBalanceStateUpdate = freeBalanceUpdateData.getSignedTransaction(
       [
@@ -190,10 +192,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnConditionalTransaction
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const [mySignatureOnConditionalTransaction, signerAddress1] = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
+    console.log("signed with address: ", signerAddress1);
 
     const signedConditionalTransaction = conditionalTransactionData.getSignedTransaction(
       [
@@ -222,10 +225,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const [mySignatureOnFreeBalanceStateUpdate, signerAddress2] = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
+    console.log("signed with address: ", signerAddress2);
 
     const { signature: counterpartySignatureOnFreeBalanceStateUpdate } = yield [
       Opcode.IO_SEND_AND_WAIT,

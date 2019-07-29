@@ -13,7 +13,6 @@ import {
   ProtocolParameters,
   SetupParams
 } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -28,29 +27,39 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
     const { responderXpub, multisigAddress } = context.message
       .params as SetupParams;
-    const responderAddress = xkeyKthAddress(responderXpub, 0);
     const setupCommitment = proposeStateTransition(
       context.message.params,
       context
     );
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      setupCommitment
+    ];
 
-    const { signature: theirSig } = yield [
+    const {
+      signature: counterpartySignature,
+      signerAddress: counterpartySignerAddress
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
+        signerAddress: mySignerAddress,
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySig,
+        signature: mySignature,
         seq: 1
       } as ProtocolMessage
     ];
-    assertIsValidSignature(responderAddress, setupCommitment, theirSig);
+    assertIsValidSignature(
+      counterpartySignerAddress,
+      setupCommitment,
+      counterpartySignature
+    );
 
     const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
+      mySignature,
+      counterpartySignature
     ]);
 
     yield [
@@ -64,21 +73,28 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   1: async function*(context: Context) {
     const { initiatorXpub, multisigAddress } = context.message
       .params as SetupParams;
-    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const setupCommitment = proposeStateTransition(
       context.message.params,
       context
     );
 
-    const theirSig = context.message.signature!;
-    assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
+    const counterpartySignature = context.message.signature!;
+    const counterpartySignerAddress = context.message.signerAddress;
+    assertIsValidSignature(
+      counterpartySignerAddress,
+      setupCommitment,
+      counterpartySignature
+    );
 
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      setupCommitment
+    ];
 
     const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
+      mySignature,
+      counterpartySignature
     ]);
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -90,10 +106,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
+        signerAddress: mySignerAddress,
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
-        signature: mySig,
+        signature: mySignature,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
