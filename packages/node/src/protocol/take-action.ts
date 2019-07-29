@@ -4,7 +4,6 @@ import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -32,9 +31,16 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
-    const { signature } = yield [
+    const {
+      signature: counterpartySignature,
+      signerAddress: counterpartySignerAddress
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.TakeAction,
@@ -42,14 +48,15 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         params: context.message.params,
         seq: 1,
         toXpub: responderXpub,
-        signature: mySig
+        signature: mySignature,
+        signerAddress: mySignerAddress
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      xkeyKthAddress(responderXpub, appSeqNo),
+      counterpartySignerAddress,
       setStateCommitment,
-      signature
+      counterpartySignature
     );
   },
   1: async function*(context: Context) {
@@ -59,7 +66,11 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const { signature, params } = context.message;
+    const {
+      signature: counterpartySignature,
+      signerAddress: counterpartySignerAddress,
+      params
+    } = context.message;
     const {
       appIdentityHash,
       multisigAddress,
@@ -70,12 +81,16 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     const appSeqNo = sc.getAppInstance(appIdentityHash).appSeqNo;
 
     assertIsValidSignature(
-      xkeyKthAddress(initiatorXpub, appSeqNo),
+      counterpartySignerAddress!,
       setStateCommitment,
-      signature
+      counterpartySignature
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const [mySignature, mySignerAddress] = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
     yield [
       Opcode.IO_SEND,
@@ -84,7 +99,8 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
         seq: -1,
-        signature: mySig
+        signature: mySignature,
+        signerAddress: mySignerAddress
       }
     ];
   }
