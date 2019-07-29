@@ -16,6 +16,8 @@ import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
 
+import { TestPrivateKeyGenerator } from "./private-key-generator";
+
 export interface NodeContext {
   node: Node;
   store: NodeTypes.IStoreService;
@@ -61,6 +63,13 @@ export async function setup(
 ): Promise<SetupContext> {
   const setupContext: SetupContext = {};
 
+  for (const node of ["A", "B"]) {
+    const privateKeyGenerator = new TestPrivateKeyGenerator();
+    // Attach it to the global jest object so this class instance doesn't
+    // get wiped after this function returns.
+    global[`privateKeyGeneratorNode${node}`] = privateKeyGenerator;
+  }
+
   const nodeConfig = {
     STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
   };
@@ -90,7 +99,8 @@ export async function setup(
     storeServiceA,
     nodeConfig,
     provider,
-    global["networkContext"]
+    global["networkContext"],
+    global["privateKeyGeneratorNodeA"].generatePrivateKey
   );
 
   setupContext["A"] = {
@@ -107,7 +117,8 @@ export async function setup(
     storeServiceB,
     nodeConfig,
     provider,
-    global["networkContext"]
+    global["networkContext"],
+    global["privateKeyGeneratorNodeB"].generatePrivateKey
   );
   setupContext["B"] = {
     node: nodeB,
@@ -119,12 +130,15 @@ export async function setup(
     const storeServiceC = storeServiceFactory.createStoreService!(
       `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
     );
+    const privateKeyGenerator = new TestPrivateKeyGenerator();
+    global["privateKeyGeneratorNodeC"] = privateKeyGenerator;
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
       nodeConfig,
       provider,
-      global["networkContext"]
+      global["networkContext"],
+      global["privateKeyGeneratorNodeC"].generatePrivateKey
     );
     setupContext["C"] = {
       node: nodeC,

@@ -1,6 +1,7 @@
 import { JsonRpcProvider } from "ethers/providers";
 
 import { Node } from "../../src/node";
+import { privateKeyGenerator } from "../integration/setup";
 import { MemoryStoreService } from "../services/memory-store-service";
 import mockMessagingService from "../services/mock-messaging-service";
 
@@ -15,7 +16,8 @@ describe("Node", () => {
       new MemoryStoreService(),
       { STORE_KEY_PREFIX: "./node.spec.ts-test-file" },
       new JsonRpcProvider(global["ganacheURL"]),
-      global["networkContext"]
+      global["networkContext"],
+      privateKeyGenerator
     );
 
     expect(node).toBeDefined();

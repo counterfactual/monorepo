@@ -1,8 +1,7 @@
+import { Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { hashMessage } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
-
-import { IPrivateKeyGenerator } from "./node";
 
 export class SigningKeysGenerator {
   // The namespacing is on the channel the AppInstance is in
@@ -12,16 +11,18 @@ export class SigningKeysGenerator {
   > = new Map();
   private signingKeys: Set<string> = new Set();
 
-  constructor(private readonly callbackFn: IPrivateKeyGenerator) {}
+  constructor(
+    private readonly privateKeyGenerator: Node.IPrivateKeyGenerator
+  ) {}
 
   @Memoize()
   /**
    * @param appSequenceNumber
    * @param multisigAddress The namespace under which `appSequenceNumber` is
    *        used since the provided callback function is idempotent for any
-   *        value passed in. This prevents calls using the same `appSequenceNumber`
-   *        across different channels from receiving the same signing key from
-   *        the callback.
+   *        value passed in. This prevents collisions that'd occur on  using the
+   *        same `appSequenceNumber` across different channels from receiving the
+   *        same signing key from the callback.
    */
   public async getSigningKey(
     appSequenceNumber: number,
@@ -40,7 +41,7 @@ export class SigningKeysGenerator {
     // FIXME: fallback on mnemonic-based signer if callback isn't specified
     // in which case the derivation path needs to be converted into a decimal
     // representation for it to be a valid path
-    const signingKey = await this.callbackFn(appInstanceUniqueId);
+    const signingKey = await this.privateKeyGenerator(appInstanceUniqueId);
     try {
       new Wallet(signingKey);
     } catch (e) {

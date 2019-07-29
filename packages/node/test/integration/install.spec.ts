@@ -40,7 +40,7 @@ describe("Node method follows spec - install", () => {
         multisigAddress = await createChannel(nodeA, nodeB);
       });
 
-      it("install app with ETH", async done => {
+      it.only("install app with ETH", async done => {
         await collateralizeChannel(nodeA, nodeB, multisigAddress);
 
         let preInstallETHBalanceNodeA: BigNumber;

@@ -8,6 +8,7 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
+import { MultisigCommitment } from "./ethereum/multisig-commitment";
 import {
   InstructionExecutor,
   Opcode,
@@ -59,7 +60,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
-    privateKeyGenerator: IPrivateKeyGenerator,
+    privateKeyGenerator: NodeTypes.IPrivateKeyGenerator,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -159,8 +160,14 @@ export class Node {
       const [commitment, overrideKeyIndex] = args;
       const keyIndex = overrideKeyIndex || 0;
 
+      // const signingKey = new SigningKey(
+      //   this.signer.derivePath(`${keyIndex}`).privateKey
+      // );
       const signingKey = new SigningKey(
-        await this.signingKeyGenerator.getSigningKey(keyIndex)
+        await this.signingKeyGenerator.getSigningKey(
+          keyIndex,
+          (commitment as MultisigCommitment).multisigAddress
+        )
       );
 
       return signingKey.signDigest(commitment.hashToSign());
