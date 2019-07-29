@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.2.31",
+  "version": "0.2.32",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -20,7 +20,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/apps": "0.1.3",
+    "@counterfactual/apps": "0.1.4",
     "@counterfactual/firebase-server": "0.0.1",
     "@counterfactual/local-ganache-server": "0.0.2",
     "@counterfactual/postgresql-node-connector": "0.0.3",
