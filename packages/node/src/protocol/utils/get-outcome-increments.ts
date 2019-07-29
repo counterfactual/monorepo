@@ -1,11 +1,11 @@
 import {
   CoinBalanceRefundState,
+  multiAssetMultiPartyCoinTransferEncoding,
   MultiAssetMultiPartyCoinTransferInterpreterParams,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams,
-  multiAssetMultiPartyCoinTransferEncoding
+  TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
@@ -13,10 +13,9 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import {
   CoinTransfer,
-  convertCoinTransfersToCoinTransfersMap,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
-import { wait } from "../../utils";
+import { convertCoinTransfersToCoinTransfersMap, wait } from "../../utils";
 
 /**
  * Get the outcome of the app instance given, decode it according
