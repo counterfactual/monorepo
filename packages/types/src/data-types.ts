@@ -41,7 +41,7 @@ export const twoPartyFixedOutcomeInterpreterParamsEncoding = `
 export const virtualAppAgreementEncoding = `
   tuple(
     uint256 capitalProvided,
-    address payable capitalProvider,
+    address capitalProvider,
     address virtualAppUser,
     address tokenAddress,
   )
