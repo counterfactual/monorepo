@@ -26,7 +26,6 @@ import {
 } from "../machine/types";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -787,7 +786,8 @@ function computeInterpreterParameters(
   initiatingAddress: string,
   respondingAddress: string,
   initiatingBalanceDecrement: BigNumber,
-  respondingBalanceDecrement: BigNumber
+  respondingBalanceDecrement: BigNumber,
+  tokenAddress: string
 ) {
   const multiAssetMultiPartyCoinTransferInterpreterParams:
     | MultiAssetMultiPartyCoinTransferInterpreterParams
@@ -809,19 +809,18 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       twoPartyOutcomeInterpreterParams = {
+        tokenAddress,
         playerAddrs: [initiatingAddress, respondingAddress],
         amount: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
-        ),
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        )
       };
       break;
     }
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       singleAssetTwoPartyCoinTransferInterpreterParams = {
-        // FIXME: This method computeInterpreterParameters only supports ETH
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        tokenAddress,
         limit: bigNumberify(initiatingBalanceDecrement).add(
           respondingBalanceDecrement
         )
@@ -864,7 +863,8 @@ function constructVirtualAppInstance(
     initialState,
     outcomeType,
     initiatorBalanceDecrement,
-    responderBalanceDecrement
+    responderBalanceDecrement,
+    tokenAddress
   } = params;
 
   const seqNo = stateChannelBetweenEndpoints.numInstalledApps;
@@ -881,7 +881,8 @@ function constructVirtualAppInstance(
     initiatorAddress,
     responderAddress,
     initiatorBalanceDecrement,
-    responderBalanceDecrement
+    responderBalanceDecrement,
+    tokenAddress
   );
 
   return new AppInstance(
@@ -930,7 +931,8 @@ function constructTimeLockedPassThroughAppInstance(
     responderXpub,
     initiatorBalanceDecrement,
     responderBalanceDecrement,
-    outcomeType
+    outcomeType,
+    tokenAddress
   } = params;
 
   const seqNo = threePartyStateChannel.numInstalledApps;
@@ -950,7 +952,8 @@ function constructTimeLockedPassThroughAppInstance(
     initiatorAddress,
     responderAddress,
     initiatorBalanceDecrement,
-    responderBalanceDecrement
+    responderBalanceDecrement,
+    tokenAddress
   );
 
   return new AppInstance(

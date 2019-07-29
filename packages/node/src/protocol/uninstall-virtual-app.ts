@@ -14,7 +14,6 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -512,6 +511,8 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreement;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreement.timeLockedPassThroughIdentityHash
   );
@@ -546,16 +547,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
       virtualAppInstance.identityHash,
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][responderAddress],
 
         [initiatorAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][initiatorAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -622,6 +619,8 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreement;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreement.timeLockedPassThroughIdentityHash
   );
@@ -666,16 +665,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
       virtualAppInstance.identityHash,
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][initiatorAddress],
 
         [responderAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][responderAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -742,6 +737,8 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreementWithInitiating;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreementWithInitiating.timeLockedPassThroughIdentityHash
   );
@@ -779,16 +776,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
       timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][responderAddress],
 
         [initiatorAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][initiatorAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -798,16 +791,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
       timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][initiatorAddress],
 
         [responderAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][responderAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
