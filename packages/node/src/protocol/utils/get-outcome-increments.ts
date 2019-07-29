@@ -151,8 +151,12 @@ function handleMultiAssetMultiPartyCoinTransfer(
   );
 
   return interpreterParams.tokenAddresses.reduce(
-    (tokenIndexedTransfers, tokenAddress: string, index: number) => {
-      return (tokenIndexedTransfers[
+    (
+      tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap,
+      tokenAddress: string,
+      index: number
+    ) => {
+      return (tokenIndexedCoinTransferMap[
         tokenAddress
       ] = convertCoinTransfersToCoinTransfersMap(decodedTransfers[index]));
     },
