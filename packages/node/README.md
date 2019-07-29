@@ -20,7 +20,7 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
-## Apps and their OutcomeTypes
+## Apps and OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
 
@@ -30,20 +30,13 @@ The currently supported outcome types are:
 
   - This is only used when the installed app is collateralized with ETH (for now) and indicates that the total amount allocated to the app will be sent to one of the two parties OR gets split evenly.
 
-- CoinTransfer
-
-  - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
-
-- FREE_BALANCE_OUTCOME_TYPE
+- MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
 
   - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
 
-- REFUND_OUTCOME_TYPE
-
-  - This is used to calculate how much an address receives.
-
 - SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
-  - (Currently not supported) This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
+
+  - This is used for transferring arbitrary amounts (limited by app collateral) of a single asset class (ETH or ERC20) to some addresses.
 
 ## Note:
 

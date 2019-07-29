@@ -28,7 +28,7 @@ describe("StateChannel::uninstallApp", () => {
     ];
 
     sc1 = StateChannel.setupChannel(
-      networkContext.FreeBalanceApp,
+      networkContext.IdentityApp,
       multisigAddress,
       xpubs
     );

@@ -11,6 +11,9 @@
     ],
     "types": ["jest"]
   },
-  "references": [{ "path": "../types" }],
+  "references": [
+    { "path": "../types" },
+    { "path": "../local-ganache-server"}
+  ],
   "include": ["src", "test"]
 }

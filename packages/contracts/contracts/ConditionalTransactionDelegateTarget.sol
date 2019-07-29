@@ -10,7 +10,6 @@ import "./libs/LibOutcome.sol";
 contract ConditionalTransactionDelegateTarget {
 
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
-  uint256 constant MAX_UINT256 = 2 ** 256 - 1;
 
   struct FreeBalanceAppState {
     address[] tokenAddresses;
@@ -24,8 +23,8 @@ contract ConditionalTransactionDelegateTarget {
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address coinTransferInterpreterAddress,
-    bytes memory coinTransferInterpreterParams
+    address multiAssetMultiPartyCoinTransferInterpreterAddress,
+    bytes memory multiAssetMultiPartyCoinTransferInterpreterParams
   )
     public
   {
@@ -42,14 +41,14 @@ contract ConditionalTransactionDelegateTarget {
     bytes memory payload = abi.encodeWithSignature(
       "interpretOutcomeAndExecuteEffect(bytes,bytes)",
       abi.encode(outcome),
-      coinTransferInterpreterParams
+      multiAssetMultiPartyCoinTransferInterpreterParams
     );
 
     (
       bool success,
       // solium-disable-next-line no-unused-vars
       bytes memory returnData
-    ) = coinTransferInterpreterAddress.delegatecall(payload);
+    ) = multiAssetMultiPartyCoinTransferInterpreterAddress.delegatecall(payload);
 
     require(
       success,

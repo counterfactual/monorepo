@@ -4,7 +4,11 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { buildSignatureMessageForLogin, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
+import {
+  buildSignatureMessageForLogin,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../../utils/counterfactual";
 import PlaygroundAPIClient from "../../utils/hub-api-client";
 import { ActionType, ApplicationState, User } from "../types";
 import { dispatchError, UserAddTransition } from "./user";

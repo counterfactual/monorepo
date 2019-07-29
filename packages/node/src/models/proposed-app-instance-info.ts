@@ -112,6 +112,7 @@ export class AppInstanceProposal {
       // of the channel during an install, and it's not used to calculate
       // the AppInstance ID so there won't be a possible mismatch between
       // a proposed AppInstance ID and an installed AppInstance ID
+      undefined,
       undefined
     );
   }

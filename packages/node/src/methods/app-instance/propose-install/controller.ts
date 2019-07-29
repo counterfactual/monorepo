@@ -98,6 +98,7 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
     const { store, publicIdentifier, messagingService } = requestHandler;
+
     const { proposedToIdentifier } = params;
 
     const appInstanceId = await createProposedAppInstance(

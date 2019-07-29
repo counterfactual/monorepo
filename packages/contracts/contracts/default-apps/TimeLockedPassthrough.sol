@@ -37,14 +37,14 @@ contract TimeLockedPassThrough {
     returns (bytes memory)
   {
     AppState memory appState = abi.decode(encodedState, (AppState));
-    if (block.number >= appState.switchesOutcomeAt) {
+
+    if (block.number >= appState.switchesOutcomeAt)
       return appState.defaultOutcome;
-    } else {
-      return ChallengeRegistry(
-        appState.challengeRegistryAddress
-      ).getOutcome(
-        appState.targetAppIdentityHash
-      );
-    }
+
+    return ChallengeRegistry(
+      appState.challengeRegistryAddress
+    ).getOutcome(
+      appState.targetAppIdentityHash
+    );
   }
 }

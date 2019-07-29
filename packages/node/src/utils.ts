@@ -2,6 +2,7 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import Proxy from "@counterfactual/contracts/build/Proxy.json";
 import {
   BigNumber,
+  bigNumberify,
   getAddress,
   hashMessage,
   Interface,
@@ -174,3 +175,12 @@ export function debugLog(...messages: any[]) {
     console.error("Failed to log: ", e);
   }
 }
+
+export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export const bigNumberifyJson = (json: object) =>
+  JSON.parse(JSON.stringify(json), (
+    // @ts-ignore
+    key,
+    val
+  ) => (val["_hex"] ? bigNumberify(val) : val));
