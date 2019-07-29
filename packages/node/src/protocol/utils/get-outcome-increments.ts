@@ -4,7 +4,8 @@ import {
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  multiAssetMultiPartyCoinTransferEncoding
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
@@ -218,7 +219,7 @@ function decodeMultiAssetMultiPartyCoinTransfer(
   encodedOutcome: string
 ): CoinTransfer[][] {
   const [coinTransferListOfLists] = defaultAbiCoder.decode(
-    ["tuple(address to, uint256 amount)[][]"],
+    [multiAssetMultiPartyCoinTransferEncoding],
     encodedOutcome
   );
 
