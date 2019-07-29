@@ -1,3 +1,7 @@
 [
-
+  {
+    "contractName": "UnidirectionalTransferApp",
+    "address": "0xe99AC20B16d5C9117441Cd5D868434a17858Ff4a",
+    "transactionHash": "0xd42f33cf83b7ad7d074a0071cf3177ff0e8961b8278d0a411c1318d68477acfd"
+  }
 ]

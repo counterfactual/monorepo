@@ -188,7 +188,7 @@ contract UnidirectionalTransferApp is CounterfactualApp {
                 state.transfers[0].amount.sub(action.amount)
               ),
               LibOutcome.CoinTransfer(
-                state.transfers[0].to,
+                state.transfers[1].to,
                 state.transfers[1].amount.add(action.amount)
               )
             ]),
