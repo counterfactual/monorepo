@@ -41,8 +41,6 @@
     "typescript": "3.5.3"
   },
   "resolutions": {
-    "**/tslint-microsoft-contrib": "^6.0.0",
-    "browserslist": "4.6.2",
-    "caniuse-lite": "1.0.30000974"
+    "**/tslint-microsoft-contrib": "^6.0.0"
   }
 }
