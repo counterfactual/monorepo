@@ -32,7 +32,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
       "Virtual AppInstance with Node C. All Nodes confirm receipt of proposal",
     () => {
       beforeEach(async () => {
-        const context: SetupContext = await setup(global);
+        const context: SetupContext = await setup(global, true);
         nodeA = context["A"].node;
         nodeB = context["B"].node;
         nodeC = context["C"].node;
