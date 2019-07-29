@@ -1,6 +1,6 @@
 import { OutcomeType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
@@ -127,7 +127,7 @@ export function getBalancesFromFreeBalanceAppInstance(
   );
 
   const coinTransfers = freeBalanceState.balancesIndexedByToken[
-    tokenAddress
+    getAddress(tokenAddress)
   ] || [
     { to: freeBalanceAppInstance.participants[0], amount: Zero },
     { to: freeBalanceAppInstance.participants[1], amount: Zero }
