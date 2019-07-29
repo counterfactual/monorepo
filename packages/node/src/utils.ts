@@ -183,4 +183,4 @@ export const bigNumberifyJson = (json: object) =>
     // @ts-ignore
     key,
     val
-  ) => (val["_hex"] ? bigNumberify(val) : val));
+  ) => (val && val["_hex"] ? bigNumberify(val) : val));
