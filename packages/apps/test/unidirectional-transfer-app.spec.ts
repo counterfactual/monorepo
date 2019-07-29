@@ -2,8 +2,13 @@ import { SolidityABIEncoderV2Type } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { Zero } from "ethers/constants";
-import { BigNumber, BigNumberish, defaultAbiCoder } from "ethers/utils";
+import { One, Zero } from "ethers/constants";
+import {
+  BigNumber,
+  BigNumberish,
+  defaultAbiCoder,
+  getAddress
+} from "ethers/utils";
 
 import UnidirectionalTransferApp from "../build/UnidirectionalTransferApp.json";
 
@@ -11,7 +16,7 @@ const { expect } = chai.use(waffle.solidity);
 
 type CoinTransfer = {
   to: string;
-  amount: BigNumber;
+  amount: BigNumberish;
 };
 
 enum AppStage {
@@ -34,11 +39,11 @@ enum ActionType {
 
 type UnidirectionalTransferAppAction = {
   actionType: ActionType;
-  amount: BigNumber;
+  amount: BigNumberish;
 };
 
 function mkAddress(prefix: string = "0xa"): string {
-  return prefix.padEnd(42, "0");
+  return getAddress(prefix.padEnd(42, "0"));
 }
 
 const singleAssetTwoPartyCoinTransferEncoding = `
@@ -97,70 +102,121 @@ describe("UnidirectionalTransferApp", () => {
     );
   });
 
-  it("can make transfers", async () => {
-    const senderAddr = mkAddress("0xa");
-    const receiverAddr = mkAddress("0xb");
-
-    const senderAmt = new BigNumber(10000);
-    const amount = new BigNumber(10);
-
-    const preState: UnidirectionalTransferAppState = {
+  describe("The applyAction function", async () => {
+    const initialState: UnidirectionalTransferAppState = {
       stage: AppStage.POST_FUND,
       transfers: [
-        { to: senderAddr, amount: senderAmt },
-        { to: receiverAddr, amount: Zero }
+        { to: mkAddress("0xa"), amount: One.mul(2) },
+        { to: mkAddress("0xb"), amount: Zero }
       ],
       turnNum: 0,
       finalized: false
     };
 
-    const action: UnidirectionalTransferAppAction = {
-      amount,
-      actionType: ActionType.SEND_MONEY
-    };
+    describe("A valid SEND_MONEY action", async () => {
+      let newState: UnidirectionalTransferAppState;
 
-    const ret = await applyAction(preState, action);
+      before(async () => {
+        const action: UnidirectionalTransferAppAction = {
+          amount: One,
+          actionType: ActionType.SEND_MONEY
+        };
 
-    const state = decodeAppState(ret);
+        newState = decodeAppState(await applyAction(initialState, action));
+      });
 
-    expect(state.transfers[0].amount).to.eq(senderAmt.sub(amount));
-    expect(state.transfers[1].amount).to.eq(amount);
-  });
+      it("decrements the balance of the sender", async () => {
+        const {
+          transfers: [{ amount }]
+        } = newState;
+        expect(amount).to.eq(One);
+      });
 
-  it("can finalize the state by calling END_CHANNEL", async () => {
-    const senderAddr = mkAddress("0xa");
-    const receiverAddr = mkAddress("0xb");
+      it("increments the balance of the recipient", async () => {
+        const {
+          transfers: [{}, { amount }]
+        } = newState;
+        expect(amount).to.eq(One);
+      });
 
-    const senderAmt = new BigNumber(10000);
+      it("does not change the addresses of the participants", async () => {
+        const {
+          transfers: [{ to: to1 }, { to: to2 }]
+        } = newState;
+        expect(to1).to.eq(initialState.transfers[0].to);
+        expect(to2).to.eq(initialState.transfers[1].to);
+      });
+    });
 
-    const preState: UnidirectionalTransferAppState = {
-      stage: AppStage.POST_FUND,
-      transfers: [
-        { to: senderAddr, amount: senderAmt },
-        { to: receiverAddr, amount: Zero }
-      ],
-      turnNum: 0,
-      finalized: false
-    };
+    it("reverts if the amount is larger than the sender's balance", async () => {
+      const action: UnidirectionalTransferAppAction = {
+        amount: One.mul(3),
+        actionType: ActionType.SEND_MONEY
+      };
 
-    const action: UnidirectionalTransferAppAction = {
-      actionType: ActionType.END_CHANNEL,
-      amount: Zero
-    };
+      await expect(applyAction(initialState, action)).to.revertedWith(
+        "SafeMath: subtraction overflow"
+      );
+    });
 
-    let ret = await applyAction(preState, action);
+    it("reverts if given an invalid actionType", async () => {
+      const action: UnidirectionalTransferAppAction = {
+        amount: One,
+        actionType: 2
+      };
 
-    const state = decodeAppState(ret);
+      await expect(applyAction(initialState, action)).to.reverted;
+    });
 
-    expect(state.finalized).to.be.true;
+    it("reverts if given a SEND_MONEY action from CHANNEL_CLOSED state", async () => {
+      const action: UnidirectionalTransferAppAction = {
+        amount: One.mul(3),
+        actionType: ActionType.SEND_MONEY
+      };
 
-    ret = await computeOutcome(state);
+      await expect(
+        applyAction({ ...initialState, stage: 2 }, action)
+      ).to.revertedWith(
+        // TODO: Note this error kind of makes no sense if you read it
+        "Invalid action. Valid actions from MONEY_SENT are {END_CHANNEL}"
+      );
+    });
 
-    expect(ret).to.eq(
-      defaultAbiCoder.encode(
-        [singleAssetTwoPartyCoinTransferEncoding],
-        [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
-      )
-    );
+    it("can finalize the state by calling END_CHANNEL", async () => {
+      const senderAddr = mkAddress("0xa");
+      const receiverAddr = mkAddress("0xb");
+
+      const senderAmt = new BigNumber(10000);
+
+      const preState: UnidirectionalTransferAppState = {
+        stage: AppStage.POST_FUND,
+        transfers: [
+          { to: senderAddr, amount: senderAmt },
+          { to: receiverAddr, amount: Zero }
+        ],
+        turnNum: 0,
+        finalized: false
+      };
+
+      const action: UnidirectionalTransferAppAction = {
+        actionType: ActionType.END_CHANNEL,
+        amount: Zero
+      };
+
+      let ret = await applyAction(preState, action);
+
+      const state = decodeAppState(ret);
+
+      expect(state.finalized).to.be.true;
+
+      ret = await computeOutcome(state);
+
+      expect(ret).to.eq(
+        defaultAbiCoder.encode(
+          [singleAssetTwoPartyCoinTransferEncoding],
+          [[[senderAddr, senderAmt], [receiverAddr, Zero]]]
+        )
+      );
+    });
   });
 });
