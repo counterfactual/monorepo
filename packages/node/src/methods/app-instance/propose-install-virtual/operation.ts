@@ -24,7 +24,7 @@ export async function createProposedVirtualAppInstance(
 ): Promise<string> {
   const { intermediaries, proposedToIdentifier } = params;
 
-  const channel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const channel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     myIdentifier,
     proposedToIdentifier,
     intermediaries,
@@ -83,7 +83,7 @@ export function isNodeIntermediary(
   return intermediaries.includes(thisAddress);
 }
 
-export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
+export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
   initiatorXpub: string,
   responderXpub: string,
   intermediaries: string[],
