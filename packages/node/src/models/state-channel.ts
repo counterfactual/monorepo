@@ -367,7 +367,8 @@ export class StateChannel {
     appInstances.set(appInstance.identityHash, appInstance);
 
     return this.build({
-      appInstances
+      appInstances,
+      monotonicNumInstalledApps: this.monotonicNumInstalledApps + 1
     });
   }
 
