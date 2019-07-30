@@ -24,8 +24,13 @@ export async function installVirtual(
 
   let updatedStateChannelsMap: Map<string, StateChannel>;
 
-  if (proposal.initiatorDepositTokenAddress !== proposal.responderDepositTokenAddress) {
-    throw new Error("Cannot install virtual app with different token addresses");
+  if (
+    proposal.initiatorDepositTokenAddress !==
+    proposal.responderDepositTokenAddress
+  ) {
+    throw new Error(
+      "Cannot install virtual app with different token addresses"
+    );
   }
 
   try {
