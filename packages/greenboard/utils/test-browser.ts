@@ -44,7 +44,7 @@ export const LOCATOR_TIMEOUT = 10000;
  */
 export class TestBrowser {
   constructor(
-    private readonly browser: WebDriver = {} as WebDriver,
+    private browser: WebDriver = {} as WebDriver,
     private homeUrl: string = "",
     private popupUrl: string = "",
     private handlesByContext: {
@@ -55,19 +55,18 @@ export class TestBrowser {
     },
     private currentContext?: TestBrowserContext,
     private locatorTimeout: number = LOCATOR_TIMEOUT
-  ) {
+  ) {}
+
+  async start() {
     const extension = resolve(__dirname, "../extension");
 
-    if (process.env.CI) {
-      const serviceBuilder = new ServiceBuilder(
-        process.env.CHROME_DRIVER_PATH
-      ).build();
+    const chromeDriver = new ServiceBuilder(
+      process.env.CHROME_DRIVER_PATH || require("chromedriver").path
+    ).build();
 
-      Chrome.setDefaultService(serviceBuilder);
-      serviceBuilder.start().then(() => {
-        console.log("Chrome driver is ready");
-      });
-    }
+    Chrome.setDefaultService(chromeDriver);
+
+    await chromeDriver.start();
 
     const browserFactory = new Builder().forBrowser("chrome");
 
@@ -80,6 +79,10 @@ export class TestBrowser {
       `--disable-dev-shm-usage`,
       `--user-data-dir=/tmp/greenboard`
     );
+
+    if (process.env.CI) {
+      options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH as string);
+    }
 
     this.browser = browserFactory
       .setChromeOptions(options)

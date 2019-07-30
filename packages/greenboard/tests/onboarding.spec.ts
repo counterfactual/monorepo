@@ -6,8 +6,9 @@ jest.setTimeout(100000);
 
 let browser: TestBrowser;
 
-beforeAll(() => {
+beforeAll(async () => {
   browser = new TestBrowser();
+  await browser.start();
 });
 
 it("registers a new account and goes to /channels", async () => {
