@@ -3,7 +3,7 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forFunds, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
+import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getCFBalances, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
 import { ActionType, ApplicationState, StoreAction, User, UserState } from "../types";
 
@@ -102,10 +102,9 @@ export const loginUser = (
 
     // 4. Store the token.
     await storeTokenFromUser(user);
-    dispatch({ data: { user }, type: ActionType.UserLogin });
 
     // 5. Get the balances.
-    const counterfactualBalance = await forFunds({
+    const counterfactualBalance = await getCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
@@ -113,9 +112,11 @@ export const loginUser = (
 
     // 6. Dispatch.
     dispatch({
-      data: { counterfactualBalance, ethereumBalance },
+      data: { ethereumBalance, counterfactualBalance },
       type: ActionType.WalletSetBalance
     });
+    dispatch({ data: { user }, type: ActionType.UserLogin });
+
     // 6. Go to the next screen!
     history.push(RoutePath.Channels);
   } catch (error) {
@@ -141,7 +142,7 @@ export const getUser = (
     }
 
     // 2. Get the balances.
-    const counterfactualBalance = await forFunds({
+    const counterfactualBalance = await getCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });

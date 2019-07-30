@@ -110,6 +110,19 @@ export async function forFunds({
   return forFunds({ multisigAddress, nodeAddress });
 }
 
+export async function getCFBalances({
+  multisigAddress,
+  nodeAddress
+}: BalanceRequest): Promise<BigNumberish> {
+  const freeBalance = (await window.ethereum.send(
+    CounterfactualMethod.RequestBalances,
+    [multisigAddress]
+  )).result;
+
+  const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+  return bigNumberify(freeBalance[freeBalanceAddress]);
+}
+
 export async function getChannelAddresses(): Promise<string[]> {
   const { multisigAddresses } = (await window.ethereum.send(
     CounterfactualMethod.RequestChannels
