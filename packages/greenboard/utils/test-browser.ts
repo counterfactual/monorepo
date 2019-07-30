@@ -1,3 +1,4 @@
+import "chromedriver";
 import { resolve } from "path";
 import {
   Builder,
