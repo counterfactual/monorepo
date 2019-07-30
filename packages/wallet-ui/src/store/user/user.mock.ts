@@ -55,7 +55,9 @@ export const addUser = (
 export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
-  history: History
+  history: History,
+  // @ts-ignore
+  provider: void
 ): ThunkAction<
   void,
   ApplicationState,
@@ -74,10 +76,17 @@ export const loginUser = (
 
     // 4. Store the token.
     await storeTokenFromUser(user);
-
     // 5. Dispatch.
     dispatch({ data: { user }, type: ActionType.UserLogin });
 
+    // 5. Get the balances.
+    dispatch({
+      data: {
+        counterfactualBalance: USER_MOCK_BALANCE,
+        ethereumBalance: USER_MOCK_BALANCE
+      },
+      type: ActionType.WalletSetBalance
+    });
     // 6. Go to the next screen!
     history.push(RoutePath.Channels);
   } catch (error) {

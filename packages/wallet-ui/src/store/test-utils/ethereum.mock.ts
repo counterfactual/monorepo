@@ -1,12 +1,8 @@
 import { Zero } from "ethers/constants";
-import { formatEther, parseEther } from "ethers/utils";
+import { parseEther } from "ethers/utils";
 import { JsonRPCResponse } from "web3/providers";
-import {
-  CounterfactualEvent,
-  CounterfactualMethod,
-  EthereumGlobal
-} from "../../types";
-import { USER_MOCK_BALANCE, USER_MOCK_DATA } from "../user/user.mock";
+import { CounterfactualEvent, CounterfactualMethod, EthereumGlobal } from "../../types";
+import { USER_MOCK_DATA } from "../user/user.mock";
 
 export const ETHEREUM_MOCK_ADDRESS =
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE";
@@ -34,6 +30,9 @@ export const ETHEREUM_MOCK_BALANCE = parseEther("2.0");
 export const FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
 
 export const COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
+
+export const FREE_BALANCE_MOCK_ADDRESS_FROM_USER_MOCK =
+  "0x7075486F828996dA90C47BcEd4BD4c0AcC701cb3";
 
 export const HDNODE_MOCK = {
   privateKey: null,
@@ -97,7 +96,7 @@ export default class EthereumMock implements EthereumGlobal {
     forceFailOnGetAllChannels: false
   };
 
-  constructor(private readonly events: { [key: string]: Function[] } = {}) {}
+  constructor(private readonly events: { [key: string]: Function[] } = {}) { }
 
   async enable() {
     if (this.mockBehaviors.failOnEnable) {
@@ -139,8 +138,7 @@ export default class EthereumMock implements EthereumGlobal {
       return {
         jsonrpc: "2.0",
         result: {
-          balance: formatEther(USER_MOCK_BALANCE),
-          user: USER_MOCK_DATA
+          ...USER_MOCK_DATA
         },
         id: Date.now()
       };
@@ -150,7 +148,9 @@ export default class EthereumMock implements EthereumGlobal {
       return {
         jsonrpc: "2.0",
         result: {
-          [FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
+          [this.mockBehaviors.nodeAddressFromUserMock
+            ? FREE_BALANCE_MOCK_ADDRESS_FROM_USER_MOCK
+            : FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
             .forceRetryOnWaitForFunds
             ? Zero
             : FREE_BALANCE_MOCK_AMOUNT,
