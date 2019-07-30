@@ -24,6 +24,10 @@ export async function installVirtual(
 
   let updatedStateChannelsMap: Map<string, StateChannel>;
 
+  if (proposal.initiatorDepositTokenAddress !== proposal.responderDepositTokenAddress) {
+    throw new Error("Cannot install virtual app with different token addresses");
+  }
+
   try {
     updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
       Protocol.InstallVirtualApp,
@@ -40,7 +44,7 @@ export async function installVirtual(
         initialState: proposal.initialState,
         initiatorBalanceDecrement: proposal.initiatorDeposit,
         responderBalanceDecrement: proposal.responderDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        tokenAddress: proposal.initiatorDepositTokenAddress,
         outcomeType: proposal.outcomeType
       }
     );
