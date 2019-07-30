@@ -75,6 +75,10 @@ export class TestBrowser {
       `--user-data-dir=/tmp/greenboard`
     );
 
+    if (process.env.CI) {
+      options.addArguments("--remote-debugging-port=9222");
+    }
+
     this.browser = browserFactory
       .setChromeOptions(options)
       .setAlertBehavior("accept")
