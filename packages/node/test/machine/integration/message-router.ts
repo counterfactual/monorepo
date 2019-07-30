@@ -5,16 +5,16 @@ import { MiniNode } from "./mininode";
 
 export class MessageRouter {
   // mapping from a mininode's xpub to the mininode
-  private nodesMap: Map<string, MiniNode>;
+  private readonly nodesMap: Map<string, MiniNode>;
 
   // mapping from a mininode's xpub to a promise representing the future value
   // of an IO_SEND_AND_WAIT call. It is expected that the protocol is awaiting
   // on this promise.
-  private deferrals: Map<string, Deferred<any>>;
+  private readonly deferrals: Map<string, Deferred<any>>;
 
   // when a message from a mininode causes a protocol to run in another node,
   // a promise representing completion of the second protocol is added here.
-  private pendingPromises: Set<Promise<void>>;
+  private readonly pendingPromises: Set<Promise<void>>;
 
   constructor(nodes: MiniNode[]) {
     this.nodesMap = new Map();

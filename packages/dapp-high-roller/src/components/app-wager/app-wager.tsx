@@ -20,7 +20,7 @@ const { HashZero } = ethers.constants;
   shadow: true
 })
 export class AppWager {
-  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+  @Element() private readonly el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() appFactory: cf.AppFactory = {} as cf.AppFactory;

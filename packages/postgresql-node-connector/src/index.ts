@@ -32,8 +32,8 @@ export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
 };
 
 export class PostgresServiceFactory implements Node.ServiceFactory {
-  private connectionManager: ConnectionManager;
-  private connection: Connection;
+  private readonly connectionManager: ConnectionManager;
+  private readonly connection: Connection;
 
   constructor(
     readonly configuration: PostgresConnectionOptions,
