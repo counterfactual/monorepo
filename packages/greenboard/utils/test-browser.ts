@@ -64,7 +64,9 @@ export class TestBrowser {
       ).build();
 
       Chrome.setDefaultService(serviceBuilder);
-      serviceBuilder.start();
+      serviceBuilder.start().then(() => {
+        console.log("Chrome driver is ready");
+      });
     }
 
     const browserFactory = new Builder().forBrowser("chrome");
