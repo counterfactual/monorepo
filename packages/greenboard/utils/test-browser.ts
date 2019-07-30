@@ -57,11 +57,15 @@ export class TestBrowser {
     private locatorTimeout: number = LOCATOR_TIMEOUT
   ) {
     const extension = resolve(__dirname, "../extension");
-    const serviceBuilder = new ServiceBuilder(
-      process.env.CHROME_DRIVER_PATH
-    ).build();
 
-    Chrome.setDefaultService(serviceBuilder);
+    if (process.env.CI) {
+      const serviceBuilder = new ServiceBuilder(
+        process.env.CHROME_DRIVER_PATH
+      ).build();
+
+      Chrome.setDefaultService(serviceBuilder);
+      serviceBuilder.start();
+    }
 
     const browserFactory = new Builder().forBrowser("chrome");
 
@@ -74,10 +78,6 @@ export class TestBrowser {
       `--disable-dev-shm-usage`,
       `--user-data-dir=/tmp/greenboard`
     );
-
-    if (process.env.CI) {
-      options.addArguments("--remote-debugging-port=9222");
-    }
 
     this.browser = browserFactory
       .setChromeOptions(options)
