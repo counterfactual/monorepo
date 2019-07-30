@@ -26,14 +26,14 @@ export class MessageRouter {
 
       node.ie.register(Opcode.IO_SEND, (args: [any]) => {
         const [message] = args;
-        this.maybePush(this.routeMessage(message));
+        this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
       });
       node.ie.register(Opcode.IO_SEND_AND_WAIT, async (args: [any]) => {
         const [message] = args;
         message.fromXpub = node.xpub;
 
         this.deferrals.set(node.xpub, new Deferred());
-        this.maybePush(this.routeMessage(message));
+        this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
         const ret = await this.deferrals.get(node.xpub)!.promise;
         this.deferrals.delete(node.xpub);
 
@@ -42,7 +42,7 @@ export class MessageRouter {
     }
   }
 
-  private maybePush(v: Promise<void> | null) {
+  private appendToPendingPromisesIfNotNull(v: Promise<void> | null) {
     if (v === null) return;
     this.pendingPromises.add(v);
   }
@@ -69,7 +69,7 @@ export class MessageRouter {
     return null;
   }
 
-  public async waitAll() {
+  public async waitForAllPendingPromises() {
     await Promise.all(this.pendingPromises);
     if (this.deferrals.size !== 0) {
       throw new Error("Pending IO_SEND_AND_WAIT deferrals detected");

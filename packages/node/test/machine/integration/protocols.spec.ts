@@ -39,7 +39,7 @@ beforeAll(async () => {
 });
 
 describe("Three mininodes", () => {
-  it("Can run all the protocols", async done => {
+  it("Can run all the protocols", async () => {
     const mininodeA = new MiniNode(network, provider);
     const mininodeB = new MiniNode(network, provider);
     const mininodeC = new MiniNode(network, provider);
@@ -64,13 +64,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    // todo(xuanji): if nodeB/nodeC is still busy doing stuff, we should wait for it
-
-    await mr.waitAll();
-
-    done();
-
-    // return;
+    await mr.waitForAllPendingPromises();
 
     const participants = sortAddresses([
       xkeyKthAddress(mininodeA.xpub, 1),
@@ -111,7 +105,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    await mr.waitAll();
+    await mr.waitForAllPendingPromises();
 
     mininodeB.scm.set(
       multisigBC,
@@ -122,7 +116,7 @@ describe("Three mininodes", () => {
       })).get(multisigBC)!
     );
 
-    await mr.waitAll();
+    await mr.waitForAllPendingPromises();
 
     expect(mininodeA.scm.size).toBe(1);
     expect(mininodeB.scm.size).toBe(2);

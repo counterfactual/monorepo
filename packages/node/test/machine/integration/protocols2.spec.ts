@@ -62,7 +62,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    await mr.waitAll();
+    await mr.waitForAllPendingPromises();
 
     // const signingKeys = sortAddresses([
     //   xkeyKthAddress(mininodeA.xpub, 1),
@@ -93,7 +93,7 @@ describe("Three mininodes", () => {
       actionEncoding: "tuple(uint8 actionType, uint256 amount)"
     };
 
-    await mr.waitAll();
+    await mr.waitForAllPendingPromises();
 
     mininodeB.scm.set(
       multisigBC,
@@ -104,7 +104,7 @@ describe("Three mininodes", () => {
       })).get(multisigBC)!
     );
 
-    await mr.waitAll();
+    await mr.waitForAllPendingPromises();
 
     expect(mininodeA.scm.size).toBe(1);
     expect(mininodeB.scm.size).toBe(2);
