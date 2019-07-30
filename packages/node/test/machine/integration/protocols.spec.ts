@@ -64,9 +64,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    // todo: if nodeB/nodeC is still busy doing stuff, we should wait for it
-
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     const participants = sortAddresses([
       xkeyKthAddress(mininodeA.xpub, 1),
@@ -107,7 +105,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     mininodeB.scm.set(
       multisigBC,
@@ -118,7 +116,7 @@ describe("Three mininodes", () => {
       })).get(multisigBC)!
     );
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     expect(mininodeA.scm.size).toBe(1);
     expect(mininodeB.scm.size).toBe(2);

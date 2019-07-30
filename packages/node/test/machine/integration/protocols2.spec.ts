@@ -5,7 +5,6 @@ import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 
 import { Protocol, xkeyKthAddress } from "../../../src/machine";
-// import { sortAddresses } from "../../../src/machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
 
@@ -63,9 +62,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    // todo: if nodeB/nodeC is still busy doing stuff, we should wait for it
-
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     // const signingKeys = sortAddresses([
     //   xkeyKthAddress(mininodeA.xpub, 1),
@@ -96,7 +93,7 @@ describe("Three mininodes", () => {
       actionEncoding: "tuple(uint8 actionType, uint256 amount)"
     };
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     mininodeB.scm.set(
       multisigBC,
@@ -107,7 +104,7 @@ describe("Three mininodes", () => {
       })).get(multisigBC)!
     );
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     expect(mininodeA.scm.size).toBe(1);
     expect(mininodeB.scm.size).toBe(2);

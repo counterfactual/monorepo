@@ -1,3 +1,6 @@
+// Wraps an internal promise and provide public methods to resolve/reject the
+// internal promise. The internal promise is also publicly available so it can
+// be await-ed on.
 export class Deferred<T> {
   private internalPromise: Promise<T>;
   private internalResolve!: (value?: T | PromiseLike<T>) => void;
