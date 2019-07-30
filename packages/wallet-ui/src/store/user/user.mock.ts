@@ -4,7 +4,12 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { buildSignatureMessageForLogin, forFunds, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
+import {
+  buildSignatureMessageForLogin,
+  forFunds,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../../utils/counterfactual";
 import PlaygroundAPIClient from "../../utils/hub-api-client";
 import { ActionType, ApplicationState, User } from "../types";
 import { dispatchError, UserAddTransition } from "./user";
@@ -104,7 +109,6 @@ export const getUser = (
   Action<ActionType>
 > => async dispatch => {
   try {
-
     // 1. Get the user token.
     const user = await getUserFromStoredToken();
     if (!user || !user.username) {

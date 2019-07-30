@@ -1,7 +1,11 @@
 import { Zero } from "ethers/constants";
 import { parseEther } from "ethers/utils";
 import { JsonRPCResponse } from "web3/providers";
-import { CounterfactualEvent, CounterfactualMethod, EthereumGlobal } from "../../types";
+import {
+  CounterfactualEvent,
+  CounterfactualMethod,
+  EthereumGlobal
+} from "../../types";
 import { USER_MOCK_DATA } from "../user/user.mock";
 
 export const ETHEREUM_MOCK_ADDRESS =
@@ -96,7 +100,7 @@ export default class EthereumMock implements EthereumGlobal {
     forceFailOnGetAllChannels: false
   };
 
-  constructor(private readonly events: { [key: string]: Function[] } = {}) { }
+  constructor(private readonly events: { [key: string]: Function[] } = {}) {}
 
   async enable() {
     if (this.mockBehaviors.failOnEnable) {
