@@ -1,4 +1,3 @@
-import "chromedriver";
 import { resolve } from "path";
 import {
   Builder,
@@ -8,7 +7,7 @@ import {
   WebElement,
   WebElementPromise
 } from "selenium-webdriver";
-import { Options } from "selenium-webdriver/chrome";
+import Chrome, { Options, ServiceBuilder } from "selenium-webdriver/chrome";
 import {
   EXTENSION_LIST_SELECTOR,
   METAMASK_EXTENSION_URL_SELECTOR
@@ -58,6 +57,11 @@ export class TestBrowser {
     private locatorTimeout: number = LOCATOR_TIMEOUT
   ) {
     const extension = resolve(__dirname, "../extension");
+    const serviceBuilder = new ServiceBuilder(
+      process.env.CHROME_DRIVER_PATH
+    ).build();
+
+    Chrome.setDefaultService(serviceBuilder);
 
     const browserFactory = new Builder().forBrowser("chrome");
 
