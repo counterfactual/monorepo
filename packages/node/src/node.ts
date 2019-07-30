@@ -36,7 +36,7 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals = new Map<
+  private readonly ioSendDeferrals = new Map<
     string,
     Deferred<NodeMessageWrappedProtocolMessage>
   >();

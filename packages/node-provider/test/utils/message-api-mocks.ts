@@ -30,8 +30,8 @@ export class MockMessagePort {
   height: number = 0;
   width: number = 0;
 
-  private onMessageCallback: Function[] = [];
-  private onMessageErrorCallback: Function[] = [];
+  private readonly onMessageCallback: Function[] = [];
+  private readonly onMessageErrorCallback: Function[] = [];
 
   onMessage(callback: Function) {
     this.onMessageCallback.push(callback);

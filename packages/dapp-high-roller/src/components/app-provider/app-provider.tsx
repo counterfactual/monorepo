@@ -22,7 +22,7 @@ const bn = ethers.utils.bigNumberify;
   tag: "app-provider"
 })
 export class AppProvider {
-  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+  @Element() private readonly el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
