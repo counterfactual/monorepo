@@ -212,66 +212,40 @@ export class StateChannel {
     return topLevelKey;
   }
 
-  private build(args: {
-    multisigAddress?: string;
-    userNeuteredExtendedKeys?: string[];
-    appInstances?: ReadonlyMap<string, AppInstance>;
-    singleAssetTwoPartyIntermediaryAgreements?: ReadonlyMap<
-      string,
-      SingleAssetTwoPartyIntermediaryAgreement
-    >;
-    freeBalanceAppInstance?: AppInstance;
-    monotonicNumInstalledApps?: number;
-    createdAt?: number;
-  }) {
-    return new StateChannel(
-      args.multisigAddress || this.multisigAddress,
-      args.userNeuteredExtendedKeys || this.userNeuteredExtendedKeys,
-      args.appInstances || this.appInstances,
-      args.singleAssetTwoPartyIntermediaryAgreements ||
-        this.singleAssetTwoPartyIntermediaryAgreements,
-      args.freeBalanceAppInstance || this.freeBalanceAppInstance,
-      args.monotonicNumInstalledApps || this.monotonicNumInstalledApps,
-      args.createdAt || this.createdAt
-    );
-  }
-
-  public incrementFreeBalance(increments: TokenIndexedCoinTransferMap) {
+  public addActiveAppAndIncrementFreeBalance(
+    activeApp: string,
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
+  ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
     const freeBalanceState = deserializeFreeBalanceState(json);
 
-    for (const tokenAddress of Object.keys(increments)) {
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
       freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
         merge(
           getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-          increments[tokenAddress]
+          tokenIndexedIncrements[tokenAddress]
         )
       ).map(([to, amount]) => ({ to, amount }));
     }
 
-    return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
-    });
-  }
-
-  public addActiveApp(activeApp: string) {
-    const json = this.freeBalance.state as FreeBalanceStateJSON;
-
-    const freeBalanceState = deserializeFreeBalanceState(json);
-
     freeBalanceState.activeAppsMap[activeApp] = true;
 
-    return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
-    });
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(freeBalanceState)),
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
   }
 
-  public removeActiveApp(activeApp: string) {
+  public removeActiveAppAndIncrementFreeBalance(
+    activeApp: string,
+    tokenIndexedIncrements: TokenIndexedCoinTransferMap
+  ) {
     const json = this.freeBalance.state as FreeBalanceStateJSON;
 
     const freeBalanceState = deserializeFreeBalanceState(json);
@@ -284,37 +258,36 @@ export class StateChannel {
 
     delete freeBalanceState.activeAppsMap[activeApp];
 
-    return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
-    });
-  }
+    for (const tokenAddress of Object.keys(tokenIndexedIncrements)) {
+      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
+        merge(
+          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
+          tokenIndexedIncrements[tokenAddress]
+        )
+      ).map(([to, amount]) => ({ to, amount }));
+    }
 
-  public addActiveAppAndIncrementFreeBalance(
-    activeApp: string,
-    tokenIndexedIncrements: TokenIndexedCoinTransferMap
-  ) {
-    return this.incrementFreeBalance(tokenIndexedIncrements).addActiveApp(
-      activeApp
-    );
-  }
-
-  public removeActiveAppAndIncrementFreeBalance(
-    activeApp: string,
-    tokenIndexedIncrements: TokenIndexedCoinTransferMap
-  ) {
-    return this.removeActiveApp(activeApp).incrementFreeBalance(
-      tokenIndexedIncrements
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(freeBalanceState)),
+      this.monotonicNumInstalledApps,
+      this.createdAt
     );
   }
 
   public setFreeBalance(newState: FreeBalanceState) {
-    return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(newState)
-      )
-    });
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalance.setState(serializeFreeBalanceState(newState)),
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
   }
 
   public static setupChannel(
@@ -366,9 +339,15 @@ export class StateChannel {
 
     appInstances.set(appInstance.identityHash, appInstance);
 
-    return this.build({
-      appInstances
-    });
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps + 1,
+      this.createdAt
+    );
   }
 
   public removeAppInstance(appInstanceId: string) {
@@ -378,9 +357,15 @@ export class StateChannel {
 
     appInstances.delete(appInstanceId);
 
-    return this.build({
-      appInstances
-    });
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
   }
 
   public setState(
@@ -395,9 +380,15 @@ export class StateChannel {
 
     appInstances.set(appInstanceIdentityHash, appInstance.setState(state));
 
-    return this.build({
-      appInstances
-    });
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    );
   }
 
   public addSingleAssetTwoPartyIntermediaryAgreement(
@@ -415,9 +406,15 @@ export class StateChannel {
 
     evaaInstances.set(targetIdentityHash, agreement);
 
-    return this.build({
-      singleAssetTwoPartyIntermediaryAgreements: evaaInstances
-    }).addActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      evaaInstances,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps + 1,
+      this.createdAt
+    ).addActiveAppAndIncrementFreeBalance(targetIdentityHash, {
       [tokenAddress]: flip(decrements)
     });
   }
@@ -438,9 +435,15 @@ export class StateChannel {
       );
     }
 
-    return this.build({
-      singleAssetTwoPartyIntermediaryAgreements
-    }).removeActiveAppAndIncrementFreeBalance(targetIdentityHash, {
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      this.appInstances,
+      singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    ).removeActiveAppAndIncrementFreeBalance(targetIdentityHash, {
       [tokenAddress]: increments
     });
   }
@@ -474,10 +477,15 @@ export class StateChannel {
 
     appInstances.set(appInstance.identityHash, appInstance);
 
-    return this.build({
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
       appInstances,
-      monotonicNumInstalledApps: this.monotonicNumInstalledApps + 1
-    }).addActiveAppAndIncrementFreeBalance(
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps + 1,
+      this.createdAt
+    ).addActiveAppAndIncrementFreeBalance(
       appInstance.identityHash,
       flipTokenIndexedBalances(tokenIndexedDecrements)
     );
@@ -505,9 +513,15 @@ export class StateChannel {
       );
     }
 
-    return this.build({
-      appInstances
-    }).removeActiveAppAndIncrementFreeBalance(
+    return new StateChannel(
+      this.multisigAddress,
+      this.userNeuteredExtendedKeys,
+      appInstances,
+      this.singleAssetTwoPartyIntermediaryAgreements,
+      this.freeBalanceAppInstance,
+      this.monotonicNumInstalledApps,
+      this.createdAt
+    ).removeActiveAppAndIncrementFreeBalance(
       appInstanceIdentityHash,
       tokenIndexedIncrements
     );
