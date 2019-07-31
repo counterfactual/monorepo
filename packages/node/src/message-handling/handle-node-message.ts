@@ -1,6 +1,6 @@
 import {
   getNextNodeAddress,
-  getOrCreateStateChannelThatWrapsVirtualAppInstance,
+  getOrCreateStateChannelBetweenVirtualAppParticipants,
   isNodeIntermediary
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
@@ -126,7 +126,7 @@ export async function handleReceivedProposeVirtualMessage(
     initiatorDepositTokenAddress
   } = params;
 
-  const stateChannel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     proposedByIdentifier,
     publicIdentifier,
     intermediaries,
