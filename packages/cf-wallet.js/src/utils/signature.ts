@@ -18,7 +18,7 @@ export function signaturesToBytes(...signatures: Signature[]): string {
 }
 
 /**
- * Sorts signatures in ascending order of signer address
+ * Sorts signatures in alphanumeric order of signer address
  *
  * @param signatures An array of etherium signatures
  */
@@ -36,7 +36,7 @@ export function sortSignaturesBySignerAddress(
 }
 
 /**
- * Sorts signatures in ascending order of signer address
+ * Sorts signatures in alphanumeric order of signer address
  * and converts them into bytes
  *
  * @param signatures An array of etherium signatures

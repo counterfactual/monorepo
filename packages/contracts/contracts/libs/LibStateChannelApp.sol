@@ -1,10 +1,15 @@
 pragma solidity 0.5.10;
+pragma experimental ABIEncoderV2;
+
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 
 /// @title LibStateChannelApp
 /// @author Liam Horne - <liam@l4v.io>
 /// @notice Contains the structures and enums needed for the ChallengeRegistry
 contract LibStateChannelApp {
+
+  using ECDSA for bytes32;
 
   // The status of a challenge in the ChallengeRegistry
   enum ChallengeStatus {
@@ -31,6 +36,31 @@ contract LibStateChannelApp {
     uint256 challengeCounter;
     uint256 finalizesAt;
     uint256 versionNumber;
+  }
+
+  /// @dev Verifies signatures given the signer addresses
+  /// @param signatures message `txHash` signature
+  /// @param txHash operation ethereum signed message hash
+  /// @param signers addresses of all signers in order
+  function verifySignatures(
+    bytes[] memory signatures,
+    bytes32 txHash,
+    address[] memory signers
+  )
+    public
+    pure
+    returns (bool)
+  {
+    address lastSigner = address(0);
+    for (uint256 i = 0; i < signers.length; i++) {
+      require(
+        signers[i] == txHash.recover(signatures[i]),
+        "Invalid signature"
+      );
+      require(signers[i] > lastSigner, "Signers not in alphanumeric order");
+      lastSigner = signers[i];
+    }
+    return true;
   }
 
 }

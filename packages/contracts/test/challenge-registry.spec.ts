@@ -6,6 +6,7 @@ import { Web3Provider } from "ethers/providers";
 import {
   BigNumberish,
   hexlify,
+  joinSignature,
   keccak256,
   randomBytes,
   SigningKey
@@ -14,7 +15,7 @@ import {
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
-const { signaturesToBytesSortedBySignerAddress } = utils;
+const { sortSignaturesBySignerAddress } = utils;
 
 type Challenge = {
   status: 0 | 1 | 2;
@@ -100,11 +101,10 @@ describe("ChallengeRegistry", () => {
 
       await appRegistry.functions.cancelChallenge(
         appIdentityTestObject.appIdentity,
-        signaturesToBytesSortedBySignerAddress(
-          digest,
+        sortSignaturesBySignerAddress(digest, [
           await new SigningKey(ALICE.privateKey).signDigest(digest),
           await new SigningKey(BOB.privateKey).signDigest(digest)
-        )
+        ]).map(joinSignature)
       );
     };
 
@@ -124,11 +124,10 @@ describe("ChallengeRegistry", () => {
         timeout,
         versionNumber,
         appStateHash: stateHash,
-        signatures: signaturesToBytesSortedBySignerAddress(
-          digest,
+        signatures: sortSignaturesBySignerAddress(digest, [
           await new SigningKey(ALICE.privateKey).signDigest(digest),
           await new SigningKey(BOB.privateKey).signDigest(digest)
-        )
+        ]).map(joinSignature)
       });
     };
 
