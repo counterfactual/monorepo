@@ -1,14 +1,12 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import { MultisigCommitment } from "./ethereum/multisig-commitment";
 import {
   InstructionExecutor,
   Opcode,
@@ -18,10 +16,9 @@ import {
 import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
-import { getHDNode } from "./signer";
 import {
-  SigningKeysGenerator,
-  getSigningKeysGeneratorOrThrow
+  getSigningKeysGeneratorAndXPubOrThrow,
+  SigningKeysGenerator
 } from "./signing-keys-generator";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
@@ -53,7 +50,7 @@ export class Node {
    * via `create` which immediately calls `asynchronouslySetupUsingRemoteServices`, these are
    * always non-null when the Node is being used.
    */
-  private signer!: HDNode;
+  private signer!: SigningKey;
   protected requestHandler!: RequestHandler;
   public rpcRouter!: RpcRouter;
 
@@ -67,19 +64,23 @@ export class Node {
     privateKeyGenerator?: NodeTypes.IPrivateKeyGenerator,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
-    const signingKeysGenerator = await getSigningKeysGeneratorOrThrow(
+    const [
+      signingKeysGenerator,
+      pubExtendedKey
+    ] = await getSigningKeysGeneratorAndXPubOrThrow(
       storeService,
       privateKeyGenerator,
       publicExtendedKey
     );
 
     const node = new Node(
+      pubExtendedKey,
+      signingKeysGenerator,
       messagingService,
       storeService,
       nodeConfig,
       provider,
       networkOrNetworkContext,
-      signingKeysGenerator,
       blocksNeededForConfirmation
     );
 
@@ -87,12 +88,13 @@ export class Node {
   }
 
   private constructor(
+    private readonly publicExtendedKey: string,
+    private readonly signingKeyGenerator: SigningKeysGenerator,
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
-    private readonly signingKeyGenerator: SigningKeysGenerator,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
@@ -112,7 +114,10 @@ export class Node {
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
-    this.signer = await getHDNode(this.storeService);
+    // TODO: is "0" a reasonable path to derive `signer` private key from?
+    this.signer = new SigningKey(
+      await this.signingKeyGenerator.getSigningKey("0")
+    );
     debugLog(`Node signer address: ${this.signer.address}`);
     debugLog(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
@@ -137,7 +142,7 @@ export class Node {
 
   @Memoize()
   get publicIdentifier(): string {
-    return this.signer.neuter().extendedKey;
+    return this.publicExtendedKey;
   }
 
   @Memoize()
@@ -170,14 +175,8 @@ export class Node {
       const [commitment, overrideKeyIndex] = args;
       const keyIndex = overrideKeyIndex || 0;
 
-      // const signingKey = new SigningKey(
-      //   this.signer.derivePath(`${keyIndex}`).privateKey
-      // );
       const signingKey = new SigningKey(
-        await this.signingKeyGenerator.getSigningKey(
-          keyIndex,
-          (commitment as MultisigCommitment).multisigAddress
-        )
+        await this.signingKeyGenerator.getSigningKey(keyIndex)
       );
 
       return [

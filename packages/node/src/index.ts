@@ -1,5 +1,5 @@
 export * from "./node";
-export * from "./signer";
+export * from "./signing-keys-generator";
 export * from "./types";
 export * from "./methods/errors";
 export * from "rpc-server";

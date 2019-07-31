@@ -1,6 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
-import { hashMessage } from "ethers/utils";
+import { BigNumber } from "ethers/utils";
+import { fromMnemonic } from "ethers/utils/hdnode";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
@@ -8,10 +9,7 @@ export const MNEMONIC_PATH = "MNEMONIC";
 
 export class SigningKeysGenerator {
   // The namespacing is on the channel the AppInstance is in
-  private namespacedAppInstanceNumberToSigningKey: Map<
-    string,
-    string
-  > = new Map();
+  private appInstanceIdentityHashToPrivateKey: Map<string, string> = new Map();
   private signingKeys: Set<string> = new Set();
 
   constructor(
@@ -19,48 +17,41 @@ export class SigningKeysGenerator {
   ) {}
 
   @Memoize()
-  /**
-   * @param appSequenceNumber
-   * @param multisigAddress The namespace under which `appSequenceNumber` is
-   *        used since the provided callback function is idempotent for any
-   *        value passed in. This prevents collisions that'd occur on  using the
-   *        same `appSequenceNumber` across different channels from receiving the
-   *        same signing key from the callback.
-   */
-  public async getSigningKey(
-    appSequenceNumber: number,
-    multisigAddress: string
-  ): Promise<string> {
-    const appInstanceUniqueId = hashMessage(
-      `${multisigAddress}_${appSequenceNumber}`
+  public async getSigningKey(appInstanceIdentityHash: string): Promise<string> {
+    const validHDPathRepresentationOfIdentityHash = convertDecimalStringToValidHDPath(
+      new BigNumber(appInstanceIdentityHash).toString()
     );
 
-    if (this.namespacedAppInstanceNumberToSigningKey.has(appInstanceUniqueId)) {
-      return await this.namespacedAppInstanceNumberToSigningKey.get(
-        appInstanceUniqueId
+    if (
+      this.appInstanceIdentityHashToPrivateKey.has(
+        validHDPathRepresentationOfIdentityHash
+      )
+    ) {
+      return await this.appInstanceIdentityHashToPrivateKey.get(
+        validHDPathRepresentationOfIdentityHash
       )!;
     }
 
-    // FIXME: fallback on mnemonic-based signer if callback isn't specified
-    // in which case the derivation path needs to be converted into a decimal
-    // representation for it to be a valid path
-    const signingKey = await this.privateKeyGenerator(appInstanceUniqueId);
+    const signingKey = await this.privateKeyGenerator(
+      validHDPathRepresentationOfIdentityHash
+    );
     try {
       new Wallet(signingKey);
     } catch (e) {
       throw new Error(`
-      Invalid signing key retrieved from Wallet-provided
-      callback given the unique ID string: ${appInstanceUniqueId}`);
+        Invalid signing key retrieved from wallet-provided
+        callback given AppInstance ID ${appInstanceIdentityHash}: ${e}
+      `);
     }
 
     if (this.signingKeys.has(signingKey)) {
       throw new Error(
-        `Wallet-provided callback function returned a pre-existing signing key for a new, different unique ID`
+        `Wallet-provided callback function returned a colliding signing key for two different AppInstance IDs`
       );
     }
 
-    this.namespacedAppInstanceNumberToSigningKey = this.namespacedAppInstanceNumberToSigningKey.set(
-      appInstanceUniqueId,
+    this.appInstanceIdentityHashToPrivateKey = this.appInstanceIdentityHashToPrivateKey.set(
+      validHDPathRepresentationOfIdentityHash,
       signingKey
     );
     this.signingKeys.add(signingKey);
@@ -69,11 +60,11 @@ export class SigningKeysGenerator {
   }
 }
 
-export async function getSigningKeysGeneratorOrThrow(
+export async function getSigningKeysGeneratorAndXPubOrThrow(
   storeService: Node.IStoreService,
   privateKeyGenerator?: Node.IPrivateKeyGenerator,
   publicExtendedKey?: string
-): Promise<SigningKeysGenerator> {
+): Promise<[SigningKeysGenerator, string]> {
   if (publicExtendedKey && !privateKeyGenerator) {
     throw new Error(
       "Cannot provide a public extended key but not provide a private key generation function"
@@ -87,16 +78,70 @@ export async function getSigningKeysGeneratorOrThrow(
   }
 
   if (publicExtendedKey && privateKeyGenerator) {
-  } else {
-    // TODO: update this as of PR https://github.com/counterfactual/monorepo/pull/2075
-    let mnemonic = await storeService.get(MNEMONIC_PATH);
-
-    if (!mnemonic) {
-      log.info(
-        "No (public extended key, private key generation function) pair was provided and no mnemonic was found in store. Generating a random mnemonic"
-      );
-      mnemonic = Wallet.createRandom().mnemonic;
-      await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
-    }
+    return Promise.resolve([
+      new SigningKeysGenerator(privateKeyGenerator),
+      publicExtendedKey
+    ]);
   }
+
+  // TODO: update this as of PR https://github.com/counterfactual/monorepo/pull/2075
+  let mnemonic = await storeService.get(MNEMONIC_PATH);
+
+  if (!mnemonic) {
+    log.info(
+      "No (public extended key, private key generation function) pair was provided and no mnemonic was found in store. Generating a random mnemonic"
+    );
+    mnemonic = Wallet.createRandom().mnemonic;
+    await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+  }
+  const [
+    privKeyGenerator,
+    pubExtendedKey
+  ] = generatePrivateKeyGeneratorAndXPubPair(mnemonic);
+  return Promise.resolve([
+    new SigningKeysGenerator(privKeyGenerator),
+    pubExtendedKey
+  ]);
+}
+
+// Reference implementation for how the `IPrivateKeyGenerator` interface
+// should be implemented, with specific reference to hardcoding the
+// "Counterfactual" derivation path.
+export function generatePrivateKeyGeneratorAndXPubPair(
+  mnemonic: string
+): [Node.IPrivateKeyGenerator, string] {
+  // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
+  const hdNode = fromMnemonic(mnemonic).derivePath("m/44'/60'/0'/25446");
+
+  return [
+    function(uniqueID: string): Promise<string> {
+      return Promise.resolve(hdNode.derivePath(uniqueID).privateKey);
+    },
+    hdNode.neuter().extendedKey
+  ];
+}
+
+/**
+ * Given a decimal representation of a hex string such as
+ * "61872445784447517153266591489987994343175816860517849584947754093871275612211",
+ * this function would produce
+ * "6187244578/4447517153/2665914899/8799434317/5816860517/8495849477/5409387127/5612211"
+ */
+function convertDecimalStringToValidHDPath(numbers: string): string {
+  const components = numbers.split("").reduce(
+    (componentAccumulator: [string[]], number: string, index) => {
+      if (index === 0) {
+        return componentAccumulator;
+      }
+      if (index % 10 === 0) {
+        componentAccumulator.push([number]);
+      } else {
+        componentAccumulator[componentAccumulator.length - 1].push(number);
+      }
+      return componentAccumulator;
+    },
+    [[numbers[0]]]
+  );
+
+  return components.map((component: string[]) => component.join("")).join("/");
 }
