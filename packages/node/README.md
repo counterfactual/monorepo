@@ -20,6 +20,10 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
+## Supported Asset Types
+
+Currently the `Node` supports asset types of ETH and ERC20. The list of asset types can be retrieved by calling the function `getSupportedAssetTypes` from the `Node` package.
+
 ## Apps and OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
