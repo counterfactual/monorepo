@@ -51,7 +51,7 @@ keccak256(
 | `intermediaryXpub`           | `xpub`                     | xpub of `intermediary`                                |
 | `defaultTimeout`             | `uint256`                  | Timeout in case of challenge                          |
 | `appInterface`               | `AppInterface`             | The interface of the virtual app being installed      |
-| `initialState`               | `SolidityABIEncoderV2Type` | The initial state of the virtual app                  |
+| `initialState`               | `SolidityValueType` | The initial state of the virtual app                  |
 | `initiatorBalanceDecrement` | `uint256`                  | `initiator`'s deposit into the installed application |
 | `responderBalanceDecrement` | `uint256`                  | `responder`'s deposit into the installed application |
 

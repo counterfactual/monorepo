@@ -4,7 +4,7 @@ import {
   AppInstanceJson,
   MultiAssetMultiPartyCoinTransferInterpreterParams,
   Node,
-  SolidityABIEncoderV2Type,
+  SolidityValueType,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
@@ -86,7 +86,7 @@ export class AppInstance {
    * @async
    * @return JSON representation of latest state
    */
-  async getState(): Promise<SolidityABIEncoderV2Type> {
+  async getState(): Promise<SolidityValueType> {
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.GET_STATE,
       {
@@ -106,9 +106,7 @@ export class AppInstance {
    * @param action Action to take
    * @return JSON representation of latest state after applying the action
    */
-  async takeAction(
-    action: SolidityABIEncoderV2Type
-  ): Promise<SolidityABIEncoderV2Type> {
+  async takeAction(action: SolidityValueType): Promise<SolidityValueType> {
     const response = await this.provider.callRawNodeMethod(
       Node.RpcMethodName.TAKE_ACTION,
       {
