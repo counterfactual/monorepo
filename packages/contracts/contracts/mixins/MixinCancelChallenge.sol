@@ -45,12 +45,10 @@ contract MixinCancelChallenge is
       appIdentity.defaultTimeout
     );
 
-    if (msg.sender != appIdentity.owner) {
-      require(
-        verifySignatures(signatures, stateHash, appIdentity.participants),
-        "Invalid signatures"
-      );
-    }
+    require(
+      verifySignatures(signatures, stateHash, appIdentity.participants),
+      "Invalid signatures"
+    );
 
     challenge.finalizesAt = 0;
     challenge.status = ChallengeStatus.NO_CHALLENGE;

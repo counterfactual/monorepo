@@ -5,6 +5,9 @@ export enum RoutePath {
   Root = "/",
   SetupRegister = "/setup/register",
   SetupDeposit = "/setup/deposit",
+  Deposit = "/deposit",
+  Balance = "/balance",
+  Withdraw = "/withdraw",
   Channels = "/channels"
 }
 
@@ -18,6 +21,7 @@ export enum CounterfactualMethod {
   SetUser = "counterfactual:set:user",
   RequestUser = "counterfactual:request:user",
   RequestDeposit = "counterfactual:request:deposit",
+  RequestWithdraw = "counterfactual:request:withdraw",
   RequestBalances = "counterfactual:request:balances",
   RequestChannels = "counterfactual:request:channels",
   RequestChannel = "counterfactual:request:channel"

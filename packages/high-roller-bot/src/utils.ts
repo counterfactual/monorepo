@@ -55,7 +55,7 @@ export async function deposit(
   amount: string,
   multisigAddress: string
 ) {
-  const myFreeBalanceAddress = node.ethFreeBalanceAddress;
+  const myFreeBalanceAddress = node.freeBalanceAddress;
 
   const preDepositBalances = await getFreeBalance(node, multisigAddress);
 

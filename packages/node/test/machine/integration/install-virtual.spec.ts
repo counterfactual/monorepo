@@ -1,9 +1,9 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
@@ -17,7 +17,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams } from "../../../src/protocol/install-virtual-app";
+import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
   transferERC20Tokens
@@ -47,10 +47,8 @@ let multisigOwnerKeys: SigningKey[];
 
 let xpubs: string[];
 
-const beneficiaries: [string, string] = [
-  Wallet.createRandom().address,
-  Wallet.createRandom().address
-];
+const capitalProvider = Wallet.createRandom().address;
+const virtualAppUser = Wallet.createRandom().address;
 
 expect.extend({ toBeEq });
 
@@ -60,6 +58,7 @@ let proxyFactory: Contract;
 
 beforeAll(async () => {
   jest.setTimeout(10000);
+
   [provider, wallet, {}] = await connectToGanache();
 
   network = global["networkContext"];
@@ -78,14 +77,6 @@ beforeAll(async () => {
     new JsonRpcProvider(global["ganacheURL"])
   );
 
-  const xkeys = getRandomHDNodes(2);
-  multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-    xkeys.map(x => x.extendedKey),
-    0
-  );
-
-  xpubs = xkeys.map(x => x.neuter().extendedKey);
-
   twoPartyFixedOutcomeAppDefinition = await new ContractFactory(
     TwoPartyFixedOutcomeApp.abi,
     TwoPartyFixedOutcomeApp.bytecode,
@@ -95,140 +86,182 @@ beforeAll(async () => {
   proxyFactory = new Contract(network.ProxyFactory, ProxyFactory.abi, wallet);
 });
 
-async function createProxy() {
-  await proxyFactory.functions.createProxy(
-    network.MinimumViableMultisig,
-    new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-      multisigOwnerKeys.map(x => x.address)
-    ]),
-    { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
-  );
-}
+describe("Scenario: Install virtual app with and put on-chain", () => {
+  let globalChannelNonce = 0;
 
-async function fundWithETH(
-  wallet: Wallet,
-  proxyAddress: string,
-  amount: BigNumber
-) {
-  await wallet.sendTransaction({
-    to: proxyAddress,
-    value: amount
+  let createProxy: () => Promise<void>;
+
+  let fundWithETH: (
+    wallet: Wallet,
+    proxyAddress: string,
+    amount: BigNumber
+  ) => Promise<void>;
+
+  let fundWithDolphinCoin: (
+    proxyAddress: string,
+    amount: BigNumber
+  ) => Promise<void>;
+
+  let setupChannel: (
+    proxyAddress: string,
+    tokenAmounts: BigNumber,
+    tokenAddress: string
+  ) => Promise<StateChannel>;
+
+  let createTargetAppInstance: (stateChannel: StateChannel) => AppInstance;
+
+  let setStatesAndOutcomes: (
+    targetAppInstance: AppInstance,
+    stateChannel: StateChannel
+  ) => Promise<void>;
+
+  beforeEach(async () => {
+    const xkeys = getRandomHDNodes(2);
+
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
+      xkeys.map(x => x.extendedKey),
+      0
+    );
+
+    xpubs = xkeys.map(x => x.neuter().extendedKey);
+
+    globalChannelNonce += 1;
+
+    createProxy = async function() {
+      await proxyFactory.functions.createProxy(
+        network.MinimumViableMultisig,
+        new Interface(MinimumViableMultisig.abi).functions.setup.encode([
+          multisigOwnerKeys.map(x => x.address)
+        ]),
+        { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
+      );
+    };
+
+    fundWithETH = async function(
+      wallet: Wallet,
+      proxyAddress: string,
+      amount: BigNumber
+    ) {
+      await wallet.sendTransaction({
+        to: proxyAddress,
+        value: amount
+      });
+    };
+
+    fundWithDolphinCoin = async function(
+      proxyAddress: string,
+      amount: BigNumber
+    ) {
+      await transferERC20Tokens(
+        proxyAddress,
+        erc20ContractAddress,
+        erc20Contract.abi,
+        amount
+      );
+    };
+
+    setupChannel = async function(
+      proxyAddress: string,
+      tokenAmounts: BigNumber,
+      tokenAddress: string
+    ) {
+      return StateChannel.setupChannel(
+        network.IdentityApp,
+        proxyAddress,
+        xpubs
+      ).setFreeBalance(
+        createFreeBalanceStateWithFundedTokenAmounts(
+          multisigOwnerKeys.map<string>(key => key.address),
+          tokenAmounts,
+          [tokenAddress]
+        )
+      );
+    };
+
+    createTargetAppInstance = function(stateChannel: StateChannel) {
+      return new AppInstance(
+        stateChannel.multisigAddress,
+        multisigOwnerKeys.map(x => x.address),
+        /* default timeout */ 0,
+        /* appInterface */ {
+          addr: twoPartyFixedOutcomeAppDefinition.address,
+          stateEncoding: "uint256",
+          actionEncoding: undefined
+        },
+        true, // virtual
+        globalChannelNonce, // app sequence number
+        2, // latest state
+        1, // latest versionNumber
+        0, // latest timeout
+        /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+        {
+          playerAddrs: [AddressZero, AddressZero],
+          amount: Zero,
+          tokenAddress: AddressZero
+        },
+        undefined,
+        undefined
+      );
+    };
+
+    setStatesAndOutcomes = async function(
+      targetAppInstance: AppInstance,
+      stateChannel: StateChannel
+    ) {
+      const setStateCommitment = new SetStateCommitment(
+        network,
+        targetAppInstance.identity,
+        targetAppInstance.hashOfLatestState,
+        targetAppInstance.versionNumber,
+        targetAppInstance.timeout
+      );
+
+      const setStateTx = setStateCommitment.getSignedTransaction([
+        // TODO: Replace with k-th signing keys later
+        multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
+        multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
+      ]);
+
+      await wallet.sendTransaction({
+        ...setStateTx,
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      const setStateCommitmentForFreeBalance = new SetStateCommitment(
+        network,
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.hashOfLatestState,
+        stateChannel.freeBalance.versionNumber,
+        0 // make the timeout 0 so this ends without a challenge timeout
+      );
+
+      await wallet.sendTransaction({
+        ...setStateCommitmentForFreeBalance.getSignedTransaction([
+          multisigOwnerKeys[0].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          ),
+          multisigOwnerKeys[1].signDigest(
+            setStateCommitmentForFreeBalance.hashToSign()
+          )
+        ]),
+        gasLimit: SETSTATE_COMMITMENT_GAS
+      });
+
+      await appRegistry.functions.setOutcome(
+        targetAppInstance.identity,
+        targetAppInstance.encodedLatestState
+      );
+
+      await appRegistry.functions.setOutcome(
+        stateChannel.freeBalance.identity,
+        stateChannel.freeBalance.encodedLatestState
+      );
+    };
   });
-}
 
-async function fundWithDolphinCoin(
-  wallet: Wallet,
-  proxyAddress: string,
-  amount: BigNumber
-) {
-  await transferERC20Tokens(
-    proxyAddress,
-    erc20ContractAddress,
-    erc20Contract.abi,
-    amount
-  );
-}
-
-async function setupChannel(
-  proxyAddress: string,
-  tokenAmounts: BigNumber,
-  tokenAddress: string
-) {
-  return StateChannel.setupChannel(
-    network.FreeBalanceApp,
-    proxyAddress,
-    xpubs
-  ).setFreeBalance(
-    createFreeBalanceStateWithFundedTokenAmounts(
-      multisigOwnerKeys.map<string>(key => key.address),
-      tokenAmounts,
-      [tokenAddress]
-    )
-  );
-}
-
-function createTargetAppInstance(stateChannel: StateChannel) {
-  return new AppInstance(
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    /* default timeout */ 0,
-    /* appInterface */ {
-      addr: twoPartyFixedOutcomeAppDefinition.address,
-      stateEncoding: "uint256",
-      actionEncoding: undefined
-    },
-    true, // virtual
-    0, // app sequence number
-    2, // latest state
-    1, // latest versionNumber
-    0, // latest timeout
-    /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
-    {
-      playerAddrs: [AddressZero, AddressZero],
-      amount: Zero
-    },
-    undefined
-  );
-}
-
-async function setStatesAndOutcomes(
-  targetAppInstance: AppInstance,
-  stateChannel: StateChannel
-) {
-  const setStateCommitment = new SetStateCommitment(
-    network,
-    targetAppInstance.identity,
-    targetAppInstance.hashOfLatestState,
-    targetAppInstance.versionNumber,
-    targetAppInstance.timeout
-  );
-
-  const setStateTx = setStateCommitment.getSignedTransaction([
-    // TODO: Replace with k-th signing keys later
-    multisigOwnerKeys[0].signDigest(setStateCommitment.hashToSign()),
-    multisigOwnerKeys[1].signDigest(setStateCommitment.hashToSign())
-  ]);
-
-  await wallet.sendTransaction({
-    ...setStateTx,
-    gasLimit: SETSTATE_COMMITMENT_GAS
-  });
-
-  const setStateCommitmentForFreeBalance = new SetStateCommitment(
-    network,
-    stateChannel.freeBalance.identity,
-    stateChannel.freeBalance.hashOfLatestState,
-    stateChannel.freeBalance.versionNumber,
-    0 // make the timeout 0 so this ends without a challenge timeout
-  );
-
-  await wallet.sendTransaction({
-    ...setStateCommitmentForFreeBalance.getSignedTransaction([
-      multisigOwnerKeys[0].signDigest(
-        setStateCommitmentForFreeBalance.hashToSign()
-      ),
-      multisigOwnerKeys[1].signDigest(
-        setStateCommitmentForFreeBalance.hashToSign()
-      )
-    ]),
-    gasLimit: SETSTATE_COMMITMENT_GAS
-  });
-
-  await appRegistry.functions.setOutcome(
-    targetAppInstance.identity,
-    targetAppInstance.encodedLatestState
-  );
-
-  await appRegistry.functions.setOutcome(
-    stateChannel.freeBalance.identity,
-    stateChannel.freeBalance.encodedLatestState
-  );
-}
-
-describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
+      await fundWithDolphinCoin(proxyAddress, parseEther("10"));
 
       let stateChannel = await setupChannel(
         proxyAddress,
@@ -239,15 +272,15 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
       const targetAppInstance = createTargetAppInstance(stateChannel);
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: erc20Contract.address,
         /**
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
          * to how the protocol actually sets up virtual apps. This is because, in this
          * test case, we care mostly about retrieving _some_ outcome within the
-         * TwoPartyFixedOutcomeFromVirtualAppETHInterpreter such that it is used to
+         * TwoPartyFixedOutcomeFromVirtualAppInterpreter such that it is used to
          * distribute funds.
          */
         timeLockedPassThroughIdentityHash: HashZero
@@ -271,8 +304,8 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -283,22 +316,21 @@ describe("Scenario: Install virtual app with ERC20, put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[0])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[1])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(virtualAppUser)).toBeEq(
         parseEther("5")
       );
+
       done();
     });
 
     await createProxy();
   });
-});
 
-describe("Scenario: install virtual AppInstance, put on-chain", () => {
-  it("returns the ETH the app had locked up", async done => {
+  it("returns the ETH ", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       await fundWithETH(wallet, proxyAddress, parseEther("10"));
 
@@ -311,9 +343,9 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
       const targetAppInstance = createTargetAppInstance(stateChannel);
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         timeLockedPassThroughIdentityHash: HashZero
       };
@@ -336,8 +368,8 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -348,13 +380,11 @@ describe("Scenario: install virtual AppInstance, put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await provider.getBalance(beneficiaries[0])).toBeEq(
+      expect(await provider.getBalance(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await provider.getBalance(beneficiaries[1])).toBeEq(
-        parseEther("5")
-      );
+      expect(await provider.getBalance(virtualAppUser)).toBeEq(parseEther("5"));
 
       done();
     });

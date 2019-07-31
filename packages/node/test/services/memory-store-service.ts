@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 export class MemoryStoreService implements Node.IStoreService {
-  private store: Map<string, any> = new Map();
+  private readonly store: Map<string, any> = new Map();
   constructor() {}
   async get(key: string): Promise<any> {
     if (
@@ -45,7 +45,7 @@ export class MemoryStoreService implements Node.IStoreService {
 }
 
 export class MemoryStoreServiceFactory implements Node.ServiceFactory {
-  createStoreService(serviceKey: string) {
+  createStoreService() {
     return new MemoryStoreService();
   }
 }

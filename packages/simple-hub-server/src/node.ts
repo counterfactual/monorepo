@@ -157,7 +157,7 @@ export class NodeWrapper {
   }
 
   public static async createNodeSingleton(
-    networkOrNetworkContext: string | NetworkContext,
+    networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
     mnemonic?: string,
     provider?: JsonRpcProvider,
     storeService?: NodeTypes.IStoreService,
@@ -206,7 +206,7 @@ export class NodeWrapper {
   }
 
   public static async createNode(
-    networkOrNetworkContext: string | NetworkContext,
+    networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
     provider?: JsonRpcProvider,
     mnemonic?: string,
     storeService?: NodeTypes.IStoreService,

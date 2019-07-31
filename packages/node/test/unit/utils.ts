@@ -72,8 +72,10 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
     /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
     /* twoPartyOutcomeInterpreterParams */ {
       playerAddrs: [AddressZero, AddressZero],
-      amount: Zero
+      amount: Zero,
+      tokenAddress: AddressZero
     },
-    /* coinTransferInterpreterParams */ undefined
+    /* multiAssetMultiPartyCoinTransferInterpreterParams */ undefined,
+    /* singleAssetTwoPartyCoinTransferInterpreterParams */ undefined
   );
 }

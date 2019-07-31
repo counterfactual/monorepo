@@ -1,7 +1,7 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -19,7 +19,7 @@ import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, timeout } from "./utils";
+import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -36,7 +36,7 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals = new Map<
+  private readonly ioSendDeferrals = new Map<
     string,
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
@@ -57,7 +57,7 @@ export class Node {
     storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: string | NetworkContext,
+    networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -77,17 +77,16 @@ export class Node {
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: string | NetworkContext,
+    networkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
 
-    if (typeof networkContext === "string") {
-      this.networkContext = getNetworkContextForNetworkName(networkContext);
-    } else {
-      this.networkContext = networkContext;
-    }
+    this.networkContext =
+      typeof networkContext === "string"
+        ? getNetworkContextForNetworkName(networkContext)
+        : networkContext;
 
     this.instructionExecutor = this.buildInstructionExecutor();
 
@@ -131,8 +130,8 @@ export class Node {
   }
 
   @Memoize()
-  get ethFreeBalanceAddress(): string {
-    return getETHFreeBalanceAddress(this.publicIdentifier);
+  get freeBalanceAddress(): string {
+    return getFreeBalanceAddress(this.publicIdentifier);
   }
 
   /**
@@ -364,11 +363,4 @@ export class Node {
       );
     }
   }
-}
-
-/**
- * Address used for ETH free balance
- */
-export function getETHFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }

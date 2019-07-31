@@ -17,8 +17,9 @@
     "test:watch": "stencil test --spec --e2e --watchAll"
   },
   "dependencies": {
-    "@counterfactual/types": "0.2.18",
-    "@counterfactual/types": "0.0.25",
+    "@counterfactual/cf.js": "0.2.3",
+    "@counterfactual/types": "0.0.29",
+    "@counterfactual/node": "0.2.34",
     "@stencil/core": "0.18.1-0",
     "@stencil/router": "0.3.3",
     "@stencil/sass": "0.1.1",
@@ -36,11 +37,11 @@
   "devDependencies": {
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/jest": "23.3.14",
-    "@types/puppeteer": "1.12.4",
+    "@types/puppeteer": "1.19.0",
     "env-cmd": "9.0.3",
     "jest": "23.6.0",
     "jest-cli": "23.6.0",
-    "puppeteer": "1.18.1",
+    "puppeteer": "1.19.0",
     "rollup-plugin-replace": "2.2.0",
     "workbox-build": "4.3.1"
   }

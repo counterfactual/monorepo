@@ -6,12 +6,12 @@ import { jsonRpcMethod } from "rpc-server";
 import { xkeyKthAddress } from "../../../machine";
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
+import { convertCoinTransfersToCoinTransfersMap } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_WITHDRAW,
@@ -71,11 +71,6 @@ export default class WithdrawController extends NodeController {
 
     return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
-
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {}
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,

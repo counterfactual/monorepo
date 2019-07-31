@@ -25,7 +25,6 @@ class NodeEnvironment extends NodeJSEnvironment {
 
     const networkContext = {
       ChallengeRegistry: AddressZero,
-      FreeBalanceApp: AddressZero,
       CoinBalanceRefundApp: AddressZero,
       MultiSend: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
@@ -34,7 +33,7 @@ class NodeEnvironment extends NodeJSEnvironment {
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
       TicTacToe: data.networkContext.TicTacToe,
-      CoinTransferInterpreter: data.networkContext.CoinTransferInterpreter
+      MultiAssetMultiPartyCoinTransferInterpreter: data.networkContext.MultiAssetMultiPartyCoinTransferInterpreter
     };
 
     this.global.networkContext = networkContext;

@@ -1,11 +1,9 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
+
 import { INVALID_ACTION, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
-import {
-  createChannel,
-  generateTakeActionRequest,
-  installTTTApp
-} from "./utils";
+import { createChannel, generateTakeActionRequest, installApp } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
@@ -18,7 +16,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
   });
 
   describe("Node A and B install an AppInstance, Node A takes invalid action", () => {
-    it("can't take invalid action", async done => {
+    it("can't take invalid action", async () => {
       const validAction = {
         actionType: 1,
         playX: 0,
@@ -29,19 +27,20 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
       await createChannel(nodeA, nodeB);
-      const appInstanceId = await installTTTApp(nodeA, nodeB);
+      const [appInstanceId] = await installApp(
+        nodeA,
+        nodeB,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+      );
 
       const takeActionReq = generateTakeActionRequest(
         appInstanceId,
         validAction
       );
 
-      try {
-        await nodeA.rpcRouter.dispatch(takeActionReq);
-      } catch (e) {
-        expect(e.toString()).toMatch(INVALID_ACTION);
-        done();
-      }
+      await expect(
+        nodeA.rpcRouter.dispatch(takeActionReq)
+      ).rejects.toThrowError(INVALID_ACTION);
     });
   });
 });

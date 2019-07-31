@@ -1,6 +1,15 @@
-import AccountRegistration from "./account-registration/AccountRegistration";
+import AccountBalance from "./account-balance/AccountBalance";
 import AccountDeposit from "./account-deposit/AccountDeposit";
-import Welcome from "./welcome/Welcome";
+import AccountRegistration from "./account-registration/AccountRegistration";
+import AccountWithdraw from "./account-withdraw/AccountWithdraw";
 import Channels from "./channels/Channels";
+import Welcome from "./welcome/Welcome";
 
-export { AccountRegistration, AccountDeposit, Welcome, Channels };
+export {
+  AccountBalance,
+  AccountRegistration,
+  AccountDeposit,
+  AccountWithdraw,
+  Welcome,
+  Channels
+};

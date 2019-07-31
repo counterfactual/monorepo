@@ -77,9 +77,9 @@ export async function installBalanceRefundApp(
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
-    outcomeType: OutcomeType.REFUND_OUTCOME_TYPE,
+    outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
-    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    responderDepositTokenAddress: tokenAddress!
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(

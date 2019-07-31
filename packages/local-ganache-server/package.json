@@ -1,5 +1,5 @@
 {
-  "name": "@counterfactual/chain",
+  "name": "@counterfactual/local-ganache-server",
   "version": "0.0.2",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
@@ -10,21 +10,19 @@
   },
   "scripts": {
     "build": "tsc -b .",
-    "build:contracts": "cd ../contracts && yarn build && cd - && tsc -b .",
-    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail --forceExit",
+    "test": "jest --setupFiles dotenv-extended/config --runInBand --bail",
     "test:coverage": "jest --runInBand --detectOpenHandles --bail --coverage",
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.9",
-    "@counterfactual/types": "0.0.25",
-    "ethers": "4.0.33",
-    "ganache-core": "2.5.7",
-    "truffle": "5.0.27",
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "ganache-core": "2.5.7"
+    "@counterfactual/contracts": "0.1.14",
+    "@counterfactual/types": "0.0.29",
+    "@counterfactual/apps": "0.1.4",
+    "ganache-core": "2.5.7",
+    "ethers": "4.0.33"
   }
 }

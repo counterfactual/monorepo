@@ -1,5 +1,3 @@
-import { BigNumber, bigNumberify } from "ethers/utils";
-
 import {
   Protocol,
   SetupParams,
@@ -20,7 +18,7 @@ import {
   UpdateStateMessage,
   WithdrawMessage
 } from "../types";
-import { hashOfOrderedPublicIdentifiers } from "../utils";
+import { bigNumberifyJson, hashOfOrderedPublicIdentifiers } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
@@ -29,7 +27,7 @@ import { hashOfOrderedPublicIdentifiers } from "../utils";
  */
 export async function handleReceivedProtocolMessage(
   requestHandler: RequestHandler,
-  nodeMsg: NodeMessageWrappedProtocolMessage
+  msg: NodeMessageWrappedProtocolMessage
 ) {
   const {
     publicIdentifier,
@@ -38,15 +36,11 @@ export async function handleReceivedProtocolMessage(
     router
   } = requestHandler;
 
-  const {
-    data: { protocol, seq, params }
-  } = nodeMsg;
+  const deserializedMsg = bigNumberifyJson(msg);
 
-  for (const key in params) {
-    if (params[key]["_hex"]) {
-      params[key] = bigNumberify(params[key] as BigNumber);
-    }
-  }
+  const { data } = deserializedMsg;
+
+  const { protocol, seq, params } = data;
 
   if (seq === -1) return;
 
@@ -60,6 +54,7 @@ export async function handleReceivedProtocolMessage(
       responderXpub,
       targetAppIdentityHash
     } = params as UninstallVirtualAppParams;
+
     let channelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
       hashOfOrderedPublicIdentifiers([initiatorXpub, intermediaryXpub])
     );
@@ -74,7 +69,7 @@ export async function handleReceivedProtocolMessage(
       .getShardedQueue(channelWithIntermediary)
       .add(async () => {
         stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-          nodeMsg.data,
+          data,
           new Map<string, StateChannel>(
             Object.entries(await store.getAllChannels())
           )
@@ -105,7 +100,7 @@ export async function handleReceivedProtocolMessage(
 
     await requestHandler.getShardedQueue(multisigAddress).add(async () => {
       stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        nodeMsg.data,
+        data,
         new Map<string, StateChannel>(
           Object.entries(await store.getAllChannels())
         )

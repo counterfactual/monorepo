@@ -1,61 +1,50 @@
+import { Deferred } from "../../../src/deferred";
 import { Opcode } from "../../../src/machine";
 
 import { MiniNode } from "./mininode";
 
-/// copied from node
-/// see also: https://twitter.com/joseph_silber/status/809176159858655234
-class Deferred<T> {
-  private internalPromise: Promise<T>;
-  private internalResolve!: (value?: T | PromiseLike<T>) => void;
-  private internalReject!: (reason?: any) => void;
-
-  constructor() {
-    this.internalPromise = new Promise<T>((resolve, reject) => {
-      this.internalResolve = resolve;
-      this.internalReject = reject;
-    });
-  }
-
-  get promise(): Promise<T> {
-    return this.internalPromise;
-  }
-
-  resolve = (value?: T | PromiseLike<T>): void => {
-    this.internalResolve(value);
-  };
-
-  reject = (reason?: any): void => {
-    this.internalReject(reason);
-  };
-}
-
 export class MessageRouter {
-  private nodesMap: Map<string, MiniNode>;
-  private deferrals: Map<string, Deferred<any>>;
+  // mapping from a mininode's xpub to the mininode
+  private readonly nodesMap: Map<string, MiniNode>;
+
+  // mapping from a mininode's xpub to a promise representing the future value
+  // of an IO_SEND_AND_WAIT call. It is expected that the protocol is awaiting
+  // on this promise.
+  private readonly deferrals: Map<string, Deferred<any>>;
+
+  // when a message from a mininode causes a protocol to run in another node,
+  // a promise representing completion of the second protocol is added here.
+  private readonly pendingPromises: Set<Promise<void>>;
 
   constructor(nodes: MiniNode[]) {
-    this.nodesMap = new Map<string, MiniNode>();
-    this.deferrals = new Map<string, Deferred<any>>();
+    this.nodesMap = new Map();
+    this.deferrals = new Map();
+    this.pendingPromises = new Set();
 
     for (const node of nodes) {
       this.nodesMap.set(node.xpub, node);
 
       node.ie.register(Opcode.IO_SEND, (args: [any]) => {
         const [message] = args;
-        this.routeMessage(message);
+        this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
       });
       node.ie.register(Opcode.IO_SEND_AND_WAIT, async (args: [any]) => {
         const [message] = args;
         message.fromXpub = node.xpub;
 
         this.deferrals.set(node.xpub, new Deferred());
-        this.routeMessage(message);
+        this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
         const ret = await this.deferrals.get(node.xpub)!.promise;
         this.deferrals.delete(node.xpub);
 
         return ret;
       });
     }
+  }
+
+  private appendToPendingPromisesIfNotNull(v: Promise<void> | null) {
+    if (v === null) return;
+    this.pendingPromises.add(v);
   }
 
   private routeMessage(message: any) {
@@ -70,14 +59,18 @@ export class MessageRouter {
       if (toNode === undefined) {
         throw new Error(`No node with xpub = ${toXpub} found`);
       }
-      toNode.dispatchMessage(message);
-      return;
+
+      // This returns a promise that resolves when runProtocolWithMessage
+      // finishes
+      return toNode.dispatchMessage(message);
     }
 
     deferred.resolve(message);
+    return null;
   }
 
-  public assertNoPending() {
+  public async waitForAllPendingPromises() {
+    await Promise.all(this.pendingPromises);
     if (this.deferrals.size !== 0) {
       throw new Error("Pending IO_SEND_AND_WAIT deferrals detected");
     }

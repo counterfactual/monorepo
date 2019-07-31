@@ -1,8 +1,8 @@
 import {
   coinBalanceRefundStateEncoding,
-  coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
-  OutcomeType
+  OutcomeType,
+  singleAssetTwoPartyCoinTransferInterpreterParamsEncoding
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
@@ -521,9 +521,10 @@ function addRefundAppToStateChannel(
     },
     0,
     defaultTimeout,
-    OutcomeType.REFUND_OUTCOME_TYPE,
+    OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     undefined,
-    { tokenAddresses: [tokenAddress], limit: [MaxUint256] }
+    undefined,
+    { tokenAddress, limit: MaxUint256 }
   );
 
   return stateChannel.installApp(refundAppInstance, {
@@ -537,7 +538,7 @@ function addRefundAppToStateChannel(
  * Computes the ConditionalTransaction unsigned transaction pertaining to the
  * installation of the ETHBalanceRefundApp.
  *
- * Note that this app is hard-coded to the CoinTransferInterpreter. You can see this
+ * Note that this app is hard-coded to the MultiAssetMultiPartyCoinTransferInterpreter. You can see this
  * by reviewing the `ETHBalanceRefundApp.sol` file which has an outcome structure
  * of LibOutcome.CoinTrasfer[].
  *
@@ -558,10 +559,10 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.multisigOwners,
     appInstance.identityHash,
     stateChannel.freeBalance.identityHash,
-    network.CoinTransferInterpreter,
+    network.SingleAssetTwoPartyCoinTransferInterpreter,
     defaultAbiCoder.encode(
-      [coinTransferInterpreterParamsStateEncoding],
-      [appInstance.coinTransferInterpreterParams]
+      [singleAssetTwoPartyCoinTransferInterpreterParamsEncoding],
+      [appInstance.singleAssetTwoPartyCoinTransferInterpreterParams]
     )
   );
 }

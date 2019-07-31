@@ -10,11 +10,16 @@ import {
   AppInstanceProposal,
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
-  CoinTransferInterpreterParams,
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferEncoding,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
+  singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  twoPartyFixedOutcomeInterpreterParamsEncoding,
+  virtualAppAgreementEncoding
 } from "./data-types";
 import { INodeProvider, IRpcNodeProvider, Node } from "./node";
 import {
@@ -26,16 +31,16 @@ import {
 
 export interface NetworkContext {
   ChallengeRegistry: string;
-  ConditionalTransactionDelegateTarget: string;
   CoinBalanceRefundApp: string;
-  CoinTransferInterpreter: string;
-  FreeBalanceApp: string;
+  ConditionalTransactionDelegateTarget: string;
   IdentityApp: string;
   MinimumViableMultisig: string;
+  MultiAssetMultiPartyCoinTransferInterpreter: string;
   ProxyFactory: string;
+  SingleAssetTwoPartyCoinTransferInterpreter: string;
   TimeLockedPassThrough: string;
-  TwoPartyFixedOutcomeETHInterpreter: string;
-  TwoPartyFixedOutcomeFromVirtualAppETHInterpreter: string;
+  TwoPartyFixedOutcomeFromVirtualAppInterpreter: string;
+  TwoPartyFixedOutcomeInterpreter: string;
 }
 
 // Keep in sync with above
@@ -43,14 +48,14 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
   "ChallengeRegistry",
   "ConditionalTransactionDelegateTarget",
   "CoinBalanceRefundApp",
-  "CoinTransferInterpreter",
+  "MultiAssetMultiPartyCoinTransferInterpreter",
   "IdentityApp",
-  "FreeBalanceApp",
   "MinimumViableMultisig",
   "ProxyFactory",
+  "SingleAssetTwoPartyCoinTransferInterpreter",
   "TimeLockedPassThrough",
-  "TwoPartyFixedOutcomeETHInterpreter",
-  "TwoPartyFixedOutcomeFromVirtualAppETHInterpreter"
+  "TwoPartyFixedOutcomeInterpreter",
+  "TwoPartyFixedOutcomeFromVirtualAppInterpreter"
 ];
 
 export interface DeployedContractNetworksFileEntry {
@@ -70,8 +75,10 @@ export {
   AppInterface,
   CoinBalanceRefundState,
   coinBalanceRefundStateEncoding,
-  CoinTransferInterpreterParams,
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferEncoding,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
+  singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   ContractABI,
   SolidityABIEncoderV2Type,
   INodeProvider,
@@ -79,6 +86,9 @@ export {
   Node,
   SignedStateHashUpdate,
   OutcomeType,
+  SingleAssetTwoPartyCoinTransferInterpreterParams,
+  twoPartyFixedOutcomeInterpreterParamsEncoding,
   TwoPartyFixedOutcome,
-  TwoPartyFixedOutcomeInterpreterParams
+  TwoPartyFixedOutcomeInterpreterParams,
+  virtualAppAgreementEncoding
 };

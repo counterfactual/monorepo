@@ -2,7 +2,7 @@ import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
 import {
-  coinTransferInterpreterParamsStateEncoding,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
@@ -38,6 +38,8 @@ let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
+jest.setTimeout(10000);
+
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
@@ -68,7 +70,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxy,
         xkeys.map(x => x.neuter().extendedKey),
         1
@@ -116,8 +118,11 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         stateChannel.multisigOwners,
         stateChannel.freeBalance.identity,
         defaultAbiCoder.encode(
-          [coinTransferInterpreterParamsStateEncoding],
-          [stateChannel.freeBalance.coinTransferInterpreterParams]
+          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+          [
+            stateChannel.freeBalance
+              .multiAssetMultiPartyCoinTransferInterpreterParams
+          ]
         )
       );
 

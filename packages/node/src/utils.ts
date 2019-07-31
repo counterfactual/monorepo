@@ -2,6 +2,7 @@ import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViable
 import Proxy from "@counterfactual/contracts/build/Proxy.json";
 import {
   BigNumber,
+  bigNumberify,
   getAddress,
   hashMessage,
   Interface,
@@ -9,11 +10,13 @@ import {
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import log from "loglevel";
 
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
+import { CoinTransfer, CoinTransferMap } from "./models/free-balance";
 import { Store } from "./store";
 
 export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
@@ -140,6 +143,13 @@ export function getCreate2MultisigAddress(
   );
 }
 
+/**
+ * Address used for a Node's free balance
+ */
+export function getFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
+}
+
 const isBrowser =
   typeof window !== "undefined" &&
   {}.toString.call(window) === "[object Window]";
@@ -165,4 +175,31 @@ export function debugLog(...messages: any[]) {
   } catch (e) {
     console.error("Failed to log: ", e);
   }
+}
+
+export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
+
+export const bigNumberifyJson = (json: object) =>
+  JSON.parse(JSON.stringify(json), (
+    // @ts-ignore
+    key,
+    val
+  ) => (val && val["_hex"] ? bigNumberify(val) : val));
+
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
+}
+
+export function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
 }

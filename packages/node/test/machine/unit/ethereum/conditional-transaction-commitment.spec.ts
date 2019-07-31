@@ -32,7 +32,7 @@ describe("ConditionalTransaction", () => {
 
   // State channel testing values
   let stateChannel = StateChannel.setupChannel(
-    networkContext.FreeBalanceApp,
+    networkContext.IdentityApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );

@@ -39,7 +39,9 @@ export const connectToWallet = (): ThunkAction<
 };
 
 export const deposit = (
+  // @ts-ignore
   transaction: Deposit,
+  // @ts-ignore
   provider: Web3Provider,
   history?: History
 ): ThunkAction<
@@ -58,6 +60,45 @@ export const deposit = (
       },
       type: ActionType.WalletSetBalance
     });
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
+};
+
+export enum WalletWithdrawTransition {
+  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
+  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
+}
+
+export const withdraw = (
+  // @ts-ignore
+  transaction: Deposit,
+  // @ts-ignore
+  provider: Web3Provider,
+  history?: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType | WalletWithdrawTransition>
+> => async dispatch => {
+  try {
+    dispatch({ type: WalletWithdrawTransition.CheckWallet });
+    dispatch({ type: WalletWithdrawTransition.WaitForFunds });
+    dispatch({ data: {}, type: ActionType.WalletSetBalance });
+
+    // Optional: Redirect to Channels.
     if (history) {
       history.push(RoutePath.Channels);
     }

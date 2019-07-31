@@ -1,15 +1,12 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
-import {
-  NODE_EVENTS,
-  ProposeVirtualMessage,
-  RejectProposalMessage
-} from "../../src/types";
+import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
-  confirmProposedVirtualAppInstanceOnNode,
+  confirmProposedVirtualAppInstance,
   createChannel,
   getProposedAppInstances,
   makeRejectInstallRequest,
@@ -37,13 +34,10 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
         await createChannel(nodeB, nodeC);
         let proposalParams: NodeTypes.ProposeInstallVirtualParams;
 
-        nodeA.on(
-          NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
-          async (msg: RejectProposalMessage) => {
-            expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
-            done();
-          }
-        );
+        nodeA.on(NODE_EVENTS.REJECT_INSTALL_VIRTUAL, async () => {
+          expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
+          done();
+        });
 
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
@@ -52,11 +46,11 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
             const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceA
             );
-            confirmProposedVirtualAppInstanceOnNode(
+            confirmProposedVirtualAppInstance(
               proposalParams,
               proposedAppInstanceC
             );
@@ -74,7 +68,12 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           }
         );
 
-        const result = await makeVirtualProposeCall(nodeA, nodeC, nodeB);
+        const result = await makeVirtualProposeCall(
+          nodeA,
+          nodeC,
+          nodeB,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
         proposalParams = result.params;
       });
     }

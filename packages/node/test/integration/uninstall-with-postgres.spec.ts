@@ -1,3 +1,5 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
+
 import { Node } from "../../src";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 import { timeout } from "../../src/utils";
@@ -10,7 +12,7 @@ import {
   createChannel,
   generateUninstallRequest,
   getInstalledAppInstances,
-  installTTTApp
+  installApp
 } from "./utils";
 
 describe("Node method follows spec - uninstall", () => {
@@ -35,7 +37,12 @@ describe("Node method follows spec - uninstall", () => {
 
       await createChannel(nodeA, nodeB);
 
-      const appInstanceId = await installTTTApp(nodeA, nodeB, initialState);
+      const [appInstanceId] = await installApp(
+        nodeA,
+        nodeB,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        initialState
+      );
 
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);

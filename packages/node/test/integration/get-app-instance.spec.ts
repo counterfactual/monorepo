@@ -1,5 +1,4 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
-import { Node as NodeTypes } from "@counterfactual/types";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 
 import { Node } from "../../src";
 
@@ -8,8 +7,7 @@ import {
   confirmAppInstanceInstallation,
   createChannel,
   getInstalledAppInstance,
-  installTTTApp,
-  makeTTTProposalRequest
+  installApp
 } from "./utils";
 
 describe("Node method follows spec - getAppInstanceDetails", () => {
@@ -25,14 +23,11 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
   it("can accept a valid call to get the desired AppInstance details", async () => {
     await createChannel(nodeA, nodeB);
 
-    const proposedParams = makeTTTProposalRequest(
-      nodeA.publicIdentifier,
-      nodeB.publicIdentifier,
+    const [appInstanceId, proposedParams] = await installApp(
+      nodeA,
+      nodeB,
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-    ).parameters as NodeTypes.ProposeInstallParams;
-
-    const appInstanceId = await installTTTApp(nodeA, nodeB);
-    return;
+    );
 
     const appInstanceNodeA = await getInstalledAppInstance(
       nodeA,

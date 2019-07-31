@@ -32,8 +32,8 @@ export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
 };
 
 export class PostgresServiceFactory implements Node.ServiceFactory {
-  private connectionManager: ConnectionManager;
-  private connection: Connection;
+  private readonly connectionManager: ConnectionManager;
+  private readonly connection: Connection;
 
   constructor(
     readonly configuration: PostgresConnectionOptions,
@@ -49,6 +49,9 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
 
   async connectDb(): Promise<Connection> {
     await this.connection.connect();
+    console.info(
+      `Connected to PostgreSQL at postresql://${this.configuration.username}@${this.configuration.host}:${this.configuration.port}`
+    );
     await this.connection.query(`
       CREATE TABLE IF NOT EXISTS "${this.tableName}"
       (
@@ -69,7 +72,6 @@ export class PostgresServiceFactory implements Node.ServiceFactory {
   }
 
   createStoreService(storeServiceKey: string): Node.IStoreService {
-    console.log("Connected to Postgres");
     return new PostgresStoreService(this.connectionManager, storeServiceKey);
   }
 }
@@ -85,10 +87,7 @@ export class PostgresStoreService implements Node.IStoreService {
     await connection.dropDatabase();
   }
 
-  async set(
-    pairs: { key: string; value: any }[],
-    allowDelete?: Boolean
-  ): Promise<void> {
+  async set(pairs: { key: string; value: any }[]): Promise<void> {
     const connection = this.connectionMgr.get();
 
     await connection.transaction(async transactionalEntityManager => {
