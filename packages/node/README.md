@@ -249,7 +249,7 @@ Params:
 
 - `appInstanceId: string`
   - ID of the app instance for which to take action
-- `action:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
+- `action:`[`SolidityValueType`](#data-type-appaction)
   - Action to take on the current state
 
 Result:
@@ -427,7 +427,7 @@ Data:
 - `appInstanceId: string`
   - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
-- `action?:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
+- `action?:`[`SolidityValueType`](#data-type-appaction)
   - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstallEvent`
@@ -501,7 +501,7 @@ An instance of an installed app.
 - Plain Old Javascript Object representation of the state of an app instance.
 - ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
-### Data Type: `SolidityABIEncoderV2Type`
+### Data Type: `SolidityValueType`
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).

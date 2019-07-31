@@ -1,7 +1,7 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { AppInterface, SolidityABIEncoderV2Type } from ".";
+import { AppInterface, SolidityValueType } from ".";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
@@ -62,7 +62,7 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   isVirtualApp: boolean;
   appSeqNo: number;
-  latestState: SolidityABIEncoderV2Type;
+  latestState: SolidityValueType;
   latestVersionNumber: number;
   latestTimeout: number;
 

@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
 
 import { AppABIEncodings, AppInstanceInfo, cf, Node } from "./types";
@@ -49,7 +49,7 @@ export class AppInstance {
    * @async
    * @return JSON representation of latest state
    */
-  async getState(): Promise<SolidityABIEncoderV2Type> {
+  async getState(): Promise<SolidityValueType> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.GET_STATE,
       {
@@ -69,9 +69,7 @@ export class AppInstance {
    * @param action Action to take
    * @return JSON representation of latest state after applying the action
    */
-  async takeAction(
-    action: SolidityABIEncoderV2Type
-  ): Promise<SolidityABIEncoderV2Type> {
+  async takeAction(action: SolidityValueType): Promise<SolidityValueType> {
     const response = await this.provider.callRawNodeMethod(
       Node.MethodName.TAKE_ACTION,
       {

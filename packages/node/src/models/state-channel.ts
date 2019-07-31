@@ -1,7 +1,4 @@
-import {
-  AppInstanceJson,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { AppInstanceJson, SolidityValueType } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
@@ -384,10 +381,7 @@ export class StateChannel {
     });
   }
 
-  public setState(
-    appInstanceIdentityHash: string,
-    state: SolidityABIEncoderV2Type
-  ) {
+  public setState(appInstanceIdentityHash: string, state: SolidityValueType) {
     const appInstance = this.getAppInstance(appInstanceIdentityHash);
 
     const appInstances = new Map<string, AppInstance>(

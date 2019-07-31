@@ -6,7 +6,7 @@ import {
   NetworkContext,
   Node,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
@@ -28,7 +28,7 @@ import { DEPOSIT_FAILED } from "../../errors";
 const DEPOSIT_RETRY_COUNT = 3;
 
 interface DepositContext {
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   appInterface: AppInterface;
 }
 

@@ -26,7 +26,7 @@ import {
   ABIEncoding,
   Address,
   ContractABI,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "./simple-types";
 
 export interface NetworkContext {
@@ -80,7 +80,7 @@ export {
   multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   ContractABI,
-  SolidityABIEncoderV2Type,
+  SolidityValueType,
   INodeProvider,
   IRpcNodeProvider,
   Node,

@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { GameState, HighRollerAppState } from "./game-types";
@@ -90,7 +90,7 @@ export namespace Node {
     initiatorDeposit: BigNumber;
     responderDeposit: BigNumber;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
   };
   export type ProposeInstallResult = {
     appInstanceId: string;
@@ -122,7 +122,7 @@ export namespace Node {
     appInstanceId: string;
   };
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Type;
+    state: SolidityValueType;
   };
 
   export type GetAppInstanceDetailsParams = {
@@ -134,10 +134,10 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: string;
-    action: SolidityABIEncoderV2Type;
+    action: SolidityValueType;
   };
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type UninstallParams = {
@@ -194,8 +194,8 @@ export namespace Node {
   };
   export type UpdateStateEventData = {
     appInstanceId: string;
-    newState: SolidityABIEncoderV2Type;
-    action?: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
+    action?: SolidityValueType;
   };
   export type UninstallEventData = {
     appInstance: AppInstanceInfo;
@@ -256,13 +256,13 @@ export namespace cf {
       proposedToIdentifier: string;
       initiatorDeposit: BigNumberish;
       responderDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Type;
+      initialState: SolidityValueType;
     }): Promise<string>;
     proposeInstallVirtual(parameters: {
       proposedToIdentifier: string;
       initiatorDeposit: BigNumberish;
       responderDeposit: BigNumberish;
-      initialState: SolidityABIEncoderV2Type;
+      initialState: SolidityValueType;
       intermediaries: string[];
       timeout: number;
     }): Promise<string>;

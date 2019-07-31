@@ -1,5 +1,5 @@
 import { utils } from "@counterfactual/cf.js";
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
@@ -46,11 +46,11 @@ const ACTION = {
   increment: bigNumberify(2)
 };
 
-function encodeState(state: SolidityABIEncoderV2Type) {
+function encodeState(state: SolidityValueType) {
   return defaultAbiCoder.encode([`tuple(uint256 counter)`], [state]);
 }
 
-function encodeAction(action: SolidityABIEncoderV2Type) {
+function encodeAction(action: SolidityValueType) {
   return defaultAbiCoder.encode(
     [`tuple(uint8 actionType, uint256 increment)`],
     [action]
