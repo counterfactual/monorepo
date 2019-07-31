@@ -1,4 +1,3 @@
-import { utils } from "@counterfactual/cf.js";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import {
   AppIdentity,
@@ -13,9 +12,10 @@ import {
   solidityPack
 } from "ethers/utils";
 
+import { sortSignaturesBySignerAddress } from "../utils";
+
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-const { sortSignaturesBySignerAddress } = utils;
 
 const iface = new Interface(ChallengeRegistry.abi);
 
