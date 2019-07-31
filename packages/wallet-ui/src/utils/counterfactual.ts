@@ -75,10 +75,10 @@ export async function requestDeposit({ amount, multisigAddress }: Deposit) {
   ]);
 }
 
-export async function forFunds({
-  multisigAddress,
-  nodeAddress
-}: BalanceRequest): Promise<BigNumberish> {
+export async function forFunds(
+  { multisigAddress, nodeAddress }: BalanceRequest,
+  fundsOwner?: "user" | "counterparty" | "both"
+): Promise<BigNumberish> {
   const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
 
   const freeBalance = (await window.ethereum.send(
@@ -101,13 +101,29 @@ export async function forFunds({
     MINIMUM_EXPECTED_BALANCE
   );
   const enoughMyBalance = myBalance.gte(MINIMUM_EXPECTED_BALANCE);
-  if (enoughCounterpartyBalance && enoughMyBalance) {
-    return myBalance;
+
+  switch (fundsOwner) {
+    case "user":
+      if (enoughMyBalance) {
+        return myBalance;
+      }
+      break;
+    case "counterparty":
+      if (enoughCounterpartyBalance) {
+        return myBalance;
+      }
+      break;
+    case "both":
+    default:
+      if (enoughCounterpartyBalance && enoughMyBalance) {
+        return myBalance;
+      }
+      break;
   }
 
   // !TODO: This should die in a fire :-)
   await delay(1000);
-  return forFunds({ multisigAddress, nodeAddress });
+  return forFunds({ multisigAddress, nodeAddress }, fundsOwner);
 }
 
 export async function getCFBalances({
