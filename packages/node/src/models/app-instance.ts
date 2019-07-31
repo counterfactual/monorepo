@@ -19,7 +19,10 @@ import { defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
+import { Store } from "../store";
 import { bigNumberifyJson } from "../utils";
+
+import { StateChannel } from "./state-channel";
 
 /**
  * Representation of an AppInstance.
@@ -373,6 +376,28 @@ Attempted to setState on an app with an invalid state object.
       this.appInterface.addr,
       CounterfactualApp.abi,
       provider
+    );
+  }
+
+  static async getPeersAddressFromAppInstanceID(
+    myIdentifier: string,
+    store: Store,
+    appInstanceId: string
+  ): Promise<string[]> {
+    const multisigAddress = await store.getMultisigAddressFromAppInstance(
+      appInstanceId
+    );
+
+    if (!multisigAddress) {
+      throw new Error(
+        `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+      );
+    }
+
+    return StateChannel.getPeersAddressFromChannel(
+      myIdentifier,
+      store,
+      multisigAddress
     );
   }
 }

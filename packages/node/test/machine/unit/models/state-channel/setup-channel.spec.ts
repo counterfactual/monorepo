@@ -2,11 +2,9 @@ import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 import { fromSeed } from "ethers/utils/hdnode";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getBalancesFromFreeBalanceAppInstance
-} from "../../../../../src/models/free-balance";
+import { getBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {

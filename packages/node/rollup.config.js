@@ -40,6 +40,27 @@ const external = [
   })
 ];
 
+const onwarn = warning => {
+  // Silence circular dependency warnings specifically for reasonable
+  // circular dependencies
+  const circularDependencyWarnings = new Set([
+    "Circular dependency: src/models/app-instance.ts -> src/models/state-channel.ts -> src/models/app-instance.ts",
+    "Circular dependency: src/models/app-instance.ts -> src/models/state-channel.ts -> src/models/free-balance.ts -> src/models/app-instance.ts",
+    "Circular dependency: src/api.ts -> src/methods/index.ts -> src/methods/app-instance/get-app-instance/controller.ts -> src/request-handler.ts -> src/api.ts"
+  ]);
+
+  if (circularDependencyWarnings.has(warning.message) ||
+    (
+      warning.code === "UNRESOLVED_IMPORT" &&
+      warning.message.includes("ethers")
+    )
+  ) {
+    return;
+  }
+
+  console.warn(`(!) ${warning.message}`)
+}
+
 export default [
   {
     input: "src/index.ts",
@@ -73,6 +94,7 @@ export default [
         only: [...bundledDependencies]
       }),
       typescript(),
-    ]
+    ],
+    onwarn
   }
 ];

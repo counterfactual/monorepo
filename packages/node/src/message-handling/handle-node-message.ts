@@ -4,7 +4,7 @@ import {
   isNodeIntermediary
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
-import { AppInstanceProposal } from "../models";
+import { AppInstanceProposal, StateChannel } from "../models";
 import { RequestHandler } from "../request-handler";
 import {
   InstallMessage,
@@ -14,7 +14,6 @@ import {
   ProposeVirtualMessage,
   RejectProposalMessage
 } from "../types";
-import { getStateChannelWithOwners } from "../utils";
 
 /**
  * This function responds to a installation proposal approval from a peer Node
@@ -69,7 +68,7 @@ export async function handleReceivedProposalMessage(
     from: proposedByIdentifier
   } = receivedProposeMessage;
 
-  const stateChannel = await getStateChannelWithOwners(
+  const stateChannel = await StateChannel.getStateChannelWithOwners(
     publicIdentifier,
     proposedByIdentifier,
     store
