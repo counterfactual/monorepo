@@ -1,4 +1,3 @@
-import { utils } from "@counterfactual/cf.js";
 import { SolidityValueType } from "@counterfactual/types";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
@@ -15,8 +14,13 @@ import {
 import AppWithAction from "../build/AppWithAction.json";
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
-import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
-const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
+import {
+  AppIdentityTestClass,
+  computeAppChallengeHash,
+  expect,
+  signaturesToBytes,
+  sortSignaturesBySignerAddress
+} from "./utils";
 
 enum ActionType {
   SUBMIT_COUNTER_INCREMENT,

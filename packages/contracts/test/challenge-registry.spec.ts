@@ -1,4 +1,3 @@
-import { utils } from "@counterfactual/cf.js";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
@@ -14,8 +13,12 @@ import {
 
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
-import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
-const { sortSignaturesBySignerAddress } = utils;
+import {
+  AppIdentityTestClass,
+  computeAppChallengeHash,
+  expect,
+  sortSignaturesBySignerAddress
+} from "./utils";
 
 type Challenge = {
   status: 0 | 1 | 2;
