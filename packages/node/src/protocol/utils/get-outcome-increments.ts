@@ -13,9 +13,10 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import {
   CoinTransfer,
+  convertCoinTransfersToCoinTransfersMap,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
-import { convertCoinTransfersToCoinTransfersMap, wait } from "../../utils";
+import { wait } from "../../utils";
 
 /**
  * Get the outcome of the app instance given, decode it according

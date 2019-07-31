@@ -4,7 +4,6 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
 import { xkeysToSortedKthAddresses } from "../machine/xkeys";
-import { convertCoinTransfersToCoinTransfersMap } from "../utils";
 
 import { AppInstance } from "./app-instance";
 
@@ -172,4 +171,24 @@ export function serializeFreeBalanceState(
         }))
     )
   };
+}
+
+// The following conversion functions are only relevant in the context
+// of reading/writing to a channel's Free Balance
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
+}
+
+export function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
 }
