@@ -9,6 +9,7 @@ import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther, SigningKey } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import {
   ConditionalTransaction,
@@ -25,7 +26,7 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import { getRandomExtendedKeys } from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -116,14 +117,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   beforeEach(async () => {
-    const xkeys = getRandomHDNodes(2);
+    const xkeys = getRandomExtendedKeys(2);
 
-    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(xkeys, 0);
 
-    xpubs = xkeys.map(x => x.neuter().extendedKey);
+    xpubs = xkeys.map(x => fromExtendedKey(x).neuter().extendedKey);
 
     globalChannelNonce += 1;
 

@@ -8,13 +8,14 @@ import {
   TransactionRequest
 } from "ethers/providers";
 import { parseEther } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
-import { MNEMONIC_PATH, Node } from "../../src";
+import { EXTENDED_KEY_PATH, Node } from "../../src";
+import { computeRandomExtendedKey } from "../../src/machine/xkeys";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
+import { A_EXTENDED_KEY, B_EXTENDED_KEY } from "../test-constants.jest";
 
 export interface NodeContext {
   node: Node;
@@ -67,24 +68,24 @@ export async function setup(
 
   const provider = new JsonRpcProvider(global["ganacheURL"]);
 
-  let mnemonicA = A_MNEMONIC;
-  let mnemonicB = B_MNEMONIC;
+  let extendedKeyA = A_EXTENDED_KEY;
+  let extendedKeyB = B_EXTENDED_KEY;
   if (newMnemonics) {
     // generate new mnemonics so owner addresses are different for creating
     // a channel in this suite
-    const mnemonics = await generateNewFundedMnemonics(
+    const extendedKeys = await generateNewFundedMnemonics(
       global["fundedPrivateKey"],
       provider
     );
-    mnemonicA = mnemonics.A_MNEMONIC;
-    mnemonicB = mnemonics.B_MNEMONIC;
+    extendedKeyA = extendedKeys.A_EXTENDED_KEY;
+    extendedKeyB = extendedKeys.B_EXTENDED_KEY;
   }
 
   const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
 
-  await storeServiceA.set([{ key: MNEMONIC_PATH, value: mnemonicA }]);
+  await storeServiceA.set([{ key: EXTENDED_KEY_PATH, value: extendedKeyA }]);
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
@@ -101,7 +102,7 @@ export async function setup(
   const storeServiceB = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
-  await storeServiceB.set([{ key: MNEMONIC_PATH, value: mnemonicB }]);
+  await storeServiceB.set([{ key: EXTENDED_KEY_PATH, value: extendedKeyB }]);
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
@@ -155,12 +156,12 @@ export async function generateNewFundedMnemonics(
   provider: Provider
 ) {
   const fundedWallet = new Wallet(fundedPrivateKey, provider);
-  const A_MNEMONIC = Wallet.createRandom().mnemonic;
-  const B_MNEMONIC = Wallet.createRandom().mnemonic;
+  const A_EXTENDED_KEY = computeRandomExtendedKey();
+  const B_EXTENDED_KEY = computeRandomExtendedKey();
 
-  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
+  const signerAPrivateKey = fromExtendedKey(A_EXTENDED_KEY).derivePath(CF_PATH)
     .privateKey;
-  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
+  const signerBPrivateKey = fromExtendedKey(B_EXTENDED_KEY).derivePath(CF_PATH)
     .privateKey;
 
   const signerAAddress = new Wallet(signerAPrivateKey).address;
@@ -177,7 +178,7 @@ export async function generateNewFundedMnemonics(
   await fundedWallet.sendTransaction(transactionToA);
   await fundedWallet.sendTransaction(transactionToB);
   return {
-    A_MNEMONIC,
-    B_MNEMONIC
+    A_EXTENDED_KEY,
+    B_EXTENDED_KEY
   };
 }
