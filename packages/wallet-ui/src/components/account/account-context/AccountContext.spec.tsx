@@ -9,7 +9,10 @@ import { testSelector } from "../../../utils/testSelector";
 import store from "./../../../store/store";
 import { AccountContext, AccountContextProps } from "./AccountContext";
 import mock from "./AccountContext.mock.json";
-
+import Web3ProviderMock from "../../../store/test-utils/web3provider.mock";
+import { Web3Provider, JsonRpcSigner } from "ethers/providers";
+import { EthereumService } from "../../../providers/EthereumService";
+import EthereumMock from "../../../store/test-utils/ethereum.mock";
 Enzyme.configure({ adapter: new Adapter() });
 
 function setup(scenario: keyof typeof mock.scenarios) {
@@ -21,26 +24,40 @@ function setup(scenario: keyof typeof mock.scenarios) {
     loginUser: jest.fn()
   };
 
+  window.ethereum = new EthereumMock();
+  const provider = new Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+  const context = { provider, signer };
+
   const component = mount(
     <Provider store={store}>
-      <Router>
-        <AccountContext {...props} />
-      </Router>
+      <EthereumService.Provider value={context}>
+        <Router>
+          <AccountContext {...props} />
+        </Router>
+      </EthereumService.Provider>
     </Provider>
   );
 
-  return { props, component };
+  return {
+    props,
+    component,
+    context
+  };
 }
 
 describe("<AccountContext />", () => {
   describe("Unauthenticated", () => {
     let component: Enzyme.ReactWrapper;
     let props: AccountContextProps;
+    let context: { provider: Web3Provider; signer: JsonRpcSigner };
 
     beforeEach(() => {
       const mock = setup("unauthenticated");
       component = mock.component;
       props = mock.props;
+      context = mock.context;
     });
 
     it("should render an account context container", () => {
@@ -70,8 +87,9 @@ describe("<AccountContext />", () => {
       expect(props.loginUser).toHaveBeenNthCalledWith(
         1,
         props.ethAddress,
-        component.context("signer"),
-        props.history
+        context.signer,
+        props.history,
+        context.provider
       );
     });
 

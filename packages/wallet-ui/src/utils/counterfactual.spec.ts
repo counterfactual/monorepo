@@ -73,10 +73,7 @@ describe("Utils > Counterfactual", () => {
     it("should return the user or an empty object accordingly", async () => {
       const user = await getUserFromStoredToken();
 
-      expect(user).toEqual({
-        balance: formatEther(USER_MOCK_BALANCE),
-        user: USER_MOCK_DATA
-      });
+      expect(user).toEqual(USER_MOCK_DATA);
 
       enableEthereumMockBehavior("returnEmptyUserOnRequestUser");
 

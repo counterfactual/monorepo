@@ -23,10 +23,7 @@ export async function getNodeAddress(): Promise<string> {
   return data.result;
 }
 
-export async function getUserFromStoredToken(): Promise<{
-  balance: string;
-  user: User;
-}> {
+export async function getUserFromStoredToken(): Promise<User> {
   const data = await window.ethereum.send(CounterfactualMethod.RequestUser);
 
   return data.result;
@@ -111,6 +108,19 @@ export async function forFunds({
   // !TODO: This should die in a fire :-)
   await delay(1000);
   return forFunds({ multisigAddress, nodeAddress });
+}
+
+export async function getCFBalances({
+  multisigAddress,
+  nodeAddress
+}: BalanceRequest): Promise<BigNumberish> {
+  const freeBalance = (await window.ethereum.send(
+    CounterfactualMethod.RequestBalances,
+    [multisigAddress]
+  )).result;
+
+  const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+  return bigNumberify(freeBalance[freeBalanceAddress]);
 }
 
 export async function getChannelAddresses(): Promise<string[]> {
