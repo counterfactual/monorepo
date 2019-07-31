@@ -3,11 +3,11 @@ import { jsonRpcMethod } from "rpc-server";
 
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
+import { convertCoinTransfersToCoinTransfersMap } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   NO_FREE_BALANCE_EXISTS,

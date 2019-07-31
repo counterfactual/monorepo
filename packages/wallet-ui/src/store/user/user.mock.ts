@@ -6,6 +6,7 @@ import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
 import {
   buildSignatureMessageForLogin,
+  forFunds,
   getUserFromStoredToken,
   storeTokenFromUser
 } from "../../utils/counterfactual";
@@ -59,7 +60,9 @@ export const addUser = (
 export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
-  history: History
+  history: History,
+  // @ts-ignore
+  provider: void
 ): ThunkAction<
   void,
   ApplicationState,
@@ -78,10 +81,17 @@ export const loginUser = (
 
     // 4. Store the token.
     await storeTokenFromUser(user);
-
     // 5. Dispatch.
     dispatch({ data: { user }, type: ActionType.UserLogin });
 
+    // 5. Get the balances.
+    dispatch({
+      data: {
+        counterfactualBalance: USER_MOCK_BALANCE,
+        ethereumBalance: USER_MOCK_BALANCE
+      },
+      type: ActionType.WalletSetBalance
+    });
     // 6. Go to the next screen!
     history.push(RoutePath.Channels);
   } catch (error) {
@@ -90,7 +100,8 @@ export const loginUser = (
 };
 
 export const getUser = (
-  provider: Web3Provider
+  provider: Web3Provider,
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -99,13 +110,16 @@ export const getUser = (
 > => async dispatch => {
   try {
     // 1. Get the user token.
-    const { balance, user } = await getUserFromStoredToken();
-
-    if (!user) {
+    const user = await getUserFromStoredToken();
+    if (!user || !user.username) {
+      history.push(RoutePath.Root);
       return;
     }
     // 2. Get the balances.
-    const counterfactualBalance = parseEther(balance);
+    const counterfactualBalance = await forFunds({
+      multisigAddress: user.multisigAddress as string,
+      nodeAddress: user.nodeAddress
+    });
     const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 3. Store data into UserState and WalletState.

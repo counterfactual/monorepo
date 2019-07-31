@@ -16,6 +16,7 @@ import log from "loglevel";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
 import { StateChannel } from "./models";
+import { CoinTransfer, CoinTransferMap } from "./models/free-balance";
 import { Store } from "./store";
 
 export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
@@ -184,3 +185,21 @@ export const bigNumberifyJson = (json: object) =>
     key,
     val
   ) => (val && val["_hex"] ? bigNumberify(val) : val));
+
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
+}
+
+export function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
+}

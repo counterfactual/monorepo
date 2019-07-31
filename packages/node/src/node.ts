@@ -38,7 +38,7 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals = new Map<
+  private readonly ioSendDeferrals = new Map<
     string,
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
@@ -100,11 +100,10 @@ export class Node {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
 
-    if (typeof networkContext === "string") {
-      this.networkContext = getNetworkContextForNetworkName(networkContext);
-    } else {
-      this.networkContext = networkContext;
-    }
+    this.networkContext =
+      typeof networkContext === "string"
+        ? getNetworkContextForNetworkName(networkContext)
+        : networkContext;
 
     this.instructionExecutor = this.buildInstructionExecutor();
 

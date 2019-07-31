@@ -16,9 +16,9 @@ import { NODE_EVENTS, NodeEvents } from "./types";
  * about app instances and channels for this Node and any relevant peer Nodes.
  */
 export class RequestHandler {
-  private methods = new Map();
-  private events = new Map();
-  private shardedQueues = new Map<string, Queue>();
+  private readonly methods = new Map();
+  private readonly events = new Map();
+  private readonly shardedQueues = new Map<string, Queue>();
 
   store: Store;
   router!: RpcRouter;

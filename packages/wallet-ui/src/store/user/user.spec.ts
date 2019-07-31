@@ -174,19 +174,38 @@ describe("Store > User", () => {
       >(loginUser, {
         reducers,
         initialState,
-        actionParameters: [USER_MOCK_DATA.ethAddress, signer, history],
+        actionParameters: [
+          USER_MOCK_DATA.ethAddress,
+          signer,
+          history,
+          provider
+        ],
         finalActionType: ActionType.UserLogin
       });
 
-      expect(dispatchedActions.length).toBe(1);
-      expect(reducedStates.length).toBe(1);
+      expect(dispatchedActions.length).toBe(2);
+      expect(reducedStates.length).toBe(2);
 
       expect(dispatchedActions).toEqual([
+        {
+          data: {
+            counterfactualBalance: USER_MOCK_BALANCE,
+            ethereumBalance: ETHEREUM_MOCK_BALANCE
+          },
+          type: ActionType.WalletSetBalance
+        },
         { data: { user: USER_MOCK_DATA }, type: ActionType.UserLogin }
       ]);
 
       expect(reducedStates).toEqual([
-        { user: USER_MOCK_DATA, error: {}, status: ActionType.UserLogin }
+        { user: {}, error: {}, status: ActionType.WalletSetBalance },
+        {
+          user: USER_MOCK_DATA,
+          counterfactualBalance: USER_MOCK_BALANCE,
+          ethereumBalance: ETHEREUM_MOCK_BALANCE,
+          error: {},
+          status: ActionType.UserLogin
+        }
       ]);
 
       expect((window.ethereum as EthereumMock).token).toEqual(
@@ -206,7 +225,12 @@ describe("Store > User", () => {
         await callAction<User, UserState, UserAddTransition>(loginUser, {
           reducers,
           initialState,
-          actionParameters: [USER_MOCK_DATA.ethAddress, signer, history],
+          actionParameters: [
+            USER_MOCK_DATA.ethAddress,
+            signer,
+            history,
+            provider
+          ],
           finalActionType: ActionType.UserLogin
         });
         fail("Login should not have proceeded.");
@@ -260,6 +284,8 @@ describe("Store > User", () => {
     });
 
     it("should get the logged in user and their balance", async () => {
+      enableEthereumMockBehavior("nodeAddressFromUserMock");
+
       const { dispatchedActions, reducedStates } = await callAction<
         User,
         UserState,
