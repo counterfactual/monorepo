@@ -36,3 +36,7 @@ it("registers a new account and goes to /channels", async () => {
     CounterfactualScreenName.Channels
   );
 });
+
+afterAll(async () => {
+  await browser.closeBrowser();
+});
