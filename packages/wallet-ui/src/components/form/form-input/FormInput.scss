@@ -44,6 +44,23 @@
   margin-left: -10px;
 }
 
+.unit-selector {
+  padding: $rhythm 0px;
+  background-color: transparent;
+  color: $c-bluealt;
+  flex-shrink: 0;
+  margin-left: -10px;
+  outline: none;
+  border: none;
+}
+
+.unit-selector-item {
+  padding: $rhythm ;
+  color: $c-bluealt;
+  flex-shrink: 0;
+  margin-left: -10px;
+}
+
 .error {
   color: $c-darkred;
   font-size: 85%;

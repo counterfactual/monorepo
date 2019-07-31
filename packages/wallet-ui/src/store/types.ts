@@ -12,6 +12,11 @@ export type User = {
   email: string;
 };
 
+export type AssetType = {
+  name: string;
+  tokenAddress: string;
+};
+
 export type Deposit = {
   amount: BigNumberish; // parseEther
   multisigAddress: string;
