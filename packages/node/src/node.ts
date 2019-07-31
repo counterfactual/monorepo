@@ -27,6 +27,10 @@ export interface NodeConfig {
   STORE_KEY_PREFIX: string;
 }
 
+export function getSupportedAssetTypes(): string[] {
+  return ["ETH", "ERC20"];
+}
+
 const REASONABLE_NUM_BLOCKS_TO_WAIT = 1;
 
 export class Node {
