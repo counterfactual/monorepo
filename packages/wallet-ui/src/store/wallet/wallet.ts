@@ -66,7 +66,8 @@ export const connectToWallet = (
 
 export enum WalletDepositTransition {
   CheckWallet = "WALLET_DEPOSIT_CHECK_WALLET",
-  WaitForFunds = "WALLET_DEPOSIT_WAITING_FOR_FUNDS"
+  WaitForUserFunds = "WALLET_DEPOSIT_WAITING_FOR_USER_FUNDS",
+  WaitForCollateralFunds = "WALLET_DEPOSIT_WAITING_FOR_COLLATERAL_FUNDS"
 }
 
 export const deposit = (
@@ -85,7 +86,16 @@ export const deposit = (
     await requestDeposit(transaction);
 
     // 2. Wait until the deposit is completed in both sides. !
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    await forFunds(
+      {
+        multisigAddress: transaction.multisigAddress,
+        nodeAddress: transaction.nodeAddress
+      },
+      "user"
+    );
+
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
       nodeAddress: transaction.nodeAddress

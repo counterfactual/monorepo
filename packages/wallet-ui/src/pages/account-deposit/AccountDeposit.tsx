@@ -88,7 +88,8 @@ export class AccountDeposit extends React.Component<
 
   buttonText = {
     [WalletDepositTransition.CheckWallet]: "Check your wallet",
-    [WalletDepositTransition.WaitForFunds]: "Transfering funds"
+    [WalletDepositTransition.WaitForUserFunds]: "Transferring funds",
+    [WalletDepositTransition.WaitForCollateralFunds]: "Collateralizing deposit"
   };
 
   createDepositData(
