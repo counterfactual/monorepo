@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { AppInstance } from "../../../models";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
@@ -49,7 +49,7 @@ export default class InstallController extends NodeController {
 
     const [
       responderAddress
-    ] = await AppInstance.getPeersAddressFromAppInstanceID(
+    ] = await StateChannel.getPeersAddressFromAppInstanceID(
       publicIdentifier,
       store,
       params.appInstanceId

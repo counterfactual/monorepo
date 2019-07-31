@@ -626,4 +626,26 @@ export class StateChannel {
     const owners = stateChannel.userNeuteredExtendedKeys;
     return owners.filter(owner => owner !== myIdentifier);
   }
+
+  static async getPeersAddressFromAppInstanceID(
+    myIdentifier: string,
+    store: Store,
+    appInstanceId: string
+  ): Promise<string[]> {
+    const multisigAddress = await store.getMultisigAddressFromAppInstance(
+      appInstanceId
+    );
+
+    if (!multisigAddress) {
+      throw new Error(
+        `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+      );
+    }
+
+    return StateChannel.getPeersAddressFromChannel(
+      myIdentifier,
+      store,
+      multisigAddress
+    );
+  }
 }
