@@ -7,6 +7,7 @@ import { Web3Provider } from "ethers/providers";
 import {
   bigNumberify,
   defaultAbiCoder,
+  joinSignature,
   keccak256,
   SigningKey
 } from "ethers/utils";
@@ -15,7 +16,7 @@ import AppWithAction from "../build/AppWithAction.json";
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
-const { signaturesToBytes, signaturesToBytesSortedBySignerAddress } = utils;
+const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
 
 enum ActionType {
   SUBMIT_COUNTER_INCREMENT,
@@ -112,11 +113,10 @@ describe("ChallengeRegistry Challenge", () => {
         versionNumber,
         appStateHash: stateHash,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: signaturesToBytesSortedBySignerAddress(
-          digest,
+        signatures: sortSignaturesBySignerAddress(digest, [
           await new SigningKey(ALICE.privateKey).signDigest(digest),
           await new SigningKey(BOB.privateKey).signDigest(digest)
-        )
+        ]).map(joinSignature)
       });
     };
 

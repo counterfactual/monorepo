@@ -1,14 +1,11 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
-
 import "./MChallengeRegistryCore.sol";
 
 
 contract MixinCancelChallenge is
-  LibSignature,
   LibStateChannelApp,
   MChallengeRegistryCore
 {
@@ -20,7 +17,7 @@ contract MixinCancelChallenge is
   /// @dev Note this function is only callable when the application has an open challenge
   function cancelChallenge(
     AppIdentity memory appIdentity,
-    bytes memory signatures
+    bytes[] memory signatures
   )
     // TODO: Uncomment when ABIEncoderV2 supports `external`
     //       ref: https://github.com/ethereum/solidity/issues/3199

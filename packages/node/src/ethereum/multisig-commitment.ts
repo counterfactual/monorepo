@@ -1,9 +1,15 @@
 import { utils } from "@counterfactual/cf.js";
 import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
+import {
+  Interface,
+  joinSignature,
+  keccak256,
+  Signature,
+  solidityPack
+} from "ethers/utils";
 
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
-const { signaturesToBytesSortedBySignerAddress } = utils;
+const { sortSignaturesBySignerAddress } = utils;
 
 /// A commitment to make MinimumViableMultisig perform a message call
 export abstract class MultisigCommitment extends EthereumCommitment {
@@ -19,10 +25,10 @@ export abstract class MultisigCommitment extends EthereumCommitment {
   public getSignedTransaction(sigs: Signature[]): Transaction {
     const multisigInput = this.getTransactionDetails();
 
-    const signatureBytes = signaturesToBytesSortedBySignerAddress(
+    const signaturesList = sortSignaturesBySignerAddress(
       this.hashToSign(),
-      ...sigs
-    );
+      sigs
+    ).map(joinSignature);
 
     const txData = new Interface(
       MinimumViableMultisig.abi
@@ -31,7 +37,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
       multisigInput.value,
       multisigInput.data,
       multisigInput.operation,
-      signatureBytes
+      signaturesList
     ]);
 
     // TODO: Deterministically compute `to` address
