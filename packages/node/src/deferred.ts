@@ -2,7 +2,7 @@
 // internal promise. The internal promise is also publicly available so it can
 // be await-ed on.
 export class Deferred<T> {
-  private internalPromise: Promise<T>;
+  private readonly internalPromise: Promise<T>;
   private internalResolve!: (value?: T | PromiseLike<T>) => void;
   private internalReject!: (reason?: any) => void;
 

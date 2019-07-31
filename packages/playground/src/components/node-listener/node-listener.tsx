@@ -33,7 +33,7 @@ export class NodeListener {
   @Prop() provider: Web3Provider = {} as Web3Provider;
   @Prop() ethMultisigBalance: BigNumber = window["ethers"].constants.Zero;
 
-  private nodeMessageResolver: NodeMessageResolver = {
+  private readonly nodeMessageResolver: NodeMessageResolver = {
     proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
     rejectInstallEvent: this.onRejectInstall.bind(this),
     rejectInstallVirtualEvent: this.onRejectInstall.bind(this)

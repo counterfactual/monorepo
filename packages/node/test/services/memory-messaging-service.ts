@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 import { EventEmitter } from "events";
 
 export class MemoryMessagingService implements Node.IMessagingService {
-  private eventEmitter: EventEmitter = new EventEmitter();
+  private readonly eventEmitter: EventEmitter = new EventEmitter();
   constructor() {}
 
   async send(to: string, msg: Node.NodeMessage): Promise<void> {

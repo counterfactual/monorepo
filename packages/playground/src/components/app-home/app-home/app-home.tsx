@@ -12,7 +12,7 @@ import { AppDefinition, UserSession } from "../../../types";
   shadow: true
 })
 export class AppHome {
-  @Element() private element: HTMLElement | undefined;
+  @Element() private readonly element: HTMLElement | undefined;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() apps: AppDefinition[] = [];

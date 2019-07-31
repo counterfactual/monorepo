@@ -2,7 +2,6 @@ import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -22,26 +21,44 @@ export async function installVirtual(
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
 
+  const {
+    abiEncodings,
+    appDefinition,
+    initialState,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    intermediaries,
+    outcomeType,
+    proposedByIdentifier,
+    proposedToIdentifier,
+    responderDeposit,
+    responderDepositTokenAddress,
+    timeout
+  } = proposal;
+
   let updatedStateChannelsMap: Map<string, StateChannel>;
+
+  if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+    throw new Error(
+      "Cannot install virtual app with different token addresses"
+    );
+  }
 
   try {
     updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
       Protocol.InstallVirtualApp,
       new Map(Object.entries(await store.getAllChannels())),
       {
-        initiatorXpub: proposal.proposedToIdentifier,
-        responderXpub: proposal.proposedByIdentifier,
-        intermediaryXpub: proposal.intermediaries![0],
-        defaultTimeout: proposal.timeout.toNumber(),
-        appInterface: {
-          addr: proposal.appDefinition,
-          ...proposal.abiEncodings
-        },
-        initialState: proposal.initialState,
-        initiatorBalanceDecrement: proposal.initiatorDeposit,
-        responderBalanceDecrement: proposal.responderDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-        outcomeType: proposal.outcomeType
+        initialState,
+        outcomeType,
+        initiatorXpub: proposedToIdentifier,
+        responderXpub: proposedByIdentifier,
+        intermediaryXpub: intermediaries![0],
+        defaultTimeout: timeout.toNumber(),
+        appInterface: { addr: appDefinition, ...abiEncodings },
+        initiatorBalanceDecrement: initiatorDeposit,
+        responderBalanceDecrement: responderDeposit,
+        tokenAddress: initiatorDepositTokenAddress
       }
     );
   } catch (e) {
