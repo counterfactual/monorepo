@@ -1,6 +1,7 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
+/* solium-disable-next-line */
 import "@counterfactual/cf-adjudicator-contracts/contracts/ChallengeRegistry.sol";
 
 import "./libs/LibOutcome.sol";

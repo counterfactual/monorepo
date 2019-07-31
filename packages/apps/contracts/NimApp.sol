@@ -1,7 +1,9 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
+/* solium-disable-next-line */
 import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/CounterfactualApp.sol";
+/* solium-disable-next-line */
 import "@counterfactual/cf-funding-protocol-contracts/contracts/libs/LibOutcome.sol";
 
 
