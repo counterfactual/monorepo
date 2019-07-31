@@ -9,7 +9,6 @@ import {
   ProtocolParameters,
   UpdateParams
 } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";

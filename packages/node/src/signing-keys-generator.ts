@@ -1,7 +1,10 @@
 import { Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { hashMessage } from "ethers/utils";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
+
+export const MNEMONIC_PATH = "MNEMONIC";
 
 export class SigningKeysGenerator {
   // The namespacing is on the channel the AppInstance is in
@@ -63,5 +66,37 @@ export class SigningKeysGenerator {
     this.signingKeys.add(signingKey);
 
     return signingKey;
+  }
+}
+
+export async function getSigningKeysGeneratorOrThrow(
+  storeService: Node.IStoreService,
+  privateKeyGenerator?: Node.IPrivateKeyGenerator,
+  publicExtendedKey?: string
+): Promise<SigningKeysGenerator> {
+  if (publicExtendedKey && !privateKeyGenerator) {
+    throw new Error(
+      "Cannot provide a public extended key but not provide a private key generation function"
+    );
+  }
+
+  if (!publicExtendedKey && privateKeyGenerator) {
+    throw new Error(
+      "Cannot provide a private key generation function but not provide a public extended key"
+    );
+  }
+
+  if (publicExtendedKey && privateKeyGenerator) {
+  } else {
+    // TODO: update this as of PR https://github.com/counterfactual/monorepo/pull/2075
+    let mnemonic = await storeService.get(MNEMONIC_PATH);
+
+    if (!mnemonic) {
+      log.info(
+        "No (public extended key, private key generation function) pair was provided and no mnemonic was found in store. Generating a random mnemonic"
+      );
+      mnemonic = Wallet.createRandom().mnemonic;
+      await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+    }
   }
 }

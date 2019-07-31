@@ -65,10 +65,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       multisigAddress
     )!;
 
-    const responderAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
-      responderXpub
-    );
-
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
       preInstallRefundAppStateChannel,
       params as WithdrawParams,
@@ -82,14 +78,16 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const [mySignatureOnConditionalTransaction, mySignerAddress] = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
 
     const {
       signature: counterpartySignatureOnConditionalTransaction,
-      signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      signerAddress: counterpartySignerAddressOnConditionalTransaction,
+      signature2: counterpartySignatureOnFreeBalanceStateUpdate,
+      signerAddress2: counterpartySignerAddressOnFreeBalanceStateUpdate
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -98,12 +96,13 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
         signature: mySignatureOnConditionalTransaction,
+        signerAddress: mySignerAddress,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      responderAddress,
+      counterpartySignerAddressOnConditionalTransaction,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -136,15 +135,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      responderAddress,
+      counterpartySignerAddressOnFreeBalanceStateUpdate,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
-      freeBalanceUpdateData
-    ];
+    const [
+      mySignatureOnFreeBalanceStateUpdate,
+      mySignerAddressOnFreeBalanceStateUpdate
+    ] = yield [Opcode.OP_SIGN, freeBalanceUpdateData];
 
     const signedFreeBalanceStateUpdate = freeBalanceUpdateData.getSignedTransaction(
       [
@@ -167,14 +166,16 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       tokenAddress
     );
 
-    const mySignatureOnWithdrawalCommitment = yield [
-      Opcode.OP_SIGN,
-      withdrawCommitment
-    ];
+    const [
+      mySignatureOnWithdrawalCommitment,
+      mySignerAddressOnWithdrawalCommitment
+    ] = yield [Opcode.OP_SIGN, withdrawCommitment];
 
     const {
       signature: counterpartySignatureOnWithdrawalCommitment,
-      signature2: counterpartySignatureOnUninstallCommitment
+      signerAddress: counterpartySignerAddressOnWithdrawalCommitment,
+      signature2: counterpartySignatureOnUninstallCommitment,
+      signerAddress2: counterpartySignerAddressOnUninstallCommitment
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -182,13 +183,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
         signature: mySignatureOnFreeBalanceStateUpdate,
+        signerAddress: mySignerAddressOnFreeBalanceStateUpdate,
         signature2: mySignatureOnWithdrawalCommitment,
+        signerAddress2: mySignerAddressOnWithdrawalCommitment,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      responderAddress,
+      counterpartySignerAddressOnWithdrawalCommitment,
       withdrawCommitment,
       counterpartySignatureOnWithdrawalCommitment
     );
@@ -212,15 +215,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      responderAddress,
+      counterpartySignerAddressOnUninstallCommitment,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
 
-    const mySignatureOnUninstallCommitment = yield [
-      Opcode.OP_SIGN,
-      uninstallRefundAppCommitment
-    ];
+    const [
+      mySignatureOnUninstallCommitment,
+      mySignerAddressOnUninstallCommitment
+    ] = yield [Opcode.OP_SIGN, uninstallRefundAppCommitment];
 
     yield [
       Opcode.IO_SEND,
@@ -229,6 +232,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: responderXpub,
         signature: mySignatureOnUninstallCommitment,
+        signerAddress: mySignerAddressOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
       }
     ];
@@ -276,12 +280,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID, signature },
+      message: {
+        params,
+        protocolExecutionID,
+        signature: counterpartySignatureOnConditionalTransaction,
+        signerAddress: counterpartySignerAddressOnConditionalTransaction
+      },
       network
     } = context;
-
-    // Aliasing `signature` to this variable name for code clarity
-    const counterpartySignatureOnConditionalTransaction = signature;
 
     const {
       initiatorXpub,
@@ -294,10 +300,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     const preInstallRefundAppStateChannel = stateChannelsMap.get(
       multisigAddress
     )!;
-
-    const initiatorAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
-      initiatorXpub
-    );
 
     const postInstallRefundAppStateChannel = addRefundAppToStateChannel(
       preInstallRefundAppStateChannel,
@@ -313,15 +315,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      initiatorAddress,
+      counterpartySignerAddressOnConditionalTransaction!,
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
 
-    const mySignatureOnConditionalTransaction = yield [
-      Opcode.OP_SIGN,
-      conditionalTransactionData
-    ];
+    const [
+      mySignatureOnConditionalTransaction,
+      mySignerAddressOnConditionalTransaction
+    ] = yield [Opcode.OP_SIGN, conditionalTransactionData];
 
     const signedConditionalTransaction = conditionalTransactionData.getSignedTransaction(
       [
@@ -350,14 +352,16 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
-      freeBalanceUpdateData
-    ];
+    const [
+      mySignatureOnFreeBalanceStateUpdate,
+      mySignerAddressOnFreeBalanceStateUpdate
+    ] = yield [Opcode.OP_SIGN, freeBalanceUpdateData];
 
     const {
       signature: counterpartySignatureOnFreeBalanceStateUpdate,
-      signature2: counterpartySignatureOnWithdrawalCommitment
+      signerAddress: counterpartySignerAddressOnFreeBalanceStateUpdate,
+      signature2: counterpartySignatureOnWithdrawalCommitment,
+      signerAddress2: counterpartySignerAddressOnWithdrawalCommitment
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -365,13 +369,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
         signature: mySignatureOnConditionalTransaction,
+        signerAddress: mySignerAddressOnConditionalTransaction,
         signature2: mySignatureOnFreeBalanceStateUpdate,
+        signerAddress2: mySignerAddressOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      initiatorAddress,
+      counterpartySignerAddressOnFreeBalanceStateUpdate,
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
@@ -398,15 +404,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      initiatorAddress,
+      counterpartySignerAddressOnWithdrawalCommitment,
       withdrawCommitment,
       counterpartySignatureOnWithdrawalCommitment
     );
 
-    const mySignatureOnWithdrawalCommitment = yield [
-      Opcode.OP_SIGN,
-      withdrawCommitment
-    ];
+    const [
+      mySignatureOnWithdrawalCommitment,
+      mySignerAddressOnWithdrawalCommitment
+    ] = yield [Opcode.OP_SIGN, withdrawCommitment];
 
     const signedWithdrawalCommitment = withdrawCommitment.getSignedTransaction([
       mySignatureOnWithdrawalCommitment,
@@ -438,25 +444,30 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postUninstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnUninstallCommitment = yield [
-      Opcode.OP_SIGN,
-      uninstallRefundAppCommitment
-    ];
+    const [
+      mySignatureOnUninstallCommitment,
+      mySignerAddressOnUninstallCommitment
+    ] = yield [Opcode.OP_SIGN, uninstallRefundAppCommitment];
 
-    const { signature: counterpartySignatureOnUninstallCommitment } = yield [
+    const {
+      signature: counterpartySignatureOnUninstallCommitment,
+      signerAddress: counterpartySignerAddressOnUninstallCommitment
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
         signature: mySignatureOnWithdrawalCommitment,
+        signerAddress: mySignerAddressOnWithdrawalCommitment,
         signature2: mySignatureOnUninstallCommitment,
+        signerAddress2: mySignerAddressOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      initiatorAddress,
+      counterpartySignerAddressOnUninstallCommitment,
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );

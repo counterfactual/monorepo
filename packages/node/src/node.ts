@@ -1,7 +1,7 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import { Memoize } from "typescript-memoize";
 
@@ -19,7 +19,10 @@ import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
-import { SigningKeysGenerator } from "./signing-keys-generator";
+import {
+  SigningKeysGenerator,
+  getSigningKeysGeneratorOrThrow
+} from "./signing-keys-generator";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
 
@@ -60,16 +63,23 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
-    privateKeyGenerator: NodeTypes.IPrivateKeyGenerator,
+    publicExtendedKey?: string,
+    privateKeyGenerator?: NodeTypes.IPrivateKeyGenerator,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
+    const signingKeysGenerator = await getSigningKeysGeneratorOrThrow(
+      storeService,
+      privateKeyGenerator,
+      publicExtendedKey
+    );
+
     const node = new Node(
       messagingService,
       storeService,
       nodeConfig,
       provider,
       networkOrNetworkContext,
-      new SigningKeysGenerator(privateKeyGenerator),
+      signingKeysGenerator,
       blocksNeededForConfirmation
     );
 

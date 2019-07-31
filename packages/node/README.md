@@ -20,6 +20,19 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
+## Mnemonic and private key generation
+
+In order for the Node to produce state-update commitments, it needs access to some signing keys.
+
+There are two ways in which this is supported:j
+
+1. A [`mnemonic`](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) string is provided at the "MNEMONIC" key of the Store service that gets passed into the Node upon instantiation. If no mnemonic is provided in the Store, one is randomly generated and written to the Store. The mnemonic is used to generate a "public identifer" for the Node (the address by which the Node is known by). It is also used to generate private keys which are specific to `AppInstance`s.
+
+2. Instead of supplying a mnemonic, the operator supplies two other arguments:
+
+- a [public extended key](https://bitcoin.org/en/glossary/extended-key) which will serve as the "public identifier" of the Node, and will be used to generate signer addresses at `AppInstance`-specific derivation paths
+- a callback function that offers the generation of a signing key given a specific derivation path. This enables the consumer of a Node (i.e. wallets) to not reveal any mnemonics but provide the ability to sign state isolated to specific `AppInstance`s. The Node also exposes a reference implementation of this as a static method available to external callers.
+
 ## Apps and OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.

@@ -78,11 +78,13 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const counterpartySignature = context.message.signature!;
-    const counterpartySignerAddress = context.message.signerAddress!;
+    const {
+      signature: counterpartySignature,
+      signerAddress: counterpartySignerAddress
+    } = context.message;
 
     assertIsValidSignature(
-      counterpartySignerAddress,
+      counterpartySignerAddress!,
       uninstallCommitment,
       counterpartySignature
     );
