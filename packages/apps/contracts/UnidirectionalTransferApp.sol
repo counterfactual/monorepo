@@ -3,8 +3,8 @@ pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/cf-funding-protocol-contracts/contracts/libs/LibOutcome.sol";
 
 
 /// @title Unidirectional Transfer App

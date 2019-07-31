@@ -1,8 +1,8 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
-import "@counterfactual/contracts/contracts/interfaces/CounterfactualApp.sol";
-import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
+import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/CounterfactualApp.sol";
+import "@counterfactual/cf-funding-protocol-contracts/contracts/libs/LibOutcome.sol";
 
 
 /*

@@ -1,4 +1,4 @@
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import {
   Interface,
   joinSignature,

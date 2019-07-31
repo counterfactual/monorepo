@@ -5,7 +5,7 @@ import { AppInterface, SolidityValueType } from ".";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
+  // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
   playerAddrs: [string, string];
   amount: BigNumber;
   tokenAddress: string;
@@ -13,7 +13,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type MultiAssetMultiPartyCoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
+  // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
   limit: BigNumber[];
   tokenAddresses: string[];
 };
@@ -73,7 +73,7 @@ export type AppInstanceJson = {
    */
   twoPartyOutcomeInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
+    // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
     tokenAddress: string;
@@ -81,7 +81,7 @@ export type AppInstanceJson = {
 
   multiAssetMultiPartyCoinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
+    // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
     tokenAddresses: string[];
   };

@@ -1,4 +1,4 @@
-import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
+import AppWithAction from "@counterfactual/cf-adjudicator-contracts/build/AppWithAction.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";

@@ -1,1 +1,1 @@
-../contracts/waffle.js
+../cf-adjudicator-contracts/waffle.js
