@@ -1,3 +1,5 @@
+require("chromedriver");
+
 import { resolve } from "path";
 import {
   Builder,
@@ -47,14 +49,14 @@ export class TestBrowser {
     private browser: WebDriver = {} as WebDriver,
     private homeUrl: string = "",
     private popupUrl: string = "",
-    private handlesByContext: {
+    private readonly handlesByContext: {
       [key in Exclude<TestBrowserContext, "counterfactual:wallet">]: string;
     } = {
       [TestBrowserContext.MetamaskMain]: "",
       [TestBrowserContext.MetamaskPopup]: ""
     },
     private currentContext?: TestBrowserContext,
-    private locatorTimeout: number = LOCATOR_TIMEOUT
+    private readonly locatorTimeout: number = LOCATOR_TIMEOUT
   ) {}
 
   async start() {
@@ -72,11 +74,8 @@ export class TestBrowser {
 
     const options = new Options();
     options.addArguments(
-      `--no-sandbox`,
-      `--disable-set-uid-sandbox`,
       `--load-extension=${extension}`,
       `--disable-web-security`,
-      `--disable-dev-shm-usage`,
       `--user-data-dir=/tmp/greenboard`
     );
 
@@ -89,12 +88,20 @@ export class TestBrowser {
       .setAlertBehavior("accept")
       .build();
 
-    this.browser
-      .getWindowHandle()
-      .then(
-        handle =>
-          (this.handlesByContext[TestBrowserContext.MetamaskMain] = handle)
-      );
+    if (!process.argv.includes("--discover-metamask")) {
+      await this.browser.sleep(5000);
+
+      const handles = await this.browser.getAllWindowHandles();
+
+      this.handlesByContext[
+        TestBrowserContext.MetamaskMain
+      ] = handles.pop() as string;
+
+      await this.switchToMetamask();
+
+      this.homeUrl = await this.browser.getCurrentUrl();
+      this.popupUrl = this.homeUrl.replace(/home/gi, "popup");
+    }
   }
 
   /****************************************************************
@@ -108,6 +115,11 @@ export class TestBrowser {
    * it'll skip the lookup and navigate to `homeUrl`.
    */
   async openMetamask() {
+    if (!process.argv.includes("--discover-metamask")) {
+      await this.switchToMetamask();
+      return;
+    }
+
     if (this.homeUrl && this.popupUrl) {
       await this.navigateTo(this.homeUrl);
       return;
@@ -129,6 +141,7 @@ export class TestBrowser {
     );
 
     await this.navigateTo(this.homeUrl);
+    await this.switchToMetamask();
   }
 
   /**
