@@ -7,7 +7,7 @@ import {
   AppInstanceJson,
   AppInstanceProposal
 } from "./data-types";
-import { SolidityABIEncoderV2Type } from "./simple-types";
+import { SolidityValueType } from "./simple-types";
 
 export interface INodeProvider {
   onMessage(callback: (message: Node.Message) => void);
@@ -233,7 +233,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Type;
+    state: SolidityValueType;
   };
 
   export type InstallParams = {
@@ -258,7 +258,7 @@ export namespace Node {
     responderDeposit: BigNumber;
     responderDepositTokenAddress?: string;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
     proposedToIdentifier: string;
     outcomeType: OutcomeType;
   };
@@ -281,11 +281,11 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: string;
-    action: SolidityABIEncoderV2Type;
+    action: SolidityValueType;
   };
 
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type UninstallParams = {
@@ -302,11 +302,11 @@ export namespace Node {
 
   export type UpdateStateParams = {
     appInstanceId: string;
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type UpdateStateResult = {
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type WithdrawParams = {
@@ -369,8 +369,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: string;
-    newState: SolidityABIEncoderV2Type;
-    action?: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
+    action?: SolidityValueType;
   };
 
   export type WithdrawEventData = {

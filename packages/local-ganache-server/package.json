@@ -19,7 +19,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/contracts": "0.1.14",
+    "@counterfactual/contracts": "0.1.15",
     "@counterfactual/types": "0.0.29",
     "@counterfactual/apps": "0.1.4",
     "ganache-core": "2.5.7",

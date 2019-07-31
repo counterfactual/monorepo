@@ -118,7 +118,7 @@ export class AccountWithdraw extends React.Component<
       headerDetails,
       ctaButtonText
     } = withdrawCaseVariables;
-
+    const unitTypes = [{ name: "ETH", tokenAddress: "ETHETH" }];
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
@@ -127,7 +127,7 @@ export class AccountWithdraw extends React.Component<
             label={<BalanceLabel available={formatEther(ethereumBalance)} />}
             className="input--balance"
             type="number"
-            unit="ETH"
+            units={unitTypes}
             name="amount"
             min={0.02}
             max={Number(ethereumBalance)}

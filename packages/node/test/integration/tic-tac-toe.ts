@@ -1,7 +1,4 @@
-import {
-  AppABIEncodings,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { AppABIEncodings } from "@counterfactual/types";
 
 export const tttAbiEncodings: AppABIEncodings = {
   stateEncoding: `
@@ -33,7 +30,7 @@ export const validAction = {
   }
 };
 
-export function initialEmptyTTTState(): SolidityABIEncoderV2Type {
+export function initialEmptyTTTState() {
   return {
     versionNumber: 0,
     winner: 0,

@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -72,25 +72,22 @@ const decodeAppState = (
     encodedAppState
   )[0];
 
-const encodeAppState = (state: SolidityABIEncoderV2Type) =>
+const encodeAppState = (state: SolidityValueType) =>
   defaultAbiCoder.encode([unidirectionalTransferAppStateEncoding], [state]);
 
-const encodeAppAction = (state: SolidityABIEncoderV2Type) =>
+const encodeAppAction = (state: SolidityValueType) =>
   defaultAbiCoder.encode([unidirectionalTransferAppActionEncoding], [state]);
 
 describe("UnidirectionalTransferApp", () => {
   let unidirectionalTransferApp: Contract;
 
-  const applyAction = (
-    state: SolidityABIEncoderV2Type,
-    action: SolidityABIEncoderV2Type
-  ) =>
+  const applyAction = (state: SolidityValueType, action: SolidityValueType) =>
     unidirectionalTransferApp.functions.applyAction(
       encodeAppState(state),
       encodeAppAction(action)
     );
 
-  const computeOutcome = (state: SolidityABIEncoderV2Type) =>
+  const computeOutcome = (state: SolidityValueType) =>
     unidirectionalTransferApp.functions.computeOutcome(encodeAppState(state));
 
   before(async () => {

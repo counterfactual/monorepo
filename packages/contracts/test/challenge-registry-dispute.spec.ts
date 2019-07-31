@@ -1,5 +1,5 @@
 import { utils } from "@counterfactual/cf.js";
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { HashZero } from "ethers/constants";
@@ -7,6 +7,7 @@ import { Web3Provider } from "ethers/providers";
 import {
   bigNumberify,
   defaultAbiCoder,
+  joinSignature,
   keccak256,
   SigningKey
 } from "ethers/utils";
@@ -15,7 +16,7 @@ import AppWithAction from "../build/AppWithAction.json";
 import ChallengeRegistry from "../build/ChallengeRegistry.json";
 
 import { AppIdentityTestClass, computeAppChallengeHash, expect } from "./utils";
-const { signaturesToBytes, signaturesToBytesSortedBySignerAddress } = utils;
+const { signaturesToBytes, sortSignaturesBySignerAddress } = utils;
 
 enum ActionType {
   SUBMIT_COUNTER_INCREMENT,
@@ -46,11 +47,11 @@ const ACTION = {
   increment: bigNumberify(2)
 };
 
-function encodeState(state: SolidityABIEncoderV2Type) {
+function encodeState(state: SolidityValueType) {
   return defaultAbiCoder.encode([`tuple(uint256 counter)`], [state]);
 }
 
-function encodeAction(action: SolidityABIEncoderV2Type) {
+function encodeAction(action: SolidityValueType) {
   return defaultAbiCoder.encode(
     [`tuple(uint8 actionType, uint256 increment)`],
     [action]
@@ -112,11 +113,10 @@ describe("ChallengeRegistry Challenge", () => {
         versionNumber,
         appStateHash: stateHash,
         timeout: ONCHAIN_CHALLENGE_TIMEOUT,
-        signatures: signaturesToBytesSortedBySignerAddress(
-          digest,
+        signatures: sortSignaturesBySignerAddress(digest, [
           await new SigningKey(ALICE.privateKey).signDigest(digest),
           await new SigningKey(BOB.privateKey).signDigest(digest)
-        )
+        ]).map(joinSignature)
       });
     };
 

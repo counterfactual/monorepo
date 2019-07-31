@@ -2,14 +2,12 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
-import "../libs/LibSignature.sol";
 import "../libs/LibAppCaller.sol";
 
 import "./MChallengeRegistryCore.sol";
 
 
 contract MixinSetStateWithAction is
-  LibSignature,
   LibStateChannelApp,
   LibAppCaller,
   MChallengeRegistryCore
@@ -21,7 +19,7 @@ contract MixinSetStateWithAction is
     bytes appState;
     uint256 versionNumber;
     uint256 timeout;
-    bytes signatures;
+    bytes[] signatures;
   }
 
   struct SignedAction {
@@ -131,16 +129,12 @@ contract MixinSetStateWithAction is
       req.appState
     );
 
-    address signer = recoverKey(
-      action.signature,
-      computeActionHash(
-        turnTaker,
-        keccak256(req.appState),
-        action.encodedAction,
-        req.versionNumber
-      ),
-      0
-    );
+    address signer = computeActionHash(
+      turnTaker,
+      keccak256(req.appState),
+      action.encodedAction,
+      req.versionNumber
+    ).recover(action.signature);
 
     return turnTaker == signer;
   }

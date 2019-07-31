@@ -7,7 +7,7 @@ import {
   ContractABI,
   Node as NodeTypes,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
@@ -37,7 +37,7 @@ import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 interface AppContext {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
 }
 
 /**
@@ -216,7 +216,7 @@ export function makeAppProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
   abiEncodings: AppABIEncodings,
-  initialState: SolidityABIEncoderV2Type,
+  initialState: SolidityValueType,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -261,7 +261,7 @@ export function makeVirtualProposalRequest(
   intermediaries: string[],
   appDefinition: string,
   abiEncodings: AppABIEncodings,
-  initialState: SolidityABIEncoderV2Type = {},
+  initialState: SolidityValueType = {},
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -433,7 +433,7 @@ export async function installApp(
   nodeA: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type,
+  initialState?: SolidityValueType,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -492,7 +492,7 @@ export async function installVirtualApp(
   nodeB: Node,
   nodeC: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityValueType
 ): Promise<string> {
   return new Promise(async resolve => {
     nodeA.on(
@@ -549,7 +549,7 @@ export async function confirmAppInstanceInstallation(
 export async function getState(
   nodeA: Node,
   appInstanceId: string
-): Promise<SolidityABIEncoderV2Type> {
+): Promise<SolidityValueType> {
   const getStateReq = generateGetStateRequest(appInstanceId);
   const getStateResult = await nodeA.rpcRouter.dispatch(getStateReq);
   return (getStateResult.result.result as NodeTypes.GetStateResult).state;
@@ -560,7 +560,7 @@ export async function makeVirtualProposal(
   nodeC: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityValueType
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -617,7 +617,7 @@ export async function makeVirtualProposeCall(
   nodeC: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityValueType
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -647,7 +647,7 @@ export async function makeProposeCall(
   nodeA: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type,
+  initialState?: SolidityValueType,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -727,10 +727,10 @@ export async function transferERC20Tokens(
 
 export function getAppContext(
   appDefinition: string,
-  initialState?: SolidityABIEncoderV2Type
+  initialState?: SolidityValueType
 ): AppContext {
   let abiEncodings: AppABIEncodings;
-  let initialAppState: SolidityABIEncoderV2Type;
+  let initialAppState: SolidityValueType;
 
   switch (appDefinition) {
     case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
