@@ -1,7 +1,7 @@
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   MultiAssetMultiPartyCoinTransferInterpreterParams,

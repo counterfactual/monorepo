@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { randomBytes } from "crypto";
 import { Contract } from "ethers";

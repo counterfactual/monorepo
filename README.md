@@ -40,9 +40,10 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Solidity Packages
 
-| Package                                            | Version                                                                                                                       | Description                                         |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
-| [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state channel logic |
+| Package                                                                                    | Version                                                                                                                                                               | Description                                                     |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| [`@counterfactual/cf-funding-protocol-contracts`](/packages/cf-funding-protocol-contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf-funding-protocol-contracts.svg)](https://www.npmjs.com/package/@counterfactual/cf-funding-protocol-contracts) | Contracts implementation of the Counterfactual funding protocol |
+| [`@counterfactual/cf-adjudicator-contracts`](/packages/cf-adjudicator-contracts)           | [![npm](https://img.shields.io/npm/v/@counterfactual/cf-adjudicator-contracts.svg)](https://www.npmjs.com/package/@counterfactual/cf-adjudicator-contracts)           | Contracts implementation of an AppInstance Adjudicator          |
 
 ### Typescript/Javascript Packages
 
@@ -83,7 +84,7 @@ yarn
 
 ### Building packages
 
-It is recommended (optional) that you installed `solc` compiler binary on your machine ([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `contracts` and `apps`
+It is recommended (optional) that you installed `solc` compiler binary on your machine ([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `cf-funding-protocol-contracts` and `apps`
 
 ```shell
 NATIVE_SOLC=true

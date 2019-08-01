@@ -1,4 +1,4 @@
-import ERC20 from "@counterfactual/contracts/build/ERC20.json";
+import ERC20 from "@counterfactual/cf-funding-protocol-contracts/build/ERC20.json";
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers/utils";
