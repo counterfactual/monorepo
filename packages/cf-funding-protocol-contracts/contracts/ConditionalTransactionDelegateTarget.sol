@@ -31,7 +31,7 @@ contract ConditionalTransactionDelegateTarget {
     public
   {
     require(
-      adjudicator.isStateFinalized(freeBalanceAppIdentityHash),
+      adjudicator.isAppInstanceFinalized(freeBalanceAppIdentityHash),
       "Free Balance app instance is not finalized yet"
     );
 
