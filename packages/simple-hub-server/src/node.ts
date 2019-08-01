@@ -8,7 +8,7 @@ import {
 import {
   CreateChannelMessage,
   DepositConfirmationMessage,
-  MNEMONIC_PATH,
+  EXTENDED_PRIVATE_KEY_PATH,
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
@@ -158,7 +158,7 @@ export class NodeWrapper {
 
   public static async createNodeSingleton(
     networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
-    mnemonic?: string,
+    extendedPrvKey?: string,
     provider?: JsonRpcProvider,
     storeService?: NodeTypes.IStoreService,
     messagingService?: NodeTypes.IMessagingService
@@ -185,7 +185,7 @@ export class NodeWrapper {
     NodeWrapper.node = await NodeWrapper.createNode(
       networkOrNetworkContext,
       provider,
-      mnemonic,
+      extendedPrvKey,
       store,
       messagingService
     );
@@ -208,7 +208,7 @@ export class NodeWrapper {
   public static async createNode(
     networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
     provider?: JsonRpcProvider,
-    mnemonic?: string,
+    extendedPrvKey?: string,
     storeService?: NodeTypes.IStoreService,
     messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
@@ -221,8 +221,10 @@ export class NodeWrapper {
       messagingService ||
       serviceFactoryResolved.createMessagingService("messaging");
 
-    if (mnemonic) {
-      await store.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+    if (extendedPrvKey) {
+      await store.set([
+        { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
+      ]);
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {

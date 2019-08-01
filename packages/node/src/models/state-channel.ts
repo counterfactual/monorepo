@@ -92,7 +92,7 @@ export class StateChannel {
     public readonly createdAt: number = Date.now()
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
-      if (xpub.slice(0, 4) !== "xpub") {
+      if (!xpub.startsWith("xpub")) {
         throw new Error(
           `StateChannel constructor given invalid extended keys: ${userNeuteredExtendedKeys}`
         );

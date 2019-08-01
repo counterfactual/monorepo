@@ -1,15 +1,13 @@
 import { hashMessage, joinSignature, SigningKey } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import { sign } from "jsonwebtoken";
 
 function syncSignMessage(key: SigningKey, message: string) {
   return joinSignature(key.signDigest(hashMessage(message)));
 }
 
-function getNodeAddress(mnemonic: string) {
-  return fromMnemonic(mnemonic)
-    .derivePath("m/44'/60'/0'/25446")
-    .neuter().extendedKey;
+function getNodeAddress(extendedPrvKey: string) {
+  return fromExtendedKey(extendedPrvKey).neuter().extendedKey;
 }
 
 export const PK_ALICE =
@@ -26,84 +24,84 @@ export const PK_CHARLIE =
 
 export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
 
-export const USR_ALICE = (mnemonic: string) => {
+export const USR_ALICE = (extendedPrvKey: string) => {
   return {
     username: "alice_account3",
     email: "alice@wonderland.com",
     ethAddress: new SigningKey(PK_ALICE).address,
-    nodeAddress: getNodeAddress(mnemonic)
+    nodeAddress: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const USR_ALICE_KNEX = (mnemonic: string) => {
+export const USR_ALICE_KNEX = (extendedPrvKey: string) => {
   return {
     username: "alice_account3",
     email: "alice@wonderland.com",
     eth_address: new SigningKey(PK_ALICE).address,
-    node_address: getNodeAddress(mnemonic)
+    node_address: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const USR_ALICE_DUPLICATE_USERNAME = (mnemonic: string) => {
-  const aliceUser = USR_ALICE(mnemonic);
+export const USR_ALICE_DUPLICATE_USERNAME = (extendedPrvKey: string) => {
+  const aliceUser = USR_ALICE(extendedPrvKey);
   return {
     username: aliceUser.username,
     email: aliceUser.email,
     ethAddress: new SigningKey(PK_BOB).address,
-    nodeAddress: getNodeAddress(mnemonic)
+    nodeAddress: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const USR_BOB = (mnemonic: string) => {
+export const USR_BOB = (extendedPrvKey: string) => {
   return {
     username: "bob_account1",
     email: "bob@wonderland.com",
     ethAddress: new SigningKey(PK_BOB).address,
     multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-    nodeAddress: getNodeAddress(mnemonic)
+    nodeAddress: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const USR_BOB_KNEX = (mnemonic: string) => {
+export const USR_BOB_KNEX = (extendedPrvKey: string) => {
   return {
     id: USR_BOB_ID,
     email: "bob@wonderland.com",
     eth_address: new SigningKey(PK_BOB).address,
     multisig_address: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-    node_address: getNodeAddress(mnemonic),
+    node_address: getNodeAddress(extendedPrvKey),
     username: "bob_account1"
   };
 };
 
-export const USR_CHARLIE = (mnemonic: string) => {
+export const USR_CHARLIE = (extendedPrvKey: string) => {
   return {
     username: "charlie_account2",
     email: "charlie@wonderland.com",
     ethAddress: new SigningKey(PK_CHARLIE).address,
-    nodeAddress: getNodeAddress(mnemonic)
+    nodeAddress: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const USR_CHARLIE_KNEX = (mnemonic: string) => {
+export const USR_CHARLIE_KNEX = (extendedPrvKey: string) => {
   return {
     username: "charlie_account2",
     email: "charlie@wonderland.com",
     eth_address: new SigningKey(PK_CHARLIE).address,
-    node_address: getNodeAddress(mnemonic)
+    node_address: getNodeAddress(extendedPrvKey)
   };
 };
 
-export const POST_USERS_ALICE = (mnemonic: string) => {
+export const POST_USERS_ALICE = (extendedPrvKey: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE(mnemonic) }
+      attributes: { ...USR_ALICE(extendedPrvKey) }
     }
   };
 };
 
-export const POST_USERS_ALICE_SIGNATURE_HEADER = (mnemonic: string) => {
-  const userAlice = USR_ALICE(mnemonic);
+export const POST_USERS_ALICE_SIGNATURE_HEADER = (extendedPrvKey: string) => {
+  const userAlice = USR_ALICE(extendedPrvKey);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_ALICE),
@@ -118,17 +116,17 @@ export const POST_USERS_ALICE_SIGNATURE_HEADER = (mnemonic: string) => {
   };
 };
 
-export const POST_USERS_ALICE_NO_SIGNATURE = (mnemonic: string) => {
+export const POST_USERS_ALICE_NO_SIGNATURE = (extendedPrvKey: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE(mnemonic) }
+      attributes: { ...USR_ALICE(extendedPrvKey) }
     }
   };
 };
 
-export const POST_USERS_ALICE_INVALID_SIGNATURE = (mnemonic: string) => {
-  return POST_USERS_ALICE(mnemonic);
+export const POST_USERS_ALICE_INVALID_SIGNATURE = (extendedPrvKey: string) => {
+  return POST_USERS_ALICE(extendedPrvKey);
 };
 
 export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
@@ -136,19 +134,19 @@ export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
     "Signature 0xc157208c17b60bf325500914d0b4ddf57ee4c9c2ff1509e318c3d138a4ccb08b3258f9ac4e72d824fef67a40c3959e2f6480cdf6fbbf2590ea4a8bb17e7d5c980d"
 };
 
-export const POST_USERS_ALICE_DUPLICATE_USERNAME = (mnemonic: string) => {
+export const POST_USERS_ALICE_DUPLICATE_USERNAME = (extendedPrvKey: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE_DUPLICATE_USERNAME(mnemonic) }
+      attributes: { ...USR_ALICE_DUPLICATE_USERNAME(extendedPrvKey) }
     }
   };
 };
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = (
-  mnemonic: string
+  extendedPrvKey: string
 ) => {
-  const userAliceDuplicate = USR_ALICE_DUPLICATE_USERNAME(mnemonic);
+  const userAliceDuplicate = USR_ALICE_DUPLICATE_USERNAME(extendedPrvKey);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_ALICE_DUPE),
@@ -163,17 +161,17 @@ export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = (
   };
 };
 
-export const POST_USERS_CHARLIE = (mnemonic: string) => {
+export const POST_USERS_CHARLIE = (extendedPrvKey: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_CHARLIE(mnemonic) }
+      attributes: { ...USR_CHARLIE(extendedPrvKey) }
     }
   };
 };
 
-export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (mnemonic: string) => {
-  const charlieUser = USR_CHARLIE(mnemonic);
+export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (extendedPrvKey: string) => {
+  const charlieUser = USR_CHARLIE(extendedPrvKey);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_CHARLIE),
@@ -188,8 +186,8 @@ export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (mnemonic: string) => {
   };
 };
 
-export const POST_SESSION_CHARLIE = (mnemonic: string) => {
-  const charlieUser = USR_CHARLIE(mnemonic);
+export const POST_SESSION_CHARLIE = (extendedPrvKey: string) => {
+  const charlieUser = USR_CHARLIE(extendedPrvKey);
   return {
     data: {
       type: "sessionRequest",
@@ -198,8 +196,10 @@ export const POST_SESSION_CHARLIE = (mnemonic: string) => {
   };
 };
 
-export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (mnemonic: string) => {
-  const charlieUser = USR_CHARLIE(mnemonic);
+export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (
+  extendedPrvKey: string
+) => {
+  const charlieUser = USR_CHARLIE(extendedPrvKey);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_CHARLIE),
@@ -211,8 +211,8 @@ export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (mnemonic: string) => {
   };
 };
 
-export const POST_SESSION_BOB = (mnemonic: string) => {
-  const bobUser = USR_BOB(mnemonic);
+export const POST_SESSION_BOB = (extendedPrvKey: string) => {
+  const bobUser = USR_BOB(extendedPrvKey);
   return {
     data: {
       type: "sessionRequest",
@@ -221,8 +221,8 @@ export const POST_SESSION_BOB = (mnemonic: string) => {
   };
 };
 
-export const POST_SESSION_BOB_SIGNATURE_HEADER = (mnemonic: string) => {
-  const bobUser = USR_BOB(mnemonic);
+export const POST_SESSION_BOB_SIGNATURE_HEADER = (extendedPrvKey: string) => {
+  const bobUser = USR_BOB(extendedPrvKey);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_BOB),

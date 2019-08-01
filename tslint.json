@@ -7,12 +7,13 @@
   "rules": {
     "prettier": true,
     // NOTE: Added by Liam. I just prefer this rule to be on. Looks clean.
-    "ordered-imports": [true, {"grouped-imports": true}],
+    "ordered-imports": [true, { "grouped-imports": true }],
     // See https://github.com/counterfactual/monorepo/pull/231#discussion_r233860710
     "import-name": false,
     // NOTE: Added by Liam. Preference.
     "prefer-readonly": true,
     // NOTE: Added by Liam, another preference.
-    "prefer-conditional-expression": true
+    "prefer-conditional-expression": true,
+    "prefer-array-literal": false
   }
 }

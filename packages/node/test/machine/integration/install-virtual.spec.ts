@@ -25,7 +25,10 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -116,14 +119,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   beforeEach(async () => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
-    xpubs = xkeys.map(x => x.neuter().extendedKey);
+    xpubs = xprvs.map(extendedPrvKeyToExtendedPubKey);
 
     globalChannelNonce += 1;
 

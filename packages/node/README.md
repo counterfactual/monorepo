@@ -20,6 +20,12 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
+## Node Address and Signing Keys
+
+The Node is expected to have access to an [extended private key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which it uses to derive a "public identifier" used as the address of a Node instance. This key is also used to produce private keys at app-specific derivation paths.
+
+This key is expected to be provided at the "EXTENDED_KEY" key of the Store service that is passed as an argument to the Node. If no such value exists for this key, the Node produces an extended key and sets it at this key.
+
 ## Apps and OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.

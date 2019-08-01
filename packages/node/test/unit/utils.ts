@@ -3,27 +3,22 @@ import {
   OutcomeType,
   SolidityValueType
 } from "@counterfactual/types";
-import { Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import {
   AppInstance,
   AppInstanceProposal,
   StateChannel
 } from "../../src/models";
 
-export function computeRandomXpub() {
-  return fromMnemonic(Wallet.createRandom().mnemonic).neuter().extendedKey;
-}
-
 export function createAppInstanceProposalForTest(appInstanceId: string) {
   return new AppInstanceProposal(
     {
-      proposedByIdentifier: computeRandomXpub(),
-      proposedToIdentifier: computeRandomXpub(),
+      proposedByIdentifier: computeRandomExtendedPrvKey(),
+      proposedToIdentifier: computeRandomExtendedPrvKey(),
       appDefinition: AddressZero,
       abiEncodings: {
         stateEncoding: "tuple(address foo, uint256 bar)",
