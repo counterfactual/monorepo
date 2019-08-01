@@ -16,29 +16,29 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 const CF_PATH = "m/44'/60'/0'/25446";
 
-function generateExtendedKey() {
+function generateXPrv() {
   return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
 }
 
-function getPrivateKey(xkey: string) {
-  return fromExtendedKey(xkey).derivePath(CF_PATH).privateKey;
+function getPrivateKey(xprv: string) {
+  return fromExtendedKey(xprv).derivePath(CF_PATH).privateKey;
 }
 
 export default async function() {
   mkdirp.sync(DIR);
 
   // TODO: use @counterfactual/local-ganache-server to remove most of this setup
-  const pgExtendedKey = generateExtendedKey();
-  const privateKeyPG = getPrivateKey(pgExtendedKey);
+  const pgXPrv = generateXPrv();
+  const privateKeyPG = getPrivateKey(pgXPrv);
 
-  const nodeAExtendedKey = generateExtendedKey();
-  const privateKeyA = getPrivateKey(nodeAExtendedKey);
+  const nodeAXPrv = generateXPrv();
+  const privateKeyA = getPrivateKey(nodeAXPrv);
 
-  const nodeBExtendedKey = generateExtendedKey();
-  const privateKeyB = getPrivateKey(nodeBExtendedKey);
+  const nodeBXPrv = generateXPrv();
+  const privateKeyB = getPrivateKey(nodeBXPrv);
 
-  const nodeCExtendedKey = generateExtendedKey();
-  const privateKeyC = getPrivateKey(nodeCExtendedKey);
+  const nodeCXPrv = generateXPrv();
+  const privateKeyC = getPrivateKey(nodeCXPrv);
 
   const server = ganache.server({
     accounts: [
@@ -71,10 +71,10 @@ export default async function() {
 
   const networkContext = await deployTestArtifactsToChain(wallet);
   const data = {
-    pgExtendedKey,
-    nodeAExtendedKey,
-    nodeBExtendedKey,
-    nodeCExtendedKey,
+    pgXPrv,
+    nodeAXPrv,
+    nodeBXPrv,
+    nodeCXPrv,
     networkContext
   };
 

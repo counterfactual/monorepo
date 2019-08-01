@@ -6,8 +6,8 @@ function syncSignMessage(key: SigningKey, message: string) {
   return joinSignature(key.signDigest(hashMessage(message)));
 }
 
-function getNodeAddress(xkey: string) {
-  return fromExtendedKey(xkey).neuter().extendedKey;
+function getNodeAddress(xprv: string) {
+  return fromExtendedKey(xprv).neuter().extendedKey;
 }
 
 export const PK_ALICE =
@@ -24,84 +24,84 @@ export const PK_CHARLIE =
 
 export const USR_BOB_ID = "e5a48217-5d83-4fdd-bf1d-b9e35934f0f2";
 
-export const USR_ALICE = (xkey: string) => {
+export const USR_ALICE = (xprv: string) => {
   return {
     username: "alice_account3",
     email: "alice@wonderland.com",
     ethAddress: new SigningKey(PK_ALICE).address,
-    nodeAddress: getNodeAddress(xkey)
+    nodeAddress: getNodeAddress(xprv)
   };
 };
 
-export const USR_ALICE_KNEX = (xkey: string) => {
+export const USR_ALICE_KNEX = (xprv: string) => {
   return {
     username: "alice_account3",
     email: "alice@wonderland.com",
     eth_address: new SigningKey(PK_ALICE).address,
-    node_address: getNodeAddress(xkey)
+    node_address: getNodeAddress(xprv)
   };
 };
 
-export const USR_ALICE_DUPLICATE_USERNAME = (xkey: string) => {
-  const aliceUser = USR_ALICE(xkey);
+export const USR_ALICE_DUPLICATE_USERNAME = (xprv: string) => {
+  const aliceUser = USR_ALICE(xprv);
   return {
     username: aliceUser.username,
     email: aliceUser.email,
     ethAddress: new SigningKey(PK_BOB).address,
-    nodeAddress: getNodeAddress(xkey)
+    nodeAddress: getNodeAddress(xprv)
   };
 };
 
-export const USR_BOB = (xkey: string) => {
+export const USR_BOB = (xprv: string) => {
   return {
     username: "bob_account1",
     email: "bob@wonderland.com",
     ethAddress: new SigningKey(PK_BOB).address,
     multisigAddress: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-    nodeAddress: getNodeAddress(xkey)
+    nodeAddress: getNodeAddress(xprv)
   };
 };
 
-export const USR_BOB_KNEX = (xkey: string) => {
+export const USR_BOB_KNEX = (xprv: string) => {
   return {
     id: USR_BOB_ID,
     email: "bob@wonderland.com",
     eth_address: new SigningKey(PK_BOB).address,
     multisig_address: "0xc5F6047a22A5582f62dBcD278f1A2275ab39001A",
-    node_address: getNodeAddress(xkey),
+    node_address: getNodeAddress(xprv),
     username: "bob_account1"
   };
 };
 
-export const USR_CHARLIE = (xkey: string) => {
+export const USR_CHARLIE = (xprv: string) => {
   return {
     username: "charlie_account2",
     email: "charlie@wonderland.com",
     ethAddress: new SigningKey(PK_CHARLIE).address,
-    nodeAddress: getNodeAddress(xkey)
+    nodeAddress: getNodeAddress(xprv)
   };
 };
 
-export const USR_CHARLIE_KNEX = (xkey: string) => {
+export const USR_CHARLIE_KNEX = (xprv: string) => {
   return {
     username: "charlie_account2",
     email: "charlie@wonderland.com",
     eth_address: new SigningKey(PK_CHARLIE).address,
-    node_address: getNodeAddress(xkey)
+    node_address: getNodeAddress(xprv)
   };
 };
 
-export const POST_USERS_ALICE = (xkey: string) => {
+export const POST_USERS_ALICE = (xprv: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE(xkey) }
+      attributes: { ...USR_ALICE(xprv) }
     }
   };
 };
 
-export const POST_USERS_ALICE_SIGNATURE_HEADER = (xkey: string) => {
-  const userAlice = USR_ALICE(xkey);
+export const POST_USERS_ALICE_SIGNATURE_HEADER = (xprv: string) => {
+  const userAlice = USR_ALICE(xprv);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_ALICE),
@@ -116,17 +116,17 @@ export const POST_USERS_ALICE_SIGNATURE_HEADER = (xkey: string) => {
   };
 };
 
-export const POST_USERS_ALICE_NO_SIGNATURE = (xkey: string) => {
+export const POST_USERS_ALICE_NO_SIGNATURE = (xprv: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE(xkey) }
+      attributes: { ...USR_ALICE(xprv) }
     }
   };
 };
 
-export const POST_USERS_ALICE_INVALID_SIGNATURE = (xkey: string) => {
-  return POST_USERS_ALICE(xkey);
+export const POST_USERS_ALICE_INVALID_SIGNATURE = (xprv: string) => {
+  return POST_USERS_ALICE(xprv);
 };
 
 export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
@@ -134,19 +134,19 @@ export const POST_USERS_ALICE_INVALID_SIGNATURE_HEADER = {
     "Signature 0xc157208c17b60bf325500914d0b4ddf57ee4c9c2ff1509e318c3d138a4ccb08b3258f9ac4e72d824fef67a40c3959e2f6480cdf6fbbf2590ea4a8bb17e7d5c980d"
 };
 
-export const POST_USERS_ALICE_DUPLICATE_USERNAME = (xkey: string) => {
+export const POST_USERS_ALICE_DUPLICATE_USERNAME = (xprv: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_ALICE_DUPLICATE_USERNAME(xkey) }
+      attributes: { ...USR_ALICE_DUPLICATE_USERNAME(xprv) }
     }
   };
 };
 
 export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = (
-  xkey: string
+  xprv: string
 ) => {
-  const userAliceDuplicate = USR_ALICE_DUPLICATE_USERNAME(xkey);
+  const userAliceDuplicate = USR_ALICE_DUPLICATE_USERNAME(xprv);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_ALICE_DUPE),
@@ -161,17 +161,17 @@ export const POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER = (
   };
 };
 
-export const POST_USERS_CHARLIE = (xkey: string) => {
+export const POST_USERS_CHARLIE = (xprv: string) => {
   return {
     data: {
       type: "user",
-      attributes: { ...USR_CHARLIE(xkey) }
+      attributes: { ...USR_CHARLIE(xprv) }
     }
   };
 };
 
-export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (xkey: string) => {
-  const charlieUser = USR_CHARLIE(xkey);
+export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (xprv: string) => {
+  const charlieUser = USR_CHARLIE(xprv);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_CHARLIE),
@@ -186,8 +186,8 @@ export const POST_USERS_CHARLIE_SIGNATURE_HEADER = (xkey: string) => {
   };
 };
 
-export const POST_SESSION_CHARLIE = (xkey: string) => {
-  const charlieUser = USR_CHARLIE(xkey);
+export const POST_SESSION_CHARLIE = (xprv: string) => {
+  const charlieUser = USR_CHARLIE(xprv);
   return {
     data: {
       type: "sessionRequest",
@@ -196,8 +196,8 @@ export const POST_SESSION_CHARLIE = (xkey: string) => {
   };
 };
 
-export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (xkey: string) => {
-  const charlieUser = USR_CHARLIE(xkey);
+export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (xprv: string) => {
+  const charlieUser = USR_CHARLIE(xprv);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_CHARLIE),
@@ -209,8 +209,8 @@ export const POST_SESSION_CHARLIE_SIGNATURE_HEADER = (xkey: string) => {
   };
 };
 
-export const POST_SESSION_BOB = (xkey: string) => {
-  const bobUser = USR_BOB(xkey);
+export const POST_SESSION_BOB = (xprv: string) => {
+  const bobUser = USR_BOB(xprv);
   return {
     data: {
       type: "sessionRequest",
@@ -219,8 +219,8 @@ export const POST_SESSION_BOB = (xkey: string) => {
   };
 };
 
-export const POST_SESSION_BOB_SIGNATURE_HEADER = (xkey: string) => {
-  const bobUser = USR_BOB(xkey);
+export const POST_SESSION_BOB_SIGNATURE_HEADER = (xprv: string) => {
+  const bobUser = USR_BOB(xprv);
   return {
     authorization: `Signature ${syncSignMessage(
       new SigningKey(PK_BOB),
