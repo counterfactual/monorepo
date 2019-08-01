@@ -1,5 +1,6 @@
 {
   "name": "@counterfactual/greenboard",
+  "private": true,
   "version": "0.0.1",
   "description": "An automated end-to-end test suite for Counterfactual, built with Selenium.",
   "keywords": [
@@ -28,8 +29,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "jest",
-    "publish": "echo This package does not need publishing."
+    "start": "jest"
   },
   "jest": {
     "roots": [
