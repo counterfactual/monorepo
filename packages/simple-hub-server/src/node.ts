@@ -8,7 +8,7 @@ import {
 import {
   CreateChannelMessage,
   DepositConfirmationMessage,
-  EXTENDED_KEY_PATH,
+  EXTENDED_PRIVATE_KEY_PATH,
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
@@ -222,7 +222,9 @@ export class NodeWrapper {
       serviceFactoryResolved.createMessagingService("messaging");
 
     if (extendedPrvKey) {
-      await store.set([{ key: EXTENDED_KEY_PATH, value: extendedPrvKey }]);
+      await store.set([
+        { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
+      ]);
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {
