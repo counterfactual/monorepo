@@ -1,10 +1,11 @@
 import { OutcomeType } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
+import { MaxUint256, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
 import { xkeysToSortedKthAddresses } from "../machine/xkeys";
-import { convertCoinTransfersToCoinTransfersMap } from "../utils";
 
 import { AppInstance } from "./app-instance";
 
@@ -13,16 +14,6 @@ const HARD_CODED_ASSUMPTIONS = {
   // We assume the Free Balance is the first app ever installed
   appSequenceNumberForFreeBalance: 0
 };
-
-/**
- * We use 0x00...000 to represent an identifier for the ETH token
- * in places where values are indexed on token address. Of course,
- * in practice, there is no "token address" for ETH because it is a
- * native asset on the ethereum blockchain, but using this as an index
- * is convenient for storing this data in the same data structure that
- * also carries data about ERC20 tokens.
- */
-export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
 export type CoinTransferMap = {
   [to: string]: BigNumber;
@@ -172,4 +163,31 @@ export function serializeFreeBalanceState(
         }))
     )
   };
+}
+
+// The following conversion functions are only relevant in the context
+// of reading/writing to a channel's Free Balance
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
+}
+
+export function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
+}
+
+/**
+ * Address used for a Node's free balance
+ */
+export function getFreeBalanceAddress(publicIdentifier: string) {
+  return fromExtendedKey(publicIdentifier).derivePath("0").address;
 }

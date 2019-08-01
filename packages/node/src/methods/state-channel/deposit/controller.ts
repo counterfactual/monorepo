@@ -5,10 +5,10 @@ import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
-import { getPeersAddressFromChannel } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
@@ -95,7 +95,7 @@ export default class DepositController extends NodeController {
     // the counter party hitting the issue of
     // "Cannot deposit while another deposit is occurring in the channel."
     const { messagingService, publicIdentifier, store } = requestHandler;
-    const [counterpartyAddress] = await getPeersAddressFromChannel(
+    const [counterpartyAddress] = await StateChannel.getPeersAddressFromChannel(
       publicIdentifier,
       store,
       multisigAddress

@@ -14,6 +14,7 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import {
   InstructionExecutor,
   Protocol,
@@ -22,12 +23,11 @@ import {
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
-import { convertCoinTransfersToCoinTransfersMap } from "../../src/utils";
 import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createAppInstanceProposalForTest } from "./utils";

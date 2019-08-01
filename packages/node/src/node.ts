@@ -14,12 +14,13 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
+import { getFreeBalanceAddress } from "./models/free-balance";
 import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
+import { debugLog, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the

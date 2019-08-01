@@ -7,6 +7,9 @@ import {
   merge
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
+import { NO_CHANNEL_BETWEEN_NODES } from "../methods/errors";
+import { Store } from "../store";
+import { hashOfOrderedPublicIdentifiers } from "../utils";
 
 import { AppInstance } from "./app-instance";
 import {
@@ -582,6 +585,61 @@ export class StateChannel {
         : undefined,
       json.monotonicNumInstalledApps,
       json.createdAt
+    );
+  }
+
+  /**
+   * Finds a StateChannel based on two xpubs in a store.
+   *
+   * @param myXpub - first xpub
+   * @param theirXpub - second xpub
+   * @param store - store to search within
+   */
+  static async getStateChannelWithOwners(
+    myXpub: string,
+    theirXpub: string,
+    store: Store
+  ): Promise<StateChannel> {
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
+    );
+
+    if (!multisigAddress) {
+      throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
+    }
+
+    return await store.getStateChannel(multisigAddress);
+  }
+
+  static async getPeersAddressFromChannel(
+    myIdentifier: string,
+    store: Store,
+    multisigAddress: string
+  ): Promise<string[]> {
+    const stateChannel = await store.getStateChannel(multisigAddress);
+    const owners = stateChannel.userNeuteredExtendedKeys;
+    return owners.filter(owner => owner !== myIdentifier);
+  }
+
+  static async getPeersAddressFromAppInstanceID(
+    myIdentifier: string,
+    store: Store,
+    appInstanceId: string
+  ): Promise<string[]> {
+    const multisigAddress = await store.getMultisigAddressFromAppInstance(
+      appInstanceId
+    );
+
+    if (!multisigAddress) {
+      throw new Error(
+        `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
+      );
+    }
+
+    return StateChannel.getPeersAddressFromChannel(
+      myIdentifier,
+      store,
+      multisigAddress
     );
   }
 }

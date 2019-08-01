@@ -1,12 +1,9 @@
 import { NetworkContext, Node } from "@counterfactual/types";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import {
-  getCreate2MultisigAddress,
-  getStateChannelWithOwners
-} from "../../../utils";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
@@ -92,7 +89,7 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
 ): Promise<StateChannel> {
   let stateChannel: StateChannel;
   try {
-    stateChannel = await getStateChannelWithOwners(
+    stateChannel = await StateChannel.getStateChannelWithOwners(
       initiatorXpub,
       responderXpub,
       store

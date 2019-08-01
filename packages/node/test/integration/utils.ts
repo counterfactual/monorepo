@@ -26,11 +26,8 @@ import {
   ProposeVirtualMessage,
   Rpc
 } from "../../src";
-import {
-  CoinTransfer,
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  FreeBalanceState
-} from "../../src/models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { CoinTransfer, FreeBalanceState } from "../../src/models/free-balance";
 
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 

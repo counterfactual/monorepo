@@ -40,6 +40,35 @@ const external = [
   })
 ];
 
+const onwarn = warning => {
+  // Silence circular dependency warnings specifically for reasonable
+  // circular dependencies
+  // Rationale: The current implementation requires the `src/api.ts` to setup
+  // the mapping between method & event names to controllers. Each controller
+  // refers to the `RequestHandler` to access certain resources. The
+  // `RequestHandler` refers to the `src/api.ts` file to lookup the method & event
+  // mapping so it knows how to route the call.
+  // The more elegnat solution, instead of overlooking this circular dependency,
+  // is to refactor how calls are routed to controllers, specifically the
+  // behavior around `mapPublicApiMethods` and `mapEventHandlers`
+  const circularDependencyWarnings = new Set([
+    "Circular dependency: src/api.ts -> src/methods/index.ts -> src/methods/app-instance/get-app-instance/controller.ts -> src/request-handler.ts -> src/api.ts"
+  ]);
+
+  if (circularDependencyWarnings.has(warning.message) ||
+    (
+      // It's expected that the ethers package is an external dependency
+      // meaning its import technically is unresolved at rollup time
+      warning.code === "UNRESOLVED_IMPORT" &&
+      warning.message.includes("ethers")
+    )
+  ) {
+    return;
+  }
+
+  console.warn(`(!) ${warning.message}`)
+}
+
 export default [
   {
     input: "src/index.ts",
@@ -73,6 +102,7 @@ export default [
         only: [...bundledDependencies]
       }),
       typescript(),
-    ]
+    ],
+    onwarn
   }
 ];
