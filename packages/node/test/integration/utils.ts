@@ -27,7 +27,6 @@ import {
   Rpc
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { CoinTransfer, FreeBalanceState } from "../../src/models/free-balance";
 
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 
@@ -721,23 +720,6 @@ export async function makeProposeCall(
   return {
     appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
-  };
-}
-
-export function createFreeBalanceStateWithFundedTokenAmounts(
-  addresses: string[],
-  amount: BigNumber,
-  tokenAddresses: string[]
-): FreeBalanceState {
-  return {
-    activeAppsMap: {},
-    balancesIndexedByToken: tokenAddresses.reduce(
-      (balancesIndexedByToken, tokenAddress) => ({
-        ...balancesIndexedByToken,
-        [tokenAddress]: addresses.map(to => ({ to, amount }))
-      }),
-      {} as { [tokenAddress: string]: CoinTransfer[] }
-    )
   };
 }
 

@@ -8,7 +8,6 @@ import { BigNumber } from "ethers/utils";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { Protocol, xkeyKthAddress } from "../../../../src/machine";
 import { sortAddresses } from "../../../../src/machine/xkeys";
-import { getBalancesFromFreeBalanceAppInstance } from "../../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../../src/utils";
 import { toBeEq } from "../bignumber-jest-matcher";
 import { connectToGanache } from "../connect-ganache";
@@ -404,10 +403,10 @@ export class TestRunner {
     ]) {
       if (mininode.scm.has(multisig)) {
         expect(
-          getBalancesFromFreeBalanceAppInstance(
-            mininode.scm.get(multisig)!.freeBalance,
-            tokenAddress
-          )[xkeyKthAddress(mininode.xpub, 0)]
+          mininode.scm
+            .get(multisig)!
+            .getFreeBalanceClass()
+            .getBalance(tokenAddress, xkeyKthAddress(mininode.xpub, 0))
         ).toBeEq(expected);
       }
     }

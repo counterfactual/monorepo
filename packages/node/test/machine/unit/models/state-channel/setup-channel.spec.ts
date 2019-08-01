@@ -3,7 +3,6 @@ import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { getBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
 import { getRandomExtendedPubKeys } from "../../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../../mocks";
 
@@ -77,10 +76,9 @@ describe("StateChannel::setupChannel", () => {
 
     it("should have 0 balances for Alice and Bob", () => {
       for (const amount of Object.values(
-        getBalancesFromFreeBalanceAppInstance(
-          fb,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        )
+        sc
+          .getFreeBalanceClass()
+          .withTokenAddress(CONVENTION_FOR_ETH_TOKEN_ADDRESS) || {}
       )) {
         expect(amount).toEqual(Zero);
       }
