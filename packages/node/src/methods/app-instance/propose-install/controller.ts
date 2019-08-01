@@ -36,6 +36,20 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
     const { store, publicIdentifier } = requestHandler;
+    const { proposedToIdentifier } = params;
+
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
+    );
+
+    return [requestHandler.getShardedQueue(multisigAddress)];
+  }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.ProposeInstallParams
+  ) {
+    const { store, publicIdentifier } = requestHandler;
     const { initialState } = params;
 
     if (!initialState) {
@@ -87,8 +101,6 @@ export default class ProposeInstallController extends NodeController {
 
     params.initiatorDepositTokenAddress = initiatorDepositTokenAddress;
     params.responderDepositTokenAddress = responderDepositTokenAddress;
-
-    return [requestHandler.getShardedQueue(multisigAddress)];
   }
 
   protected async executeMethodImplementation(
