@@ -28,7 +28,8 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "jest"
+    "start": "jest",
+    "publish": "echo This package does not need publishing."
   },
   "jest": {
     "roots": [
