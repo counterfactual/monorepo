@@ -33,10 +33,7 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import {
-  getRandomExtendedKeys,
-  getXPubsFromExtendedKeys
-} from "./random-signing-keys";
+import { getRandomExtendedKeys, xkeyToXpub } from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -80,11 +77,11 @@ beforeAll(async () => {
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
   it("returns the funds the app had locked up for both ETH and ERC20", async done => {
-    const xprivs = getRandomExtendedKeys(2);
+    const xprvs = getRandomExtendedKeys(2);
 
-    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprivs, 0);
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
-    const xpubs = getXPubsFromExtendedKeys(xprivs);
+    const xpubs = xprvs.map(xkeyToXpub);
 
     const erc20TokenAddress = (global[
       "networkContext"
@@ -111,7 +108,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
-        xprivs,
+        xprvs,
         stateChannel.numInstalledApps
       );
 

@@ -13,8 +13,8 @@ export function getSortedRandomSigningKeys(length: number) {
     );
 }
 
-export function getXPubsFromExtendedKeys(xkeys: string[]): string[] {
-  return xkeys.map(x => fromExtendedKey(x).neuter().extendedKey);
+export function xkeyToXpub(xkey: string): string {
+  return fromExtendedKey(xkey).neuter().extendedKey;
 }
 
 export function getRandomNeuteredExtendedKeys(length: number): string[] {
@@ -26,7 +26,7 @@ export function getRandomNeuteredExtendedKeys(length: number): string[] {
 export function getRandomExtendedKeys(length: number): string[] {
   return Array(length)
     .fill(0)
-    .map(_ => computeRandomExtendedKey());
+    .map(computeRandomExtendedKey);
 }
 
 export function getRandomHDNodes(length: number): HDNode.HDNode[] {
