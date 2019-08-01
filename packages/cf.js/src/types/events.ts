@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 
 import { AppInstance } from "../app-instance";
 
@@ -23,8 +23,8 @@ export type RejectInstallEventData = AppEventData;
 export type UninstallEventData = AppEventData;
 
 export type UpdateStateEventData = AppEventData & {
-  newState: SolidityABIEncoderV2Type;
-  action?: SolidityABIEncoderV2Type;
+  newState: SolidityValueType;
+  action?: SolidityValueType;
 };
 
 export type CreateMultisigEventData = {

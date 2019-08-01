@@ -1,4 +1,4 @@
-import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 
@@ -87,7 +87,7 @@ async function runUpdateStateProtocol(
   instructionExecutor: InstructionExecutor,
   initiatorXpub: string,
   responderXpub: string,
-  newState: SolidityABIEncoderV2Type
+  newState: SolidityValueType
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

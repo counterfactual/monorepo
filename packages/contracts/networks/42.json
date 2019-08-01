@@ -5,11 +5,6 @@
     "transactionHash": "0x1f9c3ac1253418fec542bc2da28306153e9238e08f083c4202feb314a7e56703"
   },
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0x3f9514f8e05E91a0D43520E6Cc36d5706F437B6b",
-    "transactionHash": "0x64338ed6afeb72ed6b859114dfa3fe577619861d80974b95e3ec143fc94da944"
-  },
-  {
     "contractName": "CoinBalanceRefundApp",
     "address": "0xC4FB30E09437d707Dc316f5a0189142a755ecA0C",
     "transactionHash": "0x1d187803f4ac459ff53e1b8cc83b6b5d79014b884997a27a3d473b269e0fed46"
@@ -23,11 +18,6 @@
     "contractName": "IdentityApp",
     "address": "0xCac7b9C56E9E49E25731453046E179A6dD4BB684",
     "transactionHash": "0xd2caafa4d68a5529aad5de4bfcee34a7ff41f7f7f0c0a68aa46e091faab24bf6"
-  },
-  {
-    "contractName": "MinimumViableMultisig",
-    "address": "0xABbA54697e537C7b0d3f3b74D685648b10C0EC99",
-    "transactionHash": "0x10c5e9963bba221abb387d4bac0cc47965c628b6eef7fa3466ba9a50c5116edb"
   },
   {
     "contractName": "MultiAssetMultiPartyCoinTransferInterpreter",
@@ -63,5 +53,20 @@
     "contractName": "TwoPartyFixedOutcomeInterpreter",
     "address": "0xbf36a7fc7486EBE219C7C350C553814B59B9137B",
     "transactionHash": "0x20801f09e58e5d2d792482e9c0f3c1c65a974d08308cb2a8a87acd299e610c88"
+  },
+  {
+    "contractName": "Migrations",
+    "address": "0x49806390431d75b0E028cC9291909710B25F9F09",
+    "transactionHash": "0x9ae9e17f39221b9021358e64a702d2fcedd88ef1f20d54e26a0ed08994752445"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0xBa9194E76AA2eF962BF56ab019B3A97A7164Bc5A",
+    "transactionHash": "0xb4761f917ec42b82cc00aa7b4f172219314ecc5474f3a8a5077e53d1df2a8700"
+  },
+  {
+    "contractName": "MinimumViableMultisig",
+    "address": "0x6425A191557834eA24e13398D096724098Cb7629",
+    "transactionHash": "0x24b454764f65343a69fa7c159b44d9d86979be0bcd8917a00aaed6d152e27cb8"
   }
 ]

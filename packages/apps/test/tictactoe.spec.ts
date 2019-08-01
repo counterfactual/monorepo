@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -26,11 +26,11 @@ function decodeBytesToAppState(encodedAppState: string): TicTacToeAppState {
 describe("TicTacToeApp", () => {
   let ticTacToe: Contract;
 
-  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+  async function computeOutcome(state: SolidityValueType) {
     return await ticTacToe.functions.computeOutcome(encodeState(state));
   }
 
-  function encodeState(state: SolidityABIEncoderV2Type) {
+  function encodeState(state: SolidityValueType) {
     return defaultAbiCoder.encode(
       [
         `
@@ -45,7 +45,7 @@ describe("TicTacToeApp", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Type) {
+  function encodeAction(state: SolidityValueType) {
     return defaultAbiCoder.encode(
       [
         `
@@ -65,8 +65,8 @@ describe("TicTacToeApp", () => {
   }
 
   async function applyAction(
-    state: SolidityABIEncoderV2Type,
-    action: SolidityABIEncoderV2Type
+    state: SolidityValueType,
+    action: SolidityValueType
   ) {
     return await ticTacToe.functions.applyAction(
       encodeState(state),

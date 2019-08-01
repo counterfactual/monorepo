@@ -1,7 +1,7 @@
 import {
   AppABIEncodings,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -35,7 +35,7 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Type,
+      } as SolidityValueType,
       outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
       responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS

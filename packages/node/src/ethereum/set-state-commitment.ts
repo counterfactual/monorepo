@@ -1,15 +1,21 @@
-import { utils } from "@counterfactual/cf.js";
 import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
 import {
   AppIdentity,
   NetworkContext,
   SignedStateHashUpdate
 } from "@counterfactual/types";
-import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
+import {
+  Interface,
+  joinSignature,
+  keccak256,
+  Signature,
+  solidityPack
+} from "ethers/utils";
+
+import { sortSignaturesBySignerAddress } from "../utils";
 
 import { EthereumCommitment, Transaction } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
-const { signaturesToBytesSortedBySignerAddress } = utils;
 
 const iface = new Interface(ChallengeRegistry.abi);
 
@@ -57,10 +63,10 @@ export class SetStateCommitment extends EthereumCommitment {
       appStateHash: this.hashedAppState,
       versionNumber: this.appVersionNumber,
       timeout: this.timeout,
-      signatures: signaturesToBytesSortedBySignerAddress(
+      signatures: sortSignaturesBySignerAddress(
         this.hashToSign(),
-        ...signatures
-      )
+        signatures
+      ).map(joinSignature)
     };
   }
 }

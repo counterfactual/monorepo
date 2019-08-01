@@ -1,8 +1,4 @@
-import {
-  NetworkContext,
-  Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 
 import {
@@ -140,7 +136,7 @@ export class Store {
    */
   public async saveAppInstanceState(
     appInstanceId: string,
-    newState: SolidityABIEncoderV2Type
+    newState: SolidityValueType
   ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(appInstanceId, newState);

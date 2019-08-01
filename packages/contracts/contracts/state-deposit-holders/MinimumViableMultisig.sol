@@ -1,6 +1,7 @@
 pragma solidity 0.5.10;
+pragma experimental ABIEncoderV2;
 
-import "../libs/LibSignature.sol";
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
 
 
 /// @title MinimumViableMultisig - A multisig wallet supporting the minimum
@@ -11,7 +12,9 @@ import "../libs/LibSignature.sol";
 /// (b) Requires n-of-n unanimous consent
 /// (c) Does not use on-chain address for signature verification
 /// (d) Uses hash-based instead of nonce-based replay protection
-contract MinimumViableMultisig is LibSignature {
+contract MinimumViableMultisig {
+
+  using ECDSA for bytes32;
 
   address masterCopy;
 
@@ -50,16 +53,21 @@ contract MinimumViableMultisig is LibSignature {
     uint256 value,
     bytes memory data,
     Operation operation,
-    bytes memory signatures
+    bytes[] memory signatures
   )
     public
   {
     bytes32 transactionHash = getTransactionHash(to, value, data, operation);
 
-    require(
-      verifySignatures(signatures, transactionHash, _owners),
-      "Invalid signatures submitted to execTransaction"
-    );
+    address lastSigner = address(0);
+    for (uint256 i = 0; i < _owners.length; i++) {
+      require(
+        _owners[i] == transactionHash.recover(signatures[i]),
+        "Invalid signature"
+      );
+      require(_owners[i] > lastSigner, "Signers not in alphanumeric order");
+      lastSigner = _owners[i];
+    }
 
     execute(to, value, data, operation);
 

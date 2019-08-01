@@ -2,13 +2,11 @@ pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
-import "../libs/LibSignature.sol";
 
 import "./MChallengeRegistryCore.sol";
 
 
 contract MixinSetState is
-  LibSignature,
   LibStateChannelApp,
   MChallengeRegistryCore
 {
@@ -17,7 +15,7 @@ contract MixinSetState is
     bytes32 appStateHash;
     uint256 versionNumber;
     uint256 timeout;
-    bytes signatures;
+    bytes[] signatures;
   }
 
   /// @notice Set the instance state/AppChallenge to a given value.

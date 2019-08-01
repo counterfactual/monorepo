@@ -2,7 +2,7 @@ import {
   AppABIEncodings,
   Node,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
@@ -63,7 +63,7 @@ export class AppFactory {
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
     /** The outcome type of the app instance */
     outcomeType: OutcomeType;
   }): Promise<string> {
@@ -111,7 +111,7 @@ export class AppFactory {
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
     /** List of intermediary peers to route installation through */
     intermediaries: string[];
   }): Promise<string> {
