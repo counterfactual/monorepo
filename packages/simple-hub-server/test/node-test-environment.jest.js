@@ -37,10 +37,10 @@ class NodeEnvironment extends NodeJSEnvironment {
     };
 
     this.global.networkContext = networkContext;
-    this.global.pgMnemonic = data.pgMnemonic;
-    this.global.nodeAMnemonic = data.nodeAMnemonic;
-    this.global.nodeBMnemonic = data.nodeBMnemonic;
-    this.global.nodeCMnemonic = data.nodeCMnemonic;
+    this.global.pgExtendedKey = data.pgExtendedKey;
+    this.global.nodeAExtendedKey = data.nodeAExtendedKey;
+    this.global.nodeBExtendedKey = data.nodeBExtendedKey;
+    this.global.nodeCExtendedKey = data.nodeCExtendedKey;
     this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 

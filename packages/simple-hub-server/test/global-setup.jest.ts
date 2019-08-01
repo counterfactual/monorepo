@@ -1,7 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
 import mkdirp from "mkdirp";
@@ -16,23 +16,29 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 const CF_PATH = "m/44'/60'/0'/25446";
 
+function generateExtendedKey() {
+  return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
+}
+
+function getPrivateKey(xkey: string) {
+  return fromExtendedKey(xkey).derivePath(CF_PATH).privateKey;
+}
+
 export default async function() {
   mkdirp.sync(DIR);
 
-  const pgMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(pgMnemonic).derivePath(CF_PATH).privateKey;
+  // TODO: use @counterfactual/local-ganache-server to remove most of this setup
+  const pgExtendedKey = generateExtendedKey();
+  const privateKeyPG = getPrivateKey(pgExtendedKey);
 
-  const nodeAMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyA = fromMnemonic(nodeAMnemonic).derivePath(CF_PATH)
-    .privateKey;
+  const nodeAExtendedKey = generateExtendedKey();
+  const privateKeyA = getPrivateKey(nodeAExtendedKey);
 
-  const nodeBMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyB = fromMnemonic(nodeBMnemonic).derivePath(CF_PATH)
-    .privateKey;
+  const nodeBExtendedKey = generateExtendedKey();
+  const privateKeyB = getPrivateKey(nodeBExtendedKey);
 
-  const nodeCMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(nodeCMnemonic).derivePath(CF_PATH)
-    .privateKey;
+  const nodeCExtendedKey = generateExtendedKey();
+  const privateKeyC = getPrivateKey(nodeCExtendedKey);
 
   const server = ganache.server({
     accounts: [
@@ -65,10 +71,10 @@ export default async function() {
 
   const networkContext = await deployTestArtifactsToChain(wallet);
   const data = {
-    pgMnemonic,
-    nodeAMnemonic,
-    nodeBMnemonic,
-    nodeCMnemonic,
+    pgExtendedKey,
+    nodeAExtendedKey,
+    nodeBExtendedKey,
+    nodeCExtendedKey,
     networkContext
   };
 
