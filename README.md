@@ -130,7 +130,7 @@ To run E2E tests:
 - If you're using E2E tests for the first time or have done recent changes to the code, run:
 
 ```shell
-NODE_MNEMONIC="..." yarn test:e2e --with-prepare
+yarn test:e2e:setup
 ```
 
 - If you're re-running tests or writing new scenarios, run:
