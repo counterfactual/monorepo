@@ -12,9 +12,9 @@ else
   nvm use
 fi
 
-if [ -z "$NODE_MNEMONIC" ];
+if [ -z "$NODE_EXTENDED_PRIVATE_KEY" ];
 then
-  echo "  > Error: Please set the NODE_MNEMONIC environment variable."
+  echo "  > Error: Please set the NODE_EXTENDED_PRIVATE_KEY environment variable."
   exit
 fi
 

@@ -68,7 +68,10 @@ let node: Node;
   const store = serviceFactory.createStoreService("hrBotStore1");
 
   await store.set([
-    { key: EXTENDED_PRIVATE_KEY_PATH, value: process.env.NODE_MNEMONIC }
+    {
+      key: EXTENDED_PRIVATE_KEY_PATH,
+      value: process.env.NODE_EXTENDED_PRIVATE_KEY
+    }
   ]);
 
   const messService = serviceFactory.createMessagingService("messaging");
