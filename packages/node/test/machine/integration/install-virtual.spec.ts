@@ -178,7 +178,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       );
     };
 
-    createTargetAppInstance = function () {
+    createTargetAppInstance = function() {
       return new AppInstance(
         multisigOwnerKeys.map(x => x.address),
         /* default timeout */ 0,
