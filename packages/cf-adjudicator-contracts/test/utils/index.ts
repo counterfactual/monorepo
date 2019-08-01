@@ -3,44 +3,14 @@ import * as chai from "chai";
 import { solidity } from "ethereum-waffle";
 import {
   BigNumber,
-  BigNumberish,
   defaultAbiCoder,
   joinSignature,
   keccak256,
   recoverAddress,
-  Signature,
-  solidityPack
+  Signature
 } from "ethers/utils";
 
 export const expect = chai.use(solidity).expect;
-
-// TS version of MChallengeRegistryCore::computeAppChallengeHash
-export const computeAppChallengeHash = (
-  id: string,
-  appStateHash: string,
-  versionNumber: BigNumberish,
-  timeout: number
-) =>
-  keccak256(
-    solidityPack(
-      ["bytes1", "bytes32", "uint256", "uint256", "bytes32"],
-      ["0x19", id, versionNumber, timeout, appStateHash]
-    )
-  );
-
-// TS version of MChallengeRegistryCore::computeActionHash
-export const computeActionHash = (
-  turnTaker: string,
-  previousState: string,
-  action: string,
-  versionNumber: number
-) =>
-  keccak256(
-    solidityPack(
-      ["bytes1", "address", "bytes", "bytes", "uint256"],
-      ["0x19", turnTaker, previousState, action, versionNumber]
-    )
-  );
 
 export class AppIdentityTestClass {
   get identityHash(): string {
@@ -97,19 +67,4 @@ export function sortSignaturesBySignerAddress(
     return new BigNumber(addrA).lt(addrB) ? -1 : 1;
   });
   return ret;
-}
-
-/**
- * Sorts signatures in ascending order of signer address
- * and converts them into bytes
- *
- * @param signatures An array of etherium signatures
- */
-export function signaturesToBytesSortedBySignerAddress(
-  digest: string,
-  ...signatures: Signature[]
-): string {
-  return signaturesToBytes(
-    ...sortSignaturesBySignerAddress(digest, signatures)
-  );
 }

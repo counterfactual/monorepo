@@ -1,11 +1,14 @@
 pragma solidity 0.5.10;
 pragma experimental ABIEncoderV2;
 
+import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
+
 import "../interfaces/CounterfactualApp.sol";
-import "../libs/LibSignature.sol";
 
 
-contract LibAppInstanceState is LibSignature {
+contract LibAppInstanceState {
+
+  using ECDSA for bytes32;
 
   enum AppInstanceStateType { App, Conclude }
 
@@ -70,8 +73,7 @@ contract LibAppInstanceState is LibSignature {
     returns (bytes32)
   {
     return keccak256(
-      abi.encodePacked(
-        appInstanceState.appDefinition,
+      abi.encode(
         appInstanceState.nonce,
         appInstanceState.participants
       )
@@ -112,7 +114,7 @@ contract LibAppInstanceState is LibSignature {
     returns (bool)
   {
     return turnTakerFromAppInstanceState(appInstanceState) ==
-      recoverKey(signature, keccak256(abi.encode(appInstanceState)), 0);
+      keccak256(abi.encode(appInstanceState)).recover(signature);
   }
 
 }

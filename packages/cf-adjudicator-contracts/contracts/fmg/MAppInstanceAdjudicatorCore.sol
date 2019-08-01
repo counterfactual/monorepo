@@ -14,6 +14,14 @@ contract MAppInstanceAdjudicatorCore is LibAppInstanceState {
     AppInstanceState challengeAppInstanceState;
   }
 
+  function getChallenge(bytes32 appInstanceId)
+    external
+    view
+    returns (MaybeOutcome memory)
+  {
+    return outcomes[appInstanceId];
+  }
+
   function isAppInstanceFinalized(bytes32 appInstanceId)
     public
     view

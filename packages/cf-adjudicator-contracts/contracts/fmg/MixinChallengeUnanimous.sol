@@ -33,7 +33,7 @@ contract MixinChallengeUnanimous is
     for (uint256 i = 0; i < appInstanceState.participants.length; i++) {
       require(
         appInstanceState.participants[i] ==
-        recoverKey(signatures[i], keccak256(abi.encode(appInstanceState)), 0),
+        keccak256(abi.encode(appInstanceState)).recover(signatures[i]),
         "ChallengeUnanimous: every participant must have signed the state"
       );
     }
