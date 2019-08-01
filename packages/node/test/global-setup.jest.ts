@@ -15,6 +15,6 @@ export default async function globalSetup() {
     B_EXTENDED_KEY,
     C_EXTENDED_KEY
   ]);
-  await chain.xprv();
+  await chain.runMigrations();
   global["chain"] = chain;
 }

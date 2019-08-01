@@ -24,7 +24,7 @@ export class LocalGanacheServer {
   server: any;
   networkContext: NetworkContextForTestSuite;
 
-  constructor(xprvs: string[], initialBalance: string = "1000") {
+  constructor(extendedPrvKeys: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
       throw new Error("No GANACHE_PORT found. Aborting!");
     }
@@ -43,7 +43,7 @@ export class LocalGanacheServer {
 
     const accounts: object[] = [];
 
-    xprvs.forEach(xprv => {
+    extendedPrvKeys.forEach(xprv => {
       const entry = {
         balance,
         secretKey: fromExtendedKey(xprv).derivePath(CF_PATH).privateKey

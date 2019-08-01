@@ -27,7 +27,7 @@ import {
   FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
-import { getRandomNeuteredExtendedKeys } from "../machine/integration/random-signing-keys";
+import { getRandomExtendedPubKeys } from "../machine/integration/random-signing-keys";
 import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createAppInstanceProposalForTest } from "./utils";
@@ -106,7 +106,7 @@ describe("Can handle correct & incorrect installs", () => {
 
     const appInstanceId = hexlify(randomBytes(32));
     const multisigAddress = Wallet.createRandom().address;
-    const extendedKeys = getRandomNeuteredExtendedKeys(2);
+    const extendedKeys = getRandomExtendedPubKeys(2);
     const participants = xkeysToSortedKthAddresses(extendedKeys, 0);
 
     const stateChannel = StateChannel.setupChannel(

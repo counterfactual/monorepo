@@ -9,3 +9,6 @@ import { AddressZero } from "ethers/constants";
  * also carries data about ERC20 tokens.
  */
 export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
+
+// 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
+export const CF_PATH = "m/44'/60'/0'/25446";

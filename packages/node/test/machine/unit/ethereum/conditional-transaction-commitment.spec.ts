@@ -7,7 +7,6 @@ import {
   randomBytes,
   TransactionDescription
 } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { ConditionalTransaction } from "../../../../src/ethereum";
@@ -16,6 +15,7 @@ import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../../integration/utils";
 import { createAppInstanceForTest } from "../../../unit/utils";
+import { getRandomExtendedPubKey } from "../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../mocks";
 
 describe("ConditionalTransaction", () => {
@@ -26,8 +26,8 @@ describe("ConditionalTransaction", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-    receiver: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
+    sender: getRandomExtendedPubKey(),
+    receiver: getRandomExtendedPubKey()
   };
 
   // State channel testing values

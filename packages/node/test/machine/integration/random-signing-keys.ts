@@ -1,7 +1,7 @@
 import { HDNode, hexlify, randomBytes, SigningKey } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
-import { computeRandomExtendedKey } from "../../../src/machine/xkeys";
+import { computeRandomExtendedPrvKey } from "../../../src/machine/xkeys";
 
 export function getSortedRandomSigningKeys(length: number) {
   // tslint:disable-next-line:prefer-array-literal
@@ -13,22 +13,26 @@ export function getSortedRandomSigningKeys(length: number) {
     );
 }
 
-export function xkeyToXpub(xkey: string): string {
-  return fromExtendedKey(xkey).neuter().extendedKey;
+export function extendedPrvKeyToExtendedPubKey(extendedPrvKey: string): string {
+  return fromExtendedKey(extendedPrvKey).neuter().extendedKey;
 }
 
-export function getRandomNeuteredExtendedKeys(length: number): string[] {
-  return getRandomExtendedKeys(length).map(
-    x => fromExtendedKey(x).neuter().extendedKey
-  );
+export function getRandomExtendedPubKey(): string {
+  return extendedPrvKeyToExtendedPubKey(computeRandomExtendedPrvKey());
 }
 
-export function getRandomExtendedKeys(length: number): string[] {
+export function getRandomExtendedPubKeys(length: number): string[] {
   return Array(length)
     .fill(0)
-    .map(computeRandomExtendedKey);
+    .map(getRandomExtendedPubKey);
+}
+
+export function getRandomExtendedPrvKeys(length: number): string[] {
+  return Array(length)
+    .fill(0)
+    .map(computeRandomExtendedPrvKey);
 }
 
 export function getRandomHDNodes(length: number): HDNode.HDNode[] {
-  return getRandomExtendedKeys(length).map(x => fromExtendedKey(x));
+  return getRandomExtendedPrvKeys(length).map(x => fromExtendedKey(x));
 }

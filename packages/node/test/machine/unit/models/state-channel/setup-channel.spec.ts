@@ -1,18 +1,15 @@
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import { getBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
+import { getRandomExtendedPubKeys } from "../../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::setupChannel", () => {
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
-  const userNeuteredExtendedKeys = [
-    fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-    fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
-  ];
+  const xpubs = getRandomExtendedPubKeys(2);
 
   let sc: StateChannel;
 
@@ -22,13 +19,13 @@ describe("StateChannel::setupChannel", () => {
     sc = StateChannel.setupChannel(
       networkContext.IdentityApp,
       multisigAddress,
-      userNeuteredExtendedKeys
+      xpubs
     );
   });
 
   it("should not alter any of the base properties", () => {
     expect(sc.multisigAddress).toBe(multisigAddress);
-    expect(sc.userNeuteredExtendedKeys).toBe(userNeuteredExtendedKeys);
+    expect(sc.userNeuteredExtendedKeys).toBe(xpubs);
   });
 
   it("should have bumped the sequence number", () => {

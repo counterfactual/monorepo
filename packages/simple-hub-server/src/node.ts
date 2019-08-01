@@ -158,7 +158,7 @@ export class NodeWrapper {
 
   public static async createNodeSingleton(
     networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
-    extendedKey?: string,
+    extendedPrvKey?: string,
     provider?: JsonRpcProvider,
     storeService?: NodeTypes.IStoreService,
     messagingService?: NodeTypes.IMessagingService
@@ -185,7 +185,7 @@ export class NodeWrapper {
     NodeWrapper.node = await NodeWrapper.createNode(
       networkOrNetworkContext,
       provider,
-      extendedKey,
+      extendedPrvKey,
       store,
       messagingService
     );
@@ -208,7 +208,7 @@ export class NodeWrapper {
   public static async createNode(
     networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
     provider?: JsonRpcProvider,
-    extendedKey?: string,
+    extendedPrvKey?: string,
     storeService?: NodeTypes.IStoreService,
     messagingService?: NodeTypes.IMessagingService
   ): Promise<Node> {
@@ -221,8 +221,8 @@ export class NodeWrapper {
       messagingService ||
       serviceFactoryResolved.createMessagingService("messaging");
 
-    if (extendedKey) {
-      await store.set([{ key: EXTENDED_KEY_PATH, value: extendedKey }]);
+    if (extendedPrvKey) {
+      await store.set([{ key: EXTENDED_KEY_PATH, value: extendedPrvKey }]);
     }
 
     if (!provider && typeof networkOrNetworkContext !== "string") {

@@ -11,7 +11,7 @@ import { fromExtendedKey, fromMnemonic, HDNode } from "ethers/utils/hdnode";
  * BIP-44 specifies that if the purpose is 44, then the format is "m / purpose' / cointype' / account' / change / index"
  */
 
-export function computeRandomExtendedKey(): string {
+export function computeRandomExtendedPrvKey(): string {
   return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
 }
 

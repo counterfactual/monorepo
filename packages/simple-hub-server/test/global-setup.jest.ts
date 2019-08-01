@@ -20,8 +20,8 @@ function generateXPrv() {
   return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
 }
 
-function getPrivateKey(xprv: string) {
-  return fromExtendedKey(xprv).derivePath(CF_PATH).privateKey;
+function getPrivateKey(extendedPrvKey: string) {
+  return fromExtendedKey(extendedPrvKey).derivePath(CF_PATH).privateKey;
 }
 
 export default async function() {

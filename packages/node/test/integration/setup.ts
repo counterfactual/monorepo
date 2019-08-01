@@ -11,8 +11,8 @@ import { parseEther } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
-import { EXTENDED_KEY_PATH, Node } from "../../src";
-import { computeRandomExtendedKey } from "../../src/machine/xkeys";
+import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
+import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import { A_EXTENDED_KEY, B_EXTENDED_KEY } from "../test-constants.jest";
@@ -85,7 +85,9 @@ export async function setup(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
 
-  await storeServiceA.set([{ key: EXTENDED_KEY_PATH, value: extendedKeyA }]);
+  await storeServiceA.set([
+    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedKeyA }
+  ]);
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
@@ -102,7 +104,9 @@ export async function setup(
   const storeServiceB = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
-  await storeServiceB.set([{ key: EXTENDED_KEY_PATH, value: extendedKeyB }]);
+  await storeServiceB.set([
+    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedKeyB }
+  ]);
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
@@ -156,8 +160,8 @@ export async function generateNewFundedMnemonics(
   provider: Provider
 ) {
   const fundedWallet = new Wallet(fundedPrivateKey, provider);
-  const A_EXTENDED_KEY = computeRandomExtendedKey();
-  const B_EXTENDED_KEY = computeRandomExtendedKey();
+  const A_EXTENDED_KEY = computeRandomExtendedPrvKey();
+  const B_EXTENDED_KEY = computeRandomExtendedPrvKey();
 
   const signerAPrivateKey = fromExtendedKey(A_EXTENDED_KEY).derivePath(CF_PATH)
     .privateKey;

@@ -1,23 +1,23 @@
 import { Node } from "@counterfactual/types";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 
-import { computeRandomExtendedKey } from "./machine/xkeys";
+import { CF_PATH } from "./constants";
+import { computeRandomExtendedPrvKey } from "./machine/xkeys";
 
-export const EXTENDED_KEY_PATH = "EXTENDED_KEY";
+export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
 export async function getHDNode(
   storeService: Node.IStoreService
 ): Promise<HDNode> {
-  let extendedKey = await storeService.get(EXTENDED_KEY_PATH);
+  let xprv = await storeService.get(EXTENDED_PRIVATE_KEY_PATH);
 
-  if (!extendedKey) {
-    extendedKey = computeRandomExtendedKey();
-    await storeService.set([{ key: EXTENDED_KEY_PATH, value: extendedKey }]);
+  if (!xprv) {
+    xprv = computeRandomExtendedPrvKey();
+    await storeService.set([{ key: EXTENDED_PRIVATE_KEY_PATH, value: xprv }]);
   }
 
   try {
-    // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
-    return fromExtendedKey(extendedKey).derivePath("m/44'/60'/0'/25446");
+    return fromExtendedKey(xprv).derivePath(CF_PATH);
   } catch (e) {
     throw new Error(`Invalid extended key supplied: ${e}`);
   }

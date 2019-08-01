@@ -7,7 +7,7 @@ import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { computeRandomExtendedKey } from "../../src/machine/xkeys";
+import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import {
   AppInstance,
   AppInstanceProposal,
@@ -17,8 +17,8 @@ import {
 export function createAppInstanceProposalForTest(appInstanceId: string) {
   return new AppInstanceProposal(
     {
-      proposedByIdentifier: computeRandomExtendedKey(),
-      proposedToIdentifier: computeRandomExtendedKey(),
+      proposedByIdentifier: computeRandomExtendedPrvKey(),
+      proposedToIdentifier: computeRandomExtendedPrvKey(),
       appDefinition: AddressZero,
       abiEncodings: {
         stateEncoding: "tuple(address foo, uint256 bar)",
