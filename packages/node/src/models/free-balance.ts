@@ -53,7 +53,6 @@ export type FreeBalanceStateJSON = {
  * and only converted to more complex types (i.e. BigNumber) upon usage.
  */
 export function createFreeBalance(
-  multisigAddress: string,
   userNeuteredExtendedKeys: string[],
   coinBucketAddress: string,
   freeBalanceTimeout: number
@@ -77,7 +76,6 @@ export function createFreeBalance(
   };
 
   return new AppInstance(
-    multisigAddress,
     sortedTopLevelKeys,
     freeBalanceTimeout,
     getFreeBalanceAppInterface(coinBucketAddress),
