@@ -13,7 +13,7 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   using SafeMath for uint256;
 
   struct AppState {
-    LibOutcome.CoinTransfer[] coinTransfers;
+    LibOutcome.CoinTransfer[][] coinTransfers;
   }
 
   function computeOutcome(bytes calldata encodedState)
@@ -23,11 +23,11 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
   {
     AppState memory state = abi.decode(encodedState, (AppState));
 
-    uint256 amountsA = state.coinTransfers[0].amount;
-    uint256 amountsB = state.coinTransfers[1].amount;
+    uint256 amountsA = state.coinTransfers[0][0].amount;
+    uint256 amountsB = state.coinTransfers[1][0].amount;
 
-    state.coinTransfers[0].amount = amountsB;
-    state.coinTransfers[1].amount = amountsA;
+    state.coinTransfers[0][0].amount = amountsB;
+    state.coinTransfers[1][0].amount = amountsA;
 
     return abi.encode(state.coinTransfers);
   }

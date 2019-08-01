@@ -2,7 +2,7 @@ import {
   AppInterface,
   NetworkContext,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
@@ -53,7 +53,7 @@ export type UpdateParams = {
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  newState: SolidityABIEncoderV2Type;
+  newState: SolidityValueType;
 };
 
 export type TakeActionParams = {
@@ -61,7 +61,7 @@ export type TakeActionParams = {
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  action: SolidityABIEncoderV2Type;
+  action: SolidityValueType;
 };
 
 export type WithdrawParams = {
@@ -82,7 +82,7 @@ export type InstallParams = {
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   participants: string[];
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   appInterface: AppInterface;
   defaultTimeout: number;
 
@@ -103,7 +103,7 @@ export type InstallVirtualAppParams = {
   intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
 
   // initiator and respondor must fund the installed virtual app with the same
   // token type `tokenAddress`, but may use different amounts

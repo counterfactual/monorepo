@@ -5,7 +5,7 @@ import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
 import { ActionType, ApplicationState, Deposit, WalletState } from "../types";
-import { WalletDepositTransition } from "./wallet";
+import { WalletDepositTransition, WalletWithdrawTransition } from "./wallet";
 
 export const connectToWallet = (): ThunkAction<
   void,
@@ -52,7 +52,8 @@ export const deposit = (
 > => async dispatch => {
   try {
     dispatch({ type: WalletDepositTransition.CheckWallet });
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     dispatch({
       data: {
         ethereumBalance: parseEther("0.2"),
@@ -75,11 +76,6 @@ export const deposit = (
     });
   }
 };
-
-export enum WalletWithdrawTransition {
-  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
-  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
-}
 
 export const withdraw = (
   // @ts-ignore

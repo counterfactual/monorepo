@@ -1,11 +1,13 @@
 import React from "react";
 import "./FormInput.scss";
+import { AssetType } from "../../../store/types";
 
 export type InputChangeProps = {
   validity: { valid: boolean; error?: string };
   inputName: string;
   event?: React.ChangeEvent<HTMLInputElement>;
   value?: number | string | boolean;
+  tokenAddress?: string;
 };
 
 export type FormInputProps = {
@@ -17,7 +19,7 @@ export type FormInputProps = {
   step?: number;
   error?: string;
   type?: string;
-  unit?: string;
+  units?: AssetType[];
   required?: boolean;
   disabled?: boolean;
   value?: string | number;
@@ -41,6 +43,8 @@ export const errorStatus = (type?: string) => ({
 class FormInput extends React.Component<
   FormInputProps,
   {
+    lastChangeEvent?: React.ChangeEvent<HTMLInputElement>;
+    tokenAddress?: string;
     value?: string | number;
     error: string | undefined;
     valid: boolean;
@@ -49,6 +53,11 @@ class FormInput extends React.Component<
   constructor(props: FormInputProps) {
     super(props);
     this.state = {
+      tokenAddress:
+        props.units && Array.isArray(props.units) && props.units.length > 0
+          ? props.units[0].tokenAddress
+          : undefined,
+      lastChangeEvent: undefined,
       value: props.value || "",
       error: props.error,
       valid: !!(props.error || (props.required && props.value !== undefined))
@@ -57,11 +66,13 @@ class FormInput extends React.Component<
 
   handleChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { type, disabled, error, change, name } = this.props;
+    const { tokenAddress } = this.state;
     const inputError =
       error || this.getError(event.target.validity, type, disabled);
     if (change) {
       change({
         event,
+        tokenAddress,
         validity: {
           error: error as string,
           valid: !inputError
@@ -71,6 +82,7 @@ class FormInput extends React.Component<
       });
     }
     this.setState({
+      lastChangeEvent: event,
       error: inputError,
       value: event.target.value,
       valid: !inputError
@@ -91,6 +103,22 @@ class FormInput extends React.Component<
     return "The value you entered for this field is invalid.";
   }
 
+  handleUnitChange(event: React.ChangeEvent<HTMLSelectElement>): void {
+    const { error: propError, change, name } = this.props;
+    const { lastChangeEvent, error: stateError, value, valid } = this.state;
+    const error = propError || stateError;
+    if (change) {
+      change({
+        value,
+        event: lastChangeEvent,
+        tokenAddress: event.target.value,
+        validity: { error, valid },
+        inputName: name as string
+      });
+    }
+    this.setState({ ...this.state, tokenAddress: event.target.value });
+  }
+
   render() {
     const {
       className,
@@ -100,7 +128,7 @@ class FormInput extends React.Component<
       min,
       step,
       type,
-      unit,
+      units,
       disabled,
       required,
       autofocus
@@ -128,7 +156,20 @@ class FormInput extends React.Component<
             onBlur={event => this.handleChange(event)}
             onChange={event => this.handleChange(event)}
           />
-          {unit ? <div className="unit">{unit}</div> : null}
+          {Array.isArray(units) && units.length === 1 ? (
+            <div className="unit">{units[0].name}</div>
+          ) : Array.isArray(units) && units.length > 1 ? (
+            <select
+              className="unit-selector"
+              onChange={event => this.handleUnitChange(event)}
+            >
+              {units.map(({ name, tokenAddress }) => (
+                <option className="unit-selector-item" value={tokenAddress}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          ) : null}
         </div>
         {error ? (
           <div

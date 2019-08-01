@@ -3,12 +3,10 @@ import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getBalancesFromFreeBalanceAppInstance
-} from "../../../models/free-balance";
+import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";

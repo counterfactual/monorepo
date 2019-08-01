@@ -13,7 +13,7 @@ type CoinTransfer = {
 };
 
 type SimpleSwapAppState = {
-  coinTransfers: CoinTransfer[];
+  coinTransfers: CoinTransfer[][];
 };
 
 const { expect } = chai;
@@ -32,7 +32,7 @@ describe("SimpleTwoPartySwapApp", () => {
           tuple(
             address to,
             uint256 amount
-          )[] coinTransfers
+          )[][] coinTransfers
         )`
       ],
       [state]
@@ -59,27 +59,35 @@ describe("SimpleTwoPartySwapApp", () => {
 
       const preState: SimpleSwapAppState = {
         coinTransfers: [
-          {
-            to: senderAddr,
-            amount: tokenAmt
-          },
-          {
-            to: receiverAddr,
-            amount: ethAmt
-          }
+          [
+            {
+              to: senderAddr,
+              amount: tokenAmt
+            }
+          ],
+          [
+            {
+              to: receiverAddr,
+              amount: ethAmt
+            }
+          ]
         ]
       };
 
       const state: SimpleSwapAppState = {
         coinTransfers: [
-          {
-            to: senderAddr,
-            amount: ethAmt
-          },
-          {
-            to: receiverAddr,
-            amount: tokenAmt
-          }
+          [
+            {
+              to: senderAddr,
+              amount: ethAmt
+            }
+          ],
+          [
+            {
+              to: receiverAddr,
+              amount: tokenAmt
+            }
+          ]
         ]
       };
 
@@ -87,7 +95,7 @@ describe("SimpleTwoPartySwapApp", () => {
 
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(address to, uint256 amount)[]`],
+          [`tuple(address to, uint256 amount)[][]`],
           [state.coinTransfers]
         )
       );

@@ -8,7 +8,7 @@ import {
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
-  SolidityABIEncoderV2Type,
+  SolidityValueType,
   TwoPartyFixedOutcomeInterpreterParams,
   twoPartyFixedOutcomeInterpreterParamsEncoding,
   virtualAppAgreementEncoding
@@ -284,7 +284,7 @@ export class AppInstance {
   }
 
   public setState(
-    newState: SolidityABIEncoderV2Type,
+    newState: SolidityValueType,
     timeout: number = this.defaultTimeout
   ) {
     try {
@@ -312,7 +312,7 @@ Attempted to setState on an app with an invalid state object.
   }
 
   public async computeOutcome(
-    state: SolidityABIEncoderV2Type,
+    state: SolidityValueType,
     provider: BaseProvider
   ): Promise<string> {
     return this.toEthersContract(provider).functions.computeOutcome(
@@ -327,10 +327,10 @@ Attempted to setState on an app with an invalid state object.
   }
 
   public async computeStateTransition(
-    action: SolidityABIEncoderV2Type,
+    action: SolidityValueType,
     provider: BaseProvider
-  ): Promise<SolidityABIEncoderV2Type> {
-    const ret: SolidityABIEncoderV2Type = {};
+  ): Promise<SolidityValueType> {
+    const ret: SolidityValueType = {};
 
     const computedNextState = this.decodeAppState(
       await this.toEthersContract(provider).functions.applyAction(
@@ -348,23 +348,21 @@ Attempted to setState on an app with an invalid state object.
     return ret;
   }
 
-  public encodeAction(action: SolidityABIEncoderV2Type) {
+  public encodeAction(action: SolidityValueType) {
     return defaultAbiCoder.encode(
       [this.appInterface.actionEncoding!],
       [action]
     );
   }
 
-  public encodeState(state: SolidityABIEncoderV2Type) {
+  public encodeState(state: SolidityValueType) {
     return defaultAbiCoder.encode([this.appInterface.stateEncoding], [state]);
   }
 
-  public decodeAppState(
-    encodedSolidityABIEncoderV2Type: string
-  ): SolidityABIEncoderV2Type {
+  public decodeAppState(encodedSolidityValueType: string): SolidityValueType {
     return defaultAbiCoder.decode(
       [this.appInterface.stateEncoding],
-      encodedSolidityABIEncoderV2Type
+      encodedSolidityValueType
     )[0];
   }
 

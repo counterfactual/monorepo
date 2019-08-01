@@ -1,18 +1,18 @@
 import {
   AppABIEncodings,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { AddressZero, One, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { computeRandomExtendedKey } from "../../src/machine/xkeys";
 import {
   AppInstance,
   AppInstanceProposal,
   StateChannel
 } from "../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 
 export function createAppInstanceProposalForTest(appInstanceId: string) {
   return new AppInstanceProposal(
@@ -30,7 +30,7 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
       initialState: {
         foo: AddressZero,
         bar: 0
-      } as SolidityABIEncoderV2Type,
+      } as SolidityValueType,
       outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
       responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS

@@ -6,7 +6,7 @@ import {
   NetworkContext,
   Node,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
@@ -17,18 +17,17 @@ import {
 } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
-import { getPeersAddressFromChannel } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
 const DEPOSIT_RETRY_COUNT = 3;
 
 interface DepositContext {
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   appInterface: AppInterface;
 }
 
@@ -46,7 +45,7 @@ export async function installBalanceRefundApp(
 
   const { multisigAddress, tokenAddress } = params;
 
-  const [peerAddress] = await getPeersAddressFromChannel(
+  const [peerAddress] = await StateChannel.getPeersAddressFromChannel(
     publicIdentifier,
     store,
     multisigAddress
@@ -163,7 +162,7 @@ export async function uninstallBalanceRefundApp(
 
   const { CoinBalanceRefundApp } = networkContext;
 
-  const [peerAddress] = await getPeersAddressFromChannel(
+  const [peerAddress] = await StateChannel.getPeersAddressFromChannel(
     publicIdentifier,
     store,
     multisigAddress

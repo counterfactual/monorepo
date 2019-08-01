@@ -14,6 +14,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:e2e": "REACT_APP_HUB_API_URL=http://localhost:9001 CI=true react-scripts start",
     "build": "react-scripts build",
     "test": "CI=true react-scripts test",
     "test:coverage": "CI=true react-scripts test --coverage",

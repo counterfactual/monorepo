@@ -6,72 +6,19 @@ import {
   getAddress,
   hashMessage,
   Interface,
+  joinSignature,
   keccak256,
+  recoverAddress,
+  Signature,
   solidityKeccak256,
   solidityPack
 } from "ethers/utils";
-import { fromExtendedKey } from "ethers/utils/hdnode";
 import log from "loglevel";
 
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
-import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
-import { StateChannel } from "./models";
-import { CoinTransfer, CoinTransferMap } from "./models/free-balance";
-import { Store } from "./store";
 
 export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
   return hashMessage(addresses.sort().join(""));
-}
-
-/**
- * Finds a StateChannel based on two xpubs in a store.
- *
- * @param myXpub - first xpub
- * @param theirXpub - second xpub
- * @param store - store to search within
- */
-export async function getStateChannelWithOwners(
-  myXpub: string,
-  theirXpub: string,
-  store: Store
-): Promise<StateChannel> {
-  const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-    hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
-  );
-
-  if (!multisigAddress) {
-    throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
-  }
-
-  return await store.getStateChannel(multisigAddress);
-}
-
-export async function getPeersAddressFromChannel(
-  myIdentifier: string,
-  store: Store,
-  multisigAddress: string
-): Promise<string[]> {
-  const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== myIdentifier);
-}
-
-export async function getPeersAddressFromAppInstanceID(
-  myIdentifier: string,
-  store: Store,
-  appInstanceId: string
-): Promise<string[]> {
-  const multisigAddress = await store.getMultisigAddressFromAppInstance(
-    appInstanceId
-  );
-
-  if (!multisigAddress) {
-    throw new Error(
-      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
-    );
-  }
-
-  return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
 }
 
 export function getCounterpartyAddress(
@@ -81,13 +28,6 @@ export function getCounterpartyAddress(
   return appInstanceAddresses.filter(address => {
     return address !== myIdentifier;
   })[0];
-}
-
-export function getBalanceIncrement(
-  beforeDeposit: BigNumber,
-  afterDeposit: BigNumber
-): BigNumber {
-  return afterDeposit.sub(beforeDeposit);
 }
 
 export function timeout(ms: number) {
@@ -143,13 +83,6 @@ export function getCreate2MultisigAddress(
   );
 }
 
-/**
- * Address used for a Node's free balance
- */
-export function getFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
-}
-
 const isBrowser =
   typeof window !== "undefined" &&
   {}.toString.call(window) === "[object Window]";
@@ -186,20 +119,47 @@ export const bigNumberifyJson = (json: object) =>
     val
   ) => (val && val["_hex"] ? bigNumberify(val) : val));
 
-export function convertCoinTransfersToCoinTransfersMap(
-  coinTransfers: CoinTransfer[]
-): CoinTransferMap {
-  return (coinTransfers || []).reduce(
-    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
-    {}
-  );
+/**
+ * Converts an array of signatures into a single string
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function signaturesToBytes(...signatures: Signature[]): string {
+  return signatures
+    .map(joinSignature)
+    .map(s => s.substr(2))
+    .reduce((acc, v) => acc + v, "0x");
 }
 
-export function convertCoinTransfersMapToCoinTransfers(
-  coinTransfersMap: CoinTransferMap
-): CoinTransfer[] {
-  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
-    to,
-    amount
-  }));
+/**
+ * Sorts signatures in ascending order of signer address
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function sortSignaturesBySignerAddress(
+  digest: string,
+  signatures: Signature[]
+): Signature[] {
+  const ret = signatures.slice();
+  ret.sort((sigA, sigB) => {
+    const addrA = recoverAddress(digest, signaturesToBytes(sigA));
+    const addrB = recoverAddress(digest, signaturesToBytes(sigB));
+    return new BigNumber(addrA).lt(addrB) ? -1 : 1;
+  });
+  return ret;
+}
+
+/**
+ * Sorts signatures in ascending order of signer address
+ * and converts them into bytes
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function signaturesToBytesSortedBySignerAddress(
+  digest: string,
+  ...signatures: Signature[]
+): string {
+  return signaturesToBytes(
+    ...sortSignaturesBySignerAddress(digest, signatures)
+  );
 }

@@ -1,4 +1,4 @@
-import { SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { SolidityValueType } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -25,7 +25,7 @@ function decodeBytesToAppState(encodedAppState: string): NimAppState {
 describe("Nim", () => {
   let nim: Contract;
 
-  function encodeState(state: SolidityABIEncoderV2Type) {
+  function encodeState(state: SolidityValueType) {
     return defaultAbiCoder.encode(
       [
         `
@@ -39,7 +39,7 @@ describe("Nim", () => {
     );
   }
 
-  function encodeAction(state: SolidityABIEncoderV2Type) {
+  function encodeAction(state: SolidityValueType) {
     return defaultAbiCoder.encode(
       [
         `
@@ -54,8 +54,8 @@ describe("Nim", () => {
   }
 
   async function applyAction(
-    state: SolidityABIEncoderV2Type,
-    action: SolidityABIEncoderV2Type
+    state: SolidityValueType,
+    action: SolidityValueType
   ) {
     return await nim.functions.applyAction(
       encodeState(state),
@@ -63,7 +63,7 @@ describe("Nim", () => {
     );
   }
 
-  async function isStateTerminal(state: SolidityABIEncoderV2Type) {
+  async function isStateTerminal(state: SolidityValueType) {
     return await nim.functions.isStateTerminal(encodeState(state));
   }
 

@@ -13,9 +13,10 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import {
   CoinTransfer,
+  convertCoinTransfersToCoinTransfersMap,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
-import { convertCoinTransfersToCoinTransfersMap, wait } from "../../utils";
+import { wait } from "../../utils";
 
 /**
  * Get the outcome of the app instance given, decode it according
@@ -151,15 +152,12 @@ function handleMultiAssetMultiPartyCoinTransfer(
   );
 
   return interpreterParams.tokenAddresses.reduce(
-    (
-      tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap,
-      tokenAddress: string,
-      index: number
-    ) => {
-      return (tokenIndexedCoinTransferMap[
-        tokenAddress
-      ] = convertCoinTransfersToCoinTransfersMap(decodedTransfers[index]));
-    },
+    (acc, tokenAddress, index) => ({
+      ...acc,
+      [tokenAddress]: convertCoinTransfersToCoinTransfersMap(
+        decodedTransfers[index]
+      )
+    }),
     {}
   );
 }

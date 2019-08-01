@@ -7,7 +7,7 @@ import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify } from "ethers/utils";
 
 import { Node, NODE_EVENTS } from "../../src";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";

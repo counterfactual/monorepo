@@ -132,7 +132,8 @@ describe("Store > Wallet", () => {
 
       expect(dispatchedActions).toEqual([
         { type: WalletDepositTransition.CheckWallet },
-        { type: WalletDepositTransition.WaitForFunds },
+        { type: WalletDepositTransition.WaitForUserFunds },
+        { type: WalletDepositTransition.WaitForCollateralFunds },
         {
           data: {
             counterfactualBalance: USER_MOCK_BALANCE,
@@ -144,7 +145,8 @@ describe("Store > Wallet", () => {
 
       expect(reducedStates).toEqual([
         { status: WalletDepositTransition.CheckWallet },
-        { status: WalletDepositTransition.WaitForFunds },
+        { status: WalletDepositTransition.WaitForUserFunds },
+        { status: WalletDepositTransition.WaitForCollateralFunds },
         {
           status: ActionType.WalletSetBalance,
           counterfactualBalance: USER_MOCK_BALANCE,

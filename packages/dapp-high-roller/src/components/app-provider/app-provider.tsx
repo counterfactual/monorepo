@@ -114,7 +114,8 @@ export class AppProvider {
   }
 
   async onUpdateState({ data }: { data: Node.UpdateStateEventData }) {
-    const newState = (data as Node.UpdateStateEventData).newState;
+    const newState = (data as Node.UpdateStateEventData)
+      .newState as HighRollerAppState;
 
     const state = {
       ...newState,

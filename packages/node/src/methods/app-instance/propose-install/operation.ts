@@ -1,9 +1,8 @@
 import { Node } from "@counterfactual/types";
 
-import { AppInstanceProposal } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
+import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getStateChannelWithOwners } from "../../../utils";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -17,7 +16,7 @@ export async function createProposedAppInstance(
   store: Store,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const channel = await getStateChannelWithOwners(
+  const channel = await StateChannel.getStateChannelWithOwners(
     myIdentifier,
     params.proposedToIdentifier,
     store

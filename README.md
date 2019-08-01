@@ -40,25 +40,25 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 ### Solidity Packages
 
-| Package | Version | Description |
-| --- | --- | --- |
+| Package                                            | Version                                                                                                                       | Description                                         |
+| -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
 | [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state channel logic |
 
 ### Typescript/Javascript Packages
 
 **Counterfactual-specific packages**
 
-| Package | Version | Description |
-| --- | --- | --- |
-| [`@counterfactual/node`](/packages/node) | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node) | The core state channels client that a user runs |
-| [`@counterfactual/cf.js`](/packages/cf.js) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js) | A JS API for interacting with off-chain apps |
-| [`@counterfactual/node-provider`](/packages/node-provider) | [![npm](https://img.shields.io/npm/v/@counterfactual/node-provider.svg)](https://www.npmjs.com/package/@counterfactual/node-provider) | Wrapper around API calls to a Node |
+| Package                                                    | Version                                                                                                                               | Description                                     |
+| ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------- |
+| [`@counterfactual/node`](/packages/node)                   | [![npm](https://img.shields.io/npm/v/@counterfactual/node.svg)](https://www.npmjs.com/package/@counterfactual/node)                   | The core state channels client that a user runs |
+| [`@counterfactual/cf.js`](/packages/cf.js)                 | [![npm](https://img.shields.io/npm/v/@counterfactual/cf.js.svg)](https://www.npmjs.com/package/@counterfactual/cf.js)                 | A JS API for interacting with off-chain apps    |
+| [`@counterfactual/node-provider`](/packages/node-provider) | [![npm](https://img.shields.io/npm/v/@counterfactual/node-provider.svg)](https://www.npmjs.com/package/@counterfactual/node-provider) | Wrapper around API calls to a Node              |
 
 **Utilities**
 
-| Package | Version | Description |
-| --- | --- | --- |
-| [`@counterfactual/types`](/packages/types) | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types) | Shared type declarations |
+| Package                                                              | Version                                                                                                                                         | Description                        |
+| -------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| [`@counterfactual/types`](/packages/types)                           | [![npm](https://img.shields.io/npm/v/@counterfactual/types.svg)](https://www.npmjs.com/package/@counterfactual/types)                           | Shared type declarations           |
 | [`@counterfactual/typescript-typings`](/packages/typescript-typings) | [![npm](https://img.shields.io/npm/v/@counterfactual/typescript-typings.svg)](https://www.npmjs.com/package/@counterfactual/typescript-typings) | Shims for external library typings |
 
 ## Contributing
@@ -124,6 +124,22 @@ To run all tests:
 ```shell
 yarn test
 ```
+
+To run E2E tests:
+
+- If you're using E2E tests for the first time or have done recent changes to the code, run:
+
+```shell
+yarn test:e2e:setup
+```
+
+- If you're re-running tests or writing new scenarios, run:
+
+```shell
+NODE_MNEMONIC="..." yarn test:e2e
+```
+
+See the ["Funding the Hub Account for Playground Testing"](./packages/simple-hub-server/README.md) section on the Simple Hub Server package for more information about `NODE_MNEMONIC`.
 
 ### Patches
 

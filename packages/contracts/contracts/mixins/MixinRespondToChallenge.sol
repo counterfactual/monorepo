@@ -1,7 +1,6 @@
 pragma solidity 0.5.10;
 pragma experimental "ABIEncoderV2";
 
-import "../libs/LibSignature.sol";
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibAppCaller.sol";
 
@@ -9,7 +8,6 @@ import "./MChallengeRegistryCore.sol";
 
 
 contract MixinRespondToChallenge is
-  LibSignature,
   LibStateChannelApp,
   LibAppCaller,
   MChallengeRegistryCore
@@ -62,7 +60,7 @@ contract MixinRespondToChallenge is
     );
 
     require(
-      turnTaker == LibSignature.recoverKey(actionSignature, keccak256(action), 0),
+      turnTaker == keccak256(action).recover(actionSignature),
       "Action must have been signed by correct turn taker"
     );
 
