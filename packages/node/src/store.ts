@@ -1,6 +1,5 @@
 import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
-import { stringify } from "querystring";
 
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
