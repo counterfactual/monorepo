@@ -14,10 +14,10 @@ export async function executeFunctionWithinQueues(
 ) {
   let promise;
 
-  const executeCached = () => {
+  function executeCached() {
     if (!promise) promise = f();
     return promise;
-  };
+  }
 
   if (queueList.length > 0) {
     for (const queue of queueList) queue.add(executeCached);
