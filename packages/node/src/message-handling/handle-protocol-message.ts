@@ -247,6 +247,12 @@ async function getQueueNamesListByProtocolName(
         ];
       }
 
+    // NOTE: This file is only reachable if a protocol message is sent
+    // from an initiator to an intermediary, an intermediary to
+    // a responder, or an initiator to a responder. It is never possible
+    // for the publicIdentifier to be the initiatorXpub, so we ignore
+    // that case.
+
     default:
       throw new Error(
         `handleReceivedProtocolMessage received invalid protocol message: ${protocol}`
