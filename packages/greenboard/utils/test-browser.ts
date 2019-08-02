@@ -109,6 +109,43 @@ export class TestBrowser {
    ****************************************************************/
 
   /**
+   * This function will prepare the browser for using the Counterfactual
+   * Wallet UI by doing the following:
+   *
+   * 1) Open the Metamask homepage.
+   *
+   * 2) Automate Metamask's onboarding flow by configuring a wallet
+   *    with a given seed phrase and password.
+   *
+   * 3) Wait for Metamask to show the main UI.
+   *
+   * 4) Change the extension's network according to `networkName`. For all purposes,
+   *    testing with Counterfactual is done through the "kovan" network.
+   *
+   * 5) Open the Wallet UI in the IFRAME.
+   *
+   * 6) Wait for Metamask to request permission to connect the Wallet UI
+   *    with the Ethereum Provider and grant permission by clicking
+   *    the "Connect" button.
+   *
+   * This function is a convenient wrapper for openMetamask(),
+   * setupMetamask(), waitForMetamaskMainScreen, setMetamaskNetwork(),
+   * openCounterfactualWallet() and authorizeWallet().
+   *
+   * @param networkName {MetamaskNetwork}
+   */
+  async prepare(networkName: MetamaskNetwork = "kovan") {
+    await this.openMetamask();
+    await this.setupMetamask();
+    await this.waitForMetamaskMainScreen();
+    await this.setMetamaskNetwork(networkName);
+    await this.openCounterfactualWallet();
+    await this.authorizeWallet();
+  }
+
+  /**
+   * Only used if the `--discover-metamask` flag is passed to the test runner.
+   *
    * Opens the Metamask extension page in the current window. It'll automatically
    * lookup the extension ID from the Extensions Inspector and save the `home`
    * and `popup` URLs for later usage. If such URLs are already defined,
@@ -496,7 +533,7 @@ export class TestBrowser {
   }
 
   /**
-   * Types a given text into the element found by the selector.
+   * Returns the text contained in an element found by the selector.
    *
    * @param selector
    */
