@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/simple-hub-server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An example backend server for the Playground app that acts as a hub.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",

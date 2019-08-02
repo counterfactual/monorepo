@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/high-roller-bot",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "description": "A bot for the High Roller Playground dApp.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
