@@ -21,5 +21,10 @@ export const getTokens = async (
       tokenAddress,
       name,
       shortName
-    }));
+    }))
+    .concat({
+      tokenAddress: null,
+      name: "Ethereum",
+      shortName: "ETH"
+    });
 };
