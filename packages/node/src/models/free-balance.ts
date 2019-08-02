@@ -15,24 +15,41 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
-export type CoinTransferMap = {
-  [to: string]: BigNumber;
-};
-
-export type TokenIndexedCoinTransferMap = {
-  [tokenAddress: string]: CoinTransferMap;
-};
-
+/*
+Keep in sync with the solidity struct LibOutcome::CoinTransfer
+*/
 export type CoinTransfer = {
   to: string;
   amount: BigNumber;
 };
 
+/*
+Equivalent to the above type but with serialized BigNumbers
+*/
 export type CoinTransferJSON = {
   to: string;
   amount: {
     _hex: string;
   };
+};
+
+/*
+CoinTransferMap is isomorphic to the solidity type `CoinTransfer[]`, with the
+restriction that values of the solidity type be arrays such that no two
+elements are CoinTransfers with the same `to` field. We prefer CoinTransferMap
+in client-side code for easier access, but we cannot use it in solidity due to
+nonexistent support for non-storage mappings.
+*/
+export type CoinTransferMap = {
+  [to: string]: BigNumber;
+};
+
+/*
+A doubly-nested map of BigNumbers indexed first (outermost) by the tokenAddress
+and secondly (innermost) by the beneficiary address
+*/
+export type TokenIndexedCoinTransferMap = {
+  [tokenAddress: string]: CoinTransferMap;
 };
 
 export type ActiveAppsMap = { [appInstanceIdentityHash: string]: true };
