@@ -60,7 +60,9 @@ export async function handleReceivedProtocolMessage(
         preProtocolStateChannelsMap
       );
 
-      stateChannelsMap.forEach(store.saveStateChannel.bind(store));
+      for (const stateChannel of stateChannelsMap.values()) {
+        await store.saveStateChannel(stateChannel);
+      }
 
       return stateChannelsMap;
     }
