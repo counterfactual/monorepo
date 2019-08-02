@@ -5,3 +5,4 @@ jest-coverage/lcov-report/
 jest-coverage/lcov.info
 .env
 networks/
+docs/venv/*
