@@ -4,12 +4,6 @@
 export const DB_NAMESPACE_CHANNEL = "channel";
 
 /**
- * Namespace providing a convenience lookup table from a set of owners to multisig address.
- */
-export const DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS =
-  "ownersHashToMultisigAddress";
-
-/**
  * appInstanceId explanation:
  *
  * When a Node client initiates an `AppInstance` installation proposal, a UUID is

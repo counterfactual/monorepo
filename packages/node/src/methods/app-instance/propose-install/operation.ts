@@ -14,11 +14,13 @@ import { Store } from "../../../store";
 export async function createProposedAppInstance(
   myIdentifier: string,
   store: Store,
+  networkContext,
   params: Node.ProposeInstallParams
 ): Promise<string> {
   const channel = await StateChannel.getStateChannelWithOwners(
     myIdentifier,
     params.proposedToIdentifier,
+    networkContext,
     store
   );
 

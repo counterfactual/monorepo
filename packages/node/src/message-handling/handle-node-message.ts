@@ -61,7 +61,7 @@ export async function handleReceivedProposalMessage(
   requestHandler: RequestHandler,
   receivedProposeMessage: ProposeMessage
 ) {
-  const { publicIdentifier, store } = requestHandler;
+  const { publicIdentifier, store, networkContext} = requestHandler;
 
   const {
     data: { params },
@@ -71,6 +71,7 @@ export async function handleReceivedProposalMessage(
   const stateChannel = await StateChannel.getStateChannelWithOwners(
     publicIdentifier,
     proposedByIdentifier,
+    networkContext,
     store
   );
 

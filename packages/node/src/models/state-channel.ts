@@ -1,4 +1,8 @@
-import { AppInstanceJson, SolidityValueType } from "@counterfactual/types";
+import {
+  AppInstanceJson,
+  NetworkContext,
+  SolidityValueType
+} from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
@@ -9,7 +13,7 @@ import {
 import { xkeyKthAddress } from "../machine/xkeys";
 import { NO_CHANNEL_BETWEEN_NODES } from "../methods/errors";
 import { Store } from "../store";
-import { hashOfOrderedPublicIdentifiers } from "../utils";
+import { getCreate2MultisigAddress } from "../utils";
 
 import { AppInstance } from "./app-instance";
 import {
@@ -597,10 +601,13 @@ export class StateChannel {
   static async getStateChannelWithOwners(
     myXpub: string,
     theirXpub: string,
+    networkContext: NetworkContext,
     store: Store
   ): Promise<StateChannel> {
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
+    const multisigAddress = getCreate2MultisigAddress(
+      [myXpub, theirXpub],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
     if (!multisigAddress) {

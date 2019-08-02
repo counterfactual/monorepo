@@ -92,6 +92,7 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
     stateChannel = await StateChannel.getStateChannelWithOwners(
       initiatorXpub,
       responderXpub,
+      network,
       store
     );
   } catch (e) {

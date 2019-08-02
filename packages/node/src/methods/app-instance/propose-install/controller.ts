@@ -9,7 +9,7 @@ import { StateChannel } from "../../../models";
 import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
-import { hashOfOrderedPublicIdentifiers } from "../../../utils";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
@@ -35,11 +35,13 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
-    const { store, publicIdentifier } = requestHandler;
+    const { publicIdentifier, networkContext } = requestHandler;
     const { proposedToIdentifier } = params;
 
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
     return [requestHandler.getShardedQueue(multisigAddress)];
@@ -49,7 +51,7 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ) {
-    const { store, publicIdentifier } = requestHandler;
+    const { store, publicIdentifier, networkContext } = requestHandler;
     const { initialState } = params;
 
     if (!initialState) {
@@ -66,8 +68,10 @@ export default class ProposeInstallController extends NodeController {
 
     const myIdentifier = publicIdentifier;
 
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([myIdentifier, proposedToIdentifier])
+    const multisigAddress = getCreate2MultisigAddress(
+      [myIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
     // TODO: DRY this at top level of most calls that query a channel
@@ -107,13 +111,19 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
-    const { store, publicIdentifier, messagingService } = requestHandler;
+    const {
+      store,
+      publicIdentifier,
+      messagingService,
+      networkContext
+    } = requestHandler;
 
     const { proposedToIdentifier } = params;
 
     const appInstanceId = await createProposedAppInstance(
       publicIdentifier,
       store,
+      networkContext,
       params
     );
 
