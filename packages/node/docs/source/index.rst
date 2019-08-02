@@ -6,4 +6,8 @@
 Welcome to Node documentation!
 ==========================================
 
-Hello
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   diagram.md
