@@ -17,8 +17,8 @@ export const getTokens = async (
   const parsedResponse = await response.json();
   return parsedResponse
     .filter(({ type }) => type === "ERC20")
-    .map(({ address: tokenAdress, name, symbol: shortName }) => ({
-      tokenAdress,
+    .map(({ address: tokenAddress, name, symbol: shortName }) => ({
+      tokenAddress,
       name,
       shortName
     }));

@@ -54,7 +54,7 @@ class FormInput extends React.Component<
     super(props);
     this.state = {
       tokenAddress:
-        props.units && Array.isArray(props.units) && props.units.length > 0
+        props.units && props.units.length > 0
           ? props.units[0].tokenAddress
           : undefined,
       lastChangeEvent: undefined,
