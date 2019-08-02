@@ -17,9 +17,8 @@ import { StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
 import { RequestHandler } from "../request-handler";
 import RpcRouter from "../rpc-router";
-import { Store } from "../store";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "../types";
-import { bigNumberifyJson, hashOfOrderedPublicIdentifiers } from "../utils";
+import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
@@ -48,7 +47,6 @@ export async function handleReceivedProtocolMessage(
   const queueNames = await getQueueNamesListByProtocolName(
     protocol,
     params,
-    store,
     requestHandler
   );
 
@@ -189,12 +187,22 @@ const getSetupEventData = (
 async function getQueueNamesListByProtocolName(
   protocol: string,
   params: ProtocolParameters,
-  store: Store,
   requestHandler: RequestHandler
 ): Promise<string[]> {
-  const { publicIdentifier } = requestHandler;
+  const { publicIdentifier, networkContext } = requestHandler;
+
+  function multisigAddressFor(xpubs: string[]) {
+    return getCreate2MultisigAddress(
+      xpubs,
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+  }
 
   switch (protocol) {
+    /**
+     * Queue on the multisig address of the direct channel.
+     */
     case Protocol.Install:
     case Protocol.Setup:
     case Protocol.Uninstall:
@@ -207,12 +215,18 @@ async function getQueueNamesListByProtocolName(
 
       return [multisigAddress];
 
+    /**
+     * Queue on the appInstanceId of the AppInstance.
+     */
     case Protocol.TakeAction:
     case Protocol.Update:
       const { appIdentityHash } = params as TakeActionParams | UpdateParams;
 
       return [appIdentityHash];
 
+    /**
+     * Queue on the multisig addresses of both direct channels involved.
+     */
     case Protocol.InstallVirtualApp:
     case Protocol.UninstallVirtualApp:
       const { initiatorXpub, intermediaryXpub, responderXpub } = params as
@@ -221,23 +235,15 @@ async function getQueueNamesListByProtocolName(
 
       if (publicIdentifier === intermediaryXpub) {
         return [
-          await store.getMultisigAddressFromOwnersHash(
-            hashOfOrderedPublicIdentifiers([initiatorXpub, intermediaryXpub])
-          ),
-          await store.getMultisigAddressFromOwnersHash(
-            hashOfOrderedPublicIdentifiers([responderXpub, intermediaryXpub])
-          )
+          multisigAddressFor([initiatorXpub, intermediaryXpub]),
+          multisigAddressFor([responderXpub, intermediaryXpub])
         ];
       }
 
       if (publicIdentifier === responderXpub) {
         return [
-          await store.getMultisigAddressFromOwnersHash(
-            hashOfOrderedPublicIdentifiers([responderXpub, intermediaryXpub])
-          ),
-          await store.getMultisigAddressFromOwnersHash(
-            hashOfOrderedPublicIdentifiers([responderXpub, initiatorXpub])
-          )
+          multisigAddressFor([responderXpub, intermediaryXpub]),
+          multisigAddressFor([responderXpub, initiatorXpub])
         ];
       }
 
