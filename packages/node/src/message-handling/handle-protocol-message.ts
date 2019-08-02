@@ -55,14 +55,14 @@ export async function handleReceivedProtocolMessage(
   const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
     queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
     async () => {
-      const ret = await instructionExecutor.runProtocolWithMessage(
+      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
       );
 
-      ret.forEach(store.saveStateChannel.bind(store));
+      stateChannelsMap.forEach(store.saveStateChannel.bind(store));
 
-      return ret;
+      return stateChannelsMap;
     }
   );
 
