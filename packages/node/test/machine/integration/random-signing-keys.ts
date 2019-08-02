@@ -1,6 +1,7 @@
-import { Wallet } from "ethers";
-import { hexlify, randomBytes, SigningKey } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { HDNode, hexlify, randomBytes, SigningKey } from "ethers/utils";
+import { fromExtendedKey } from "ethers/utils/hdnode";
+
+import { computeRandomExtendedPrvKey } from "../../../src/machine/xkeys";
 
 export function getSortedRandomSigningKeys(length: number) {
   // tslint:disable-next-line:prefer-array-literal
@@ -12,13 +13,26 @@ export function getSortedRandomSigningKeys(length: number) {
     );
 }
 
-export function getRandomHDNodes(length: number) {
-  // tslint:disable-next-line:prefer-array-literal
-  return Array(length)
-    .fill(0)
-    .map(_ => fromMnemonic(Wallet.createRandom().mnemonic));
+export function extendedPrvKeyToExtendedPubKey(extendedPrvKey: string): string {
+  return fromExtendedKey(extendedPrvKey).neuter().extendedKey;
 }
 
-export function getRandomExtendedKeys(length: number) {
-  return getRandomHDNodes(length).map(x => x.extendedKey);
+export function getRandomExtendedPubKey(): string {
+  return extendedPrvKeyToExtendedPubKey(computeRandomExtendedPrvKey());
+}
+
+export function getRandomExtendedPubKeys(length: number): string[] {
+  return Array(length)
+    .fill(0)
+    .map(getRandomExtendedPubKey);
+}
+
+export function getRandomExtendedPrvKeys(length: number): string[] {
+  return Array(length)
+    .fill(0)
+    .map(computeRandomExtendedPrvKey);
+}
+
+export function getRandomHDNodes(length: number): HDNode.HDNode[] {
+  return getRandomExtendedPrvKeys(length).map(x => fromExtendedKey(x));
 }

@@ -5,7 +5,7 @@ import {
   FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory
 } from "@counterfactual/firebase-client";
-import { MNEMONIC_PATH, Node } from "@counterfactual/node";
+import { EXTENDED_PRIVATE_KEY_PATH, Node } from "@counterfactual/node";
 import { ethers } from "ethers";
 
 import {
@@ -66,7 +66,12 @@ let node: Node;
   console.log("Creating store");
   const store = serviceFactory.createStoreService("tttBotStore1");
 
-  await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
+  await store.set([
+    {
+      key: EXTENDED_PRIVATE_KEY_PATH,
+      value: process.env.NODE_EXTENDED_PRIVATE_KEY
+    }
+  ]);
 
   console.log("Creating Node");
   const messService = serviceFactory.createMessagingService("messaging");

@@ -1,19 +1,24 @@
 import { Node } from "@counterfactual/types";
-import { Wallet } from "ethers";
-import { fromMnemonic, HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
 
-export const MNEMONIC_PATH = "MNEMONIC";
+import { CF_PATH } from "./constants";
+import { computeRandomExtendedPrvKey } from "./machine/xkeys";
+
+export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
 export async function getHDNode(
   storeService: Node.IStoreService
 ): Promise<HDNode> {
-  let mnemonic = await storeService.get(MNEMONIC_PATH);
+  let xprv = await storeService.get(EXTENDED_PRIVATE_KEY_PATH);
 
-  if (!mnemonic) {
-    mnemonic = Wallet.createRandom().mnemonic;
-    await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+  if (!xprv) {
+    xprv = computeRandomExtendedPrvKey();
+    await storeService.set([{ key: EXTENDED_PRIVATE_KEY_PATH, value: xprv }]);
   }
 
-  // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
-  return fromMnemonic(mnemonic).derivePath("m/44'/60'/0'/25446");
+  try {
+    return fromExtendedKey(xprv).derivePath(CF_PATH);
+  } catch (e) {
+    throw new Error(`Invalid extended key supplied: ${e}`);
+  }
 }

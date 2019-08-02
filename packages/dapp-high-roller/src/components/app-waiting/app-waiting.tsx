@@ -14,7 +14,7 @@ import { getProp } from "../../utils/utils";
   shadow: true
 })
 export class AppWaiting {
-  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+  @Element() private readonly el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
 

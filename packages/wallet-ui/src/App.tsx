@@ -18,20 +18,26 @@ import {
 import { EthereumService } from "./providers/EthereumService";
 import { ActionType, ApplicationState } from "./store/types";
 import { getUser } from "./store/user/user";
-import { connectToWallet } from "./store/wallet/wallet";
+import { connectToWallet, getNodeTokens } from "./store/wallet/wallet";
 import { RoutePath } from "./types";
 
 type AppProps = {
   getUser: (provider: Web3Provider, history: History) => void;
   connectToWallet: (provider: Web3Provider) => void;
+  getNodeTokens: (provider: Web3Provider) => void;
 };
 
-const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
+const App: React.FC<AppProps> = ({
+  getUser,
+  connectToWallet,
+  getNodeTokens
+}) => {
   const { provider } = useContext(EthereumService);
   const history = createBrowserHistory();
   useEffect(() => {
     connectToWallet(provider);
     getUser(provider, history);
+    getNodeTokens(provider);
   });
   return (
     <Router history={history}>
@@ -65,6 +71,7 @@ export default connect(
     getUser: (provider: Web3Provider, history: History) =>
       dispatch(getUser(provider, history)),
     connectToWallet: (provider: Web3Provider) =>
-      dispatch(connectToWallet(provider))
+      dispatch(connectToWallet(provider)),
+    getNodeTokens: (provider: Web3Provider) => dispatch(getNodeTokens(provider))
   })
 )(App);

@@ -1,4 +1,4 @@
-import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AddressZero, HashZero, WeiPerEther } from "ethers/constants";
 import {
   getAddress,
@@ -7,15 +7,15 @@ import {
   randomBytes,
   TransactionDescription
 } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { ConditionalTransaction } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../../integration/utils";
 import { createAppInstanceForTest } from "../../../unit/utils";
+import { getRandomExtendedPubKey } from "../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../mocks";
 
 describe("ConditionalTransaction", () => {
@@ -26,13 +26,13 @@ describe("ConditionalTransaction", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-    receiver: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
+    sender: getRandomExtendedPubKey(),
+    receiver: getRandomExtendedPubKey()
   };
 
   // State channel testing values
   let stateChannel = StateChannel.setupChannel(
-    networkContext.FreeBalanceApp,
+    networkContext.IdentityApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );

@@ -1,8 +1,8 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON

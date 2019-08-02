@@ -1,10 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "declaration": true,
-    "declarationDir": "dist/",
+    "composite": true,
     "outDir": "dist/",
-    "resolveJsonModule": true,
     "types": ["jest", "node"]
   },
   "references": [{ "path": "../types" }],

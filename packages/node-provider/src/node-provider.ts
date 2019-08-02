@@ -10,7 +10,7 @@ export default class NodeProvider implements INodeProvider {
    * of MessagePort stored locally.
    */
   private isConnected: boolean;
-  private eventEmitter: EventEmitter;
+  private readonly eventEmitter: EventEmitter;
   private messagePort?: MessagePort;
   private debugMode: string = "none";
   private debugEmitter: (

@@ -22,7 +22,7 @@ const bn = ethers.utils.bigNumberify;
   tag: "app-provider"
 })
 export class AppProvider {
-  @Element() private el: HTMLStencilElement = {} as HTMLStencilElement;
+  @Element() private readonly el: HTMLStencilElement = {} as HTMLStencilElement;
 
   @Prop() history: RouterHistory = {} as RouterHistory;
   @Prop() updateAppInstance: (appInstance: AppInstance) => void = () => {};
@@ -116,7 +116,8 @@ export class AppProvider {
   }
 
   async onUpdateState({ data }: { data: Node.UpdateStateEventData }) {
-    const newState = (data as Node.UpdateStateEventData).newState;
+    const newState = (data as Node.UpdateStateEventData)
+      .newState as HighRollerAppState;
 
     const state = {
       ...newState,

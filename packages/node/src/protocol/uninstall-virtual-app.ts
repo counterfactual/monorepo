@@ -1,5 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
+import { BigNumber } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { SetStateCommitment } from "../ethereum";
@@ -13,7 +14,6 @@ import {
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -511,6 +511,8 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreement;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreement.timeLockedPassThroughIdentityHash
   );
@@ -519,10 +521,14 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
     timeLockedPassThroughAppInstance.state["targetAppIdentityHash"] // TODO: type
   );
 
+  const virtualAppHasExpired = (timeLockedPassThroughAppInstance.state[
+    "switchesOutcomeAt"
+  ] as BigNumber).lte(await provider.getBlockNumber());
+
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    stateChannelWithAllThreeParties.getAppInstance(
-      timeLockedPassThroughAppInstance.identityHash
-    ),
+    virtualAppHasExpired
+      ? timeLockedPassThroughAppInstance
+      : virtualAppInstance,
     provider
   );
 
@@ -541,16 +547,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
       virtualAppInstance.identityHash,
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][responderAddress],
 
         [initiatorAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][initiatorAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -617,6 +619,8 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreement;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreement.timeLockedPassThroughIdentityHash
   );
@@ -625,8 +629,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
     timeLockedPassThroughAppInstance.state["targetAppIdentityHash"] // TODO: type
   );
 
-  const expectedOutcome = await virtualAppInstance.computeOutcome(
-    virtualAppInstance.state,
+  const expectedOutcome = await virtualAppInstance.computeOutcomeWithCurrentState(
     provider
   );
 
@@ -636,10 +639,14 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
     );
   }
 
+  const virtualAppHasExpired = (timeLockedPassThroughAppInstance.state[
+    "switchesOutcomeAt"
+  ] as BigNumber).lte(await provider.getBlockNumber());
+
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    stateChannelWithAllThreeParties.getAppInstance(
-      timeLockedPassThroughAppInstance.identityHash
-    ),
+    virtualAppHasExpired
+      ? timeLockedPassThroughAppInstance
+      : virtualAppInstance,
     provider
   );
 
@@ -658,16 +665,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
       virtualAppInstance.identityHash,
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][initiatorAddress],
 
         [responderAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][responderAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -734,21 +737,28 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
     targetAppIdentityHash
   );
 
+  const { tokenAddress } = agreementWithInitiating;
+
   const timeLockedPassThroughAppInstance = stateChannelWithAllThreeParties.getAppInstance(
     agreementWithInitiating.timeLockedPassThroughIdentityHash
   );
 
-  // TODO: Verify that the targetOutcome still leads to the intermediary getting
-  //       the same amount of money they are meant to get. This check should be
-  //       a switch statement on the outcomeType that then is interpreted in a way
-  //       that calculates the intermediaries returns and asserts that they are
-  //       equal to the amount in the agreement (i.e., `capitalProvided`).
+  const virtualAppHasExpired = (timeLockedPassThroughAppInstance.state[
+    "switchesOutcomeAt"
+  ] as BigNumber).lte(await provider.getBlockNumber());
 
+  // FIXME: Come up with a better abstraction for this function. In this case,
+  // we want to pass in an outcome to use to compute the token indexed free
+  // balance increments, but the interfact of the function requires an AppInstance.
+  // Notice that I passed in an object for the AppInstance and an additional
+  // third parameter which is an `overrideOutcome`. That is generally messy code,
+  // so this TODO is to mark that we should improve this abstraction.
   const tokenIndexedIncrements = await computeTokenIndexedFreeBalanceIncrements(
-    stateChannelWithAllThreeParties.getAppInstance(
-      timeLockedPassThroughAppInstance.identityHash
-    ),
-    provider
+    timeLockedPassThroughAppInstance,
+    provider,
+    virtualAppHasExpired
+      ? (timeLockedPassThroughAppInstance.state["defaultOutcome"] as string)
+      : targetOutcome
   );
 
   return [
@@ -766,16 +776,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
       timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][responderAddress],
 
         [initiatorAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][initiatorAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**
@@ -785,16 +791,12 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
       timeLockedPassThroughAppInstance.state["targetAppIdentityHash"],
       {
         [intermediaryAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            initiatorAddress
-          ],
+          tokenIndexedIncrements[tokenAddress][initiatorAddress],
 
         [responderAddress]:
-          tokenIndexedIncrements[CONVENTION_FOR_ETH_TOKEN_ADDRESS][
-            responderAddress
-          ]
+          tokenIndexedIncrements[tokenAddress][responderAddress]
       },
-      CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      tokenAddress
     ),
 
     /**

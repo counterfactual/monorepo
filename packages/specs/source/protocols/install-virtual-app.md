@@ -44,16 +44,16 @@ keccak256(
 
 ## The `InstallVirtualAppParams` type
 
-| Field                        | type                       | description                                           |
-| ---------------------------- | -------------------------- | ----------------------------------------------------- |
-| `initiatorXpub`             | `xpub`                     | xpub of `initiator`                                  |
-| `responderXpub`             | `xpub`                     | xpub of `responder`                                  |
-| `intermediaryXpub`           | `xpub`                     | xpub of `intermediary`                                |
-| `defaultTimeout`             | `uint256`                  | Timeout in case of challenge                          |
-| `appInterface`               | `AppInterface`             | The interface of the virtual app being installed      |
-| `initialState`               | `SolidityABIEncoderV2Type` | The initial state of the virtual app                  |
-| `initiatorBalanceDecrement` | `uint256`                  | `initiator`'s deposit into the installed application |
-| `responderBalanceDecrement` | `uint256`                  | `responder`'s deposit into the installed application |
+|            Field            |        type         |                     description                      |
+| --------------------------- | ------------------- | ---------------------------------------------------- |
+| `initiatorXpub`             | `xpub`              | xpub of `initiator`                                  |
+| `responderXpub`             | `xpub`              | xpub of `responder`                                  |
+| `intermediaryXpub`          | `xpub`              | xpub of `intermediary`                               |
+| `defaultTimeout`            | `uint256`           | Timeout in case of challenge                         |
+| `appInterface`              | `AppInterface`      | The interface of the virtual app being installed     |
+| `initialState`              | `SolidityValueType` | The initial state of the virtual app                 |
+| `initiatorBalanceDecrement` | `uint256`           | `initiator`'s deposit into the installed application |
+| `responderBalanceDecrement` | `uint256`           | `responder`'s deposit into the installed application |
 
 ## Messages
 
@@ -63,81 +63,81 @@ keccak256(
 
 ### M1 - Initiator signs AB VirtualAppAgreement
 
-| Field        | Type                      | Description             |
-| ------------ | ------------------------- | ----------------------- |
-| `protocol`   | `string`                  | `"install-virtual-app"` |
-| `params`     | `InstallVirtualAppParams` |                         |
-| `toXpub`     | `address`                 | `intermediaryXpub`   |
-| `seq`        | `number`                  | `1`                     |
-| `signature`  | `signature`               | Initiating signature on   AB VirtualAppAgreement      |
+|    Field    |           Type            |                   Description                    |
+| ----------- | ------------------------- | ------------------------------------------------ |
+| `protocol`  | `string`                  | `"install-virtual-app"`                          |
+| `params`    | `InstallVirtualAppParams` |                                                  |
+| `toXpub`    | `address`                 | `intermediaryXpub`                               |
+| `seq`       | `number`                  | `1`                                              |
+| `signature` | `signature`               | Initiating signature on   AB VirtualAppAgreement |
 
 ### M2 - Intermediary signs IB VirtualAppAgreement
 
-| Field        | Description                   |
-| ------------ | ----------------------------- |
-| `protocol`   | `"install-virtual-app"`       |
-| `params`     | `InstallVirtualAppParams`     |
-| `toXpub`     | `responderXpub`           |
-| `seq`        | `2`                           |
-| `signature`  | Intermediary signature on IB VirtualAppAgreement|
+|    Field    |                   Description                    |
+| ----------- | ------------------------------------------------ |
+| `protocol`  | `"install-virtual-app"`                          |
+| `params`    | `InstallVirtualAppParams`                        |
+| `toXpub`    | `responderXpub`                                  |
+| `seq`       | `2`                                              |
+| `signature` | Intermediary signature on IB VirtualAppAgreement |
 
 
 ### M3 - Responding signs IB VirtualAppAgreement and IB FreeBalanceActivation
 
-| Field        | Description             |
-| ------------ | ----------------------- |
-| `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `intermediaryXpub`   |
-| `seq`        | `-1`                    |
-| `signature`  | Responding signature on IB VirtualAppAgreement|
-| `signature2`  | Responding signature on IB FreeBalanceActivation|
+|    Field     |                   Description                    |
+| ------------ | ------------------------------------------------ |
+| `protocol`   | `"install-virtual-app"`                          |
+| `toXpub`     | `intermediaryXpub`                               |
+| `seq`        | `-1`                                             |
+| `signature`  | Responding signature on IB VirtualAppAgreement   |
+| `signature2` | Responding signature on IB FreeBalanceActivation |
 
 ### M4 - Intermediary signs AB VirtualAppAgreement and AI FreeBalanceActivation
 
-| Field       | Description             |
-| ----------- | ----------------------- |
-| `protocol`  | `"install-virtual-app"` |
-| `toXpub`    | `initiatorXpub`     |
-| `seq`       | `-1`                    |
-| `signature`  | Intermediary signature on AB VirtualAppAgreement|
-| `signature2`  | Intermediary signature on AI FreeBalanceActivation|
+|    Field     |                    Description                     |
+| ------------ | -------------------------------------------------- |
+| `protocol`   | `"install-virtual-app"`                            |
+| `toXpub`     | `initiatorXpub`                                    |
+| `seq`        | `-1`                                               |
+| `signature`  | Intermediary signature on AB VirtualAppAgreement   |
+| `signature2` | Intermediary signature on AI FreeBalanceActivation |
 
 ### M5 - Initiating signs AI FreeBalanceActivation and AB VirtualApp SetState
 
-| Field        | Description             |
-| ------------ | ----------------------- |
-| `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `intermediaryXpub`        |
-| `seq`        | `-1`                    |
-| `signature`  | Initiating signature on AI FreeBalanceActivation |
-| `signature2`  | Initiating signature on AIB TimeLockedPassThrough SetState |
-| `signature3`  | Initiating signature on AB VirtualApp SetState |
+|    Field     |                        Description                         |
+| ------------ | ---------------------------------------------------------- |
+| `protocol`   | `"install-virtual-app"`                                    |
+| `toXpub`     | `intermediaryXpub`                                         |
+| `seq`        | `-1`                                                       |
+| `signature`  | Initiating signature on AI FreeBalanceActivation           |
+| `signature2` | Initiating signature on AIB TimeLockedPassThrough SetState |
+| `signature3` | Initiating signature on AB VirtualApp SetState             |
 
 
 ### M6 - Intermediary signs IB FreeBalanceActivation and AB VirtualApp SetState
 
 Note that in this message the intermediary is *forwarding* the initiator's signature on the AB VirtualApp SetState commitment.
 
-| Field        | Description             |
-| ------------ | ----------------------- |
-| `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `responderXpub`        |
-| `seq`        | `-1`                    |
-| `signature`  | Intermediary signature on IB FreeBalanceActivation|
-| `signature2`  | Intermediary signature on AB VirtualApp SetState |
-| `signature3`  | Initiating signature on AIB TimeLockedPassThrough SetState |
-| `signature4`  | Initiating signature on AB VirtualApp SetState |
+|    Field     |                        Description                         |
+| ------------ | ---------------------------------------------------------- |
+| `protocol`   | `"install-virtual-app"`                                    |
+| `toXpub`     | `responderXpub`                                            |
+| `seq`        | `-1`                                                       |
+| `signature`  | Intermediary signature on IB FreeBalanceActivation         |
+| `signature2` | Intermediary signature on AB VirtualApp SetState           |
+| `signature3` | Initiating signature on AIB TimeLockedPassThrough SetState |
+| `signature4` | Initiating signature on AB VirtualApp SetState             |
 
 
 ### M7 - Responding signs AB VirtualApp SetState
 
-| Field        | Description             |
-| ------------ | ----------------------- |
-| `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `intermediaryXpub`        |
-| `seq`        | `-1`                    |
+|    Field     |                        Description                         |
+| ------------ | ---------------------------------------------------------- |
+| `protocol`   | `"install-virtual-app"`                                    |
+| `toXpub`     | `intermediaryXpub`                                         |
+| `seq`        | `-1`                                                       |
 | `signature`  | Responding signature on AIB TimeLockedPassThrough SetState |
-| `signature2`  | Responding signature on AB VirtualApp SetState|
+| `signature2` | Responding signature on AB VirtualApp SetState             |
 
 
 
@@ -145,11 +145,11 @@ Note that in this message the intermediary is *forwarding* the initiator's signa
 
 Note that in this message the intermediary is *forwarding* the responder's signature on the AB VirtualApp SetState commitment.
 
-| Field        | Description             |
-| ------------ | ----------------------- |
-| `protocol`   | `"install-virtual-app"` |
-| `toXpub`     | `initiatorXpub`        |
-| `seq`        | `-1`                    |
-| `signature`  | Intermediary signature on AB VirtualApp SetState |
-| `signature2`  | Responding signature on AB VirtualApp SetState |
-| `signature3`  | Responding signature on AIB TimeLockedPassThrough SetState |
+|    Field     |                        Description                         |
+| ------------ | ---------------------------------------------------------- |
+| `protocol`   | `"install-virtual-app"`                                    |
+| `toXpub`     | `initiatorXpub`                                            |
+| `seq`        | `-1`                                                       |
+| `signature`  | Intermediary signature on AB VirtualApp SetState           |
+| `signature2` | Responding signature on AB VirtualApp SetState             |
+| `signature3` | Responding signature on AIB TimeLockedPassThrough SetState |

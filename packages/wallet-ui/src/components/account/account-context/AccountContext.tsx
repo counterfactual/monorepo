@@ -1,4 +1,4 @@
-import { JsonRpcSigner } from "ethers/providers";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { BigNumberish, formatEther } from "ethers/utils";
 import { History } from "history";
 import React from "react";
@@ -20,7 +20,8 @@ export type AccountContextProps = RouteComponentProps & {
   loginUser: (
     ethAddress: string,
     signer: JsonRpcSigner,
-    history: History
+    history: History,
+    provider: Web3Provider
   ) => void;
 };
 
@@ -80,8 +81,7 @@ export class AccountContext extends React.Component<AccountContextProps> {
       ethAddress,
       history
     } = this.props;
-    const { signer } = this.context;
-
+    const { signer, provider } = this.context;
     return (
       <div className="account-context">
         {!user.ethAddress ? (
@@ -90,7 +90,7 @@ export class AccountContext extends React.Component<AccountContextProps> {
               name="login"
               className="btn"
               onClick={() => {
-                loginUser(ethAddress, signer, history);
+                loginUser(ethAddress, signer, history, provider);
               }}
             >
               <img alt="" className="icon" src="/assets/icon/login.svg" />
@@ -115,7 +115,11 @@ export default connect(
     counterfactualBalance: state.WalletState.counterfactualBalance
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    loginUser: (ethAddress: string, signer: JsonRpcSigner, history: History) =>
-      dispatch(loginUser(ethAddress, signer, history))
+    loginUser: (
+      ethAddress: string,
+      signer: JsonRpcSigner,
+      history: History,
+      provider: Web3Provider
+    ) => dispatch(loginUser(ethAddress, signer, history, provider))
   })
 )(AccountContext);

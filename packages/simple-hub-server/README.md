@@ -67,8 +67,9 @@ First of all, you need to generate a mnemonic:
 
 ```node
 $ node
-> require("ethers").Wallet.createRandom().mnemonic
-'camera enter drive paper elegant camp above attend board thought inch crash'
+> const ethers = require("ethers")
+> ethers.utils.HDNode.fromMnemonic(ethers.Wallet.createRandom().mnemonic).extendedKey
+'xprv9s21ZrQH143K3n6GUhRTVqwyqEVVy4KBPy5dXSdNCg1L1PDSJHqzQJKrXV7rYdYJLjnkHLvcGtkUtVdUD5rCbfpEpxa8sdfe8PmQtETuBcY'
 ```
 
 And save it in `.env` in the format specified in `.env.schema`.
@@ -77,8 +78,9 @@ And save it in `.env` in the format specified in `.env.schema`.
 
 ```node
 $ node
-> const x = require("ethers").Wallet.createRandom().mnemonic;
-> require("ethers").utils.HDNode.fromMnemonic(x).derivePath("m/44'/60'/0'/25446").address
+> const ethers = require("ethers")
+> const xprv = ethers.utils.HDNode.fromMnemonic(ethers.Wallet.createRandom().mnemonic).extendedKey
+> ethers.utils.HDNode.fromExtendedKey(xprv).derivePath("m/44'/60'/0'/25446").address
 '0x84D1C440f73DD5c20fA9a3a7CB8A24D5F70a753c'
 ```
 

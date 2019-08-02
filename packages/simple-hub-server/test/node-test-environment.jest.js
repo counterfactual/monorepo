@@ -25,7 +25,6 @@ class NodeEnvironment extends NodeJSEnvironment {
 
     const networkContext = {
       ChallengeRegistry: AddressZero,
-      FreeBalanceApp: AddressZero,
       CoinBalanceRefundApp: AddressZero,
       MultiSend: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
@@ -34,14 +33,14 @@ class NodeEnvironment extends NodeJSEnvironment {
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
       TicTacToe: data.networkContext.TicTacToe,
-      CoinTransferInterpreter: data.networkContext.CoinTransferInterpreter
+      MultiAssetMultiPartyCoinTransferInterpreter: data.networkContext.MultiAssetMultiPartyCoinTransferInterpreter
     };
 
     this.global.networkContext = networkContext;
-    this.global.pgMnemonic = data.pgMnemonic;
-    this.global.nodeAMnemonic = data.nodeAMnemonic;
-    this.global.nodeBMnemonic = data.nodeBMnemonic;
-    this.global.nodeCMnemonic = data.nodeCMnemonic;
+    this.global.pgXPrv = data.pgXPrv;
+    this.global.nodeAXPrv = data.nodeAXPrv;
+    this.global.nodeBXPrv = data.nodeBXPrv;
+    this.global.nodeCXPrv = data.nodeCXPrv;
     this.global.ganacheURL = `http://localhost:${process.env.GANACHE_PORT}`;
   }
 
