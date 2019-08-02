@@ -12,13 +12,17 @@ For now, it's only available in our custom fork. Follow [these instructions](htt
 
 ### Running the Wallet UI
 
+On the monorepo's root:
+
 ```sh
-yarn start
+yarn run:wallet
 ```
 
-This command will serve a CRA development server in `http://localhost:3334`.
+This command will serve a CRA development server on `http://localhost:3334` and the [Simple Hub Server](https://github.com/counterfactual/monorepo/tree/master/packages/simple-hub-server) on `http://localhost:9000`.
 
 ### Testing the Wallet UI
+
+From the package's directory:
 
 ```sh
 yarn test
