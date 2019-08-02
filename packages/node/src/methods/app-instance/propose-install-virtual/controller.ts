@@ -6,10 +6,7 @@ import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
 import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
-import {
-  NO_MULTISIG_FOR_APP_INSTANCE_ID,
-  NULL_INITIAL_STATE_FOR_PROPOSAL
-} from "../../errors";
+import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
 
 import {
   createProposedVirtualAppInstance,
@@ -41,22 +38,16 @@ export default class ProposeInstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+    const metachannelAddress = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
 
-    try {
-      const metachannelAddress = getCreate2MultisigAddress(
-        [publicIdentifier, proposedToIdentifier],
-        networkContext.ProxyFactory,
-        networkContext.MinimumViableMultisig
-      );
-
-      queues.push(requestHandler.getShardedQueue(metachannelAddress));
-    } catch (e) {
-      // It is possible the metachannel has never been created
-      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
-    }
-
-    return queues;
+    return [
+      requestHandler.getShardedQueue(multisigAddress),
+      requestHandler.getShardedQueue(metachannelAddress)
+    ];
   }
 
   protected async executeMethodImplementation(

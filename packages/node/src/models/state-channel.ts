@@ -11,7 +11,6 @@ import {
   merge
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { NO_CHANNEL_BETWEEN_NODES } from "../methods/errors";
 import { Store } from "../store";
 import { getCreate2MultisigAddress } from "../utils";
 
@@ -609,10 +608,6 @@ export class StateChannel {
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
-
-    if (!multisigAddress) {
-      throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
-    }
 
     return await store.getStateChannel(multisigAddress);
   }

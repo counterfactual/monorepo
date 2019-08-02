@@ -13,7 +13,6 @@ import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
-  NO_CHANNEL_BETWEEN_NODES,
   NULL_INITIAL_STATE_FOR_PROPOSAL
 } from "../../errors";
 
@@ -73,13 +72,6 @@ export default class ProposeInstallController extends NodeController {
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
-
-    // TODO: DRY this at top level of most calls that query a channel
-    if (!multisigAddress) {
-      throw new Error(
-        NO_CHANNEL_BETWEEN_NODES(myIdentifier, proposedToIdentifier)
-      );
-    }
 
     const initiatorDepositTokenAddress =
       initiatorDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;

@@ -4,7 +4,6 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { getCreate2MultisigAddress } from "../../../utils";
-import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -97,9 +96,7 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
     );
   } catch (e) {
     if (
-      e
-        .toString()
-        .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
+      e.toString().includes("Call to getStateChannel failed") &&
       intermediaries !== undefined
     ) {
       const multisigAddress = getCreate2MultisigAddress(
