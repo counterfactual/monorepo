@@ -15,16 +15,19 @@ export const getTokens = async (
     `https://cdn.jsdelivr.net/gh/MyEtherWallet/ethereum-lists/dist/tokens/${network}/tokens-${network}.min.json`
   );
   const parsedResponse = await response.json();
-  return parsedResponse
-    .filter(({ type }) => type === "ERC20")
-    .map(({ address: tokenAddress, name, symbol: shortName }) => ({
-      tokenAddress,
-      name,
-      shortName
-    }))
-    .concat({
-      tokenAddress: null,
+  return [
+    {
+      tokenAddress: "",
       name: "Ethereum",
       shortName: "ETH"
-    });
+    }
+  ].concat(
+    parsedResponse
+      .filter(({ type }) => type === "ERC20")
+      .map(({ address: tokenAddress, name, symbol: shortName }) => ({
+        tokenAddress,
+        name,
+        shortName
+      }))
+  );
 };
