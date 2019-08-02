@@ -61,7 +61,7 @@ export async function handleReceivedProposalMessage(
   requestHandler: RequestHandler,
   receivedProposeMessage: ProposeMessage
 ) {
-  const { publicIdentifier, store, networkContext} = requestHandler;
+  const { publicIdentifier, store, networkContext } = requestHandler;
 
   const {
     data: { params },
