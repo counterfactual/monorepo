@@ -1,7 +1,7 @@
 const tdr = require("truffle-deploy-registry");
 
 const ARTIFACTS = [
-  artifacts.require("ChallengeRegistry")
+  artifacts.require("AppInstanceAdjudicator")
 ];
 
 module.exports = (deployer, network) => {
