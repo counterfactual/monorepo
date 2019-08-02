@@ -163,9 +163,13 @@ class FormInput extends React.Component<
               className="unit-selector"
               onChange={event => this.handleUnitChange(event)}
             >
-              {units.map(({ name, tokenAddress }) => (
-                <option className="unit-selector-item" value={tokenAddress}>
-                  {name}
+              {units.map(({ shortName, tokenAddress }) => (
+                <option
+                  key={shortName}
+                  className="unit-selector-item"
+                  value={tokenAddress}
+                >
+                  {shortName}
                 </option>
               ))}
             </select>
