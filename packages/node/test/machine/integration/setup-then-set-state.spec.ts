@@ -116,14 +116,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.freeBalance.identity,
-        defaultAbiCoder.encode(
-          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-          [
-            stateChannel.freeBalance
-              .multiAssetMultiPartyCoinTransferInterpreterParams
-          ]
-        )
+        stateChannel.freeBalance.identity
       );
 
       const setupTx = setupCommitment.getSignedTransaction([

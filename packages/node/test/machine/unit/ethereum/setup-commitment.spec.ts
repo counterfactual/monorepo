@@ -48,11 +48,7 @@ describe("SetupCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalance.identity,
-      defaultAbiCoder.encode(
-        [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-        [freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
-      )
+      freeBalance.identity
     ).getTransactionDetails();
   });
 
