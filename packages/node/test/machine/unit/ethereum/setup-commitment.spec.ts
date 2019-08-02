@@ -1,7 +1,5 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
-import { multiAssetMultiPartyCoinTransferInterpreterParamsEncoding } from "@counterfactual/types";
 import {
-  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
