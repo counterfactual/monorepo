@@ -152,26 +152,36 @@ function getOutgoingEventDataFromProtocol(
   }
 }
 
-const getStateUpdateEventData = (
+function getStateUpdateEventData(
   { appIdentityHash: appInstanceId }: TakeActionParams | UpdateParams,
   newState: SolidityValueType
-) => ({ newState, appInstanceId });
+) {
+  return { newState, appInstanceId };
+}
 
-const getUninstallVirtualAppEventData = ({
+function getUninstallVirtualAppEventData({
   intermediaryXpub: intermediaryIdentifier,
   targetAppIdentityHash: appInstanceId
-}: UninstallVirtualAppParams) => ({ appInstanceId, intermediaryIdentifier });
+}: UninstallVirtualAppParams) {
+  return { appInstanceId, intermediaryIdentifier };
+}
 
-const getUninstallEventData = ({
+function getUninstallEventData({
   appIdentityHash: appInstanceId
-}: UninstallParams) => ({ appInstanceId });
+}: UninstallParams) {
+  return { appInstanceId };
+}
 
-const getWithdrawEventData = ({ amount }: WithdrawParams) => amount;
+function getWithdrawEventData({ amount }: WithdrawParams) {
+  return amount;
+}
 
-const getSetupEventData = (
+function getSetupEventData(
   { initiatorXpub: counterpartyXpub, multisigAddress }: SetupParams,
   owners: string[]
-) => ({ multisigAddress, owners, counterpartyXpub });
+) {
+  return { multisigAddress, owners, counterpartyXpub };
+}
 
 /**
  * Produces an array of queues that the client must halt execution on
