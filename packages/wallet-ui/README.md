@@ -29,4 +29,4 @@ yarn test
 yarn test:coverage # Will report coverage percentages for the package.
 ```
 
-These commands will run unit tests on the package.
+These commands will run unit and integration tests on the package.
