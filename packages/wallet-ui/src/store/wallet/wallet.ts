@@ -17,10 +17,12 @@ import {
   StoreAction,
   WalletState
 } from "../types";
-
+import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 export const initialState = {
+  nodeAddresses: [],
   ethAddress: "",
   error: {},
+  status: "",
   counterfactualBalance: Zero,
   ethereumBalance: Zero
 } as WalletState;
@@ -178,12 +180,40 @@ export const withdraw = (
   }
 };
 
+export const getNodeTokens = (
+  provider: Web3Provider
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  try {
+    const network = await provider.getNetwork();
+    const nodeAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+    dispatch({
+      data: { nodeAddresses },
+      type: ActionType.WalletSetNodeTokens
+    });
+  } catch (e) {
+    dispatch({
+      data: {
+        error: {
+          message: "Ups something went wrong retrieving the list of tokens"
+        }
+      } as WalletState,
+      type: ActionType.WalletError
+    });
+  }
+};
+
 export const reducers = function(
   state = initialState,
   action: StoreAction<WalletState, WalletDepositTransition>
 ) {
   switch (action.type) {
     case ActionType.WalletSetAddress:
+    case ActionType.WalletSetNodeTokens:
     case ActionType.WalletSetBalance:
     case ActionType.WalletDeposit:
     case ActionType.WalletWithdraw:
