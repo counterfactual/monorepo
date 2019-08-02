@@ -42,9 +42,6 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
 
 export function createAppInstanceForTest(stateChannel?: StateChannel) {
   return new AppInstance(
-    /* multisigAddress */ stateChannel
-      ? stateChannel.multisigAddress
-      : getAddress(hexlify(randomBytes(20))),
     /* participants */ stateChannel
       ? stateChannel.getSigningKeysFor(stateChannel.numInstalledApps)
       : [

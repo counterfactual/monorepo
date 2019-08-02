@@ -118,7 +118,6 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       // todo(xuanji): don't reuse state
       // todo(xuanji): use createAppInstance
       const identityAppInstance = new AppInstance(
-        stateChannel.multisigAddress,
         uniqueAppSigningKeys.map(x => x.address),
         stateChannel.freeBalance.defaultTimeout, // Re-use ETH FreeBalance timeout
         {

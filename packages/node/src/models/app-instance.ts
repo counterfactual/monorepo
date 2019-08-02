@@ -24,9 +24,6 @@ import { bigNumberifyJson } from "../utils";
 /**
  * Representation of an AppInstance.
  *
- * @property multisigAddress The address of the multisignature wallet on-chain for
- *           the state channel that holds the state this AppInstance controls.
-
  * @property participants The sorted array of public keys used by the users of
  *           this AppInstance for which n-of-n consensus is needed on updates.
 
@@ -54,7 +51,6 @@ import { bigNumberifyJson } from "../utils";
  */
 export class AppInstance {
   constructor(
-    public readonly multisigAddress: string,
     public readonly participants: string[],
     public readonly defaultTimeout: number,
     public readonly appInterface: AppInterface,
@@ -104,7 +100,6 @@ export class AppInstance {
     const deserialized = bigNumberifyJson(json);
 
     return new AppInstance(
-      deserialized.multisigAddress,
       deserialized.participants,
       deserialized.defaultTimeout,
       deserialized.appInterface,
@@ -125,7 +120,6 @@ export class AppInstance {
     // an example would be having an `undefined` value for the `actionEncoding`
     // of an AppInstance that's not turn based
     return bigNumberifyJson({
-      multisigAddress: this.multisigAddress,
       participants: this.participants,
       defaultTimeout: this.defaultTimeout,
       appInterface: this.appInterface,

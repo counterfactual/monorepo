@@ -285,7 +285,6 @@ function computeStateChannelTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    multisigAddress,
     outcomeType
   } = params;
 
@@ -307,7 +306,6 @@ function computeStateChannelTransition(
   );
 
   const appInstanceToBeInstalled = new AppInstance(
-    /* multisigAddress */ multisigAddress,
     /* participants */ participants,
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,

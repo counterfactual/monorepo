@@ -111,7 +111,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     tokenAddress: string
   ) => Promise<StateChannel>;
 
-  let createTargetAppInstance: (stateChannel: StateChannel) => AppInstance;
+  let createTargetAppInstance: () => AppInstance;
 
   let setStatesAndOutcomes: (
     targetAppInstance: AppInstance,
@@ -178,9 +178,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       );
     };
 
-    createTargetAppInstance = function(stateChannel: StateChannel) {
+    createTargetAppInstance = function() {
       return new AppInstance(
-        stateChannel.multisigAddress,
         multisigOwnerKeys.map(x => x.address),
         /* default timeout */ 0,
         /* appInterface */ {
@@ -269,7 +268,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         erc20ContractAddress
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
         capitalProvider,
@@ -340,7 +339,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
         capitalProvider,

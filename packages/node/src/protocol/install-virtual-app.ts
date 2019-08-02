@@ -13,7 +13,7 @@ import {
   TwoPartyFixedOutcomeInterpreterParams,
   virtualAppAgreementEncoding
 } from "@counterfactual/types";
-import { AddressZero, MaxUint256 } from "ethers/constants";
+import { MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
@@ -867,7 +867,6 @@ function constructVirtualAppInstance(
   );
 
   return new AppInstance(
-    /* multisigAddress */ stateChannelBetweenEndpoints.multisigAddress,
     /* participants */ sortAddresses([initiatorAddress, responderAddress]),
     defaultTimeout,
     appInterface,
@@ -938,7 +937,6 @@ function constructTimeLockedPassThroughAppInstance(
   );
 
   return new AppInstance(
-    /* multisigAddress */ AddressZero,
     /* participants */
     sortAddresses([initiatorAddress, responderAddress, intermediaryAddress]),
     /* defaultTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,

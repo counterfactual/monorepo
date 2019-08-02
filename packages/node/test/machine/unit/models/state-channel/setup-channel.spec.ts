@@ -43,10 +43,6 @@ describe("StateChannel::setupChannel", () => {
       expect(fb).not.toBe(undefined);
     });
 
-    it("should be owned by the multisig", () => {
-      expect(fb.multisigAddress).toBe(multisigAddress);
-    });
-
     it("should not be a virtual app", () => {
       expect(fb.isVirtualApp).toBe(false);
     });

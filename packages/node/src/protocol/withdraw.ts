@@ -504,7 +504,6 @@ function addRefundAppToStateChannel(
 
   // TODO: Use a wrapper function for making new AppInstance objects.
   const refundAppInstance = new AppInstance(
-    multisigAddress,
     stateChannel.getNextSigningKeys(),
     defaultTimeout,
     {

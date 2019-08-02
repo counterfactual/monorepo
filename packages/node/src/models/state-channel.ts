@@ -329,7 +329,6 @@ export class StateChannel {
       new Map<string, AppInstance>([]),
       new Map<string, SingleAssetTwoPartyIntermediaryAgreement>(),
       createFreeBalance(
-        multisigAddress,
         userNeuteredExtendedKeys,
         freeBalanceAppAddress,
         freeBalanceTimeout || HARD_CODED_ASSUMPTIONS.freeBalanceDefaultTimeout
