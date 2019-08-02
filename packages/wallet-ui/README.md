@@ -6,7 +6,7 @@ The Wallet UI is the first plugin ever built for the [Metamask](https://github.c
 
 ## How can I use it?
 
-For now, it's only available in our custom fork. Follow [these instructions](https://github.com/counterfactual/monorepo/tree/master/cf-metamask-extension) to build your own copy and use the Wallet UI in that environment.
+For now, it's only available in our custom fork. Follow [these instructions](https://github.com/counterfactual/monorepo/tree/master/packages/cf-metamask-extension) to build your own copy of Metamask and use the Wallet UI in that environment.
 
 ## How can I work on it?
 
