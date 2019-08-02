@@ -43,6 +43,7 @@ type AccountDepositState = {
     ctaButtonText: string;
     headerDetails: string;
   };
+  tokenAddress?: string;
   loading: boolean;
   amount: BigNumberish;
 };
@@ -74,14 +75,16 @@ export class AccountDeposit extends React.Component<
     }
     this.state = {
       depositCaseVariables,
+      tokenAddress: undefined,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
   }
 
-  handleChange = ({ value }: InputChangeProps) => {
+  handleChange = ({ value, tokenAddress }: InputChangeProps) => {
     this.setState({
       ...this.state,
+      tokenAddress,
       amount: parseEther(value as string)
     });
   };
@@ -94,9 +97,11 @@ export class AccountDeposit extends React.Component<
 
   createDepositData(
     { multisigAddress, nodeAddress, ethAddress }: User,
-    amount: BigNumberish
+    amount: BigNumberish,
+    tokenAddress?: string
   ): Deposit {
     return {
+      tokenAddress,
       nodeAddress,
       ethAddress,
       amount,
@@ -114,7 +119,7 @@ export class AccountDeposit extends React.Component<
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status, nodeAddresses } = walletState;
-    const { amount, loading, depositCaseVariables } = this.state;
+    const { amount, loading, depositCaseVariables, tokenAddress } = this.state;
     const {
       halfWidget,
       header,
@@ -149,7 +154,11 @@ export class AccountDeposit extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              deposit(this.createDepositData(user, amount), provider, history);
+              deposit(
+                this.createDepositData(user, amount, tokenAddress),
+                provider,
+                history
+              );
             }}
           >
             {!loading ? ctaButtonText : this.buttonText[status]}

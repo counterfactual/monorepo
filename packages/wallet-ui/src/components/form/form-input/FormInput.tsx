@@ -111,7 +111,8 @@ class FormInput extends React.Component<
       change({
         value,
         event: lastChangeEvent,
-        tokenAddress: event.target.value,
+        tokenAddress:
+          event.target.value === "ETH" ? undefined : event.target.value,
         validity: { error, valid },
         inputName: name as string
       });

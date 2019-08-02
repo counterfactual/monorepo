@@ -86,8 +86,7 @@ export const deposit = (
     // 1. Ask Metamask to do the deposit. !
     dispatch({ type: WalletDepositTransition.CheckWallet });
     await requestDeposit(transaction);
-
-    // 2. Wait until the deposit is completed in both sides. !
+    // // 2. Wait until the deposit is completed in both sides. !
     dispatch({ type: WalletDepositTransition.WaitForUserFunds });
     await forFunds(
       {
@@ -103,7 +102,7 @@ export const deposit = (
       nodeAddress: transaction.nodeAddress
     });
 
-    // 3. Get the Metamask balance.
+    // // 3. Get the Metamask balance.
     const ethereumBalance = await provider.getBalance(transaction.ethAddress);
 
     // 4. Update the balance.

@@ -59,31 +59,38 @@ export async function forMultisig(): Promise<string> {
 export async function requestWithdraw({
   amount,
   multisigAddress,
-  ethAddress
+  ethAddress,
+  tokenAddress
 }: Deposit) {
   return window.ethereum.send(CounterfactualMethod.RequestWithdraw, [
     amount,
     multisigAddress,
-    ethAddress
+    ethAddress,
+    tokenAddress
   ]);
 }
 
-export async function requestDeposit({ amount, multisigAddress }: Deposit) {
+export async function requestDeposit({
+  amount,
+  multisigAddress,
+  tokenAddress
+}: Deposit) {
   return window.ethereum.send(CounterfactualMethod.RequestDeposit, [
     amount,
-    multisigAddress
+    multisigAddress,
+    tokenAddress
   ]);
 }
 
 export async function forFunds(
-  { multisigAddress, nodeAddress }: BalanceRequest,
+  { multisigAddress, nodeAddress, tokenAddress }: BalanceRequest,
   fundsOwner?: "user" | "counterparty" | "both"
 ): Promise<BigNumberish> {
   const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
 
   const freeBalance = (await window.ethereum.send(
     CounterfactualMethod.RequestBalances,
-    [multisigAddress]
+    [multisigAddress, tokenAddress]
   )).result;
   const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
 

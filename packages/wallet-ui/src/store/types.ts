@@ -15,7 +15,7 @@ export type User = {
 export type AssetType = {
   name: string;
   shortName: string;
-  tokenAddress: string;
+  tokenAddress?: string;
 };
 
 export type Deposit = {
@@ -23,6 +23,7 @@ export type Deposit = {
   multisigAddress: string;
   nodeAddress: string;
   ethAddress: string;
+  tokenAddress?: string;
 };
 
 export type Connection = {
@@ -35,6 +36,7 @@ export type Connection = {
 export type BalanceRequest = {
   nodeAddress: string;
   multisigAddress: string;
+  tokenAddress?: string;
 };
 
 export type ErrorData = {

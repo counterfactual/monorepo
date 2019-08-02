@@ -17,7 +17,7 @@ export const getTokens = async (
   const parsedResponse = await response.json();
   return [
     {
-      tokenAddress: "",
+      tokenAddress: undefined,
       name: "Ethereum",
       shortName: "ETH"
     }

@@ -43,6 +43,7 @@ type AccountWithdrawState = {
     ctaButtonText: string;
     headerDetails: string;
   };
+  tokenAddress?: string;
   loading: boolean;
   amount: BigNumberish;
 };
@@ -72,14 +73,16 @@ export class AccountWithdraw extends React.Component<
     }
     this.state = {
       withdrawCaseVariables,
+      tokenAddress: undefined,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
   }
 
-  handleChange = ({ value }: InputChangeProps) => {
+  handleChange = ({ value, tokenAddress }: InputChangeProps) => {
     this.setState({
       ...this.state,
+      tokenAddress,
       amount: parseEther(value as string)
     });
   };
@@ -91,9 +94,11 @@ export class AccountWithdraw extends React.Component<
 
   createDepositData(
     { multisigAddress, nodeAddress, ethAddress }: User,
-    amount: BigNumberish
+    amount: BigNumberish,
+    tokenAddress?: string
   ): Deposit {
     return {
+      tokenAddress,
       nodeAddress,
       ethAddress,
       amount,
@@ -111,7 +116,7 @@ export class AccountWithdraw extends React.Component<
     const { walletState, withdraw, history, user } = this.props;
     const { provider } = this.context;
     const { ethereumBalance, error, status, nodeAddresses } = walletState;
-    const { amount, loading, withdrawCaseVariables } = this.state;
+    const { amount, loading, withdrawCaseVariables, tokenAddress } = this.state;
     const {
       halfWidget,
       header,
@@ -146,7 +151,11 @@ export class AccountWithdraw extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
-              withdraw(this.createDepositData(user, amount), provider, history);
+              withdraw(
+                this.createDepositData(user, amount, tokenAddress),
+                provider,
+                history
+              );
             }}
           >
             {!loading ? ctaButtonText : this.buttonText[status]}
