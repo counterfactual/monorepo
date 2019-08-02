@@ -2,7 +2,7 @@
 
 A friendly way to keep track of your assets stored in a Counterfactual account.
 
-The Wallet UI is the first plugin ever built for the [Metamask](https://github.com/metamask/metamask-extension) extension. We've built a [custom fork](https://github.com/prototypal/metamask-extension) of the extension so Metamask can understand the state channels' protocol and interact with a Counterfactual [Node](https://github.com/counterfactual/monorepo/tree/master/package/node).
+The Wallet UI is the first plugin ever built for the [Metamask](https://github.com/metamask/metamask-extension) extension. We've built a [custom fork](https://github.com/prototypal/metamask-extension) of the extension so Metamask can understand the state channels' protocol and interact with a Counterfactual [Node](https://github.com/counterfactual/monorepo/tree/master/packages/node).
 
 ## How can I use it?
 
