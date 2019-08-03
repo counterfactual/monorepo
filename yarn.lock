@@ -7991,10 +7991,10 @@ eth-ens-namehash@2.0.8:
     idna-uts46-hx "^2.3.1"
     js-sha3 "^0.5.7"
 
-eth-gas-reporter@0.2.8:
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.8.tgz#45c3805bea671fefc97d54838e06e1d463da82f3"
-  integrity sha512-jN2ASutMZogGum+Yld/MU9WU8OJ+vjDvrdxHWlZxefsK5wrHeAfT6NmVSF1bjzv7c0PoACIXFnYUe3D1RpTy0Q==
+eth-gas-reporter@0.2.9:
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.9.tgz#039743d8054547d6ca8e6c3d7a44d5b64fb388c1"
+  integrity sha512-FUFjFz34mrCbas+nsFIfRifp1b/BnmU8+wkhsL/Kf3fO6djXouPg/qcGZzjl5Y1qlHgsI5Ay8CPV7tlKGaAU8g==
   dependencies:
     abi-decoder "^2.0.1"
     cli-table3 "^0.5.0"
