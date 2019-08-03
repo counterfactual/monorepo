@@ -20159,17 +20159,17 @@ truffle-contract-schema@^3.0.11:
     crypto-js "^3.1.9-1"
     debug "^4.1.0"
 
-truffle-contract@4.0.26:
-  version "4.0.26"
-  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.26.tgz#a980be7c6048eb1b2f27e1e3bddd0a023ba1b5ab"
-  integrity sha512-/+tjcC+aXParkT/5k1gOXP4IN8x6xD/FnYdgQJjbaSCMJWTvuw9tB8dr3Nsq7/T67tnF0d1uEFgN+uT71o/5EA==
+truffle-contract@4.0.27:
+  version "4.0.27"
+  resolved "https://registry.yarnpkg.com/truffle-contract/-/truffle-contract-4.0.27.tgz#fe12ff5c71d0b301a37ca86a0021966d45b0a900"
+  integrity sha512-/UwsAm8tHN6sGCRbM/sarp/eR5ST3aj45wvmKWh680H3H60ur66xzrDgKJ0xPCpnAZhBOaNIhTY2bGj3jZz/ZQ==
   dependencies:
     bignumber.js "^7.2.1"
     ethers "^4.0.0-beta.1"
     truffle-blockchain-utils "^0.0.10"
     truffle-contract-schema "^3.0.11"
     truffle-error "^0.0.5"
-    truffle-interface-adapter "^0.2.1"
+    truffle-interface-adapter "^0.2.2"
     web3 "^1.2.0"
     web3-core-promievent "^1.2.0"
     web3-eth-abi "^1.2.0"
@@ -20211,13 +20211,14 @@ truffle-hdwallet-provider@1.0.15:
     web3 "^1.2.0"
     websocket "^1.0.28"
 
-truffle-interface-adapter@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.2.1.tgz#76cc312d2762ae2efe64d5bca40dfa62e9f39ff1"
-  integrity sha512-uzLUJYDWMzFKAN32vBNe6ZOv1C8DBboRQeXpeB36UxJXFFT79K5a8KXyVbhof/rEIXrEMVSftJ/bNK0kpjF4gA==
+truffle-interface-adapter@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/truffle-interface-adapter/-/truffle-interface-adapter-0.2.2.tgz#f2ca897b4769b2190e3fb03f09fb98a178362126"
+  integrity sha512-dAKN+mSOlQV/+PlzUhBH90RAWrbp0Avm8nQcALoTwKa35PkS5RyB2ir1Y0AVoZvKVFYOmRDt884KHpZe8YgJRA==
   dependencies:
     bn.js "^4.11.8"
     ethers "^4.0.32"
+    lodash "^4.17.13"
     web3 "^1.2.0"
 
 truffle@5.0.29:
