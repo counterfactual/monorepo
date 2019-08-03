@@ -9,17 +9,11 @@ let browser: TestBrowser;
 beforeAll(async () => {
   browser = new TestBrowser();
   await browser.start();
+  await browser.prepare("kovan");
 });
 
 it("registers a new account and goes to /channels", async () => {
   const { setupCounterfactualButton } = WELCOME_SCREEN_SELECTORS;
-
-  await browser.openMetamask();
-  await browser.setupMetamask();
-  await browser.waitForMetamaskMainScreen();
-  await browser.setMetamaskNetwork("kovan");
-  await browser.openCounterfactualWallet();
-  await browser.authorizeWallet();
 
   await browser.switchToWallet();
 
