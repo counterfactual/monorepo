@@ -23,6 +23,6 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "ganache-core": "2.6.0"
+    "ganache-core": "2.6.1"
   }
 }
