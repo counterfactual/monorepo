@@ -8211,14 +8211,14 @@ ethereumjs-common@^1.1.0:
   resolved "https://registry.npmjs.org/ethereumjs-common/-/ethereumjs-common-1.3.0.tgz#ca7d152b615d5e1851fcf184d062bf14c62c18e6"
   integrity sha512-/jdFHyHOIS3FiAnunwRZ+oNulFtNNSHyWii3PaNHReOUmBAxij7KMyZLKh0tE16JEsJtXOVz1ceYuq++ILzv+g==
 
-ethereumjs-testrpc-sc@6.4.5-sc.3:
-  version "6.4.5-sc.3"
-  resolved "https://registry.yarnpkg.com/ethereumjs-testrpc-sc/-/ethereumjs-testrpc-sc-6.4.5-sc.3.tgz#7c02bfb4c07f32d0ccb30140b61736e5f1bb71c4"
-  integrity sha512-uQD5Tf+C1QgXRx4GkYnlkB6UxLInkbn2gZzwAKLbnDKIzqcv4JiKVUJxnHyYrbXAu0IAxexus7jYnpju2yDHqw==
+ethereumjs-testrpc-sc@^6.5.1-sc.0:
+  version "6.5.1-sc.0"
+  resolved "https://registry.yarnpkg.com/ethereumjs-testrpc-sc/-/ethereumjs-testrpc-sc-6.5.1-sc.0.tgz#c5986af4548776ebea35581ae6ae2518afb72faa"
+  integrity sha512-ZWhg3Rd64hAWSMM7DygDs7wITH9hDYPCvFypHkiLTiKu42wfl6QVJtkouelhtdyufzv2TFe7Lo0uOWS9NEiOqw==
   dependencies:
-    bn.js "4.11.8"
-    source-map-support "0.5.9"
-    yargs "11.1.0"
+    ethereumjs-util "6.1.0"
+    source-map-support "0.5.12"
+    yargs "13.2.4"
 
 ethereumjs-tx@1.3.7, ethereumjs-tx@^1.1.1, ethereumjs-tx@^1.2.0, ethereumjs-tx@^1.2.2, ethereumjs-tx@^1.3.3:
   version "1.3.7"
@@ -18797,13 +18797,13 @@ solc@0.5.10, solc@^0.5.10:
     tmp "0.0.33"
     yargs "^11.0.0"
 
-solidity-coverage@0.6.3:
-  version "0.6.3"
-  resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.6.3.tgz#c7e7afa0792ae1fe3c6039735e2a0ad5cb2f0aca"
-  integrity sha512-mHc8xtcVZwkANAWQrOROyD7eAEE8L5kUE/3KEvNp/y7+zR1/u2f8ouNKp5hKeCAmHhm7df7X3pLGINmnKili9w==
+solidity-coverage@0.6.4:
+  version "0.6.4"
+  resolved "https://registry.yarnpkg.com/solidity-coverage/-/solidity-coverage-0.6.4.tgz#7f4d28b42c10cea1df9f27ca80beac9b03dfa25a"
+  integrity sha512-jj7JBag7SAh1TZE7cok+Hd6jKCjC5fTnZZM4K3CJMHOMjtXb9R/+4vHoCksUEYCIYNVpSp7+2ioxOPFRh1gBBQ==
   dependencies:
     death "^1.1.0"
-    ethereumjs-testrpc-sc "6.4.5-sc.3"
+    ethereumjs-testrpc-sc "^6.5.1-sc.0"
     istanbul "^0.4.5"
     keccakjs "^0.2.1"
     req-cwd "^1.0.1"
