@@ -38,7 +38,7 @@
     "jest-cli": "24.8.0",
     "jest-dot-reporter": "1.0.8",
     "rollup": "1.18.0",
-    "rollup-plugin-commonjs": "10.0.1",
+    "rollup-plugin-commonjs": "10.0.2",
     "rollup-plugin-json": "4.0.0",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-typescript2": "0.22.1",
