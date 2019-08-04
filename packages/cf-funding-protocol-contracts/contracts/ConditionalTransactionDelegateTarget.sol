@@ -50,6 +50,10 @@ contract ConditionalTransactionDelegateTarget {
     );
 
     for (uint256 i = 0; i < freeBalanceAppState.tokenAddresses.length; i++) {
+      // The transaction's interpreter parameters are determined at the time
+      // of creation of the free balance; hence we cannot know how much will be
+      // deposited into it all-time. Relying on the app state is unsafe so
+      // we just give it full permissions by setting the limit to the max here.
       limits[i] = MAX_UINT256;
     }
 
