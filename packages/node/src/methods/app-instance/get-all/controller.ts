@@ -21,7 +21,7 @@ export default class GetAppInstancesController extends NodeController {
 
     const ret: AppInstanceJson[] = [];
 
-    const channels = await store.getAllChannels();
+    const channels = await store.getStateChannelsMap();
 
     for (const multisigAddress in channels) {
       channels[multisigAddress].appInstances.forEach(appInstance =>

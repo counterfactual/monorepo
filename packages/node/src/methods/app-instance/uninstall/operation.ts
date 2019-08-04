@@ -15,7 +15,7 @@ export async function uninstallAppInstanceFromChannel(
 
   const stateChannelsMap = await instructionExecutor.initiateProtocol(
     Protocol.Uninstall,
-    new Map(Object.entries(await store.getAllChannels())),
+    await store.getStateChannelsMap(),
     {
       initiatorXpub,
       responderXpub,
