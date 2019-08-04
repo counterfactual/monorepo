@@ -70,9 +70,7 @@ export async function handleReceivedProtocolMessage(
       .add(async () => {
         stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
           data,
-          new Map<string, StateChannel>(
-            Object.entries(await store.getAllChannels())
-          )
+          await store.getStateChannelsMap()
         );
 
         stateChannelsMap.forEach(
@@ -101,9 +99,7 @@ export async function handleReceivedProtocolMessage(
     await requestHandler.getShardedQueue(multisigAddress).add(async () => {
       stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         data,
-        new Map<string, StateChannel>(
-          Object.entries(await store.getAllChannels())
-        )
+        await store.getStateChannelsMap()
       );
 
       stateChannelsMap.forEach(
