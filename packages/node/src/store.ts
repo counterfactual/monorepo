@@ -44,23 +44,17 @@ export class Store {
    * Returns an object with the keys being the multisig addresses and the
    * values being `StateChannel` instances.
    */
-  public async getAllChannels(): Promise<{
-    [multisigAddress: string]: StateChannel;
-  }> {
-    const channels = {};
+  public async getStateChannelsMap(): Promise<Map<string, StateChannel>> {
     const channelsJSON = ((await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
     )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    const sortedChannels = Object.entries(channelsJSON).sort(
-      (a, b) => b[1].createdAt || 0 - a[1].createdAt || 0
+    return new Map(
+      Object.values(channelsJSON)
+        .map(StateChannel.fromJson)
+        .sort((a, b) => b.createdAt || 0 - a.createdAt || 0)
+        .map(sc => [sc.multisigAddress, sc])
     );
-
-    for (const [key, value] of sortedChannels) {
-      channels[key] = StateChannel.fromJson(value);
-    }
-
-    return channels;
   }
 
   /**
