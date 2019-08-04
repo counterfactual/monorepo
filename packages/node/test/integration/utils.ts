@@ -78,14 +78,19 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstance(
+export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const allAppInstances = await getInstalledAppInstances(node);
-  return allAppInstances.filter(appInstance => {
-    return appInstance.identityHash === appInstanceId;
-  })[0];
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -463,14 +468,8 @@ export async function installApp(
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstance(
-        nodeA,
-        appInstanceId
-      );
-      const appInstanceNodeB = await getInstalledAppInstance(
-        nodeB,
-        appInstanceId
-      );
+      const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
+      const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
       resolve([appInstanceId, proposedParams]);
     });

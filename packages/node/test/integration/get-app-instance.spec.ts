@@ -6,7 +6,7 @@ import { setup, SetupContext } from "./setup";
 import {
   confirmAppInstanceInstallation,
   createChannel,
-  getInstalledAppInstance,
+  getAppInstance,
   installApp
 } from "./utils";
 
@@ -29,18 +29,10 @@ describe("Node method follows spec - getAppInstanceDetails", () => {
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     );
 
-    const appInstanceNodeA = await getInstalledAppInstance(
-      nodeA,
-      appInstanceId
-    );
-
+    const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
     confirmAppInstanceInstallation(proposedParams, appInstanceNodeA);
 
-    const appInstanceNodeB = await getInstalledAppInstance(
-      nodeB,
-      appInstanceId
-    );
-
+    const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
     confirmAppInstanceInstallation(proposedParams, appInstanceNodeB);
   });
 });
