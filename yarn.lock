@@ -2672,7 +2672,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/chromedriver@^2.38.0":
+"@types/chromedriver@2.38.0":
   version "2.38.0"
   resolved "https://registry.yarnpkg.com/@types/chromedriver/-/chromedriver-2.38.0.tgz#971032b73eb7f44036f4f5bed59a7fd5b468014f"
   integrity sha512-vcPGkZt1y2YVXKAY8SwCvU0u9mgw9+7tBV4HGb0YX/6bu1WXbb61bf8Y/N+xNCYwEj/Ug1UAMnhCcsSohXzRXw==
@@ -3080,7 +3080,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/selenium-webdriver@^4.0.1":
+"@types/selenium-webdriver@4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-4.0.1.tgz#3bc36110061ff180a5a6d1ff3bf2cb0802b5ff60"
   integrity sha512-Y8MMRhHNi7lcPrXsfSIWgrjy+xOVu5WWxUbHNX9uKIED+6G+ZmTEXYC0qgGInKTdZ99maL6/ilYf0BZlzek6/A==
@@ -5653,7 +5653,7 @@ chrome-trace-event@^1.0.0:
   dependencies:
     tslib "^1.9.0"
 
-chromedriver@2.38:
+chromedriver@2.38.3:
   version "2.38.3"
   resolved "https://registry.yarnpkg.com/chromedriver/-/chromedriver-2.38.3.tgz#a432a254bc9ed1faa6edfa67cf5d1135aa2468d6"
   integrity sha512-tczy6RHl0LOVA4p+xezcu3NRjr9A1iLyyfjP9yPIUynvV28YSKH/Ll1iw0jMCjN9jwtaB2HB4aPjv0Uuw2VARw==
@@ -18327,7 +18327,7 @@ select-hose@^2.0.0:
   resolved "https://registry.npmjs.org/select-hose/-/select-hose-2.0.0.tgz#625d8658f865af43ec962bfc376a37359a4994ca"
   integrity sha1-Yl2GWPhlr0Psliv8N2o3NZpJlMo=
 
-selenium-webdriver@^4.0.0-alpha.4:
+selenium-webdriver@4.0.0-alpha.4:
   version "4.0.0-alpha.4"
   resolved "https://registry.yarnpkg.com/selenium-webdriver/-/selenium-webdriver-4.0.0-alpha.4.tgz#73694490e02c941d9d0bf7a36f7c49beb9372512"
   integrity sha512-etJt20d8qInkxMAHIm5SEpPBSS+CdxVcybnxzSIB/GlWErb8pIWrArz/VA6VfUW0/6tIcokepXQ5ufvdzqqk1A==
@@ -19983,7 +19983,7 @@ truffle@5.0.30:
     mocha "5.2.0"
     original-require "1.0.1"
 
-ts-jest@24.0.2, ts-jest@^24.0.2:
+ts-jest@24.0.2:
   version "24.0.2"
   resolved "https://registry.yarnpkg.com/ts-jest/-/ts-jest-24.0.2.tgz#8dde6cece97c31c03e80e474c749753ffd27194d"
   integrity sha512-h6ZCZiA1EQgjczxq+uGLXQlNgeg02WWJBbeT8j6nyIBRQdglqbvzDoHahTEIiS6Eor6x8mK6PfZ7brQ9Q6tzHw==
@@ -20102,10 +20102,10 @@ tslint-eslint-rules@^5.4.0:
     tslib "1.9.0"
     tsutils "^3.0.0"
 
-tslint-microsoft-contrib@~5.2.1:
-  version "5.2.1"
-  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-5.2.1.tgz#a6286839f800e2591d041ea2800c77487844ad81"
-  integrity sha512-PDYjvpo0gN9IfMULwKk0KpVOPMhU6cNoT9VwCOLeDl/QS8v8W2yspRpFFuUS7/c5EIH/n8ApMi8TxJAz1tfFUA==
+tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
+  version "6.2.0"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
+  integrity sha512-6tfi/2tHqV/3CL77pULBcK+foty11Rr0idRDxKnteTaKm6gWF9qmaCNU17HVssOuwlYNyOmd9Jsmjd+1t3a3qw==
   dependencies:
     tsutils "^2.27.2 <2.29.0"
 
@@ -20291,7 +20291,7 @@ typescript@3.3.3:
   resolved "https://registry.npmjs.org/typescript/-/typescript-3.3.3.tgz#f1657fc7daa27e1a8930758ace9ae8da31403221"
   integrity sha512-Y21Xqe54TBVp+VDSNbuDYdGw0BpoR/Q6wo/+35M8PAU0vipahnyduJWirxxdxjsAkS7hue53x2zp8gz7F05u0A==
 
-typescript@3.5.3, typescript@3.5.x, typescript@^3.5.3:
+typescript@3.5.3, typescript@3.5.x:
   version "3.5.3"
   resolved "https://registry.npmjs.org/typescript/-/typescript-3.5.3.tgz#c830f657f93f1ea846819e929092f5fe5983e977"
   integrity sha512-ACzBtm/PhXBDId6a6sDJfroT2pOWt/oOnk4/dElG5G33ZL776N3Y6/6bKZJBFpd+b05F3Ct9qDjMeJmRWtE2/g==
