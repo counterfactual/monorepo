@@ -16,7 +16,7 @@ export async function uninstallVirtualAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const currentChannels = new Map(Object.entries(await store.getAllChannels()));
+  const currentChannels = await store.getStateChannelsMap();
 
   const stateChannelsMap = await instructionExecutor.initiateProtocol(
     Protocol.UninstallVirtualApp,

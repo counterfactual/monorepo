@@ -10,9 +10,9 @@ export default class GetAllChannelAddressesController extends NodeController {
     requestHandler: RequestHandler
   ): Promise<Node.GetChannelAddressesResult> {
     return {
-      multisigAddresses: Object.keys(
-        await requestHandler.store.getAllChannels()
-      )
+      multisigAddresses: [
+        ...(await requestHandler.store.getStateChannelsMap()).keys()
+      ]
     };
   }
 }
