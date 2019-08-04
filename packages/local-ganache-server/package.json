@@ -23,7 +23,7 @@
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
     "@counterfactual/types": "0.0.29",
     "@counterfactual/apps": "0.1.4",
-    "ganache-core": "2.5.7",
+    "ganache-core": "2.6.1",
     "ethers": "4.0.33"
   }
 }
