@@ -1,12 +1,13 @@
 import {
   coinBalanceRefundStateEncoding,
-  coinTransferInterpreterParamsStateEncoding,
   NetworkContext,
-  OutcomeType
+  OutcomeType,
+  singleAssetTwoPartyCoinTransferInterpreterParamsEncoding
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import {
   ConditionalTransaction,
   SetStateCommitment,
@@ -17,7 +18,6 @@ import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
@@ -504,7 +504,6 @@ function addRefundAppToStateChannel(
 
   // TODO: Use a wrapper function for making new AppInstance objects.
   const refundAppInstance = new AppInstance(
-    multisigAddress,
     stateChannel.getNextSigningKeys(),
     defaultTimeout,
     {
@@ -521,9 +520,10 @@ function addRefundAppToStateChannel(
     },
     0,
     defaultTimeout,
-    OutcomeType.REFUND_OUTCOME_TYPE,
+    OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     undefined,
-    { tokenAddresses: [tokenAddress], limit: [MaxUint256] }
+    undefined,
+    { tokenAddress, limit: MaxUint256 }
   );
 
   return stateChannel.installApp(refundAppInstance, {
@@ -537,7 +537,7 @@ function addRefundAppToStateChannel(
  * Computes the ConditionalTransaction unsigned transaction pertaining to the
  * installation of the ETHBalanceRefundApp.
  *
- * Note that this app is hard-coded to the CoinTransferInterpreter. You can see this
+ * Note that this app is hard-coded to the MultiAssetMultiPartyCoinTransferInterpreter. You can see this
  * by reviewing the `ETHBalanceRefundApp.sol` file which has an outcome structure
  * of LibOutcome.CoinTrasfer[].
  *
@@ -558,10 +558,10 @@ function constructConditionalTransactionForRefundApp(
     stateChannel.multisigOwners,
     appInstance.identityHash,
     stateChannel.freeBalance.identityHash,
-    network.CoinTransferInterpreter,
+    network.SingleAssetTwoPartyCoinTransferInterpreter,
     defaultAbiCoder.encode(
-      [coinTransferInterpreterParamsStateEncoding],
-      [appInstance.coinTransferInterpreterParams]
+      [singleAssetTwoPartyCoinTransferInterpreterParamsEncoding],
+      [appInstance.singleAssetTwoPartyCoinTransferInterpreterParams]
     )
   );
 }

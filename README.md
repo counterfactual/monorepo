@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://circleci.com/gh/counterfactual/monorepo"><img src="https://circleci.com/gh/counterfactual/monorepo.svg?style=shield&circle-token=adc9e1576b770585a350141b2a90fc3d68bc048c" alt="circleci"></a>
+  <a href="https://lernajs.io/"><img src="https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg"/></a>
   <a href="https://counterfactual.com/chat"><img src="https://img.shields.io/discord/500370633901735947.svg"/></a>
   <a href="https://github.com/renovatebot/renovate"><img src="https://badges.renovateapi.com/github/counterfactual/monorepo"/></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="license"></a>
@@ -41,7 +42,8 @@ You can learn more about what state channels are by reading [our whitepaper](htt
 
 | Package | Version | Description |
 | --- | --- | --- |
-| [`@counterfactual/contracts`](/packages/contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/contracts.svg)](https://www.npmjs.com/package/@counterfactual/contracts) | Core implementation of on-chain state channel logic |
+| [`@counterfactual/cf-funding-protocol-contracts`](/packages/cf-funding-protocol-contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf-funding-protocol-contracts.svg)](https://www.npmjs.com/package/@counterfactual/cf-funding-protocol-contracts) | Contracts implementation of the Counterfactual funding protocol |
+| [`@counterfactual/cf-adjudicator-contracts`](/packages/cf-adjudicator-contracts) | [![npm](https://img.shields.io/npm/v/@counterfactual/cf-adjudicator-contracts.svg)](https://www.npmjs.com/package/@counterfactual/cf-adjudicator-contracts) | Contracts implementation of an AppInstance Adjudicator |
 
 ### Typescript/Javascript Packages
 
@@ -82,7 +84,7 @@ yarn
 
 ### Building packages
 
-It is recommended (optional) that you installed `solc` compiler binary on your machine ([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `contracts` and `apps`
+It is recommended (optional) that you installed `solc` compiler binary on your machine ([installation guide](https://solidity.readthedocs.io/en/latest/installing-solidity.html#binary-packages)) and specify the following in your `.env` under `cf-funding-protocol-contracts` and `apps`
 
 ```shell
 NATIVE_SOLC=true
@@ -123,6 +125,22 @@ To run all tests:
 ```shell
 yarn test
 ```
+
+To run E2E tests:
+
+- If you're using E2E tests for the first time or have done recent changes to the code, run:
+
+```shell
+yarn test:e2e:setup
+```
+
+- If you're re-running tests or writing new scenarios, run:
+
+```shell
+NODE_EXTENDED_PRIVATE_KEY="..." yarn test:e2e
+```
+
+See the ["Funding the Hub Account for Playground Testing"](./packages/simple-hub-server/README.md) section on the Simple Hub Server package for more information about `NODE_EXTENDED_PRIVATE_KEY`.
 
 ### Patches
 

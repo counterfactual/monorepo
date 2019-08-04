@@ -1,0 +1,4 @@
+node_modules
+coverageEnv
+contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol
+contracts/interpreters/SwapInterpreter.sol

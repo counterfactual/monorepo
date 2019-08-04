@@ -1,6 +1,9 @@
-import RopstenContracts from "@counterfactual/contracts/networks/3.json";
-import RinkebyContracts from "@counterfactual/contracts/networks/4.json";
-import KovanContracts from "@counterfactual/contracts/networks/42.json";
+import AdjudicatorRopstenContracts from "@counterfactual/cf-adjudicator-contracts/networks/3.json";
+import AdjudicatorRinkebyContracts from "@counterfactual/cf-adjudicator-contracts/networks/4.json";
+import AdjudicatorKovanContracts from "@counterfactual/cf-adjudicator-contracts/networks/42.json";
+import RopstenContracts from "@counterfactual/cf-funding-protocol-contracts/networks/3.json";
+import RinkebyContracts from "@counterfactual/cf-funding-protocol-contracts/networks/4.json";
+import KovanContracts from "@counterfactual/cf-funding-protocol-contracts/networks/42.json";
 import {
   DeployedContractNetworksFileEntry,
   EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT,
@@ -25,11 +28,20 @@ export function getNetworkContextForNetworkName(
   log.info(`Configuring Node to use contracts on networkName: ${networkName}`);
   switch (networkName.toLocaleLowerCase()) {
     case "ropsten":
-      return getNetworkContextFromNetworksFile(RopstenContracts);
+      return getNetworkContextFromNetworksFile([
+        ...RopstenContracts,
+        ...AdjudicatorRopstenContracts
+      ]);
     case "rinkeby":
-      return getNetworkContextFromNetworksFile(RinkebyContracts);
+      return getNetworkContextFromNetworksFile([
+        ...RinkebyContracts,
+        ...AdjudicatorRinkebyContracts
+      ]);
     case "kovan":
-      return getNetworkContextFromNetworksFile(KovanContracts);
+      return getNetworkContextFromNetworksFile([
+        ...KovanContracts,
+        ...AdjudicatorKovanContracts
+      ]);
     default:
       throw new Error(
         `${INVALID_NETWORK_NAME}: ${networkName}. \n

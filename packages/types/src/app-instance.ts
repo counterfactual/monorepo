@@ -17,5 +17,5 @@ export type SignedStateHashUpdate = {
   appStateHash: string;
   versionNumber: number;
   timeout: number;
-  signatures: string;
+  signatures: string[];
 };

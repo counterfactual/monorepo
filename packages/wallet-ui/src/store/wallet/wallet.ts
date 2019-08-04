@@ -4,13 +4,25 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit, requestWithdraw } from "../../utils/counterfactual";
+import {
+  forFunds,
+  requestDeposit,
+  requestWithdraw
+} from "../../utils/counterfactual";
 import log from "../../utils/log";
-import { ActionType, ApplicationState, Deposit, StoreAction, WalletState } from "../types";
-
+import {
+  ActionType,
+  ApplicationState,
+  Deposit,
+  StoreAction,
+  WalletState
+} from "../types";
+import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 export const initialState = {
+  nodeAddresses: [],
   ethAddress: "",
   error: {},
+  status: "",
   counterfactualBalance: Zero,
   ethereumBalance: Zero
 } as WalletState;
@@ -56,7 +68,8 @@ export const connectToWallet = (
 
 export enum WalletDepositTransition {
   CheckWallet = "WALLET_DEPOSIT_CHECK_WALLET",
-  WaitForFunds = "WALLET_DEPOSIT_WAITING_FOR_FUNDS"
+  WaitForUserFunds = "WALLET_DEPOSIT_WAITING_FOR_USER_FUNDS",
+  WaitForCollateralFunds = "WALLET_DEPOSIT_WAITING_FOR_COLLATERAL_FUNDS"
 }
 
 export const deposit = (
@@ -75,7 +88,16 @@ export const deposit = (
     await requestDeposit(transaction);
 
     // 2. Wait until the deposit is completed in both sides. !
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    await forFunds(
+      {
+        multisigAddress: transaction.multisigAddress,
+        nodeAddress: transaction.nodeAddress
+      },
+      "user"
+    );
+
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
       nodeAddress: transaction.nodeAddress
@@ -126,7 +148,7 @@ export const withdraw = (
     // 1. Ask Metamask to do the withdraw. !
     dispatch({ type: WalletWithdrawTransition.CheckWallet });
     const response = await requestWithdraw(transaction); // IMPLEMENT THIS!
-    log('withdraw response', response)
+    log("withdraw response", response);
 
     // 2. Wait until the withdraw is completed in both sides. !
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
@@ -158,12 +180,40 @@ export const withdraw = (
   }
 };
 
+export const getNodeTokens = (
+  provider: Web3Provider
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  try {
+    const network = await provider.getNetwork();
+    const nodeAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+    dispatch({
+      data: { nodeAddresses },
+      type: ActionType.WalletSetNodeTokens
+    });
+  } catch (e) {
+    dispatch({
+      data: {
+        error: {
+          message: "Ups something went wrong retrieving the list of tokens"
+        }
+      } as WalletState,
+      type: ActionType.WalletError
+    });
+  }
+};
+
 export const reducers = function(
   state = initialState,
   action: StoreAction<WalletState, WalletDepositTransition>
 ) {
   switch (action.type) {
     case ActionType.WalletSetAddress:
+    case ActionType.WalletSetNodeTokens:
     case ActionType.WalletSetBalance:
     case ActionType.WalletDeposit:
     case ActionType.WalletWithdraw:

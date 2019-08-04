@@ -1,9 +1,9 @@
 import { Node } from "@counterfactual/types";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { Protocol } from "../../../machine";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import { getPeersAddressFromChannel } from "../../../utils";
 
 export async function runWithdrawProtocol(
   requestHandler: RequestHandler,
@@ -14,7 +14,7 @@ export async function runWithdrawProtocol(
 
   const tokenAddress = params.tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-  const [peerAddress] = await getPeersAddressFromChannel(
+  const [peerAddress] = await StateChannel.getPeersAddressFromChannel(
     publicIdentifier,
     store,
     multisigAddress

@@ -1,12 +1,25 @@
 import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { parseEther } from "ethers/utils";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
+import {
+  buildRegistrationSignaturePayload,
+  buildSignatureMessageForLogin,
+  forMultisig,
+  getCFBalances,
+  getNodeAddress,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
-import { ActionType, ApplicationState, StoreAction, User, UserState } from "../types";
+import {
+  ActionType,
+  ApplicationState,
+  StoreAction,
+  User,
+  UserState
+} from "../types";
 
 export const initialState = {
   user: {},
@@ -83,7 +96,8 @@ export const addUser = (
 export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
-  history: History
+  history: History,
+  provider: Web3Provider
 ): ThunkAction<
   void,
   ApplicationState,
@@ -103,7 +117,18 @@ export const loginUser = (
     // 4. Store the token.
     await storeTokenFromUser(user);
 
-    // 5. Dispatch.
+    // 5. Get the balances.
+    const counterfactualBalance = await getCFBalances({
+      multisigAddress: user.multisigAddress as string,
+      nodeAddress: user.nodeAddress
+    });
+    const ethereumBalance = await provider.getBalance(user.ethAddress);
+
+    // 6. Dispatch.
+    dispatch({
+      data: { ethereumBalance, counterfactualBalance },
+      type: ActionType.WalletSetBalance
+    });
     dispatch({ data: { user }, type: ActionType.UserLogin });
 
     // 6. Go to the next screen!
@@ -124,15 +149,17 @@ export const getUser = (
 > => async dispatch => {
   try {
     // 1. Get the user token.
-    const { balance, user } = await getUserFromStoredToken();
-
-    if (!user) {
+    const user = await getUserFromStoredToken();
+    if (!user || !user.username) {
       history.push(RoutePath.Root);
       return;
     }
 
     // 2. Get the balances.
-    const counterfactualBalance = parseEther(balance);
+    const counterfactualBalance = await getCFBalances({
+      multisigAddress: user.multisigAddress as string,
+      nodeAddress: user.nodeAddress
+    });
     const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 3. Store data into UserState and WalletState.

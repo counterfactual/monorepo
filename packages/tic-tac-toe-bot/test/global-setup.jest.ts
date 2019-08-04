@@ -1,7 +1,7 @@
 import dotenvExtended from "dotenv-extended";
 import { Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import fs from "fs";
 import ganache from "ganache-core";
 import mkdirp from "mkdirp";
@@ -16,22 +16,28 @@ const DIR = path.join(os.tmpdir(), "jest_ganache_global_setup");
 
 const CF_PATH = "m/44'/60'/0'/25446";
 
+function generateXPrv() {
+  return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
+}
+
+function getPrivateKey(extendedPrvKey: string) {
+  return fromExtendedKey(extendedPrvKey).derivePath(CF_PATH).privateKey;
+}
+
 module.exports = async () => {
   mkdirp.sync(DIR);
 
-  const playgroundMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyPG = fromMnemonic(playgroundMnemonic).derivePath(CF_PATH)
-    .privateKey;
+  const playgroundExtendedPrvKey = generateXPrv();
+  const privateKeyPG = getPrivateKey(playgroundExtendedPrvKey);
 
-  const aliceMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyA = fromMnemonic(aliceMnemonic).derivePath(CF_PATH)
-    .privateKey;
+  const aliceExtendedPrvKey = generateXPrv();
+  const privateKeyA = getPrivateKey(aliceExtendedPrvKey);
 
-  const botMnemonic = Wallet.createRandom().mnemonic;
-  const privateKeyC = fromMnemonic(botMnemonic).derivePath(CF_PATH).privateKey;
+  const botExtendedPrvKey = generateXPrv();
+  const privateKeyC = getPrivateKey(botExtendedPrvKey);
 
-  const aliceAddress = fromMnemonic(aliceMnemonic).derivePath(CF_PATH).address;
-  const botAddress = fromMnemonic(botMnemonic).derivePath(CF_PATH).address;
+  const aliceAddress = fromExtendedKey(aliceExtendedPrvKey).address;
+  const botAddress = fromExtendedKey(botExtendedPrvKey).address;
 
   const server = ganache.server({
     accounts: [
@@ -61,9 +67,9 @@ module.exports = async () => {
   const networkContext = await deployTestArtifactsToChain(wallet);
 
   const data = {
-    playgroundMnemonic,
-    aliceMnemonic,
-    botMnemonic,
+    playgroundExtendedPrvKey,
+    aliceExtendedPrvKey,
+    botExtendedPrvKey,
     aliceAddress,
     botAddress,
     networkContext

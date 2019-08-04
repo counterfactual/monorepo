@@ -16,7 +16,7 @@ import { AppDefinition, UserSession } from "../../types";
   shadow: true
 })
 export class DappContainer {
-  @Element() private element: HTMLElement | undefined;
+  @Element() private readonly element: HTMLElement | undefined;
 
   @Prop() match: MatchResults = {} as MatchResults;
   @Prop() history: RouterHistory = {} as RouterHistory;
@@ -33,10 +33,10 @@ export class DappContainer {
 
   private frameWindow: Window | null = null;
   private port: MessagePort | null = null;
-  private eventEmitter: any = new EventEmitter();
-  private messageQueue: object[] = [];
+  private readonly eventEmitter: any = new EventEmitter();
+  private readonly messageQueue: object[] = [];
   private iframe: HTMLIFrameElement = {} as HTMLIFrameElement;
-  private node = CounterfactualNode.getInstance();
+  private readonly node = CounterfactualNode.getInstance();
 
   private $onMessage: (event: MessageEvent) => void = () => {};
 

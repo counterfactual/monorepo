@@ -1,11 +1,11 @@
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
-  CoinTransferInterpreterParams,
-  coinTransferInterpreterParamsStateEncoding,
+  MultiAssetMultiPartyCoinTransferInterpreterParams,
+  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   NetworkContext,
   OutcomeType
 } from "@counterfactual/types";
@@ -19,13 +19,13 @@ import {
   parseEther
 } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import {
   ConditionalTransaction,
   SetStateCommitment
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
   transferERC20Tokens
@@ -33,7 +33,10 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -45,7 +48,7 @@ const SETSTATE_COMMITMENT_GAS = 6e9;
 
 // Also we can't estimate the install commitment gas b/c it uses
 // delegatecall for the conditional transaction
-const INSTALL_COMMITMENT_GAS = 6e9;
+const CONDITIONAL_TX_DELEGATECALL_GAS = 6e9;
 
 let provider: JsonRpcProvider;
 let wallet: Wallet;
@@ -77,12 +80,11 @@ beforeAll(async () => {
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
   it("returns the funds the app had locked up for both ETH and ERC20", async done => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
+
+    const xpubs = xprvs.map(extendedPrvKeyToExtendedPubKey);
 
     const erc20TokenAddress = (global[
       "networkContext"
@@ -96,9 +98,9 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
       let stateChannel = StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxyAddress,
-        xkeys.map(x => x.neuter().extendedKey),
+        xpubs,
         1
       ).setFreeBalance(
         createFreeBalanceStateWithFundedTokenAmounts(
@@ -109,14 +111,13 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       );
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
-        xkeys.map(x => x.extendedKey),
+        xprvs,
         stateChannel.numInstalledApps
       );
 
       // todo(xuanji): don't reuse state
       // todo(xuanji): use createAppInstance
       const identityAppInstance = new AppInstance(
-        stateChannel.multisigAddress,
         uniqueAppSigningKeys.map(x => x.address),
         stateChannel.freeBalance.defaultTimeout, // Re-use ETH FreeBalance timeout
         {
@@ -140,14 +141,15 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         ],
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
-        OutcomeType.FREE_BALANCE_OUTCOME_TYPE,
+        OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred
-          limit: [parseEther("2"), parseEther("2")],
+          limit: [parseEther("1"), parseEther("1")],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
-        } as CoinTransferInterpreterParams
+        } as MultiAssetMultiPartyCoinTransferInterpreterParams,
+        undefined
       );
 
       stateChannel = stateChannel.installApp(identityAppInstance, {
@@ -218,10 +220,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         stateChannel.multisigOwners,
         identityAppInstance.identityHash,
         stateChannel.freeBalance.identityHash,
-        network.CoinTransferInterpreter,
+        network.MultiAssetMultiPartyCoinTransferInterpreter,
         defaultAbiCoder.encode(
-          [coinTransferInterpreterParamsStateEncoding],
-          [identityAppInstance.coinTransferInterpreterParams!]
+          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
+          [
+            identityAppInstance.multiAssetMultiPartyCoinTransferInterpreterParams!
+          ]
         )
       );
 
@@ -246,7 +250,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         ...multisigDelegateCallTx,
-        gasLimit: INSTALL_COMMITMENT_GAS
+        gasLimit: CONDITIONAL_TX_DELEGATECALL_GAS
       });
 
       expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);

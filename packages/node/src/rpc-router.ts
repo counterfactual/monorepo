@@ -11,7 +11,7 @@ import { RequestHandler } from "./request-handler";
 type AsyncCallback = (...args: any) => Promise<any>;
 
 export default class RpcRouter extends Router {
-  private requestHandler: RequestHandler;
+  private readonly requestHandler: RequestHandler;
 
   constructor({
     controllers,

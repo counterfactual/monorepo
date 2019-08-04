@@ -3,9 +3,9 @@ import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON

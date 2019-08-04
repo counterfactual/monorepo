@@ -1,5 +1,9 @@
 import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-import { MNEMONIC_PATH, Node, NodeConfig } from "@counterfactual/node";
+import {
+  EXTENDED_PRIVATE_KEY_PATH,
+  Node,
+  NodeConfig
+} from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
@@ -46,7 +50,10 @@ describe("ttt-bot", () => {
     );
 
     storeServiceA.set([
-      { key: MNEMONIC_PATH, value: global["playgroundMnemonic"] }
+      {
+        key: EXTENDED_PRIVATE_KEY_PATH,
+        value: global["playgroundExtendedPrvKey"]
+      }
     ]);
 
     playgroundNode = await Node.create(
@@ -61,7 +68,9 @@ describe("ttt-bot", () => {
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
 
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: global["aliceMnemonic"] }]);
+    storeServiceB.set([
+      { key: EXTENDED_PRIVATE_KEY_PATH, value: global["aliceExtendedPrvKey"] }
+    ]);
 
     nodeAlice = await Node.create(
       messagingService,
@@ -75,7 +84,9 @@ describe("ttt-bot", () => {
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
 
-    storeServiceC.set([{ key: MNEMONIC_PATH, value: global["botMnemonic"] }]);
+    storeServiceC.set([
+      { key: EXTENDED_PRIVATE_KEY_PATH, value: global["botExtendedPrvKey"] }
+    ]);
 
     nodeBot = await Node.create(
       messagingService,

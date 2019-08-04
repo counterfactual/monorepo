@@ -14,12 +14,13 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
+import { getFreeBalanceAddress } from "./models/free-balance";
 import { getNetworkContextForNetworkName } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
+import { debugLog, timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -36,7 +37,7 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals = new Map<
+  private readonly ioSendDeferrals = new Map<
     string,
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
@@ -83,11 +84,10 @@ export class Node {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
 
-    if (typeof networkContext === "string") {
-      this.networkContext = getNetworkContextForNetworkName(networkContext);
-    } else {
-      this.networkContext = networkContext;
-    }
+    this.networkContext =
+      typeof networkContext === "string"
+        ? getNetworkContextForNetworkName(networkContext)
+        : networkContext;
 
     this.instructionExecutor = this.buildInstructionExecutor();
 

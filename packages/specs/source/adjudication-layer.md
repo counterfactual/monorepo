@@ -1,6 +1,6 @@
 # Adjudication Layer
 
-Counterfactual's adjudication layer uses a singleton contract called the [`ChallengeRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/ChallengeRegistry.sol). This contract has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/contracts/contracts/CounterfactualApp.sol) interface.
+Counterfactual's adjudication layer uses a singleton contract called the [`ChallengeRegistry`](https://github.com/counterfactual/monorepo/blob/master/packages/cf-adjudicator-contracts/contracts/ChallengeRegistry.sol). This contract has been designed to only be compatible with applications that implement the [`CounterfactualApp`](https://github.com/counterfactual/monorepo/blob/master/packages/cf-adjudicator-contracts/contracts/interfaces/CounterfactualApp.sol) interface.
 
 The adjudication layer treats off-chain state as divided into independent app instances, which are "instantiations" of Apps governed by the app definition. A channel with two chess different chess games ongoing has two different app instances.
 
@@ -102,7 +102,7 @@ Interpreters read outcomes in order to produce an effect. The interpreter must b
 Two interpreters are currently defined, although more can be added independently by add
 
 - TwoPartyFixedOutcomeInterpreter splits a fixed amount of ETH based on a TwoPartyFixedOutcome. The parameters consist of two beneficiary addresses and the total amount of Eth, and the params are encoded as `tuple(address[2], uint256)`.
-- CoinTransferInterpreter sends ETH based on an CoinTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
+- MultiAssetMultiPartyCoinTransferInterpreter sends ETH based on an CoinTransfer outcome, up to a fixed upper bound. The paramse are encoded as `uint256`.
 
 The interpreter used and the params to the interpreter are fixed per app instance by being included in the appIdentityHash computation. After an outcome is stored, the adjudication layer allows a commitment to `ConditionalTransactionDelegateTarget.sol:executeEffectOfInterpretedAppOutcome` call the intepreter on the outcome.
 

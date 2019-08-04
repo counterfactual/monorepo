@@ -2,12 +2,10 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
-import {
-  getStateChannelWithOwners,
-  hashOfOrderedPublicIdentifiers
-} from "../../../utils";
+import { hashOfOrderedPublicIdentifiers } from "../../../utils";
 import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
@@ -67,7 +65,7 @@ export default class InstallVirtualController extends NodeController {
       );
     }
 
-    const stateChannelWithIntermediary = await getStateChannelWithOwners(
+    const stateChannelWithIntermediary = await StateChannel.getStateChannelWithOwners(
       publicIdentifier,
       intermediaries[0],
       store

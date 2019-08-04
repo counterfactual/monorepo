@@ -1,7 +1,7 @@
 import {
   AppABIEncodings,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
@@ -16,7 +16,7 @@ export interface IAppInstanceProposal {
   responderDeposit: BigNumberish;
   responderDepositTokenAddress: string;
   timeout: BigNumberish;
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -32,7 +32,7 @@ export interface AppInstanceProposalJSON {
   responderDeposit: { _hex: string };
   responderDepositTokenAddress: string;
   timeout: { _hex: string };
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -58,7 +58,7 @@ export class AppInstanceProposal {
   responderDeposit: BigNumber;
   responderDepositTokenAddress: string;
   timeout: BigNumber;
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaries?: string[];
@@ -92,7 +92,6 @@ export class AppInstanceProposal {
 
   toAppInstanceFor(stateChannel: StateChannel) {
     return new AppInstance(
-      stateChannel.multisigAddress,
       stateChannel.getNextSigningKeys(),
       bigNumberify(this.timeout).toNumber(),
       {
@@ -112,6 +111,7 @@ export class AppInstanceProposal {
       // of the channel during an install, and it's not used to calculate
       // the AppInstance ID so there won't be a possible mismatch between
       // a proposed AppInstance ID and an installed AppInstance ID
+      undefined,
       undefined
     );
   }

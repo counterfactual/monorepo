@@ -38,7 +38,7 @@ export const EMPTY_FIREBASE_CONFIG = {
  * described above, using Firebase as the implementation backend.
  */
 export class FirebaseServiceFactory {
-  private app: firebase.app.App;
+  private readonly app: firebase.app.App;
 
   constructor(configuration: FirebaseAppConfiguration) {
     this.app = firebase.initializeApp(configuration);

@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers/utils";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 
 export const APP_ALREADY_UNINSTALLED = (id: string) =>
   `Cannot uninstall app ${id}, it has already been uninstalled`;

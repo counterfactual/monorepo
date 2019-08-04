@@ -70,7 +70,7 @@ describe("simple-hub-server", () => {
 
     playgroundNode = await NodeWrapper.createNodeSingleton(
       NETWORK_CONTEXT,
-      global["pgMnemonic"],
+      global["pgXPrv"],
       provider,
       serviceFactory.createStoreService(generateUUID())
     );
@@ -78,19 +78,19 @@ describe("simple-hub-server", () => {
     nodeAlice = await NodeWrapper.createNode(
       NETWORK_CONTEXT,
       provider,
-      global["nodeAMnemonic"]
+      global["nodeAXPrv"]
     );
 
     nodeBob = await NodeWrapper.createNode(
       NETWORK_CONTEXT,
       provider,
-      global["nodeBMnemonic"]
+      global["nodeBXPrv"]
     );
 
     nodeCharlie = await NodeWrapper.createNode(
       NETWORK_CONTEXT,
       provider,
-      global["nodeCMnemonic"]
+      global["nodeCXPrv"]
     );
 
     expect(nodeAlice).not.toEqual(nodeBob);
@@ -146,7 +146,7 @@ describe("simple-hub-server", () => {
   describe("/api/users", () => {
     it("fails when signature is not passed to the request", async done => {
       await client
-        .post("/users", POST_USERS_ALICE_NO_SIGNATURE(global["nodeAMnemonic"]))
+        .post("/users", POST_USERS_ALICE_NO_SIGNATURE(global["nodeAXPrv"]))
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -166,7 +166,7 @@ describe("simple-hub-server", () => {
       await client
         .post(
           "/users",
-          POST_USERS_ALICE_INVALID_SIGNATURE(global["nodeAMnemonic"]),
+          POST_USERS_ALICE_INVALID_SIGNATURE(global["nodeAXPrv"]),
           {
             headers: POST_USERS_ALICE_INVALID_SIGNATURE_HEADER
           }
@@ -190,8 +190,8 @@ describe("simple-hub-server", () => {
       jest.setTimeout(10000);
 
       const response = await client
-        .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
-          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
+        .post("/users", POST_USERS_ALICE(global["nodeAXPrv"]), {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAXPrv"])
         })
         .catch(error => {
           console.error(error.message, error.response.data);
@@ -200,7 +200,7 @@ describe("simple-hub-server", () => {
 
       const data = response.data.data as User;
 
-      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
+      const aliceUser = USR_ALICE(global["nodeAXPrv"]);
       expect(data.id).toBeDefined();
       expect(data.attributes.username).toEqual(aliceUser.username);
       expect(data.attributes.email).toEqual(aliceUser.email);
@@ -214,8 +214,8 @@ describe("simple-hub-server", () => {
 
     it("creates an account for the second time, fails for duplicate data and returns HttpStatusCode.BadRequest", async done => {
       await client
-        .post("/users", POST_USERS_ALICE(global["nodeAMnemonic"]), {
-          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAMnemonic"])
+        .post("/users", POST_USERS_ALICE(global["nodeAXPrv"]), {
+          headers: POST_USERS_ALICE_SIGNATURE_HEADER(global["nodeAXPrv"])
         })
         .catch(({ response }) => {
           expect(response.data).toEqual({
@@ -236,10 +236,10 @@ describe("simple-hub-server", () => {
       await client
         .post(
           "/users",
-          POST_USERS_ALICE_DUPLICATE_USERNAME(global["nodeAMnemonic"]),
+          POST_USERS_ALICE_DUPLICATE_USERNAME(global["nodeAXPrv"]),
           {
             headers: POST_USERS_ALICE_DUPLICATE_USERNAME_SIGNATURE_HEADER(
-              global["nodeAMnemonic"]
+              global["nodeAXPrv"]
             )
           }
         )
@@ -283,15 +283,9 @@ describe("simple-hub-server", () => {
 
     it("fails for a non-registered address", done => {
       client
-        .post(
-          "/session-requests",
-          POST_SESSION_CHARLIE(global["nodeCMnemonic"]),
-          {
-            headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(
-              global["nodeCMnemonic"]
-            )
-          }
-        )
+        .post("/session-requests", POST_SESSION_CHARLIE(global["nodeCXPrv"]), {
+          headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(global["nodeCXPrv"])
+        })
         .catch(({ response }) => {
           expect(response.data).toEqual({
             errors: [
@@ -307,18 +301,12 @@ describe("simple-hub-server", () => {
     });
 
     it("returns user data with a token", async done => {
-      await db("users").insert(USR_CHARLIE_KNEX(global["nodeCMnemonic"]));
+      await db("users").insert(USR_CHARLIE_KNEX(global["nodeCXPrv"]));
 
       const response = await client
-        .post(
-          "/session-requests",
-          POST_SESSION_CHARLIE(global["nodeCMnemonic"]),
-          {
-            headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(
-              global["nodeCMnemonic"]
-            )
-          }
-        )
+        .post("/session-requests", POST_SESSION_CHARLIE(global["nodeCXPrv"]), {
+          headers: POST_SESSION_CHARLIE_SIGNATURE_HEADER(global["nodeCXPrv"])
+        })
         .catch(error => {
           console.error(error.message, error.response.data);
           throw error;
@@ -326,7 +314,7 @@ describe("simple-hub-server", () => {
 
       const data = response.data.data;
 
-      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
+      const charlieUser = USR_CHARLIE(global["nodeCXPrv"]);
       expect(data.attributes.email).toEqual(charlieUser.email);
       expect(data.attributes.ethAddress).toEqual(charlieUser.ethAddress);
       expect(data.attributes.multisigAddress).toBeDefined();
@@ -357,7 +345,7 @@ describe("simple-hub-server", () => {
     });
 
     it("returns user data from a token", async done => {
-      await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
+      await db("users").insert(USR_BOB_KNEX(global["nodeBXPrv"]));
 
       const response = await client
         .get("/users/me", {
@@ -374,7 +362,7 @@ describe("simple-hub-server", () => {
       expect(response.data).toEqual({
         data: [
           {
-            attributes: USR_BOB(global["nodeBMnemonic"]),
+            attributes: USR_BOB(global["nodeBXPrv"]),
             id: USR_BOB_ID,
             relationships: {},
             type: "user"
@@ -410,7 +398,7 @@ describe("simple-hub-server", () => {
     });
 
     it("fails when there are no users to match with", async done => {
-      await db("users").insert(USR_BOB_KNEX(global["nodeBMnemonic"]));
+      await db("users").insert(USR_BOB_KNEX(global["nodeBXPrv"]));
 
       client
         .post(
@@ -442,8 +430,8 @@ describe("simple-hub-server", () => {
 
     it("returns the only possible user as a match", async done => {
       await db("users").insert([
-        USR_BOB_KNEX(global["nodeBMnemonic"]),
-        USR_ALICE_KNEX(global["nodeAMnemonic"])
+        USR_BOB_KNEX(global["nodeBXPrv"]),
+        USR_ALICE_KNEX(global["nodeAXPrv"])
       ]);
 
       const response = await client
@@ -468,7 +456,7 @@ describe("simple-hub-server", () => {
       const json = response.data as JsonApiDocument<MatchmakingRequest>;
       const data = json.data as MatchmakingRequest;
 
-      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
+      const aliceUser = USR_ALICE(global["nodeAXPrv"]);
       expect(data.type).toEqual("matchmakingRequest");
       expect(data.id).toBeDefined();
       expect(data.attributes).toEqual({
@@ -484,12 +472,12 @@ describe("simple-hub-server", () => {
 
     it("returns the requested user as a match", async done => {
       await db("users").insert([
-        USR_BOB_KNEX(global["nodeBMnemonic"]),
-        USR_ALICE_KNEX(global["nodeAMnemonic"]),
-        USR_CHARLIE_KNEX(global["nodeCMnemonic"])
+        USR_BOB_KNEX(global["nodeBXPrv"]),
+        USR_ALICE_KNEX(global["nodeAXPrv"]),
+        USR_CHARLIE_KNEX(global["nodeCXPrv"])
       ]);
 
-      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
+      const charlieUser = USR_CHARLIE(global["nodeCXPrv"]);
       const response = await client
         .post(
           "/matchmaking-requests",
@@ -531,8 +519,8 @@ describe("simple-hub-server", () => {
     it("returns one of three possible users as a match", async done => {
       // Mock an extra user into the DB first.
       await db("users").insert([
-        USR_BOB_KNEX(global["nodeBMnemonic"]),
-        USR_CHARLIE_KNEX(global["nodeAMnemonic"])
+        USR_BOB_KNEX(global["nodeBXPrv"]),
+        USR_CHARLIE_KNEX(global["nodeAXPrv"])
       ]);
 
       const response = await client
@@ -556,8 +544,8 @@ describe("simple-hub-server", () => {
 
       const { username, ethAddress } = response.data.data.attributes;
 
-      const aliceUser = USR_ALICE(global["nodeAMnemonic"]);
-      const charlieUser = USR_CHARLIE(global["nodeCMnemonic"]);
+      const aliceUser = USR_ALICE(global["nodeAXPrv"]);
+      const charlieUser = USR_CHARLIE(global["nodeCXPrv"]);
       if (username === charlieUser.username) {
         expect(ethAddress).toEqual(charlieUser.ethAddress);
       } else if (username === aliceUser.username) {
