@@ -60,7 +60,8 @@ export class TestBrowser {
   ) {}
 
   async start() {
-    const extension = resolve(__dirname, "../extension");
+    const extensionDirectory = resolve(__dirname, "../extension");
+    const chromeProfileDirectory = resolve(__dirname, "../chrome-profile");
 
     const chromeDriver = new ServiceBuilder(
       process.env.CHROME_DRIVER_PATH || require("chromedriver").path
@@ -74,9 +75,9 @@ export class TestBrowser {
 
     const options = new Options();
     options.addArguments(
-      `--load-extension=${extension}`,
+      `--load-extension=${extensionDirectory}`,
       `--disable-web-security`,
-      `--user-data-dir=/tmp/greenboard`
+      `--user-data-dir=${chromeProfileDirectory}`
     );
 
     if (process.env.CI) {
