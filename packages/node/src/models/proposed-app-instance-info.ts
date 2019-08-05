@@ -92,7 +92,6 @@ export class AppInstanceProposal {
 
   toAppInstanceFor(stateChannel: StateChannel) {
     return new AppInstance(
-      stateChannel.multisigAddress,
       stateChannel.getNextSigningKeys(),
       bigNumberify(this.timeout).toNumber(),
       {

@@ -1,5 +1,4 @@
-import { utils } from "@counterfactual/cf.js";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import {
   Interface,
   joinSignature,
@@ -8,8 +7,9 @@ import {
   solidityPack
 } from "ethers/utils";
 
+import { sortSignaturesBySignerAddress } from "../utils";
+
 import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
-const { sortSignaturesBySignerAddress } = utils;
 
 /// A commitment to make MinimumViableMultisig perform a message call
 export abstract class MultisigCommitment extends EthereumCommitment {

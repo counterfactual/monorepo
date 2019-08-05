@@ -1,8 +1,8 @@
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeApp.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
@@ -10,13 +10,13 @@ import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther, SigningKey } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import {
   ConditionalTransaction,
   SetStateCommitment
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
@@ -25,7 +25,10 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -108,7 +111,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     tokenAddress: string
   ) => Promise<StateChannel>;
 
-  let createTargetAppInstance: (stateChannel: StateChannel) => AppInstance;
+  let createTargetAppInstance: () => AppInstance;
 
   let setStatesAndOutcomes: (
     targetAppInstance: AppInstance,
@@ -116,14 +119,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   beforeEach(async () => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
-    xpubs = xkeys.map(x => x.neuter().extendedKey);
+    xpubs = xprvs.map(extendedPrvKeyToExtendedPubKey);
 
     globalChannelNonce += 1;
 
@@ -178,9 +178,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       );
     };
 
-    createTargetAppInstance = function(stateChannel: StateChannel) {
+    createTargetAppInstance = function() {
       return new AppInstance(
-        stateChannel.multisigAddress,
         multisigOwnerKeys.map(x => x.address),
         /* default timeout */ 0,
         /* appInterface */ {
@@ -269,7 +268,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         erc20ContractAddress
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
         capitalProvider,
@@ -340,7 +339,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
         capitalProvider,

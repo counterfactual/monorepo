@@ -1,17 +1,20 @@
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, WeiPerEther } from "ethers/constants";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // The ChallengeRegistry.setState call _could_ be estimated but we haven't
 // written this test to do that yet
@@ -40,17 +43,14 @@ beforeAll(async () => {
  */
 describe("set state on free balance", () => {
   it("should have the correct versionNumber", async done => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
     const stateChannel = StateChannel.setupChannel(
       network.IdentityApp,
       AddressZero,
-      xkeys.map(x => x.neuter().extendedKey)
+      xprvs.map(extendedPrvKeyToExtendedPubKey)
     ).setFreeBalance(
       createFreeBalanceStateWithFundedTokenAmounts(
         multisigOwnerKeys.map<string>(key => key.address),

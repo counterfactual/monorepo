@@ -54,7 +54,7 @@ class FormInput extends React.Component<
     super(props);
     this.state = {
       tokenAddress:
-        props.units && Array.isArray(props.units) && props.units.length > 0
+        props.units && props.units.length > 0
           ? props.units[0].tokenAddress
           : undefined,
       lastChangeEvent: undefined,
@@ -163,9 +163,13 @@ class FormInput extends React.Component<
               className="unit-selector"
               onChange={event => this.handleUnitChange(event)}
             >
-              {units.map(({ name, tokenAddress }) => (
-                <option className="unit-selector-item" value={tokenAddress}>
-                  {name}
+              {units.map(({ shortName, tokenAddress }) => (
+                <option
+                  key={shortName}
+                  className="unit-selector-item"
+                  value={tokenAddress}
+                >
+                  {shortName}
                 </option>
               ))}
             </select>

@@ -4,7 +4,7 @@ import { Wallet } from "ethers";
 import { AddressZero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { parseEther } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import ganache from "ganache-core";
 
 import {
@@ -24,7 +24,7 @@ export class LocalGanacheServer {
   server: any;
   networkContext: NetworkContextForTestSuite;
 
-  constructor(mnemonics: string[], initialBalance: string = "1000") {
+  constructor(extendedPrvKeys: string[], initialBalance: string = "1000") {
     if (!process.env.GANACHE_PORT) {
       throw new Error("No GANACHE_PORT found. Aborting!");
     }
@@ -43,10 +43,10 @@ export class LocalGanacheServer {
 
     const accounts: object[] = [];
 
-    mnemonics.forEach(mnemonic => {
+    extendedPrvKeys.forEach(xprv => {
       const entry = {
         balance,
-        secretKey: fromMnemonic(mnemonic).derivePath(CF_PATH).privateKey
+        secretKey: fromExtendedKey(xprv).derivePath(CF_PATH).privateKey
       };
       accounts.push(entry);
     });

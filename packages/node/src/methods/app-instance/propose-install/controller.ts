@@ -3,12 +3,10 @@ import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getBalancesFromFreeBalanceAppInstance
-} from "../../../models/free-balance";
+import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { hashOfOrderedPublicIdentifiers } from "../../../utils";
@@ -37,6 +35,20 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
+    const { store, publicIdentifier } = requestHandler;
+    const { proposedToIdentifier } = params;
+
+    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
+      hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
+    );
+
+    return [requestHandler.getShardedQueue(multisigAddress)];
+  }
+
+  protected async beforeExecution(
+    requestHandler: RequestHandler,
+    params: Node.ProposeInstallParams
+  ) {
     const { store, publicIdentifier } = requestHandler;
     const { initialState } = params;
 
@@ -89,8 +101,6 @@ export default class ProposeInstallController extends NodeController {
 
     params.initiatorDepositTokenAddress = initiatorDepositTokenAddress;
     params.responderDepositTokenAddress = responderDepositTokenAddress;
-
-    return [requestHandler.getShardedQueue(multisigAddress)];
   }
 
   protected async executeMethodImplementation(

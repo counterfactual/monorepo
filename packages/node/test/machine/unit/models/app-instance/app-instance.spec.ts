@@ -6,14 +6,12 @@ import { AppInstance } from "../../../../../src/models";
 
 describe("AppInstance", () => {
   it("should be able to instantiate", () => {
-    const multisigAddress = getAddress(hexlify(randomBytes(20)));
     const participants = [
       getAddress(hexlify(randomBytes(20))),
       getAddress(hexlify(randomBytes(20)))
     ];
 
     const appInstance = new AppInstance(
-      multisigAddress,
       participants,
       Math.ceil(Math.random() * 2e10),
       {
@@ -38,7 +36,6 @@ describe("AppInstance", () => {
 
     expect(appInstance).not.toBe(null);
     expect(appInstance).not.toBe(undefined);
-    expect(appInstance.multisigAddress).toBe(multisigAddress);
     expect(appInstance.participants).toBe(participants);
 
     // TODO: moar tests pl0x

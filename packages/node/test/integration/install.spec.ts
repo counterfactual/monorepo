@@ -3,8 +3,8 @@ import { One } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/models/free-balance";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 

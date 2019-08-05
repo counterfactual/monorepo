@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/simple-hub-server",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "An example backend server for the Playground app that acts as a hub.",
   "author": "Counterfactual",
   "homepage": "https://github.com/counterfactual/monorepo",
@@ -30,6 +30,7 @@
     "lint:fix": "tslint -c tslint.json -p . --fix",
     "serve": "node dist",
     "start": "env-cmd -e development ts-node -r dotenv-extended/config src/",
+    "start:e2e": "env-cmd -e test ts-node -r dotenv-extended/config src/",
     "test": "env-cmd -e test --fallback jest --forceExit",
     "test:ci": "env-cmd -e test --fallback jest --forceExit"
   },

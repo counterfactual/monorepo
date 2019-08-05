@@ -1,5 +1,6 @@
+import { Wallet } from "ethers";
 import { computeAddress, SigningKey } from "ethers/utils";
-import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic, HDNode } from "ethers/utils/hdnode";
 
 /**
  * Helpful info:
@@ -9,6 +10,10 @@ import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
  * BIP-43 specifies that the first field should be purpose (i.e. "m / purpose'")
  * BIP-44 specifies that if the purpose is 44, then the format is "m / purpose' / cointype' / account' / change / index"
  */
+
+export function computeRandomExtendedPrvKey(): string {
+  return fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
+}
 
 export function sortAddresses(addrs: string[]): string[] {
   return addrs.sort((a, b) => (parseInt(a, 16) < parseInt(b, 16) ? -1 : 1));

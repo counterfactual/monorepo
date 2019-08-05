@@ -1,13 +1,13 @@
-import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
+import AppWithAction from "@counterfactual/cf-adjudicator-contracts/build/AppWithAction.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";

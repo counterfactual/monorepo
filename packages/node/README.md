@@ -20,20 +20,22 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
-## Mnemonic and private key generation
+## Node Address and Signing Keys
 
 In order for the Node to produce state-update commitments, it needs access to some signing keys.
 
 There are two ways in which this is supported:
 
-1. A [`mnemonic`](https://github.com/bitcoin/bips/blob/master/bip-0039.mediawiki) string is provided at the "MNEMONIC" key of the store service that gets passed into the `Node` upon instantiation. If no mnemonic is provided in the store, one is randomly generated and written to the store. The mnemonic is used to generate a "public identifer" for the `Node` (the address by which the `Node` is known by). It is also used to generate private keys which are specific to `AppInstance`s.
+1. An [extended private key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) string is provided to the `Node` at the "EXTENDED_KEY" key of the store service that is passed as an argument to the `Node`. If no such value exists for this key, the `Node` produces an extended private key and sets it at this key. which it uses to derive a "public identifier" used as the address of a Node instance. This key is also used to produce private keys at app-specific derivation paths.
+
+This extended private key is then used to generate a "public identifer" for the `Node` (the address by which the `Node` is known by). It is also used to generate private keys which are specific to `AppInstance`s.
 
 2. Instead of supplying a mnemonic, the `Node` operator supplies two other arguments:
 
-- a [public extended key](https://bitcoin.org/en/glossary/extended-key) which will serve as the "public identifier" of the `Node`, and will be used to generate signer addresses at `AppInstance`-specific derivation paths for signature verification in the protocols.
+- an [extended public key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which will serve as the "public identifier" of the `Node`, and will be used to generate signer addresses at `AppInstance`-specific derivation paths for signature verification in the protocols.
 - a callback function that offers the generation of a signing key given a specific derivation path. This enables the consumer of the `Node` (i.e. wallets) to not reveal any mnemonics but provide the ability to sign state isolated to specific `AppInstance`s.
 
-The `Node` package exposes a reference implementation of the second approach through a function named `generatePrivateKeyGeneratorAndXPubPair` which produces these 2 arguments given a mnemonic.
+# The `Node` package exposes a reference implementation of the second approach through a function named `generatePrivateKeyGeneratorAndXPubPair` which produces these 2 arguments given a mnemonic.
 
 ## Apps and OutcomeTypes
 

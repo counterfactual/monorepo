@@ -1,15 +1,13 @@
 import { WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getBalancesFromFreeBalanceAppInstance
-} from "../../../../../src/models/free-balance";
+import { getBalancesFromFreeBalanceAppInstance } from "../../../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../../../integration/utils";
 import { createAppInstanceForTest } from "../../../../unit/utils";
+import { getRandomExtendedPubKeys } from "../../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -22,10 +20,7 @@ describe("StateChannel::uninstallApp", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const xpubs = [
-      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
-    ];
+    const xpubs = getRandomExtendedPubKeys(2);
 
     sc1 = StateChannel.setupChannel(
       networkContext.IdentityApp,

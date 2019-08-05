@@ -47,7 +47,7 @@ export async function installVirtual(
   try {
     updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
       Protocol.InstallVirtualApp,
-      new Map(Object.entries(await store.getAllChannels())),
+      await store.getStateChannelsMap(),
       {
         initialState,
         outcomeType,

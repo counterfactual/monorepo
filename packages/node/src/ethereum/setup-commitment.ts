@@ -1,4 +1,4 @@
-import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
 import { AppIdentity, NetworkContext } from "@counterfactual/types";
 import { Interface } from "ethers/utils";
 
@@ -13,8 +13,7 @@ export class SetupCommitment extends MultisigCommitment {
     public readonly networkContext: NetworkContext,
     public readonly multisigAddress: string,
     public readonly multisigOwners: string[],
-    public readonly freeBalanceAppIdentity: AppIdentity,
-    public readonly freeBalanceInterpreterParams: string
+    public readonly freeBalanceAppIdentity: AppIdentity
   ) {
     super(multisigAddress, multisigOwners);
   }
@@ -26,8 +25,7 @@ export class SetupCommitment extends MultisigCommitment {
       data: iface.functions.executeEffectOfFreeBalance.encode([
         this.networkContext.ChallengeRegistry,
         appIdentityToHash(this.freeBalanceAppIdentity),
-        this.networkContext.MultiAssetMultiPartyCoinTransferInterpreter,
-        this.freeBalanceInterpreterParams
+        this.networkContext.MultiAssetMultiPartyCoinTransferInterpreter
       ]),
       operation: MultisigOperation.DelegateCall
     };

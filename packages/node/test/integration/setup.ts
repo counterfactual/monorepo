@@ -8,13 +8,17 @@ import {
   TransactionRequest
 } from "ethers/providers";
 import { parseEther } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
-import { MNEMONIC_PATH, Node } from "../../src";
+import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
+import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
-import { A_MNEMONIC, B_MNEMONIC } from "../test-constants.jest";
+import {
+  A_EXTENDED_PRIVATE_KEY,
+  B_EXTENDED_PRIVATE_KEY
+} from "../test-constants.jest";
 
 import { TestPrivateKeyGenerator } from "./private-key-generator";
 
@@ -57,7 +61,7 @@ export async function setupWithMemoryMessagingAndPostgresStore(
 export async function setup(
   global: any,
   nodeCPresent: boolean = false,
-  newMnemonics: boolean = false,
+  newExtendedPrivateKeys: boolean = false,
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ): Promise<SetupContext> {
@@ -76,24 +80,26 @@ export async function setup(
 
   const provider = new JsonRpcProvider(global["ganacheURL"]);
 
-  let mnemonicA = A_MNEMONIC;
-  let mnemonicB = B_MNEMONIC;
-  if (newMnemonics) {
+  let extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
+  let extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
+  if (newExtendedPrivateKeys) {
     // generate new mnemonics so owner addresses are different for creating
     // a channel in this suite
-    const mnemonics = await generateNewFundedMnemonics(
+    const extendedPrivateKeys = await generateNewFundedExtendedPrvKeys(
       global["fundedPrivateKey"],
       provider
     );
-    mnemonicA = mnemonics.A_MNEMONIC;
-    mnemonicB = mnemonics.B_MNEMONIC;
+    extendedPrvKeyA = extendedPrivateKeys.A_EXTENDED_PRV_KEY;
+    extendedPrvKeyB = extendedPrivateKeys.B_EXTENDED_PRV_KEY;
   }
 
   const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
 
-  await storeServiceA.set([{ key: MNEMONIC_PATH, value: mnemonicA }]);
+  await storeServiceA.set([
+    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyA }
+  ]);
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
@@ -111,7 +117,9 @@ export async function setup(
   const storeServiceB = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
-  await storeServiceB.set([{ key: MNEMONIC_PATH, value: mnemonicB }]);
+  await storeServiceB.set([
+    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyB }
+  ]);
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
@@ -164,18 +172,20 @@ export async function generateNewFundedWallet(
   return wallet;
 }
 
-export async function generateNewFundedMnemonics(
+export async function generateNewFundedExtendedPrvKeys(
   fundedPrivateKey: string,
   provider: Provider
 ) {
   const fundedWallet = new Wallet(fundedPrivateKey, provider);
-  const A_MNEMONIC = Wallet.createRandom().mnemonic;
-  const B_MNEMONIC = Wallet.createRandom().mnemonic;
+  const A_EXTENDED_PRV_KEY = computeRandomExtendedPrvKey();
+  const B_EXTENDED_PRV_KEY = computeRandomExtendedPrvKey();
 
-  const signerAPrivateKey = fromMnemonic(A_MNEMONIC).derivePath(CF_PATH)
-    .privateKey;
-  const signerBPrivateKey = fromMnemonic(B_MNEMONIC).derivePath(CF_PATH)
-    .privateKey;
+  const signerAPrivateKey = fromExtendedKey(A_EXTENDED_PRV_KEY).derivePath(
+    CF_PATH
+  ).privateKey;
+  const signerBPrivateKey = fromExtendedKey(B_EXTENDED_PRV_KEY).derivePath(
+    CF_PATH
+  ).privateKey;
 
   const signerAAddress = new Wallet(signerAPrivateKey).address;
   const signerBAddress = new Wallet(signerBPrivateKey).address;
@@ -191,7 +201,7 @@ export async function generateNewFundedMnemonics(
   await fundedWallet.sendTransaction(transactionToA);
   await fundedWallet.sendTransaction(transactionToB);
   return {
-    A_MNEMONIC,
-    B_MNEMONIC
+    A_EXTENDED_PRV_KEY,
+    B_EXTENDED_PRV_KEY
   };
 }

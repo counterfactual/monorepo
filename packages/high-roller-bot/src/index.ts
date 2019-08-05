@@ -5,7 +5,7 @@ import {
   FIREBASE_CONFIGURATION_ENV_KEYS,
   FirebaseServiceFactory
 } from "@counterfactual/firebase-client";
-import { MNEMONIC_PATH, Node } from "@counterfactual/node";
+import { EXTENDED_PRIVATE_KEY_PATH, Node } from "@counterfactual/node";
 import { Wallet } from "ethers";
 import { JsonRpcProvider } from "ethers/providers";
 import { fromExtendedKey } from "ethers/utils/hdnode";
@@ -67,7 +67,12 @@ let node: Node;
 
   const store = serviceFactory.createStoreService("hrBotStore1");
 
-  await store.set([{ key: MNEMONIC_PATH, value: process.env.NODE_MNEMONIC }]);
+  await store.set([
+    {
+      key: EXTENDED_PRIVATE_KEY_PATH,
+      value: process.env.NODE_EXTENDED_PRIVATE_KEY
+    }
+  ]);
 
   const messService = serviceFactory.createMessagingService("messaging");
   node = await Node.create(

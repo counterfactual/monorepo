@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   AppABIEncodings,
@@ -26,11 +26,8 @@ import {
   ProposeVirtualMessage,
   Rpc
 } from "../../src";
-import {
-  CoinTransfer,
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  FreeBalanceState
-} from "../../src/models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { CoinTransfer, FreeBalanceState } from "../../src/models/free-balance";
 
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 
@@ -81,14 +78,19 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstance(
+export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const allAppInstances = await getInstalledAppInstances(node);
-  return allAppInstances.filter(appInstance => {
-    return appInstance.identityHash === appInstanceId;
-  })[0];
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -466,14 +468,8 @@ export async function installApp(
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstance(
-        nodeA,
-        appInstanceId
-      );
-      const appInstanceNodeB = await getInstalledAppInstance(
-        nodeB,
-        appInstanceId
-      );
+      const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
+      const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
       resolve([appInstanceId, proposedParams]);
     });

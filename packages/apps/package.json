@@ -23,7 +23,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.15",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.1",
     "@counterfactual/types": "0.0.29",
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.7",
@@ -33,7 +33,7 @@
     "ethlint": "1.2.4",
     "mocha": "6.2.0",
     "solc": "0.5.10",
-    "truffle": "5.0.29",
+    "truffle": "5.0.30",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.15",
     "ts-mocha": "6.0.0",
