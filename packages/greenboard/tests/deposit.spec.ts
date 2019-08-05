@@ -41,5 +41,9 @@ it("logs in with an existing account, goes to /balance, makes a deposit", async 
 });
 
 afterAll(async () => {
+  // We collect data again so the Withdraw scenario has a coherent
+  // Node state for an account with a balance of 0.2 ETH.
+  await browser.collectLocalStorage();
+
   await browser.closeBrowser();
 });
