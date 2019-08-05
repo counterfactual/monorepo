@@ -9,10 +9,7 @@ import {
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import {
-  NO_FREE_BALANCE_EXISTS,
-  NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
-} from "../../errors";
+import { NO_FREE_BALANCE_EXISTS } from "../../errors";
 
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
@@ -31,7 +28,9 @@ export default class GetFreeBalanceController extends NodeController {
     const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     if (!multisigAddress) {
-      throw new Error(`${NO_STATE_CHANNEL_FOR_MULTISIG_ADDR}`);
+      throw new Error(
+        "getFreeBalanceState method was given undefined multisigAddress"
+      );
     }
 
     const stateChannel = await store.getStateChannel(multisigAddress);

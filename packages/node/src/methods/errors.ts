@@ -103,8 +103,8 @@ export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
 export const NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID = (id: string) =>
   `No proposed AppInstance exists for the given appInstanceId: ${id}`;
 
-export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = (resp, query) =>
-  `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}. This probably means that the StateChannel does not exist yet.`;
+export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = multisigAddress =>
+  `Call to getStateChannel failed when searching for multisig address: ${multisigAddress}. This probably means that the StateChannel does not exist yet.`;
 
 export const NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT =
   "The multisig deployment transaction does not have a hash";
