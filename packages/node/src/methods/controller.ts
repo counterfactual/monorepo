@@ -4,6 +4,8 @@ import { Controller } from "rpc-server";
 
 import { RequestHandler } from "../request-handler";
 
+import { executeFunctionWithinQueues } from "./queued-execution";
+
 export abstract class NodeController extends Controller {
   public static readonly methodName: Node.MethodName;
 
@@ -11,28 +13,12 @@ export abstract class NodeController extends Controller {
     requestHandler: RequestHandler,
     params: Node.MethodParams
   ): Promise<Node.MethodResult> {
-    const shardedQueues = await this.enqueueByShard(requestHandler, params);
-
-    let promise;
-
-    const executeCached = async () => {
-      if (!promise) {
-        promise = this.executeMethodImplementation(requestHandler, params);
-      }
-      return await promise;
-    };
-
     await this.beforeExecution(requestHandler, params);
 
-    let ret;
-
-    if (shardedQueues.length > 0) {
-      for (const queue of shardedQueues) queue.add(executeCached);
-      for (const queue of shardedQueues) await queue;
-      ret = await promise;
-    } else {
-      ret = await executeCached();
-    }
+    const ret = await executeFunctionWithinQueues(
+      await this.enqueueByShard(requestHandler, params),
+      () => this.executeMethodImplementation(requestHandler, params)
+    );
 
     await this.afterExecution(requestHandler, params);
 

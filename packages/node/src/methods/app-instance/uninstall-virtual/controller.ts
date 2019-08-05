@@ -50,16 +50,14 @@ export default class UninstallVirtualController extends NodeController {
   }
 
   protected async beforeExecution(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ) {
-    const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-
-    if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
+    if (!appInstanceId) {
+      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
   }
 

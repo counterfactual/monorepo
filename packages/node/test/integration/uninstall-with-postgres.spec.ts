@@ -37,6 +37,9 @@ describe("Node method follows spec - uninstall", () => {
 
       await createChannel(nodeA, nodeB);
 
+      // FIXME: There is some timing issue with postgres @snario noticed
+      await timeout(2000);
+
       const [appInstanceId] = await installApp(
         nodeA,
         nodeB,

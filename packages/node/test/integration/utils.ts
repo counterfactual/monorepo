@@ -416,18 +416,19 @@ export async function collateralizeChannel(
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   return new Promise(async resolve => {
-    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
-      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+    nodeB.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
       resolve(msg.data.multisigAddress);
     });
 
     // trigger channel creation but only resolve with the multisig address
     // as acknowledged by the node
-    getMultisigCreationTransactionHash(nodeA, [
+    await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
+
+    expect(await getInstalledAppInstances(nodeA)).toEqual([]);
   });
 }
 
@@ -455,6 +456,7 @@ export async function installApp(
       responderDeposit,
       responderDepositTokenAddress
     );
+
     proposedParams = appInstanceInstallationProposalRequest.parameters as NodeTypes.ProposeInstallParams;
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
