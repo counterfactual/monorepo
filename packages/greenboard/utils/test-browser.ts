@@ -16,7 +16,7 @@ import {
   METAMASK_EXTENSION_URL_SELECTOR
 } from "./chrome-selectors";
 import {
-  ACCOUNT_DEPOSIT_SELECTORS,
+  ACCOUNT_BALANCE_SELECTORS,
   ACCOUNT_REGISTRATION_SELECTORS,
   LAYOUT_HEADER_SELECTORS
 } from "./counterfactual-wallet-selectors";
@@ -468,11 +468,38 @@ export class TestBrowser {
    * @todo Add check for texts "Transferring funds", "Collateralizing deposit".
    */
   async fillAccountDepositFormAndSubmit() {
-    const { proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
+    const { depositProceedButton } = ACCOUNT_BALANCE_SELECTORS;
     const { logoContainer } = LAYOUT_HEADER_SELECTORS;
 
-    await this.clickOnElement(proceedButton);
-    await this.waitForElementToHaveText(proceedButton, "Check your wallet");
+    await this.clickOnElement(depositProceedButton);
+    await this.waitForElementToHaveText(
+      depositProceedButton,
+      "Check your wallet"
+    );
+    await this.confirmDeposit();
+    await this.waitForElement(logoContainer, 90000);
+  }
+
+  /**
+   * Waits for the Withdraw screen to show, then clicks the Proceed button.
+   * Confirms the gas deposit and waits for its completion. It'll timeout after
+   * 90 seconds without any response.
+   *
+   * @todo Add check for texts "Transferring funds", "Collateralizing deposit".
+   */
+  async fillAccountWithdrawFormAndSubmit() {
+    const {
+      withdrawAmountInput,
+      withdrawProceedButton
+    } = ACCOUNT_BALANCE_SELECTORS;
+    const { logoContainer } = LAYOUT_HEADER_SELECTORS;
+
+    await this.typeOnInput(withdrawAmountInput, "0.1");
+    await this.clickOnElement(withdrawProceedButton);
+    await this.waitForElementToHaveText(
+      withdrawProceedButton,
+      "Check your wallet"
+    );
     await this.confirmDeposit();
     await this.waitForElement(logoContainer, 90000);
   }
