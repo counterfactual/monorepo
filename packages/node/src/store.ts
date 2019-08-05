@@ -7,7 +7,6 @@ import {
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
-  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
 import { Transaction } from "./machine";
@@ -23,11 +22,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import {
-  debugLog,
-  getCreate2MultisigAddress,
-  hashOfOrderedPublicIdentifiers
-} from "./utils";
+import { debugLog, getCreate2MultisigAddress } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -67,9 +62,7 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      throw new Error(
-        NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
-      );
+      throw new Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
@@ -92,24 +85,15 @@ export class Store {
 
   /**
    * This persists the state of a channel.
-   * @param channel
-   * @param ownersHash
+   * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    const ownersHash = hashOfOrderedPublicIdentifiers(
-      stateChannel.userNeuteredExtendedKeys
-    );
-
     debugLog("Saving channel: ", stateChannel);
 
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
         value: stateChannel.toJson()
-      },
-      {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
-        value: stateChannel.multisigAddress
       }
     ]);
   }
@@ -220,19 +204,6 @@ export class Store {
         }
       ],
       true
-    );
-  }
-
-  /**
-   * Returns the address of the multisig belonging to a specified set of owners
-   * via the hash of the owners
-   * @param ownersHash
-   */
-  public async getMultisigAddressFromOwnersHash(
-    ownersHash: string
-  ): Promise<string> {
-    return await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
     );
   }
 

@@ -2,10 +2,9 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
-import { hashOfOrderedPublicIdentifiers } from "../../../utils";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
@@ -21,14 +20,13 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ): Promise<Queue[]> {
-    const { store, publicIdentifier } = requestHandler;
-    const { appInstanceId } = params;
+    const { store, publicIdentifier, networkContext } = requestHandler;
+    const { appInstanceId, intermediaries } = params;
 
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([
-        publicIdentifier,
-        params.intermediaries[0]
-      ])
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaries[0]],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
     const queues = [requestHandler.getShardedQueue(multisigAddress)];
@@ -50,7 +48,7 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ) {
-    const { store, publicIdentifier } = requestHandler;
+    const { store, publicIdentifier, networkContext } = requestHandler;
     const { intermediaries } = params;
 
     if (intermediaries.length === 0) {
@@ -65,10 +63,14 @@ export default class InstallVirtualController extends NodeController {
       );
     }
 
-    const stateChannelWithIntermediary = await StateChannel.getStateChannelWithOwners(
-      publicIdentifier,
-      intermediaries[0],
-      store
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaries[0]],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    const stateChannelWithIntermediary = await store.getStateChannel(
+      multisigAddress
     );
 
     if (!stateChannelWithIntermediary) {

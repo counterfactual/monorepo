@@ -4,7 +4,6 @@ import {
   BigNumber,
   bigNumberify,
   getAddress,
-  hashMessage,
   Interface,
   joinSignature,
   keccak256,
@@ -16,10 +15,6 @@ import {
 import log from "loglevel";
 
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
-
-export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
-  return hashMessage(addresses.sort().join(""));
-}
 
 export function getCounterpartyAddress(
   myIdentifier: string,
