@@ -2,7 +2,6 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
 import { getCreate2MultisigAddress } from "../../../utils";
@@ -64,11 +63,14 @@ export default class InstallVirtualController extends NodeController {
       );
     }
 
-    const stateChannelWithIntermediary = await StateChannel.getStateChannelWithOwners(
-      publicIdentifier,
-      intermediaries[0],
-      networkContext,
-      store
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaries[0]],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    const stateChannelWithIntermediary = await store.getStateChannel(
+      multisigAddress
     );
 
     if (!stateChannelWithIntermediary) {

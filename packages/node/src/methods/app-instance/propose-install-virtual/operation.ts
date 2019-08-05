@@ -16,7 +16,7 @@ export async function createProposedVirtualAppInstance(
   myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallVirtualParams,
-  network: NetworkContext
+  networkContext: NetworkContext
 ): Promise<string> {
   const { intermediaries, proposedToIdentifier } = params;
 
@@ -25,7 +25,7 @@ export async function createProposedVirtualAppInstance(
     proposedToIdentifier,
     intermediaries,
     store,
-    network
+    networkContext
   );
 
   const appInstanceProposal = new AppInstanceProposal(
@@ -84,16 +84,16 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
   responderXpub: string,
   intermediaries: string[],
   store: Store,
-  network: NetworkContext
+  networkContext: NetworkContext
 ): Promise<StateChannel> {
-  let stateChannel: StateChannel;
+  const multisigAddress = getCreate2MultisigAddress(
+    [initiatorXpub, responderXpub],
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
+  );
+
   try {
-    stateChannel = await StateChannel.getStateChannelWithOwners(
-      initiatorXpub,
-      responderXpub,
-      network,
-      store
-    );
+    return await store.getStateChannel(multisigAddress);
   } catch (e) {
     if (
       e.toString().includes("Call to getStateChannel failed") &&
@@ -101,19 +101,20 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
     ) {
       const multisigAddress = getCreate2MultisigAddress(
         [initiatorXpub, responderXpub],
-        network.ProxyFactory,
-        network.MinimumViableMultisig
+        networkContext.ProxyFactory,
+        networkContext.MinimumViableMultisig
       );
 
-      stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
+      const stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
         initiatorXpub,
         responderXpub
       ]);
 
       await store.saveStateChannel(stateChannel);
-    } else {
-      throw e;
+
+      return stateChannel;
     }
+
+    throw e;
   }
-  return stateChannel;
 }

@@ -1,8 +1,4 @@
-import {
-  AppInstanceJson,
-  NetworkContext,
-  SolidityValueType
-} from "@counterfactual/types";
+import { AppInstanceJson, SolidityValueType } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
@@ -12,7 +8,6 @@ import {
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
-import { getCreate2MultisigAddress } from "../utils";
 
 import { AppInstance } from "./app-instance";
 import {
@@ -588,28 +583,6 @@ export class StateChannel {
       json.monotonicNumInstalledApps,
       json.createdAt
     );
-  }
-
-  /**
-   * Finds a StateChannel based on two xpubs in a store.
-   *
-   * @param myXpub - first xpub
-   * @param theirXpub - second xpub
-   * @param store - store to search within
-   */
-  static async getStateChannelWithOwners(
-    myXpub: string,
-    theirXpub: string,
-    networkContext: NetworkContext,
-    store: Store
-  ): Promise<StateChannel> {
-    const multisigAddress = getCreate2MultisigAddress(
-      [myXpub, theirXpub],
-      networkContext.ProxyFactory,
-      networkContext.MinimumViableMultisig
-    );
-
-    return await store.getStateChannel(multisigAddress);
   }
 
   static async getPeersAddressFromChannel(
