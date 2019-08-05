@@ -118,7 +118,7 @@ export class AccountDeposit extends React.Component<
   render() {
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
-    const { ethereumBalance, error, status, nodeAddresses } = walletState;
+    const { ethereumBalance, error, status, tokenAddresses } = walletState;
     const { amount, loading, depositCaseVariables, tokenAddress } = this.state;
     const {
       halfWidget,
@@ -134,7 +134,7 @@ export class AccountDeposit extends React.Component<
             label={<BalanceLabel available={formatEther(ethereumBalance)} />}
             className="input--balance"
             type="number"
-            units={nodeAddresses}
+            units={tokenAddresses}
             name="amount"
             min={0.02}
             max={Number(ethereumBalance)}

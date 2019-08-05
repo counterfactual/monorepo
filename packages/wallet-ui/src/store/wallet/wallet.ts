@@ -17,9 +17,8 @@ import {
   StoreAction,
   WalletState
 } from "../types";
-import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 export const initialState = {
-  nodeAddresses: [],
+  tokenAddresses: [],
   ethAddress: "",
   error: {},
   status: "",
@@ -88,19 +87,10 @@ export const deposit = (
     await requestDeposit(transaction);
     // // 2. Wait until the deposit is completed in both sides. !
     dispatch({ type: WalletDepositTransition.WaitForUserFunds });
-    await forFunds(
-      {
-        multisigAddress: transaction.multisigAddress,
-        nodeAddress: transaction.nodeAddress
-      },
-      "user"
-    );
+    await forFunds(transaction, "user");
 
     dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
-    const counterfactualBalance = await forFunds({
-      multisigAddress: transaction.multisigAddress,
-      nodeAddress: transaction.nodeAddress
-    });
+    const counterfactualBalance = await forFunds(transaction);
 
     // // 3. Get the Metamask balance.
     const ethereumBalance = await provider.getBalance(transaction.ethAddress);
@@ -174,33 +164,6 @@ export const withdraw = (
           message: `${error.message} because of ${error.stack}`
         }
       },
-      type: ActionType.WalletError
-    });
-  }
-};
-
-export const getNodeTokens = (
-  provider: Web3Provider
-): ThunkAction<
-  void,
-  ApplicationState,
-  null,
-  Action<ActionType>
-> => async dispatch => {
-  try {
-    const network = await provider.getNetwork();
-    const nodeAddresses = await getTokens(ShortTokenNetworksName[network.name]);
-    dispatch({
-      data: { nodeAddresses },
-      type: ActionType.WalletSetNodeTokens
-    });
-  } catch (e) {
-    dispatch({
-      data: {
-        error: {
-          message: "Ups something went wrong retrieving the list of tokens"
-        }
-      } as WalletState,
       type: ActionType.WalletError
     });
   }

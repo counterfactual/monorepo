@@ -10,9 +10,11 @@ import {
   getCFBalances,
   getNodeAddress,
   getUserFromStoredToken,
-  storeTokenFromUser
+  storeTokenFromUser,
+  getIndexedCFBalances
 } from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
+import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 import {
   ActionType,
   ApplicationState,
@@ -154,12 +156,27 @@ export const getUser = (
       history.push(RoutePath.Root);
       return;
     }
+    const network = await provider.getNetwork();
+    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+    dispatch({
+      data: { tokenAddresses },
+      type: ActionType.WalletSetNodeTokens
+    });
 
     // 2. Get the balances.
     const counterfactualBalance = await getCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
+
+    tokenAddresses = await getIndexedCFBalances(
+      {
+        multisigAddress: user.multisigAddress as string,
+        nodeAddress: user.nodeAddress
+      },
+      tokenAddresses
+    );
+
     const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 3. Store data into UserState and WalletState.
@@ -168,7 +185,7 @@ export const getUser = (
       type: ActionType.UserGet
     });
     dispatch({
-      data: { counterfactualBalance, ethereumBalance },
+      data: { counterfactualBalance, ethereumBalance, tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     history.push(RoutePath.Channels);

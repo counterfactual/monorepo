@@ -1,4 +1,5 @@
 import { AssetType } from "../store/types";
+import { AddressZero } from "ethers/constants";
 
 export enum ShortTokenNetworksName {
   kovan = "kov",
@@ -17,9 +18,15 @@ export const getTokens = async (
   const parsedResponse = await response.json();
   return [
     {
-      tokenAddress: undefined,
+      tokenAddress: AddressZero,
       name: "Ethereum",
       shortName: "ETH"
+    },
+    {
+      // TODO: DELETE at some point - for internal CF testing purposes
+      tokenAddress: "0x2fc2554c231bd4d9da4720dcf4db2f37e03a40ae",
+      name: "SANTIAGO",
+      shortName: "SAN"
     }
   ].concat(
     parsedResponse

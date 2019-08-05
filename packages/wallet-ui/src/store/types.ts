@@ -15,7 +15,8 @@ export type User = {
 export type AssetType = {
   name: string;
   shortName: string;
-  tokenAddress?: string;
+  tokenAddress: string;
+  balance?: BigNumberish;
 };
 
 export type Deposit = {
@@ -74,7 +75,7 @@ export type WalletState = AppState & {
   counterfactualBalance: BigNumberish;
   ethereumBalance: BigNumberish;
   status: string;
-  nodeAddresses: AssetType[];
+  tokenAddresses: AssetType[];
 };
 
 export type ChannelsMap = { [key: string]: Connection };

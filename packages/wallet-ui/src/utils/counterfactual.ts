@@ -5,7 +5,7 @@ import {
   parseEther
 } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
-import { BalanceRequest, Deposit, User } from "../store/types";
+import { BalanceRequest, Deposit, User, AssetType } from "../store/types";
 import { CounterfactualEvent, CounterfactualMethod } from "../types";
 import delay from "./delay";
 
@@ -135,15 +135,35 @@ export async function forFunds(
 
 export async function getCFBalances({
   multisigAddress,
-  nodeAddress
+  nodeAddress,
+  tokenAddress
 }: BalanceRequest): Promise<BigNumberish> {
   const freeBalance = (await window.ethereum.send(
     CounterfactualMethod.RequestBalances,
+    [multisigAddress, tokenAddress]
+  )).result;
+  const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+  return bigNumberify(freeBalance[freeBalanceAddress]);
+}
+
+export async function getIndexedCFBalances(
+  { multisigAddress, nodeAddress }: BalanceRequest,
+  tokenAddresses: AssetType[]
+): Promise<AssetType[]> {
+  const freeBalance = (await window.ethereum.send(
+    CounterfactualMethod.RequestIndexedBalances,
     [multisigAddress]
   )).result;
 
   const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
-  return bigNumberify(freeBalance[freeBalanceAddress]);
+  return tokenAddresses.map(token => {
+    return {
+      ...token,
+      balance:
+        freeBalance[token.tokenAddress] &&
+        freeBalance[token.tokenAddress][freeBalanceAddress]
+    };
+  });
 }
 
 export async function getChannelAddresses(): Promise<string[]> {

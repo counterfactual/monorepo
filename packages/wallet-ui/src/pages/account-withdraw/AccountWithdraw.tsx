@@ -20,6 +20,7 @@ import {
 import { WalletWithdrawTransition, withdraw } from "../../store/wallet/wallet";
 import { RoutePath } from "../../types";
 import "./AccountWithdraw.scss";
+import { AddressZero, Zero } from "ethers/constants";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   <div className="balance-label">
@@ -73,7 +74,7 @@ export class AccountWithdraw extends React.Component<
     }
     this.state = {
       withdrawCaseVariables,
-      tokenAddress: undefined,
+      tokenAddress: AddressZero,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -115,7 +116,7 @@ export class AccountWithdraw extends React.Component<
   render() {
     const { walletState, withdraw, history, user } = this.props;
     const { provider } = this.context;
-    const { ethereumBalance, error, status, nodeAddresses } = walletState;
+    const { error, status, tokenAddresses } = walletState;
     const { amount, loading, withdrawCaseVariables, tokenAddress } = this.state;
     const {
       halfWidget,
@@ -123,18 +124,28 @@ export class AccountWithdraw extends React.Component<
       headerDetails,
       ctaButtonText
     } = withdrawCaseVariables;
+    const withdrawableTokens = tokenAddresses.filter(token => token.balance);
+    const selectedToken =
+      tokenAddresses
+        .filter(token => token.balance)
+        .find(({ tokenAddress: ta }) => ta === tokenAddress) ||
+      tokenAddresses[0];
+    const selectedTokenBalance =
+      (selectedToken && selectedToken.balance) || Zero;
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
           <div className="details">{headerDetails}</div>
           <FormInput
-            label={<BalanceLabel available={formatEther(ethereumBalance)} />}
+            label={
+              <BalanceLabel available={formatEther(selectedTokenBalance)} />
+            }
             className="input--balance"
             type="number"
-            units={nodeAddresses}
+            units={withdrawableTokens}
             name="amount"
             min={0.02}
-            max={Number(ethereumBalance)}
+            max={Number(selectedTokenBalance)}
             value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
