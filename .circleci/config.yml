@@ -78,7 +78,7 @@ jobs:
 
       - run:
           name: Run Non-Playground-related tests
-          command: yarn test:ci-non-playground
+          command: yarn test:ci
 
   run-tslint:
     <<: *defaults
