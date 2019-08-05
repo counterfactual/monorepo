@@ -468,10 +468,9 @@ export class TestBrowser {
    * @todo Add check for texts "Transferring funds", "Collateralizing deposit".
    */
   async fillAccountDepositFormAndSubmit() {
-    const { formTitle, proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
+    const { proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
     const { logoContainer } = LAYOUT_HEADER_SELECTORS;
 
-    await this.waitForElementToHaveText(formTitle, "Fund your account");
     await this.clickOnElement(proceedButton);
     await this.waitForElementToHaveText(proceedButton, "Check your wallet");
     await this.confirmDeposit();
