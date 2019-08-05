@@ -45,8 +45,11 @@ export default class StateCollector {
    *
    * @param browser
    */
-  public static async dumpInto(browser: TestBrowser) {
+  public static async dumpInto(browser: TestBrowser, clearBuffer = false) {
     await browser.injectIntoLocalStorage(this.data);
-    this.data.clear();
+
+    if (clearBuffer) {
+      this.data.clear();
+    }
   }
 }
