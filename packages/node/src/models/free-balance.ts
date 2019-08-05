@@ -1,5 +1,5 @@
 import { OutcomeType } from "@counterfactual/types";
-import { MaxUint256, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
@@ -101,11 +101,7 @@ export function createFreeBalance(
     serializeFreeBalanceState(initialState),
     0,
     HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
-    undefined,
-    // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] },
-    undefined
+    OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
   );
 }
 
