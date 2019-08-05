@@ -16,6 +16,11 @@ export type MetamaskNotification = "requestSignature";
 
 export type MetamaskTransaction = "signatureRequest" | "deposit";
 
+export const enum MetamaskFlowType {
+  NewUser,
+  ReturningUser
+}
+
 export const enum TestBrowserContext {
   MetamaskMain = "metamask:main",
   MetamaskPopup = "metamask:popup",
