@@ -20,7 +20,7 @@ import {
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
 
-  @jsonRpcMethod("chan_takeAction")
+  @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(

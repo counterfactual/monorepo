@@ -1,6 +1,7 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -16,6 +17,9 @@ import {
 
 export default class UpdateStateController extends NodeController {
   public static readonly methodName = Node.MethodName.UPDATE_STATE;
+
+  @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,

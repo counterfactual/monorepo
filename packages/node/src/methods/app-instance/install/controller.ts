@@ -17,7 +17,7 @@ import { install } from "./operation";
 export default class InstallController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL;
 
-  @jsonRpcMethod("chan_install")
+  @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(

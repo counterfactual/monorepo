@@ -22,7 +22,7 @@ import {
 export default class ProposeInstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.PROPOSE_INSTALL_VIRTUAL;
 
-  @jsonRpcMethod("chan_proposeInstallVirtual")
+  @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
