@@ -8,7 +8,8 @@
     "node": "10.15.3"
   },
   "scripts": {
-    "build": "lerna run build --ignore @counterfactual/wallet-ui --ignore @counterfactual/playground --ignore @counterfactual/dapp-high-roller --ignore @counterfactual/dapp-tic-tac-toe && lerna run build --scope=**/wallet-ui",
+    "build": "lerna run build --ignore @counterfactual/wallet-ui && lerna run build --scope=**/wallet-ui",
+    "build:ci": "lerna run build --ignore @counterfactual/wallet-ui --ignore @counterfactual/playground --ignore @counterfactual/dapp-high-roller --ignore @counterfactual/dapp-tic-tac-toe && lerna run build --scope=**/wallet-ui",
     "clean": "git clean -Xdf --exclude=\"!.env\"",
     "clean:dry": "git clean -Xdn --exclude=\"!.env\"",
     "test": "lerna run --stream --concurrency 1 test",
