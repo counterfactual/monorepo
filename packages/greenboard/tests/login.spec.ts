@@ -17,7 +17,7 @@ beforeAll(async () => {
 });
 
 it("logs in with an existing account and goes to /channels", async () => {
-  const { loginButton, userName } = LAYOUT_HEADER_SELECTORS;
+  const { loginButton, userNameText, balanceText } = LAYOUT_HEADER_SELECTORS;
 
   StateCollector.dumpInto(browser);
 
@@ -30,9 +30,11 @@ it("logs in with an existing account and goes to /channels", async () => {
     CounterfactualScreenName.Channels
   );
 
-  expect(await browser.getTextFromElement(userName)).toEqual(
+  expect(await browser.getTextFromElement(userNameText)).toEqual(
     COUNTERFACTUAL_USER_USERNAME
   );
+
+  expect(await browser.getTextFromElement(balanceText)).toEqual("0.1 ETH");
 });
 
 afterAll(async () => {

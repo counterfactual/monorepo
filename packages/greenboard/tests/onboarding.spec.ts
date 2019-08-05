@@ -20,7 +20,7 @@ beforeAll(async () => {
 
 it("registers a new account and goes to /channels", async () => {
   const { setupCounterfactualButton } = WELCOME_SCREEN_SELECTORS;
-  const { userName } = LAYOUT_HEADER_SELECTORS;
+  const { userNameText } = LAYOUT_HEADER_SELECTORS;
 
   await browser.switchToWallet();
 
@@ -33,7 +33,7 @@ it("registers a new account and goes to /channels", async () => {
     CounterfactualScreenName.Channels
   );
 
-  expect(await browser.getTextFromElement(userName)).toEqual(
+  expect(await browser.getTextFromElement(userNameText)).toEqual(
     COUNTERFACTUAL_USER_USERNAME
   );
 });

@@ -20,5 +20,6 @@ export const LAYOUT_HEADER_SELECTORS = {
   loginButton: By.css("[data-test-selector='login-button']"),
   logoContainer: By.css(".header > .header-content > .logo-container"),
   accountContainer: By.css("header > .header-content .account-container"),
-  userName: By.css("[data-test-selector='info-user'] .info-content")
+  userNameText: By.css("[data-test-selector='info-user'] .info-content"),
+  balanceText: By.css("[data-test-selector='info-balance'] .info-content")
 };
