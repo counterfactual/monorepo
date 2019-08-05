@@ -3,6 +3,7 @@ require("chromedriver");
 import { resolve } from "path";
 import {
   Builder,
+  Key,
   Locator,
   until,
   WebDriver,
@@ -501,6 +502,10 @@ export class TestBrowser {
       return CounterfactualScreenName.Channels;
     }
 
+    if (url.includes("balance")) {
+      return CounterfactualScreenName.Balance;
+    }
+
     return CounterfactualScreenName.Welcome;
   }
 
@@ -604,7 +609,21 @@ export class TestBrowser {
    * @param selector
    */
   async typeOnInput(selector: Locator, value: string) {
+    await this.clearInput(selector);
     await this.getElement(selector).sendKeys(value);
+  }
+
+  /**
+   * Clears an input's value by selecting all text and pressing
+   * the BACKSPACE key.
+   *
+   * @param selector
+   */
+  async clearInput(selector: Locator) {
+    await this.getElement(selector).sendKeys(
+      Key.chord(Key.CONTROL, "A"),
+      Key.BACK_SPACE
+    );
   }
 
   /**
