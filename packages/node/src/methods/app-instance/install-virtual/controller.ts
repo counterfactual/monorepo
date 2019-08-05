@@ -13,7 +13,7 @@ import { installVirtual } from "./operation";
 export default class InstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
 
-  @jsonRpcMethod("chan_installVirtual")
+  @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(

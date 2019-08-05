@@ -14,7 +14,7 @@ import { NO_FREE_BALANCE_EXISTS } from "../../errors";
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
 
-  @jsonRpcMethod("chan_getFreeBalanceState")
+  @jsonRpcMethod(Node.RpcMethodName.GET_FREE_BALANCE_STATE)
   public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
