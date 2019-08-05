@@ -51,7 +51,7 @@ jobs:
             - packages/*/dist
             - packages/*/build
 
-  run-non-playground-tests:
+  run-tests:
     docker:
       - image: circleci/node:10.15.3
         environment:
@@ -79,33 +79,6 @@ jobs:
       - run:
           name: Run Non-Playground-related tests
           command: yarn test:ci-non-playground
-
-  run-playground-tests:
-    <<: *defaults
-    docker:
-      - image: circleci/node:10.15.3-browsers
-    steps:
-      - <<: *restore_code
-
-      - checkout
-
-      - <<: *restore_dep
-
-      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
-
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
-
-      - attach_workspace:
-          at: /home/circleci/project
-      - run:
-          name: Run Simple Hub Server tests
-          command: cd packages/simple-hub-server && yarn test:ci
-      - run:
-          name: Run High Roller tests
-          command: cd packages/dapp-high-roller && yarn test
-      - run:
-          name: Run Tic-Tac-Toe tests
-          command: cd packages/dapp-tic-tac-toe && yarn test
 
   run-tslint:
     <<: *defaults
@@ -171,11 +144,7 @@ workflows:
           requires:
             - build
 
-      - run-non-playground-tests:
-          requires:
-            - build
-
-      - run-playground-tests:
+      - run-tests:
           requires:
             - build
 
@@ -187,8 +156,7 @@ workflows:
           requires:
             - build
             - ensure-updated-lockfiles
-            - run-non-playground-tests
-            - run-playground-tests
+            - run-tests
             - run-tslint
           filters:
             branches:
