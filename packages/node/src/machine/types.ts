@@ -36,9 +36,7 @@ export type ProtocolMessage = {
   params: ProtocolParameters;
   toXpub: string;
   seq: number;
-  signerAddress?: string;
   signature?: Signature;
-  signerAddress2?: string;
   signature2?: Signature;
   signature3?: Signature;
   signature4?: Signature;

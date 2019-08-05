@@ -1,11 +1,11 @@
 import { Node } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { BigNumber } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
+import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
-export const MNEMONIC_PATH = "MNEMONIC";
+export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
 export class SigningKeysGenerator {
   // The namespacing is on the channel the AppInstance is in
@@ -67,13 +67,13 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
 ): Promise<[SigningKeysGenerator, string]> {
   if (publicExtendedKey && !privateKeyGenerator) {
     throw new Error(
-      "Cannot provide a public extended key but not provide a private key generation function"
+      "Cannot provide a extended public key but not provide a private key generation function"
     );
   }
 
   if (!publicExtendedKey && privateKeyGenerator) {
     throw new Error(
-      "Cannot provide a private key generation function but not provide a public extended key"
+      "Cannot provide a private key generation function but not provide an extended public key"
     );
   }
 
@@ -84,20 +84,21 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
     ]);
   }
 
-  // TODO: update this as of PR https://github.com/counterfactual/monorepo/pull/2075
-  let mnemonic = await storeService.get(MNEMONIC_PATH);
+  let extendedPrvKey = await storeService.get(EXTENDED_PRIVATE_KEY_PATH);
 
-  if (!mnemonic) {
+  if (!extendedPrvKey) {
     log.info(
-      "No (public extended key, private key generation function) pair was provided and no mnemonic was found in store. Generating a random mnemonic"
+      "No (extended public key, private key generation function) pair was provided and no extended private key was found in store. Generating a random extended private key"
     );
-    mnemonic = Wallet.createRandom().mnemonic;
-    await storeService.set([{ key: MNEMONIC_PATH, value: mnemonic }]);
+    extendedPrvKey = fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
+    await storeService.set([
+      { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
+    ]);
   }
   const [
     privKeyGenerator,
     pubExtendedKey
-  ] = generatePrivateKeyGeneratorAndXPubPair(mnemonic);
+  ] = generatePrivateKeyGeneratorAndXPubPair(extendedPrvKey);
   return Promise.resolve([
     new SigningKeysGenerator(privKeyGenerator),
     pubExtendedKey
@@ -108,10 +109,12 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
 // should be implemented, with specific reference to hardcoding the
 // "Counterfactual" derivation path.
 export function generatePrivateKeyGeneratorAndXPubPair(
-  mnemonic: string
+  extendedPrvKey: string
 ): [Node.IPrivateKeyGenerator, string] {
   // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
-  const hdNode = fromMnemonic(mnemonic).derivePath("m/44'/60'/0'/25446");
+  const hdNode = fromExtendedKey(extendedPrvKey).derivePath(
+    "m/44'/60'/0'/25446"
+  );
 
   return [
     function(uniqueID: string): Promise<string> {

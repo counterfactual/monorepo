@@ -1,6 +1,7 @@
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
+import { xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -23,6 +24,7 @@ import { assertIsValidSignature } from "./utils/signature-validator";
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
     const { responderXpub } = context.message.params;
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -30,15 +32,9 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      uninstallCommitment
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    const {
-      signature: counterpartySignature,
-      signerAddress: counterpartySignerAddress
-    } = yield [
+    const { signature: counterpartySignature } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Uninstall,
@@ -46,13 +42,12 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         params: context.message.params,
         toXpub: responderXpub,
         signature: mySignature,
-        signerAddress: mySignerAddress,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      counterpartySignerAddress,
+      responderAddress,
       uninstallCommitment,
       counterpartySignature
     );
@@ -71,6 +66,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   },
   1: async function*(context: Context) {
     const { initiatorXpub } = context.message.params;
+    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const [uninstallCommitment, appIdentityHash] = await proposeStateTransition(
       context.message.params,
@@ -78,21 +74,15 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const {
-      signature: counterpartySignature,
-      signerAddress: counterpartySignerAddress
-    } = context.message;
+    const { signature: counterpartySignature } = context.message;
 
     assertIsValidSignature(
-      counterpartySignerAddress!,
+      initiatorAddress,
       uninstallCommitment,
       counterpartySignature
     );
 
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      uninstallCommitment
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySignature,
@@ -113,7 +103,6 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
         signature: mySignature,
-        signerAddress: mySignerAddress,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

@@ -1,7 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { ProtocolExecutionFlow, xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -30,16 +30,9 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appSeqNo
     ] = proposeStateTransition(context.message.params, context);
 
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      setStateCommitment,
-      appSeqNo
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const {
-      signature: counterpartySignature,
-      signerAddress: countepartySignerAddress
-    } = yield [
+    const { signature: counterpartySignature } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Update,
@@ -47,13 +40,12 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         params: context.message.params,
         toXpub: responderXpub,
         signature: mySignature,
-        signerAddress: mySignerAddress,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      countepartySignerAddress,
+      xkeyKthAddress(responderXpub, appSeqNo),
       setStateCommitment,
       counterpartySignature
     );
@@ -79,22 +71,15 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
 
     const { initiatorXpub } = context.message.params;
 
-    const {
-      signature: counterpartySignature,
-      signerAddress: counterpartySignerAddress
-    } = context.message;
+    const { signature: counterpartySignature } = context.message;
 
     assertIsValidSignature(
-      counterpartySignerAddress!,
+      xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
       counterpartySignature
     );
 
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      setStateCommitment,
-      appSeqNo
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.getSignedTransaction([
       mySignature,
@@ -114,7 +99,6 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
         signature: mySignature,
-        signerAddress: mySignerAddress,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

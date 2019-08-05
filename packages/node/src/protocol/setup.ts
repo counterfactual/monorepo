@@ -1,7 +1,7 @@
 import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
+import { ProtocolExecutionFlow, xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -27,10 +27,10 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       context.message.params,
       context
     );
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      setupCommitment
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, setupCommitment];
+
+    console.log("running setup protocol");
+    console.log(context);
 
     const {
       signature: counterpartySignature,
@@ -38,7 +38,6 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        signerAddress: mySignerAddress,
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
@@ -69,6 +68,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   1: async function*(context: Context) {
     const { initiatorXpub, multisigAddress } = context.message
       .params as SetupParams;
+    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const setupCommitment = proposeStateTransition(
       context.message.params,
@@ -76,17 +76,13 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const counterpartySignature = context.message.signature!;
-    const counterpartySignerAddress = context.message.signerAddress!;
     assertIsValidSignature(
-      counterpartySignerAddress,
+      initiatorAddress,
       setupCommitment,
       counterpartySignature
     );
 
-    const [mySignature, mySignerAddress] = yield [
-      Opcode.OP_SIGN,
-      setupCommitment
-    ];
+    const mySignature = yield [Opcode.OP_SIGN, setupCommitment];
 
     const finalCommitment = setupCommitment.getSignedTransaction([
       mySignature,
@@ -102,7 +98,6 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        signerAddress: mySignerAddress,
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,

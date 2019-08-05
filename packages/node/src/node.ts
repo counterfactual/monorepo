@@ -179,10 +179,7 @@ export class Node {
         await this.signingKeyGenerator.getSigningKey(keyIndex)
       );
 
-      return [
-        signingKey.signDigest(commitment.hashToSign()),
-        signingKey.address
-      ];
+      return signingKey.signDigest(commitment.hashToSign());
     });
 
     instructionExecutor.register(

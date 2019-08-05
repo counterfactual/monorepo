@@ -59,16 +59,14 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel
     );
 
-    const [mySignatureOnConditionalTransaction, mySignerAddress] = yield [
+    const mySignatureOnConditionalTransaction = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
 
     const {
       signature: counterpartySignatureOnConditionalTransaction,
-      signerAddress: counterpartySignerAddressOnConditionalTransaction,
-      signature2: counterpartySignatureOnFreeBalanceStateUpdate,
-      signerAddress2: counterpartySignerAddressOnFreeBalanceStateUpdate
+      signature2: counterpartySignatureOnFreeBalanceStateUpdate
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -77,13 +75,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Install,
         toXpub: responderXpub,
         signature: mySignatureOnConditionalTransaction,
-        signerAddress: mySignerAddress,
         seq: 1
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      counterpartySignerAddressOnConditionalTransaction,
+      preProtocolStateChannel.getFreeBalanceAddrOf(responderXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
@@ -116,12 +113,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      counterpartySignerAddressOnFreeBalanceStateUpdate,
+      preProtocolStateChannel.getFreeBalanceAddrOf(responderXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
 
-    const [mySignatureOnFreeBalanceStateUpdate, mySignerAddress2] = yield [
+    const mySignatureOnFreeBalanceStateUpdate = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
@@ -147,7 +144,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Install,
         toXpub: responderXpub,
         signature: mySignatureOnFreeBalanceStateUpdate,
-        signerAddress: mySignerAddress2,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -165,12 +161,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: {
-        params,
-        protocolExecutionID,
-        signature,
-        signerAddress: counterpartySignerAddressOnConditionalTransaction
-      },
+      message: { params, protocolExecutionID, signature },
       network
     } = context;
 
@@ -194,15 +185,15 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     assertIsValidSignature(
-      counterpartySignerAddressOnConditionalTransaction!,
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       conditionalTransactionData,
       counterpartySignatureOnConditionalTransaction
     );
 
-    const [
-      mySignatureOnConditionalTransaction,
-      mySignerAddressOnConditionalTransaction
-    ] = yield [Opcode.OP_SIGN, conditionalTransactionData];
+    const mySignatureOnConditionalTransaction = yield [
+      Opcode.OP_SIGN,
+      conditionalTransactionData
+    ];
 
     const signedConditionalTransaction = conditionalTransactionData.getSignedTransaction(
       [
@@ -231,30 +222,25 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.timeout
     );
 
-    const [
-      mySignatureOnFreeBalanceStateUpdate,
-      mySignerAddressOnFreeBalanceStateUpdate
-    ] = yield [Opcode.OP_SIGN, freeBalanceUpdateData];
+    const mySignatureOnFreeBalanceStateUpdate = yield [
+      Opcode.OP_SIGN,
+      freeBalanceUpdateData
+    ];
 
-    const {
-      signature: counterpartySignatureOnFreeBalanceStateUpdate,
-      signerAddress: counterpartySignerAddressOnFreeBalanceStateUpdate
-    } = yield [
+    const { signature: counterpartySignatureOnFreeBalanceStateUpdate } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Install,
         toXpub: initiatorXpub,
         signature: mySignatureOnConditionalTransaction,
-        signerAddress: mySignerAddressOnConditionalTransaction,
         signature2: mySignatureOnFreeBalanceStateUpdate,
-        signerAddress2: mySignerAddressOnFreeBalanceStateUpdate,
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      counterpartySignerAddressOnFreeBalanceStateUpdate!,
+      preProtocolStateChannel.getFreeBalanceAddrOf(initiatorXpub),
       freeBalanceUpdateData,
       counterpartySignatureOnFreeBalanceStateUpdate
     );
