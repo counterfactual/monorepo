@@ -393,6 +393,26 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
+### Method: `getTokenIndexedFreeBalanceStates`
+
+Gets the free balances for the ETH and ERC20 assets that have been deposited, indexed by token address.
+
+Params:
+
+- `multisigAddress: string`
+
+Result:
+
+```
+{
+  [tokenAddress: string]: {
+    [beneficiary: string]: BigNumber;
+  }
+};
+```
+
+Returns a doubly-nested mapping. The outer mapping is the address of the token for which there is free balance in the channel. The inner mapping is a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
+
 ## Events
 
 ### Event: `depositEvent`

@@ -127,6 +127,23 @@ export async function getFreeBalanceState(
   return response.result.result as NodeTypes.GetFreeBalanceStateResult;
 }
 
+export async function getTokenIndexedFreeBalanceStates(
+  node: Node,
+  multisigAddress: string
+): Promise<NodeTypes.GetTokenIndexedFreeBalanceStatesResult> {
+  const req = jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES,
+    params: {
+      multisigAddress
+    },
+    jsonrpc: "2.0"
+  });
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
+  return response.result
+    .result as NodeTypes.GetTokenIndexedFreeBalanceStatesResult;
+}
+
 export async function getInstalledAppInstances(
   node: Node
 ): Promise<AppInstanceJson[]> {
