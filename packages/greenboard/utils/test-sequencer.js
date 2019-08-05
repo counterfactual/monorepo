@@ -8,7 +8,8 @@
 const testSequence = [
   "tests/onboarding.spec.ts",
   "tests/login.spec.ts",
-  "tests/deposit.spec.ts"
+  "tests/deposit.spec.ts",
+  "tests/withdraw.spec.ts"
 ];
 
 // Import the default test sequencer.
