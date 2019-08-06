@@ -78,14 +78,19 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstance(
+export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const allAppInstances = await getInstalledAppInstances(node);
-  return allAppInstances.filter(appInstance => {
-    return appInstance.identityHash === appInstanceId;
-  })[0];
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -120,6 +125,23 @@ export async function getFreeBalanceState(
   });
   const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
   return response.result.result as NodeTypes.GetFreeBalanceStateResult;
+}
+
+export async function getTokenIndexedFreeBalanceStates(
+  node: Node,
+  multisigAddress: string
+): Promise<NodeTypes.GetTokenIndexedFreeBalanceStatesResult> {
+  const req = jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES,
+    params: {
+      multisigAddress
+    },
+    jsonrpc: "2.0"
+  });
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
+  return response.result
+    .result as NodeTypes.GetTokenIndexedFreeBalanceStatesResult;
 }
 
 export async function getInstalledAppInstances(
@@ -411,18 +433,19 @@ export async function collateralizeChannel(
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   return new Promise(async resolve => {
-    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
-      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+    nodeB.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
       resolve(msg.data.multisigAddress);
     });
 
     // trigger channel creation but only resolve with the multisig address
     // as acknowledged by the node
-    getMultisigCreationTransactionHash(nodeA, [
+    await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
+
+    expect(await getInstalledAppInstances(nodeA)).toEqual([]);
   });
 }
 
@@ -450,6 +473,7 @@ export async function installApp(
       responderDeposit,
       responderDepositTokenAddress
     );
+
     proposedParams = appInstanceInstallationProposalRequest.parameters as NodeTypes.ProposeInstallParams;
 
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
@@ -463,14 +487,8 @@ export async function installApp(
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstance(
-        nodeA,
-        appInstanceId
-      );
-      const appInstanceNodeB = await getInstalledAppInstance(
-        nodeB,
-        appInstanceId
-      );
+      const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
+      const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
       resolve([appInstanceId, proposedParams]);
     });

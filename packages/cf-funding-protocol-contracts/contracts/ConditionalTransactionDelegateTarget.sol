@@ -11,6 +11,7 @@ import "./libs/LibOutcome.sol";
 /// @author Liam Horne - <liam@l4v.io>
 contract ConditionalTransactionDelegateTarget {
 
+  uint256 constant MAX_UINT256 = 2 ** 256 - 1;
   address constant CONVENTION_FOR_ETH_TOKEN_ADDRESS = address(0x0);
 
   struct FreeBalanceAppState {
@@ -22,11 +23,15 @@ contract ConditionalTransactionDelegateTarget {
     bytes32[] activeApps;
   }
 
+  struct MultiAssetMultiPartyCoinTransferInterpreterParams {
+    uint256[] limit;
+    address[] tokenAddresses;
+  }
+
   function executeEffectOfFreeBalance(
     ChallengeRegistry challengeRegistry,
     bytes32 freeBalanceAppIdentityHash,
-    address multiAssetMultiPartyCoinTransferInterpreterAddress,
-    bytes memory multiAssetMultiPartyCoinTransferInterpreterParams
+    address multiAssetMultiPartyCoinTransferInterpreterAddress
   )
     public
   {
@@ -35,22 +40,39 @@ contract ConditionalTransactionDelegateTarget {
       "Free Balance app instance is not finalized yet"
     );
 
-    LibOutcome.CoinTransfer[][] memory outcome = abi.decode(
+    FreeBalanceAppState memory freeBalanceAppState = abi.decode(
       challengeRegistry.getOutcome(freeBalanceAppIdentityHash),
       (FreeBalanceAppState)
-    ).balances;
-
-    bytes memory payload = abi.encodeWithSignature(
-      "interpretOutcomeAndExecuteEffect(bytes,bytes)",
-      abi.encode(outcome),
-      multiAssetMultiPartyCoinTransferInterpreterParams
     );
+
+    uint256[] memory limits = new uint256[](
+      freeBalanceAppState.tokenAddresses.length
+    );
+
+    for (uint256 i = 0; i < freeBalanceAppState.tokenAddresses.length; i++) {
+      // The transaction's interpreter parameters are determined at the time
+      // of creation of the free balance; hence we cannot know how much will be
+      // deposited into it all-time. Relying on the app state is unsafe so
+      // we just give it full permissions by setting the limit to the max here.
+      limits[i] = MAX_UINT256;
+    }
 
     (
       bool success,
       // solium-disable-next-line no-unused-vars
       bytes memory returnData
-    ) = multiAssetMultiPartyCoinTransferInterpreterAddress.delegatecall(payload);
+    ) = multiAssetMultiPartyCoinTransferInterpreterAddress.delegatecall(
+      abi.encodeWithSignature(
+        "interpretOutcomeAndExecuteEffect(bytes,bytes)",
+        abi.encode(freeBalanceAppState.balances),
+        abi.encode(
+          MultiAssetMultiPartyCoinTransferInterpreterParams(
+            limits,
+            freeBalanceAppState.tokenAddresses
+          )
+        )
+      )
+    );
 
     require(
       success,

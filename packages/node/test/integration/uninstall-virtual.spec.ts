@@ -12,6 +12,8 @@ import {
   installVirtualApp
 } from "./utils";
 
+jest.setTimeout(10000);
+
 describe("Node method follows spec - uninstall virtual", () => {
   let nodeA: Node;
   let nodeB: Node;

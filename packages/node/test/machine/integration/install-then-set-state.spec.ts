@@ -22,7 +22,8 @@ import {
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import {
   ConditionalTransaction,
-  SetStateCommitment
+  SetStateCommitment,
+  SetupCommitment
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
@@ -79,7 +80,7 @@ beforeAll(async () => {
  * the balances have been updated on-chain.
  */
 describe("Scenario: install AppInstance, set state, put on-chain", () => {
-  it("returns the funds the app had locked up for both ETH and ERC20", async done => {
+  it("returns the funds the app had locked up for both ETH and ERC20 in app and free balance", async done => {
     const xprvs = getRandomExtendedPrvKeys(2);
 
     const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
@@ -145,7 +146,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred
-          limit: [parseEther("1"), parseEther("1")],
+          limit: [WeiPerEther, WeiPerEther],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
         } as MultiAssetMultiPartyCoinTransferInterpreterParams,
@@ -238,14 +239,14 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       await wallet.sendTransaction({
         to: proxyAddress,
-        value: parseEther("1")
+        value: parseEther("2")
       });
 
       await transferERC20Tokens(
         proxyAddress,
         erc20TokenAddress,
         DolphinCoin.abi,
-        parseEther("1")
+        parseEther("2")
       );
 
       await wallet.sendTransaction({
@@ -253,7 +254,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         gasLimit: CONDITIONAL_TX_DELEGATECALL_GAS
       });
 
-      expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);
+      expect(await provider.getBalance(proxyAddress)).toBeEq(WeiPerEther);
       expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
         WeiPerEther
       );
@@ -267,9 +268,53 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         new JsonRpcProvider(global["ganacheURL"])
       );
 
+      expect(await erc20Contract.functions.balanceOf(proxyAddress)).toBeEq(
+        WeiPerEther
+      );
       expect(
         await erc20Contract.functions.balanceOf(multisigOwnerKeys[0].address)
       ).toBeEq(Zero);
+      expect(
+        await erc20Contract.functions.balanceOf(multisigOwnerKeys[1].address)
+      ).toBeEq(WeiPerEther);
+
+      const freeBalanceConditionalTransaction = new SetupCommitment(
+        network,
+        stateChannel.multisigAddress,
+        stateChannel.multisigOwners,
+        stateChannel.freeBalance.identity
+      );
+
+      const multisigDelegateCallTx2 = freeBalanceConditionalTransaction.getSignedTransaction(
+        [
+          multisigOwnerKeys[0].signDigest(
+            freeBalanceConditionalTransaction.hashToSign()
+          ),
+          multisigOwnerKeys[1].signDigest(
+            freeBalanceConditionalTransaction.hashToSign()
+          )
+        ]
+      );
+
+      await wallet.sendTransaction({
+        ...multisigDelegateCallTx2,
+        gasLimit: CONDITIONAL_TX_DELEGATECALL_GAS
+      });
+
+      expect(await provider.getBalance(proxyAddress)).toBeEq(Zero);
+      expect(await provider.getBalance(multisigOwnerKeys[0].address)).toBeEq(
+        WeiPerEther
+      );
+      expect(await provider.getBalance(multisigOwnerKeys[1].address)).toBeEq(
+        WeiPerEther
+      );
+
+      expect(await erc20Contract.functions.balanceOf(proxyAddress)).toBeEq(
+        Zero
+      );
+      expect(
+        await erc20Contract.functions.balanceOf(multisigOwnerKeys[0].address)
+      ).toBeEq(WeiPerEther);
       expect(
         await erc20Contract.functions.balanceOf(multisigOwnerKeys[1].address)
       ).toBeEq(WeiPerEther);

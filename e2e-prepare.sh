@@ -12,16 +12,6 @@ else
   echo "  > Found Python at: $PYTHON"
 fi
 
-if [ -z "$NVM_DIR" ];
-then
-  echo "  > Error: Please install nvm."
-  exit
-else
-  echo "  > Found NVM"
-  . $NVM_DIR/nvm.sh
-  nvm use
-fi
-
 if [ -d "packages/greenboard/extension" ];
 then
   unlink packages/greenboard/extension
@@ -54,12 +44,13 @@ cp packages/node/dist/index.iife.js /tmp/metamask-extension/app/vendor/counterfa
 
 echo "(6/7) Installing Metamask dependencies and building extension..."
 
-cd /tmp/metamask-extension
-nvm use
-yarn --frozen-lockfile
-yarn dist
-
-cd "$MONOREPO_PATH"
+pushd /tmp/metamask-extension
+  # Metamask and Counterfactual use very close Node/Yarn versions.
+  # Since integrating NVM into this bash script adds more trouble than anything else,
+  # we use --ignore-engines to build the extension. Works enough for this context.
+  yarn --ignore-engines --frozen-lockfile
+  yarn --ignore-engines dist
+popd
 
 echo "(7/7) Symlinking Metamask build into Greenboard workspace..."
 

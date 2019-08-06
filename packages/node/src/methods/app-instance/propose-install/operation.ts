@@ -1,8 +1,9 @@
 import { Node } from "@counterfactual/types";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { AppInstanceProposal, StateChannel } from "../../../models";
+import { AppInstanceProposal } from "../../../models";
 import { Store } from "../../../store";
+import { getCreate2MultisigAddress } from "../../../utils";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -14,13 +15,18 @@ import { Store } from "../../../store";
 export async function createProposedAppInstance(
   myIdentifier: string,
   store: Store,
+  networkContext,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const channel = await StateChannel.getStateChannelWithOwners(
-    myIdentifier,
-    params.proposedToIdentifier,
-    store
+  const { proposedToIdentifier } = params;
+
+  const multisigAddress = getCreate2MultisigAddress(
+    [myIdentifier, proposedToIdentifier],
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
   );
+
+  const stateChannel = await store.getStateChannel(multisigAddress);
 
   const appInstanceProposal = new AppInstanceProposal(
     {
@@ -31,10 +37,10 @@ export async function createProposedAppInstance(
       responderDepositTokenAddress:
         params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
-    channel
+    stateChannel
   );
 
-  await store.addAppInstanceProposal(channel, appInstanceProposal);
+  await store.addAppInstanceProposal(stateChannel, appInstanceProposal);
 
   return appInstanceProposal.identityHash;
 }
