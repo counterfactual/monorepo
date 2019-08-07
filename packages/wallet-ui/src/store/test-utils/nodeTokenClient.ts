@@ -44,12 +44,17 @@ export const NETWORK_KOVAN_TOKENS: AssetType[] = [
   }
 ];
 
-export const USER_KOVAN_TOKENS_MOCK = (counterfactualBalance = Zero): AssetType[] => [
+export const USER_KOVAN_TOKENS_MOCK = (
+  counterfactualBalance = Zero
+): AssetType[] => [
   {
     counterfactualBalance,
     tokenAddress: "0x0000000000000000000000000000000000000000",
     name: "Ethereum",
     shortName: "ETH"
   },
-  ...NETWORK_KOVAN_TOKENS.slice(1).map(token => ({ ...token, counterfactualBalance: undefined }))
+  ...NETWORK_KOVAN_TOKENS.slice(1).map(token => ({
+    ...token,
+    counterfactualBalance: undefined
+  }))
 ];

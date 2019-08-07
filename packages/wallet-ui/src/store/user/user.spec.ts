@@ -221,7 +221,8 @@ describe("Store > User", () => {
           status: ActionType.WalletSetNodeTokens
         },
         {
-          user: {}, error: {},
+          user: {},
+          error: {},
           tokenAddresses: NETWORK_KOVAN_TOKENS,
           status: ActionType.WalletSetBalance
         },

@@ -104,7 +104,7 @@ export default class EthereumMock implements EthereumGlobal {
     forceFailOnGetAllChannels: false
   };
 
-  constructor(private readonly events: { [key: string]: Function[] } = {}) { }
+  constructor(private readonly events: { [key: string]: Function[] } = {}) {}
 
   async enable() {
     if (this.mockBehaviors.failOnEnable) {
@@ -159,9 +159,9 @@ export default class EthereumMock implements EthereumGlobal {
           [this.mockBehaviors.nodeAddressFromUserMock
             ? FREE_BALANCE_MOCK_ADDRESS_FROM_USER_MOCK
             : FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
-              .forceRetryOnWaitForFunds
-              ? Zero
-              : FREE_BALANCE_MOCK_AMOUNT,
+            .forceRetryOnWaitForFunds
+            ? Zero
+            : FREE_BALANCE_MOCK_AMOUNT,
           [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
             .forceRetryOnWaitForFunds
             ? Zero

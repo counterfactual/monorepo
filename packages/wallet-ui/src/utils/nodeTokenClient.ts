@@ -37,7 +37,7 @@ export const getTokens = async (
         }))
     );
   } catch (error) {
-    console.error('error while getting tokens', error.message)
+    console.error("error while getting tokens", error.message);
     return [defaultToken];
   }
 };
