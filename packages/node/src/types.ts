@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { TransactionReceipt } from "ethers"
 
 import { ProtocolMessage } from "./machine";
 
@@ -56,6 +57,12 @@ export interface UninstallVirtualMessage extends Node.NodeMessage {
 
 export interface WithdrawMessage extends Node.NodeMessage {
   data: Node.WithdrawEventData;
+}
+
+export interface WithdrawConfirmationMessage extends Node.NodeMessage {
+  data: {
+    txReceipt: TransactionReceipt
+  };
 }
 
 export interface RejectProposalMessage extends Node.NodeMessage {
