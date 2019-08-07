@@ -117,13 +117,17 @@ export default class WithdrawController extends NodeController {
         txHash: txResponse.hash
       });
 
-      await provider.waitForTransaction(
+      const txReceipt = await provider.waitForTransaction(
         txResponse.hash as string,
         blocksNeededForConfirmation
       );
+
+      outgoing.emit(NODE_EVENTS.WITHDRAWAL_CONFIRMED, {
+        txReceipt
+      });
     } catch (e) {
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
-      throw new Error(`${WITHDRAWAL_FAILED}: ${e}`);
+      throw new Error(`${WITHDRAWAL_FAILED}: ${JSON.stringify(e, null, 2)}`);
     }
 
     return {
