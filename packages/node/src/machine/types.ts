@@ -7,7 +7,6 @@ import {
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, Signature } from "ethers/utils";
 
-import { Transaction } from "../ethereum/types";
 import { StateChannel } from "../models";
 
 import { Opcode, Protocol } from "./enums";
@@ -131,5 +130,3 @@ export type ProtocolParameters =
   | WithdrawParams
   | InstallVirtualAppParams
   | UninstallVirtualAppParams;
-
-export { Transaction };

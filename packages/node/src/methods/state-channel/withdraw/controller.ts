@@ -28,7 +28,7 @@ export default class WithdrawController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  public static async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Queue[]> {
@@ -94,7 +94,7 @@ export default class WithdrawController extends NodeController {
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
     if (!commitment) {
-      throw new Error("no commitment found");
+      throw new Error("No withdrawal commitment found");
     }
 
     const tx = {

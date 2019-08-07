@@ -9,7 +9,6 @@ import {
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
-import { Transaction } from "./machine";
 import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID,
@@ -265,7 +264,9 @@ export class Store {
     return await this.getStateChannel(multisigAddress);
   }
 
-  public async getWithdrawalCommitment(multisigAddress: string) {
+  public async getWithdrawalCommitment(
+    multisigAddress: string
+  ): Promise<Node.MinimalTransaction> {
     return this.storeService.get(
       [this.storeKeyPrefix, DB_NAMESPACE_WITHDRAWALS, multisigAddress].join("/")
     );
@@ -273,7 +274,7 @@ export class Store {
 
   public async storeWithdrawalCommitment(
     multisigAddress: string,
-    commitment: Transaction
+    commitment: Node.MinimalTransaction
   ) {
     return this.storeService.set([
       {
@@ -287,7 +288,7 @@ export class Store {
     ]);
   }
 
-  public async setCommitment(args: any[], commitment: Transaction) {
+  public async setCommitment(args: any[], commitment: Node.MinimalTransaction) {
     return this.storeService.set([
       {
         key: [

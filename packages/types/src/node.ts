@@ -1,4 +1,4 @@
-import { BigNumber, Transaction } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
@@ -26,6 +26,15 @@ export namespace Node {
   export type NodeMessage = {
     from: string;
     type: EventName;
+  };
+
+  // This is used instead of the ethers `Transaction` because that type
+  // requires the nonce and chain ID to be specified, when sometimes those
+  // arguments are not known at the time of creating a transaction.
+  export type MinimalTransaction = {
+    to: string;
+    value: BigNumberish;
+    data: string;
   };
 
   export interface ServiceFactory {
@@ -334,7 +343,7 @@ export namespace Node {
   export type WithdrawCommitmentParams = WithdrawParams;
 
   export type WithdrawCommitmentResult = {
-    transaction: Transaction;
+    transaction: MinimalTransaction;
   };
 
   export type MethodParams =
