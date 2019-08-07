@@ -18,7 +18,8 @@ import {
 import {
   ACCOUNT_DEPOSIT_SELECTORS,
   ACCOUNT_REGISTRATION_SELECTORS,
-  LAYOUT_HEADER_SELECTORS
+  LAYOUT_HEADER_SELECTORS,
+  STATE_CHANNELS_SELECTORS
 } from "./counterfactual-wallet-selectors";
 import {
   DEPOSIT_SELECTORS,
@@ -45,6 +46,7 @@ import {
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
 export const LOCATOR_TIMEOUT = 10000;
+export const DEPOSIT_TIMEOUT = 90000;
 
 export const METAMASK_ETH_ADDRESS =
   "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
@@ -474,11 +476,18 @@ export class TestBrowser {
   async fillAccountDepositFormAndSubmit() {
     const { proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
     const { logoContainer } = LAYOUT_HEADER_SELECTORS;
+    const { channelTreesContainer } = STATE_CHANNELS_SELECTORS;
 
     await this.clickOnElement(proceedButton);
     await this.waitForElementToHaveText(proceedButton, "Check your wallet");
     await this.confirmDeposit();
-    await this.waitForElement(logoContainer, 90000);
+    await this.waitForElement(logoContainer, DEPOSIT_TIMEOUT);
+
+    const currentScreen = await this.getCurrentScreenName();
+
+    if (currentScreen === CounterfactualScreenName.Balance) {
+      await this.waitForElement(channelTreesContainer, DEPOSIT_TIMEOUT);
+    }
   }
 
   /**
