@@ -24,25 +24,25 @@ describe("Node method follows spec - withdraw", () => {
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
+  let multisigAddress: string;
 
   beforeEach(async () => {
     const context: SetupContext = await setup(global);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     provider = new JsonRpcProvider(global["ganacheURL"]);
+
+    multisigAddress = await createChannel(nodeA, nodeB);
+    expect(multisigAddress).toBeDefined();
+
+    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   });
 
   it("has the right balance for both parties after withdrawal", async () => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
-    expect(multisigAddress).toBeDefined();
-
-    // Because the tests re-use the same ganache instance (and therefore
-    // deterministically computed multisig address is re-used)
     const startingMultisigBalance = await provider.getBalance(multisigAddress);
 
     const depositReq = makeDepositRequest(multisigAddress, One);
 
-    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
     await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigBalance = await provider.getBalance(
@@ -80,8 +80,6 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal of ERC20 tokens", async () => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
-
     const erc20ContractAddress = (global[
       "networkContext"
     ] as NetworkContextForTestSuite).DolphinCoin;
@@ -106,7 +104,6 @@ describe("Node method follows spec - withdraw", () => {
       erc20ContractAddress
     );
 
-    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
     await nodeA.rpcRouter.dispatch(depositReq);
 
     const postDepositMultisigTokenBalance = await erc20Contract.functions.balanceOf(
@@ -135,5 +132,9 @@ describe("Node method follows spec - withdraw", () => {
     );
 
     expect(await erc20Contract.functions.balanceOf(recipient)).toBeEq(One);
+  });
+
+  it("Node A produces a withdraw commitment and Node B submits the commitment to the network", async () => {
+    // To be written
   });
 });
