@@ -25,7 +25,7 @@ import { runWithdrawProtocol } from "./operation";
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
 
-  @jsonRpcMethod("chan_withdraw")
+  @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
@@ -117,13 +117,17 @@ export default class WithdrawController extends NodeController {
         txHash: txResponse.hash
       });
 
-      await provider.waitForTransaction(
+      const txReceipt = await provider.waitForTransaction(
         txResponse.hash as string,
         blocksNeededForConfirmation
       );
+
+      outgoing.emit(NODE_EVENTS.WITHDRAWAL_CONFIRMED, {
+        txReceipt
+      });
     } catch (e) {
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
-      throw new Error(`${WITHDRAWAL_FAILED}: ${e}`);
+      throw new Error(`${WITHDRAWAL_FAILED}: ${JSON.stringify(e, null, 2)}`);
     }
 
     return {

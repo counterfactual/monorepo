@@ -51,6 +51,10 @@ contract LibStateChannelApp {
     pure
     returns (bool)
   {
+    require(
+      signers.length == signatures.length,
+      "Signers and signatures should be of equal length"
+    );
     address lastSigner = address(0);
     for (uint256 i = 0; i < signers.length; i++) {
       require(
