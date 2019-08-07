@@ -375,6 +375,25 @@ Error(s):
 - "Insufficient funds"
 - "Withdraw Failed"
 
+### Method: `withdrawCommitment`
+
+This behaves similarly to the `withdraw` call, except it produces a commitment for the withdrawal and returns the commitment instead of sending the commitment to the network.
+
+Params:
+
+- `multisigAddress: string`
+- `amount: BigNumber`
+- `recipient?: string`
+- `tokenAddress?: string`
+
+Result:
+
+- `transaction: { to: string; value: BigNumberish; data: string; }`
+
+Error(s):
+
+- "Insufficient funds"
+
 ### Method: `getFreeBalance`
 
 Gets the free balance AppInstance of the specified channel.
