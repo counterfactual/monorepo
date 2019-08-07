@@ -26,9 +26,9 @@ else
   echo "  > Cleaned up test DB"
 fi
 
-if [ -d "/tmp/greenboard" ];
+if [ -d "packages/greenboard/chrome-profile" ];
 then
-  rm -rf /tmp/greenboard
+  rm -rf packages/greenboard/chrome-profile
   echo "  > Cleaned up Chrome test user profile"
 fi
 
@@ -40,6 +40,7 @@ cd packages/greenboard
 yarn start
 
 echo "(4/4) Shutting down..."
-killall -9 node
-killall -9 chromedriver
+killall -9 -q node
+killall -9 -q chromedriver
 
+echo "Finished!"
