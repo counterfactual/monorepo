@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/apps",
-  "version": "0.1.1",
+  "version": "0.1.4",
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
@@ -23,19 +23,19 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/contracts": "0.1.10",
-    "@counterfactual/types": "0.0.25",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.1",
+    "@counterfactual/types": "0.0.30",
     "@types/chai": "4.1.7",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
-    "ethereum-waffle": "2.0.12",
+    "ethereum-waffle": "2.0.15",
     "ethers": "4.0.33",
     "ethlint": "1.2.4",
-    "mocha": "6.1.4",
+    "mocha": "6.2.0",
     "solc": "0.5.10",
-    "truffle": "5.0.27",
+    "truffle": "5.0.30",
     "truffle-deploy-registry": "0.5.1",
-    "truffle-hdwallet-provider": "1.0.14",
+    "truffle-hdwallet-provider": "1.0.15",
     "ts-mocha": "6.0.0",
     "tslint": "5.18.0"
   },

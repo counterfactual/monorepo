@@ -1,8 +1,4 @@
-import {
-  NetworkContext,
-  Node,
-  SolidityABIEncoderV2Type
-} from "@counterfactual/types";
+import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 
 import {
@@ -11,7 +7,6 @@ import {
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
-  DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
 import { Transaction } from "./machine";
@@ -27,11 +22,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import {
-  debugLog,
-  getCreate2MultisigAddress,
-  hashOfOrderedPublicIdentifiers
-} from "./utils";
+import { debugLog, getCreate2MultisigAddress } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -48,23 +39,17 @@ export class Store {
    * Returns an object with the keys being the multisig addresses and the
    * values being `StateChannel` instances.
    */
-  public async getAllChannels(): Promise<{
-    [multisigAddress: string]: StateChannel;
-  }> {
-    const channels = {};
+  public async getStateChannelsMap(): Promise<Map<string, StateChannel>> {
     const channelsJSON = ((await this.storeService.get(
       `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
     )) || {}) as { [multisigAddress: string]: StateChannelJSON };
 
-    const sortedChannels = Object.entries(channelsJSON).sort(
-      (a, b) => b[1].createdAt || 0 - a[1].createdAt || 0
+    return new Map(
+      Object.values(channelsJSON)
+        .map(StateChannel.fromJson)
+        .sort((a, b) => b.createdAt || 0 - a.createdAt || 0)
+        .map(sc => [sc.multisigAddress, sc])
     );
-
-    for (const [key, value] of sortedChannels) {
-      channels[key] = StateChannel.fromJson(value);
-    }
-
-    return channels;
   }
 
   /**
@@ -77,9 +62,7 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      throw new Error(
-        NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(stateChannelJson, multisigAddress)
-      );
+      throw new Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
@@ -102,24 +85,15 @@ export class Store {
 
   /**
    * This persists the state of a channel.
-   * @param channel
-   * @param ownersHash
+   * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    const ownersHash = hashOfOrderedPublicIdentifiers(
-      stateChannel.userNeuteredExtendedKeys
-    );
-
     debugLog("Saving channel: ", stateChannel);
 
     await this.storeService.set([
       {
         key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
         value: stateChannel.toJson()
-      },
-      {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`,
-        value: stateChannel.multisigAddress
       }
     ]);
   }
@@ -140,7 +114,7 @@ export class Store {
    */
   public async saveAppInstanceState(
     appInstanceId: string,
-    newState: SolidityABIEncoderV2Type
+    newState: SolidityValueType
   ) {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     const updatedChannel = await channel.setState(appInstanceId, newState);
@@ -230,19 +204,6 @@ export class Store {
         }
       ],
       true
-    );
-  }
-
-  /**
-   * Returns the address of the multisig belonging to a specified set of owners
-   * via the hash of the owners
-   * @param ownersHash
-   */
-  public async getMultisigAddressFromOwnersHash(
-    ownersHash: string
-  ): Promise<string> {
-    return await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_OWNERS_HASH_TO_MULTISIG_ADDRESS}/${ownersHash}`
     );
   }
 

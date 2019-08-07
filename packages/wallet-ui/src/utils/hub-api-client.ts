@@ -135,7 +135,7 @@ type APIRequest<T = APIResourceAttributes> = {
   meta?: APIMetadata;
 };
 
-const BASE_URL = `http://localhost:9000`;
+const BASE_URL = process.env.REACT_APP_HUB_API_URL || `http://localhost:9000`;
 const API_TIMEOUT = 30000;
 
 function timeout(delay: number = API_TIMEOUT) {

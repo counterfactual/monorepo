@@ -4,7 +4,7 @@ const ARTIFACTS = [
   artifacts.require("HighRollerApp"),
   artifacts.require("NimApp"),
   artifacts.require("TicTacToeApp"),
-  artifacts.require("ETHUnidirectionalTransferApp"),
+  artifacts.require("UnidirectionalTransferApp"),
   artifacts.require("SimpleTwoPartySwapApp")
 ];
 

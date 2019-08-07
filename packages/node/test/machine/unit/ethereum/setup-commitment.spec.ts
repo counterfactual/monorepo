@@ -1,19 +1,17 @@
-import ConditionalTransactionDelegateTarget from "@counterfactual/contracts/build/ConditionalTransactionDelegateTarget.json";
-import { coinTransferInterpreterParamsStateEncoding } from "@counterfactual/types";
+import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
 import {
-  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
   randomBytes,
   TransactionDescription
 } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
 import { SetupCommitment } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
+import { getRandomExtendedPubKey } from "../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../mocks";
 
 /**
@@ -30,13 +28,13 @@ describe("SetupCommitment", () => {
 
   // General interaction testing values
   const interaction = {
-    sender: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-    receiver: fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
+    sender: getRandomExtendedPubKey(),
+    receiver: getRandomExtendedPubKey()
   };
 
   // State channel testing values
   const stateChannel = StateChannel.setupChannel(
-    networkContext.FreeBalanceApp,
+    networkContext.IdentityApp,
     getAddress(hexlify(randomBytes(20))),
     [interaction.sender, interaction.receiver]
   );
@@ -48,11 +46,7 @@ describe("SetupCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalance.identity,
-      defaultAbiCoder.encode(
-        [coinTransferInterpreterParamsStateEncoding],
-        [freeBalance.coinTransferInterpreterParams]
-      )
+      freeBalance.identity
     ).getTransactionDetails();
   });
 
@@ -83,7 +77,9 @@ describe("SetupCommitment", () => {
       const [appRegistry, appIdentityHash, interpreterAddress] = desc.args;
       expect(appRegistry).toBe(networkContext.ChallengeRegistry);
       expect(appIdentityHash).toBe(appIdentityToHash(freeBalance.identity));
-      expect(interpreterAddress).toBe(networkContext.CoinTransferInterpreter);
+      expect(interpreterAddress).toBe(
+        networkContext.MultiAssetMultiPartyCoinTransferInterpreter
+      );
     });
   });
 });

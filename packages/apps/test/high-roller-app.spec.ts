@@ -1,7 +1,4 @@
-import {
-  SolidityABIEncoderV2Type,
-  TwoPartyFixedOutcome
-} from "@counterfactual/types";
+import { SolidityValueType, TwoPartyFixedOutcome } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -72,11 +69,11 @@ function decodeBytesToAppState(encodedAppState: string): HighRollerAppState {
   return defaultAbiCoder.decode([rlpAppStateEncoding], encodedAppState)[0];
 }
 
-function encodeState(state: SolidityABIEncoderV2Type) {
+function encodeState(state: SolidityValueType) {
   return defaultAbiCoder.encode([rlpAppStateEncoding], [state]);
 }
 
-function encodeAction(state: SolidityABIEncoderV2Type) {
+function encodeAction(state: SolidityValueType) {
   return defaultAbiCoder.encode([rlpActionEncoding], [state]);
 }
 
@@ -84,8 +81,8 @@ describe("HighRollerApp", () => {
   let highRollerApp: Contract;
 
   async function computeStateTransition(
-    state: SolidityABIEncoderV2Type,
-    action: SolidityABIEncoderV2Type
+    state: SolidityValueType,
+    action: SolidityValueType
   ) {
     return await highRollerApp.functions.applyAction(
       encodeState(state),
@@ -93,7 +90,7 @@ describe("HighRollerApp", () => {
     );
   }
 
-  async function computeOutcome(state: SolidityABIEncoderV2Type) {
+  async function computeOutcome(state: SolidityValueType) {
     const [decodedResult] = defaultAbiCoder.decode(
       ["uint256"],
       await highRollerApp.functions.computeOutcome(encodeState(state))

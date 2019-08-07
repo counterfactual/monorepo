@@ -18,6 +18,7 @@ import {
   WalletState
 } from "../../store/types";
 import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
+import { RoutePath } from "../../types";
 import "./AccountDeposit.scss";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
@@ -36,6 +37,12 @@ export type AccountDepositProps = RouteComponentProps & {
 };
 
 type AccountDepositState = {
+  depositCaseVariables: {
+    halfWidget: boolean;
+    header: string;
+    ctaButtonText: string;
+    headerDetails: string;
+  };
   loading: boolean;
   amount: BigNumberish;
 };
@@ -50,7 +57,23 @@ export class AccountDeposit extends React.Component<
   constructor(props: AccountDepositProps) {
     super(props);
 
+    let depositCaseVariables = {
+      halfWidget: true,
+      header: "Deposit",
+      ctaButtonText: "Deposit",
+      headerDetails: ``
+    };
+    if (props.history.location.pathname === RoutePath.SetupDeposit) {
+      depositCaseVariables = {
+        halfWidget: false,
+        header: "Fund your account",
+        ctaButtonText: "Proceed",
+        headerDetails: `In order to use State Channel apps, you need to deposit funds into your account.
+      Please enter how much ETH you want to deposit:`
+      };
+    }
     this.state = {
+      depositCaseVariables,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -65,7 +88,8 @@ export class AccountDeposit extends React.Component<
 
   buttonText = {
     [WalletDepositTransition.CheckWallet]: "Check your wallet",
-    [WalletDepositTransition.WaitForFunds]: "Transfering funds"
+    [WalletDepositTransition.WaitForUserFunds]: "Transferring funds",
+    [WalletDepositTransition.WaitForCollateralFunds]: "Collateralizing deposit"
   };
 
   createDepositData(
@@ -82,11 +106,6 @@ export class AccountDeposit extends React.Component<
 
   componentDidUpdate(prevProps) {
     if (this.props.error !== prevProps.error) {
-      console.error(
-        "AccountDeposit",
-        this.props.error.message,
-        this.props.error
-      );
       this.setState({ ...this.state, loading: false });
     }
   }
@@ -94,20 +113,23 @@ export class AccountDeposit extends React.Component<
   render() {
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
-    const { ethereumBalance, error, status } = walletState;
-    const { amount, loading } = this.state;
+    const { ethereumBalance, error, status, nodeAddresses } = walletState;
+    const { amount, loading, depositCaseVariables } = this.state;
+    const {
+      halfWidget,
+      header,
+      headerDetails,
+      ctaButtonText
+    } = depositCaseVariables;
     return (
-      <WidgetScreen header={"Fund your account"} exitable={false}>
+      <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
-          <div className="details">
-            In order to use State Channel apps, you need to deposit funds into
-            your account. Please enter how much ETH you want to deposit:
-          </div>
+          <div className="details">{headerDetails}</div>
           <FormInput
             label={<BalanceLabel available={formatEther(ethereumBalance)} />}
             className="input--balance"
             type="number"
-            unit="ETH"
+            units={nodeAddresses}
             name="amount"
             min={0.02}
             max={Number(ethereumBalance)}
@@ -130,7 +152,7 @@ export class AccountDeposit extends React.Component<
               deposit(this.createDepositData(user, amount), provider, history);
             }}
           >
-            {!loading ? "Proceed" : this.buttonText[status]}
+            {!loading ? ctaButtonText : this.buttonText[status]}
           </FormButton>
         </form>
       </WidgetScreen>

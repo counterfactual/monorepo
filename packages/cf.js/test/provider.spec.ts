@@ -9,7 +9,6 @@ import {
   Provider
 } from "../src/provider";
 import {
-  CounterfactualEvent,
   ErrorEventData,
   EventType,
   InstallEventData,
@@ -259,9 +258,7 @@ describe("CF.js Provider", () => {
 
   describe("Node events", () => {
     it("can unsubscribe from events", async done => {
-      const callback = (e: CounterfactualEvent) => {
-        done.fail("Unsubscribed event listener was fired");
-      };
+      const callback = () => done.fail("Unsubscribed event listener was fired");
       provider.on(EventType.REJECT_INSTALL, callback);
       provider.off(EventType.REJECT_INSTALL, callback);
       nodeProvider.simulateMessageFromNode({

@@ -1,5 +1,5 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   AppABIEncodings,
   AppInstanceJson,
@@ -7,7 +7,7 @@ import {
   ContractABI,
   Node as NodeTypes,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
@@ -26,16 +26,16 @@ import {
   ProposeVirtualMessage,
   Rpc
 } from "../../src";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  FreeBalanceState
-} from "../../src/models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { CoinTransfer, FreeBalanceState } from "../../src/models/free-balance";
 
-import {
-  initialEmptyTTTState,
-  tttActionEncoding,
-  tttStateEncoding
-} from "./tic-tac-toe";
+import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
+
+interface AppContext {
+  appDefinition: string;
+  abiEncodings: AppABIEncodings;
+  initialState: SolidityValueType;
+}
 
 /**
  * Even though this function returns a transaction hash, the calling Node
@@ -56,7 +56,8 @@ export async function getMultisigCreationTransactionHash(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  const result = response.result as NodeTypes.CreateChannelTransactionResult;
+  const result = response.result
+    .result as NodeTypes.CreateChannelTransactionResult;
   return result.transactionHash;
 }
 
@@ -77,14 +78,19 @@ export async function getChannelAddresses(node: Node): Promise<Set<string>> {
   return new Set(result.multisigAddresses);
 }
 
-export async function getInstalledAppInstance(
+export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const allAppInstances = await getInstalledAppInstances(node);
-  return allAppInstances.filter(appInstance => {
-    return appInstance.identityHash === appInstanceId;
-  })[0];
+  const req = {
+    requestId: generateUUID(),
+    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+    params: {
+      appInstanceId
+    }
+  };
+  const response = await node.call(req.type, req);
+  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -119,6 +125,23 @@ export async function getFreeBalanceState(
   });
   const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
   return response.result.result as NodeTypes.GetFreeBalanceStateResult;
+}
+
+export async function getTokenIndexedFreeBalanceStates(
+  node: Node,
+  multisigAddress: string
+): Promise<NodeTypes.GetTokenIndexedFreeBalanceStatesResult> {
+  const req = jsonRpcDeserialize({
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES,
+    params: {
+      multisigAddress
+    },
+    jsonrpc: "2.0"
+  });
+  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
+  return response.result
+    .result as NodeTypes.GetTokenIndexedFreeBalanceStatesResult;
 }
 
 export async function getInstalledAppInstances(
@@ -208,40 +231,32 @@ export function makeRejectInstallRequest(appInstanceId: string): Rpc {
   });
 }
 
-export function makeTTTProposalRequest(
-  proposedByIdentifier: string,
+export function makeAppProposalRequest(
   proposedToIdentifier: string,
   appDefinition: string,
-  state: SolidityABIEncoderV2Type = {},
+  abiEncodings: AppABIEncodings,
+  initialState: SolidityValueType,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
-  const initialState =
-    Object.keys(state).length !== 0 ? state : initialEmptyTTTState();
-
-  const params: NodeTypes.ProposeInstallParams = {
-    proposedToIdentifier,
-    initiatorDeposit,
-    initiatorDepositTokenAddress,
-    responderDeposit,
-    responderDepositTokenAddress,
-    appDefinition,
-    initialState,
-    abiEncodings: {
-      stateEncoding: tttStateEncoding,
-      actionEncoding: tttActionEncoding
-    } as AppABIEncodings,
-    timeout: One,
-    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
-  };
-
   return jsonRpcDeserialize({
-    params,
     id: Date.now(),
     method: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
-    jsonrpc: "2.0"
+    jsonrpc: "2.0",
+    params: {
+      proposedToIdentifier,
+      initiatorDeposit,
+      initiatorDepositTokenAddress,
+      responderDeposit,
+      responderDepositTokenAddress,
+      appDefinition,
+      initialState,
+      abiEncodings,
+      timeout: One,
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+    } as NodeTypes.ProposeInstallParams
   });
 }
 
@@ -260,21 +275,21 @@ export function makeInstallVirtualRequest(
   });
 }
 
-export function makeTTTVirtualProposalRequest(
-  proposedByIdentifier: string,
+export function makeVirtualProposalRequest(
   proposedToIdentifier: string,
   intermediaries: string[],
   appDefinition: string,
-  initialState: SolidityABIEncoderV2Type = {},
+  abiEncodings: AppABIEncodings,
+  initialState: SolidityValueType = {},
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
-  const installProposalParams = makeTTTProposalRequest(
-    proposedByIdentifier,
+  const installProposalParams = makeAppProposalRequest(
     proposedToIdentifier,
     appDefinition,
+    abiEncodings,
     initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
@@ -299,7 +314,7 @@ export function makeTTTVirtualProposalRequest(
  * @param proposalParams The parameters of the installation proposal.
  * @param appInstanceProposal The proposed app instance contained in the Node.
  */
-export async function confirmProposedAppInstanceOnNode(
+export async function confirmProposedAppInstance(
   methodParams: NodeTypes.MethodParams,
   appInstanceProposal: AppInstanceProposal,
   nonInitiatingNode: boolean = false
@@ -330,12 +345,12 @@ export async function confirmProposedAppInstanceOnNode(
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
 
-export function confirmProposedVirtualAppInstanceOnNode(
+export function confirmProposedVirtualAppInstance(
   methodParams: NodeTypes.MethodParams,
   proposedAppInstance: AppInstanceProposal,
   nonInitiatingNode: boolean = false
 ) {
-  confirmProposedAppInstanceOnNode(
+  confirmProposedAppInstance(
     methodParams,
     proposedAppInstance,
     nonInitiatingNode
@@ -417,39 +432,52 @@ export async function collateralizeChannel(
 }
 
 export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
-  return new Promise(async (resolve, reject) => {
-    nodeA.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
-      expect(await getInstalledAppInstances(nodeA)).toEqual([]);
+  return new Promise(async resolve => {
+    nodeB.on(NODE_EVENTS.CREATE_CHANNEL, async (msg: CreateChannelMessage) => {
       expect(await getInstalledAppInstances(nodeB)).toEqual([]);
       resolve(msg.data.multisigAddress);
     });
 
+    // trigger channel creation but only resolve with the multisig address
+    // as acknowledged by the node
     await getMultisigCreationTransactionHash(nodeA, [
       nodeA.publicIdentifier,
       nodeB.publicIdentifier
     ]);
+
+    expect(await getInstalledAppInstances(nodeA)).toEqual([]);
   });
 }
 
-export async function installTTTApp(
+export async function installApp(
   nodeA: Node,
   nodeB: Node,
-  initialState?: SolidityABIEncoderV2Type
-): Promise<string> {
-  const initialTTTState: SolidityABIEncoderV2Type = initialState
-    ? initialState
-    : initialEmptyTTTState();
+  appDefinition: string,
+  initialState?: SolidityValueType,
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+): Promise<[string, NodeTypes.ProposeInstallParams]> {
+  const appContext = getAppContext(appDefinition, initialState);
+  let proposedParams: NodeTypes.ProposeInstallParams;
 
-  return new Promise(async (resolve, reject) => {
-    const appInstanceInstallationProposalRequest = makeTTTProposalRequest(
-      nodeA.publicIdentifier,
+  return new Promise(async resolve => {
+    const appInstanceInstallationProposalRequest = makeAppProposalRequest(
       nodeB.publicIdentifier,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-      initialTTTState
+      appContext.appDefinition,
+      appContext.abiEncodings,
+      appContext.initialState,
+      initiatorDeposit,
+      initiatorDepositTokenAddress,
+      responderDeposit,
+      responderDepositTokenAddress
     );
 
+    proposedParams = appInstanceInstallationProposalRequest.parameters as NodeTypes.ProposeInstallParams;
+
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-      confirmProposedAppInstanceOnNode(
+      confirmProposedAppInstance(
         appInstanceInstallationProposalRequest.parameters,
         await getAppInstanceProposal(nodeA, appInstanceId)
       );
@@ -459,16 +487,10 @@ export async function installTTTApp(
     });
 
     nodeA.on(NODE_EVENTS.INSTALL, async () => {
-      const appInstanceNodeA = await getInstalledAppInstance(
-        nodeA,
-        appInstanceId
-      );
-      const appInstanceNodeB = await getInstalledAppInstance(
-        nodeB,
-        appInstanceId
-      );
+      const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
+      const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-      resolve(appInstanceId);
+      resolve([appInstanceId, proposedParams]);
     });
 
     const response = await nodeA.rpcRouter.dispatch(
@@ -480,13 +502,14 @@ export async function installTTTApp(
   });
 }
 
-export async function installTTTAppVirtual(
+export async function installVirtualApp(
   nodeA: Node,
   nodeB: Node,
   nodeC: Node,
-  initialState?: SolidityABIEncoderV2Type
+  appDefinition: string,
+  initialState?: SolidityValueType
 ): Promise<string> {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async resolve => {
     nodeA.on(
       NODE_EVENTS.INSTALL_VIRTUAL,
       async (msg: InstallVirtualMessage) => {
@@ -505,7 +528,7 @@ export async function installTTTAppVirtual(
       }
     );
 
-    await makeTTTVirtualProposal(nodeA, nodeC, nodeB, initialState);
+    await makeVirtualProposal(nodeA, nodeC, nodeB, appDefinition, initialState);
   });
 }
 
@@ -541,27 +564,30 @@ export async function confirmAppInstanceInstallation(
 export async function getState(
   nodeA: Node,
   appInstanceId: string
-): Promise<SolidityABIEncoderV2Type> {
+): Promise<SolidityValueType> {
   const getStateReq = generateGetStateRequest(appInstanceId);
   const getStateResult = await nodeA.rpcRouter.dispatch(getStateReq);
   return (getStateResult.result.result as NodeTypes.GetStateResult).state;
 }
 
-export async function makeTTTVirtualProposal(
+export async function makeVirtualProposal(
   nodeA: Node,
   nodeC: Node,
   nodeB: Node,
-  initialState: SolidityABIEncoderV2Type = {}
+  appDefinition: string,
+  initialState?: SolidityValueType
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
-    nodeA.publicIdentifier,
+  const appContext = getAppContext(appDefinition, initialState);
+
+  const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-    initialState,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
     One,
     CONVENTION_FOR_ETH_TOKEN_ADDRESS,
     Zero,
@@ -580,7 +606,7 @@ export async function makeTTTVirtualProposal(
       id: Date.now()
     })
   );
-  expect(appInstanceId).toBeDefined();
+  // expect(appInstanceId).toBeDefined();
   return { appInstanceId, params };
 }
 
@@ -598,22 +624,27 @@ export function installTTTVirtual(
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
   const installRequest = makeInstallRequest(appInstanceId);
-  node.rpcRouter.dispatch(installRequest);
+  return node.rpcRouter.dispatch(installRequest);
 }
 
 export async function makeVirtualProposeCall(
   nodeA: Node,
   nodeC: Node,
-  nodeB: Node
+  nodeB: Node,
+  appDefinition: string,
+  initialState?: SolidityValueType
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
 }> {
-  const virtualAppInstanceProposalRequest = makeTTTVirtualProposalRequest(
-    nodeA.publicIdentifier,
+  const appContext = getAppContext(appDefinition, initialState);
+
+  const virtualAppInstanceProposalRequest = makeVirtualProposalRequest(
     nodeC.publicIdentifier,
     [nodeB.publicIdentifier],
-    (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState
   );
 
   const response = await nodeA.rpcRouter.dispatch(
@@ -630,10 +661,8 @@ export async function makeVirtualProposeCall(
 export async function makeProposeCall(
   nodeA: Node,
   nodeB: Node,
-  appDefinition: string = (global[
-    "networkContext"
-  ] as NetworkContextForTestSuite).TicTacToeApp,
-  state: SolidityABIEncoderV2Type = {},
+  appDefinition: string,
+  initialState?: SolidityValueType,
   initiatorDeposit: BigNumber = Zero,
   initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   responderDeposit: BigNumber = Zero,
@@ -642,11 +671,12 @@ export async function makeProposeCall(
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
 }> {
-  const appInstanceProposalReq = makeTTTProposalRequest(
-    nodeA.publicIdentifier,
+  const appContext = getAppContext(appDefinition, initialState);
+  const appInstanceProposalReq = makeAppProposalRequest(
     nodeB.publicIdentifier,
-    appDefinition,
-    state,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
     responderDeposit,
@@ -670,17 +700,15 @@ export function createFreeBalanceStateWithFundedTokenAmounts(
   amount: BigNumber,
   tokenAddresses: string[]
 ): FreeBalanceState {
-  const balancesIndexedByToken = {};
-  tokenAddresses.forEach(tokenAddress => {
-    balancesIndexedByToken[tokenAddress] = addresses.map(to => ({
-      to,
-      amount
-    }));
-  });
-
   return {
-    balancesIndexedByToken,
-    activeAppsMap: {}
+    activeAppsMap: {},
+    balancesIndexedByToken: tokenAddresses.reduce(
+      (balancesIndexedByToken, tokenAddress) => ({
+        ...balancesIndexedByToken,
+        [tokenAddress]: addresses.map(to => ({ to, amount }))
+      }),
+      {} as { [tokenAddress: string]: CoinTransfer[] }
+    )
   };
 }
 
@@ -710,4 +738,30 @@ export async function transferERC20Tokens(
   expect(balanceAfter.sub(balanceBefore)).toEqual(amount);
 
   return balanceAfter;
+}
+
+export function getAppContext(
+  appDefinition: string,
+  initialState?: SolidityValueType
+): AppContext {
+  let abiEncodings: AppABIEncodings;
+  let initialAppState: SolidityValueType;
+
+  switch (appDefinition) {
+    case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
+      initialAppState = initialState ? initialState : initialEmptyTTTState();
+      abiEncodings = tttAbiEncodings;
+      break;
+
+    default:
+      throw new Error(
+        `Proposing the specified app is not supported: ${appDefinition}`
+      );
+  }
+
+  return {
+    appDefinition,
+    abiEncodings,
+    initialState: initialAppState
+  };
 }

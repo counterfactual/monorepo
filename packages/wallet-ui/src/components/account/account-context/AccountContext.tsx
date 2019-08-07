@@ -1,4 +1,4 @@
-import { JsonRpcSigner } from "ethers/providers";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { BigNumberish, formatEther } from "ethers/utils";
 import { History } from "history";
 import React from "react";
@@ -20,7 +20,8 @@ export type AccountContextProps = RouteComponentProps & {
   loginUser: (
     ethAddress: string,
     signer: JsonRpcSigner,
-    history: History
+    history: History,
+    provider: Web3Provider
   ) => void;
 };
 
@@ -37,7 +38,7 @@ type AccountUserProps = {
 const AccountBalance: React.FC<AccountBalanceProps> = ({ balance }) => (
   <div className="info" data-test-selector="info-balance">
     <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
-    <Link to={RoutePath.SetupDeposit}>
+    <Link to={RoutePath.Balance}>
       <div className="info-text">
         <div className="info-header">Balance</div>
         <div className="info-content">{balance} ETH</div>
@@ -72,19 +73,6 @@ export class AccountContext extends React.Component<AccountContextProps> {
   static contextType = EthereumService;
   context!: React.ContextType<typeof EthereumService>;
 
-  componentWillReceiveProps(props: AccountContextProps) {
-    const { userState, history } = props;
-
-    if (userState.user.id && history.location.pathname === RoutePath.Root) {
-      history.push(RoutePath.Channels);
-    } else if (
-      !userState.user.id &&
-      history.location.pathname !== RoutePath.Root
-    ) {
-      history.push(RoutePath.Root);
-    }
-  }
-
   render() {
     const { user } = this.props.userState;
     const {
@@ -93,17 +81,16 @@ export class AccountContext extends React.Component<AccountContextProps> {
       ethAddress,
       history
     } = this.props;
-    const { signer } = this.context;
-
+    const { signer, provider } = this.context;
     return (
       <div className="account-context">
-        {!user.id ? (
+        {!user.ethAddress ? (
           <div className="btn-container">
             <FormButton
               name="login"
               className="btn"
               onClick={() => {
-                loginUser(ethAddress, signer, history);
+                loginUser(ethAddress, signer, history, provider);
               }}
             >
               <img alt="" className="icon" src="/assets/icon/login.svg" />
@@ -128,7 +115,11 @@ export default connect(
     counterfactualBalance: state.WalletState.counterfactualBalance
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    loginUser: (ethAddress: string, signer: JsonRpcSigner, history: History) =>
-      dispatch(loginUser(ethAddress, signer, history))
+    loginUser: (
+      ethAddress: string,
+      signer: JsonRpcSigner,
+      history: History,
+      provider: Web3Provider
+    ) => dispatch(loginUser(ethAddress, signer, history, provider))
   })
 )(AccountContext);

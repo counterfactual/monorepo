@@ -30,12 +30,11 @@ class NodeEnvironment extends NodeJSEnvironment {
       ChallengeRegistry: AddressZero,
       ConditionalTransactionDelegateTarget: AddressZero,
       ETHBalanceRefundApp: AddressZero,
-      CoinTransferInterpreter: data.networkContext.CoinTransferInterpreter,
-      FreeBalanceApp: AddressZero,
+      MultiAssetMultiPartyCoinTransferInterpreter: data.networkContext.MultiAssetMultiPartyCoinTransferInterpreter,
       MinimumViableMultisig: data.networkContext.MinimumViableMultisig,
       ProxyFactory: data.networkContext.ProxyFactory,
-      TwoPartyFixedOutcomeFromVirtualAppETHInterpreter:
-        data.networkContext.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
+      TwoPartyFixedOutcomeFromVirtualAppInterpreter:
+        data.networkContext.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
       TicTacToeApp: data.networkContext.TicTacToeApp
     };
 

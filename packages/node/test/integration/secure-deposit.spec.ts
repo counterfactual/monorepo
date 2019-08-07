@@ -1,20 +1,25 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import log from "loglevel";
 
 import { Node, NODE_EVENTS } from "../../src";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { INSUFFICIENT_ERC20_FUNDS_TO_DEPOSIT } from "../../src/methods/errors";
+import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
   createChannel,
   getFreeBalanceState,
+  getTokenIndexedFreeBalanceStates,
   makeDepositRequest,
   transferERC20Tokens
 } from "./utils";
+
+expect.extend({ toBeEq });
 
 log.setLevel(log.levels.SILENT);
 
@@ -38,8 +43,8 @@ describe("Node method follows spec - deposit", () => {
 
     nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
       await nodeB.rpcRouter.dispatch(depositReq);
-      expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-        preDepositBalance.add(2).toNumber()
+      expect(await provider.getBalance(multisigAddress)).toBeEq(
+        preDepositBalance.add(2)
       );
 
       const freeBalanceState = await getFreeBalanceState(
@@ -123,8 +128,8 @@ describe("Node method follows spec - deposit", () => {
     await nodeA.rpcRouter.dispatch(ethDepositReq);
     await nodeB.rpcRouter.dispatch(ethDepositReq);
 
-    expect((await provider.getBalance(multisigAddress)).toNumber()).toEqual(
-      preDepositBalance.add(2).toNumber()
+    expect(await provider.getBalance(multisigAddress)).toBeEq(
+      preDepositBalance.add(2)
     );
 
     const freeBalanceState = await getFreeBalanceState(nodeA, multisigAddress);
@@ -138,15 +143,16 @@ async function confirmEthAndERC20FreeBalances(
   multisigAddress: string,
   erc20ContractAddress: string
 ) {
-  const ethFreeBalanceState = await getFreeBalanceState(node, multisigAddress);
-
-  expect(Object.values(ethFreeBalanceState)).toMatchObject([Zero, Zero]);
-
-  const dolphinCoinFreeBalance = await getFreeBalanceState(
+  const tokenIndexedFreeBalances = await getTokenIndexedFreeBalanceStates(
     node,
-    multisigAddress,
-    erc20ContractAddress
+    multisigAddress
   );
 
-  expect(Object.values(dolphinCoinFreeBalance)).toMatchObject([One, One]);
+  expect(
+    Object.values(tokenIndexedFreeBalances[CONVENTION_FOR_ETH_TOKEN_ADDRESS])
+  ).toMatchObject([Zero, Zero]);
+
+  expect(
+    Object.values(tokenIndexedFreeBalances[erc20ContractAddress])
+  ).toMatchObject([One, One]);
 }

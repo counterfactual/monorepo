@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { TransactionResponse } from "ethers/providers";
@@ -34,12 +34,11 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e6;
 export default class CreateChannelController extends NodeController {
   public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
 
-  @jsonRpcMethod("chan_create")
+  @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
-    requestHandler: RequestHandler,
-    params: Node.CreateChannelParams
+    requestHandler: RequestHandler
   ): Promise<Queue[]> {
     return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
   }

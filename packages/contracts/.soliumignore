@@ -1,4 +1,0 @@
-node_modules
-coverageEnv
-contracts/interpreters/CoinTransferInterpreter.sol
-contracts/interpreters/SwapInterpreter.sol

@@ -1,4 +1,4 @@
-import { Operation, OperationProcessor } from "@ebryn/jsonapi-ts";
+import { OperationProcessor } from "@ebryn/jsonapi-ts";
 import fs from "fs";
 import { Log } from "logepi";
 import path from "path";
@@ -10,7 +10,7 @@ import App from "./resource";
 export default class AppProcessor extends OperationProcessor<App> {
   public resourceClass = App;
 
-  public async get(op: Operation): Promise<App[]> {
+  public async get(): Promise<App[]> {
     const filename =
       {
         development: "registry.local.json"

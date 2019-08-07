@@ -1,7 +1,10 @@
 import { LocalFirebaseServiceFactory } from "@counterfactual/firebase-server";
-import { MNEMONIC_PATH, Node, NodeConfig } from "@counterfactual/node";
+import {
+  EXTENDED_PRIVATE_KEY_PATH,
+  Node,
+  NodeConfig
+} from "@counterfactual/node";
 import { Node as NodeTypes } from "@counterfactual/types";
-import { ethers } from "ethers";
 import { Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
@@ -47,7 +50,10 @@ describe("ttt-bot", () => {
     );
 
     storeServiceA.set([
-      { key: MNEMONIC_PATH, value: global["playgroundMnemonic"] }
+      {
+        key: EXTENDED_PRIVATE_KEY_PATH,
+        value: global["playgroundExtendedPrvKey"]
+      }
     ]);
 
     playgroundNode = await Node.create(
@@ -62,7 +68,9 @@ describe("ttt-bot", () => {
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
 
-    storeServiceB.set([{ key: MNEMONIC_PATH, value: global["aliceMnemonic"] }]);
+    storeServiceB.set([
+      { key: EXTENDED_PRIVATE_KEY_PATH, value: global["aliceExtendedPrvKey"] }
+    ]);
 
     nodeAlice = await Node.create(
       messagingService,
@@ -76,7 +84,9 @@ describe("ttt-bot", () => {
       process.env.FIREBASE_STORE_SERVER_KEY! + generateUUID()
     );
 
-    storeServiceC.set([{ key: MNEMONIC_PATH, value: global["botMnemonic"] }]);
+    storeServiceC.set([
+      { key: EXTENDED_PRIVATE_KEY_PATH, value: global["botExtendedPrvKey"] }
+    ]);
 
     nodeBot = await Node.create(
       messagingService,
@@ -132,24 +142,20 @@ describe("ttt-bot", () => {
 
       nodeAlice.on("updateStateEvent", message => {
         if (
-          ethers.utils
-            .bigNumberify(message.data.newState.versionNumber)
-            .toNumber() === 2
+          bigNumberify(message.data.newState.versionNumber).toNumber() === 2
         ) {
           const { board } = message.data.newState;
 
           expect(
             board
               .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
-              .filter(val => ethers.utils.bigNumberify(val).toString() === "1")
-              .length
+              .filter(val => bigNumberify(val).toString() === "1").length
           ).toBe(1);
 
           expect(
             board
               .reduce((flattenedBoard, row) => flattenedBoard.concat(row), [])
-              .filter(val => ethers.utils.bigNumberify(val).toString() === "2")
-              .length
+              .filter(val => bigNumberify(val).toString() === "2").length
           ).toBe(1);
 
           expect(message.data.appInstanceId).toBe(appInstanceId);

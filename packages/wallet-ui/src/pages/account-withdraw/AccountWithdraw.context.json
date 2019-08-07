@@ -1,0 +1,39 @@
+{
+  "props": {
+    "initialAmount": 0.01,
+    "userState": {
+      "user": {
+        "id": "id",
+        "ethAddress": "0xd6e26d8athecakeisaliec6de386c89b12e0f916",
+        "multisigAddress": "0x0A082ff33954ac9832thecakeisalie780803a38",
+        "nodeAddress": "xpub6E2kFucpWkQqxzu2nakGlADoSiSOurSaVioUrc7UGHsh7e9zBUim2s5MFf9eMv8Tmco9efRrSfoNo14ZkwtmNsjuxSY8vVefKRCB2q",
+        "username": "foo",
+        "token": "eyJhbGciOiJIUzI1NiIsInR5ccensuredByMyselfExZWI0MTgzOGRiOSIsInR5cGUiOiJ1c2VyIiwiHolisItsOverNineThousandImZseXN0ZXIiLCJlbWFpbCI6ImZseXN0ZXI5M0BnbWFpbC5jb20iLCJldGhBZGRyZXNzIjoiMHhkNmUyNmQ4YWNmZDI5NDhjMDYwOThjNmRlMzg2Yzg5YjEyZTBmOTE2Iiwibm9kZUFkZHJlc3MiOiJ4cHViNkUya0Z1Y3BXa1FxeHp1Mm5ha2ZocHgzb1NqZG56ZU5DSGVHZWJKMWl6YzdVR0hzaDdlOXpCVWltMnM1TUZmOWVNdjhUbWNvOWVmUnJTZm9ObzE0Wmt3dG1Oc2p1eFNZOHZWZWZLUkNCMnEifSwicmVsYXRpb25zaGlwcyI6e30sImlhdCI6MTU2MzIzMzQyNSwiZXhwIjoxNTk0NzkxHollyMollyBatmankAeGa-rG-cXlabpl5aLexijYaD3bA",
+        "email": "foo@bar.co"
+      },
+      "walletState": {
+        "ethereumBalance": { "_hex": "0x00", "_ethersType": "BigNumber" }
+      },
+      "error": {
+        "message": "",
+        "code": "",
+        "field": ""
+      },
+      "status": ""
+    },
+    "error": {
+      "message": "",
+      "code": "",
+      "field": ""
+    },
+    "counterfactualBalance": "0x0de0b6b3a7640000",
+    "ethAddress": "0x0",
+    "match": {
+      "isExact": true,
+      "params": {},
+      "path": "/",
+      "url": "http://localhost/"
+    }
+  },
+  "state": { "_hex": "0x016345785d8a0000", "_ethersType": "BigNumber" }
+}

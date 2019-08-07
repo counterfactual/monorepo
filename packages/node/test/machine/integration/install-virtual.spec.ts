@@ -1,23 +1,23 @@
-import { NetworkContextForTestSuite } from "@counterfactual/chain/src/contract-deployments.jest";
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeApp from "@counterfactual/contracts/build/TwoPartyFixedOutcomeApp.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeApp.json";
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber, Interface, parseEther, SigningKey } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import {
   ConditionalTransaction,
   SetStateCommitment
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
-import { encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams } from "../../../src/protocol/install-virtual-app";
+import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
 import {
   createFreeBalanceStateWithFundedTokenAmounts,
   transferERC20Tokens
@@ -25,7 +25,10 @@ import {
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -47,10 +50,8 @@ let multisigOwnerKeys: SigningKey[];
 
 let xpubs: string[];
 
-const beneficiaries: [string, string] = [
-  Wallet.createRandom().address,
-  Wallet.createRandom().address
-];
+const capitalProvider = Wallet.createRandom().address;
+const virtualAppUser = Wallet.createRandom().address;
 
 expect.extend({ toBeEq });
 
@@ -100,7 +101,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   let fundWithDolphinCoin: (
-    wallet: Wallet,
     proxyAddress: string,
     amount: BigNumber
   ) => Promise<void>;
@@ -111,7 +111,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     tokenAddress: string
   ) => Promise<StateChannel>;
 
-  let createTargetAppInstance: (stateChannel: StateChannel) => AppInstance;
+  let createTargetAppInstance: () => AppInstance;
 
   let setStatesAndOutcomes: (
     targetAppInstance: AppInstance,
@@ -119,14 +119,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
   ) => Promise<void>;
 
   beforeEach(async () => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
-    xpubs = xkeys.map(x => x.neuter().extendedKey);
+    xpubs = xprvs.map(extendedPrvKeyToExtendedPubKey);
 
     globalChannelNonce += 1;
 
@@ -152,7 +149,6 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     };
 
     fundWithDolphinCoin = async function(
-      wallet: Wallet,
       proxyAddress: string,
       amount: BigNumber
     ) {
@@ -170,7 +166,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       tokenAddress: string
     ) {
       return StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxyAddress,
         xpubs
       ).setFreeBalance(
@@ -182,9 +178,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
       );
     };
 
-    createTargetAppInstance = function(stateChannel: StateChannel) {
+    createTargetAppInstance = function() {
       return new AppInstance(
-        stateChannel.multisigAddress,
         multisigOwnerKeys.map(x => x.address),
         /* default timeout */ 0,
         /* appInterface */ {
@@ -200,8 +195,10 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
         {
           playerAddrs: [AddressZero, AddressZero],
-          amount: Zero
+          amount: Zero,
+          tokenAddress: AddressZero
         },
+        undefined,
         undefined
       );
     };
@@ -263,7 +260,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
 
   it("returns the ERC20", async done => {
     proxyFactory.once("ProxyCreation", async (proxyAddress: string) => {
-      await fundWithDolphinCoin(wallet, proxyAddress, parseEther("10"));
+      await fundWithDolphinCoin(proxyAddress, parseEther("10"));
 
       let stateChannel = await setupChannel(
         proxyAddress,
@@ -271,18 +268,18 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         erc20ContractAddress
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: erc20Contract.address,
         /**
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
          * to how the protocol actually sets up virtual apps. This is because, in this
          * test case, we care mostly about retrieving _some_ outcome within the
-         * TwoPartyFixedOutcomeFromVirtualAppETHInterpreter such that it is used to
+         * TwoPartyFixedOutcomeFromVirtualAppInterpreter such that it is used to
          * distribute funds.
          */
         timeLockedPassThroughIdentityHash: HashZero
@@ -306,8 +303,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -318,13 +315,14 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[0])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await erc20Contract.functions.balanceOf(beneficiaries[1])).toBeEq(
+      expect(await erc20Contract.functions.balanceOf(virtualAppUser)).toBeEq(
         parseEther("5")
       );
+
       done();
     });
 
@@ -341,12 +339,12 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         CONVENTION_FOR_ETH_TOKEN_ADDRESS
       );
 
-      const targetAppInstance = createTargetAppInstance(stateChannel);
+      const targetAppInstance = createTargetAppInstance();
 
       const agreement = {
-        beneficiaries,
+        capitalProvider,
+        virtualAppUser,
         capitalProvided: parseEther("10"),
-        expiryBlock: (await provider.getBlockNumber()) + 1000,
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         timeLockedPassThroughIdentityHash: HashZero
       };
@@ -369,8 +367,8 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         multisigOwnerKeys.map(x => x.address), // signing
         targetAppInstance.identityHash, // target
         stateChannel.freeBalance.identityHash, // fb
-        network.TwoPartyFixedOutcomeFromVirtualAppETHInterpreter,
-        encodeTwoPartyFixedOutcomeFromVirtualAppETHInterpreterParams(agreement)
+        network.TwoPartyFixedOutcomeFromVirtualAppInterpreter,
+        encodeSingleAssetTwoPartyIntermediaryAgreementParams(agreement)
       );
 
       await wallet.sendTransaction({
@@ -381,13 +379,11 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         gasLimit: 6e9
       });
 
-      expect(await provider.getBalance(beneficiaries[0])).toBeEq(
+      expect(await provider.getBalance(capitalProvider)).toBeEq(
         parseEther("5")
       );
 
-      expect(await provider.getBalance(beneficiaries[1])).toBeEq(
-        parseEther("5")
-      );
+      expect(await provider.getBalance(virtualAppUser)).toBeEq(parseEther("5"));
 
       done();
     });

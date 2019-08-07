@@ -6,7 +6,6 @@ import { Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
-import { fromMnemonic } from "ethers/utils/hdnode";
 import { anything, instance, mock, when } from "ts-mockito";
 
 import {
@@ -14,6 +13,7 @@ import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import {
   InstructionExecutor,
   Protocol,
@@ -22,12 +22,12 @@ import {
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON
 } from "../../src/models/free-balance";
 import { Store } from "../../src/store";
+import { getRandomExtendedPubKeys } from "../machine/integration/random-signing-keys";
 import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createAppInstanceProposalForTest } from "./utils";
@@ -106,20 +106,13 @@ describe("Can handle correct & incorrect installs", () => {
 
     const appInstanceId = hexlify(randomBytes(32));
     const multisigAddress = Wallet.createRandom().address;
-    const hdnodes = [
-      fromMnemonic(Wallet.createRandom().mnemonic),
-      fromMnemonic(Wallet.createRandom().mnemonic)
-    ];
-
-    const participants = xkeysToSortedKthAddresses(
-      hdnodes.map(x => x.neuter().extendedKey),
-      0
-    );
+    const extendedKeys = getRandomExtendedPubKeys(2);
+    const participants = xkeysToSortedKthAddresses(extendedKeys, 0);
 
     const stateChannel = StateChannel.setupChannel(
       AddressZero,
       multisigAddress,
-      hdnodes.map(x => x.neuter().extendedKey)
+      extendedKeys
     );
 
     const balancesForETHToken = convertCoinTransfersToCoinTransfersMap(

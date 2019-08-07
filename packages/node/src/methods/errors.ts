@@ -1,6 +1,6 @@
 import { BigNumber } from "ethers/utils";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../models/free-balance";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 
 export const APP_ALREADY_UNINSTALLED = (id: string) =>
   `Cannot uninstall app ${id}, it has already been uninstalled`;
@@ -94,9 +94,6 @@ export const NO_APP_INSTANCE_ID_TO_INSTALL =
 export const NO_APP_INSTANCE_ID_TO_UNINSTALL =
   "No AppInstanceId specified to uninstall";
 
-export const NO_CHANNEL_BETWEEN_NODES = (nodeA: string, nodeB: string) =>
-  `No channel exists between the current user ${nodeA} and the peer ${nodeB}`;
-
 export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
   `No free balance exists for the specified token: ${tokenAddress}`;
 
@@ -106,8 +103,8 @@ export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
 export const NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID = (id: string) =>
   `No proposed AppInstance exists for the given appInstanceId: ${id}`;
 
-export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = (resp, query) =>
-  `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}`;
+export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = multisigAddress =>
+  `Call to getStateChannel failed when searching for multisig address: ${multisigAddress}. This probably means that the StateChannel does not exist yet.`;
 
 export const NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT =
   "The multisig deployment transaction does not have a hash";
@@ -117,6 +114,12 @@ export const NULL_INITIAL_STATE_FOR_PROPOSAL =
 
 export const STATE_OBJECT_NOT_ENCODABLE =
   "The state object is not encodable by the AppInstance's state encoding";
+
+export const TWO_PARTY_OUTCOME_DIFFERENT_ASSETS = (
+  assetA: string,
+  assetB: string
+) =>
+  `For a TWO_PARTY_FIXED_OUTCOME there cannot be two kinds of tokens deposited: ${assetA} and ${assetB}`;
 
 export const VIRTUAL_APP_INSTALLATION_FAIL =
   "Failed to install the virtual App Instance";

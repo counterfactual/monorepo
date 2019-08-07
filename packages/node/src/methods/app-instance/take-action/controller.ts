@@ -1,4 +1,4 @@
-import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
@@ -20,7 +20,7 @@ import {
 export default class TakeActionController extends NodeController {
   public static readonly methodName = Node.MethodName.TAKE_ACTION;
 
-  @jsonRpcMethod("chan_takeAction")
+  @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
@@ -113,7 +113,7 @@ async function runTakeActionProtocol(
   instructionExecutor: InstructionExecutor,
   initiatorXpub: string,
   responderXpub: string,
-  action: SolidityABIEncoderV2Type
+  action: SolidityValueType
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

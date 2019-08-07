@@ -3,9 +3,9 @@ import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
   FreeBalanceStateJSON
@@ -25,7 +25,7 @@ import { runWithdrawProtocol } from "./operation";
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
 
-  @jsonRpcMethod("chan_withdraw")
+  @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
@@ -71,11 +71,6 @@ export default class WithdrawController extends NodeController {
 
     return [requestHandler.getShardedQueue(params.multisigAddress)];
   }
-
-  protected async beforeExecution(
-    requestHandler: RequestHandler,
-    params: Node.WithdrawParams
-  ): Promise<void> {}
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,

@@ -1,13 +1,13 @@
-import AppWithAction from "@counterfactual/contracts/build/AppWithAction.json";
+import AppWithAction from "@counterfactual/cf-adjudicator-contracts/build/AppWithAction.json";
 import { NetworkContext, OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { Zero } from "ethers/constants";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { Protocol, xkeyKthAddress } from "../../../src/machine";
 import { sortAddresses } from "../../../src/machine/xkeys";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
@@ -64,9 +64,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    // todo: if nodeB/nodeC is still busy doing stuff, we should wait for it
-
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     const participants = sortAddresses([
       xkeyKthAddress(mininodeA.xpub, 1),
@@ -107,7 +105,7 @@ describe("Three mininodes", () => {
       multisigAddress: multisigAB
     });
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     mininodeB.scm.set(
       multisigBC,
@@ -118,7 +116,7 @@ describe("Three mininodes", () => {
       })).get(multisigBC)!
     );
 
-    mr.assertNoPending();
+    await mr.waitForAllPendingPromises();
 
     expect(mininodeA.scm.size).toBe(1);
     expect(mininodeB.scm.size).toBe(2);

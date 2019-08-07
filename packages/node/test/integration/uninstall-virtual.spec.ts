@@ -1,3 +1,5 @@
+import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
+
 import { Node } from "../../src";
 import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 
@@ -7,8 +9,10 @@ import {
   createChannel,
   generateUninstallVirtualRequest,
   getInstalledAppInstances,
-  installTTTAppVirtual
+  installVirtualApp
 } from "./utils";
+
+jest.setTimeout(10000);
 
 describe("Node method follows spec - uninstall virtual", () => {
   let nodeA: Node;
@@ -39,10 +43,11 @@ describe("Node method follows spec - uninstall virtual", () => {
         await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
         await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
 
-        const appInstanceId = await installTTTAppVirtual(
+        const appInstanceId = await installVirtualApp(
           nodeA,
           nodeB,
           nodeC,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
           initialState
         );
 

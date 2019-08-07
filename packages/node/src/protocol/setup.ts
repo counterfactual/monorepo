@@ -1,8 +1,4 @@
-import {
-  coinTransferInterpreterParamsStateEncoding,
-  NetworkContext
-} from "@counterfactual/types";
-import { defaultAbiCoder } from "ethers/utils";
+import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -115,10 +111,11 @@ function proposeStateTransition(
   }
 
   const newStateChannel = StateChannel.setupChannel(
-    context.network.FreeBalanceApp,
+    context.network.IdentityApp,
     multisigAddress,
     [initiatorXpub, responderXpub]
   );
+
   context.stateChannelsMap.set(
     newStateChannel.multisigAddress,
     newStateChannel
@@ -142,10 +139,6 @@ export function constructSetupCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
-    freeBalance.identity,
-    defaultAbiCoder.encode(
-      [coinTransferInterpreterParamsStateEncoding],
-      [freeBalance.coinTransferInterpreterParams]
-    )
+    freeBalance.identity
   );
 }

@@ -5,7 +5,7 @@ import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
 import { ActionType, ApplicationState, Deposit, WalletState } from "../types";
-import { WalletDepositTransition } from "./wallet";
+import { WalletDepositTransition, WalletWithdrawTransition } from "./wallet";
 
 export const connectToWallet = (): ThunkAction<
   void,
@@ -39,7 +39,9 @@ export const connectToWallet = (): ThunkAction<
 };
 
 export const deposit = (
+  // @ts-ignore
   transaction: Deposit,
+  // @ts-ignore
   provider: Web3Provider,
   history?: History
 ): ThunkAction<
@@ -50,7 +52,8 @@ export const deposit = (
 > => async dispatch => {
   try {
     dispatch({ type: WalletDepositTransition.CheckWallet });
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     dispatch({
       data: {
         ethereumBalance: parseEther("0.2"),
@@ -58,6 +61,40 @@ export const deposit = (
       },
       type: ActionType.WalletSetBalance
     });
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
+};
+
+export const withdraw = (
+  // @ts-ignore
+  transaction: Deposit,
+  // @ts-ignore
+  provider: Web3Provider,
+  history?: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType | WalletWithdrawTransition>
+> => async dispatch => {
+  try {
+    dispatch({ type: WalletWithdrawTransition.CheckWallet });
+    dispatch({ type: WalletWithdrawTransition.WaitForFunds });
+    dispatch({ data: {}, type: ActionType.WalletSetBalance });
+
+    // Optional: Redirect to Channels.
     if (history) {
       history.push(RoutePath.Channels);
     }

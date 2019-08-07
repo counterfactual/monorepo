@@ -7,13 +7,12 @@ export default class GetAllChannelAddressesController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_CHANNEL_ADDRESSES;
 
   protected async executeMethodImplementation(
-    requestHandler: RequestHandler,
-    params: Node.GetChannelAddressesParams
+    requestHandler: RequestHandler
   ): Promise<Node.GetChannelAddressesResult> {
     return {
-      multisigAddresses: Object.keys(
-        await requestHandler.store.getAllChannels()
-      )
+      multisigAddresses: [
+        ...(await requestHandler.store.getStateChannelsMap()).keys()
+      ]
     };
   }
 }

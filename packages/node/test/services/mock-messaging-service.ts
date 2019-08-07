@@ -1,9 +1,8 @@
 import { Node } from "@counterfactual/types";
 
 class MockMessagingService implements Node.IMessagingService {
-  async send(to: string, msg: Node.NodeMessage) {}
-  onReceive(address: string, callback: (msg: Node.NodeMessage) => void) {}
+  async send() {}
+  onReceive() {}
 }
 
-const mockMessagingService = new MockMessagingService();
-export default mockMessagingService;
+export default new MockMessagingService();

@@ -4,7 +4,12 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { forFunds, requestDeposit } from "../../utils/counterfactual";
+import {
+  forFunds,
+  requestDeposit,
+  requestWithdraw
+} from "../../utils/counterfactual";
+import log from "../../utils/log";
 import {
   ActionType,
   ApplicationState,
@@ -12,10 +17,12 @@ import {
   StoreAction,
   WalletState
 } from "../types";
-
+import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 export const initialState = {
+  nodeAddresses: [],
   ethAddress: "",
   error: {},
+  status: "",
   counterfactualBalance: Zero,
   ethereumBalance: Zero
 } as WalletState;
@@ -61,7 +68,8 @@ export const connectToWallet = (
 
 export enum WalletDepositTransition {
   CheckWallet = "WALLET_DEPOSIT_CHECK_WALLET",
-  WaitForFunds = "WALLET_DEPOSIT_WAITING_FOR_FUNDS"
+  WaitForUserFunds = "WALLET_DEPOSIT_WAITING_FOR_USER_FUNDS",
+  WaitForCollateralFunds = "WALLET_DEPOSIT_WAITING_FOR_COLLATERAL_FUNDS"
 }
 
 export const deposit = (
@@ -80,7 +88,16 @@ export const deposit = (
     await requestDeposit(transaction);
 
     // 2. Wait until the deposit is completed in both sides. !
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    await forFunds(
+      {
+        multisigAddress: transaction.multisigAddress,
+        nodeAddress: transaction.nodeAddress
+      },
+      "user"
+    );
+
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     const counterfactualBalance = await forFunds({
       multisigAddress: transaction.multisigAddress,
       nodeAddress: transaction.nodeAddress
@@ -112,14 +129,94 @@ export const deposit = (
   }
 };
 
+export enum WalletWithdrawTransition {
+  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
+  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
+}
+
+export const withdraw = (
+  transaction: Deposit,
+  provider: Web3Provider,
+  history?: History
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType | WalletWithdrawTransition>
+> => async dispatch => {
+  try {
+    // 1. Ask Metamask to do the withdraw. !
+    dispatch({ type: WalletWithdrawTransition.CheckWallet });
+    const response = await requestWithdraw(transaction); // IMPLEMENT THIS!
+    log("withdraw response", response);
+
+    // 2. Wait until the withdraw is completed in both sides. !
+    dispatch({ type: WalletWithdrawTransition.WaitForFunds });
+    const counterfactualBalance = await forFunds(transaction);
+
+    // 3. Get the Metamask balance.
+    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+
+    // 4. Update the balance.
+    dispatch({
+      data: { ethereumBalance, counterfactualBalance },
+      type: ActionType.WalletSetBalance
+    });
+
+    // Optional: Redirect to Channels.
+    if (history) {
+      history.push(RoutePath.Channels);
+    }
+  } catch (e) {
+    const error = e as Error;
+    dispatch({
+      data: {
+        error: {
+          message: `${error.message} because of ${error.stack}`
+        }
+      },
+      type: ActionType.WalletError
+    });
+  }
+};
+
+export const getNodeTokens = (
+  provider: Web3Provider
+): ThunkAction<
+  void,
+  ApplicationState,
+  null,
+  Action<ActionType>
+> => async dispatch => {
+  try {
+    const network = await provider.getNetwork();
+    const nodeAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+    dispatch({
+      data: { nodeAddresses },
+      type: ActionType.WalletSetNodeTokens
+    });
+  } catch (e) {
+    dispatch({
+      data: {
+        error: {
+          message: "Ups something went wrong retrieving the list of tokens"
+        }
+      } as WalletState,
+      type: ActionType.WalletError
+    });
+  }
+};
+
 export const reducers = function(
   state = initialState,
   action: StoreAction<WalletState, WalletDepositTransition>
 ) {
   switch (action.type) {
     case ActionType.WalletSetAddress:
+    case ActionType.WalletSetNodeTokens:
     case ActionType.WalletSetBalance:
     case ActionType.WalletDeposit:
+    case ActionType.WalletWithdraw:
     case ActionType.WalletError:
       return {
         ...state,

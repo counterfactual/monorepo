@@ -1,0 +1,12 @@
+[
+  {
+    "contractName": "Migrations",
+    "address": "0x9a2AdA593637c7f404C3DA69Ee26e4B1E8CfC0Fd",
+    "transactionHash": "0x193ff8806774539e875b16d80ac9f0f7b9d3d3027786d41d09ed30059ccda03c"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0x100Db874AC77dc8ddad7421b6464e188A2F533D6",
+    "transactionHash": "0xbc059062b5a957c7cc75bfdccb4a4758e3ac5ff093a11652caa171b2a0f207bd"
+  }
+]

@@ -1,24 +1,24 @@
-import ChallengeRegistry from "@counterfactual/contracts/build/ChallengeRegistry.json";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/contracts/build/ProxyFactory.json";
-import {
-  coinTransferInterpreterParamsStateEncoding,
-  NetworkContext
-} from "@counterfactual/types";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
+import { Interface, keccak256 } from "ethers/utils";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/models/free-balance";
 import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
-import { getRandomHDNodes } from "./random-signing-keys";
+import {
+  extendedPrvKeyToExtendedPubKey,
+  getRandomExtendedPrvKeys
+} from "./random-signing-keys";
 
 // ProxyFactory.createProxy uses assembly `call` so we can't estimate
 // gas needed, so we hard-code this number to ensure the tx completes
@@ -38,6 +38,8 @@ let appRegistry: Contract;
 
 expect.extend({ toBeEq });
 
+jest.setTimeout(10000);
+
 beforeAll(async () => {
   [provider, wallet, {}] = await connectToGanache();
   network = global["networkContext"];
@@ -53,12 +55,9 @@ beforeAll(async () => {
  */
 describe("Scenario: Setup, set state on free balance, go on chain", () => {
   it("should distribute funds in ETH free balance when put on chain", async done => {
-    const xkeys = getRandomHDNodes(2);
+    const xprvs = getRandomExtendedPrvKeys(2);
 
-    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(
-      xkeys.map(x => x.extendedKey),
-      0
-    );
+    const multisigOwnerKeys = xkeysToSortedKthSigningKeys(xprvs, 0);
 
     const proxyFactory = new Contract(
       network.ProxyFactory,
@@ -68,9 +67,9 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
 
     proxyFactory.once("ProxyCreation", async proxy => {
       const stateChannel = StateChannel.setupChannel(
-        network.FreeBalanceApp,
+        network.IdentityApp,
         proxy,
-        xkeys.map(x => x.neuter().extendedKey),
+        xprvs.map(extendedPrvKeyToExtendedPubKey),
         1
       ).setFreeBalance(
         createFreeBalanceStateWithFundedTokenAmounts(
@@ -114,11 +113,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.freeBalance.identity,
-        defaultAbiCoder.encode(
-          [coinTransferInterpreterParamsStateEncoding],
-          [stateChannel.freeBalance.coinTransferInterpreterParams]
-        )
+        stateChannel.freeBalance.identity
       );
 
       const setupTx = setupCommitment.getSignedTransaction([

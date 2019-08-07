@@ -20,7 +20,13 @@ Some specific examples of this include:
 
 We have [some diagrams](./docs/diagram.md) explaining the Node's architecture and control flow.
 
-## Apps and their OutcomeTypes
+## Node Address and Signing Keys
+
+The Node is expected to have access to an [extended private key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which it uses to derive a "public identifier" used as the address of a Node instance. This key is also used to produce private keys at app-specific derivation paths.
+
+This key is expected to be provided at the "EXTENDED_KEY" key of the Store service that is passed as an argument to the Node. If no such value exists for this key, the Node produces an extended key and sets it at this key.
+
+## Apps and OutcomeTypes
 
 Each application that is installed in a channel has an `OutcomeType` that defines when the app reaches a terminal state and is about to be uninstalled how the funds allocated to it will be distributed.
 
@@ -30,20 +36,13 @@ The currently supported outcome types are:
 
   - This is only used when the installed app is collateralized with ETH (for now) and indicates that the total amount allocated to the app will be sent to one of the two parties OR gets split evenly.
 
-- CoinTransfer
-
-  - (Currently not supported) This is used for transferring an arbitrary amount of ETH to some address.
-
-- FREE_BALANCE_OUTCOME_TYPE
+- MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
 
   - This is used for transferring arbitrary amounts (limited by app collateral) of arbitrary asset classes (ETH or ERC20) to some addresses.
 
-- REFUND_OUTCOME_TYPE
-
-  - This is used to calculate how much an address receives.
-
 - SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
-  - (Currently not supported) This is used for an agreement made with an intermediary to distribute some asset class of some amount of funds.
+
+  - This is used for transferring arbitrary amounts (limited by app collateral) of a single asset class (ETH or ERC20) to some addresses.
 
 ## Note:
 
@@ -256,7 +255,7 @@ Params:
 
 - `appInstanceId: string`
   - ID of the app instance for which to take action
-- `action:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
+- `action:`[`SolidityValueType`](#data-type-appaction)
   - Action to take on the current state
 
 Result:
@@ -394,6 +393,26 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
+### Method: `getTokenIndexedFreeBalanceStates`
+
+Gets the free balances for the ETH and ERC20 assets that have been deposited, indexed by token address.
+
+Params:
+
+- `multisigAddress: string`
+
+Result:
+
+```
+{
+  [tokenAddress: string]: {
+    [beneficiary: string]: BigNumber;
+  }
+};
+```
+
+Returns a doubly-nested mapping. The outer mapping is the address of the token for which there is free balance in the channel. The inner mapping is a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
+
 ## Events
 
 ### Event: `depositEvent`
@@ -434,7 +453,7 @@ Data:
 - `appInstanceId: string`
   - ID of app instance whose app state was updated
 - `newState:`[`AppState`](#data-type-appstate)
-- `action?:`[`SolidityABIEncoderV2Type`](#data-type-appaction)
+- `action?:`[`SolidityValueType`](#data-type-appaction)
   - Optional action that was taken to advance from the old state to the new state
 
 ### Event: `uninstallEvent`
@@ -508,7 +527,7 @@ An instance of an installed app.
 - Plain Old Javascript Object representation of the state of an app instance.
 - ABI encoded/decoded using the `stateEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).
 
-### Data Type: `SolidityABIEncoderV2Type`
+### Data Type: `SolidityValueType`
 
 - Plain Old Javascript Object representation of the action of an app instance.
 - ABI encoded/decoded using the `actionEncoding` field on the instance's [`AppABIEncodings`](#data-type-appabiencodings).

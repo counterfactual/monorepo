@@ -1,7 +1,6 @@
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
-import { AddressZero, Zero } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
 import SimpleTwoPartySwapApp from "../build/SimpleTwoPartySwapApp.json";
@@ -14,7 +13,7 @@ type CoinTransfer = {
 };
 
 type SimpleSwapAppState = {
-  coinTransfers: CoinTransfer[];
+  coinTransfers: CoinTransfer[][];
 };
 
 const { expect } = chai;
@@ -33,7 +32,7 @@ describe("SimpleTwoPartySwapApp", () => {
           tuple(
             address to,
             uint256 amount
-          )[] coinTransfers
+          )[][] coinTransfers
         )`
       ],
       [state]
@@ -54,38 +53,49 @@ describe("SimpleTwoPartySwapApp", () => {
     it("can compute outcome with update", async () => {
       const senderAddr = mkAddress("0xa");
       const receiverAddr = mkAddress("0xB");
+
       const tokenAmt = new BigNumber(10000);
       const ethAmt = new BigNumber(500);
+
       const preState: SimpleSwapAppState = {
         coinTransfers: [
-          {
-            to: senderAddr,
-            amount: tokenAmt
-          },
-          {
-            to: receiverAddr,
-            amount: ethAmt
-          }
+          [
+            {
+              to: senderAddr,
+              amount: tokenAmt
+            }
+          ],
+          [
+            {
+              to: receiverAddr,
+              amount: ethAmt
+            }
+          ]
         ]
       };
 
       const state: SimpleSwapAppState = {
         coinTransfers: [
-          {
-            to: senderAddr,
-            amount: ethAmt
-          },
-          {
-            to: receiverAddr,
-            amount: tokenAmt
-          }
+          [
+            {
+              to: senderAddr,
+              amount: ethAmt
+            }
+          ],
+          [
+            {
+              to: receiverAddr,
+              amount: tokenAmt
+            }
+          ]
         ]
       };
 
       const ret = await computeOutcome(preState);
+
       expect(ret).to.eq(
         defaultAbiCoder.encode(
-          [`tuple(address to, uint256 amount)[]`],
+          [`tuple(address to, uint256 amount)[][]`],
           [state.coinTransfers]
         )
       );
