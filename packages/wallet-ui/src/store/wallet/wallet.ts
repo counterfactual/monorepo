@@ -3,11 +3,12 @@ import { Web3Provider } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { RoutePath } from "../../types";
+import { RoutePath, defaultToken } from "../../types";
 import {
   forFunds,
   requestDeposit,
-  requestWithdraw
+  requestWithdraw,
+  getIndexedCFBalances
 } from "../../utils/counterfactual";
 import log from "../../utils/log";
 import {
@@ -17,8 +18,9 @@ import {
   StoreAction,
   WalletState
 } from "../types";
+import { ShortTokenNetworksName, getTokens } from "../../utils/nodeTokenClient";
 export const initialState = {
-  tokenAddresses: [],
+  tokenAddresses: [defaultToken],
   ethAddress: "",
   error: {},
   status: "",
@@ -95,9 +97,21 @@ export const deposit = (
     // // 3. Get the Metamask balance.
     const ethereumBalance = await provider.getBalance(transaction.ethAddress);
 
+    // 5.5 Get all Tokens And all CF Balances
+    const network = await provider.getNetwork();
+
+    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+    tokenAddresses = await getIndexedCFBalances(
+      {
+        multisigAddress: transaction.multisigAddress as string,
+        nodeAddress: transaction.nodeAddress
+      },
+      tokenAddresses
+    );
+
     // 4. Update the balance.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance },
+      data: { ethereumBalance, counterfactualBalance, tokenAddresses },
       type: ActionType.WalletSetBalance
     });
 

@@ -16,7 +16,8 @@ export type AssetType = {
   name: string;
   shortName: string;
   tokenAddress: string;
-  balance?: BigNumberish;
+  counterfactualBalance?: BigNumberish;
+  walletBalance?: BigNumberish;
 };
 
 export type Deposit = {

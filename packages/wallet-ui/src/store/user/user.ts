@@ -125,10 +125,27 @@ export const loginUser = (
       nodeAddress: user.nodeAddress
     });
     const ethereumBalance = await provider.getBalance(user.ethAddress);
+    // 5.5 Get all Tokens And all CF Balances
+    const network = await provider.getNetwork();
+
+    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
+
+    dispatch({
+      data: { tokenAddresses },
+      type: ActionType.WalletSetNodeTokens
+    });
+
+    tokenAddresses = await getIndexedCFBalances(
+      {
+        multisigAddress: user.multisigAddress as string,
+        nodeAddress: user.nodeAddress
+      },
+      tokenAddresses
+    );
 
     // 6. Dispatch.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance },
+      data: { ethereumBalance, counterfactualBalance, tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     dispatch({ data: { user }, type: ActionType.UserLogin });
@@ -176,9 +193,7 @@ export const getUser = (
       },
       tokenAddresses
     );
-
     const ethereumBalance = await provider.getBalance(user.ethAddress);
-
     // 3. Store data into UserState and WalletState.
     dispatch({
       data: { user },

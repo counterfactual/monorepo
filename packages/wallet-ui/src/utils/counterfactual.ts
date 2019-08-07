@@ -108,7 +108,6 @@ export async function forFunds(
     MINIMUM_EXPECTED_BALANCE
   );
   const enoughMyBalance = myBalance.gte(MINIMUM_EXPECTED_BALANCE);
-
   switch (fundsOwner) {
     case "user":
       if (enoughMyBalance) {
@@ -130,7 +129,8 @@ export async function forFunds(
 
   // !TODO: This should die in a fire :-)
   await delay(1000);
-  return forFunds({ multisigAddress, nodeAddress }, fundsOwner);
+
+  return forFunds({ multisigAddress, nodeAddress, tokenAddress }, fundsOwner);
 }
 
 export async function getCFBalances({
@@ -159,7 +159,7 @@ export async function getIndexedCFBalances(
   return tokenAddresses.map(token => {
     return {
       ...token,
-      balance:
+      counterfactualBalance:
         freeBalance[token.tokenAddress] &&
         freeBalance[token.tokenAddress][freeBalanceAddress]
     };

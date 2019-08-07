@@ -1,5 +1,7 @@
 import { AsyncSendable, JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { IpcProvider, JsonRPCResponse } from "web3/providers";
+import { AddressZero, Zero } from "ethers/constants";
+import { AssetType } from "./store/types";
 
 export enum RoutePath {
   Root = "/",
@@ -10,6 +12,13 @@ export enum RoutePath {
   Withdraw = "/withdraw",
   Channels = "/channels"
 }
+
+export const defaultToken: AssetType = {
+  tokenAddress: AddressZero,
+  name: "Ethereum",
+  shortName: "ETH",
+  counterfactualBalance: Zero
+};
 
 export type EthereumServiceContext = {
   provider: Web3Provider;

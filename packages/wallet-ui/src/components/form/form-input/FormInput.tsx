@@ -111,8 +111,7 @@ class FormInput extends React.Component<
       change({
         value,
         event: lastChangeEvent,
-        tokenAddress:
-          event.target.value === "ETH" ? undefined : event.target.value,
+        tokenAddress: event.target.value,
         validity: { error, valid },
         inputName: name as string
       });
@@ -158,7 +157,7 @@ class FormInput extends React.Component<
             onChange={event => this.handleChange(event)}
           />
           {Array.isArray(units) && units.length === 1 ? (
-            <div className="unit">{units[0].name}</div>
+            <div className="unit">{units[0].shortName}</div>
           ) : Array.isArray(units) && units.length > 1 ? (
             <select
               className="unit-selector"

@@ -15,17 +15,23 @@ import {
   Deposit,
   ErrorData,
   User,
-  WalletState
+  WalletState,
+  AssetType
 } from "../../store/types";
 import { WalletWithdrawTransition, withdraw } from "../../store/wallet/wallet";
-import { RoutePath } from "../../types";
+import { RoutePath, defaultToken } from "../../types";
 import "./AccountWithdraw.scss";
-import { AddressZero, Zero } from "ethers/constants";
+import { Zero } from "ethers/constants";
 
-const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
+const BalanceLabel: React.FC<{ available: string; shortName: string }> = ({
+  available,
+  shortName
+}) => (
   <div className="balance-label">
     <div>Available Balance</div>
-    <div>{available} ETH</div>
+    <div>
+      {available} {shortName}
+    </div>
   </div>
 );
 
@@ -44,7 +50,8 @@ type AccountWithdrawState = {
     ctaButtonText: string;
     headerDetails: string;
   };
-  tokenAddress?: string;
+  selectedToken: AssetType;
+  withdrawableTokens: AssetType[];
   loading: boolean;
   amount: BigNumberish;
 };
@@ -74,7 +81,13 @@ export class AccountWithdraw extends React.Component<
     }
     this.state = {
       withdrawCaseVariables,
-      tokenAddress: AddressZero,
+      withdrawableTokens: (
+        this.props.walletState.tokenAddresses || [defaultToken]
+      ).filter(token => token.counterfactualBalance),
+      selectedToken:
+        this.props.walletState.tokenAddresses.find(
+          ({ tokenAddress: ta }) => ta === defaultToken.tokenAddress
+        ) || defaultToken,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -83,7 +96,10 @@ export class AccountWithdraw extends React.Component<
   handleChange = ({ value, tokenAddress }: InputChangeProps) => {
     this.setState({
       ...this.state,
-      tokenAddress,
+      selectedToken:
+        this.state.withdrawableTokens.find(
+          ({ tokenAddress: ta }) => ta === tokenAddress
+        ) || this.state.withdrawableTokens[0],
       amount: parseEther(value as string)
     });
   };
@@ -93,7 +109,7 @@ export class AccountWithdraw extends React.Component<
     [WalletWithdrawTransition.WaitForFunds]: "Transfering funds"
   };
 
-  createDepositData(
+  createTransactionData(
     { multisigAddress, nodeAddress, ethAddress }: User,
     amount: BigNumberish,
     tokenAddress?: string
@@ -111,41 +127,63 @@ export class AccountWithdraw extends React.Component<
     if (this.props.error !== prevProps.error) {
       this.setState({ ...this.state, loading: false });
     }
+    if (
+      this.props.walletState.tokenAddresses[0] !==
+      prevProps.walletState.tokenAddresses[0]
+    ) {
+      this.setState({
+        ...this.state,
+        withdrawableTokens: this.props.walletState.tokenAddresses.filter(
+          token => token.counterfactualBalance
+        ),
+        selectedToken:
+          this.props.walletState.tokenAddresses.find(
+            ({ tokenAddress: ta }) =>
+              ta === this.state.selectedToken.tokenAddress
+          ) || defaultToken
+      });
+    }
   }
 
   render() {
     const { walletState, withdraw, history, user } = this.props;
     const { provider } = this.context;
-    const { error, status, tokenAddresses } = walletState;
-    const { amount, loading, withdrawCaseVariables, tokenAddress } = this.state;
+    const { error, status } = walletState;
+    const {
+      amount,
+      loading,
+      withdrawCaseVariables,
+      withdrawableTokens,
+      selectedToken
+    } = this.state;
     const {
       halfWidget,
       header,
       headerDetails,
       ctaButtonText
     } = withdrawCaseVariables;
-    const withdrawableTokens = tokenAddresses.filter(token => token.balance);
-    const selectedToken =
-      tokenAddresses
-        .filter(token => token.balance)
-        .find(({ tokenAddress: ta }) => ta === tokenAddress) ||
-      tokenAddresses[0];
-    const selectedTokenBalance =
-      (selectedToken && selectedToken.balance) || Zero;
+
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
           <div className="details">{headerDetails}</div>
           <FormInput
             label={
-              <BalanceLabel available={formatEther(selectedTokenBalance)} />
+              <BalanceLabel
+                available={formatEther(
+                  (selectedToken && selectedToken.counterfactualBalance) || Zero
+                )}
+                shortName={selectedToken && selectedToken.shortName}
+              />
             }
             className="input--balance"
             type="number"
             units={withdrawableTokens}
             name="amount"
             min={0.02}
-            max={Number(selectedTokenBalance)}
+            max={Number(
+              (selectedToken && selectedToken.counterfactualBalance) || Zero
+            )}
             value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
@@ -155,15 +193,19 @@ export class AccountWithdraw extends React.Component<
             <div className="error">Ups! something broke</div>
           ) : null}
           <FormButton
-            name="deposit"
+            name="withdraw"
             type="button"
             className="button"
             spinner={loading}
-            disabled={loading}
+            disabled={loading || !!(error.message || error.code)}
             onClick={() => {
               this.setState({ loading: true });
               withdraw(
-                this.createDepositData(user, amount, tokenAddress),
+                this.createTransactionData(
+                  user,
+                  amount,
+                  selectedToken && selectedToken.tokenAddress
+                ),
                 provider,
                 history
               );
