@@ -124,7 +124,7 @@ export default class WithdrawController extends NodeController {
 
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_CONFIRMED, {
         txReceipt
-      })
+      });
     } catch (e) {
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
       throw new Error(`${WITHDRAWAL_FAILED}: ${JSON.stringify(e, null, 2)}`);
