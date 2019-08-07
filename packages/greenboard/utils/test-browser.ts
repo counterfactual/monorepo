@@ -485,6 +485,17 @@ export class TestBrowser {
     );
     await this.confirmDeposit();
     await this.waitForElement(logoContainer, 90000);
+
+    const currentScreen = await this.getCurrentScreenName();
+
+    // This waitForElement is added because if you're in the Balance screen,
+    // waiting for logoContainer will be immediately resolved because of the
+    // LayoutHeader component present in that page.
+    // To fix that, we add an additional waitForElement that checks that the
+    // ChannelTree component is present.
+    if (currentScreen === CounterfactualScreenName.Balance) {
+      await this.waitForElement(channelTreesContainer, DEPOSIT_TIMEOUT);
+    }
   }
 
   /**
@@ -499,7 +510,7 @@ export class TestBrowser {
       withdrawAmountInput,
       withdrawProceedButton
     } = ACCOUNT_BALANCE_SELECTORS;
-    const { logoContainer } = LAYOUT_HEADER_SELECTORS;
+    const { channelTreesContainer } = STATE_CHANNELS_SELECTORS;
 
     await this.typeOnInput(withdrawAmountInput, "0.1");
     await this.clickOnElement(withdrawProceedButton);
@@ -507,14 +518,14 @@ export class TestBrowser {
       withdrawProceedButton,
       "Check your wallet"
     );
+
+    // While this is a withdraw operation, we actually must deposit
+    // the gas costs, so we wait for that deposit to be confirmed.
     await this.confirmDeposit();
-    await this.waitForElement(logoContainer, DEPOSIT_TIMEOUT);
 
-    const currentScreen = await this.getCurrentScreenName();
-
-    if (currentScreen === CounterfactualScreenName.Balance) {
-      await this.waitForElement(channelTreesContainer, DEPOSIT_TIMEOUT);
-    }
+    // Unlike the deposit, we always wait for the Channels screen
+    // to be rendered, since this form isn't reused elsewhere.
+    await this.waitForElement(channelTreesContainer, DEPOSIT_TIMEOUT);
   }
 
   /**
