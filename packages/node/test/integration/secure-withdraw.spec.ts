@@ -1,24 +1,25 @@
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { randomBytes } from "crypto";
-import { Contract } from "ethers";
+import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { getAddress, hexlify } from "ethers/utils";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
+import { toBeEq, toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
   createChannel,
-  makeDepositRequest,
+  deposit,
+  makeWithdrawCommitmentRequest,
   makeWithdrawRequest,
   transferERC20Tokens
 } from "./utils";
 
-expect.extend({ toBeEq });
+expect.extend({ toBeEq, toBeLt });
 
 describe("Node method follows spec - withdraw", () => {
   let nodeA: Node;
@@ -41,9 +42,7 @@ describe("Node method follows spec - withdraw", () => {
   it("has the right balance for both parties after withdrawal", async () => {
     const startingMultisigBalance = await provider.getBalance(multisigAddress);
 
-    const depositReq = makeDepositRequest(multisigAddress, One);
-
-    await nodeA.rpcRouter.dispatch(depositReq);
+    await deposit(nodeA, multisigAddress, One);
 
     const postDepositMultisigBalance = await provider.getBalance(
       multisigAddress
@@ -98,13 +97,7 @@ describe("Node method follows spec - withdraw", () => {
       multisigAddress
     );
 
-    const depositReq = makeDepositRequest(
-      multisigAddress,
-      One,
-      erc20ContractAddress
-    );
-
-    await nodeA.rpcRouter.dispatch(depositReq);
+    await deposit(nodeA, multisigAddress, One, erc20ContractAddress);
 
     const postDepositMultisigTokenBalance = await erc20Contract.functions.balanceOf(
       multisigAddress
@@ -134,7 +127,60 @@ describe("Node method follows spec - withdraw", () => {
     expect(await erc20Contract.functions.balanceOf(recipient)).toBeEq(One);
   });
 
-  it("Node A produces a withdraw commitment and Node B submits the commitment to the network", async () => {
-    // To be written
+  it("Node A produces a withdraw commitment and non-Node A submits the commitment to the network", async () => {
+    const startingMultisigBalance = await provider.getBalance(multisigAddress);
+
+    await deposit(nodeA, multisigAddress, One);
+
+    const postDepositMultisigBalance = await provider.getBalance(
+      multisigAddress
+    );
+
+    expect(postDepositMultisigBalance).toBeEq(startingMultisigBalance.add(One));
+
+    const recipient = getAddress(hexlify(randomBytes(20)));
+
+    expect(await provider.getBalance(recipient)).toBeEq(Zero);
+
+    const withdrawCommitmentReq = makeWithdrawCommitmentRequest(
+      multisigAddress,
+      One,
+      CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      recipient
+    );
+
+    const {
+      result: {
+        result: { transaction }
+      }
+    } = await nodeA.rpcRouter.dispatch(withdrawCommitmentReq);
+
+    expect(transaction).toBeDefined();
+
+    const externalFundedAccount = new Wallet(
+      global["fundedPrivateKey"],
+      provider
+    );
+
+    const externalAccountPreTxBalance = await provider.getBalance(
+      externalFundedAccount.address
+    );
+    const nodeAPreTxBalance = await provider.getBalance(nodeA.signerAddress());
+
+    await externalFundedAccount.sendTransaction(transaction);
+
+    const externalAccountPostTxBalance = await provider.getBalance(
+      externalFundedAccount.address
+    );
+    const nodeAPostTxBalance = await provider.getBalance(nodeA.signerAddress());
+
+    expect(externalAccountPostTxBalance).toBeLt(externalAccountPreTxBalance);
+    expect(nodeAPreTxBalance).toBeEq(nodeAPostTxBalance);
+
+    expect(await provider.getBalance(multisigAddress)).toBeEq(
+      startingMultisigBalance
+    );
+
+    expect(await provider.getBalance(recipient)).toBeEq(One);
   });
 });
