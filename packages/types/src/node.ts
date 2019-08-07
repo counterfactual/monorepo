@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers/utils";
+import { BigNumber, Transaction } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
@@ -91,7 +91,8 @@ export namespace Node {
     TAKE_ACTION = "takeAction",
     UNINSTALL = "uninstall",
     UNINSTALL_VIRTUAL = "uninstallVirtual",
-    WITHDRAW = "withdraw"
+    WITHDRAW = "withdraw",
+    WITHDRAW_COMMITMENT = "withdrawCommitment"
   }
 
   export enum RpcMethodName {
@@ -115,7 +116,8 @@ export namespace Node {
     TAKE_ACTION = "chan_takeAction",
     UNINSTALL = "chan_uninstall",
     UNINSTALL_VIRTUAL = "chan_uninstallVirtual",
-    WITHDRAW = "chan_withdraw"
+    WITHDRAW = "chan_withdraw",
+    WITHDRAW_COMMITMENT = "chan_withdraw_commitment"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
@@ -327,6 +329,12 @@ export namespace Node {
   export type WithdrawResult = {
     recipient: string;
     txHash: string;
+  };
+
+  export type WithdrawCommitmentParams = WithdrawParams;
+
+  export type WithdrawCommitmentResult = {
+    transaction: Transaction;
   };
 
   export type MethodParams =
