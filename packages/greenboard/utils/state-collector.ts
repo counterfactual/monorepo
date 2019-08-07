@@ -1,4 +1,11 @@
-import { TestBrowser } from "./test-browser";
+import { readFileSync, writeFileSync } from "fs";
+import { resolve } from "path";
+import { StringHashMap } from "./types";
+
+const LOCAL_STORAGE_FILE = resolve(
+  __dirname,
+  "../chrome-profile/greenboard-local-storage.json"
+);
 
 /**
  * This class is used to pick up state from the Metamask extension's
@@ -9,7 +16,7 @@ export default class StateCollector {
   /**
    * Contains a key/value map, mimicking LocalStorage's data structure.
    */
-  private static data: Map<string, string> = new Map<string, string>();
+  private data: StringHashMap = {};
 
   /**
    * Writes inside the data buffer.
@@ -17,16 +24,16 @@ export default class StateCollector {
    * @param key
    * @param value
    */
-  public static set(key: string, value: string) {
-    this.data.set(key, value);
+  public set(key: string, value: string) {
+    this.data[key] = value;
   }
 
   /**
    * Reads a key's value from the data buffer.
    * @param key
    */
-  public static get(key: string) {
-    return this.data.get(key);
+  public get(key: string) {
+    return this.data[key];
   }
 
   /**
@@ -34,22 +41,13 @@ export default class StateCollector {
    *
    * @param data
    */
-  public static write(data: Map<string, string>) {
+  public write(data: StringHashMap) {
     this.data = data;
+    writeFileSync(LOCAL_STORAGE_FILE, JSON.stringify(this.data));
   }
 
-  /**
-   * Runs several injected scripts inside the TestBrowser's
-   * Metamask context in order to the set its LocalStorage,
-   * dumping every entry contained in the `data` buffer.
-   *
-   * @param browser
-   */
-  public static async dumpInto(browser: TestBrowser, clearBuffer = false) {
-    await browser.injectIntoLocalStorage(this.data);
-
-    if (clearBuffer) {
-      this.data.clear();
-    }
+  public read() {
+    this.data = JSON.parse(readFileSync(LOCAL_STORAGE_FILE).toString());
+    return this.data;
   }
 }

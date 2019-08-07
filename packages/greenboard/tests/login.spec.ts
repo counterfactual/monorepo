@@ -1,5 +1,4 @@
 import { LAYOUT_HEADER_SELECTORS } from "../utils/counterfactual-wallet-selectors";
-import StateCollector from "../utils/state-collector";
 import {
   COUNTERFACTUAL_USER_USERNAME,
   TestBrowser
@@ -19,8 +18,7 @@ beforeAll(async () => {
 it("logs in with an existing account and goes to /channels", async () => {
   const { loginButton, userNameText, balanceText } = LAYOUT_HEADER_SELECTORS;
 
-  StateCollector.dumpInto(browser);
-
+  await browser.injectIntoMetamaskLocalStorage();
   await browser.switchToWallet();
   await browser.clickOnElement(loginButton);
   await browser.signTransaction();

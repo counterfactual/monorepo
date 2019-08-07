@@ -39,12 +39,15 @@ import {
   MetamaskNetwork,
   MetamaskOptions,
   MetamaskTransaction,
+  StringHashMap,
   TestBrowserContext
 } from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
 export const LOCATOR_TIMEOUT = 10000;
 
+export const METAMASK_ETH_ADDRESS =
+  "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
 export const METAMASK_MNEMONIC =
   "mistake cash photo pond little nerve neutral adapt item kite radar tray";
 export const METAMASK_PASSWORD = "The Cake Is A Lie";
@@ -66,7 +69,8 @@ export class TestBrowser {
       [TestBrowserContext.MetamaskPopup]: ""
     },
     private currentContext?: TestBrowserContext,
-    private readonly locatorTimeout: number = LOCATOR_TIMEOUT
+    private readonly locatorTimeout: number = LOCATOR_TIMEOUT,
+    private readonly stateCollector: StateCollector = new StateCollector()
   ) {}
 
   /**
@@ -706,7 +710,7 @@ export class TestBrowser {
   /**
    * Extracts all LocalStorage data from Metamask.
    */
-  async collectLocalStorage() {
+  async collectMetamaskLocalStorage() {
     await this.switchToMetamask();
 
     const data = (await this.browser.executeScript(`
@@ -717,9 +721,13 @@ export class TestBrowser {
         collectedData[key] = window.localStorage.getItem(key);
       }
       return collectedData;
-    `)) as object;
+    `)) as StringHashMap;
 
-    StateCollector.write(new Map<string, string>(Object.entries(data)));
+    // This will trigger a failure in the test if the LocalStorage
+    // data couldn't be collected.
+    expect(Object.keys(data)).not.toHaveLength(0);
+
+    this.stateCollector.write(data);
   }
 
   /**
@@ -728,18 +736,25 @@ export class TestBrowser {
    *
    * @param data
    */
-  async injectIntoLocalStorage(data: Map<string, string>) {
+  async injectIntoMetamaskLocalStorage() {
+    const data = this.stateCollector.read();
+
     await this.switchToMetamask();
 
-    for (const [key, value] of data.entries()) {
+    // This will trigger a failure in the test if the LocalStorage
+    // data couldn't be collected.
+    expect(Object.keys(data).length).toBeGreaterThan(0);
+
+    for (const [key, value] of Object.entries(data)) {
       await this.browser.executeScript(
         `window.localStorage.setItem(arguments[0], arguments[1]);`,
-        [key, value]
+        key,
+        value
       );
       expect(
         await this.browser.executeScript(
           `return window.localStorage.getItem(arguments[0]);`,
-          [key]
+          key
         )
       ).toEqual(value);
     }
