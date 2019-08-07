@@ -1,4 +1,4 @@
-import { Zero } from "ethers/constants";
+import { Zero, AddressZero } from "ethers/constants";
 import { parseEther } from "ethers/utils";
 import { JsonRPCResponse } from "web3/providers";
 import {
@@ -6,7 +6,9 @@ import {
   CounterfactualMethod,
   EthereumGlobal
 } from "../../types";
-import { USER_MOCK_DATA } from "../user/user.mock";
+import { USER_MOCK_DATA, USER_MOCK_BALANCE } from "../user/user.mock";
+
+export const ETHEREUM_MOCK_TOKEN_ADDRESS = AddressZero;
 
 export const ETHEREUM_MOCK_ADDRESS =
   "0x9aF5D0dcABc31B1d80639ac3042b2aD754f072FE";
@@ -30,6 +32,8 @@ export const TRANSACTION_MOCK_HASH =
   "0xf86c258502540be40083035b609482e041e84074fc5f5947d4d27e3c44f824b7a1a187b1a2bc2ec500008078a04a7db627266fa9a4116e3f6b33f5d245db40983234eb356261f36808909d2848a0166fa098a2ce3bda87af6000ed0083e3bf7cc31c6686b670bd85cbc6da2d6e85";
 
 export const ETHEREUM_MOCK_BALANCE = parseEther("2.0");
+
+export const MOCK_NETWORK = { name: "kovan" };
 
 export const FREE_BALANCE_MOCK_AMOUNT = parseEther("1.0");
 
@@ -100,7 +104,7 @@ export default class EthereumMock implements EthereumGlobal {
     forceFailOnGetAllChannels: false
   };
 
-  constructor(private readonly events: { [key: string]: Function[] } = {}) {}
+  constructor(private readonly events: { [key: string]: Function[] } = {}) { }
 
   async enable() {
     if (this.mockBehaviors.failOnEnable) {
@@ -155,13 +159,28 @@ export default class EthereumMock implements EthereumGlobal {
           [this.mockBehaviors.nodeAddressFromUserMock
             ? FREE_BALANCE_MOCK_ADDRESS_FROM_USER_MOCK
             : FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
-            .forceRetryOnWaitForFunds
-            ? Zero
-            : FREE_BALANCE_MOCK_AMOUNT,
+              .forceRetryOnWaitForFunds
+              ? Zero
+              : FREE_BALANCE_MOCK_AMOUNT,
           [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: this.mockBehaviors
             .forceRetryOnWaitForFunds
             ? Zero
             : COUNTERFACTUAL_FREE_BALANCE_MOCK_AMOUNT
+        },
+        id: Date.now()
+      };
+    }
+
+    if (eventOrMethod === CounterfactualMethod.RequestIndexedBalances) {
+      return {
+        jsonrpc: "2.0",
+        result: {
+          [ETHEREUM_MOCK_TOKEN_ADDRESS]: {
+            [this.mockBehaviors.nodeAddressFromUserMock
+              ? FREE_BALANCE_MOCK_ADDRESS_FROM_USER_MOCK
+              : FREE_BALANCE_MOCK_ADDRESS]: USER_MOCK_BALANCE,
+            [COUNTERPARTY_FREE_BALANCE_MOCK_ADDRESS]: ETHEREUM_MOCK_BALANCE
+          }
         },
         id: Date.now()
       };

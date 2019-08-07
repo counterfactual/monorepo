@@ -76,7 +76,7 @@ describe("<AccountWithdraw />", () => {
   });
 
   it("should render a Proceed button or Withdraw", () => {
-    const CTA = component.find(testSelector("deposit-button"));
+    const CTA = component.find(testSelector("withdraw-button"));
     expect(CTA.exists()).toBe(true);
     expect(["Proceed", "Withdraw"]).toContain(CTA.text());
   });
@@ -89,7 +89,7 @@ describe("<AccountWithdraw />", () => {
     component.find(testSelector("amount-input")).simulate("change", {
       target: { value: "0.01", validity: { valid: true } }
     });
-    component.find(testSelector("deposit-button")).simulate("click");
+    component.find(testSelector("withdraw-button")).simulate("click");
     expect(props.history.location.pathname).toBe(RoutePath.Channels);
   });
 });

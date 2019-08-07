@@ -1,6 +1,6 @@
 import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
-import { ETHEREUM_MOCK_BALANCE } from "./ethereum.mock";
+import { BigNumber, Network } from "ethers/utils";
+import { ETHEREUM_MOCK_BALANCE, MOCK_NETWORK } from "./ethereum.mock";
 import JsonRpcSignerMock from "./json-rpc-signer.mock";
 
 export default class Web3ProviderMock extends Web3Provider {
@@ -11,5 +11,9 @@ export default class Web3ProviderMock extends Web3Provider {
 
   getSigner(): JsonRpcSigner {
     return new JsonRpcSignerMock() as JsonRpcSigner;
+  }
+
+  async getNetwork() {
+    return MOCK_NETWORK as Network;
   }
 }

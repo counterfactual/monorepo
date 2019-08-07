@@ -19,6 +19,7 @@ import {
   reducers,
   WalletDepositTransition
 } from "./wallet";
+import { USER_KOVAN_TOKENS_MOCK } from "../test-utils/nodeTokenClient";
 
 describe("Store > Wallet", () => {
   beforeEach(() => {
@@ -137,7 +138,8 @@ describe("Store > Wallet", () => {
         {
           data: {
             counterfactualBalance: USER_MOCK_BALANCE,
-            ethereumBalance: ETHEREUM_MOCK_BALANCE
+            ethereumBalance: ETHEREUM_MOCK_BALANCE,
+            tokenAddresses: [USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE)[0]]
           },
           type: ActionType.WalletSetBalance
         }
@@ -150,7 +152,8 @@ describe("Store > Wallet", () => {
         {
           status: ActionType.WalletSetBalance,
           counterfactualBalance: USER_MOCK_BALANCE,
-          ethereumBalance: ETHEREUM_MOCK_BALANCE
+          ethereumBalance: ETHEREUM_MOCK_BALANCE,
+          tokenAddresses: [USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE)[0]]
         }
       ]);
     });
