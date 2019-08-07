@@ -56,6 +56,14 @@ export const METAMASK_PASSWORD = "The Cake Is A Lie";
 export const COUNTERFACTUAL_USER_USERNAME = "teapot";
 export const COUNTERFACTUAL_USER_EMAIL_ADDRESS = "i.am.a@tea.pot";
 
+export const METAMASK_ETH_ADDRESS =
+  "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
+export const METAMASK_MNEMONIC =
+  "mistake cash photo pond little nerve neutral adapt item kite radar tray";
+export const METAMASK_PASSWORD = "The Cake Is A Lie";
+export const COUNTERFACTUAL_USER_USERNAME = "teapot";
+export const COUNTERFACTUAL_USER_EMAIL_ADDRESS = "i.am.a@tea.pot";
+
 /**
  * Creates a Chrome browser, with a build of the Metamask + CF extension.
  */

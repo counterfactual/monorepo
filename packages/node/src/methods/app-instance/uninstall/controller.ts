@@ -16,7 +16,7 @@ import { uninstallAppInstanceFromChannel } from "./operation";
 export default class UninstallController extends NodeController {
   public static readonly methodName = Node.MethodName.UNINSTALL;
 
-  @jsonRpcMethod("chan_uninstall")
+  @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(

@@ -1,6 +1,7 @@
 import { AppInstanceJson, Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
@@ -19,18 +20,21 @@ export default class GetAppInstancesController extends NodeController {
   ): Promise<Node.GetAppInstancesResult> {
     const { store } = requestHandler;
 
-    const ret: AppInstanceJson[] = [];
-
     const channels = await store.getStateChannelsMap();
 
-    for (const multisigAddress in channels) {
-      channels[multisigAddress].appInstances.forEach(appInstance =>
-        ret.push(appInstance.toJson())
-      );
-    }
-
+    const appInstances = Array.from(channels.values()).reduce(
+      (acc: AppInstanceJson[], channel: StateChannel) => {
+        acc.push(
+          ...Array.from(channel.appInstances.values()).map(appInstance =>
+            appInstance.toJson()
+          )
+        );
+        return acc;
+      },
+      []
+    );
     return {
-      appInstances: ret
+      appInstances
     };
   }
 }
