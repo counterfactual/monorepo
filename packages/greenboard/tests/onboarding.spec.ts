@@ -39,6 +39,6 @@ it("registers a new account and goes to /channels", async () => {
 });
 
 afterAll(async () => {
-  await browser.collectLocalStorage();
+  await browser.collectMetamaskLocalStorage();
   await browser.closeBrowser();
 });
