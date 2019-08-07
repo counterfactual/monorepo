@@ -1,5 +1,5 @@
 import { Node } from "@counterfactual/types";
-import { TransactionReceipt } from "ethers"
+import { TransactionReceipt } from "ethers/providers";
 
 import { ProtocolMessage } from "./machine";
 
@@ -61,7 +61,7 @@ export interface WithdrawMessage extends Node.NodeMessage {
 
 export interface WithdrawConfirmationMessage extends Node.NodeMessage {
   data: {
-    txReceipt: TransactionReceipt
+    txReceipt: TransactionReceipt;
   };
 }
 
