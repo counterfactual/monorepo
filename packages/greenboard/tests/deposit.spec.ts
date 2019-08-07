@@ -2,7 +2,6 @@ import {
   ACCOUNT_BALANCE_SELECTORS,
   LAYOUT_HEADER_SELECTORS
 } from "../utils/counterfactual-wallet-selectors";
-import StateCollector from "../utils/state-collector";
 import { TestBrowser } from "../utils/test-browser";
 import { CounterfactualScreenName, MetamaskFlowType } from "../utils/types";
 
@@ -24,8 +23,7 @@ it("logs in with an existing account, goes to /balance, makes a deposit", async 
   } = LAYOUT_HEADER_SELECTORS;
   const { depositAmountInput } = ACCOUNT_BALANCE_SELECTORS;
 
-  StateCollector.dumpInto(browser);
-
+  await browser.injectIntoMetamaskLocalStorage();
   await browser.switchToWallet();
   await browser.clickOnElement(loginButton);
   await browser.signTransaction();
@@ -43,7 +41,7 @@ it("logs in with an existing account, goes to /balance, makes a deposit", async 
 afterAll(async () => {
   // We collect data again so the Withdraw scenario has a coherent
   // Node state for an account with a balance of 0.2 ETH.
-  await browser.collectLocalStorage();
+  await browser.collectMetamaskLocalStorage();
 
   await browser.closeBrowser();
 });

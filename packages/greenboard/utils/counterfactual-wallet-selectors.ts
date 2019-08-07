@@ -31,3 +31,7 @@ export const ACCOUNT_BALANCE_SELECTORS = {
   withdrawAmountInput: By.css("[data-test-selector='withdraw-amount-input']"),
   withdrawProceedButton: By.css("[data-test-selector='withdraw-button']")
 };
+
+export const STATE_CHANNELS_SELECTORS = {
+  channelTreesContainer: By.css(".channel-trees")
+};

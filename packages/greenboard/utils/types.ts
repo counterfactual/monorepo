@@ -34,3 +34,5 @@ export const enum CounterfactualScreenName {
   Channels = "channels",
   Balance = "balance"
 }
+
+export type StringHashMap = { [key: string]: string };
