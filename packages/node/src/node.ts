@@ -2,6 +2,7 @@ import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
@@ -22,7 +23,7 @@ import {
   SigningKeysGenerator
 } from "./signing-keys-generator";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, timeout } from "./utils";
+import { timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -108,7 +109,7 @@ export class Node {
 
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    debugLog(
+    log.debug(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
@@ -118,8 +119,8 @@ export class Node {
     this.signer = new SigningKey(
       await this.signingKeyGenerator.getSigningKey("0")
     );
-    debugLog(`Node signer address: ${this.signer.address}`);
-    debugLog(`Node public identifier: ${this.publicIdentifier}`);
+    log.info(`Node signer address: ${this.signer.address}`);
+    log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,

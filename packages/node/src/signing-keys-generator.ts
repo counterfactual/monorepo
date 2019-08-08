@@ -5,6 +5,8 @@ import { fromExtendedKey, fromMnemonic } from "ethers/utils/hdnode";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
+import { CF_PATH } from "./constants";
+
 export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
 export class SigningKeysGenerator {
@@ -67,7 +69,7 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
 ): Promise<[SigningKeysGenerator, string]> {
   if (publicExtendedKey && !privateKeyGenerator) {
     throw new Error(
-      "Cannot provide a extended public key but not provide a private key generation function"
+      "Cannot provide an extended public key but not provide a private key generation function"
     );
   }
 
@@ -94,6 +96,8 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
     await storeService.set([
       { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
     ]);
+  } else {
+    log.info("Using extended private key found in the store.");
   }
   const [
     privKeyGenerator,
@@ -112,9 +116,7 @@ export function generatePrivateKeyGeneratorAndXPubPair(
   extendedPrvKey: string
 ): [Node.IPrivateKeyGenerator, string] {
   // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
-  const hdNode = fromExtendedKey(extendedPrvKey).derivePath(
-    "m/44'/60'/0'/25446"
-  );
+  const hdNode = fromExtendedKey(extendedPrvKey).derivePath(CF_PATH);
 
   return [
     function(uniqueID: string): Promise<string> {

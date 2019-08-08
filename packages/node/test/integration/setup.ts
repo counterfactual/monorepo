@@ -33,8 +33,7 @@ export interface SetupContext {
 
 export async function setupWithMemoryMessagingAndPostgresStore(
   global: any,
-  nodeCPresent: boolean = false,
-  newMnemonics: boolean = false
+  nodeCPresent: boolean = false
 ): Promise<SetupContext> {
   const memoryMessagingService = new MemoryMessagingService();
 
@@ -51,7 +50,6 @@ export async function setupWithMemoryMessagingAndPostgresStore(
 
   return setup(
     global,
-    newMnemonics,
     nodeCPresent,
     memoryMessagingService,
     postgresServiceFactory
@@ -61,7 +59,6 @@ export async function setupWithMemoryMessagingAndPostgresStore(
 export async function setup(
   global: any,
   nodeCPresent: boolean = false,
-  newExtendedPrivateKeys: boolean = false,
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ): Promise<SetupContext> {
@@ -80,18 +77,8 @@ export async function setup(
 
   const provider = new JsonRpcProvider(global["ganacheURL"]);
 
-  let extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
-  let extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
-  if (newExtendedPrivateKeys) {
-    // generate new mnemonics so owner addresses are different for creating
-    // a channel in this suite
-    const extendedPrivateKeys = await generateNewFundedExtendedPrvKeys(
-      global["fundedPrivateKey"],
-      provider
-    );
-    extendedPrvKeyA = extendedPrivateKeys.A_EXTENDED_PRV_KEY;
-    extendedPrvKeyB = extendedPrivateKeys.B_EXTENDED_PRV_KEY;
-  }
+  const extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
+  const extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
 
   const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
@@ -105,8 +92,8 @@ export async function setup(
     storeServiceA,
     nodeConfig,
     provider,
-    global["networkContext"],
-    global["privateKeyGeneratorNodeA"].generatePrivateKey
+    global["networkContext"]
+    // global["privateKeyGeneratorNodeA"].generatePrivateKey
   );
 
   setupContext["A"] = {
@@ -125,8 +112,8 @@ export async function setup(
     storeServiceB,
     nodeConfig,
     provider,
-    global["networkContext"],
-    global["privateKeyGeneratorNodeB"].generatePrivateKey
+    global["networkContext"]
+    // global["privateKeyGeneratorNodeB"].generatePrivateKey
   );
   setupContext["B"] = {
     node: nodeB,
@@ -145,8 +132,8 @@ export async function setup(
       storeServiceC,
       nodeConfig,
       provider,
-      global["networkContext"],
-      global["privateKeyGeneratorNodeC"].generatePrivateKey
+      global["networkContext"]
+      // global["privateKeyGeneratorNodeC"].generatePrivateKey
     );
     setupContext["C"] = {
       node: nodeC,

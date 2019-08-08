@@ -217,10 +217,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnUninstallCommitment
     );
 
-    const [
-      mySignatureOnUninstallCommitment,
-      mySignerAddressOnUninstallCommitment
-    ] = yield [Opcode.OP_SIGN, uninstallRefundAppCommitment];
+    const mySignatureOnUninstallCommitment = yield [
+      Opcode.OP_SIGN,
+      uninstallRefundAppCommitment
+    ];
 
     yield [
       Opcode.IO_SEND,
@@ -229,7 +229,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: responderXpub,
         signature: mySignatureOnUninstallCommitment,
-        signerAddress: mySignerAddressOnUninstallCommitment,
         seq: UNASSIGNED_SEQ_NO
       }
     ];

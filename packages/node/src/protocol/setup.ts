@@ -23,19 +23,14 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
     const { responderXpub, multisigAddress } = context.message
       .params as SetupParams;
+    const responderAddress = xkeyKthAddress(responderXpub, 0);
     const setupCommitment = proposeStateTransition(
       context.message.params,
       context
     );
     const mySignature = yield [Opcode.OP_SIGN, setupCommitment];
 
-    console.log("running setup protocol");
-    console.log(context);
-
-    const {
-      signature: counterpartySignature,
-      signerAddress: counterpartySignerAddress
-    } = yield [
+    const { signature: counterpartySignature } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Setup,
@@ -47,7 +42,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
     assertIsValidSignature(
-      counterpartySignerAddress,
+      responderAddress,
       setupCommitment,
       counterpartySignature
     );
