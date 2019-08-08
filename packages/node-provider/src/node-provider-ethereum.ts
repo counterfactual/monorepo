@@ -1,7 +1,9 @@
-declare var ethereum: any;
+declare var ethereum: EthereumGlobal;
 
 import { INodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+
+import { EthereumGlobal } from "./types";
 
 export default class NodeProviderEthereum implements INodeProvider {
   /**
