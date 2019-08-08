@@ -123,6 +123,7 @@ export default class NodeProviderEthereum implements INodeProvider {
   }
 
   private startEthereumEventListeners() {
+    // TODO: Get these names from a shared package for DRY purposes.
     const NODE_EVENTS = [
       "proposeInstallVirtual",
       "installVirtualEvent",
