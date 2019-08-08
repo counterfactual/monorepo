@@ -4,7 +4,7 @@ import {
   isNodeIntermediary
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
-import { AppInstanceProposal, StateChannel } from "../models";
+import { AppInstanceProposal } from "../models";
 import { RequestHandler } from "../request-handler";
 import {
   InstallMessage,
@@ -14,6 +14,7 @@ import {
   ProposeVirtualMessage,
   RejectProposalMessage
 } from "../types";
+import { getCreate2MultisigAddress } from "../utils";
 
 /**
  * This function responds to a installation proposal approval from a peer Node
@@ -61,18 +62,20 @@ export async function handleReceivedProposalMessage(
   requestHandler: RequestHandler,
   receivedProposeMessage: ProposeMessage
 ) {
-  const { publicIdentifier, store } = requestHandler;
+  const { publicIdentifier, store, networkContext } = requestHandler;
 
   const {
     data: { params },
     from: proposedByIdentifier
   } = receivedProposeMessage;
 
-  const stateChannel = await StateChannel.getStateChannelWithOwners(
-    publicIdentifier,
-    proposedByIdentifier,
-    store
+  const multisigAddress = getCreate2MultisigAddress(
+    [publicIdentifier, proposedByIdentifier],
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
   );
+
+  const stateChannel = await store.getStateChannel(multisigAddress);
 
   await store.addAppInstanceProposal(
     stateChannel,

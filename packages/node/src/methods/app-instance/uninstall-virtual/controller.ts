@@ -5,7 +5,7 @@ import { jsonRpcMethod } from "rpc-server";
 import { RequestHandler } from "../../../request-handler";
 import {
   getCounterpartyAddress,
-  hashOfOrderedPublicIdentifiers
+  getCreate2MultisigAddress
 } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -25,14 +25,13 @@ export default class UninstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<Queue[]> {
-    const { store, publicIdentifier } = requestHandler;
-    const { appInstanceId } = params;
+    const { store, publicIdentifier, networkContext } = requestHandler;
+    const { appInstanceId, intermediaryIdentifier } = params;
 
-    const multisigAddressForStateChannelWithIntermediary = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([
-        params.intermediaryIdentifier,
-        publicIdentifier
-      ])
+    const multisigAddressForStateChannelWithIntermediary = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaryIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
     const stateChannelWithResponding = await store.getChannelFromAppInstanceID(
@@ -50,16 +49,14 @@ export default class UninstallVirtualController extends NodeController {
   }
 
   protected async beforeExecution(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ) {
-    const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-
-    if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
+    if (!appInstanceId) {
+      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
   }
 

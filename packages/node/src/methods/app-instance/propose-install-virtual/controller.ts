@@ -4,12 +4,9 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeVirtualMessage } from "../../../types";
-import { hashOfOrderedPublicIdentifiers } from "../../../utils";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
-import {
-  NO_MULTISIG_FOR_APP_INSTANCE_ID,
-  NULL_INITIAL_STATE_FOR_PROPOSAL
-} from "../../errors";
+import { NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../errors";
 
 import {
   createProposedVirtualAppInstance,
@@ -25,36 +22,32 @@ import {
 export default class ProposeInstallVirtualController extends NodeController {
   public static readonly methodName = Node.MethodName.PROPOSE_INSTALL_VIRTUAL;
 
-  @jsonRpcMethod("chan_proposeInstallVirtual")
+  @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
-    const { store, publicIdentifier } = requestHandler;
-    const { proposedToIdentifier } = params;
+    const { publicIdentifier, networkContext } = requestHandler;
+    const { proposedToIdentifier, intermediaries } = params;
 
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([
-        publicIdentifier,
-        params.intermediaries[0]
-      ])
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaries[0]],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
-    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+    const metachannelAddress = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
 
-    try {
-      const metachannelAddress = await store.getMultisigAddressFromOwnersHash(
-        hashOfOrderedPublicIdentifiers([publicIdentifier, proposedToIdentifier])
-      );
-      queues.push(requestHandler.getShardedQueue(metachannelAddress));
-    } catch (e) {
-      // It is possible the metachannel has never been created
-      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
-    }
-
-    return queues;
+    return [
+      requestHandler.getShardedQueue(multisigAddress),
+      requestHandler.getShardedQueue(metachannelAddress)
+    ];
   }
 
   protected async executeMethodImplementation(

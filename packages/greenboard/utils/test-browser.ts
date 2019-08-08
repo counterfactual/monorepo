@@ -28,18 +28,30 @@ import {
   NETWORK_SELECTORS,
   NOTIFICATION_SELECTORS,
   REQUEST_SIGNATURE_SELECTORS,
+  UNLOCK_FLOW_SELECTORS,
   WALLET_AUTHORIZATION_MODAL_SELECTORS
 } from "./metamask-selectors";
+import StateCollector from "./state-collector";
 import {
   CounterfactualScreenName,
+  MetamaskFlowType,
   MetamaskNetwork,
   MetamaskOptions,
   MetamaskTransaction,
+  StringHashMap,
   TestBrowserContext
 } from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
 export const LOCATOR_TIMEOUT = 10000;
+
+export const METAMASK_ETH_ADDRESS =
+  "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
+export const METAMASK_MNEMONIC =
+  "mistake cash photo pond little nerve neutral adapt item kite radar tray";
+export const METAMASK_PASSWORD = "The Cake Is A Lie";
+export const COUNTERFACTUAL_USER_USERNAME = "teapot";
+export const COUNTERFACTUAL_USER_EMAIL_ADDRESS = "i.am.a@tea.pot";
 
 /**
  * Creates a Chrome browser, with a build of the Metamask + CF extension.
@@ -56,11 +68,36 @@ export class TestBrowser {
       [TestBrowserContext.MetamaskPopup]: ""
     },
     private currentContext?: TestBrowserContext,
-    private readonly locatorTimeout: number = LOCATOR_TIMEOUT
+    private readonly locatorTimeout: number = LOCATOR_TIMEOUT,
+    private readonly stateCollector: StateCollector = new StateCollector()
   ) {}
 
+  /**
+   * Initializes an instance of the TestBrowser with the following flags:
+   *
+   * --load-extension: Pointed towards packages/greenboard/extension, to an
+   *   unpacked build of the Metamask extension for Chrome.
+   *
+   * --disable-web-security: Removes the execution of preflight checks for CORS.
+   *   Necessary for simple, quick communication with the Hub API.
+   *
+   * --user-data-dir: Pointed towards packages/greenboard/chrome-profile, it is
+   *   a temporary profile directory for Chrome.
+   *
+   * If the CHROME_DRIVER_PATH environment variable is supplied, it'll try to
+   * use that as a ChromeDriver builder. Otherwise, it'll fallback to the
+   * "chromedriver" package supplied by Greenboard.
+   *
+   * If the CHROME_BINARY_PATH environment variable is set, the TestBrowser
+   * will use that as a Chrome browser.
+   *
+   * Unless the `--discover-metamask` flag is passed by the `test:e2e` run-script,
+   * the TestBrowser will wait up to 5 seconds for Chrome to automatically
+   * open the extension's homepage tab.
+   */
   async start() {
-    const extension = resolve(__dirname, "../extension");
+    const extensionDirectory = resolve(__dirname, "../extension");
+    const chromeProfileDirectory = resolve(__dirname, "../chrome-profile");
 
     const chromeDriver = new ServiceBuilder(
       process.env.CHROME_DRIVER_PATH || require("chromedriver").path
@@ -74,12 +111,12 @@ export class TestBrowser {
 
     const options = new Options();
     options.addArguments(
-      `--load-extension=${extension}`,
+      `--load-extension=${extensionDirectory}`,
       `--disable-web-security`,
-      `--user-data-dir=/tmp/greenboard`
+      `--user-data-dir=${chromeProfileDirectory}`
     );
 
-    if (process.env.CI) {
+    if (process.env.CHROME_BINARY_PATH) {
       options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH as string);
     }
 
@@ -100,7 +137,7 @@ export class TestBrowser {
       await this.switchToMetamask();
 
       this.homeUrl = await this.browser.getCurrentUrl();
-      this.popupUrl = this.homeUrl.replace(/home/gi, "popup");
+      this.popupUrl = this.homeUrl.replace(/home/gi, "popup").split("#")[0];
     }
   }
 
@@ -109,13 +146,18 @@ export class TestBrowser {
    ****************************************************************/
 
   /**
+   * This function is a convenient wrapper for openMetamask(),
+   * setupMetamask(), loginToMetamask(), waitForMetamaskMainScreen,
+   * setMetamaskNetwork(), openCounterfactualWallet() and authorizeWallet().
+   *
    * This function will prepare the browser for using the Counterfactual
-   * Wallet UI by doing the following:
+   * Wallet UI by doing the following tasks:
    *
    * 1) Open the Metamask homepage.
    *
-   * 2) Automate Metamask's onboarding flow by configuring a wallet
-   *    with a given seed phrase and password.
+   * 2) Either automate Metamask's onboarding flow by configuring a wallet
+   *    with a given seed phrase and password (using the `NewUser` flow type)
+   *    *or* logging into Metamask using the password from the onboarding flow.
    *
    * 3) Wait for Metamask to show the main UI.
    *
@@ -128,15 +170,23 @@ export class TestBrowser {
    *    with the Ethereum Provider and grant permission by clicking
    *    the "Connect" button.
    *
-   * This function is a convenient wrapper for openMetamask(),
-   * setupMetamask(), waitForMetamaskMainScreen, setMetamaskNetwork(),
-   * openCounterfactualWallet() and authorizeWallet().
-   *
+   * @param flowType {MetamaskFlowType}
    * @param networkName {MetamaskNetwork}
    */
-  async prepare(networkName: MetamaskNetwork = "kovan") {
+  async prepare(
+    flowType: MetamaskFlowType,
+    networkName: MetamaskNetwork = "kovan"
+  ) {
     await this.openMetamask();
-    await this.setupMetamask();
+
+    switch (flowType) {
+      case MetamaskFlowType.NewUser:
+        await this.setupMetamask();
+        break;
+      case MetamaskFlowType.ReturningUser:
+        await this.loginToMetamask();
+    }
+
     await this.waitForMetamaskMainScreen();
     await this.setMetamaskNetwork(networkName);
     await this.openCounterfactualWallet();
@@ -189,9 +239,8 @@ export class TestBrowser {
    */
   async setupMetamask(
     settings: MetamaskOptions = {
-      seedPhraseValue:
-        "mistake cash photo pond little nerve neutral adapt item kite radar tray",
-      passwordValue: "The Cake Is A Lie"
+      seedPhraseValue: METAMASK_MNEMONIC,
+      passwordValue: METAMASK_PASSWORD
     }
   ) {
     const { seedPhraseValue, passwordValue } = settings;
@@ -227,6 +276,23 @@ export class TestBrowser {
     // Wait for process to finish and leave onboarding.
     await this.waitForElement(endOfFlowScreen);
     await this.clickOnElement(allDoneButton);
+  }
+
+  /**
+   * Unlocks Metamask by logging in with a provided password
+   * (defaults to the password used while filling the registration
+   * form on the onboarding flow).
+   */
+  async loginToMetamask(passwordValue = METAMASK_PASSWORD) {
+    const {
+      unlockScreen,
+      passwordInput,
+      loginSubmitButton
+    } = UNLOCK_FLOW_SELECTORS;
+
+    await this.waitForElement(unlockScreen);
+    await this.typeOnInput(passwordInput, passwordValue);
+    await this.clickOnElement(loginSubmitButton);
   }
 
   /**
@@ -374,8 +440,8 @@ export class TestBrowser {
    * @param email
    */
   async fillAccountRegistrationFormAndSubmit(
-    username: string,
-    email: string = ""
+    username: string = COUNTERFACTUAL_USER_USERNAME,
+    email: string = COUNTERFACTUAL_USER_EMAIL_ADDRESS
   ) {
     const {
       usernameInput,
@@ -415,6 +481,9 @@ export class TestBrowser {
     await this.waitForElement(logoContainer, 90000);
   }
 
+  /**
+   * Returns the current screen's name according to the current URL.
+   */
   async getCurrentScreenName(): Promise<CounterfactualScreenName | void> {
     if (this.currentContext !== TestBrowserContext.CounterfactualWallet) {
       return;
@@ -437,6 +506,16 @@ export class TestBrowser {
     }
 
     return CounterfactualScreenName.Welcome;
+  }
+
+  /**
+   * Waits for the Hub API to respond a login request by holding execution
+   * until the AccountContainer UI element is rendered in the screen.
+   */
+  async waitForLoginToBeFinished() {
+    const { accountContainer } = LAYOUT_HEADER_SELECTORS;
+
+    await this.waitForElement(accountContainer);
   }
 
   /****************************************************************
@@ -608,6 +687,59 @@ export class TestBrowser {
       text,
       this.locatorTimeout
     );
+  }
+
+  /**
+   * Extracts all LocalStorage data from Metamask.
+   */
+  async collectMetamaskLocalStorage() {
+    await this.switchToMetamask();
+
+    const data = (await this.browser.executeScript(`
+      const collectedData = {};
+      const { length } = window.localStorage;
+      for (let index = 0; index < length; index += 1) {
+        const key = window.localStorage.key(index);
+        collectedData[key] = window.localStorage.getItem(key);
+      }
+      return collectedData;
+    `)) as StringHashMap;
+
+    // This will trigger a failure in the test if the LocalStorage
+    // data couldn't be collected.
+    expect(Object.keys(data)).not.toHaveLength(0);
+
+    this.stateCollector.write(data);
+  }
+
+  /**
+   * Writes each entry provided in the `data` map as a key/value
+   * entry into Metamask's LocalStorage.
+   *
+   * @param data
+   */
+  async injectIntoMetamaskLocalStorage() {
+    const data = this.stateCollector.read();
+
+    await this.switchToMetamask();
+
+    // This will trigger a failure in the test if the LocalStorage
+    // data couldn't be collected.
+    expect(Object.keys(data).length).toBeGreaterThan(0);
+
+    for (const [key, value] of Object.entries(data)) {
+      await this.browser.executeScript(
+        `window.localStorage.setItem(arguments[0], arguments[1]);`,
+        key,
+        value
+      );
+      expect(
+        await this.browser.executeScript(
+          `return window.localStorage.getItem(arguments[0]);`,
+          key
+        )
+      ).toEqual(value);
+    }
   }
 
   /****************************************************************

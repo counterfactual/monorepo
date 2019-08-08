@@ -17,5 +17,9 @@ export const ACCOUNT_DEPOSIT_SELECTORS = {
 };
 
 export const LAYOUT_HEADER_SELECTORS = {
-  logoContainer: By.css(".header > .header-content > .logo-container")
+  loginButton: By.css("[data-test-selector='login-button']"),
+  logoContainer: By.css(".header > .header-content > .logo-container"),
+  accountContainer: By.css("header > .header-content .account-container"),
+  userNameText: By.css("[data-test-selector='info-user'] .info-content"),
+  balanceText: By.css("[data-test-selector='info-balance'] .info-content")
 };
