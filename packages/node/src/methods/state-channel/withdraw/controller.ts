@@ -2,6 +2,7 @@ import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
+
 import { xkeyKthAddress } from "../../../machine";
 import {
   convertCoinTransfersToCoinTransfersMap,
@@ -10,6 +11,7 @@ import {
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
+import { normalizeTokenAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_WITHDRAW,
@@ -19,7 +21,6 @@ import {
 } from "../../errors";
 
 import { runWithdrawProtocol } from "./operation";
-import { normalizeTokenAddress } from "../../../utils";
 
 export default class WithdrawController extends NodeController {
   public static readonly methodName = Node.MethodName.WITHDRAW;
@@ -44,8 +45,7 @@ export default class WithdrawController extends NodeController {
     const freeBalance = deserializeFreeBalanceState(stateChannel.freeBalance
       .state as FreeBalanceStateJSON);
 
-    const tokenAddress =
-      normalizeTokenAddress(params.tokenAddress);
+    const tokenAddress = normalizeTokenAddress(params.tokenAddress);
 
     if (!(tokenAddress in freeBalance.balancesIndexedByToken)) {
       throw new Error(INVALID_WITHDRAW(tokenAddress));

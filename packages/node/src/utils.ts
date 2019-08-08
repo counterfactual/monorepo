@@ -14,8 +14,8 @@ import {
 } from "ethers/utils";
 import log from "loglevel";
 
-import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./constants";
+import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 
 export function getCounterpartyAddress(
   myIdentifier: string,

@@ -9,6 +9,7 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { DepositConfirmationMessage, NODE_EVENTS } from "../../../types";
+import { normalizeTokenAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_DEPOSIT,
@@ -22,7 +23,6 @@ import {
   makeDeposit,
   uninstallBalanceRefundApp
 } from "./operation";
-import { normalizeTokenAddress } from "../../../utils";
 
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;

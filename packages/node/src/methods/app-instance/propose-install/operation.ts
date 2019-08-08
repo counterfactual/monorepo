@@ -2,7 +2,10 @@ import { Node } from "@counterfactual/types";
 
 import { AppInstanceProposal } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  normalizeTokenAddress
+} from "../../../utils";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -31,10 +34,12 @@ export async function createProposedAppInstance(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
-      initiatorDepositTokenAddress:
-        normalizeTokenAddress(params.initiatorDepositTokenAddress),
-      responderDepositTokenAddress:
-        normalizeTokenAddress(params.responderDepositTokenAddress)
+      initiatorDepositTokenAddress: normalizeTokenAddress(
+        params.initiatorDepositTokenAddress
+      ),
+      responderDepositTokenAddress: normalizeTokenAddress(
+        params.responderDepositTokenAddress
+      )
     },
     stateChannel
   );

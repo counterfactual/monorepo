@@ -8,7 +8,10 @@ import { StateChannel } from "../../../models";
 import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
-import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  normalizeTokenAddress
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
@@ -72,11 +75,13 @@ export default class ProposeInstallController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const initiatorDepositTokenAddress =
-      normalizeTokenAddress(initiatorDepositTokenAddressParam);
+    const initiatorDepositTokenAddress = normalizeTokenAddress(
+      initiatorDepositTokenAddressParam
+    );
 
-    const responderDepositTokenAddress =
-      normalizeTokenAddress(responderDepositTokenAddressParam);
+    const responderDepositTokenAddress = normalizeTokenAddress(
+      responderDepositTokenAddressParam
+    );
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 

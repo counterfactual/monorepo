@@ -2,7 +2,10 @@ import { NetworkContext, Node } from "@counterfactual/types";
 
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  normalizeTokenAddress
+} from "../../../utils";
 import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
@@ -32,10 +35,12 @@ export async function createProposedVirtualAppInstance(
     {
       ...params,
       proposedByIdentifier: myIdentifier,
-      initiatorDepositTokenAddress:
-        normalizeTokenAddress(params.initiatorDepositTokenAddress),
-      responderDepositTokenAddress:
-        normalizeTokenAddress(params.responderDepositTokenAddress)
+      initiatorDepositTokenAddress: normalizeTokenAddress(
+        params.initiatorDepositTokenAddress
+      ),
+      responderDepositTokenAddress: normalizeTokenAddress(
+        params.responderDepositTokenAddress
+      )
     },
     channel
   );

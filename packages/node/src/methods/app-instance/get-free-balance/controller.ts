@@ -7,9 +7,9 @@ import {
   FreeBalanceStateJSON
 } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
+import { normalizeTokenAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import { NO_FREE_BALANCE_EXISTS } from "../../errors";
-import { normalizeTokenAddress } from "../../../utils";
 
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
@@ -25,7 +25,7 @@ export default class GetFreeBalanceController extends NodeController {
     const { multisigAddress, tokenAddress: tokenAddressParam } = params;
 
     // NOTE: We default to ETH in case of undefined tokenAddress param
-    const tokenAddress = normalizeTokenAddress(tokenAddressParam)
+    const tokenAddress = normalizeTokenAddress(tokenAddressParam);
 
     if (!multisigAddress) {
       throw new Error(
