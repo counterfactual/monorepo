@@ -6,13 +6,6 @@ import EventEmitter from "eventemitter3";
 import { EthereumGlobal } from "./types";
 
 export default class NodeProviderEthereum implements INodeProvider {
-  /**
-   * This boolean determines if the NodeProvider has received a MessagePort
-   * via the `cf-node-provider:port` message.
-   *
-   * It is used to prevent attempts to send messages without an instance
-   * of MessagePort stored locally.
-   */
   private readonly eventEmitter: EventEmitter;
   private isConnected: boolean;
   private debugMode: string = "none";
