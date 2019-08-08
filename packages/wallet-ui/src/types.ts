@@ -32,7 +32,7 @@ export enum CounterfactualMethod {
   RequestDeposit = "counterfactual:request:deposit",
   RequestWithdraw = "counterfactual:request:withdraw",
   RequestBalances = "counterfactual:request:balances",
-  RequestIndexedBalances = "counterfactual:request:indexed_balances",
+  RequestIndexedBalances = "counterfactual:request:token_indexed_balances",
   RequestChannels = "counterfactual:request:channels",
   RequestChannel = "counterfactual:request:channel"
 }
