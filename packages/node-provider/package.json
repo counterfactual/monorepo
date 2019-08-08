@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node-provider",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
