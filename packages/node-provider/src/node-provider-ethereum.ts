@@ -11,8 +11,8 @@ export default class NodeProviderEthereum implements INodeProvider {
    * It is used to prevent attempts to send messages without an instance
    * of MessagePort stored locally.
    */
+  private readonly eventEmitter: EventEmitter;
   private isConnected: boolean;
-  private eventEmitter: EventEmitter;
   private debugMode: string = "none";
   private debugEmitter: (
     source: string,
@@ -140,12 +140,6 @@ export default class NodeProviderEthereum implements INodeProvider {
     NODE_EVENTS.forEach((event: string) => {
       this.startIndividualEthereumEventListener(event);
     });
-    // ethereum.on(
-    //   "counterfactual:proposeInstallVirtual",
-    //   (data: Node.Message) => {
-    //     this.eventEmitter.emit("message", data);
-    //   }
-    // );
   }
 
   startIndividualEthereumEventListener(event: string) {
