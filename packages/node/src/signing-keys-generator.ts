@@ -12,7 +12,7 @@ export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 export class SigningKeysGenerator {
   // The namespacing is on the channel the AppInstance is in
   private appInstanceIdentityHashToPrivateKey: Map<string, string> = new Map();
-  private signingKeys: Set<string> = new Set();
+  private readonly signingKeys: Set<string> = new Set();
 
   constructor(
     private readonly privateKeyGenerator: Node.IPrivateKeyGenerator
