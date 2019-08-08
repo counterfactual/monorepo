@@ -82,7 +82,7 @@ export function merge(
   for (const key of Object.keys(increments)) {
     if (!base[key]) {
       throw new Error(
-        `mismatch ${Object.keys(base)} ${Object.keys(increments)}`
+        `mismatch: ${Object.keys(increments)} ⊄ ${Object.keys(base)}`
       );
     }
   }
