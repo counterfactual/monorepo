@@ -43,7 +43,8 @@ export async function install(
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
       initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
-      responderDepositTokenAddress: proposal.responderDepositTokenAddress
+      responderDepositTokenAddress: proposal.responderDepositTokenAddress,
+      disableLimit: false
     }
   );
 
