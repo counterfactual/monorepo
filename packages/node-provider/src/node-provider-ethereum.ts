@@ -13,7 +13,6 @@ export default class NodeProviderEthereum implements INodeProvider {
    */
   private isConnected: boolean;
   private eventEmitter: EventEmitter;
-  private messagePort?: MessagePort;
   private debugMode: string = "none";
   private debugEmitter: (
     source: string,
@@ -104,9 +103,9 @@ export default class NodeProviderEthereum implements INodeProvider {
     }
 
     ethereum
-      .send(`counterfactual:${message.type}`)
-      .then((data: Node.Message) => {
-        this.eventEmitter.emit("message", data);
+      .send("counterfactual:nodeProvider", [message])
+      .then(({ result }: { result: Node.Message }) => {
+        this.eventEmitter.emit("message", result);
       });
 
     this.log(
