@@ -1,9 +1,8 @@
 import { NetworkContext, Node } from "@counterfactual/types";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
 import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
@@ -34,9 +33,9 @@ export async function createProposedVirtualAppInstance(
       ...params,
       proposedByIdentifier: myIdentifier,
       initiatorDepositTokenAddress:
-        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        normalizeTokenAddress(params.initiatorDepositTokenAddress),
       responderDepositTokenAddress:
-        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        normalizeTokenAddress(params.responderDepositTokenAddress)
     },
     channel
   );

@@ -1,7 +1,6 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import {
   convertCoinTransfersToCoinTransfersMap,
   deserializeFreeBalanceState,
@@ -10,6 +9,7 @@ import {
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { NO_FREE_BALANCE_EXISTS } from "../../errors";
+import { normalizeTokenAddress } from "../../../utils";
 
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
@@ -25,7 +25,7 @@ export default class GetFreeBalanceController extends NodeController {
     const { multisigAddress, tokenAddress: tokenAddressParam } = params;
 
     // NOTE: We default to ETH in case of undefined tokenAddress param
-    const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const tokenAddress = normalizeTokenAddress(tokenAddressParam)
 
     if (!multisigAddress) {
       throw new Error(

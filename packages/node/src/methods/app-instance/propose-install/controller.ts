@@ -3,13 +3,12 @@ import { BigNumber } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
@@ -74,10 +73,10 @@ export default class ProposeInstallController extends NodeController {
     );
 
     const initiatorDepositTokenAddress =
-      initiatorDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+      normalizeTokenAddress(initiatorDepositTokenAddressParam);
 
     const responderDepositTokenAddress =
-      responderDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+      normalizeTokenAddress(responderDepositTokenAddressParam);
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 

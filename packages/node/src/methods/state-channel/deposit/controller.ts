@@ -22,6 +22,7 @@ import {
   makeDeposit,
   uninstallBalanceRefundApp
 } from "./operation";
+import { normalizeTokenAddress } from "../../../utils";
 
 export default class DepositController extends NodeController {
   public static readonly methodName = Node.MethodName.DEPOSIT;
@@ -43,7 +44,7 @@ export default class DepositController extends NodeController {
     const { store, provider, networkContext } = requestHandler;
     const { multisigAddress, amount, tokenAddress: tokenAddressParam } = params;
 
-    const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    const tokenAddress = normalizeTokenAddress(tokenAddressParam);
 
     const channel = await store.getStateChannel(multisigAddress);
 
@@ -84,7 +85,7 @@ export default class DepositController extends NodeController {
     const { provider } = requestHandler;
     const { multisigAddress, tokenAddress } = params;
 
-    params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+    params.tokenAddress = normalizeTokenAddress(tokenAddress);
 
     await installBalanceRefundApp(requestHandler, params);
     await makeDeposit(requestHandler, params);

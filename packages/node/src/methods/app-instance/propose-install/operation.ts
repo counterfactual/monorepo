@@ -1,9 +1,8 @@
 import { Node } from "@counterfactual/types";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, normalizeTokenAddress } from "../../../utils";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -33,9 +32,9 @@ export async function createProposedAppInstance(
       ...params,
       proposedByIdentifier: myIdentifier,
       initiatorDepositTokenAddress:
-        params.initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        normalizeTokenAddress(params.initiatorDepositTokenAddress),
       responderDepositTokenAddress:
-        params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        normalizeTokenAddress(params.responderDepositTokenAddress)
     },
     stateChannel
   );

@@ -15,6 +15,7 @@ import {
 import log from "loglevel";
 
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "./constants";
 
 export function getCounterpartyAddress(
   myIdentifier: string,
@@ -157,4 +158,11 @@ export function signaturesToBytesSortedBySignerAddress(
   return signaturesToBytes(
     ...sortSignaturesBySignerAddress(digest, signatures)
   );
+}
+
+export function normalizeTokenAddress(tokenAddress?: string) {
+  if (!tokenAddress) {
+    return CONVENTION_FOR_ETH_TOKEN_ADDRESS;
+  }
+  return getAddress(tokenAddress);
 }
