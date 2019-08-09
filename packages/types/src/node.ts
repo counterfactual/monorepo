@@ -126,7 +126,7 @@ export namespace Node {
     UNINSTALL = "chan_uninstall",
     UNINSTALL_VIRTUAL = "chan_uninstallVirtual",
     WITHDRAW = "chan_withdraw",
-    WITHDRAW_COMMITMENT = "chan_withdraw_commitment"
+    WITHDRAW_COMMITMENT = "chan_withdrawCommitment"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
