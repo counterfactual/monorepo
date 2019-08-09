@@ -193,20 +193,12 @@ describe("Store > User", () => {
         finalActionType: ActionType.UserLogin
       });
 
-      expect(dispatchedActions.length).toBe(3);
-      expect(reducedStates.length).toBe(3);
+      expect(dispatchedActions.length).toBe(2);
+      expect(reducedStates.length).toBe(2);
 
       expect(dispatchedActions).toEqual([
         {
           data: {
-            tokenAddresses: NETWORK_KOVAN_TOKENS
-          },
-          type: ActionType.WalletSetNodeTokens
-        },
-        {
-          data: {
-            counterfactualBalance: USER_MOCK_BALANCE,
-            ethereumBalance: ETHEREUM_MOCK_BALANCE,
             tokenAddresses: USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE)
           },
           type: ActionType.WalletSetBalance
@@ -216,20 +208,12 @@ describe("Store > User", () => {
 
       expect(reducedStates).toEqual([
         {
-          error: {},
-          user: {},
-          status: ActionType.WalletSetNodeTokens
-        },
-        {
           user: {},
           error: {},
-          tokenAddresses: NETWORK_KOVAN_TOKENS,
           status: ActionType.WalletSetBalance
         },
         {
           user: USER_MOCK_DATA,
-          counterfactualBalance: USER_MOCK_BALANCE,
-          ethereumBalance: ETHEREUM_MOCK_BALANCE,
           tokenAddresses: USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE),
           error: {},
           status: ActionType.UserLogin
@@ -330,23 +314,15 @@ describe("Store > User", () => {
         finalActionType: ActionType.WalletSetBalance
       });
 
-      expect(dispatchedActions.length).toBe(3);
-      expect(reducedStates.length).toBe(3);
+      expect(dispatchedActions.length).toBe(2);
+      expect(reducedStates.length).toBe(2);
       expect(dispatchedActions).toEqual([
-        {
-          data: {
-            tokenAddresses: NETWORK_KOVAN_TOKENS
-          },
-          type: ActionType.WalletSetNodeTokens
-        },
         {
           data: { user: USER_MOCK_DATA },
           type: ActionType.UserGet
         },
         {
           data: {
-            counterfactualBalance: USER_MOCK_BALANCE,
-            ethereumBalance: ETHEREUM_MOCK_BALANCE,
             tokenAddresses: USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE)
           },
           type: ActionType.WalletSetBalance
@@ -355,14 +331,8 @@ describe("Store > User", () => {
 
       expect(reducedStates).toEqual([
         {
-          error: {},
-          user: {},
-          status: ActionType.WalletSetNodeTokens
-        },
-        {
           user: USER_MOCK_DATA,
           error: {},
-          tokenAddresses: NETWORK_KOVAN_TOKENS,
           status: ActionType.UserGet
         },
         {
