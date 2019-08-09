@@ -169,19 +169,3 @@ workflows:
           filters:
             branches:
               only: master
-
-      - heroku/deploy-via-git:
-          app-name: hr-bot-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
-
-      - heroku/deploy-via-git:
-          app-name: ttt-bot-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
