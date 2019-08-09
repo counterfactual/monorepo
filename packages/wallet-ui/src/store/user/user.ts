@@ -7,14 +7,12 @@ import {
   buildRegistrationSignaturePayload,
   buildSignatureMessageForLogin,
   forMultisig,
-  getCFBalances,
+  getIndexedCFBalances,
   getNodeAddress,
   getUserFromStoredToken,
-  storeTokenFromUser,
-  getIndexedCFBalances
+  storeTokenFromUser
 } from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
-import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 import {
   ActionType,
   ApplicationState,
@@ -99,6 +97,7 @@ export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
   history: History,
+  // @ts-ignore
   provider: Web3Provider
 ): ThunkAction<
   void,
@@ -119,33 +118,15 @@ export const loginUser = (
     // 4. Store the token.
     await storeTokenFromUser(user);
 
-    // 5. Get the balances.
-    const counterfactualBalance = await getCFBalances({
+    // 5. Get the user Balances
+    const tokenAddresses = await getIndexedCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
-    const ethereumBalance = await provider.getBalance(user.ethAddress);
-    // 5.5 Get all Tokens And all CF Balances
-    const network = await provider.getNetwork();
-
-    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
-
-    dispatch({
-      data: { tokenAddresses },
-      type: ActionType.WalletSetNodeTokens
-    });
-
-    tokenAddresses = await getIndexedCFBalances(
-      {
-        multisigAddress: user.multisigAddress as string,
-        nodeAddress: user.nodeAddress
-      },
-      tokenAddresses
-    );
 
     // 6. Dispatch.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance, tokenAddresses },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     dispatch({ data: { user }, type: ActionType.UserLogin });
@@ -158,6 +139,7 @@ export const loginUser = (
 };
 
 export const getUser = (
+  // @ts-ignore
   provider: Web3Provider,
   history: History
 ): ThunkAction<
@@ -173,34 +155,19 @@ export const getUser = (
       history.push(RoutePath.Root);
       return;
     }
-    const network = await provider.getNetwork();
-    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
-    dispatch({
-      data: { tokenAddresses },
-      type: ActionType.WalletSetNodeTokens
-    });
-
-    // 2. Get the balances.
-    const counterfactualBalance = await getCFBalances({
+    // 2. Get the user Balances
+    const tokenAddresses = await getIndexedCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
 
-    tokenAddresses = await getIndexedCFBalances(
-      {
-        multisigAddress: user.multisigAddress as string,
-        nodeAddress: user.nodeAddress
-      },
-      tokenAddresses
-    );
-    const ethereumBalance = await provider.getBalance(user.ethAddress);
     // 3. Store data into UserState and WalletState.
     dispatch({
       data: { user },
       type: ActionType.UserGet
     });
     dispatch({
-      data: { counterfactualBalance, ethereumBalance, tokenAddresses },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     history.push(RoutePath.Channels);

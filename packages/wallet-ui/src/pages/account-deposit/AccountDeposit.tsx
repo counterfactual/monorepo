@@ -20,6 +20,7 @@ import {
 import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
 import { RoutePath } from "../../types";
 import "./AccountDeposit.scss";
+import { Zero } from "ethers/constants";
 
 const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
   <div className="balance-label">
@@ -33,7 +34,7 @@ export type AccountDepositProps = RouteComponentProps & {
   user: User;
   walletState: WalletState;
   initialAmount?: number;
-  error: ErrorData;
+  error?: ErrorData;
 };
 
 type AccountDepositState = {
@@ -118,7 +119,7 @@ export class AccountDeposit extends React.Component<
   render() {
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
-    const { ethereumBalance, error, status, tokenAddresses } = walletState;
+    const { error, status, tokenAddresses } = walletState;
     const { amount, loading, depositCaseVariables, tokenAddress } = this.state;
     const {
       halfWidget,
@@ -126,18 +127,29 @@ export class AccountDeposit extends React.Component<
       headerDetails,
       ctaButtonText
     } = depositCaseVariables;
+
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
           <div className="details">{headerDetails}</div>
           <FormInput
-            label={<BalanceLabel available={formatEther(ethereumBalance)} />}
+            label={
+              <BalanceLabel
+                available={formatEther(
+                  (tokenAddresses[0] && tokenAddresses[0].walletBalance) || Zero
+                )}
+              />
+            }
             className="input--balance"
             type="number"
             units={tokenAddresses}
             name="amount"
             min={0.02}
-            max={Number(ethereumBalance)}
+            max={Number(
+              formatEther(
+                (tokenAddresses[0] && tokenAddresses[0].walletBalance) || Zero
+              )
+            )}
             value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
@@ -154,6 +166,7 @@ export class AccountDeposit extends React.Component<
             disabled={loading}
             onClick={() => {
               this.setState({ loading: true });
+
               deposit(
                 this.createDepositData(user, amount, tokenAddress),
                 provider,

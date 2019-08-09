@@ -1,5 +1,6 @@
 import { AssetType } from "../store/types";
 import { defaultToken } from "../types";
+import { getAddressBalances } from "eth-balance-checker/lib/web3";
 
 export enum ShortTokenNetworksName {
   kovan = "kov",
@@ -8,6 +9,23 @@ export enum ShortTokenNetworksName {
   ropsten = "rop",
   homestead = "eth"
 }
+
+export const getUserWalletBalances = async (
+  web3: any,
+  ethAddress: string,
+  tokens: AssetType[]
+): Promise<any> => {
+  try {
+    const response = await getAddressBalances(
+      web3,
+      ethAddress,
+      tokens.map(({ tokenAddress }) => tokenAddress)
+    );
+    return response;
+  } catch (error) {
+    return {};
+  }
+};
 
 export const getTokens = async (
   network: ShortTokenNetworksName

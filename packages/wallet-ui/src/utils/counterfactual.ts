@@ -62,6 +62,11 @@ export async function requestWithdraw({
   ethAddress,
   tokenAddress
 }: Deposit) {
+  console.log("requestWithdraw", "amount", amount);
+  console.log("requestWithdraw", "multisigAddress", multisigAddress);
+  console.log("requestWithdraw", "ethAddress", ethAddress);
+  console.log("requestWithdraw", "tokenAddress", tokenAddress);
+
   return window.ethereum.send(CounterfactualMethod.RequestWithdraw, [
     amount,
     multisigAddress,
@@ -146,24 +151,22 @@ export async function getCFBalances({
   return bigNumberify(freeBalance[freeBalanceAddress]);
 }
 
-export async function getIndexedCFBalances(
-  { multisigAddress, nodeAddress }: BalanceRequest,
-  tokenAddresses: AssetType[]
-): Promise<AssetType[]> {
-  const freeBalance = (await window.ethereum.send(
-    CounterfactualMethod.RequestIndexedBalances,
-    [multisigAddress]
-  )).result;
+export async function getIndexedCFBalances({
+  multisigAddress,
+  nodeAddress
+}: BalanceRequest): Promise<AssetType[]> {
+  const indexedBalances: {
+    [key: string]: { [key: string]: BigNumberish };
+  } = (await window.ethereum.send(CounterfactualMethod.RequestIndexedBalances, [
+    multisigAddress
+  ])).result;
 
   const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
-  return tokenAddresses.map(token => {
-    return {
-      ...token,
-      counterfactualBalance:
-        freeBalance[token.tokenAddress] &&
-        freeBalance[token.tokenAddress][freeBalanceAddress]
-    };
-  });
+
+  return Object.entries(indexedBalances).map(([tokenAddress, balances]) => ({
+    tokenAddress,
+    counterfactualBalance: balances[freeBalanceAddress]
+  }));
 }
 
 export async function getChannelAddresses(): Promise<string[]> {

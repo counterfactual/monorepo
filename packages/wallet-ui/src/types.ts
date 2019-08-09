@@ -1,7 +1,8 @@
 import { AsyncSendable, JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { IpcProvider, JsonRPCResponse } from "web3/providers";
-import { AddressZero, Zero } from "ethers/constants";
+import { AddressZero } from "ethers/constants";
 import { AssetType } from "./store/types";
+import Web3 from "web3";
 
 export enum RoutePath {
   Root = "/",
@@ -16,8 +17,7 @@ export enum RoutePath {
 export const defaultToken: AssetType = {
   tokenAddress: AddressZero,
   name: "Ethereum",
-  shortName: "ETH",
-  counterfactualBalance: Zero
+  shortName: "ETH"
 };
 
 export type EthereumServiceContext = {
@@ -56,5 +56,6 @@ export type EthereumGlobal = Omit<IpcProvider, "send"> &
 declare global {
   interface Window {
     ethereum: EthereumGlobal;
+    web3: Web3;
   }
 }

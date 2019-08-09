@@ -173,7 +173,7 @@ export class AccountWithdraw extends React.Component<
                 available={formatEther(
                   (selectedToken && selectedToken.counterfactualBalance) || Zero
                 )}
-                shortName={selectedToken && selectedToken.shortName}
+                shortName={(selectedToken && selectedToken.shortName) || "ETH"}
               />
             }
             className="input--balance"

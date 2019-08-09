@@ -13,8 +13,8 @@ export type User = {
 };
 
 export type AssetType = {
-  name: string;
-  shortName: string;
+  name?: string;
+  shortName?: string;
   tokenAddress: string;
   counterfactualBalance?: BigNumberish;
   walletBalance?: BigNumberish;
@@ -73,8 +73,6 @@ export type UserState = AppState & {
 
 export type WalletState = AppState & {
   ethAddress: string;
-  counterfactualBalance: BigNumberish;
-  ethereumBalance: BigNumberish;
   status: string;
   tokenAddresses: AssetType[];
 };

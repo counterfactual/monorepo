@@ -1,31 +1,29 @@
-import { Zero } from "ethers/constants";
 import { Web3Provider } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
-import { RoutePath, defaultToken } from "../../types";
+import { RoutePath } from "../../types";
 import {
   forFunds,
+  getIndexedCFBalances,
   requestDeposit,
-  requestWithdraw,
-  getIndexedCFBalances
+  requestWithdraw
 } from "../../utils/counterfactual";
 import log from "../../utils/log";
+import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
 import {
   ActionType,
   ApplicationState,
+  AssetType,
   Deposit,
   StoreAction,
   WalletState
 } from "../types";
-import { ShortTokenNetworksName, getTokens } from "../../utils/nodeTokenClient";
 export const initialState = {
-  tokenAddresses: [defaultToken],
+  tokenAddresses: [],
   ethAddress: "",
   error: {},
-  status: "",
-  counterfactualBalance: Zero,
-  ethereumBalance: Zero
+  status: ""
 } as WalletState;
 
 export const connectToWallet = (
@@ -40,7 +38,6 @@ export const connectToWallet = (
     const { ethereum } = window;
 
     await ethereum.enable();
-
     dispatch({
       data: {
         ethAddress: ethereum.selectedAddress
@@ -48,10 +45,16 @@ export const connectToWallet = (
       type: ActionType.WalletSetAddress
     });
 
-    const ethereumBalance = await provider.getBalance(ethereum.selectedAddress);
+    const network = await provider.getNetwork();
+    const tokenAddresses = await getTokens(
+      ShortTokenNetworksName[network.name]
+    );
+    tokenAddresses[0].walletBalance = await provider.getBalance(
+      ethereum.selectedAddress
+    );
 
     dispatch({
-      data: { ethereumBalance },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
   } catch (e) {
@@ -87,33 +90,26 @@ export const deposit = (
     // 1. Ask Metamask to do the deposit. !
     dispatch({ type: WalletDepositTransition.CheckWallet });
     await requestDeposit(transaction);
+
     // // 2. Wait until the deposit is completed in both sides. !
     dispatch({ type: WalletDepositTransition.WaitForUserFunds });
     await forFunds(transaction, "user");
 
     dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
-    const counterfactualBalance = await forFunds(transaction);
+    await forFunds(transaction);
+    // 3. Get the updated Balances
+    const tokenAddresses = await getIndexedCFBalances({
+      multisigAddress: transaction.multisigAddress as string,
+      nodeAddress: transaction.nodeAddress
+    });
 
-    // // 3. Get the Metamask balance.
-    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
-
-    // 5.5 Get all Tokens And all CF Balances
-    const network = await provider.getNetwork();
-
-    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
-    tokenAddresses = await getIndexedCFBalances(
-      {
-        multisigAddress: transaction.multisigAddress as string,
-        nodeAddress: transaction.nodeAddress
-      },
-      tokenAddresses
+    // TODO: this should be replaced by a ERC20 MM getter
+    tokenAddresses[0].walletBalance = await provider.getBalance(
+      transaction.ethAddress
     );
 
     // 4. Update the balance.
-    dispatch({
-      data: { ethereumBalance, counterfactualBalance, tokenAddresses },
-      type: ActionType.WalletSetBalance
-    });
+    dispatch({ data: { tokenAddresses }, type: ActionType.WalletSetBalance });
 
     // Optional: Redirect to Channels.
     if (history) {
@@ -155,14 +151,22 @@ export const withdraw = (
 
     // 2. Wait until the withdraw is completed in both sides. !
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
-    const counterfactualBalance = await forFunds(transaction);
+    await forFunds(transaction);
 
-    // 3. Get the Metamask balance.
-    const ethereumBalance = await provider.getBalance(transaction.ethAddress);
+    // 3. Get the updated balances.
+    const tokenAddresses = await getIndexedCFBalances({
+      multisigAddress: transaction.multisigAddress as string,
+      nodeAddress: transaction.nodeAddress
+    });
+
+    // TODO: this should be replaced by a ERC20 MM getter
+    tokenAddresses[0].walletBalance = await provider.getBalance(
+      transaction.ethAddress
+    );
 
     // 4. Update the balance.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
 
@@ -188,12 +192,36 @@ export const reducers = function(
   action: StoreAction<WalletState, WalletDepositTransition>
 ) {
   switch (action.type) {
-    case ActionType.WalletSetAddress:
     case ActionType.WalletSetNodeTokens:
     case ActionType.WalletSetBalance:
+      const tokenAddresses: AssetType[] = Object.values(
+        (state.tokenAddresses || [])
+          .concat(action.data.tokenAddresses)
+          .reduce((accumulator, item) => {
+            return {
+              ...accumulator,
+              [item.tokenAddress]: {
+                ...accumulator[item.tokenAddress],
+                ...item
+              }
+            };
+          }, {})
+      );
+      return {
+        ...state,
+        tokenAddresses,
+        status: action.type
+      };
+    case ActionType.WalletSetAddress:
     case ActionType.WalletDeposit:
     case ActionType.WalletWithdraw:
+      return {
+        ...state,
+        ...action.data,
+        status: action.type
+      };
     case ActionType.WalletError:
+      console.error("wallet error", action.data);
       return {
         ...state,
         ...action.data,
