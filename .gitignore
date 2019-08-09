@@ -30,6 +30,7 @@ yarn-error.log*
 lerna-debug.log*
 
 jest-cache/
+e2e.log
 
 # local env vars
 .env.local

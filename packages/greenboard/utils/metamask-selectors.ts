@@ -18,6 +18,12 @@ export const FIRST_TIME_FLOW_SELECTORS = {
   allDoneButton: By.css(".first-time-flow__button")
 };
 
+export const UNLOCK_FLOW_SELECTORS = {
+  unlockScreen: By.css(".unlock-page"),
+  passwordInput: By.css("#password"),
+  loginSubmitButton: By.css(".unlock-page button[type='submit']")
+};
+
 export const findItemByPartialTextMatch = async (
   driver: WebDriver,
   itemLocator: Locator,

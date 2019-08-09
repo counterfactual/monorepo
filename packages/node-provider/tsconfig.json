@@ -3,11 +3,9 @@
   "compilerOptions": {
     "outDir": "dist/",
     "noImplicitAny": true,
-    "types": ["jest", "node"]
+    "types": ["jest", "node", "web3"]
   },
-  "references": [
-    { "path": "../types" }
-  ],
+  "references": [{ "path": "../types" }],
   "include": ["src", "test"],
   "exclude": ["dist"]
 }

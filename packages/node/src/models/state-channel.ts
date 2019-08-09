@@ -210,6 +210,23 @@ export class StateChannel {
     return topLevelKey;
   }
 
+  // useful for debugging
+  public prettyPrintFB() {
+    const balances = deserializeFreeBalanceState(this.freeBalanceAppInstance!
+      .state as FreeBalanceStateJSON).balancesIndexedByToken;
+
+    const ret = {} as any;
+
+    for (const tokenAddress of Object.keys(balances)) {
+      const ret2 = {} as any;
+      for (const coinTransfer of balances[tokenAddress]) {
+        ret2[coinTransfer.to] = coinTransfer.amount;
+      }
+      ret[tokenAddress] = ret2;
+    }
+    console.table(ret);
+  }
+
   private build(args: {
     multisigAddress?: string;
     userNeuteredExtendedKeys?: string[];

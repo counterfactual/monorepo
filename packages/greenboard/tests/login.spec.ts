@@ -1,7 +1,4 @@
-import {
-  LAYOUT_HEADER_SELECTORS,
-  WELCOME_SCREEN_SELECTORS
-} from "../utils/counterfactual-wallet-selectors";
+import { LAYOUT_HEADER_SELECTORS } from "../utils/counterfactual-wallet-selectors";
 import {
   COUNTERFACTUAL_USER_USERNAME,
   TestBrowser
@@ -15,19 +12,17 @@ let browser: TestBrowser;
 beforeAll(async () => {
   browser = new TestBrowser();
   await browser.start();
-  await browser.prepare(MetamaskFlowType.NewUser);
+  await browser.prepare(MetamaskFlowType.ReturningUser);
 });
 
-it("registers a new account and goes to /channels", async () => {
-  const { setupCounterfactualButton } = WELCOME_SCREEN_SELECTORS;
-  const { userNameText } = LAYOUT_HEADER_SELECTORS;
+it("logs in with an existing account and goes to /channels", async () => {
+  const { loginButton, userNameText, balanceText } = LAYOUT_HEADER_SELECTORS;
 
+  await browser.injectIntoMetamaskLocalStorage();
   await browser.switchToWallet();
-
-  await browser.clickOnElement(setupCounterfactualButton);
-
-  await browser.fillAccountRegistrationFormAndSubmit();
-  await browser.fillAccountDepositFormAndSubmit();
+  await browser.clickOnElement(loginButton);
+  await browser.signTransaction();
+  await browser.waitForLoginToBeFinished();
 
   expect(await browser.getCurrentScreenName()).toEqual(
     CounterfactualScreenName.Channels
@@ -36,9 +31,10 @@ it("registers a new account and goes to /channels", async () => {
   expect(await browser.getTextFromElement(userNameText)).toEqual(
     COUNTERFACTUAL_USER_USERNAME
   );
+
+  expect(await browser.getTextFromElement(balanceText)).toEqual("0.1 ETH");
 });
 
 afterAll(async () => {
-  await browser.collectMetamaskLocalStorage();
   await browser.closeBrowser();
 });

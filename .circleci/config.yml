@@ -77,7 +77,7 @@ jobs:
           at: /home/circleci/project
 
       - run:
-          name: Run Non-Playground-related tests
+          name: Run Counterfactual tests
           command: yarn test:ci
 
   run-tslint:
@@ -136,7 +136,7 @@ jobs:
           command: yarn run publish
 
 workflows:
-  run-tests:
+  counterfactual:
     jobs:
       - build
 
