@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@types/web3": "^1.0.19",
+    "eth-balance-checker": "^0.1.1",
     "ethers": "4.0.33",
     "node-sass": "4.12.0",
     "react": "16.8.6",
@@ -10,7 +12,8 @@
     "react-redux": "7.1.0",
     "react-router-dom": "5.0.1",
     "redux": "4.0.4",
-    "redux-thunk": "2.3.0"
+    "redux-thunk": "2.3.0",
+    "web3": "^1.2.1"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -60,7 +63,6 @@
     "@types/react-dom": "16.8.5",
     "@types/react-redux": "7.1.1",
     "@types/react-router-dom": "4.3.4",
-    "@types/web3": "1.0.19",
     "enzyme": "3.10.0",
     "enzyme-adapter-react-16": "1.14.0",
     "jest-fetch-mock": "2.1.2",
