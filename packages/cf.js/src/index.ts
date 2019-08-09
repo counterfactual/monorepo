@@ -1,4 +1,6 @@
-import NodeProvider from "@counterfactual/node-provider";
+import NodeProvider, {
+  NodeProviderEthereum
+} from "@counterfactual/node-provider";
 
 import { AppFactory } from "./app-factory";
 import { Provider } from "./provider";
@@ -13,6 +15,6 @@ const cf = {
 };
 
 export { AppFactory, Provider, types, utils };
+export { NodeProvider, NodeProviderEthereum };
 
-export { NodeProvider };
 export default cf;
