@@ -53,16 +53,14 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance, tokens }) => {
             {balance} ETH
             {tokens.length > 1 ? (
               <div className="info-hover">
-                {tokens
-                  .filter(token => token.name && token.counterfactualBalance)
-                  .map(token => (
-                    <span key={`token${token.tokenAddress}`}>
-                      {formatEther(
-                        (token.counterfactualBalance as BigNumber) || Zero
-                      )}{" "}
-                      {String(token.shortName).toUpperCase()}
-                    </span>
-                  ))}
+                {tokens.map(token => (
+                  <span key={`token${token.tokenAddress}`}>
+                    {formatEther(
+                      (token.counterfactualBalance as BigNumber) || Zero
+                    )}{" "}
+                    {String(token.shortName).toUpperCase()}
+                  </span>
+                ))}
               </div>
             ) : (
               false
@@ -127,7 +125,9 @@ export class AccountContext extends React.Component<AccountContextProps> {
           <AccountInformation
             username={user.username}
             balance={balance}
-            tokens={tokens}
+            tokens={tokens.filter(
+              token => token.name && token.counterfactualBalance
+            )}
           />
         )}
       </div>
