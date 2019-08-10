@@ -7912,32 +7912,10 @@ eth-ens-namehash@2.0.8:
     idna-uts46-hx "^2.3.1"
     js-sha3 "^0.5.7"
 
-eth-gas-reporter@0.2.8:
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.8.tgz#45c3805bea671fefc97d54838e06e1d463da82f3"
-  integrity sha512-jN2ASutMZogGum+Yld/MU9WU8OJ+vjDvrdxHWlZxefsK5wrHeAfT6NmVSF1bjzv7c0PoACIXFnYUe3D1RpTy0Q==
-  dependencies:
-    abi-decoder "^2.0.1"
-    cli-table3 "^0.5.0"
-    colors "^1.1.2"
-    ethers "^4.0.28"
-    fs-readdir-recursive "^1.1.0"
-    install "^0.13.0"
-    lodash "^4.17.14"
-    markdown-table "^1.1.3"
-    mocha "^5.2.0"
-    npm "^6.10.2"
-    req-cwd "^2.0.0"
-    request "^2.88.0"
-    request-promise-native "^1.0.5"
-    sha1 "^1.1.1"
-    solidity-parser-antlr "^0.4.2"
-    sync-request "^6.0.0"
-
-eth-gas-reporter@0.2.9:
-  version "0.2.9"
-  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.9.tgz#039743d8054547d6ca8e6c3d7a44d5b64fb388c1"
-  integrity sha512-FUFjFz34mrCbas+nsFIfRifp1b/BnmU8+wkhsL/Kf3fO6djXouPg/qcGZzjl5Y1qlHgsI5Ay8CPV7tlKGaAU8g==
+eth-gas-reporter@0.2.10:
+  version "0.2.10"
+  resolved "https://registry.yarnpkg.com/eth-gas-reporter/-/eth-gas-reporter-0.2.10.tgz#3d6d8f4ff41e7e3a5081db4196f8080218147ece"
+  integrity sha512-M5MbaiNNWs49dQyu6j6/SP9mS5XyzYoUBxP/TR1A6k6N+6mOa6k45QnGZaPz97nDbKdTofiyFT0J0j0n8StQ7g==
   dependencies:
     abi-decoder "^2.0.1"
     cli-table3 "^0.5.0"
