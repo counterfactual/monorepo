@@ -75,6 +75,7 @@ export namespace Node {
     GET_CHANNEL_ADDRESSES = "getChannelAddresses",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "getFreeBalanceState",
+    GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
     GET_STATE = "getState",
@@ -100,6 +101,7 @@ export namespace Node {
     GET_APP_INSTANCES = "chan_getAppInstances",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
+    GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
     INSTALL = "chan_install",
@@ -208,6 +210,16 @@ export namespace Node {
 
   export type GetFreeBalanceStateResult = {
     [s: string]: BigNumber;
+  };
+
+  export type GetTokenIndexedFreeBalanceStatesParams = {
+    multisigAddress: string;
+  };
+
+  export type GetTokenIndexedFreeBalanceStatesResult = {
+    [tokenAddress: string]: {
+      [s: string]: BigNumber;
+    };
   };
 
   export type GetProposedAppInstancesParams = {};

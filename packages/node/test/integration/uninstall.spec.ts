@@ -26,7 +26,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
     let appInstanceId: string;
     let multisigAddress: string;
     const depositAmount = One;
-    let freeBalanceETH;
+
     const initialState = {
       versionNumber: 0,
       winner: 2, // Hard-coded winner for test
@@ -40,15 +40,16 @@ describe("Node A and B install apps of different outcome types, then uninstall t
 
       multisigAddress = await createChannel(nodeA, nodeB);
 
-      freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
-      expect(freeBalanceETH[nodeA.freeBalanceAddress]).toBeEq(Zero);
-      expect(freeBalanceETH[nodeB.freeBalanceAddress]).toBeEq(Zero);
+      const balancesBefore = await getFreeBalanceState(nodeA, multisigAddress);
+
+      expect(balancesBefore[nodeA.freeBalanceAddress]).toBeEq(Zero);
+      expect(balancesBefore[nodeB.freeBalanceAddress]).toBeEq(Zero);
 
       await collateralizeChannel(nodeA, nodeB, multisigAddress, depositAmount);
 
-      freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
-      expect(freeBalanceETH[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
-      expect(freeBalanceETH[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
+      const balancesAfter = await getFreeBalanceState(nodeA, multisigAddress);
+      expect(balancesAfter[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
+      expect(balancesAfter[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
     });
 
     it("installs an app with the TwoPartyFixedOutcome outcome and expects Node A to win total", async done => {
@@ -66,14 +67,21 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);
 
-        freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
-        expect(freeBalanceETH[nodeA.freeBalanceAddress]).toBeEq(Two);
-        expect(freeBalanceETH[nodeB.freeBalanceAddress]).toBeEq(Zero);
+        const balancesSeenByB = await getFreeBalanceState(
+          nodeB,
+          multisigAddress
+        );
+        expect(balancesSeenByB[nodeA.freeBalanceAddress]).toBeEq(Two);
+        expect(balancesSeenByB[nodeB.freeBalanceAddress]).toBeEq(Zero);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
         done();
       });
 
       await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+
+      const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
+      expect(balancesSeenByA[nodeA.freeBalanceAddress]).toBeEq(Two);
+      expect(balancesSeenByA[nodeB.freeBalanceAddress]).toBeEq(Zero);
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
     });
@@ -95,14 +103,21 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);
 
-        freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
-        expect(freeBalanceETH[nodeB.freeBalanceAddress]).toBeEq(Two);
-        expect(freeBalanceETH[nodeA.freeBalanceAddress]).toBeEq(Zero);
+        const balancesSeenByB = await getFreeBalanceState(
+          nodeB,
+          multisigAddress
+        );
+        expect(balancesSeenByB[nodeB.freeBalanceAddress]).toBeEq(Two);
+        expect(balancesSeenByB[nodeA.freeBalanceAddress]).toBeEq(Zero);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
         done();
       });
 
       await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+
+      const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
+      expect(balancesSeenByA[nodeB.freeBalanceAddress]).toBeEq(Two);
+      expect(balancesSeenByA[nodeA.freeBalanceAddress]).toBeEq(Zero);
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
     });
@@ -124,14 +139,21 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       nodeB.once(NODE_EVENTS.UNINSTALL, async (msg: UninstallMessage) => {
         expect(msg.data.appInstanceId).toBe(appInstanceId);
 
-        freeBalanceETH = await getFreeBalanceState(nodeA, multisigAddress);
-        expect(freeBalanceETH[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
-        expect(freeBalanceETH[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
+        const balancesSeenByB = await getFreeBalanceState(
+          nodeB,
+          multisigAddress
+        );
+        expect(balancesSeenByB[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
+        expect(balancesSeenByB[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
         done();
       });
 
       await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+
+      const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
+      expect(balancesSeenByA[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
+      expect(balancesSeenByA[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
     });

@@ -7,9 +7,7 @@ import {
   merge
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { NO_CHANNEL_BETWEEN_NODES } from "../methods/errors";
 import { Store } from "../store";
-import { hashOfOrderedPublicIdentifiers } from "../utils";
 
 import { AppInstance } from "./app-instance";
 import {
@@ -210,6 +208,23 @@ export class StateChannel {
     }
 
     return topLevelKey;
+  }
+
+  // useful for debugging
+  public prettyPrintFB() {
+    const balances = deserializeFreeBalanceState(this.freeBalanceAppInstance!
+      .state as FreeBalanceStateJSON).balancesIndexedByToken;
+
+    const ret = {} as any;
+
+    for (const tokenAddress of Object.keys(balances)) {
+      const ret2 = {} as any;
+      for (const coinTransfer of balances[tokenAddress]) {
+        ret2[coinTransfer.to] = coinTransfer.amount;
+      }
+      ret[tokenAddress] = ret2;
+    }
+    console.table(ret);
   }
 
   private build(args: {
@@ -585,29 +600,6 @@ export class StateChannel {
       json.monotonicNumInstalledApps,
       json.createdAt
     );
-  }
-
-  /**
-   * Finds a StateChannel based on two xpubs in a store.
-   *
-   * @param myXpub - first xpub
-   * @param theirXpub - second xpub
-   * @param store - store to search within
-   */
-  static async getStateChannelWithOwners(
-    myXpub: string,
-    theirXpub: string,
-    store: Store
-  ): Promise<StateChannel> {
-    const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-      hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
-    );
-
-    if (!multisigAddress) {
-      throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
-    }
-
-    return await store.getStateChannel(multisigAddress);
   }
 
   static async getPeersAddressFromChannel(

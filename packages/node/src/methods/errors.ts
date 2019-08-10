@@ -94,9 +94,6 @@ export const NO_APP_INSTANCE_ID_TO_INSTALL =
 export const NO_APP_INSTANCE_ID_TO_UNINSTALL =
   "No AppInstanceId specified to uninstall";
 
-export const NO_CHANNEL_BETWEEN_NODES = (nodeA: string, nodeB: string) =>
-  `No channel exists between the current user ${nodeA} and the peer ${nodeB}`;
-
 export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
   `No free balance exists for the specified token: ${tokenAddress}`;
 
@@ -106,8 +103,8 @@ export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
 export const NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID = (id: string) =>
   `No proposed AppInstance exists for the given appInstanceId: ${id}`;
 
-export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = (resp, query) =>
-  `Call to getStateChannel failed, response was ${resp} when searching for multisig address: ${query}`;
+export const NO_STATE_CHANNEL_FOR_MULTISIG_ADDR = multisigAddress =>
+  `Call to getStateChannel failed when searching for multisig address: ${multisigAddress}. This probably means that the StateChannel does not exist yet.`;
 
 export const NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT =
   "The multisig deployment transaction does not have a hash";

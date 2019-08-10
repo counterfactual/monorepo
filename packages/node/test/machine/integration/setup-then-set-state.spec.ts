@@ -1,14 +1,11 @@
 import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
-import {
-  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
-  NetworkContext
-} from "@counterfactual/types";
+import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { defaultAbiCoder, Interface, keccak256 } from "ethers/utils";
+import { Interface, keccak256 } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
@@ -116,14 +113,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         network,
         stateChannel.multisigAddress,
         stateChannel.multisigOwners,
-        stateChannel.freeBalance.identity,
-        defaultAbiCoder.encode(
-          [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-          [
-            stateChannel.freeBalance
-              .multiAssetMultiPartyCoinTransferInterpreterParams
-          ]
-        )
+        stateChannel.freeBalance.identity
       );
 
       const setupTx = setupCommitment.getSignedTransaction([

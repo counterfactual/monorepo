@@ -29,7 +29,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "jest"
+    "start": "jest --runInBand"
   },
   "jest": {
     "roots": [
@@ -38,7 +38,8 @@
     "transform": {
       "^.+\\.tsx?$": "ts-jest"
     },
-    "verbose": false
+    "verbose": true,
+    "testSequencer": "./utils/test-sequencer.js"
   },
   "bugs": {
     "url": "https://github.com/counterfactual/monorepo/issues"

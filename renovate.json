@@ -1,7 +1,5 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "schedule": ["every weekend"],
   "baseBranches": ["next"],
   "automerge": true,
@@ -20,11 +18,8 @@
     "@counterfactual/cf.js",
     "@counterfactual/cf-adjudicator-contracts",
     "@counterfactual/cf-funding-protocol-contracts",
-    "@counterfactual/dapp-high-roller",
-    "@counterfactual/dapp-tic-tac-toe",
     "@counterfactual/node-provider",
     "@counterfactual/node",
-    "@counterfactual/playground",
     "@counterfactual/specs",
     "@counterfactual/types",
     "@counterfactual/typescript-typings"

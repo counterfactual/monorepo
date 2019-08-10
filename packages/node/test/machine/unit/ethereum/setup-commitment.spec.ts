@@ -1,7 +1,5 @@
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
-import { multiAssetMultiPartyCoinTransferInterpreterParamsEncoding } from "@counterfactual/types";
 import {
-  defaultAbiCoder,
   getAddress,
   hexlify,
   Interface,
@@ -48,11 +46,7 @@ describe("SetupCommitment", () => {
       networkContext,
       stateChannel.multisigAddress,
       stateChannel.multisigOwners,
-      freeBalance.identity,
-      defaultAbiCoder.encode(
-        [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-        [freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
-      )
+      freeBalance.identity
     ).getTransactionDetails();
   });
 
