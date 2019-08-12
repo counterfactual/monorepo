@@ -12,9 +12,9 @@ import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
-  createChannel,
   constructGetStateRpc,
   constructTakeActionRpc,
+  createChannel,
   installVirtualApp
 } from "./utils";
 

@@ -11,11 +11,11 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
+  constructAppProposalRpc,
   createChannel,
   getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
-  constructAppProposalRpc,
   makeInstallCall,
   makeProposeCall,
   transferERC20Tokens

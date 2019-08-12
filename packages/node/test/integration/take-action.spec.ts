@@ -11,9 +11,9 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
-  createChannel,
   constructGetStateRpc,
   constructTakeActionRpc,
+  createChannel,
   installApp
 } from "./utils";
 

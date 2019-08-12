@@ -8,12 +8,12 @@ import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   confirmProposedAppInstance,
+  constructRejectInstallRpc,
   createChannel,
   getAppInstanceProposal,
   getInstalledAppInstances,
   getProposedAppInstances,
-  makeProposeCall,
-  constructRejectInstallRpc
+  makeProposeCall
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {

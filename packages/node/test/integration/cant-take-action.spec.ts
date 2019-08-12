@@ -3,7 +3,7 @@ import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server
 import { INVALID_ACTION, Node } from "../../src";
 
 import { setup, SetupContext } from "./setup";
-import { createChannel, constructTakeActionRpc, installApp } from "./utils";
+import { constructTakeActionRpc, createChannel, installApp } from "./utils";
 
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
@@ -33,10 +33,7 @@ describe("Node method follows spec - fails with improper action taken", () => {
         (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
       );
 
-      const takeActionReq = constructTakeActionRpc(
-        appInstanceId,
-        validAction
-      );
+      const takeActionReq = constructTakeActionRpc(appInstanceId, validAction);
 
       await expect(
         nodeA.rpcRouter.dispatch(takeActionReq)

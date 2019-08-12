@@ -10,9 +10,9 @@ import {
 } from "./setup";
 import {
   confirmProposedVirtualAppInstance,
+  constructRejectInstallRpc,
   createChannel,
   getProposedAppInstances,
-  constructRejectInstallRpc,
   makeVirtualProposeCall
 } from "./utils";
 

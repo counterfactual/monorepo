@@ -2,7 +2,7 @@ import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 
 import { setup, SetupContext } from "./setup";
-import { createChannel, constructUninstallRpc } from "./utils";
+import { constructUninstallRpc, createChannel } from "./utils";
 
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;

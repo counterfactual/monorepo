@@ -6,8 +6,8 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID, Node } from "../../src";
 import { setup, SetupContext } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
-  createChannel,
   constructGetStateRpc,
+  createChannel,
   getState,
   installApp
 } from "./utils";

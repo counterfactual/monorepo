@@ -9,8 +9,8 @@ import {
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
-  createChannel,
   constructUninstallRpc,
+  createChannel,
   getInstalledAppInstances,
   installApp
 } from "./utils";

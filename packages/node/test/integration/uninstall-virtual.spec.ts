@@ -6,8 +6,8 @@ import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
-  createChannel,
   constructUninstallVirtualRpc,
+  createChannel,
   getInstalledAppInstances,
   installVirtualApp
 } from "./utils";

@@ -7,9 +7,9 @@ import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 import { setup, SetupContext } from "./setup";
 import {
   confirmProposedVirtualAppInstance,
+  constructRejectInstallRpc,
   createChannel,
   getProposedAppInstances,
-  constructRejectInstallRpc,
   makeVirtualProposeCall
 } from "./utils";
 

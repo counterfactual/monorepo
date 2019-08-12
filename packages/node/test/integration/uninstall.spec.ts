@@ -9,8 +9,8 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
-  createChannel,
   constructUninstallRpc,
+  createChannel,
   getFreeBalanceState,
   getInstalledAppInstances,
   installApp

@@ -12,10 +12,10 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
+  constructDepositRpc,
   createChannel,
   getFreeBalanceState,
   getTokenIndexedFreeBalanceStates,
-  constructDepositRpc,
   transferERC20Tokens
 } from "./utils";
 
