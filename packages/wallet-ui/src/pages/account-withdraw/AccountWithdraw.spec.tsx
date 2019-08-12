@@ -22,6 +22,8 @@ import {
   AccountWithdrawProps
 } from "./AccountWithdraw";
 import mock from "./AccountWithdraw.context.json";
+import { AddressZero, Zero } from "ethers/constants";
+import { USER_KOVAN_TOKENS_MOCK } from "../../store/test-utils/nodeTokenClient";
 
 Enzyme.configure({ adapter: new Adapter() });
 
@@ -42,7 +44,10 @@ function setup() {
   const AccountWithdraw = connect(
     (state: ApplicationState) => ({
       user: state.UserState.user,
-      walletState: state.WalletState
+      walletState: {
+        ...state.WalletState,
+        tokenAddresses: USER_KOVAN_TOKENS_MOCK(Zero, Zero)
+      }
     }),
     (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
       withdraw: (
@@ -76,7 +81,7 @@ describe("<AccountWithdraw />", () => {
   });
 
   it("should render a Proceed button or Withdraw", () => {
-    const CTA = component.find(testSelector("deposit-button"));
+    const CTA = component.find(testSelector("withdraw-button"));
     expect(CTA.exists()).toBe(true);
     expect(["Proceed", "Withdraw"]).toContain(CTA.text());
   });
@@ -87,9 +92,13 @@ describe("<AccountWithdraw />", () => {
 
   it("should redirect to /channels after clicking the button", () => {
     component.find(testSelector("amount-input")).simulate("change", {
-      target: { value: "0.01", validity: { valid: true } }
+      target: {
+        value: "0.01",
+        validity: { valid: true },
+        tokenAddress: AddressZero
+      }
     });
-    component.find(testSelector("deposit-button")).simulate("click");
+    component.find(testSelector("withdraw-button")).simulate("click");
     expect(props.history.location.pathname).toBe(RoutePath.Channels);
   });
 });
