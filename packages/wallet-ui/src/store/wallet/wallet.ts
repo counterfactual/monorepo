@@ -10,7 +10,11 @@ import {
   requestWithdraw
 } from "../../utils/counterfactual";
 import log from "../../utils/log";
-import { getTokens, ShortTokenNetworksName } from "../../utils/nodeTokenClient";
+import {
+  getTokens,
+  ShortTokenNetworksName,
+  getUserWalletBalances
+} from "../../utils/nodeTokenClient";
 import {
   ActionType,
   ApplicationState,
@@ -46,13 +50,13 @@ export const connectToWallet = (
     });
 
     const network = await provider.getNetwork();
-    const tokenAddresses = await getTokens(
-      ShortTokenNetworksName[network.name]
-    );
-    tokenAddresses[0].walletBalance = await provider.getBalance(
-      ethereum.selectedAddress
-    );
+    let tokenAddresses = await getTokens(ShortTokenNetworksName[network.name]);
 
+    tokenAddresses = await getUserWalletBalances(
+      provider,
+      ethereum.selectedAddress,
+      tokenAddresses
+    );
     dispatch({
       data: { tokenAddresses },
       type: ActionType.WalletSetBalance
@@ -91,21 +95,21 @@ export const deposit = (
     dispatch({ type: WalletDepositTransition.CheckWallet });
     await requestDeposit(transaction);
 
-    // // 2. Wait until the deposit is completed in both sides. !
+    // 2. Wait until the deposit is completed in both sides. !
     dispatch({ type: WalletDepositTransition.WaitForUserFunds });
     await forFunds(transaction, "user");
 
     dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     await forFunds(transaction);
     // 3. Get the updated Balances
-    const tokenAddresses = await getIndexedCFBalances({
+    let tokenAddresses = await getIndexedCFBalances({
       multisigAddress: transaction.multisigAddress as string,
       nodeAddress: transaction.nodeAddress
     });
-
-    // TODO: this should be replaced by a ERC20 MM getter
-    tokenAddresses[0].walletBalance = await provider.getBalance(
-      transaction.ethAddress
+    tokenAddresses = await getUserWalletBalances(
+      provider,
+      transaction.ethAddress,
+      tokenAddresses
     );
 
     // 4. Update the balance.
@@ -154,14 +158,15 @@ export const withdraw = (
     await forFunds(transaction);
 
     // 3. Get the updated balances.
-    const tokenAddresses = await getIndexedCFBalances({
+    let tokenAddresses = await getIndexedCFBalances({
       multisigAddress: transaction.multisigAddress as string,
       nodeAddress: transaction.nodeAddress
     });
 
-    // TODO: this should be replaced by a ERC20 MM getter
-    tokenAddresses[0].walletBalance = await provider.getBalance(
-      transaction.ethAddress
+    tokenAddresses = await getUserWalletBalances(
+      provider,
+      transaction.ethAddress,
+      tokenAddresses
     );
 
     // 4. Update the balance.

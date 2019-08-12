@@ -1,6 +1,8 @@
+import { Zero } from "ethers/constants";
+import { Web3Provider } from "ethers/providers";
+import { formatEther } from "ethers/utils";
 import { AssetType } from "../store/types";
 import { defaultToken } from "../types";
-import { getAddressBalances } from "eth-balance-checker/lib/web3";
 
 export enum ShortTokenNetworksName {
   kovan = "kov",
@@ -10,21 +12,38 @@ export enum ShortTokenNetworksName {
   homestead = "eth"
 }
 
+export const getFormattedBalanceFrom = (
+  tokenAddresses: AssetType[],
+  index: number = 0,
+  from: "walletBalance" | "counterfactualBalance" = "counterfactualBalance"
+): string => {
+  return formatEther(
+    (tokenAddresses[index] && tokenAddresses[index][from]) || Zero
+  );
+};
+
 export const getUserWalletBalances = async (
-  web3: any,
-  ethAddress: string,
+  provider: Web3Provider,
+  walletAddress: string,
   tokens: AssetType[]
 ): Promise<any> => {
-  try {
-    const response = await getAddressBalances(
-      web3,
-      ethAddress,
-      tokens.map(({ tokenAddress }) => tokenAddress)
-    );
-    return response;
-  } catch (error) {
-    return {};
+  tokens[0].walletBalance = await provider.getBalance(walletAddress);
+  for (let index = 1; index < tokens.length; index = index + 1) {
+    const token = tokens[index];
+    try {
+      const response = await fetch(
+        `https://kovan.etherscan.io/api?module=account&action=tokenbalance&contractaddress=${token.tokenAddress}&address=${walletAddress}&tag=latest&apikey=${process.env.ETHERSCAN_API_KEY}`
+      );
+      const parsedResponse = await response.json();
+      if (parsedResponse && parsedResponse.result) {
+        token.walletBalance = parsedResponse.result;
+      }
+    } catch (error) {
+      console.error("error retrieving user wallet balance", error.message);
+      token.walletBalance = Zero;
+    }
   }
+  return tokens;
 };
 
 export const getTokens = async (

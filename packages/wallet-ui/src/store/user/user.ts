@@ -1,25 +1,11 @@
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../../types";
-import {
-  buildRegistrationSignaturePayload,
-  buildSignatureMessageForLogin,
-  forMultisig,
-  getIndexedCFBalances,
-  getNodeAddress,
-  getUserFromStoredToken,
-  storeTokenFromUser
-} from "../../utils/counterfactual";
+import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getIndexedCFBalances, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
-import {
-  ActionType,
-  ApplicationState,
-  StoreAction,
-  User,
-  UserState
-} from "../types";
+import { ActionType, ApplicationState, StoreAction, User, UserState } from "../types";
 
 export const initialState = {
   user: {},
@@ -96,9 +82,7 @@ export const addUser = (
 export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
-  history: History,
-  // @ts-ignore
-  provider: Web3Provider
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -139,8 +123,6 @@ export const loginUser = (
 };
 
 export const getUser = (
-  // @ts-ignore
-  provider: Web3Provider,
   history: History
 ): ThunkAction<
   void,

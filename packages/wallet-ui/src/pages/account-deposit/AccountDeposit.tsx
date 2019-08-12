@@ -12,20 +12,26 @@ import { EthereumService } from "../../providers/EthereumService";
 import {
   ActionType,
   ApplicationState,
+  AssetType,
   Deposit,
   ErrorData,
   User,
   WalletState
 } from "../../store/types";
-import { deposit, WalletDepositTransition } from "../../store/wallet/wallet";
-import { RoutePath } from "../../types";
+import { WalletDepositTransition, deposit } from "../../store/wallet/wallet";
+import { defaultToken, RoutePath } from "../../types";
+import { getFormattedBalanceFrom } from "../../utils/nodeTokenClient";
 import "./AccountDeposit.scss";
-import { Zero } from "ethers/constants";
 
-const BalanceLabel: React.FC<{ available: string }> = ({ available }) => (
+const BalanceLabel: React.FC<{ available: string; shortName: string }> = ({
+  available,
+  shortName
+}) => (
   <div className="balance-label">
     <div>Available Balance</div>
-    <div>{available} ETH</div>
+    <div>
+      {available} {shortName}
+    </div>
   </div>
 );
 
@@ -44,7 +50,8 @@ type AccountDepositState = {
     ctaButtonText: string;
     headerDetails: string;
   };
-  tokenAddress?: string;
+  selectedToken: AssetType;
+  depositableTokens: AssetType[];
   loading: boolean;
   amount: BigNumberish;
 };
@@ -76,7 +83,13 @@ export class AccountDeposit extends React.Component<
     }
     this.state = {
       depositCaseVariables,
-      tokenAddress: undefined,
+      depositableTokens: (
+        this.props.walletState.tokenAddresses || [defaultToken]
+      ).filter(token => token.walletBalance !== "0"),
+      selectedToken:
+        this.props.walletState.tokenAddresses.find(
+          ({ tokenAddress: ta }) => ta === defaultToken.tokenAddress
+        ) || defaultToken,
       amount: parseEther(String(props.initialAmount || 0.1)),
       loading: false
     };
@@ -85,7 +98,10 @@ export class AccountDeposit extends React.Component<
   handleChange = ({ value, tokenAddress }: InputChangeProps) => {
     this.setState({
       ...this.state,
-      tokenAddress,
+      selectedToken:
+        this.state.depositableTokens.find(
+          ({ tokenAddress: ta }) => ta === tokenAddress
+        ) || this.state.depositableTokens[0],
       amount: parseEther(value as string)
     });
   };
@@ -96,7 +112,7 @@ export class AccountDeposit extends React.Component<
     [WalletDepositTransition.WaitForCollateralFunds]: "Collateralizing deposit"
   };
 
-  createDepositData(
+  createTransactionData(
     { multisigAddress, nodeAddress, ethAddress }: User,
     amount: BigNumberish,
     tokenAddress?: string
@@ -114,19 +130,46 @@ export class AccountDeposit extends React.Component<
     if (this.props.error !== prevProps.error) {
       this.setState({ ...this.state, loading: false });
     }
+    if (
+      this.props.walletState.tokenAddresses[0] !==
+      prevProps.walletState.tokenAddresses[0]
+    ) {
+      this.setState({
+        ...this.state,
+        depositableTokens: this.props.walletState.tokenAddresses.filter(
+          token => token.walletBalance !== "0"
+        ),
+        selectedToken:
+          this.props.walletState.tokenAddresses.find(
+            ({ tokenAddress: ta }) =>
+              ta === this.state.selectedToken.tokenAddress
+          ) || defaultToken
+      });
+    }
   }
 
   render() {
     const { walletState, deposit, history, user } = this.props;
     const { provider } = this.context;
-    const { error, status, tokenAddresses } = walletState;
-    const { amount, loading, depositCaseVariables, tokenAddress } = this.state;
+    const { error, status } = walletState;
+    const {
+      amount,
+      loading,
+      depositCaseVariables,
+      depositableTokens,
+      selectedToken
+    } = this.state;
     const {
       halfWidget,
       header,
       headerDetails,
       ctaButtonText
     } = depositCaseVariables;
+    const availableBalance = getFormattedBalanceFrom(
+      [selectedToken],
+      0,
+      "walletBalance"
+    );
 
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
@@ -135,21 +178,16 @@ export class AccountDeposit extends React.Component<
           <FormInput
             label={
               <BalanceLabel
-                available={formatEther(
-                  (tokenAddresses[0] && tokenAddresses[0].walletBalance) || Zero
-                )}
+                available={availableBalance}
+                shortName={(selectedToken && selectedToken.shortName) || "ETH"}
               />
             }
             className="input--balance"
             type="number"
-            units={tokenAddresses}
+            units={depositableTokens}
             name="amount"
             min={0.02}
-            max={Number(
-              formatEther(
-                (tokenAddresses[0] && tokenAddresses[0].walletBalance) || Zero
-              )
-            )}
+            max={Number(availableBalance)}
             value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
@@ -163,12 +201,15 @@ export class AccountDeposit extends React.Component<
             type="button"
             className="button"
             spinner={loading}
-            disabled={loading}
+            disabled={loading || !!(error.message || error.code)}
             onClick={() => {
               this.setState({ loading: true });
-
               deposit(
-                this.createDepositData(user, amount, tokenAddress),
+                this.createTransactionData(
+                  user,
+                  amount,
+                  selectedToken && selectedToken.tokenAddress
+                ),
                 provider,
                 history
               );

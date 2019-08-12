@@ -22,7 +22,7 @@ import { connectToWallet } from "./store/wallet/wallet";
 import { RoutePath } from "./types";
 
 type AppProps = {
-  getUser: (provider: Web3Provider, history: History) => void;
+  getUser: (history: History) => void;
   connectToWallet: (provider: Web3Provider) => void;
 };
 
@@ -31,7 +31,7 @@ const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
   const history = createBrowserHistory();
   useEffect(() => {
     connectToWallet(provider);
-    getUser(provider, history);
+    getUser(history);
   });
   return (
     <Router history={history}>
@@ -62,8 +62,7 @@ const App: React.FC<AppProps> = ({ getUser, connectToWallet }) => {
 export default connect(
   null,
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    getUser: (provider: Web3Provider, history: History) =>
-      dispatch(getUser(provider, history)),
+    getUser: (history: History) => dispatch(getUser(history)),
     connectToWallet: (provider: Web3Provider) =>
       dispatch(connectToWallet(provider))
   })

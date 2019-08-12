@@ -62,11 +62,6 @@ export async function requestWithdraw({
   ethAddress,
   tokenAddress
 }: Deposit) {
-  console.log("requestWithdraw", "amount", amount);
-  console.log("requestWithdraw", "multisigAddress", multisigAddress);
-  console.log("requestWithdraw", "ethAddress", ethAddress);
-  console.log("requestWithdraw", "tokenAddress", tokenAddress);
-
   return window.ethereum.send(CounterfactualMethod.RequestWithdraw, [
     amount,
     multisigAddress,

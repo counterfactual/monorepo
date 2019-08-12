@@ -1,6 +1,4 @@
-import { Zero } from "ethers/constants";
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
-import { formatEther, BigNumber } from "ethers/utils";
+import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 import React from "react";
 import { connect } from "react-redux";
@@ -16,6 +14,7 @@ import {
 } from "../../../store/types";
 import { loginUser } from "../../../store/user/user";
 import { RoutePath } from "../../../types";
+import { getFormattedBalanceFrom } from "../../../utils/nodeTokenClient";
 import { FormButton } from "../../form";
 import "./AccountContext.scss";
 
@@ -26,15 +25,13 @@ export type AccountContextProps = RouteComponentProps & {
   loginUser: (
     ethAddress: string,
     signer: JsonRpcSigner,
-    history: History,
-    provider: Web3Provider
+    history: History
   ) => void;
 };
 
 type AccountInformationProps = AccountBalanceProps & AccountUserProps;
 
 type AccountBalanceProps = {
-  balance?: string;
   tokens: AssetType[];
 };
 
@@ -42,7 +39,7 @@ type AccountUserProps = {
   username?: string;
 };
 
-const AccountBalance: React.FC<AccountBalanceProps> = ({ balance, tokens }) => {
+const AccountBalance: React.FC<AccountBalanceProps> = ({ tokens }) => {
   return (
     <div className="info" data-test-selector="info-balance">
       <img alt="" className="info-img" src="/assets/icon/crypto.svg" />
@@ -50,14 +47,12 @@ const AccountBalance: React.FC<AccountBalanceProps> = ({ balance, tokens }) => {
         <div className="info-text">
           <div className="info-header">Balance</div>
           <div className="info-content">
-            {balance} ETH
+            {getFormattedBalanceFrom(tokens)} ETH
             {tokens.length > 1 ? (
               <div className="info-hover">
-                {tokens.map(token => (
+                {tokens.map((token, index) => (
                   <span key={`token${token.tokenAddress}`}>
-                    {formatEther(
-                      (token.counterfactualBalance as BigNumber) || Zero
-                    )}{" "}
+                    {getFormattedBalanceFrom(tokens, index)}{" "}
                     {String(token.shortName).toUpperCase()}
                   </span>
                 ))}
@@ -83,13 +78,12 @@ const AccountUser: React.FC<AccountUserProps> = ({ username }) => (
 );
 
 const AccountInformation: React.FC<AccountInformationProps> = ({
-  balance,
   username,
   tokens
 }) => (
   <div className="account-container">
     <div className="info-container">
-      <AccountBalance balance={balance} tokens={tokens} />
+      <AccountBalance tokens={tokens} />
       <AccountUser username={username} />
     </div>
   </div>
@@ -102,10 +96,7 @@ export class AccountContext extends React.Component<AccountContextProps> {
   render() {
     const { user } = this.props.userState;
     const { loginUser, ethAddress, history, tokens } = this.props;
-    const { signer, provider } = this.context;
-    const balance: string = formatEther(
-      (tokens[0] && tokens[0].counterfactualBalance) || Zero
-    );
+    const { signer } = this.context;
     return (
       <div className="account-context">
         {!user.ethAddress ? (
@@ -114,7 +105,7 @@ export class AccountContext extends React.Component<AccountContextProps> {
               name="login"
               className="btn"
               onClick={() => {
-                loginUser(ethAddress, signer, history, provider);
+                loginUser(ethAddress, signer, history);
               }}
             >
               <img alt="" className="icon" src="/assets/icon/login.svg" />
@@ -124,7 +115,6 @@ export class AccountContext extends React.Component<AccountContextProps> {
         ) : (
           <AccountInformation
             username={user.username}
-            balance={balance}
             tokens={tokens.filter(
               token => token.name && token.counterfactualBalance
             )}
@@ -142,11 +132,7 @@ export default connect(
     tokens: state.WalletState.tokenAddresses
   }),
   (dispatch: ThunkDispatch<ApplicationState, null, Action<ActionType>>) => ({
-    loginUser: (
-      ethAddress: string,
-      signer: JsonRpcSigner,
-      history: History,
-      provider: Web3Provider
-    ) => dispatch(loginUser(ethAddress, signer, history, provider))
+    loginUser: (ethAddress: string, signer: JsonRpcSigner, history: History) =>
+      dispatch(loginUser(ethAddress, signer, history))
   })
 )(AccountContext);

@@ -12,16 +12,16 @@ import { EthereumService } from "../../providers/EthereumService";
 import {
   ActionType,
   ApplicationState,
+  AssetType,
   Deposit,
   ErrorData,
   User,
-  WalletState,
-  AssetType
+  WalletState
 } from "../../store/types";
 import { WalletWithdrawTransition, withdraw } from "../../store/wallet/wallet";
-import { RoutePath, defaultToken } from "../../types";
+import { defaultToken, RoutePath } from "../../types";
+import { getFormattedBalanceFrom } from "../../utils/nodeTokenClient";
 import "./AccountWithdraw.scss";
-import { Zero } from "ethers/constants";
 
 const BalanceLabel: React.FC<{ available: string; shortName: string }> = ({
   available,
@@ -162,7 +162,7 @@ export class AccountWithdraw extends React.Component<
       headerDetails,
       ctaButtonText
     } = withdrawCaseVariables;
-
+    const availableBalance = getFormattedBalanceFrom([selectedToken]);
     return (
       <WidgetScreen header={header} half={halfWidget} exitable={false}>
         <form>
@@ -170,9 +170,7 @@ export class AccountWithdraw extends React.Component<
           <FormInput
             label={
               <BalanceLabel
-                available={formatEther(
-                  (selectedToken && selectedToken.counterfactualBalance) || Zero
-                )}
+                available={availableBalance}
                 shortName={(selectedToken && selectedToken.shortName) || "ETH"}
               />
             }
@@ -181,9 +179,7 @@ export class AccountWithdraw extends React.Component<
             units={withdrawableTokens}
             name="amount"
             min={0.02}
-            max={Number(
-              (selectedToken && selectedToken.counterfactualBalance) || Zero
-            )}
+            max={Number(availableBalance)}
             value={formatEther(amount)}
             step={0.01}
             change={this.handleChange}
