@@ -17,6 +17,7 @@ import { RoutePath } from "../../../types";
 import { getFormattedBalanceFrom } from "../../../utils/nodeTokenClient";
 import { FormButton } from "../../form";
 import "./AccountContext.scss";
+import { WidgetTooltip } from "../../widget";
 
 export type AccountContextProps = RouteComponentProps & {
   userState: UserState;
@@ -94,23 +95,28 @@ export class AccountContext extends React.Component<AccountContextProps> {
   context!: React.ContextType<typeof EthereumService>;
 
   render() {
-    const { user } = this.props.userState;
+    const { user, error } = this.props.userState;
     const { loginUser, ethAddress, history, tokens } = this.props;
     const { signer } = this.context;
     return (
       <div className="account-context">
         {!user.ethAddress ? (
           <div className="btn-container">
-            <FormButton
-              name="login"
-              className="btn"
-              onClick={() => {
-                loginUser(ethAddress, signer, history);
-              }}
+            <WidgetTooltip
+              toLeft={true}
+              message={error && error.code ? "No user was found" : ""}
             >
-              <img alt="" className="icon" src="/assets/icon/login.svg" />
-              Login
-            </FormButton>
+              <FormButton
+                name="login"
+                className={`btn ${error && error.code ? "btn-error" : ""}`}
+                onClick={() => {
+                  loginUser(ethAddress, signer, history);
+                }}
+              >
+                <img alt="" className="icon" src="/assets/icon/login.svg" />
+                Login
+              </FormButton>
+            </WidgetTooltip>
           </div>
         ) : (
           <AccountInformation
