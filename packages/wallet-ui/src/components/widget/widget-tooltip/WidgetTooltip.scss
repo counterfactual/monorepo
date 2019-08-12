@@ -12,6 +12,14 @@
   border-radius: 2px;
   box-shadow: 1px 2px 4px $c-darkgrey;
 
+  &.toLeft {
+    right: 0px;
+    &:before {
+      right: 20px;
+      left: auto;
+    }
+  }
+
   &:before {
     position: absolute;
     width: 10px;
