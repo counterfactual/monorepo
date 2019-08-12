@@ -12,7 +12,7 @@ For now, it's only available in our custom fork. Follow [these instructions](htt
 
 ### Running the Wallet UI
 First of all, you will need an [Etherscan api key](https://etherscan.io/myapikey) to be able to retrieve the ERC20's Metamask Wallet balances.
-Then you need to add the `REACT_APP_ETHERSCAN_API_KEY` environment variable on the package .env file.
+Then you need to add the `REACT_APP_ETHERSCAN_API_KEY` environment variable on the Wallet-UI package's .env file.
 
 On the monorepo's root:
 
