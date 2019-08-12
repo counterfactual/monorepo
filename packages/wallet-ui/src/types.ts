@@ -1,5 +1,8 @@
 import { AsyncSendable, JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { IpcProvider, JsonRPCResponse } from "web3/providers";
+import { AddressZero } from "ethers/constants";
+import { AssetType } from "./store/types";
+import Web3 from "web3";
 
 export enum RoutePath {
   Root = "/",
@@ -10,6 +13,12 @@ export enum RoutePath {
   Withdraw = "/withdraw",
   Channels = "/channels"
 }
+
+export const defaultToken: AssetType = {
+  tokenAddress: AddressZero,
+  name: "Ethereum",
+  shortName: "ETH"
+};
 
 export type EthereumServiceContext = {
   provider: Web3Provider;
@@ -23,6 +32,7 @@ export enum CounterfactualMethod {
   RequestDeposit = "counterfactual:request:deposit",
   RequestWithdraw = "counterfactual:request:withdraw",
   RequestBalances = "counterfactual:request:balances",
+  RequestIndexedBalances = "counterfactual:request:token_indexed_balances",
   RequestChannels = "counterfactual:request:channels",
   RequestChannel = "counterfactual:request:channel"
 }
@@ -46,5 +56,6 @@ export type EthereumGlobal = Omit<IpcProvider, "send"> &
 declare global {
   interface Window {
     ethereum: EthereumGlobal;
+    web3: Web3;
   }
 }

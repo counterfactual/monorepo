@@ -12,7 +12,17 @@
         "email": "foo@bar.co"
       },
       "walletState": {
-        "ethereumBalance": { "_hex": "0x00", "_ethersType": "BigNumber" }
+        "tokens": [
+          {
+            "counterfactualBalance": {
+              "_hex": "0x00",
+              "_ethersType": "BigNumber"
+            },
+            "shortName": "ETH",
+            "name": "Ethereum",
+            "tokenAddress": "0x0000000000000000000000000000000000000000"
+          }
+        ]
       },
       "error": {
         "message": "",
@@ -26,7 +36,17 @@
       "code": "",
       "field": ""
     },
-    "counterfactualBalance": "0x0de0b6b3a7640000",
+    "tokens": [
+      {
+        "counterfactualBalance": {
+          "_hex": "0x00",
+          "_ethersType": "BigNumber"
+        },
+        "shortName": "ETH",
+        "name": "Ethereum",
+        "tokenAddress": "0x0000000000000000000000000000000000000000"
+      }
+    ],
     "ethAddress": "0x0",
     "match": {
       "isExact": true,
