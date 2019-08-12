@@ -264,7 +264,8 @@ export class TestRunner {
         },
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddress,
-        responderDepositTokenAddress: tokenAddress
+        responderDepositTokenAddress: tokenAddress,
+        disableLimit: false
       }
     );
   }
@@ -332,7 +333,8 @@ export class TestRunner {
         },
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddressA,
-        responderDepositTokenAddress: tokenAddressB
+        responderDepositTokenAddress: tokenAddressB,
+        disableLimit: false
       }
     );
   }
