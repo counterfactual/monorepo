@@ -127,7 +127,7 @@ export class AccountWithdraw extends React.Component<
             className="input--balance"
             type="number"
             units={nodeAddresses}
-            name="amount"
+            name="withdraw-amount"
             min={0.02}
             max={Number(ethereumBalance)}
             value={formatEther(amount)}
@@ -139,7 +139,7 @@ export class AccountWithdraw extends React.Component<
             <div className="error">Ups! something broke</div>
           ) : null}
           <FormButton
-            name="deposit"
+            name="withdraw"
             type="button"
             className="button"
             spinner={loading}

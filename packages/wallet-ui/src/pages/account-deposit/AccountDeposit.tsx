@@ -130,7 +130,7 @@ export class AccountDeposit extends React.Component<
             className="input--balance"
             type="number"
             units={nodeAddresses}
-            name="amount"
+            name="deposit-amount"
             min={0.02}
             max={Number(ethereumBalance)}
             value={formatEther(amount)}

@@ -3,6 +3,7 @@ require("chromedriver");
 import { resolve } from "path";
 import {
   Builder,
+  Key,
   Locator,
   until,
   WebDriver,
@@ -17,7 +18,8 @@ import {
 import {
   ACCOUNT_DEPOSIT_SELECTORS,
   ACCOUNT_REGISTRATION_SELECTORS,
-  LAYOUT_HEADER_SELECTORS
+  LAYOUT_HEADER_SELECTORS,
+  STATE_CHANNELS_SELECTORS
 } from "./counterfactual-wallet-selectors";
 import {
   DEPOSIT_SELECTORS,
@@ -44,6 +46,15 @@ import {
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
 export const LOCATOR_TIMEOUT = 10000;
+export const DEPOSIT_TIMEOUT = 90000;
+
+export const METAMASK_ETH_ADDRESS =
+  "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
+export const METAMASK_MNEMONIC =
+  "mistake cash photo pond little nerve neutral adapt item kite radar tray";
+export const METAMASK_PASSWORD = "The Cake Is A Lie";
+export const COUNTERFACTUAL_USER_USERNAME = "teapot";
+export const COUNTERFACTUAL_USER_EMAIL_ADDRESS = "i.am.a@tea.pot";
 
 export const METAMASK_ETH_ADDRESS =
   "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
@@ -471,14 +482,20 @@ export class TestBrowser {
    * @todo Add check for texts "Transferring funds", "Collateralizing deposit".
    */
   async fillAccountDepositFormAndSubmit() {
-    const { formTitle, proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
+    const { proceedButton } = ACCOUNT_DEPOSIT_SELECTORS;
     const { logoContainer } = LAYOUT_HEADER_SELECTORS;
+    const { channelTreesContainer } = STATE_CHANNELS_SELECTORS;
 
-    await this.waitForElementToHaveText(formTitle, "Fund your account");
     await this.clickOnElement(proceedButton);
     await this.waitForElementToHaveText(proceedButton, "Check your wallet");
     await this.confirmDeposit();
-    await this.waitForElement(logoContainer, 90000);
+    await this.waitForElement(logoContainer, DEPOSIT_TIMEOUT);
+
+    const currentScreen = await this.getCurrentScreenName();
+
+    if (currentScreen === CounterfactualScreenName.Balance) {
+      await this.waitForElement(channelTreesContainer, DEPOSIT_TIMEOUT);
+    }
   }
 
   /**
@@ -503,6 +520,10 @@ export class TestBrowser {
 
     if (url.includes("channels")) {
       return CounterfactualScreenName.Channels;
+    }
+
+    if (url.includes("balance")) {
+      return CounterfactualScreenName.Balance;
     }
 
     return CounterfactualScreenName.Welcome;
@@ -608,7 +629,21 @@ export class TestBrowser {
    * @param selector
    */
   async typeOnInput(selector: Locator, value: string) {
+    await this.clearInput(selector);
     await this.getElement(selector).sendKeys(value);
+  }
+
+  /**
+   * Clears an input's value by selecting all text and pressing
+   * the BACKSPACE key.
+   *
+   * @param selector
+   */
+  async clearInput(selector: Locator) {
+    await this.getElement(selector).sendKeys(
+      Key.chord(Key.CONTROL, "A"),
+      Key.BACK_SPACE
+    );
   }
 
   /**

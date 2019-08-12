@@ -31,7 +31,8 @@ export const enum CounterfactualScreenName {
   Welcome = "welcome",
   OnboardingRegistration = "onboarding:register",
   OnboardingDeposit = "onboarding:deposit",
-  Channels = "channels"
+  Channels = "channels",
+  Balance = "balance"
 }
 
 export type StringHashMap = { [key: string]: string };
