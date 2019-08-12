@@ -7,7 +7,7 @@ import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
-  generateUninstallVirtualRequest,
+  constructUninstallVirtualRpc,
   getInstalledAppInstances,
   installVirtualApp
 } from "./utils";
@@ -66,7 +66,7 @@ describe("Node method follows spec - uninstall virtual", () => {
         );
 
         await nodeA.rpcRouter.dispatch(
-          generateUninstallVirtualRequest(appInstanceId, nodeB.publicIdentifier)
+          constructUninstallVirtualRpc(appInstanceId, nodeB.publicIdentifier)
         );
 
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);

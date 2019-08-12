@@ -15,7 +15,7 @@ import {
   createChannel,
   getFreeBalanceState,
   getTokenIndexedFreeBalanceStates,
-  makeDepositRequest,
+  constructDepositRpc,
   transferERC20Tokens
 } from "./utils";
 
@@ -37,7 +37,7 @@ describe("Node method follows spec - deposit", () => {
 
   it("has the right balance for both parties after deposits", async done => {
     const multisigAddress = await createChannel(nodeA, nodeB);
-    const depositReq = makeDepositRequest(multisigAddress, One);
+    const depositReq = constructDepositRpc(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
@@ -74,7 +74,7 @@ describe("Node method follows spec - deposit", () => {
       new JsonRpcProvider(global["ganacheURL"])
     );
 
-    const erc20DepositRequest = makeDepositRequest(
+    const erc20DepositRequest = constructDepositRpc(
       multisigAddress,
       One,
       erc20ContractAddress
@@ -121,7 +121,7 @@ describe("Node method follows spec - deposit", () => {
 
     // now deposits ETH
 
-    const ethDepositReq = makeDepositRequest(multisigAddress, One);
+    const ethDepositReq = constructDepositRpc(multisigAddress, One);
 
     preDepositBalance = await provider.getBalance(multisigAddress);
 

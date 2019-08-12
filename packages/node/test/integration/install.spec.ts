@@ -15,7 +15,7 @@ import {
   getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
-  makeAppProposalRequest,
+  constructAppProposalRpc,
   makeInstallCall,
   makeProposeCall,
   transferERC20Tokens
@@ -172,7 +172,7 @@ describe("Node method follows spec - install", () => {
         const appContext = getAppContext(
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
-        const appInstanceProposalReq = makeAppProposalRequest(
+        const appInstanceProposalReq = constructAppProposalRpc(
           nodeB.publicIdentifier,
           appContext.appDefinition,
           appContext.abiEncodings,

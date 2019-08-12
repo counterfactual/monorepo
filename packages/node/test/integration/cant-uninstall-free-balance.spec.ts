@@ -2,7 +2,7 @@ import { CANNOT_UNINSTALL_FREE_BALANCE, Node } from "../../src";
 import { StateChannel } from "../../src/models";
 
 import { setup, SetupContext } from "./setup";
-import { createChannel, generateUninstallRequest } from "./utils";
+import { createChannel, constructUninstallRpc } from "./utils";
 
 describe("Confirms that a FreeBalance cannot be uninstalled", () => {
   let nodeA: Node;
@@ -25,7 +25,7 @@ describe("Confirms that a FreeBalance cannot be uninstalled", () => {
         [nodeA.publicIdentifier, nodeB.publicIdentifier]
       );
 
-      const fbUninstallReq = generateUninstallRequest(
+      const fbUninstallReq = constructUninstallRpc(
         channel.freeBalance.identityHash
       );
 

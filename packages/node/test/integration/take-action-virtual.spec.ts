@@ -13,8 +13,8 @@ import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
   createChannel,
-  generateGetStateRequest,
-  generateTakeActionRequest,
+  constructGetStateRpc,
+  constructTakeActionRpc,
   installVirtualApp
 } from "./utils";
 
@@ -37,7 +37,7 @@ describe("Node method follows spec - takeAction virtual", () => {
       "Node C confirms receipt of state update",
     () => {
       it("sends takeAction with invalid appInstanceId", async () => {
-        const takeActionReq = generateTakeActionRequest("", validAction);
+        const takeActionReq = constructTakeActionRpc("", validAction);
         await expect(
           nodeA.rpcRouter.dispatch(takeActionReq)
         ).rejects.toThrowError(NO_APP_INSTANCE_FOR_TAKE_ACTION);
@@ -76,7 +76,7 @@ describe("Node method follows spec - takeAction virtual", () => {
             expect(retAppInstanceId).toEqual(appInstanceId);
             expect(newState).toEqual(expectedNewState);
 
-            const req = generateGetStateRequest(appInstanceId);
+            const req = constructGetStateRpc(appInstanceId);
 
             /**
              * TEST #3
@@ -106,7 +106,7 @@ describe("Node method follows spec - takeAction virtual", () => {
           }
         );
 
-        const takeActionReq = generateTakeActionRequest(
+        const takeActionReq = constructTakeActionRpc(
           appInstanceId,
           validAction
         );

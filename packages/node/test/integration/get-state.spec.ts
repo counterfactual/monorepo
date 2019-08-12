@@ -7,7 +7,7 @@ import { setup, SetupContext } from "./setup";
 import { initialEmptyTTTState } from "./tic-tac-toe";
 import {
   createChannel,
-  generateGetStateRequest,
+  constructGetStateRpc,
   getState,
   installApp
 } from "./utils";
@@ -23,7 +23,7 @@ describe("Node method follows spec - getAppInstances", () => {
   });
 
   it("returns the right response for getting the state of a non-existent AppInstance", async () => {
-    const getStateReq = generateGetStateRequest(generateUUID());
+    const getStateReq = constructGetStateRpc(generateUUID());
     await expect(nodeA.rpcRouter.dispatch(getStateReq)).rejects.toThrowError(
       NO_MULTISIG_FOR_APP_INSTANCE_ID
     );
