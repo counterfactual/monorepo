@@ -3,9 +3,23 @@ import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
 import { RoutePath } from "../../types";
-import { buildRegistrationSignaturePayload, buildSignatureMessageForLogin, forMultisig, getIndexedCFBalances, getNodeAddress, getUserFromStoredToken, storeTokenFromUser } from "../../utils/counterfactual";
+import {
+  buildRegistrationSignaturePayload,
+  buildSignatureMessageForLogin,
+  forMultisig,
+  getIndexedCFBalances,
+  getNodeAddress,
+  getUserFromStoredToken,
+  storeTokenFromUser
+} from "../../utils/counterfactual";
 import Hub, { ErrorDetail } from "../../utils/hub-api-client";
-import { ActionType, ApplicationState, StoreAction, User, UserState } from "../types";
+import {
+  ActionType,
+  ApplicationState,
+  StoreAction,
+  User,
+  UserState
+} from "../types";
 
 export const initialState = {
   user: {},
