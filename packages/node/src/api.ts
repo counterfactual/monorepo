@@ -28,6 +28,7 @@ import {
   UninstallController,
   UninstallVirtualController,
   UpdateStateController,
+  WithdrawCommitmentController,
   WithdrawController
 } from "./methods";
 import { RequestHandler } from "./request-handler";
@@ -49,6 +50,7 @@ const controllers = [
   UninstallController,
   UninstallVirtualController,
   UpdateStateController,
+  WithdrawCommitmentController,
   WithdrawController,
 
   /**

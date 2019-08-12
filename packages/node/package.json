@@ -55,7 +55,7 @@
     "@counterfactual/cf-funding-protocol-contracts": "0.0.1",
     "@counterfactual/cf.js": "0.2.3",
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/types": "0.0.32",
+    "@counterfactual/types": "0.0.33",
     "ethers": "4.0.33",
     "eventemitter3": "^4.0.0",
     "loglevel": "^1.6.1",

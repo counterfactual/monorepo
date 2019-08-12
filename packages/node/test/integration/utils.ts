@@ -173,6 +173,17 @@ export async function getProposedAppInstances(
   return result.appInstances;
 }
 
+export async function deposit(
+  node: Node,
+  multisigAddress: string,
+  amount: BigNumber = One,
+  tokenAddress?: string
+) {
+  const depositReq = makeDepositRequest(multisigAddress, amount, tokenAddress);
+
+  await node.rpcRouter.dispatch(depositReq);
+}
+
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
@@ -188,6 +199,24 @@ export function makeDepositRequest(
     } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
+}
+
+export function makeWithdrawCommitmentRequest(
+  multisigAddress: string,
+  amount: BigNumber,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  recipient?: string
+): Rpc {
+  const withdrawCommitmentReq = makeWithdrawRequest(
+    multisigAddress,
+    amount,
+    tokenAddress,
+    recipient
+  );
+
+  withdrawCommitmentReq.methodName =
+    NodeTypes.RpcMethodName.WITHDRAW_COMMITMENT;
+  return withdrawCommitmentReq;
 }
 
 export function makeWithdrawRequest(
