@@ -19,7 +19,6 @@ export type SolidityValueType =
   | SolidityABIEncoderV2Struct
   | SolidityABIEncoderV2SArray;
 
-
 type SolidityABIEncoderV2Struct = {
   [x: string]: SolidityValueType;
 };

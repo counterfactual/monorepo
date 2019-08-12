@@ -1,7 +1,7 @@
+import { Node } from "@counterfactual/types";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { WithdrawETHCommitment } from "../../../../src/ethereum";
-import { Transaction } from "../../../../src/ethereum/types";
 
 /**
  * This test suite decodes a constructed WithdrawETHCommitment transaction object
@@ -10,7 +10,7 @@ import { Transaction } from "../../../../src/ethereum/types";
  */
 describe("Withdraw ETH Commitment", () => {
   let commitment: WithdrawETHCommitment;
-  let tx: Transaction;
+  let tx: Node.MinimalTransaction;
 
   const multisigAddress = getAddress(hexlify(randomBytes(20)));
   const multisigOwners = [

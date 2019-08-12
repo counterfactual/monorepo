@@ -1,4 +1,5 @@
-import { BigNumberish, Signature } from "ethers/utils";
+import { Node } from "@counterfactual/types";
+import { Signature } from "ethers/utils";
 
 export abstract class EthereumCommitment {
   // todo(xuanji): EthereumCommitment was designed under the assumption that
@@ -12,7 +13,7 @@ export abstract class EthereumCommitment {
   public abstract getSignedTransaction(
     signatures: Signature[],
     intermediarySignature?: Signature
-  ): Transaction;
+  ): Node.MinimalTransaction;
 }
 
 export enum MultisigOperation {
@@ -25,12 +26,6 @@ export enum MultisigOperation {
   Create = 2
 }
 
-export type Transaction = {
-  to: string;
-  value: BigNumberish;
-  data: string;
-};
-
-export type MultisigTransaction = Transaction & {
+export type MultisigTransaction = Node.MinimalTransaction & {
   operation: MultisigOperation;
 };
