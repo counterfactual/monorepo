@@ -98,17 +98,18 @@ export class AccountContext extends React.Component<AccountContextProps> {
     const { user, error } = this.props.userState;
     const { loginUser, ethAddress, history, tokens } = this.props;
     const { signer } = this.context;
+    const loginError = error && error.code && error.code === "user_not_found";
     return (
       <div className="account-context">
         {!user.ethAddress ? (
           <div className="btn-container">
             <WidgetTooltip
               toLeft={true}
-              message={error && error.code ? "No user was found" : ""}
+              message={loginError ? "No user was found" : ""}
             >
               <FormButton
                 name="login"
-                className={`btn ${error && error.code ? "btn-error" : ""}`}
+                className={`btn ${loginError ? "btn-error" : ""}`}
                 onClick={() => {
                   loginUser(ethAddress, signer, history);
                 }}
