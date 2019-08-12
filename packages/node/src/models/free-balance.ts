@@ -144,7 +144,7 @@ export function deserializeFreeBalanceState(
     balancesIndexedByToken: (tokenAddresses || []).reduce(
       (acc, tokenAddress, idx) => ({
         ...acc,
-        [tokenAddress]: balances[idx].map(({ to, amount }) => ({
+        [getAddress(tokenAddress)]: balances[idx].map(({ to, amount }) => ({
           to,
           amount: bigNumberify(amount._hex)
         }))
