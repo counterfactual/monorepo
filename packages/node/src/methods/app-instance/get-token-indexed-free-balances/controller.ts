@@ -13,7 +13,7 @@ export default class GetTokenIndexedFreeBalancesController extends NodeControlle
   public static readonly methodName =
     Node.MethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES;
 
-  @jsonRpcMethod("chan_getTokenIndexedFreeBalanceStates")
+  @jsonRpcMethod(Node.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES)
   public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(

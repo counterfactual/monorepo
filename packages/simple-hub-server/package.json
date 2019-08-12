@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.2.39",
-    "@counterfactual/types": "0.0.30",
+    "@counterfactual/node": "0.2.42",
+    "@counterfactual/types": "0.0.32",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
@@ -60,7 +60,7 @@
   "devDependencies": {
     "@counterfactual/firebase-server": "0.0.1",
     "@types/jest": "24.0.15",
-    "@types/jsonwebtoken": "8.3.2",
+    "@types/jsonwebtoken": "8.3.3",
     "@types/knex": "0.16.1",
     "@types/koa": "2.0.49",
     "@types/koa__cors": "2.2.3",

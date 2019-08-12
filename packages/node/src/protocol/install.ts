@@ -5,6 +5,7 @@ import {
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
+import { MaxUint256 } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
@@ -285,7 +286,8 @@ function computeStateChannelTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    outcomeType
+    outcomeType,
+    disableLimit
   } = params;
 
   const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
@@ -302,7 +304,8 @@ function computeStateChannelTransition(
     initiatorBalanceDecrement,
     responderBalanceDecrement,
     initiatorFbAddress,
-    responderFbAddress
+    responderFbAddress,
+    disableLimit
   );
 
   const appInstanceToBeInstalled = new AppInstance(
@@ -378,7 +381,8 @@ function computeInterpreterParameters(
   initiatorBalanceDecrement: BigNumber,
   responderBalanceDecrement: BigNumber,
   initiatorFbAddress: string,
-  responderFbAddress: string
+  responderFbAddress: string,
+  disableLimit: boolean
 ): {
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
@@ -435,7 +439,9 @@ function computeInterpreterParameters(
 
       return {
         singleAssetTwoPartyCoinTransferInterpreterParams: {
-          limit: initiatorBalanceDecrement.add(responderBalanceDecrement),
+          limit: disableLimit
+            ? MaxUint256
+            : initiatorBalanceDecrement.add(responderBalanceDecrement),
           tokenAddress: initiatorDepositTokenAddress
         }
       };

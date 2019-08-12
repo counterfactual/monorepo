@@ -10,4 +10,6 @@ Welcome to Node documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   introduction.md
+   api.md
    diagram.md

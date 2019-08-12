@@ -13,7 +13,7 @@ import { NO_APP_INSTANCE_ID_TO_GET_DETAILS } from "../../errors";
 export default class GetAppInstanceDetailsController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_APP_INSTANCE_DETAILS;
 
-  @jsonRpcMethod("chan_getAppInstance")
+  @jsonRpcMethod(Node.RpcMethodName.GET_APP_INSTANCE_DETAILS)
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetAppInstanceDetailsParams
