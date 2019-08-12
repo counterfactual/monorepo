@@ -88,6 +88,12 @@ export type InstallParams = {
 
   // Outcome Type returned by the app instance, as defined by `appInterface`
   outcomeType: OutcomeType;
+
+  // By default, the SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER interpreter params
+  // contains a "limit" that is computed as
+  // `initiatorBalanceDecrement + responderBalanceDecrement`; setting this
+  // flag disables the limit by setting it to MAX_UINT256
+  disableLimit: boolean;
 };
 
 export type UninstallParams = {
