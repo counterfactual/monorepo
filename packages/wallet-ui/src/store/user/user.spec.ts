@@ -285,9 +285,10 @@ describe("Store > User", () => {
         await callAction<User, UserState, UserAddTransition>(getUser, {
           reducers,
           initialState,
-          actionParameters: [provider, history],
+          actionParameters: [history],
           finalActionType: ActionType.WalletSetBalance
         });
+
         fail(
           "Actions were dispateched without a user, this should not happen."
         );
@@ -310,10 +311,9 @@ describe("Store > User", () => {
       >(getUser, {
         reducers,
         initialState,
-        actionParameters: [provider, history],
+        actionParameters: [history],
         finalActionType: ActionType.WalletSetBalance
       });
-
       expect(dispatchedActions.length).toBe(2);
       expect(reducedStates.length).toBe(2);
       expect(dispatchedActions).toEqual([

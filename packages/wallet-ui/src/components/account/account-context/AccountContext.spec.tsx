@@ -90,8 +90,7 @@ describe("<AccountContext />", () => {
         1,
         props.ethAddress,
         context.signer,
-        props.history,
-        context.provider
+        props.history
       );
     });
 
