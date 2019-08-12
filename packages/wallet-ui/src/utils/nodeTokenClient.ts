@@ -32,7 +32,7 @@ export const getUserWalletBalances = async (
     const token = tokens[index];
     try {
       const response = await fetch(
-        `https://kovan.etherscan.io/api?module=account&action=tokenbalance&contractaddress=${token.tokenAddress}&address=${walletAddress}&tag=latest&apikey=${process.env.ETHERSCAN_API_KEY}`
+        `https://kovan.etherscan.io/api?module=account&action=tokenbalance&contractaddress=${token.tokenAddress}&address=${walletAddress}&tag=latest&apikey=${process.env.REACT_APP_ETHERSCAN_API_KEY}`
       );
       const parsedResponse = await response.json();
       if (parsedResponse && parsedResponse.result) {
