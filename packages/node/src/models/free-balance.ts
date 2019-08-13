@@ -1,6 +1,6 @@
 import { OutcomeType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
@@ -156,6 +156,15 @@ export class FreeBalanceClass {
         this.balancesIndexedByToken[tokenAddress]
       );
       const t2 = merge(t1, increments[tokenAddress]);
+
+      for (const val of Object.values(t2)) {
+        if (val.lt(Zero)) {
+          throw new Error(
+            `FreeBalanceClass::increment ended up with a negative balance when
+            merging ${t1} and ${increments[tokenAddress]}`
+          );
+        }
+      }
 
       this.balancesIndexedByToken[
         tokenAddress

@@ -68,9 +68,6 @@ export function merge(
 
   for (const key of new Set([...s1, ...s2])) {
     ret[key] = (base[key] || Zero).add(increments[key] || Zero);
-    if (ret[key].lt(Zero)) {
-      throw new Error("Underflow in merge");
-    }
   }
 
   return ret;
