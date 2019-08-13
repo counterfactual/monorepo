@@ -23,24 +23,28 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { responderXpub } = context.message.params;
+    const { responderXpub } = context.message.params!;
 
     const [
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(context.message.params, context);
+    ] = proposeStateTransition(context.message.params!, context);
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const { signature: theirSig } = yield [
+    const {
+      customData: { signature: theirSig }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Update,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -68,11 +72,11 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(context.message.params, context);
+    ] = proposeStateTransition(context.message.params!, context);
 
-    const { initiatorXpub } = context.message.params;
+    const { initiatorXpub } = context.message.params!;
 
-    const theirSig = context.message.signature!;
+    const theirSig = context.message.customData.signature;
 
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appSeqNo),
@@ -99,7 +103,9 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Update,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

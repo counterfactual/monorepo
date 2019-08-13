@@ -88,8 +88,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const {
-      signature: counterpartySignatureOnConditionalTransaction,
-      signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      customData: {
+        signature: counterpartySignatureOnConditionalTransaction,
+        signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      }
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -97,7 +99,9 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         params,
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
-        signature: mySignatureOnConditionalTransaction,
+        customData: {
+          signature: mySignatureOnConditionalTransaction
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -173,16 +177,20 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const {
-      signature: counterpartySignatureOnWithdrawalCommitment,
-      signature2: counterpartySignatureOnUninstallCommitment
+      customData: {
+        signature: counterpartySignatureOnWithdrawalCommitment,
+        signature2: counterpartySignatureOnUninstallCommitment
+      }
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
-        signature: mySignatureOnFreeBalanceStateUpdate,
-        signature2: mySignatureOnWithdrawalCommitment,
+        customData: {
+          signature: mySignatureOnFreeBalanceStateUpdate,
+          signature2: mySignatureOnWithdrawalCommitment
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -222,13 +230,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       uninstallRefundAppCommitment
     ];
 
-    yield [
+    yield <[Opcode, ProtocolMessage]>[
       Opcode.IO_SEND,
       {
         protocol: Protocol.Withdraw,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: responderXpub,
-        signature: mySignatureOnUninstallCommitment,
+        customData: {
+          signature: mySignatureOnUninstallCommitment
+        },
         seq: UNASSIGNED_SEQ_NO
       }
     ];
@@ -276,12 +286,12 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID, signature },
+      message: { params, protocolExecutionID, customData },
       network
     } = context;
 
     // Aliasing `signature` to this variable name for code clarity
-    const counterpartySignatureOnConditionalTransaction = signature;
+    const counterpartySignatureOnConditionalTransaction = customData.signature;
 
     const {
       initiatorXpub,
@@ -356,16 +366,20 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const {
-      signature: counterpartySignatureOnFreeBalanceStateUpdate,
-      signature2: counterpartySignatureOnWithdrawalCommitment
+      customData: {
+        signature: counterpartySignatureOnFreeBalanceStateUpdate,
+        signature2: counterpartySignatureOnWithdrawalCommitment
+      }
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
-        signature: mySignatureOnConditionalTransaction,
-        signature2: mySignatureOnFreeBalanceStateUpdate,
+        customData: {
+          signature: mySignatureOnConditionalTransaction,
+          signature2: mySignatureOnFreeBalanceStateUpdate
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -443,14 +457,18 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       uninstallRefundAppCommitment
     ];
 
-    const { signature: counterpartySignatureOnUninstallCommitment } = yield [
+    const {
+      customData: { signature: counterpartySignatureOnUninstallCommitment }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
-        signature: mySignatureOnWithdrawalCommitment,
-        signature2: mySignatureOnUninstallCommitment,
+        customData: {
+          signature: mySignatureOnWithdrawalCommitment,
+          signature2: mySignatureOnUninstallCommitment
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

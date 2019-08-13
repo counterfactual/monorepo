@@ -42,7 +42,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         params: context.message.params,
         seq: 1,
         toXpub: responderXpub,
-        signature: mySig
+        customData: {
+          signature: mySig
+        }
       } as ProtocolMessage
     ];
 
@@ -59,7 +61,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const { signature, params } = context.message;
+    const { customData, params } = context.message;
     const {
       appIdentityHash,
       multisigAddress,
@@ -72,7 +74,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
-      signature
+      customData.signature
     );
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];

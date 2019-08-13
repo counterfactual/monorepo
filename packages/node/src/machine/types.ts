@@ -5,7 +5,7 @@ import {
   SolidityValueType
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, Signature } from "ethers/utils";
+import { BigNumber } from "ethers/utils";
 
 import { StateChannel } from "../models";
 
@@ -32,13 +32,10 @@ export interface Context {
 export type ProtocolMessage = {
   protocolExecutionID: string;
   protocol: Protocol;
-  params: ProtocolParameters;
+  params?: ProtocolParameters;
   toXpub: string;
   seq: number;
-  signature?: Signature;
-  signature2?: Signature;
-  signature3?: Signature;
-  signature4?: Signature;
+  customData: { [key: string]: any };
 };
 
 export type SetupParams = {
