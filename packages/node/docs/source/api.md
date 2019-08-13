@@ -346,11 +346,13 @@ Error(s):
 
 ### Method: `getFreeBalance`
 
-Gets the free balance AppInstance of the specified channel.
+Gets the free balance AppInstance of the specified channel for the specified
+token. Defaults to ETH if no token is specified.
 
 Params:
 
 - `multisigAddress: string`
+- `tokenAddress?: string`
 
 Result:
 
@@ -361,6 +363,9 @@ Result:
 ```
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
+
+Note: calling this a specific token address will return Zero even if the channel
+has never had any deposits/withdrawals of that token.
 
 ### Method: `getTokenIndexedFreeBalanceStates`
 
