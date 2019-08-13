@@ -1,25 +1,27 @@
 import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { formatEther } from "ethers/utils";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { createMemoryHistory } from "history";
 import React from "react";
 import { Provider } from "react-redux";
 import { MemoryRouter as Router } from "react-router-dom";
+import { EthereumService } from "../../../providers/EthereumService";
+import EthereumMock from "../../../store/test-utils/ethereum.mock";
+import { AssetType } from "../../../store/types";
 import { testSelector } from "../../../utils/testSelector";
 import store from "./../../../store/store";
 import { AccountContext, AccountContextProps } from "./AccountContext";
 import mock from "./AccountContext.mock.json";
-import Web3ProviderMock from "../../../store/test-utils/web3provider.mock";
-import { Web3Provider, JsonRpcSigner } from "ethers/providers";
-import { EthereumService } from "../../../providers/EthereumService";
-import EthereumMock from "../../../store/test-utils/ethereum.mock";
+import { USER_KOVAN_TOKENS_MOCK } from "../../../store/test-utils/nodeTokenClient";
+import { Zero } from "ethers/constants";
 Enzyme.configure({ adapter: new Adapter() });
 
 function setup(scenario: keyof typeof mock.scenarios) {
   const history = createMemoryHistory();
-  const props: AccountContextProps = {
+  const props = {
     ...mock.scenarios[scenario].props,
     history,
+    tokens: USER_KOVAN_TOKENS_MOCK(Zero, Zero),
     location: history.location,
     loginUser: jest.fn()
   };
@@ -88,8 +90,7 @@ describe("<AccountContext />", () => {
         1,
         props.ethAddress,
         context.signer,
-        props.history,
-        context.provider
+        props.history
       );
     });
 
@@ -136,9 +137,7 @@ describe("<AccountContext />", () => {
 
       it("should show the current balance", () => {
         expect(balanceWrapper.find(".info-header").text()).toBe("Balance");
-        expect(balanceWrapper.find(".info-content").text()).toBe(
-          `${formatEther(props.counterfactualBalance)} ETH`
-        );
+        expect(balanceWrapper.find(".info-content").text()).toBe(`0.0 ETH`);
       });
 
       it("should render an icon for the container", () => {

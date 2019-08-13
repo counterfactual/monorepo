@@ -78,7 +78,11 @@ export async function installBalanceRefundApp(
     defaultTimeout: 1008,
     outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
-    responderDepositTokenAddress: tokenAddress!
+    responderDepositTokenAddress: tokenAddress!,
+    // the balance refund is a special case where we want to set the limit to be
+    // MAX_UINT256 instead of
+    // `initiatorBalanceDecrement + responderBalanceDecrement` = 0
+    disableLimit: true
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(

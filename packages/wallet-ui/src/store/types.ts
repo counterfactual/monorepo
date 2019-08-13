@@ -13,9 +13,11 @@ export type User = {
 };
 
 export type AssetType = {
-  name: string;
-  shortName: string;
+  name?: string;
+  shortName?: string;
   tokenAddress: string;
+  counterfactualBalance?: BigNumberish;
+  walletBalance?: BigNumberish;
 };
 
 export type Deposit = {
@@ -23,6 +25,7 @@ export type Deposit = {
   multisigAddress: string;
   nodeAddress: string;
   ethAddress: string;
+  tokenAddress?: string;
 };
 
 export type Connection = {
@@ -35,6 +38,7 @@ export type Connection = {
 export type BalanceRequest = {
   nodeAddress: string;
   multisigAddress: string;
+  tokenAddress?: string;
 };
 
 export type ErrorData = {
@@ -69,10 +73,8 @@ export type UserState = AppState & {
 
 export type WalletState = AppState & {
   ethAddress: string;
-  counterfactualBalance: BigNumberish;
-  ethereumBalance: BigNumberish;
   status: string;
-  nodeAddresses: AssetType[];
+  tokenAddresses: AssetType[];
 };
 
 export type ChannelsMap = { [key: string]: Connection };

@@ -3,8 +3,7 @@ import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
   flip,
-  flipTokenIndexedBalances,
-  merge
+  flipTokenIndexedBalances
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
@@ -13,11 +12,7 @@ import { AppInstance } from "./app-instance";
 import {
   CoinTransferMap,
   createFreeBalance,
-  deserializeFreeBalanceState,
-  FreeBalanceState,
-  FreeBalanceStateJSON,
-  getBalancesFromFreeBalanceAppInstance,
-  serializeFreeBalanceState,
+  FreeBalanceClass,
   TokenIndexedCoinTransferMap
 } from "./free-balance";
 
@@ -210,6 +205,10 @@ export class StateChannel {
     return topLevelKey;
   }
 
+  public getFreeBalanceClass() {
+    return FreeBalanceClass.fromAppInstance(this.freeBalance);
+  }
+
   private build(args: {
     multisigAddress?: string;
     userNeuteredExtendedKeys?: string[];
@@ -235,57 +234,26 @@ export class StateChannel {
   }
 
   public incrementFreeBalance(increments: TokenIndexedCoinTransferMap) {
-    const json = this.freeBalance.state as FreeBalanceStateJSON;
-
-    const freeBalanceState = deserializeFreeBalanceState(json);
-
-    for (const tokenAddress of Object.keys(increments)) {
-      freeBalanceState.balancesIndexedByToken[tokenAddress] = Object.entries(
-        merge(
-          getBalancesFromFreeBalanceAppInstance(this.freeBalance, tokenAddress),
-          increments[tokenAddress]
-        )
-      ).map(([to, amount]) => ({ to, amount }));
-    }
-
     return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
+      freeBalanceAppInstance: this.getFreeBalanceClass()
+        .increment(increments)
+        .toAppInstance(this.freeBalance)
     });
   }
 
   public addActiveApp(activeApp: string) {
-    const json = this.freeBalance.state as FreeBalanceStateJSON;
-
-    const freeBalanceState = deserializeFreeBalanceState(json);
-
-    freeBalanceState.activeAppsMap[activeApp] = true;
-
     return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
+      freeBalanceAppInstance: this.getFreeBalanceClass()
+        .addActiveApp(activeApp)
+        .toAppInstance(this.freeBalance)
     });
   }
 
   public removeActiveApp(activeApp: string) {
-    const json = this.freeBalance.state as FreeBalanceStateJSON;
-
-    const freeBalanceState = deserializeFreeBalanceState(json);
-
-    if (!freeBalanceState.activeAppsMap[activeApp]) {
-      throw new Error(
-        "Cannot uninstall app that is not installed in the first place"
-      );
-    }
-
-    delete freeBalanceState.activeAppsMap[activeApp];
-
     return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(freeBalanceState)
-      )
+      freeBalanceAppInstance: this.getFreeBalanceClass()
+        .removeActiveApp(activeApp)
+        .toAppInstance(this.freeBalance)
     });
   }
 
@@ -307,10 +275,10 @@ export class StateChannel {
     );
   }
 
-  public setFreeBalance(newState: FreeBalanceState) {
+  public setFreeBalance(newFreeBalanceClass: FreeBalanceClass) {
     return this.build({
-      freeBalanceAppInstance: this.freeBalance.setState(
-        serializeFreeBalanceState(newState)
+      freeBalanceAppInstance: newFreeBalanceClass.toAppInstance(
+        this.freeBalance
       )
     });
   }

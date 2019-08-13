@@ -60,7 +60,7 @@ jobs:
           POSTGRES_DATABASE: postgres
           POSTGRES_PORT: 5432
 
-      - image: circleci/postgres:9.6.14-alpine
+      - image: circleci/postgres:9.6.15-alpine
         environment:
           POSTGRES_USER: postgres
 
@@ -164,22 +164,6 @@ workflows:
 
       - heroku/deploy-via-git:
           app-name: simple-hub-server-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
-
-      - heroku/deploy-via-git:
-          app-name: hr-bot-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
-
-      - heroku/deploy-via-git:
-          app-name: ttt-bot-staging
           requires:
             - publish-to-npm
           filters:

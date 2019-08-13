@@ -28,7 +28,6 @@ import {
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
-import { CoinTransfer, FreeBalanceState } from "../../src/models/free-balance";
 
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 
@@ -174,6 +173,17 @@ export async function getProposedAppInstances(
   return result.appInstances;
 }
 
+export async function deposit(
+  node: Node,
+  multisigAddress: string,
+  amount: BigNumber = One,
+  tokenAddress?: string
+) {
+  const depositReq = makeDepositRequest(multisigAddress, amount, tokenAddress);
+
+  await node.rpcRouter.dispatch(depositReq);
+}
+
 export function makeDepositRequest(
   multisigAddress: string,
   amount: BigNumber,
@@ -189,6 +199,24 @@ export function makeDepositRequest(
     } as NodeTypes.DepositParams,
     jsonrpc: "2.0"
   });
+}
+
+export function makeWithdrawCommitmentRequest(
+  multisigAddress: string,
+  amount: BigNumber,
+  tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  recipient?: string
+): Rpc {
+  const withdrawCommitmentReq = makeWithdrawRequest(
+    multisigAddress,
+    amount,
+    tokenAddress,
+    recipient
+  );
+
+  withdrawCommitmentReq.methodName =
+    NodeTypes.RpcMethodName.WITHDRAW_COMMITMENT;
+  return withdrawCommitmentReq;
 }
 
 export function makeWithdrawRequest(
@@ -693,23 +721,6 @@ export async function makeProposeCall(
   return {
     appInstanceId,
     params: appInstanceProposalReq.parameters as NodeTypes.ProposeInstallParams
-  };
-}
-
-export function createFreeBalanceStateWithFundedTokenAmounts(
-  addresses: string[],
-  amount: BigNumber,
-  tokenAddresses: string[]
-): FreeBalanceState {
-  return {
-    activeAppsMap: {},
-    balancesIndexedByToken: tokenAddresses.reduce(
-      (balancesIndexedByToken, tokenAddress) => ({
-        ...balancesIndexedByToken,
-        [tokenAddress]: addresses.map(to => ({ to, amount }))
-      }),
-      {} as { [tokenAddress: string]: CoinTransfer[] }
-    )
   };
 }
 

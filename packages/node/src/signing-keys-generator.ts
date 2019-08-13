@@ -115,7 +115,6 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
 export function generatePrivateKeyGeneratorAndXPubPair(
   extendedPrvKey: string
 ): [Node.IPrivateKeyGenerator, string] {
-  // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
   const hdNode = fromExtendedKey(extendedPrvKey).derivePath(CF_PATH);
 
   return [

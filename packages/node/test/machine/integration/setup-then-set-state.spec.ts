@@ -11,7 +11,7 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
+import { FreeBalanceClass } from "../../../src/models/free-balance";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -72,7 +72,7 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
         xprvs.map(extendedPrvKeyToExtendedPubKey),
         1
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedTokenAmounts(
+        FreeBalanceClass.createWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           WeiPerEther,
           [CONVENTION_FOR_ETH_TOKEN_ADDRESS]

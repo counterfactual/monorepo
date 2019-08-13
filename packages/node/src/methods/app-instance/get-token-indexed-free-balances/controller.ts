@@ -1,11 +1,6 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import {
-  convertCoinTransfersToCoinTransfersMap,
-  deserializeFreeBalanceState,
-  FreeBalanceStateJSON
-} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
@@ -31,17 +26,6 @@ export default class GetTokenIndexedFreeBalancesController extends NodeControlle
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const tokenIndexedFreeBalances = deserializeFreeBalanceState(stateChannel
-      .freeBalance.state as FreeBalanceStateJSON).balancesIndexedByToken;
-
-    return Object.entries(tokenIndexedFreeBalances).reduce(
-      (accumulator, tokenIndexedFreeBalance) => ({
-        ...accumulator,
-        [tokenIndexedFreeBalance[0]]: convertCoinTransfersToCoinTransfersMap(
-          tokenIndexedFreeBalance[1]
-        )
-      }),
-      {}
-    );
+    return stateChannel.getFreeBalanceClass().toTokenIndexedCoinTransferMap();
   }
 }

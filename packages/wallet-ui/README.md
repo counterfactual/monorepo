@@ -11,11 +11,13 @@ For now, it's only available in our custom fork. Follow [these instructions](htt
 ## How can I work on it?
 
 ### Running the Wallet UI
+First of all, you will need an [Etherscan api key](https://etherscan.io/myapikey) to be able to retrieve the ERC20's Metamask Wallet balances.
+Then you need to add the `REACT_APP_ETHERSCAN_API_KEY` environment variable on the Wallet-UI package's .env file.
 
 On the monorepo's root:
 
 ```sh
-yarn run:wallet
+ yarn run:wallet
 ```
 
 This command will serve a CRA development server on `http://localhost:3334` and the [Simple Hub Server](https://github.com/counterfactual/monorepo/tree/master/packages/simple-hub-server) on `http://localhost:9000`.
