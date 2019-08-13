@@ -16,12 +16,12 @@ import {
 } from "./machine";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import { getNetworkContextForNetworkName } from "./network-configuration";
+import {
+  getPrivateKeysGeneratorAndXPubOrThrow,
+  PrivateKeysGenerator
+} from "./private-keys-generator";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
-import {
-  getSigningKeysGeneratorAndXPubOrThrow,
-  SigningKeysGenerator
-} from "./signing-keys-generator";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
@@ -67,9 +67,9 @@ export class Node {
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const [
-      signingKeysGenerator,
+      privateKeysGenerator,
       pubExtendedKey
-    ] = await getSigningKeysGeneratorAndXPubOrThrow(
+    ] = await getPrivateKeysGeneratorAndXPubOrThrow(
       storeService,
       privateKeyGenerator,
       publicExtendedKey
@@ -77,7 +77,7 @@ export class Node {
 
     const node = new Node(
       pubExtendedKey,
-      signingKeysGenerator,
+      privateKeysGenerator,
       messagingService,
       storeService,
       nodeConfig,
@@ -91,7 +91,7 @@ export class Node {
 
   private constructor(
     private readonly publicExtendedKey: string,
-    private readonly signingKeyGenerator: SigningKeysGenerator,
+    private readonly privateKeyGenerator: PrivateKeysGenerator,
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
@@ -117,7 +117,7 @@ export class Node {
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     // TODO: is "0" a reasonable path to derive `signer` private key from?
     this.signer = new SigningKey(
-      await this.signingKeyGenerator.getSigningKey("0")
+      await this.privateKeyGenerator.getPrivateKey("0")
     );
     log.info(`Node signer address: ${this.signer.address}`);
     log.info(`Node public identifier: ${this.publicIdentifier}`);
@@ -177,7 +177,7 @@ export class Node {
       const keyIndex = overrideKeyIndex || 0;
 
       const signingKey = new SigningKey(
-        await this.signingKeyGenerator.getSigningKey(keyIndex)
+        await this.privateKeyGenerator.getPrivateKey(keyIndex)
       );
 
       return signingKey.signDigest(commitment.hashToSign());

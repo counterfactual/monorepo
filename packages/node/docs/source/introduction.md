@@ -31,7 +31,7 @@ There are two ways in which this is supported:
 2.  Instead of supplying a mnemonic, the `Node` operator supplies two other arguments:
 
 - an [extended public key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which will serve as the "public identifier" of the `Node`, and will be used to generate signer addresses at `AppInstance`-specific derivation paths for signature verification in the protocols.
-- a callback function that offers the generation of a signing key given a specific derivation path. This enables the consumer of the `Node` (i.e. wallets) to not reveal any mnemonics but provide the ability to sign state isolated to specific `AppInstance`s.
+- a callback function that offers the generation of a private key given a specific derivation path. This enables the consumer of the `Node` (i.e. wallets) to not reveal any mnemonics but provide the ability to sign state isolated to specific `AppInstance`s.
 
 The `Node` package exposes a reference implementation of the second approach through a function named `generatePrivateKeyGeneratorAndXPubPair` which produces these 2 arguments given an extended private key.
 

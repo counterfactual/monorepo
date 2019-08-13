@@ -9,17 +9,16 @@ import { CF_PATH } from "./constants";
 
 export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
-export class SigningKeysGenerator {
-  // The namespacing is on the channel the AppInstance is in
+export class PrivateKeysGenerator {
   private appInstanceIdentityHashToPrivateKey: Map<string, string> = new Map();
-  private readonly signingKeys: Set<string> = new Set();
+  private readonly privateKeys: Set<string> = new Set();
 
   constructor(
     private readonly privateKeyGenerator: Node.IPrivateKeyGenerator
   ) {}
 
   @Memoize()
-  public async getSigningKey(appInstanceIdentityHash: string): Promise<string> {
+  public async getPrivateKey(appInstanceIdentityHash: string): Promise<string> {
     const validHDPathRepresentationOfIdentityHash = convertDecimalStringToValidHDPath(
       new BigNumber(appInstanceIdentityHash).toString()
     );
@@ -34,39 +33,39 @@ export class SigningKeysGenerator {
       )!;
     }
 
-    const signingKey = await this.privateKeyGenerator(
+    const privateKey = await this.privateKeyGenerator(
       validHDPathRepresentationOfIdentityHash
     );
     try {
-      new Wallet(signingKey);
+      new Wallet(privateKey);
     } catch (e) {
       throw new Error(`
-        Invalid signing key retrieved from wallet-provided
+        Invalid private key retrieved from wallet-provided
         callback given AppInstance ID ${appInstanceIdentityHash}: ${e}
       `);
     }
 
-    if (this.signingKeys.has(signingKey)) {
+    if (this.privateKeys.has(privateKey)) {
       throw new Error(
-        `Wallet-provided callback function returned a colliding signing key for two different AppInstance IDs`
+        `Wallet-provided callback function returned a colliding private key for two different AppInstance IDs`
       );
     }
 
     this.appInstanceIdentityHashToPrivateKey = this.appInstanceIdentityHashToPrivateKey.set(
       validHDPathRepresentationOfIdentityHash,
-      signingKey
+      privateKey
     );
-    this.signingKeys.add(signingKey);
+    this.privateKeys.add(privateKey);
 
-    return signingKey;
+    return privateKey;
   }
 }
 
-export async function getSigningKeysGeneratorAndXPubOrThrow(
+export async function getPrivateKeysGeneratorAndXPubOrThrow(
   storeService: Node.IStoreService,
   privateKeyGenerator?: Node.IPrivateKeyGenerator,
   publicExtendedKey?: string
-): Promise<[SigningKeysGenerator, string]> {
+): Promise<[PrivateKeysGenerator, string]> {
   if (publicExtendedKey && !privateKeyGenerator) {
     throw new Error(
       "Cannot provide an extended public key but not provide a private key generation function"
@@ -81,7 +80,7 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
 
   if (publicExtendedKey && privateKeyGenerator) {
     return Promise.resolve([
-      new SigningKeysGenerator(privateKeyGenerator),
+      new PrivateKeysGenerator(privateKeyGenerator),
       publicExtendedKey
     ]);
   }
@@ -104,7 +103,7 @@ export async function getSigningKeysGeneratorAndXPubOrThrow(
     pubExtendedKey
   ] = generatePrivateKeyGeneratorAndXPubPair(extendedPrvKey);
   return Promise.resolve([
-    new SigningKeysGenerator(privKeyGenerator),
+    new PrivateKeysGenerator(privKeyGenerator),
     pubExtendedKey
   ]);
 }
