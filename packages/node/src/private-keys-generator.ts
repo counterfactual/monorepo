@@ -41,7 +41,11 @@ export class PrivateKeysGenerator {
     } catch (e) {
       throw new Error(`
         Invalid private key retrieved from wallet-provided
-        callback given AppInstance ID ${appInstanceIdentityHash}: ${e}
+        callback given AppInstance ID ${appInstanceIdentityHash}: ${JSON.stringify(
+        e,
+        null,
+        4
+      )}
       `);
     }
 
