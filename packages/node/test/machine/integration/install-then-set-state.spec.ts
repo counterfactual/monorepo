@@ -27,10 +27,8 @@ import {
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
-import {
-  createFreeBalanceStateWithFundedTokenAmounts,
-  transferERC20Tokens
-} from "../../integration/utils";
+import { FreeBalanceClass } from "../../../src/models/free-balance";
+import { transferERC20Tokens } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -104,7 +102,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         xpubs,
         1
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedTokenAmounts(
+        FreeBalanceClass.createWithFundedTokenAmounts(
           multisigOwnerKeys.map(key => key.address),
           WeiPerEther,
           [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]

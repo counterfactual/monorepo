@@ -13,7 +13,7 @@ import { ConditionalTransaction } from "../../../../src/ethereum";
 import { MultisigTransaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { StateChannel } from "../../../../src/models";
-import { createFreeBalanceStateWithFundedTokenAmounts } from "../../../integration/utils";
+import { FreeBalanceClass } from "../../../../src/models/free-balance";
 import { createAppInstanceForTest } from "../../../unit/utils";
 import { getRandomExtendedPubKey } from "../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../mocks";
@@ -39,7 +39,7 @@ describe("ConditionalTransaction", () => {
 
   // Set the state to some test values
   stateChannel = stateChannel.setFreeBalance(
-    createFreeBalanceStateWithFundedTokenAmounts(
+    FreeBalanceClass.createWithFundedTokenAmounts(
       stateChannel.multisigOwners,
       WeiPerEther,
       [CONVENTION_FOR_ETH_TOKEN_ADDRESS]

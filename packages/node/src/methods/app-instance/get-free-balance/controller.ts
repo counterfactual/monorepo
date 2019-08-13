@@ -2,11 +2,6 @@ import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import {
-  convertCoinTransfersToCoinTransfersMap,
-  deserializeFreeBalanceState,
-  FreeBalanceStateJSON
-} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import { NO_FREE_BALANCE_EXISTS } from "../../errors";
@@ -35,15 +30,14 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const freeBalanceState = deserializeFreeBalanceState(stateChannel
-      .freeBalance.state as FreeBalanceStateJSON);
+    const ret = stateChannel
+      .getFreeBalanceClass()
+      .withTokenAddress(tokenAddress);
 
-    if (!freeBalanceState.balancesIndexedByToken[tokenAddress]) {
+    if (!ret) {
       throw new Error(NO_FREE_BALANCE_EXISTS(tokenAddress));
     }
 
-    return convertCoinTransfersToCoinTransfersMap(
-      freeBalanceState.balancesIndexedByToken[tokenAddress]
-    );
+    return ret;
   }
 }

@@ -65,9 +65,6 @@ export const INSUFFICIENT_FUNDS =
 
 export const INVALID_ACTION = "Invalid action taken";
 
-export const INVALID_WITHDRAW = (tokenAddress: string) =>
-  `Cannot withdraw the specified token (${tokenAddress}) as its balance in the channel is 0`;
-
 export const INVALID_NETWORK_NAME =
   "Invalid network name provided for initializing Node";
 

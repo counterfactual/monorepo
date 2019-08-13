@@ -17,11 +17,9 @@ import {
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { FreeBalanceClass } from "../../../src/models/free-balance";
 import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
-import {
-  createFreeBalanceStateWithFundedTokenAmounts,
-  transferERC20Tokens
-} from "../../integration/utils";
+import { transferERC20Tokens } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -170,7 +168,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         proxyAddress,
         xpubs
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedTokenAmounts(
+        FreeBalanceClass.createWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           tokenAmounts,
           [tokenAddress]

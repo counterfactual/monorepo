@@ -4,7 +4,10 @@ import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
-import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
+import {
+  getFreeBalanceAppInterface,
+  merge
+} from "../ethereum/utils/free-balance-app";
 import { xkeysToSortedKthAddresses } from "../machine/xkeys";
 
 import { AppInstance } from "./app-instance";
@@ -26,7 +29,7 @@ export type CoinTransfer = {
 /*
 Equivalent to the above type but with serialized BigNumbers
 */
-export type CoinTransferJSON = {
+type CoinTransferJSON = {
   to: string;
   amount: {
     _hex: string;
@@ -52,14 +55,131 @@ export type TokenIndexedCoinTransferMap = {
   [tokenAddress: string]: CoinTransferMap;
 };
 
+// todo(xuanji): replace with Set
 export type ActiveAppsMap = { [appInstanceIdentityHash: string]: true };
 
-export type FreeBalanceState = {
+export class FreeBalanceClass {
+  private constructor(
+    private readonly activeAppsMap: ActiveAppsMap,
+    private readonly balancesIndexedByToken: {
+      // todo: change this type to TokenIndexedCoinTransferMap
+      [tokenAddress: string]: CoinTransfer[];
+    }
+  ) {}
+  public toFreeBalanceState(): FreeBalanceState {
+    return {
+      activeAppsMap: this.activeAppsMap,
+      balancesIndexedByToken: this.balancesIndexedByToken
+    };
+  }
+  public toTokenIndexedCoinTransferMap() {
+    const ret = {};
+    for (const tokenAddress of Object.keys(this.balancesIndexedByToken)) {
+      ret[tokenAddress] = convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      );
+    }
+    return ret;
+  }
+  public toAppInstance(oldAppInstance: AppInstance) {
+    return oldAppInstance.setState(
+      serializeFreeBalanceState(this.toFreeBalanceState())
+    );
+  }
+
+  public static createWithFundedTokenAmounts(
+    addresses: string[],
+    amount: BigNumber,
+    tokenAddresses: string[]
+  ): FreeBalanceClass {
+    return new FreeBalanceClass(
+      {},
+      tokenAddresses.reduce(
+        (balancesIndexedByToken, tokenAddress) => ({
+          ...balancesIndexedByToken,
+          [tokenAddress]: addresses.map(to => ({ to, amount }))
+        }),
+        {} as { [tokenAddress: string]: CoinTransfer[] }
+      )
+    );
+  }
+
+  public static fromAppInstance(appInstance: AppInstance): FreeBalanceClass {
+    const freeBalanceState = deserializeFreeBalanceState(
+      appInstance.state as FreeBalanceStateJSON
+    );
+    return new FreeBalanceClass(
+      freeBalanceState.activeAppsMap,
+      freeBalanceState.balancesIndexedByToken
+    );
+  }
+  public getBalance(tokenAddress: string, beneficiary: string) {
+    try {
+      return convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      )[beneficiary];
+    } catch {
+      return Zero;
+    }
+  }
+  public withTokenAddress(tokenAddress: string): CoinTransferMap | null {
+    if (!this.balancesIndexedByToken[tokenAddress]) {
+      return null;
+    }
+    return convertCoinTransfersToCoinTransfersMap(
+      this.balancesIndexedByToken[tokenAddress]
+    );
+  }
+  public removeActiveApp(activeApp: string) {
+    delete this.activeAppsMap[activeApp];
+    return this;
+  }
+  public addActiveApp(activeApp: string) {
+    this.activeAppsMap[activeApp] = true;
+    return this;
+  }
+  public prettyPrint() {
+    const balances = this.balancesIndexedByToken;
+    const ret = {} as any;
+    for (const tokenAddress of Object.keys(balances)) {
+      const ret2 = {} as any;
+      for (const coinTransfer of balances[tokenAddress]) {
+        ret2[coinTransfer.to] = coinTransfer.amount;
+      }
+      ret[tokenAddress] = ret2;
+    }
+    console.table(ret);
+  }
+  public increment(increments: TokenIndexedCoinTransferMap) {
+    for (const tokenAddress of Object.keys(increments)) {
+      const t1 = convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      );
+      const t2 = merge(t1, increments[tokenAddress]);
+
+      for (const val of Object.values(t2)) {
+        if (val.lt(Zero)) {
+          throw new Error(
+            `FreeBalanceClass::increment ended up with a negative balance when
+            merging ${t1} and ${increments[tokenAddress]}`
+          );
+        }
+      }
+
+      this.balancesIndexedByToken[
+        tokenAddress
+      ] = convertCoinTransfersMapToCoinTransfers(t2);
+    }
+    return this;
+  }
+}
+
+type FreeBalanceState = {
   activeAppsMap: ActiveAppsMap;
   balancesIndexedByToken: { [tokenAddress: string]: CoinTransfer[] };
 };
 
-export type FreeBalanceStateJSON = {
+type FreeBalanceStateJSON = {
   tokenAddresses: string[];
   balances: CoinTransferJSON[][];
   activeApps: string[];
@@ -93,50 +213,19 @@ export function createFreeBalance(
   };
 
   return new AppInstance(
-    sortedTopLevelKeys,
-    freeBalanceTimeout,
-    getFreeBalanceAppInterface(coinBucketAddress),
-    false,
-    HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
-    serializeFreeBalanceState(initialState),
-    0,
-    HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
+    /* participants */ sortedTopLevelKeys,
+    /* defaultTimeout */ freeBalanceTimeout,
+    /* appInterface */ getFreeBalanceAppInterface(coinBucketAddress),
+    /* isVirtualApp */ false,
+    /* appSeqNo */ HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
+    /* latestState */ serializeFreeBalanceState(initialState),
+    /* latestVersionNumber */ 0,
+    /* latestTimeout */ HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    /* outcomeType */ OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
   );
 }
 
-/**
- * Given an AppInstance whose state is FreeBalanceState, convert the state
- * into the locally more convenient data type CoinTransferMap and return that.
- *
- * Note that this function will also default the `to` addresses of a new token
- * to the 0th derived public addresses of the StateChannel, the same as all
- * FreeBalanceApp AppInstances.
- *
- * @export
- * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
- *
- * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokenAddresses
- */
-export function getBalancesFromFreeBalanceAppInstance(
-  freeBalanceAppInstance: AppInstance,
-  tokenAddress: string
-): CoinTransferMap {
-  const freeBalanceState = deserializeFreeBalanceState(
-    freeBalanceAppInstance.state as FreeBalanceStateJSON
-  );
-
-  const coinTransfers = freeBalanceState.balancesIndexedByToken[
-    getAddress(tokenAddress)
-  ] || [
-    { to: freeBalanceAppInstance.participants[0], amount: Zero },
-    { to: freeBalanceAppInstance.participants[1], amount: Zero }
-  ];
-
-  return convertCoinTransfersToCoinTransfersMap(coinTransfers);
-}
-
-export function deserializeFreeBalanceState(
+function deserializeFreeBalanceState(
   freeBalanceStateJSON: FreeBalanceStateJSON
 ): FreeBalanceState {
   const { activeApps, tokenAddresses, balances } = freeBalanceStateJSON;
@@ -158,7 +247,7 @@ export function deserializeFreeBalanceState(
   };
 }
 
-export function serializeFreeBalanceState(
+function serializeFreeBalanceState(
   freeBalanceState: FreeBalanceState
 ): FreeBalanceStateJSON {
   return {
@@ -187,7 +276,7 @@ export function convertCoinTransfersToCoinTransfersMap(
   );
 }
 
-export function convertCoinTransfersMapToCoinTransfers(
+function convertCoinTransfersMapToCoinTransfers(
   coinTransfersMap: CoinTransferMap
 ): CoinTransfer[] {
   return Object.entries(coinTransfersMap).map(([to, amount]) => ({
