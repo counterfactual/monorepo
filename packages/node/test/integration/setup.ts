@@ -20,8 +20,6 @@ import {
   B_EXTENDED_PRIVATE_KEY
 } from "../test-constants.jest";
 
-import { TestPrivateKeyGenerator } from "./private-key-generator";
-
 export interface NodeContext {
   node: Node;
   store: NodeTypes.IStoreService;
@@ -64,13 +62,6 @@ export async function setup(
 ): Promise<SetupContext> {
   const setupContext: SetupContext = {};
 
-  for (const node of ["A", "B"]) {
-    const privateKeyGenerator = new TestPrivateKeyGenerator();
-    // Attach it to the global jest object so this class instance doesn't
-    // get wiped after this function returns.
-    global[`privateKeyGeneratorNode${node}`] = privateKeyGenerator;
-  }
-
   const nodeConfig = {
     STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
   };
@@ -83,7 +74,6 @@ export async function setup(
   const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
-
   await storeServiceA.set([
     { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyA }
   ]);
@@ -93,7 +83,6 @@ export async function setup(
     nodeConfig,
     provider,
     global["networkContext"]
-    // global["privateKeyGeneratorNodeA"].generatePrivateKey
   );
 
   setupContext["A"] = {
@@ -113,7 +102,6 @@ export async function setup(
     nodeConfig,
     provider,
     global["networkContext"]
-    // global["privateKeyGeneratorNodeB"].generatePrivateKey
   );
   setupContext["B"] = {
     node: nodeB,
@@ -125,15 +113,12 @@ export async function setup(
     const storeServiceC = storeServiceFactory.createStoreService!(
       `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
     );
-    const privateKeyGenerator = new TestPrivateKeyGenerator();
-    global["privateKeyGeneratorNodeC"] = privateKeyGenerator;
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
       nodeConfig,
       provider,
       global["networkContext"]
-      // global["privateKeyGeneratorNodeC"].generatePrivateKey
     );
     setupContext["C"] = {
       node: nodeC,

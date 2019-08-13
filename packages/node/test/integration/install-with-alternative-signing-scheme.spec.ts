@@ -1,13 +1,20 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { One } from "ethers/constants";
+import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
+import log from "loglevel";
 
-import { Node } from "../../src";
+import { generatePrivateKeyGeneratorAndXPubPair, Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
+import { MemoryMessagingService } from "../services/memory-messaging-service";
+import { MemoryStoreServiceFactory } from "../services/memory-store-service";
+import {
+  A_EXTENDED_PRIVATE_KEY,
+  B_EXTENDED_PRIVATE_KEY
+} from "../test-constants.jest";
 
-import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
@@ -19,8 +26,11 @@ import {
 
 expect.extend({ toBeLt });
 
+log.setLevel(log.levels.INFO);
+
 describe("Uses a provided signing key generation function to sign channel state updates", () => {
   let multisigAddress: string;
+  jest.setTimeout(10000);
   let nodeA: Node;
   let nodeB: Node;
 
@@ -29,12 +39,41 @@ describe("Uses a provided signing key generation function to sign channel state 
       "sends acks back to A, A installs it, both nodes have the same app instance",
     () => {
       beforeEach(async () => {
-        // TODO: instead of using the general setup function the Nodes
-        // should be instantiated with custom arguments for the
-        // private key generation function and the extended public key
-        const context: SetupContext = await setup(global);
-        nodeA = context["A"].node;
-        nodeB = context["B"].node;
+        const provider = new JsonRpcProvider(global["ganacheURL"]);
+        const messagingService = new MemoryMessagingService();
+        const nodeConfig = {
+          STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
+        };
+
+        const storeServiceA = new MemoryStoreServiceFactory().createStoreService();
+        const [
+          privateKeyGeneratorA,
+          xpubA
+        ] = generatePrivateKeyGeneratorAndXPubPair(A_EXTENDED_PRIVATE_KEY);
+        nodeA = await Node.create(
+          messagingService,
+          storeServiceA,
+          nodeConfig,
+          provider,
+          global["networkContext"],
+          xpubA,
+          privateKeyGeneratorA
+        );
+
+        const storeServiceB = new MemoryStoreServiceFactory().createStoreService();
+        const [
+          privateKeyGeneratorB,
+          xpubB
+        ] = generatePrivateKeyGeneratorAndXPubPair(B_EXTENDED_PRIVATE_KEY);
+        nodeB = await Node.create(
+          messagingService,
+          storeServiceB,
+          nodeConfig,
+          provider,
+          global["networkContext"],
+          xpubB,
+          privateKeyGeneratorB
+        );
 
         multisigAddress = await createChannel(nodeA, nodeB);
       });

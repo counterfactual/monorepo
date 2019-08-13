@@ -28,6 +28,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       context.message.params,
       context
     );
+
     const mySignature = yield [Opcode.OP_SIGN, setupCommitment];
 
     const { signature: counterpartySignature } = yield [

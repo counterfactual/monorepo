@@ -937,6 +937,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@counterfactual/apps@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.npmjs.org/@counterfactual/apps/-/apps-0.1.4.tgz#c12b6a22b73d90081a3448300fd04dc51695061a"
+  integrity sha512-jorW43aHWiKvINiezHkcgl1a0hz2DPV8RFirwG0adtihY+B4xakThqch44lNnWl2imdEmMh3gYEOinfMLy3A+w==
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.npmjs.org/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"
