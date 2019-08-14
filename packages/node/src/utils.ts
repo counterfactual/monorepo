@@ -14,6 +14,7 @@ import {
 } from "ethers/utils";
 import log from "loglevel";
 
+import { JSON_STRINGIFY_SPACE } from "./constants";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 
 export function getCounterpartyAddress(
@@ -157,4 +158,8 @@ export function signaturesToBytesSortedBySignerAddress(
   return signaturesToBytes(
     ...sortSignaturesBySignerAddress(digest, signatures)
   );
+}
+
+export function prettyPrintObject(object: any) {
+  return JSON.stringify(object, null, JSON_STRINGIFY_SPACE);
 }

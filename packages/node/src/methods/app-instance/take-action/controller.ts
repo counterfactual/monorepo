@@ -8,7 +8,7 @@ import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
-import { getCounterpartyAddress } from "../../../utils";
+import { getCounterpartyAddress, prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -54,7 +54,9 @@ export default class TakeActionController extends NodeController {
       appInstance.encodeAction(action);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw new Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        throw new Error(
+          `${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`
+        );
       }
       throw new Error(STATE_OBJECT_NOT_ENCODABLE);
     }
@@ -136,7 +138,7 @@ async function runTakeActionProtocol(
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
-      throw new Error(`${INVALID_ACTION}: ${e}`);
+      throw new Error(`${INVALID_ACTION}: ${prettyPrintObject(e)}`);
     }
     throw e;
   }

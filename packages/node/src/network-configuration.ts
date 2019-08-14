@@ -12,6 +12,7 @@ import {
 import log from "loglevel";
 
 import { INVALID_NETWORK_NAME } from "./methods/errors";
+import { prettyPrintObject } from "./utils";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
@@ -46,7 +47,7 @@ export function getNetworkContextForNetworkName(
       throw new Error(
         `${INVALID_NETWORK_NAME}: ${networkName}. \n
          The following networks are supported:
-         ${Array.from(SUPPORTED_NETWORKS.values())}`
+         ${prettyPrintObject(Array.from(SUPPORTED_NETWORKS.values()))}`
       );
   }
 }

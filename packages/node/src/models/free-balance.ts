@@ -9,6 +9,7 @@ import {
   merge
 } from "../ethereum/utils/free-balance-app";
 import { xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";
 
@@ -161,7 +162,9 @@ export class FreeBalanceClass {
         if (val.lt(Zero)) {
           throw new Error(
             `FreeBalanceClass::increment ended up with a negative balance when
-            merging ${t1} and ${increments[tokenAddress]}`
+            merging ${prettyPrintObject(t1)} and ${prettyPrintObject(
+              increments[tokenAddress]
+            )}`
           );
         }
       }

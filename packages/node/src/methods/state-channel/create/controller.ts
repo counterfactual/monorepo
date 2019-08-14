@@ -10,7 +10,7 @@ import { jsonRpcMethod } from "rpc-server";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -130,7 +130,9 @@ export default class CreateChannelController extends NodeController {
 
         if (!tx.hash) {
           throw new Error(
-            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
+            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
+              tx
+            )}`
           );
         }
 
@@ -142,6 +144,6 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    throw new Error(`${CHANNEL_CREATION_FAILED}: ${error}`);
+    throw new Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
 }

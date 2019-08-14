@@ -7,6 +7,7 @@ import {
 } from "../ethereum/utils/free-balance-app";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
+import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";
 import {
@@ -87,7 +88,9 @@ export class StateChannel {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (!xpub.startsWith("xpub")) {
         throw new Error(
-          `StateChannel constructor given invalid extended keys: ${userNeuteredExtendedKeys}`
+          `StateChannel constructor given invalid extended keys: ${prettyPrintObject(
+            userNeuteredExtendedKeys
+          )}`
         );
       }
     });
