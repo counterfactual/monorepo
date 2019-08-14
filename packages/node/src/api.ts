@@ -78,13 +78,11 @@ const controllers = [
 export const methodNameToImplementation = controllers.reduce(
   (acc, controller) => {
     if (!controller.methodName) {
-      throw new Error(
-        `Fatal: Every controller must have a "methodName" property`
-      );
+      throw Error(`Fatal: Every controller must have a "methodName" property`);
     }
 
     if (acc[controller.methodName]) {
-      throw new Error(
+      throw Error(
         `Fatal: Multiple controllers connected to ${controller.methodName}`
       );
     }

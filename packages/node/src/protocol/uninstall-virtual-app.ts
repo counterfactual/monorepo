@@ -666,7 +666,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
   );
 
   if (expectedOutcome !== targetOutcome) {
-    throw new Error(
+    throw Error(
       "UninstallVirtualApp Protocol: Received targetOutcome that did not match expected outcome based on latest state of Virtual App."
     );
   }

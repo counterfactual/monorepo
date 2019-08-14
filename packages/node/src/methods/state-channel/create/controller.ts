@@ -10,13 +10,16 @@ import { jsonRpcMethod } from "rpc-server";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  prettyPrintObject,
+  sleep
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
-import { sleep } from "../../../../test/integration/utils";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
@@ -136,8 +139,10 @@ export default class CreateChannelController extends NodeController {
         );
 
         if (!tx.hash) {
-          throw new Error(
-            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${tx}`
+          throw Error(
+            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
+              tx
+            )}`
           );
         }
 
@@ -151,6 +156,6 @@ export default class CreateChannelController extends NodeController {
       await sleep(1000 * tryCount ** 2);
     }
 
-    throw new Error(`${CHANNEL_CREATION_FAILED}: ${error}`);
+    throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
 }

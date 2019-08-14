@@ -53,7 +53,7 @@ export default class ProposeInstallController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
 
     const {
@@ -143,7 +143,7 @@ function assertSufficientFundsWithinFreeBalance(
     .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0));
 
   if (freeBalanceForToken.lt(depositAmount)) {
-    throw new Error(
+    throw Error(
       INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
         publicIdentifier,
         channel.multisigAddress,

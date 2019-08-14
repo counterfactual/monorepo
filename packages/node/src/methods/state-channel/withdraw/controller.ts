@@ -7,6 +7,7 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
+import { prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_WITHDRAW,
@@ -33,7 +34,7 @@ export default class WithdrawController extends NodeController {
     if (
       stateChannel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)
     ) {
-      throw new Error(CANNOT_WITHDRAW);
+      throw Error(CANNOT_WITHDRAW);
     }
 
     const tokenAddress =
@@ -46,7 +47,7 @@ export default class WithdrawController extends NodeController {
         stateChannel.getFreeBalanceAddrOf(publicIdentifier)
       );
     if (senderBalance.lt(params.amount)) {
-      throw new Error(
+      throw Error(
         INSUFFICIENT_FUNDS_TO_WITHDRAW(
           tokenAddress,
           params.amount,
@@ -80,7 +81,7 @@ export default class WithdrawController extends NodeController {
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
     if (!commitment) {
-      throw new Error("No withdrawal commitment found");
+      throw Error("No withdrawal commitment found");
     }
 
     const tx = {
@@ -113,7 +114,7 @@ export default class WithdrawController extends NodeController {
       });
     } catch (e) {
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
-      throw new Error(`${WITHDRAWAL_FAILED}: ${JSON.stringify(e, null, 2)}`);
+      throw Error(`${WITHDRAWAL_FAILED}: ${prettyPrintObject(e)}`);
     }
 
     return {

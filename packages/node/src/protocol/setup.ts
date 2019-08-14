@@ -113,7 +113,7 @@ function proposeStateTransition(
   } = params as SetupParams;
 
   if (context.stateChannelsMap.has(multisigAddress)) {
-    throw new Error(`Found an already-setup channel at ${multisigAddress}`);
+    throw Error(`Found an already-setup channel at ${multisigAddress}`);
   }
 
   const newStateChannel = StateChannel.setupChannel(

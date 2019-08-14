@@ -1091,7 +1091,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   );
 
   if (!stateChannelWithIntermediary) {
-    throw new Error(
+    throw Error(
       "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
     );
   }
@@ -1165,7 +1165,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   );
 
   if (!channelWithInitiating) {
-    throw new Error(
+    throw Error(
       "Cannot mediate InstallVirtualAppProtocol without mediation channel to initiator"
     );
   }
@@ -1179,7 +1179,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   );
 
   if (!channelWithResponding) {
-    throw new Error(
+    throw Error(
       "Cannot mediate InstallVirtualAppProtocol without mediation channel to responder"
     );
   }
@@ -1286,7 +1286,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   );
 
   if (!stateChannelWithIntermediary) {
-    throw new Error(
+    throw Error(
       "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
     );
   }
