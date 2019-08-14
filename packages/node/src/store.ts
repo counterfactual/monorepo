@@ -21,7 +21,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { debugLog, getCreate2MultisigAddress } from "./utils";
+import { getCreate2MultisigAddress } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -65,7 +65,6 @@ export class Store {
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
-    debugLog("Getting channel: ", channel);
     return channel;
   }
 
@@ -87,8 +86,6 @@ export class Store {
    * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    debugLog("Saving channel: ", stateChannel);
-
     await this.storeService.set([
       {
         path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,

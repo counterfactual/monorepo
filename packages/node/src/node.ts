@@ -3,6 +3,7 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
@@ -20,7 +21,7 @@ import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, timeout } from "./utils";
+import { timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -91,15 +92,15 @@ export class Node {
 
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    debugLog(
+    log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    debugLog(`Node signer address: ${this.signer.address}`);
-    debugLog(`Node public identifier: ${this.publicIdentifier}`);
+    log.info(`Node signer address: ${this.signer.address}`);
+    log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
