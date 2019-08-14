@@ -89,7 +89,7 @@ export async function setup(
   );
 
   await storeServiceA.set([
-    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyA }
+    { path: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyA }
   ]);
   const nodeA = await Node.create(
     messagingService,
@@ -108,7 +108,7 @@ export async function setup(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
   await storeServiceB.set([
-    { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyB }
+    { path: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKeyB }
   ]);
   const nodeB = await Node.create(
     messagingService,

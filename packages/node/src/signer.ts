@@ -13,7 +13,7 @@ export async function getHDNode(
 
   if (!xprv) {
     xprv = computeRandomExtendedPrvKey();
-    await storeService.set([{ key: EXTENDED_PRIVATE_KEY_PATH, value: xprv }]);
+    await storeService.set([{ path: EXTENDED_PRIVATE_KEY_PATH, value: xprv }]);
   }
 
   try {
