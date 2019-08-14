@@ -47,7 +47,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
-    const { owners } = params;
+    const { owners, retryCount } = params;
     const { wallet, networkContext } = requestHandler;
 
     const multisigAddress = getCreate2MultisigAddress(
@@ -56,7 +56,12 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(wallet, owners, networkContext);
+    const tx = await this.sendMultisigDeployTx(
+      wallet,
+      owners,
+      networkContext,
+      retryCount
+    );
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
@@ -103,7 +108,8 @@ export default class CreateChannelController extends NodeController {
   private async sendMultisigDeployTx(
     signer: Signer,
     owners: string[],
-    networkContext: NetworkContext
+    networkContext: NetworkContext,
+    retryCount: number = 3
   ): Promise<TransactionResponse> {
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
@@ -112,7 +118,6 @@ export default class CreateChannelController extends NodeController {
     );
 
     let error;
-    const retryCount = 3;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
