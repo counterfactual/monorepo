@@ -131,9 +131,7 @@ export class StateChannel {
 
   public mostRecentlyInstalledAppInstance(): AppInstance {
     if (this.appInstances.size === 0) {
-      throw Error(
-        "There are no installed AppInstances in this StateChannel"
-      );
+      throw Error("There are no installed AppInstances in this StateChannel");
     }
     return [...this.appInstances.values()].reduce((prev, current) =>
       current.appSeqNo > prev.appSeqNo ? current : prev
@@ -418,9 +416,7 @@ export class StateChannel {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
-      throw Error(
-        "AppInstance passed to installApp has incorrect appSeqNo"
-      );
+      throw Error("AppInstance passed to installApp has incorrect appSeqNo");
     } else {
       const participants = this.getSigningKeysFor(appInstance.appSeqNo);
       if (

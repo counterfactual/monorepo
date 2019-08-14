@@ -147,9 +147,7 @@ export class Node {
 
     instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
-        throw Error(
-          "OP_SIGN middleware received wrong number of arguments."
-        );
+        throw Error("OP_SIGN middleware received wrong number of arguments.");
       }
 
       const [commitment, overrideKeyIndex] = args;

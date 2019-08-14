@@ -54,9 +54,7 @@ export default class TakeActionController extends NodeController {
       appInstance.encodeAction(action);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw Error(
-          `${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`
-        );
+        throw Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`);
       }
       throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }

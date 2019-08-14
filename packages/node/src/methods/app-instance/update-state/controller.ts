@@ -52,9 +52,7 @@ export default class UpdateStateController extends NodeController {
       appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw Error(
-          `${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`
-        );
+        throw Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`);
       }
       throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }
