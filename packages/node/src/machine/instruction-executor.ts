@@ -109,7 +109,8 @@ export class InstructionExecutor {
       protocol: protocolName,
       protocolExecutionID: uuid.v1(),
       seq: 0,
-      toXpub: params[firstRecipientFromProtocolName(protocolName)]
+      toXpub: params[firstRecipientFromProtocolName(protocolName)],
+      customData: {}
     });
   }
 
@@ -123,7 +124,8 @@ export class InstructionExecutor {
         params,
         protocolExecutionID: uuid.v1(),
         seq: 0,
-        toXpub: params.responderXpub
+        toXpub: params.responderXpub,
+        customData: {}
       }
     );
   }

@@ -26,19 +26,23 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       .params as SetupParams;
     const responderAddress = xkeyKthAddress(responderXpub, 0);
     const setupCommitment = proposeStateTransition(
-      context.message.params,
+      context.message.params!,
       context
     );
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    const { signature: theirSig } = yield [
+    const {
+      customData: { signature: theirSig }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -63,11 +67,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const setupCommitment = proposeStateTransition(
-      context.message.params,
+      context.message.params!,
       context
     );
 
-    const theirSig = context.message.signature!;
+    const theirSig = context.message.customData.signature!;
     assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
@@ -89,7 +93,9 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Setup,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

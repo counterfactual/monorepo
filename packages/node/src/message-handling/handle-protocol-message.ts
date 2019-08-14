@@ -46,7 +46,7 @@ export async function handleReceivedProtocolMessage(
 
   const queueNames = await getQueueNamesListByProtocolName(
     protocol,
-    params,
+    params!,
     requestHandler
   );
 
@@ -68,7 +68,7 @@ export async function handleReceivedProtocolMessage(
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(
     protocol,
-    params,
+    params!,
     publicIdentifier,
     postProtocolStateChannelsMap
   );
