@@ -23,7 +23,7 @@ export default class GetFreeBalanceController extends NodeController {
     const tokenAddress = tokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
     if (!multisigAddress) {
-      throw new Error(
+      throw Error(
         "getFreeBalanceState method was given undefined multisigAddress"
       );
     }
@@ -35,7 +35,7 @@ export default class GetFreeBalanceController extends NodeController {
       .withTokenAddress(tokenAddress);
 
     if (!ret) {
-      throw new Error(NO_FREE_BALANCE_EXISTS(tokenAddress));
+      throw Error(NO_FREE_BALANCE_EXISTS(tokenAddress));
     }
 
     return ret;

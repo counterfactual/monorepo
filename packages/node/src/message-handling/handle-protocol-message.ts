@@ -146,7 +146,7 @@ function getOutgoingEventDataFromProtocol(
         )
       };
     default:
-      throw new Error(
+      throw Error(
         `handleReceivedProtocolMessage received invalid protocol message: ${protocol}`
       );
   }
@@ -264,7 +264,7 @@ async function getQueueNamesListByProtocolName(
     // that case.
 
     default:
-      throw new Error(
+      throw Error(
         `handleReceivedProtocolMessage received invalid protocol message: ${protocol}`
       );
   }

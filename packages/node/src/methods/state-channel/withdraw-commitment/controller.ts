@@ -38,7 +38,7 @@ export default class WithdrawCommitmentController extends NodeController {
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
     if (!commitment) {
-      throw new Error("No withdrawal commitment found");
+      throw Error("No withdrawal commitment found");
     }
 
     return {

@@ -63,7 +63,7 @@ export default class ProposeInstallVirtualController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
     // TODO: check if channel is open with the first intermediary
     // and that there are sufficient funds

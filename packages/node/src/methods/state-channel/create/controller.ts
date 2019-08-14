@@ -129,7 +129,7 @@ export default class CreateChannelController extends NodeController {
         );
 
         if (!tx.hash) {
-          throw new Error(
+          throw Error(
             `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
               tx
             )}`
@@ -144,6 +144,6 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    throw new Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
+    throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
 }

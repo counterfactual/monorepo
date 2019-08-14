@@ -63,7 +63,7 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
   ) {
     return "responderXpub";
   }
-  throw new Error(
+  throw Error(
     `Unknown protocolName ${protocolName} passed to firstRecipientFromProtocolName`
   );
 }
@@ -92,7 +92,7 @@ export class InstructionExecutor {
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
-      throw new Error(
+      throw Error(
         `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
       );
     }

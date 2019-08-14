@@ -43,7 +43,7 @@ export default class UpdateStateController extends NodeController {
     const { appInstanceId, newState } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -52,11 +52,11 @@ export default class UpdateStateController extends NodeController {
       appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw new Error(
+        throw Error(
           `${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`
         );
       }
-      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
+      throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 

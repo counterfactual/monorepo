@@ -87,7 +87,7 @@ export class StateChannel {
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (!xpub.startsWith("xpub")) {
-        throw new Error(
+        throw Error(
           `StateChannel constructor given invalid extended keys: ${prettyPrintObject(
             userNeuteredExtendedKeys
           )}`
@@ -110,7 +110,7 @@ export class StateChannel {
 
   public getAppInstance(appInstanceIdentityHash: string): AppInstance {
     if (!this.appInstances.has(appInstanceIdentityHash)) {
-      throw new Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
+      throw Error(ERRORS.APP_DOES_NOT_EXIST(appInstanceIdentityHash));
     }
     return this.appInstances.get(appInstanceIdentityHash)!;
   }
@@ -131,7 +131,7 @@ export class StateChannel {
 
   public mostRecentlyInstalledAppInstance(): AppInstance {
     if (this.appInstances.size === 0) {
-      throw new Error(
+      throw Error(
         "There are no installed AppInstances in this StateChannel"
       );
     }
@@ -147,7 +147,7 @@ export class StateChannel {
       }
     );
     if (appInstances.length !== 1) {
-      throw new Error(
+      throw Error(
         `No AppInstance of addr ${address} exists on channel: ${this.multisigAddress}`
       );
     }
@@ -175,7 +175,7 @@ export class StateChannel {
       return this.freeBalanceAppInstance;
     }
 
-    throw new Error(
+    throw Error(
       "There is no free balance app instance installed in this state channel"
     );
   }
@@ -186,7 +186,7 @@ export class StateChannel {
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
     if (topLevelKey !== alice && topLevelKey !== bob) {
-      throw new Error(
+      throw Error(
         `getMultisigOwnerAddrOf received invalid xpub not in multisigOwners: ${xpub}`
       );
     }
@@ -200,7 +200,7 @@ export class StateChannel {
     const topLevelKey = xkeyKthAddress(xpub, 0);
 
     if (topLevelKey !== alice && topLevelKey !== bob) {
-      throw new Error(
+      throw Error(
         `getFreeBalanceAddrOf received invalid xpub without free balance account: ${xpub}`
       );
     }
@@ -324,7 +324,7 @@ export class StateChannel {
 
   public addAppInstance(appInstance: AppInstance) {
     if (appInstance.appSeqNo !== this.numInstalledApps) {
-      throw new Error(
+      throw Error(
         `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
       );
     }
@@ -399,7 +399,7 @@ export class StateChannel {
     >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
     if (!singleAssetTwoPartyIntermediaryAgreements.delete(targetIdentityHash)) {
-      throw new Error(
+      throw Error(
         `cannot find agreement with target hash ${targetIdentityHash}`
       );
     }
@@ -418,7 +418,7 @@ export class StateChannel {
     // Verify appInstance has expected signingkeys
 
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
-      throw new Error(
+      throw Error(
         "AppInstance passed to installApp has incorrect appSeqNo"
       );
     } else {
@@ -426,7 +426,7 @@ export class StateChannel {
       if (
         !participants.every((v, idx) => v === appInstance.participants[idx])
       ) {
-        throw new Error(
+        throw Error(
           "AppInstance passed to installApp has incorrect participants"
         );
       }
@@ -456,7 +456,7 @@ export class StateChannel {
     const appToBeUninstalled = this.getAppInstance(appInstanceIdentityHash);
 
     if (appToBeUninstalled.identityHash !== appInstanceIdentityHash) {
-      throw new Error(
+      throw Error(
         `Consistency error: app stored under key ${appInstanceIdentityHash} has identityHah ${appToBeUninstalled.identityHash}`
       );
     }
@@ -466,7 +466,7 @@ export class StateChannel {
     );
 
     if (!appInstances.delete(appToBeUninstalled.identityHash)) {
-      throw new Error(
+      throw Error(
         `Consistency error: managed to call get on ${appInstanceIdentityHash} but failed to call delete`
       );
     }
@@ -485,7 +485,7 @@ export class StateChannel {
     const ret = this.singleAssetTwoPartyIntermediaryAgreements.get(key);
 
     if (!ret) {
-      throw new Error(
+      throw Error(
         `Could not find any eth virtual app agreements with virtual app ${key}`
       );
     }
@@ -576,7 +576,7 @@ export class StateChannel {
     );
 
     if (!multisigAddress) {
-      throw new Error(
+      throw Error(
         `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
       );
     }

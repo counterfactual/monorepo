@@ -20,6 +20,6 @@ export async function getHDNode(
   try {
     return fromExtendedKey(xprv).derivePath(CF_PATH);
   } catch (e) {
-    throw new Error(`Invalid extended key supplied: ${prettyPrintObject(e)}`);
+    throw Error(`Invalid extended key supplied: ${prettyPrintObject(e)}`);
   }
 }

@@ -61,7 +61,7 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      throw new Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
+      throw Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
@@ -239,7 +239,7 @@ export class Store {
     );
 
     if (!appInstanceProposal) {
-      throw new Error(
+      throw Error(
         NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
@@ -258,7 +258,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      throw Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);

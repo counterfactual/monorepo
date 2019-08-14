@@ -7,7 +7,6 @@ import {
 } from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
-import { prettyPrintObject } from "./utils";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
@@ -32,7 +31,7 @@ export default class RpcRouter extends Router {
     );
 
     if (!controller) {
-      throw new Error(`Cannot execute ${rpc.methodName}: no controller`);
+      throw Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
     try {
@@ -51,7 +50,7 @@ export default class RpcRouter extends Router {
 
       return result;
     } catch (e) {
-      throw new Error(prettyPrintObject(e));
+      throw Error(e);
     }
   }
 

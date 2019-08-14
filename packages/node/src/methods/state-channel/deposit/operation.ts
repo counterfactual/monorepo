@@ -129,7 +129,7 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        throw new Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
+        throw Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
       }
 
       retryCount -= 1;
@@ -139,7 +139,7 @@ export async function makeDeposit(
           NODE_EVENTS.DEPOSIT_FAILED,
           `Could not deposit after ${DEPOSIT_RETRY_COUNT} attempts`
         );
-        throw new Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
+        throw Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
       }
     }
   }

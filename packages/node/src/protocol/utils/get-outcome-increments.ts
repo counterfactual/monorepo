@@ -64,7 +64,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       );
     }
     default: {
-      throw new Error(
+      throw Error(
         "computeTokenIndexedFreeBalanceIncrements received an AppInstance with unknown OutcomeType"
       );
     }
@@ -108,7 +108,7 @@ async function handleRefundAppOutcomeSpecialCase(
     mutableOutcome = await appInstance.computeOutcomeWithCurrentState(provider);
   }
 
-  throw new Error(
+  throw Error(
     "When attempting to check for a deposit having been made to the multisig, did not find any non-zero deposits."
   );
 }

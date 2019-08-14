@@ -56,7 +56,7 @@ export default class UninstallVirtualController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      throw Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
   }
 
@@ -74,13 +74,13 @@ export default class UninstallVirtualController extends NodeController {
     const { appInstanceId, intermediaryIdentifier } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      throw Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
     const to = getCounterpartyAddress(

@@ -45,7 +45,7 @@ export default class TakeActionController extends NodeController {
     const { appInstanceId, action } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -54,11 +54,11 @@ export default class TakeActionController extends NodeController {
       appInstance.encodeAction(action);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw new Error(
+        throw Error(
           `${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`
         );
       }
-      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
+      throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 
@@ -138,9 +138,9 @@ async function runTakeActionProtocol(
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
-      throw new Error(`${INVALID_ACTION}: ${prettyPrintObject(e)}`);
+      throw Error(`${INVALID_ACTION}: ${prettyPrintObject(e)}`);
     }
-    throw e;
+    throw Error(prettyPrintObject(e));
   }
 
   const updatedStateChannel = stateChannelsMap.get(
