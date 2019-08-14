@@ -33,9 +33,9 @@ export class MemoryStoreService implements Node.IStoreService {
     return Promise.resolve(null);
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<void> {
+  async set(pairs: { path: string; value: any }[]): Promise<void> {
     for (const pair of pairs) {
-      this.store.set(pair.key, JSON.parse(JSON.stringify(pair.value)));
+      this.store.set(pair.path, JSON.parse(JSON.stringify(pair.value)));
     }
   }
 

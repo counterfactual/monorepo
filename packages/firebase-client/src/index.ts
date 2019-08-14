@@ -156,15 +156,15 @@ class FirebaseStoreService implements Node.IStoreService {
     private readonly storeServiceKey: string
   ) {}
 
-  async get(key: string): Promise<any> {
+  async get(path: string): Promise<any> {
     let result: any;
     await this.firebase
       .ref(this.storeServiceKey)
-      .child(key)
+      .child(path)
       .once("value", (snapshot: firebase.database.DataSnapshot | null) => {
         if (snapshot === null) {
           console.debug(
-            `Failed to retrieve value at ${key}: received a "null" snapshot`
+            `Failed to retrieve value at ${path}: received a "null" snapshot`
           );
           return;
         }
@@ -180,12 +180,12 @@ class FirebaseStoreService implements Node.IStoreService {
    * error by defautl instead.
    */
   async set(
-    pairs: { key: string; value: any }[],
+    pairs: { path: string; value: any }[],
     allowDelete?: Boolean
   ): Promise<any> {
     const updates = {};
     for (const pair of pairs) {
-      updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
+      updates[pair.path] = JSON.parse(JSON.stringify(pair.value));
     }
     if (!allowDelete && containsNull(updates)) {
       throw new Error(WRITE_NULL_TO_FIREBASE);
