@@ -8,17 +8,17 @@ export function assertIsValidSignature(
   signature?: Signature
 ) {
   if (commitment === undefined) {
-    throw new Error("assertIsValidSignature received an undefined commitment");
+    throw Error("assertIsValidSignature received an undefined commitment");
   }
 
   if (signature === undefined) {
-    throw new Error("assertIsValidSignature received an undefined signature");
+    throw Error("assertIsValidSignature received an undefined signature");
   }
 
   const signer = recoverAddress(commitment.hashToSign(), signature);
 
   if (getAddress(expectedSigner) !== signer) {
-    throw new Error(
+    throw Error(
       `Validating a signature with expected signer ${expectedSigner} but recovered ${signer} for commitment hash ${commitment.hashToSign()}.`
     );
   }

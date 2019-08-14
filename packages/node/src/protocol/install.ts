@@ -405,7 +405,7 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -443,7 +443,7 @@ function computeInterpreterParameters(
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -462,7 +462,7 @@ function computeInterpreterParameters(
     }
 
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }
@@ -513,7 +513,7 @@ function getInterpreterAddressFromOutcomeType(
       return networkContext.TwoPartyFixedOutcomeInterpreter;
     }
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }

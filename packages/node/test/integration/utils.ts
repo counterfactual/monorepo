@@ -761,7 +761,7 @@ export function getAppContext(
       break;
 
     default:
-      throw new Error(
+      throw Error(
         `Proposing the specified app is not supported: ${appDefinition}`
       );
   }

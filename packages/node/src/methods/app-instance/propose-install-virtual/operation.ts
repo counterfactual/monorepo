@@ -3,7 +3,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
 import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
@@ -118,6 +118,6 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
       return stateChannel;
     }
 
-    throw e;
+    throw Error(prettyPrintObject(e));
   }
 }
