@@ -35,6 +35,11 @@ export type ProtocolMessage = {
   params?: ProtocolParameters;
   toXpub: string;
   seq: number;
+  /*
+  Additional data which depends on the protocol (or even the specific message
+  number in a protocol) lives here. Includes signatures, final outcome of a
+  virtual app instance
+  */
   customData: { [key: string]: any };
 };
 
