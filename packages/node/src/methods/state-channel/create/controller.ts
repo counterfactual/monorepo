@@ -16,6 +16,7 @@ import {
   CHANNEL_CREATION_FAILED,
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
+import { sleep } from "../../../../test/integration/utils";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
@@ -121,6 +122,7 @@ export default class CreateChannelController extends NodeController {
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
+
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
           new Interface(MinimumViableMultisig.abi).functions.setup.encode([
@@ -145,6 +147,8 @@ export default class CreateChannelController extends NodeController {
         console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
                       Retrying ${retryCount - tryCount} more times`);
       }
+
+      await sleep(1000 * tryCount ** 2);
     }
 
     throw new Error(`${CHANNEL_CREATION_FAILED}: ${error}`);
