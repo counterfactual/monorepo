@@ -8,17 +8,15 @@ export class MemoryStoreService implements Node.IStoreService {
       path.endsWith("channel") ||
       path.endsWith("appInstanceIdToProposedAppInstance")
     ) {
-      const nestedRecords = Array.from(this.store.entries()).filter(
-        (entry) => {
-          return entry[0].includes(path);
-        }
-      );
+      const nestedRecords = Array.from(this.store.entries()).filter(entry => {
+        return entry[0].includes(path);
+      });
       if (nestedRecords.length === 0) {
         return {};
       }
 
       const results = {};
-      nestedRecords.forEach((entry) => {
+      nestedRecords.forEach(entry => {
         const key: string = entry[0].split("/").pop()!;
         if (entry[1] !== null) {
           results[key] = entry[1];
