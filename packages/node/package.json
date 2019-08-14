@@ -22,7 +22,6 @@
   "devDependencies": {
     "@babel/core": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.5.5",
-    "@babel/preset-env": "^7.5.5",
     "@counterfactual/apps": "0.1.4",
     "@counterfactual/firebase-server": "0.0.1",
     "@counterfactual/local-ganache-server": "0.0.2",

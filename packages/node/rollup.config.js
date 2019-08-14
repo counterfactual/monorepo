@@ -105,7 +105,6 @@ export default [
       // use Babel to transpile to ES5
       babel({
         exclude: "node_modules/**",
-        presets: ["@babel/preset-env"],
         plugins: ["@babel/plugin-proposal-object-rest-spread"]
       })
     ],
