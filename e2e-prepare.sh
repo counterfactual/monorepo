@@ -13,11 +13,10 @@ fi
 if [ -z "$PYTHON" ];
 then
   echo "  > ERROR: You need to install python2.7 to compile node-gyp related dependencies."
+  exit
 else
   echo "  > Found Python at: $PYTHON"
 fi
-
-exit
 
 if [ -d "packages/greenboard/extension" ];
 then
