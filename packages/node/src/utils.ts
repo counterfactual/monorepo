@@ -163,3 +163,7 @@ export function signaturesToBytesSortedBySignerAddress(
 export function prettyPrintObject(object: any) {
   return JSON.stringify(object, null, JSON_STRINGIFY_SPACE);
 }
+
+export async function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
+}

@@ -155,6 +155,7 @@ export namespace Node {
 
   export type CreateChannelParams = {
     owners: string[];
+    retryCount?: number;
   };
 
   export type CreateChannelResult = {

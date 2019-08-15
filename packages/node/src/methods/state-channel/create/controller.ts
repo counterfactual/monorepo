@@ -2,15 +2,20 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
-import { TransactionResponse } from "ethers/providers";
+import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { MULTISIG_DEPLOYED_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  prettyPrintObject,
+  sleep
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -47,7 +52,7 @@ export default class CreateChannelController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
-    const { owners } = params;
+    const { owners, retryCount } = params;
     const { wallet, networkContext } = requestHandler;
 
     const multisigAddress = getCreate2MultisigAddress(
@@ -56,7 +61,12 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(wallet, owners, networkContext);
+    const tx = await this.sendMultisigDeployTx(
+      wallet,
+      owners,
+      networkContext,
+      retryCount
+    );
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
@@ -103,7 +113,8 @@ export default class CreateChannelController extends NodeController {
   private async sendMultisigDeployTx(
     signer: Signer,
     owners: string[],
-    networkContext: NetworkContext
+    networkContext: NetworkContext,
+    retryCount: number = 3
   ): Promise<TransactionResponse> {
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
@@ -112,10 +123,10 @@ export default class CreateChannelController extends NodeController {
     );
 
     let error;
-    const retryCount = 3;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
+
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
           new Interface(MinimumViableMultisig.abi).functions.setup.encode([
@@ -136,6 +147,19 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
+        if (
+          !(await checkForCorrectDeployedByteCode(
+            tx!,
+            signer.provider!,
+            owners,
+            networkContext
+          ))
+        ) {
+          error = `Could not confirm the deployed multisig contract has the expected bytecode`;
+          await sleep(1000 * tryCount ** 2);
+          continue;
+        }
+
         return tx;
       } catch (e) {
         error = e;
@@ -146,4 +170,23 @@ export default class CreateChannelController extends NodeController {
 
     throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
+}
+
+async function checkForCorrectDeployedByteCode(
+  tx: TransactionResponse,
+  provider: Provider,
+  owners: string[],
+  networkContext: NetworkContext
+): Promise<boolean> {
+  const multisigAddress = getCreate2MultisigAddress(
+    owners,
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
+  );
+
+  const multisigDeployedBytecode = await provider.getCode(
+    multisigAddress,
+    tx.blockHash
+  );
+  return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
 }

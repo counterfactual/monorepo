@@ -441,10 +441,6 @@ export function constructUninstallVirtualRpc(
   });
 }
 
-export async function sleep(timeInMilliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
-}
-
 export async function collateralizeChannel(
   node1: Node,
   node2: Node,
