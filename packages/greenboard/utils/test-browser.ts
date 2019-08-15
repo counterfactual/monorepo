@@ -1,13 +1,46 @@
 require("chromedriver");
 
 import { resolve } from "path";
-import { Builder, Locator, until, WebDriver, WebElement, WebElementPromise } from "selenium-webdriver";
+import {
+  Builder,
+  Locator,
+  until,
+  WebDriver,
+  WebElement,
+  WebElementPromise
+} from "selenium-webdriver";
 import Chrome, { Options, ServiceBuilder } from "selenium-webdriver/chrome";
-import { EXTENSION_LIST_SELECTOR, METAMASK_EXTENSION_URL_SELECTOR } from "./chrome-selectors";
-import { ACCOUNT_DEPOSIT_SELECTORS, ACCOUNT_REGISTRATION_SELECTORS, LAYOUT_HEADER_SELECTORS } from "./counterfactual-wallet-selectors";
-import { DEPOSIT_SELECTORS, findItemByExactTextMatch, findItemByPartialTextMatch, FIRST_TIME_FLOW_SELECTORS, MAIN_SCREEN_SELECTORS, NETWORK_SELECTORS, NOTIFICATION_SELECTORS, REQUEST_SIGNATURE_SELECTORS, UNLOCK_FLOW_SELECTORS, WALLET_AUTHORIZATION_MODAL_SELECTORS } from "./metamask-selectors";
+import {
+  EXTENSION_LIST_SELECTOR,
+  METAMASK_EXTENSION_URL_SELECTOR
+} from "./chrome-selectors";
+import {
+  ACCOUNT_DEPOSIT_SELECTORS,
+  ACCOUNT_REGISTRATION_SELECTORS,
+  LAYOUT_HEADER_SELECTORS
+} from "./counterfactual-wallet-selectors";
+import {
+  DEPOSIT_SELECTORS,
+  findItemByExactTextMatch,
+  findItemByPartialTextMatch,
+  FIRST_TIME_FLOW_SELECTORS,
+  MAIN_SCREEN_SELECTORS,
+  NETWORK_SELECTORS,
+  NOTIFICATION_SELECTORS,
+  REQUEST_SIGNATURE_SELECTORS,
+  UNLOCK_FLOW_SELECTORS,
+  WALLET_AUTHORIZATION_MODAL_SELECTORS
+} from "./metamask-selectors";
 import StateCollector from "./state-collector";
-import { CounterfactualScreenName, MetamaskFlowType, MetamaskNetwork, MetamaskOptions, MetamaskTransaction, StringHashMap, TestBrowserContext } from "./types";
+import {
+  CounterfactualScreenName,
+  MetamaskFlowType,
+  MetamaskNetwork,
+  MetamaskOptions,
+  MetamaskTransaction,
+  StringHashMap,
+  TestBrowserContext
+} from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
 export const LOCATOR_TIMEOUT = 10000;
@@ -81,7 +114,16 @@ export class TestBrowser {
       `--load-extension=${extensionDirectory}`,
       `--disable-web-security`,
       `--no-sandbox`,
-      `--user-data-dir=${chromeProfileDirectory}`
+      `--user-data-dir=${chromeProfileDirectory}`,
+      ...Object.keys(process.env)
+        .filter(key => key.startsWith("TEST_BROWSER_FLAG_"))
+        .map(
+          key =>
+            `--${key
+              .replace(/TEST_BROWSER_FLAG_/g, "")
+              .toLowerCase()
+              .replace(/_/g, "-")}=${process.env[key]}`
+        )
     );
 
     if (process.env.CHROME_BINARY_PATH) {
