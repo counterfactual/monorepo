@@ -1,0 +1,13 @@
+version: "3"
+
+services:
+  greenboard:
+    build:
+      context: "."
+      dockerfile: Dockerfile
+      args:
+        npm_version: 6
+        yarn_version: 1.12.3
+        metamask_repository: prototypal/metamask-extension
+        metamask_branch: develop
+        counterfactual_branch: joel/greenboard-docker-image
