@@ -1,14 +1,13 @@
 import { OutcomeType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
-import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import {
   getFreeBalanceAppInterface,
   merge
 } from "../ethereum/utils/free-balance-app";
-import { xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";
@@ -123,13 +122,23 @@ export class FreeBalanceClass {
       return Zero;
     }
   }
-  public withTokenAddress(tokenAddress: string): CoinTransferMap | null {
-    if (!this.balancesIndexedByToken[tokenAddress]) {
-      return null;
+  public withTokenAddress(tokenAddress: string): CoinTransferMap {
+    try {
+      return convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      );
+    } catch {
+      const addresses = Object.keys(
+        convertCoinTransfersToCoinTransfersMap(
+          this.balancesIndexedByToken[CONVENTION_FOR_ETH_TOKEN_ADDRESS]
+        )
+      );
+      const tokenBalances = {};
+      for (const address of addresses) {
+        tokenBalances[address] = Zero;
+      }
+      return tokenBalances;
     }
-    return convertCoinTransfersToCoinTransfersMap(
-      this.balancesIndexedByToken[tokenAddress]
-    );
   }
   public removeActiveApp(activeApp: string) {
     delete this.activeAppsMap[activeApp];
@@ -273,6 +282,9 @@ function serializeFreeBalanceState(
 export function convertCoinTransfersToCoinTransfersMap(
   coinTransfers: CoinTransfer[]
 ): CoinTransferMap {
+  if (!coinTransfers) {
+    throw Error("Undefined coin transfer array given to convert to map");
+  }
   return (coinTransfers || []).reduce(
     (acc, { to, amount }) => ({ ...acc, [to]: amount }),
     {}
@@ -292,5 +304,5 @@ function convertCoinTransfersMapToCoinTransfers(
  * Address used for a Node's free balance
  */
 export function getFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
+  return xkeyKthAddress(publicIdentifier, 0);
 }
