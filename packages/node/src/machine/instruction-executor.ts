@@ -63,7 +63,7 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
   ) {
     return "responderXpub";
   }
-  throw new Error(
+  throw Error(
     `Unknown protocolName ${protocolName} passed to firstRecipientFromProtocolName`
   );
 }
@@ -92,7 +92,7 @@ export class InstructionExecutor {
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
-      throw new Error(
+      throw Error(
         `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
       );
     }
@@ -109,7 +109,8 @@ export class InstructionExecutor {
       protocol: protocolName,
       protocolExecutionID: uuid.v1(),
       seq: 0,
-      toXpub: params[firstRecipientFromProtocolName(protocolName)]
+      toXpub: params[firstRecipientFromProtocolName(protocolName)],
+      customData: {}
     });
   }
 
@@ -123,7 +124,8 @@ export class InstructionExecutor {
         params,
         protocolExecutionID: uuid.v1(),
         seq: 0,
-        toXpub: params.responderXpub
+        toXpub: params.responderXpub,
+        customData: {}
       }
     );
   }

@@ -104,22 +104,24 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: 1,
-      signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
-      // FIXME: We are abusing these typed parameters in the ProtocolMessage
-      //        to pass through some variables from the initiating party
-      //        to the intermediary party. To fix, we ought to have some
-      //        kind of `metadata` fields on the ProtocolMessage
-      signature2: virtualAppInstance.identityHash as unknown,
-      signature3: timeLockedPassThroughAppInstance.state[
-        "defaultOutcome"
-      ] as unknown
+      customData: {
+        signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
+        // FIXME: We are abusing these typed parameters in the ProtocolMessage
+        //        to pass through some variables from the initiating party
+        //        to the intermediary party. To fix, we ought to have some
+        //        kind of `metadata` fields on the ProtocolMessage
+        signature2: virtualAppInstance.identityHash,
+        signature3: timeLockedPassThroughAppInstance.state["defaultOutcome"]
+      }
     } as ProtocolMessage;
 
-    const m4 = yield [IO_SEND_AND_WAIT, m1];
+    const m4 = (yield [IO_SEND_AND_WAIT, m1]) as ProtocolMessage;
 
     const {
-      signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
-      signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
+      customData: {
+        signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
+        signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
+      }
     } = m4;
 
     assertIsValidSignature(
@@ -202,17 +204,21 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
-      signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
+        signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m8 = yield [IO_SEND_AND_WAIT, m5];
+    const m8 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
 
     const {
-      signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: responderSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: responderSignatureOnVirtualAppSetStateCommitment
+      }
     } = m8;
 
     assertIsValidSignature(
@@ -276,13 +282,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const {
       params,
       protocolExecutionID,
-      signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
-      // FIXME: We are abusing these typed parameters in the ProtocolMessage
-      //        to pass through some variables from the initiating party
-      //        to the intermediary party. To fix, we ought to have some
-      //        kind of `metadata` fields on the ProtocolMessage
-      signature2: virtualAppInstanceIdentityHash,
-      signature3: virtualAppInstanceDefaultOutcome
+      customData: {
+        signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
+        // FIXME: We are abusing these typed parameters in the ProtocolMessage
+        //        to pass through some variables from the initiating party
+        //        to the intermediary party. To fix, we ought to have some
+        //        kind of `metadata` fields on the ProtocolMessage
+        signature2: virtualAppInstanceIdentityHash,
+        signature3: virtualAppInstanceDefaultOutcome
+      }
     } = m1;
 
     const { initiatorXpub, responderXpub } = params as InstallVirtualAppParams;
@@ -353,14 +361,18 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       seq: 2,
       toXpub: responderXpub,
-      signature: intermediarySignatureOnIngridBobVirtualAppAgreement
+      customData: {
+        signature: intermediarySignatureOnIngridBobVirtualAppAgreement
+      }
     } as ProtocolMessage;
 
-    const m3 = yield [IO_SEND_AND_WAIT, m2];
+    const m3 = (yield [IO_SEND_AND_WAIT, m2]) as ProtocolMessage;
 
     const {
-      signature: responderSignatureOnIngridBobVirtualAppAgreement,
-      signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
+      customData: {
+        signature: responderSignatureOnIngridBobVirtualAppAgreement,
+        signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
+      }
     } = m3;
 
     assertIsValidSignature(
@@ -418,16 +430,20 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: initiatorXpub,
-      signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
-      signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
+      customData: {
+        signature: intermediarySignatureOnAliceIngridVirtualAppAgreement,
+        signature2: intermediarySignatureOnAliceIngridFreeBalanceAppActivation
+      }
     } as ProtocolMessage;
 
-    const m5 = yield [IO_SEND_AND_WAIT, m4];
+    const m5 = (yield [IO_SEND_AND_WAIT, m4]) as ProtocolMessage;
 
     const {
-      signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
-      signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: initiatorSignatureOnAliceIngridFreeBalanceAppActivation,
+        signature2: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: initiatorSignatureOnVirtualAppSetStateCommitment
+      }
     } = m5;
 
     assertIsValidSignature(
@@ -489,17 +505,21 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: responderXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature4: initiatorSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature4: initiatorSignatureOnVirtualAppSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m7 = yield [IO_SEND_AND_WAIT, m6];
+    const m7 = (yield [IO_SEND_AND_WAIT, m6]) as ProtocolMessage;
 
     const {
-      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: responderSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: responderSignatureOnVirtualAppSetStateCommitment
+      }
     } = m7;
 
     assertIsValidSignature(
@@ -524,9 +544,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: initiatorXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: responderSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: responderSignatureOnVirtualAppSetStateCommitment
+      }
     } as ProtocolMessage;
 
     yield [IO_SEND, m8];
@@ -553,7 +575,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const {
       params,
       protocolExecutionID,
-      signature: intermediarySignatureOnIngridBobVirtualAppAgreement
+      customData: {
+        signature: intermediarySignatureOnIngridBobVirtualAppAgreement
+      }
     } = m2;
 
     const {
@@ -635,17 +659,21 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: responderSignatureOnIngridBobVirtualAppAgreement,
-      signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
+      customData: {
+        signature: responderSignatureOnIngridBobVirtualAppAgreement,
+        signature2: responderSignatureOnIngridBobFreeBalanceAppActivation
+      }
     } as ProtocolMessage;
 
-    const m6 = yield [IO_SEND_AND_WAIT, m3];
+    const m6 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
 
     const {
-      signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
-      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature4: initiatorSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: intermediarySignatureOnIngridBobFreeBalanceAppActivation,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature3: initiatorSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature4: initiatorSignatureOnVirtualAppSetStateCommitment
+      }
     } = m6;
 
     assertIsValidSignature(
@@ -736,8 +764,10 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       protocolExecutionID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
-      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: responderSignatureOnVirtualAppSetStateCommitment
+      customData: {
+        signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: responderSignatureOnVirtualAppSetStateCommitment
+      }
     } as ProtocolMessage;
 
     yield [IO_SEND, m7];
@@ -1061,7 +1091,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   );
 
   if (!stateChannelWithIntermediary) {
-    throw new Error(
+    throw Error(
       "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
     );
   }
@@ -1135,7 +1165,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   );
 
   if (!channelWithInitiating) {
-    throw new Error(
+    throw Error(
       "Cannot mediate InstallVirtualAppProtocol without mediation channel to initiator"
     );
   }
@@ -1149,7 +1179,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   );
 
   if (!channelWithResponding) {
-    throw new Error(
+    throw Error(
       "Cannot mediate InstallVirtualAppProtocol without mediation channel to responder"
     );
   }
@@ -1256,7 +1286,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   );
 
   if (!stateChannelWithIntermediary) {
-    throw new Error(
+    throw Error(
       "Cannot run InstallVirtualAppProtocol without existing channel with intermediary"
     );
   }

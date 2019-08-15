@@ -61,7 +61,7 @@ export class Store {
     );
 
     if (!stateChannelJson) {
-      throw new Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
+      throw Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
     }
 
     const channel = StateChannel.fromJson(stateChannelJson);
@@ -91,7 +91,7 @@ export class Store {
 
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
         value: stateChannel.toJson()
       }
     ]);
@@ -101,7 +101,7 @@ export class Store {
     const freeBalance = channel.freeBalance;
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${freeBalance.identityHash}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${freeBalance.identityHash}`,
         value: channel.multisigAddress
       }
     ]);
@@ -134,11 +134,11 @@ export class Store {
     await this.storeService.set(
       [
         {
-          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
+          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
           value: null
         },
         {
-          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
+          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
           value: proposedAppInstance
         }
       ],
@@ -158,11 +158,11 @@ export class Store {
   ) {
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
         value: proposedAppInstance.toJson()
       },
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
         value: stateChannel.multisigAddress
       }
     ]);
@@ -173,11 +173,11 @@ export class Store {
   ) {
     await this.storeService.set([
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
         value: proposedAppInstance.toJson()
       },
       {
-        key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
+        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
         value: getCreate2MultisigAddress(
           [
             proposedAppInstance.proposedToIdentifier,
@@ -194,11 +194,11 @@ export class Store {
     await this.storeService.set(
       [
         {
-          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
+          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
           value: null
         },
         {
-          key: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
+          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
           value: null
         }
       ],
@@ -239,9 +239,7 @@ export class Store {
     );
 
     if (!appInstanceProposal) {
-      throw new Error(
-        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
-      );
+      throw Error(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId));
     }
 
     return AppInstanceProposal.fromJson(appInstanceProposal);
@@ -258,7 +256,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      throw Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);
@@ -278,7 +276,7 @@ export class Store {
   ) {
     return this.storeService.set([
       {
-        key: [
+        path: [
           this.storeKeyPrefix,
           DB_NAMESPACE_WITHDRAWALS,
           multisigAddress
@@ -291,7 +289,7 @@ export class Store {
   public async setCommitment(args: any[], commitment: Node.MinimalTransaction) {
     return this.storeService.set([
       {
-        key: [
+        path: [
           this.storeKeyPrefix,
           DB_NAMESPACE_ALL_COMMITMENTS,
           solidityKeccak256(

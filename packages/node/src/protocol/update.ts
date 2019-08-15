@@ -22,24 +22,28 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { responderXpub } = context.message.params;
+    const { responderXpub } = context.message.params!;
 
     const [
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(context.message.params, context);
+    ] = proposeStateTransition(context.message.params!, context);
 
-    const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const { signature: counterpartySignature } = yield [
+    const {
+      customData: { signature: theirSig }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Update,
         protocolExecutionID: context.message.protocolExecutionID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySignature,
+        customData: {
+          signature: mySig
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -47,12 +51,12 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(responderXpub, appSeqNo),
       setStateCommitment,
-      counterpartySignature
+      theirSig
     );
 
     const finalCommitment = setStateCommitment.getSignedTransaction([
-      mySignature,
-      counterpartySignature
+      mySig,
+      theirSig
     ]);
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -67,23 +71,23 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appIdentityHash,
       setStateCommitment,
       appSeqNo
-    ] = proposeStateTransition(context.message.params, context);
+    ] = proposeStateTransition(context.message.params!, context);
 
-    const { initiatorXpub } = context.message.params;
+    const { initiatorXpub } = context.message.params!;
 
-    const { signature: counterpartySignature } = context.message;
+    const theirSig = context.message.customData.signature;
 
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
-      counterpartySignature
+      theirSig
     );
 
-    const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const finalCommitment = setStateCommitment.getSignedTransaction([
-      mySignature,
-      counterpartySignature
+      mySig,
+      theirSig
     ]);
     yield [
       Opcode.WRITE_COMMITMENT,
@@ -98,7 +102,9 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         protocol: Protocol.Update,
         protocolExecutionID: context.message.protocolExecutionID,
         toXpub: initiatorXpub,
-        signature: mySignature,
+        customData: {
+          signature: mySig
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];

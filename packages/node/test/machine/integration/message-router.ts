@@ -50,14 +50,14 @@ export class MessageRouter {
   private routeMessage(message: any) {
     const { toXpub } = message;
     if (toXpub === undefined) {
-      throw new Error("No toXpub found on message");
+      throw Error("No toXpub found on message");
     }
     const deferred = this.deferrals.get(toXpub);
 
     if (deferred === undefined) {
       const toNode = this.nodesMap.get(toXpub);
       if (toNode === undefined) {
-        throw new Error(`No node with xpub = ${toXpub} found`);
+        throw Error(`No node with xpub = ${toXpub} found`);
       }
 
       // This returns a promise that resolves when runProtocolWithMessage
@@ -72,7 +72,7 @@ export class MessageRouter {
   public async waitForAllPendingPromises() {
     await Promise.all(this.pendingPromises);
     if (this.deferrals.size !== 0) {
-      throw new Error("Pending IO_SEND_AND_WAIT deferrals detected");
+      throw Error("Pending IO_SEND_AND_WAIT deferrals detected");
     }
   }
 }

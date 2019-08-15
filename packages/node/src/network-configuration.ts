@@ -12,6 +12,7 @@ import {
 import log from "loglevel";
 
 import { INVALID_NETWORK_NAME } from "./methods/errors";
+import { prettyPrintObject } from "./utils";
 
 export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
 
@@ -43,10 +44,10 @@ export function getNetworkContextForNetworkName(
         ...AdjudicatorKovanContracts
       ]);
     default:
-      throw new Error(
+      throw Error(
         `${INVALID_NETWORK_NAME}: ${networkName}. \n
          The following networks are supported:
-         ${Array.from(SUPPORTED_NETWORKS.values())}`
+         ${prettyPrintObject(Array.from(SUPPORTED_NETWORKS.values()))}`
       );
   }
 }
@@ -75,7 +76,7 @@ function getContractAddressFromNetworksFile(
   );
 
   if (!matched.length) {
-    throw new Error(
+    throw Error(
       `Could not find any deployed contract address for ${contractName}`
     );
   }

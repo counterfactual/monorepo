@@ -31,7 +31,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
     const { signature: counterpartySignature } = yield [
       Opcode.IO_SEND_AND_WAIT,
@@ -41,7 +41,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         params: context.message.params,
         seq: 1,
         toXpub: responderXpub,
-        signature: mySignature
+        customData: {
+          signature: mySig
+        }
       } as ProtocolMessage
     ];
 
@@ -58,7 +60,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const { signature: counterpartySignature, params } = context.message;
+    const { customData, params } = context.message;
     const {
       appIdentityHash,
       multisigAddress,
@@ -71,7 +73,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appSeqNo),
       setStateCommitment,
-      counterpartySignature
+      customData.signature
     );
 
     const mySignature = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];

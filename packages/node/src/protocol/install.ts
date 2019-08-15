@@ -66,8 +66,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const {
-      signature: counterpartySignatureOnConditionalTransaction,
-      signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      customData: {
+        signature: counterpartySignatureOnConditionalTransaction,
+        signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      }
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
@@ -75,7 +77,9 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         params,
         protocol: Protocol.Install,
         toXpub: responderXpub,
-        signature: mySignatureOnConditionalTransaction,
+        customData: {
+          signature: mySignatureOnConditionalTransaction
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -144,7 +148,9 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         protocolExecutionID,
         protocol: Protocol.Install,
         toXpub: responderXpub,
-        signature: mySignatureOnFreeBalanceStateUpdate,
+        customData: {
+          signature: mySignatureOnFreeBalanceStateUpdate
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -162,7 +168,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID, signature },
+      message: {
+        params,
+        protocolExecutionID,
+        customData: { signature }
+      },
       network
     } = context;
 
@@ -228,14 +238,18 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       freeBalanceUpdateData
     ];
 
-    const { signature: counterpartySignatureOnFreeBalanceStateUpdate } = yield [
+    const {
+      customData: { signature: counterpartySignatureOnFreeBalanceStateUpdate }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocolExecutionID,
         protocol: Protocol.Install,
         toXpub: initiatorXpub,
-        signature: mySignatureOnConditionalTransaction,
-        signature2: mySignatureOnFreeBalanceStateUpdate,
+        customData: {
+          signature: mySignatureOnConditionalTransaction,
+          signature2: mySignatureOnFreeBalanceStateUpdate
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -391,7 +405,7 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -429,7 +443,7 @@ function computeInterpreterParameters(
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -448,7 +462,7 @@ function computeInterpreterParameters(
     }
 
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }
@@ -499,7 +513,7 @@ function getInterpreterAddressFromOutcomeType(
       return networkContext.TwoPartyFixedOutcomeInterpreter;
     }
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }

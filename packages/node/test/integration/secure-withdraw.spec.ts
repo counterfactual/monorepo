@@ -12,10 +12,10 @@ import { toBeEq, toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
+  constructWithdrawCommitmentRpc,
+  constructWithdrawRpc,
   createChannel,
   deposit,
-  makeWithdrawCommitmentRequest,
-  makeWithdrawRequest,
   transferERC20Tokens
 } from "./utils";
 
@@ -54,7 +54,7 @@ describe("Node method follows spec - withdraw", () => {
 
     expect(await provider.getBalance(recipient)).toBeEq(Zero);
 
-    const withdrawReq = makeWithdrawRequest(
+    const withdrawReq = constructWithdrawRpc(
       multisigAddress,
       One,
       CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -111,7 +111,7 @@ describe("Node method follows spec - withdraw", () => {
 
     expect(await erc20Contract.functions.balanceOf(recipient)).toBeEq(Zero);
 
-    const withdrawReq = makeWithdrawRequest(
+    const withdrawReq = constructWithdrawRpc(
       multisigAddress,
       One,
       erc20ContractAddress,
@@ -142,7 +142,7 @@ describe("Node method follows spec - withdraw", () => {
 
     expect(await provider.getBalance(recipient)).toBeEq(Zero);
 
-    const withdrawCommitmentReq = makeWithdrawCommitmentRequest(
+    const withdrawCommitmentReq = constructWithdrawCommitmentRpc(
       multisigAddress,
       One,
       CONVENTION_FOR_ETH_TOKEN_ADDRESS,

@@ -10,6 +10,7 @@ import { InstructionExecutor } from "./machine";
 import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
+import { prettyPrintObject } from "./utils";
 
 /**
  * This class registers handlers for requests to get or set some information
@@ -117,7 +118,7 @@ export class RequestHandler {
           )}`
         );
       } else {
-        throw new Error(`Recent ${event} which has no event handler`);
+        throw Error(`Recent ${event} which has no event handler`);
       }
     }
 
@@ -149,7 +150,7 @@ export class RequestHandler {
       if (e.code === "UNSUPPORTED_OPERATION") {
         return this.wallet;
       }
-      throw e;
+      throw Error(prettyPrintObject(e));
     }
   }
 

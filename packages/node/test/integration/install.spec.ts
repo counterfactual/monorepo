@@ -10,11 +10,11 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
+  constructAppProposalRpc,
   createChannel,
   getAppContext,
   getBalances,
   getInstalledAppInstances,
-  makeAppProposalRequest,
   makeInstallCall,
   makeProposeCall,
   transferERC20Tokens
@@ -171,7 +171,7 @@ describe("Node method follows spec - install", () => {
         const appContext = getAppContext(
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
-        const appInstanceProposalReq = makeAppProposalRequest(
+        const appInstanceProposalReq = constructAppProposalRpc(
           nodeB.publicIdentifier,
           appContext.appDefinition,
           appContext.abiEncodings,

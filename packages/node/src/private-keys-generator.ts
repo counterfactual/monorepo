@@ -97,7 +97,7 @@ export async function getPrivateKeysGeneratorAndXPubOrThrow(
     );
     extendedPrvKey = fromMnemonic(Wallet.createRandom().mnemonic).extendedKey;
     await storeService.set([
-      { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
+      { path: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
     ]);
   } else {
     log.info("Using extended private key found in the store.");

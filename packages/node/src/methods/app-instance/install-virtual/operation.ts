@@ -16,7 +16,7 @@ export async function installVirtual(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -39,9 +39,7 @@ export async function installVirtual(
   let updatedStateChannelsMap: Map<string, StateChannel>;
 
   if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-    throw new Error(
-      "Cannot install virtual app with different token addresses"
-    );
+    throw Error("Cannot install virtual app with different token addresses");
   }
 
   try {
@@ -62,7 +60,7 @@ export async function installVirtual(
       }
     );
   } catch (e) {
-    throw new Error(
+    throw Error(
       // TODO: We should generalize this error handling style everywhere
       `Node Error: ${VIRTUAL_APP_INSTALLATION_FAIL}\nStack Trace: ${e.stack}`
     );

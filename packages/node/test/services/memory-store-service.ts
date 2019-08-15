@@ -3,22 +3,20 @@ import { Node } from "@counterfactual/types";
 export class MemoryStoreService implements Node.IStoreService {
   private readonly store: Map<string, any> = new Map();
   constructor() {}
-  async get(key: string): Promise<any> {
+  async get(path: string): Promise<any> {
     if (
-      key.endsWith("channel") ||
-      key.endsWith("appInstanceIdToProposedAppInstance")
+      path.endsWith("channel") ||
+      path.endsWith("appInstanceIdToProposedAppInstance")
     ) {
-      const nestedRecords = Array.from(this.store.entries()).filter(
-        (entry: [string, any]) => {
-          return entry[0].includes(key);
-        }
-      );
+      const nestedRecords = Array.from(this.store.entries()).filter(entry => {
+        return entry[0].includes(path);
+      });
       if (nestedRecords.length === 0) {
         return {};
       }
 
       const results = {};
-      nestedRecords.forEach((entry: [string, any]) => {
+      nestedRecords.forEach(entry => {
         const key: string = entry[0].split("/").pop()!;
         if (entry[1] !== null) {
           results[key] = entry[1];
@@ -27,15 +25,15 @@ export class MemoryStoreService implements Node.IStoreService {
 
       return results;
     }
-    if (this.store.has(key)) {
-      return this.store.get(key);
+    if (this.store.has(path)) {
+      return this.store.get(path);
     }
     return Promise.resolve(null);
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<void> {
+  async set(pairs: { path: string; value: any }[]): Promise<void> {
     for (const pair of pairs) {
-      this.store.set(pair.key, JSON.parse(JSON.stringify(pair.value)));
+      this.store.set(pair.path, JSON.parse(JSON.stringify(pair.value)));
     }
   }
 

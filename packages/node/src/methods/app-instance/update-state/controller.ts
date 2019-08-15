@@ -7,7 +7,7 @@ import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { getCounterpartyAddress } from "../../../utils";
+import { getCounterpartyAddress, prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -43,7 +43,7 @@ export default class UpdateStateController extends NodeController {
     const { appInstanceId, newState } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -52,9 +52,9 @@ export default class UpdateStateController extends NodeController {
       appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw new Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        throw Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`);
       }
-      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
+      throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 

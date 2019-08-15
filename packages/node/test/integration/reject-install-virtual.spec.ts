@@ -7,9 +7,9 @@ import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
 import { setup, SetupContext } from "./setup";
 import {
   confirmProposedVirtualAppInstance,
+  constructRejectInstallRpc,
   createChannel,
   getProposedAppInstances,
-  makeRejectInstallRequest,
   makeVirtualProposeCall
 } from "./utils";
 
@@ -62,7 +62,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
               proposedAppInstanceC.identityHash
             );
 
-            const rejectReq = makeRejectInstallRequest(appInstanceId);
+            const rejectReq = constructRejectInstallRpc(appInstanceId);
             await nodeC.rpcRouter.dispatch(rejectReq);
             expect((await getProposedAppInstances(nodeC)).length).toEqual(0);
           }

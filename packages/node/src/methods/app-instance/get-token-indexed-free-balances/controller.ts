@@ -19,7 +19,7 @@ export default class GetTokenIndexedFreeBalancesController extends NodeControlle
     const { multisigAddress } = params;
 
     if (!multisigAddress) {
-      throw new Error(
+      throw Error(
         "getTokenIndexedFreeBalanceStates method was given undefined multisigAddress"
       );
     }

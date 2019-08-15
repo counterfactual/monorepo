@@ -46,7 +46,7 @@ export async function handleReceivedProtocolMessage(
 
   const queueNames = await getQueueNamesListByProtocolName(
     protocol,
-    params,
+    params!,
     requestHandler
   );
 
@@ -68,7 +68,7 @@ export async function handleReceivedProtocolMessage(
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(
     protocol,
-    params,
+    params!,
     publicIdentifier,
     postProtocolStateChannelsMap
   );
@@ -146,7 +146,7 @@ function getOutgoingEventDataFromProtocol(
         )
       };
     default:
-      throw new Error(
+      throw Error(
         `handleReceivedProtocolMessage received invalid protocol message: ${protocol}`
       );
   }
@@ -264,7 +264,7 @@ async function getQueueNamesListByProtocolName(
     // that case.
 
     default:
-      throw new Error(
+      throw Error(
         `handleReceivedProtocolMessage received invalid protocol message: ${protocol}`
       );
   }
