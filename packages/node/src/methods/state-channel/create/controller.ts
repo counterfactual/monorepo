@@ -173,7 +173,6 @@ export default class CreateChannelController extends NodeController {
 }
 
 async function checkForCorrectDeployedByteCode(
-  // @ts-ignore
   tx: TransactionResponse,
   provider: Provider,
   owners: string[],
