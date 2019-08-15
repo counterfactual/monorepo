@@ -96,16 +96,15 @@ export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceProposal> {
-  const req = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
-    params: {
-      appInstanceId
-    }
-  };
-  const response = await node.call(req.type, req);
-  return (response.result as NodeTypes.GetProposedAppInstanceResult)
-    .appInstance;
+  const candidates = (await getProposedAppInstances(node)).filter(proposal => {
+    return proposal.identityHash === appInstanceId;
+  });
+
+  if (candidates.length !== 1) {
+    throw new Error("Failed to match exactly one proposed app instance");
+  }
+
+  return candidates[0];
 }
 
 export async function getFreeBalanceState(
