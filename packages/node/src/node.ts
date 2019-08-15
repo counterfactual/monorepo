@@ -18,7 +18,7 @@ import { getFreeBalanceAddress } from "./models/free-balance";
 import { getNetworkContextForNetworkName } from "./network-configuration";
 import {
   getPrivateKeysGeneratorAndXPubOrThrow,
-  PrivateKeysGenerator
+  PrivateKeysGetter
 } from "./private-keys-generator";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
@@ -68,7 +68,7 @@ export class Node {
   ): Promise<Node> {
     const [
       privateKeysGenerator,
-      pubExtendedKey
+      extendedPubKey
     ] = await getPrivateKeysGeneratorAndXPubOrThrow(
       storeService,
       privateKeyGenerator,
@@ -76,7 +76,7 @@ export class Node {
     );
 
     const node = new Node(
-      pubExtendedKey,
+      extendedPubKey,
       privateKeysGenerator,
       messagingService,
       storeService,
@@ -91,7 +91,7 @@ export class Node {
 
   private constructor(
     private readonly publicExtendedKey: string,
-    private readonly privateKeyGenerator: PrivateKeysGenerator,
+    private readonly privateKeyGetter: PrivateKeysGetter,
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
@@ -117,7 +117,7 @@ export class Node {
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     // TODO: is "0" a reasonable path to derive `signer` private key from?
     this.signer = new SigningKey(
-      await this.privateKeyGenerator.getPrivateKey("0")
+      await this.privateKeyGetter.getPrivateKey("0")
     );
     log.info(`Node signer address: ${this.signer.address}`);
     log.info(`Node public identifier: ${this.publicIdentifier}`);
@@ -175,7 +175,7 @@ export class Node {
       const keyIndex = overrideKeyIndex || 0;
 
       const signingKey = new SigningKey(
-        await this.privateKeyGenerator.getPrivateKey(keyIndex)
+        await this.privateKeyGetter.getPrivateKey(keyIndex)
       );
 
       return signingKey.signDigest(commitment.hashToSign());

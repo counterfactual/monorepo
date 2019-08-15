@@ -9,7 +9,7 @@ import { CF_PATH } from "./constants";
 
 export const EXTENDED_PRIVATE_KEY_PATH = "EXTENDED_PRIVATE_KEY";
 
-export class PrivateKeysGenerator {
+export class PrivateKeysGetter {
   private appInstanceIdentityHashToPrivateKey: Map<string, string> = new Map();
   private readonly privateKeys: Set<string> = new Set();
 
@@ -69,7 +69,7 @@ export async function getPrivateKeysGeneratorAndXPubOrThrow(
   storeService: Node.IStoreService,
   privateKeyGenerator?: Node.IPrivateKeyGenerator,
   publicExtendedKey?: string
-): Promise<[PrivateKeysGenerator, string]> {
+): Promise<[PrivateKeysGetter, string]> {
   if (publicExtendedKey && !privateKeyGenerator) {
     throw new Error(
       "Cannot provide an extended public key but not provide a private key generation function"
@@ -84,7 +84,7 @@ export async function getPrivateKeysGeneratorAndXPubOrThrow(
 
   if (publicExtendedKey && privateKeyGenerator) {
     return Promise.resolve([
-      new PrivateKeysGenerator(privateKeyGenerator),
+      new PrivateKeysGetter(privateKeyGenerator),
       publicExtendedKey
     ]);
   }
@@ -104,11 +104,11 @@ export async function getPrivateKeysGeneratorAndXPubOrThrow(
   }
   const [
     privKeyGenerator,
-    pubExtendedKey
+    extendedPubKey
   ] = generatePrivateKeyGeneratorAndXPubPair(extendedPrvKey);
   return Promise.resolve([
-    new PrivateKeysGenerator(privKeyGenerator),
-    pubExtendedKey
+    new PrivateKeysGetter(privKeyGenerator),
+    extendedPubKey
   ]);
 }
 
