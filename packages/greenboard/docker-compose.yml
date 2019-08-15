@@ -11,3 +11,4 @@ services:
         metamask_repository: prototypal/metamask-extension
         metamask_branch: develop
         counterfactual_branch: joel/greenboard-docker-image
+        metamask_exclude_deps: \@sentry\/cli|\@storybook|eslint|chromedriver|geckodriver|selenium-webdriver|jsdom|\"karma|\"mocha|tape|testem|qunitjs|gh-pages|\"ganache-cli
