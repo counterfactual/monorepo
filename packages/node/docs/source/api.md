@@ -365,7 +365,7 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
-Note: calling this a specific token address will return Zero even if the channel has never had any deposits/withdrawals of that token.
+Note: calling this with a specific token address will return Zero even if the channel has never had any deposits/withdrawals of that token.
 
 ### Method: `getTokenIndexedFreeBalanceStates`
 
