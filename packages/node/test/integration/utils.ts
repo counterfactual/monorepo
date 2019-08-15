@@ -81,14 +81,15 @@ export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const req = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+  const req = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_APP_INSTANCE_DETAILS,
     params: {
       appInstanceId
     }
-  };
-  const response = await node.call(req.type, req);
+  });
+  const response = await node.rpcRouter.dispatch(req);
   return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
