@@ -24,8 +24,6 @@ import { createProposedAppInstance } from "./operation";
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default class ProposeInstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.PROPOSE_INSTALL;
-
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL)
   public executeMethod = super.executeMethod;
 

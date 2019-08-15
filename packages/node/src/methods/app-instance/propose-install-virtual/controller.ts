@@ -20,8 +20,6 @@ import {
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default class ProposeInstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.PROPOSE_INSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 

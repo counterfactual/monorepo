@@ -5,9 +5,6 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetTokenIndexedFreeBalancesController extends NodeController {
-  public static readonly methodName =
-    Node.MethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES;
-
   @jsonRpcMethod(Node.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES)
   public executeMethod = super.executeMethod;
 

@@ -38,8 +38,6 @@ const CREATE_PROXY_AND_SETUP_GAS = 500_000;
  * to whoever subscribed to the `NODE_EVENTS.CREATE_CHANNEL` event on the Node.
  */
 export default class CreateChannelController extends NodeController {
-  public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
-
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
