@@ -2,11 +2,12 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
-import { TransactionResponse } from "ethers/providers";
+import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { MULTISIG_DEPLOYED_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -146,16 +147,47 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
+        if (
+          !(await checkForCorrectDeployedByteCode(
+            tx!,
+            signer.provider!,
+            owners,
+            networkContext
+          ))
+        ) {
+          error = `Could not confirm the deployed multisig contract has the expected bytecode`;
+          await sleep(1000 * tryCount ** 2);
+          continue;
+        }
+
         return tx;
       } catch (e) {
         error = e;
         console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
                       Retrying ${retryCount - tryCount} more times`);
       }
-
-      await sleep(1000 * tryCount ** 2);
     }
 
     throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
+}
+
+async function checkForCorrectDeployedByteCode(
+  // @ts-ignore
+  tx: TransactionResponse,
+  provider: Provider,
+  owners: string[],
+  networkContext: NetworkContext
+): Promise<boolean> {
+  const multisigAddress = getCreate2MultisigAddress(
+    owners,
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
+  );
+
+  const multisigDeployedBytecode = await provider.getCode(
+    multisigAddress,
+    tx.blockHash
+  );
+  return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
 }
