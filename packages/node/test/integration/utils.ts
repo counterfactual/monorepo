@@ -97,7 +97,7 @@ export async function getAppInstanceProposal(
   appInstanceId: string
 ): Promise<AppInstanceProposal> {
   const candidates = (await getProposedAppInstances(node)).filter(proposal => {
-    return proposal.identityHash === appInstanceId
+    return proposal.identityHash === appInstanceId;
   });
 
   if (candidates.length !== 1) {
