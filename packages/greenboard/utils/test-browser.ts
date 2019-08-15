@@ -122,7 +122,9 @@ export class TestBrowser {
             `--${key
               .replace(/TEST_BROWSER_FLAG_/g, "")
               .toLowerCase()
-              .replace(/_/g, "-")}=${process.env[key]}`
+              .replace(/_/g, "-")}${
+              process.env[key] !== "#" ? `=${process.env[key]}` : ""
+            }`
         )
     );
 
