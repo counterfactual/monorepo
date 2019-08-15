@@ -6,11 +6,18 @@ echo "(1/7) Running preflight checks and cleanups..."
 
 if [ -z "$PYTHON" ];
 then
-  echo "  > Error: Please set the PYTHON environment variable."
-  exit
+  echo "  > Python env-var not found, attempting detection via which"
+  PYTHON="$(which python2.7)"
+fi
+
+if [ -z "$PYTHON" ];
+then
+  echo "  > ERROR: You need to install python2.7 to compile node-gyp related dependencies."
 else
   echo "  > Found Python at: $PYTHON"
 fi
+
+exit
 
 if [ -d "packages/greenboard/extension" ];
 then
