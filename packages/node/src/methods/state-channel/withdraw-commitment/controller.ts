@@ -11,8 +11,6 @@ import { runWithdrawProtocol } from "../withdraw/operation";
 // Note: This can't extend `WithdrawController` because the `methodName` static
 // members of each class are incompatible.
 export default class WithdrawCommitmentController extends NodeController {
-  public static readonly methodName = Node.MethodName.WITHDRAW_COMMITMENT;
-
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW_COMMITMENT)
   public executeMethod = super.executeMethod;
 

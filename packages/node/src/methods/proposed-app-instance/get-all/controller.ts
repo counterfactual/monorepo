@@ -5,9 +5,6 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetProposedAppInstancesController extends NodeController {
-  public static readonly methodName =
-    Node.MethodName.GET_PROPOSED_APP_INSTANCES;
-
   @jsonRpcMethod(Node.RpcMethodName.GET_PROPOSED_APP_INSTANCES)
   protected async executeMethodImplementation(
     requestHandler: RequestHandler

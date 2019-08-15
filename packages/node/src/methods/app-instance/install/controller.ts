@@ -15,8 +15,6 @@ import { install } from "./operation";
  * @param params
  */
 export default class InstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.INSTALL;
-
   @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
