@@ -91,9 +91,6 @@ export const NO_APP_INSTANCE_ID_TO_INSTALL =
 export const NO_APP_INSTANCE_ID_TO_UNINSTALL =
   "No AppInstanceId specified to uninstall";
 
-export const NO_FREE_BALANCE_EXISTS = (tokenAddress: string) =>
-  `No free balance exists for the specified token: ${tokenAddress}`;
-
 export const NO_MULTISIG_FOR_APP_INSTANCE_ID =
   "No multisig address exists for the given appInstanceId";
 
