@@ -1,6 +1,6 @@
 import { IRpcNodeProvider } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
-import { Rpc, JsonRpcResponse, JsonRpcNotification } from "rpc-server";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 export default class NodeProvider implements IRpcNodeProvider {
   /**
@@ -84,7 +84,9 @@ export default class NodeProvider implements IRpcNodeProvider {
     this.debugEmitter(source, message, data);
   }
 
-  public onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void) {
+  public onMessage(
+    callback: (message: JsonRpcResponse | JsonRpcNotification) => void
+  ) {
     this.log(
       "onMessage",
       "Registered listener for eventEmitter#message",

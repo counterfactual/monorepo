@@ -5,10 +5,10 @@ declare global {
 }
 
 import { Node } from "@counterfactual/types";
+import { jsonRpcDeserialize } from "rpc-server";
 
 import NodeProviderEthereum from "../../src/node-provider-ethereum";
 import EthereumMock from "../utils/ethereum-mock";
-import { jsonRpcDeserialize } from "rpc-server";
 
 describe("NodeProvider", () => {
   beforeAll(() => {
@@ -52,10 +52,10 @@ describe("NodeProvider", () => {
     await nodeProvider.connect();
 
     const messageToSend = jsonRpcDeserialize({
-        jsonrpc: "2.0",
-        method: Node.RpcMethodName.INSTALL,
-        id: new Date().valueOf()
-      });
+      jsonrpc: "2.0",
+      method: Node.RpcMethodName.INSTALL,
+      id: new Date().valueOf()
+    });
 
     const spySend = jest.spyOn(window.ethereum, "send");
 

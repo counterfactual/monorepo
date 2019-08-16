@@ -1,10 +1,10 @@
 declare var ethereum: EthereumGlobal;
 
-import { Node, IRpcNodeProvider } from "@counterfactual/types";
+import { IRpcNodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { EthereumGlobal } from "./types";
-import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 export default class NodeProviderEthereum implements IRpcNodeProvider {
   private readonly eventEmitter: EventEmitter;
@@ -80,7 +80,9 @@ export default class NodeProviderEthereum implements IRpcNodeProvider {
     this.debugEmitter(source, message, data);
   }
 
-  public onMessage(callback: (message: JsonRpcNotification | JsonRpcResponse) => void) {
+  public onMessage(
+    callback: (message: JsonRpcNotification | JsonRpcResponse) => void
+  ) {
     this.log(
       "onMessage",
       "Registered listener for eventEmitter#message",

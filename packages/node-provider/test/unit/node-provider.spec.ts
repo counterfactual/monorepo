@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcDeserialize } from "rpc-server";
 
 import NodeProvider from "../../src/node-provider";
 import {
@@ -8,7 +9,6 @@ import {
   MockMessagePort,
   mockPostMessageFunction
 } from "../utils/message-api-mocks";
-import { jsonRpcDeserialize } from "rpc-server";
 
 const originalAddEventListener = window.addEventListener;
 const originalPostMessage = window.postMessage;
@@ -87,7 +87,7 @@ describe("NodeProvider", () => {
       jsonrpc: "2.0",
       method: Node.RpcMethodName.INSTALL,
       id: new Date().valueOf()
-    })
+    });
 
     const port = context.nodeProviderPort as MockMessagePort;
     const spyPortPostMessage = jest.spyOn(port, "postMessage");
