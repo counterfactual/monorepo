@@ -123,22 +123,21 @@ export class FreeBalanceClass {
     }
   }
   public withTokenAddress(tokenAddress: string): CoinTransferMap {
-    try {
-      return convertCoinTransfersToCoinTransfersMap(
-        this.balancesIndexedByToken[tokenAddress]
-      );
-    } catch {
+    let balances: CoinTransferMap = {};
+    balances = convertCoinTransfersToCoinTransfersMap(
+      this.balancesIndexedByToken[tokenAddress]
+    );
+    if (Object.keys(balances).length === 0) {
       const addresses = Object.keys(
         convertCoinTransfersToCoinTransfersMap(
           this.balancesIndexedByToken[CONVENTION_FOR_ETH_TOKEN_ADDRESS]
         )
       );
-      const tokenBalances = {};
       for (const address of addresses) {
-        tokenBalances[address] = Zero;
+        balances[address] = Zero;
       }
-      return tokenBalances;
     }
+    return balances;
   }
   public removeActiveApp(activeApp: string) {
     delete this.activeAppsMap[activeApp];
@@ -282,9 +281,6 @@ function serializeFreeBalanceState(
 export function convertCoinTransfersToCoinTransfersMap(
   coinTransfers: CoinTransfer[]
 ): CoinTransferMap {
-  if (!coinTransfers) {
-    throw Error("Undefined coin transfer array given to convert to map");
-  }
   return (coinTransfers || []).reduce(
     (acc, { to, amount }) => ({ ...acc, [to]: amount }),
     {}

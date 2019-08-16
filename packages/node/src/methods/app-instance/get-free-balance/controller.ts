@@ -29,10 +29,6 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const balances = stateChannel
-      .getFreeBalanceClass()
-      .withTokenAddress(tokenAddress);
-
-    return balances;
+    return stateChannel.getFreeBalanceClass().withTokenAddress(tokenAddress);
   }
 }
