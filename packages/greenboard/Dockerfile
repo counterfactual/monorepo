@@ -30,6 +30,8 @@ RUN apk update
 RUN apk add \
   # Build tools.
   git python2 make gcc g++ \
+  # CircleCI requirements.
+  openssh tar gzip ca-certificates \
   # System tools for headless browser.
   dbus \
   # Screen & browser tools.
