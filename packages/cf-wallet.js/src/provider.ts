@@ -16,18 +16,6 @@ import {
 import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
 
-export const jsonRpcMethodNames = {
-  [Node.MethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS]:
-    "chan_getStateDepositHolderAddress",
-  [Node.MethodName.GET_FREE_BALANCE_STATE]: "chan_getFreeBalanceState",
-  [Node.MethodName.INSTALL]: "chan_install",
-  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
-  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
-  [Node.MethodName.CREATE_CHANNEL]: "chan_create",
-  [Node.MethodName.DEPOSIT]: "chan_deposit",
-  [Node.MethodName.WITHDRAW]: "chan_withdraw"
-};
-
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
@@ -272,8 +260,6 @@ export class Provider {
       });
       // // @ts-ignore
       // request.params = request.parameters;
-      // // @ts-ignore
-      // request.type = jsonRpcMethodNames[methodName];
 
       if (!request.methodName) {
         return this.handleNodeError({

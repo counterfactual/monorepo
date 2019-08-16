@@ -2,7 +2,7 @@ import { Node, OutcomeType } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
-import { jsonRpcMethodNames, Provider } from "../src/provider";
+import { Provider } from "../src/provider";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
@@ -37,9 +37,7 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.PROPOSE_INSTALL,
         request => {
-          expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.PROPOSE_INSTALL);
 
           const params = request.parameters as Node.ProposeInstallParams;
 
@@ -83,7 +81,7 @@ describe("CF.js AppFactory", () => {
         Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
           expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
+            Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL
           );
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
