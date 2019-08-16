@@ -38,7 +38,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.TakeAction,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         params: context.message.params,
         seq: 1,
         toXpub: responderXpub,
@@ -83,7 +83,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND,
       {
         protocol: Protocol.TakeAction,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         toXpub: initiatorXpub,
         seq: -1,
         signature: mySig

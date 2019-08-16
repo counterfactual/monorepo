@@ -30,7 +30,7 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
-  protocolExecutionID: string;
+  processID: string;
   protocol: Protocol;
   params?: ProtocolParameters;
   toXpub: string;

@@ -40,7 +40,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Uninstall,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         params: context.message.params,
         toXpub: responderXpub,
         customData: {
@@ -96,7 +96,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND,
       {
         protocol: Protocol.Uninstall,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         toXpub: initiatorXpub,
         customData: {
           signature: mySig

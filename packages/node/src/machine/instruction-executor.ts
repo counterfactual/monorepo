@@ -107,7 +107,7 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocolName)[0], {
       params,
       protocol: protocolName,
-      protocolExecutionID: uuid.v1(),
+      processID: uuid.v1(),
       seq: 0,
       toXpub: params[firstRecipientFromProtocolName(protocolName)],
       customData: {}
@@ -122,7 +122,7 @@ export class InstructionExecutor {
       {
         protocol,
         params,
-        protocolExecutionID: uuid.v1(),
+        processID: uuid.v1(),
         seq: 0,
         toXpub: params.responderXpub,
         customData: {}
@@ -143,9 +143,9 @@ export class InstructionExecutor {
     };
 
     let lastMiddlewareRet: any = undefined;
-    const it = instruction(context);
+    const process = instruction(context);
     while (true) {
-      const ret = await it.next(lastMiddlewareRet);
+      const ret = await process.next(lastMiddlewareRet);
       if (ret.done) {
         break;
       }
