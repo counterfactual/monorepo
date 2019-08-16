@@ -4,7 +4,6 @@ import { jsonRpcMethod } from "rpc-server";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { NO_FREE_BALANCE_EXISTS } from "../../errors";
 
 export default class GetFreeBalanceController extends NodeController {
   public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
@@ -30,14 +29,6 @@ export default class GetFreeBalanceController extends NodeController {
 
     const stateChannel = await store.getStateChannel(multisigAddress);
 
-    const ret = stateChannel
-      .getFreeBalanceClass()
-      .withTokenAddress(tokenAddress);
-
-    if (!ret) {
-      throw Error(NO_FREE_BALANCE_EXISTS(tokenAddress));
-    }
-
-    return ret;
+    return stateChannel.getFreeBalanceClass().withTokenAddress(tokenAddress);
   }
 }

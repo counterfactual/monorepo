@@ -1,14 +1,13 @@
 import { OutcomeType } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
-import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import {
   getFreeBalanceAppInterface,
   merge
 } from "../ethereum/utils/free-balance-app";
-import { xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";
@@ -123,13 +122,22 @@ export class FreeBalanceClass {
       return Zero;
     }
   }
-  public withTokenAddress(tokenAddress: string): CoinTransferMap | null {
-    if (!this.balancesIndexedByToken[tokenAddress]) {
-      return null;
-    }
-    return convertCoinTransfersToCoinTransfersMap(
+  public withTokenAddress(tokenAddress: string): CoinTransferMap {
+    let balances: CoinTransferMap = {};
+    balances = convertCoinTransfersToCoinTransfersMap(
       this.balancesIndexedByToken[tokenAddress]
     );
+    if (Object.keys(balances).length === 0) {
+      const addresses = Object.keys(
+        convertCoinTransfersToCoinTransfersMap(
+          this.balancesIndexedByToken[CONVENTION_FOR_ETH_TOKEN_ADDRESS]
+        )
+      );
+      for (const address of addresses) {
+        balances[address] = Zero;
+      }
+    }
+    return balances;
   }
   public removeActiveApp(activeApp: string) {
     delete this.activeAppsMap[activeApp];
@@ -292,5 +300,5 @@ function convertCoinTransfersMapToCoinTransfers(
  * Address used for a Node's free balance
  */
 export function getFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
+  return xkeyKthAddress(publicIdentifier, 0);
 }
