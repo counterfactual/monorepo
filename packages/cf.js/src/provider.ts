@@ -21,21 +21,6 @@ import {
   UpdateStateEventData
 } from "./types";
 
-export const jsonRpcMethodNames = {
-  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
-  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
-  [Node.MethodName.GET_PROPOSED_APP_INSTANCES]: "chan_getProposedAppInstances",
-  [Node.MethodName.GET_STATE]: "chan_getState",
-  [Node.MethodName.INSTALL]: "chan_install",
-  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
-  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
-  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
-  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
-  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
-  [Node.MethodName.UNINSTALL]: "chan_uninstall",
-  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
-};
-
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
