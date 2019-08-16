@@ -37,7 +37,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Setup,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         params: context.message.params,
         toXpub: responderXpub,
         customData: {
@@ -91,7 +91,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND,
       {
         protocol: Protocol.Setup,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         toXpub: initiatorXpub,
         customData: {
           signature: mySig
