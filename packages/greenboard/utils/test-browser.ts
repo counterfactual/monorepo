@@ -110,7 +110,7 @@ export class TestBrowser {
     const browserFactory = new Builder().forBrowser("chrome");
 
     const options = new Options();
-    options.addArguments(
+    const browserArgs: string[] = [
       `--load-extension=${extensionDirectory}`,
       `--disable-web-security`,
       `--no-sandbox`,
@@ -126,7 +126,10 @@ export class TestBrowser {
               process.env[key] !== "#" ? `=${process.env[key]}` : ""
             }`
         )
-    );
+    ];
+
+    console.debug("Browser arguments:", browserArgs);
+    options.addArguments(...browserArgs);
 
     if (process.env.CHROME_BINARY_PATH) {
       options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH as string);
