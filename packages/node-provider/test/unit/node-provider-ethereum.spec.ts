@@ -8,6 +8,7 @@ import { Node } from "@counterfactual/types";
 
 import NodeProviderEthereum from "../../src/node-provider-ethereum";
 import EthereumMock from "../utils/ethereum-mock";
+import { jsonRpcDeserialize } from "rpc-server";
 
 describe("NodeProvider", () => {
   beforeAll(() => {
@@ -35,9 +36,13 @@ describe("NodeProvider", () => {
     const nodeProvider = new NodeProviderEthereum();
 
     expect(() => {
-      nodeProvider.sendMessage({
-        type: Node.MethodName.INSTALL
-      } as Node.Message);
+      nodeProvider.sendMessage(
+        jsonRpcDeserialize({
+          jsonrpc: "2.0",
+          method: Node.RpcMethodName.INSTALL,
+          id: new Date().valueOf()
+        })
+      );
     }).toThrow(
       "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
     );
@@ -46,9 +51,11 @@ describe("NodeProvider", () => {
     const nodeProvider = new NodeProviderEthereum();
     await nodeProvider.connect();
 
-    const messageToSend = {
-      type: Node.MethodName.INSTALL
-    } as Node.Message;
+    const messageToSend = jsonRpcDeserialize({
+        jsonrpc: "2.0",
+        method: Node.RpcMethodName.INSTALL,
+        id: new Date().valueOf()
+      });
 
     const spySend = jest.spyOn(window.ethereum, "send");
 
