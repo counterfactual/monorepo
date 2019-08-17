@@ -33,7 +33,7 @@
     "ethers": "4.0.33",
     "ethlint": "1.2.4",
     "mocha": "6.2.0",
-    "solc": "0.5.10",
+    "solc": "0.5.11",
     "truffle": "5.0.31",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.16",

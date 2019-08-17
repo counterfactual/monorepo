@@ -44,7 +44,7 @@
     "ganache-cli": "6.5.1",
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
-    "solc": "0.5.10",
+    "solc": "0.5.11",
     "truffle": "5.0.31",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.16",
