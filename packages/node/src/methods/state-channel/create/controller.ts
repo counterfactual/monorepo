@@ -122,10 +122,24 @@ export default class CreateChannelController extends NodeController {
       signer
     );
 
+    const provider = await signer.provider;
+
+    if (!provider) {
+      throw new Error("wallet must have a provider");
+    }
+
+    const { gasLimit: networkGasLimit } = await provider.getBlock(
+      provider.getBlockNumber()
+    );
+
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
+        const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
+        const clampedGasLimit = networkGasLimit.lt(gasLimit)
+          ? networkGasLimit
+          : gasLimit;
 
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
@@ -134,8 +148,8 @@ export default class CreateChannelController extends NodeController {
           ]),
           0, // TODO: Increment nonce as needed
           {
-            gasLimit: CREATE_PROXY_AND_SETUP_GAS + extraGasLimit,
-            gasPrice: await signer.provider!.getGasPrice()
+            gasLimit: clampedGasLimit,
+            gasPrice: provider.getGasPrice()
           }
         );
 
@@ -150,7 +164,7 @@ export default class CreateChannelController extends NodeController {
         if (
           !(await checkForCorrectDeployedByteCode(
             tx!,
-            signer.provider!,
+            provider,
             owners,
             networkContext
           ))
