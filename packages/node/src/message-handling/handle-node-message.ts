@@ -120,7 +120,7 @@ export async function handleReceivedProposeVirtualMessage(
   } = receivedProposeMessage;
 
   const {
-    intermediaries,
+    intermediaryIdentifier,
     proposedToIdentifier,
     responderDeposit,
     responderDepositTokenAddress,
@@ -131,7 +131,7 @@ export async function handleReceivedProposeVirtualMessage(
   const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     proposedByIdentifier,
     publicIdentifier,
-    intermediaries,
+    intermediaryIdentifier,
     store,
     networkContext
   );
@@ -150,12 +150,12 @@ export async function handleReceivedProposeVirtualMessage(
     )
   );
 
-  if (isNodeIntermediary(publicIdentifier, intermediaries)) {
+  if (isNodeIntermediary(publicIdentifier, intermediaryIdentifier)) {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(
       getNextNodeAddress(
         publicIdentifier,
-        intermediaries,
+        intermediaryIdentifier,
         proposedToIdentifier
       ),
       {

@@ -264,7 +264,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type InstallVirtualResult = InstallResult;
@@ -283,7 +283,7 @@ export namespace Node {
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type ProposeInstallVirtualResult = ProposeInstallResult;

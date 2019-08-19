@@ -50,6 +50,7 @@ export default class RpcRouter extends Router {
 
       return result;
     } catch (e) {
+      console.error(e.stack);
       throw Error(e);
     }
   }

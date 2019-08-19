@@ -53,7 +53,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
           async (msg: ProposeVirtualMessage) => {
             const { appInstanceId } = msg.data;
-            const { intermediaries } = msg.data.params;
+            const { intermediaryIdentifier } = msg.data.params;
             const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
             const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
 
@@ -70,7 +70,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
             expect(proposedAppNodeA.identityHash).toEqual(
               proposedAppNodeC.identityHash
             );
-            installTTTVirtual(nodeC, appInstanceId, intermediaries);
+            installTTTVirtual(nodeC, appInstanceId, intermediaryIdentifier);
           }
         );
 
