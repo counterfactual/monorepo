@@ -1,7 +1,7 @@
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Contract, Signer } from "ethers";
+import { Contract, Signer, Wallet } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
@@ -111,7 +111,7 @@ export default class CreateChannelController extends NodeController {
   }
 
   private async sendMultisigDeployTx(
-    signer: Signer,
+    wallet: Wallet,
     owners: string[],
     networkContext: NetworkContext,
     retryCount: number = 3
@@ -119,13 +119,27 @@ export default class CreateChannelController extends NodeController {
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
       ProxyFactory.abi,
-      signer
+      wallet
+    );
+
+    const provider = await wallet.provider;
+
+    if (!provider) {
+      throw new Error("wallet must have a provider");
+    }
+
+    const { gasLimit: networkGasLimit } = await provider.getBlock(
+      provider.getBlockNumber()
     );
 
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 1e6;
+        const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
+        const clampedGasLimit = networkGasLimit.lt(gasLimit)
+          ? networkGasLimit
+          : gasLimit;
 
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
@@ -134,8 +148,8 @@ export default class CreateChannelController extends NodeController {
           ]),
           0, // TODO: Increment nonce as needed
           {
-            gasLimit: CREATE_PROXY_AND_SETUP_GAS + extraGasLimit,
-            gasPrice: await signer.provider!.getGasPrice()
+            gasLimit: clampedGasLimit,
+            gasPrice: await wallet.provider!.getGasPrice()
           }
         );
 
@@ -150,7 +164,7 @@ export default class CreateChannelController extends NodeController {
         if (
           !(await checkForCorrectDeployedByteCode(
             tx!,
-            signer.provider!,
+            wallet.provider!,
             owners,
             networkContext
           ))
