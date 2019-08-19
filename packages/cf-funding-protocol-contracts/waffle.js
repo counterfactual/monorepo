@@ -6,8 +6,17 @@ var waffleConfig = {
   "npmPath": "../../node_modules",
   "legacyOutput": true,
   "compilerOptions": {
-    "evmVersion": "constantinople"
-  }
+    "evmVersion": "constantinople",
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    }
+  },
+  compilers: {
+    solc: {
+      version: "../../node_modules/solc"
+    }
+  },
 };
 
 var selectSolc = () => {

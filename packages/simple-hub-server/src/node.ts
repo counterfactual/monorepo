@@ -189,9 +189,6 @@ export class NodeWrapper {
       messagingService
     );
 
-    console.log("Node signer address");
-    console.log(NodeWrapper.node.signerAddress);
-
     NodeWrapper.node.on(NodeTypes.EventName.DEPOSIT_CONFIRMED, response =>
       onDepositConfirmed(response)
     );

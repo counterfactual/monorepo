@@ -7,8 +7,8 @@ import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { MULTISIG_DEPLOYED_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
+import { sortAddresses, xkeyKthAddress } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import {
@@ -145,23 +145,15 @@ export default class CreateChannelController extends NodeController {
     );
 
     try {
-      console.error("getting owners");
       console.error(await multisigContract.functions.getOwners());
-      return Promise.resolve("channel has already been setup");
+      return Promise.resolve("Multisig has already been setup");
     } catch (e) {
-      console.error("channel hasn't been setup yet");
+      console.error("Multisig hasn't been setup yet. Setting up now.");
       console.error(e);
     }
 
-    console.error(`Expected multisig address: ${multisigAddress}`);
-    console.error(owners);
-
-    const bytecode = await provider.getCode(multisigAddress);
-    console.error(bytecode);
-
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
-      console.error(`Attempt number ${tryCount}`);
       try {
         const extraGasLimit = tryCount * 1e6;
         const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
@@ -189,26 +181,15 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
-        const receipt = await tx.wait();
-        const event: Event = (receipt as any).events.pop();
-        console.error("got event");
-        console.error(event);
-
-        if (
-          !(await checkForCorrectDeployedByteCode(
-            tx!,
-            provider,
-            owners,
-            networkContext
-          ))
-        ) {
+        if (!(await checkForOwners(tx!, provider, owners, networkContext))) {
           error = `
-            Could not confirm the deployed multisig contract has the expected bytecode
+            Could not confirm the owners
             for multisig address ${multisigAddress}
             signer address: ${await signer.getAddress()}
             gas limit: ${CREATE_PROXY_AND_SETUP_GAS + extraGasLimit}
             tx: ${prettyPrintObject(tx)}
             `;
+          console.error(error);
           await sleep(1000 * tryCount ** 2);
           continue;
         }
@@ -225,24 +206,43 @@ export default class CreateChannelController extends NodeController {
   }
 }
 
-async function checkForCorrectDeployedByteCode(
+async function checkForOwners(
   tx: TransactionResponse,
   provider: Provider,
-  owners: string[],
+  xpubs: string[],
   networkContext: NetworkContext
 ): Promise<boolean> {
   const multisigAddress = getCreate2MultisigAddress(
-    owners,
+    xpubs,
     networkContext.ProxyFactory,
     networkContext.MinimumViableMultisig
   );
 
   await tx.wait();
 
-  const multisigDeployedBytecode = await provider.getCode(
+  const multisigContract = new Contract(
     multisigAddress,
-    tx.blockHash
+    MinimumViableMultisig.abi,
+    provider
   );
 
-  return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
+  const expectedOwners: string[] = sortAddresses([
+    xkeyKthAddress(xpubs[0], 0),
+    xkeyKthAddress(xpubs[1], 0)
+  ]);
+
+  let receivedOwners: string[];
+  try {
+    receivedOwners = sortAddresses(
+      await multisigContract.functions.getOwners()
+    );
+  } catch (e) {
+    console.error(`Failed to get owners: ${prettyPrintObject(e)}`);
+    return false;
+  }
+
+  return (
+    expectedOwners[0] === receivedOwners[0] &&
+    expectedOwners[1] === receivedOwners[1]
+  );
 }

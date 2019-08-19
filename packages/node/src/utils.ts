@@ -1,5 +1,4 @@
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/cf-funding-protocol-contracts/build/Proxy.json";
 import {
   BigNumber,
   bigNumberify,
@@ -12,7 +11,7 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import { JSON_STRINGIFY_SPACE } from "./constants";
+import { HARDCODED_PROXY_BYTECODE, JSON_STRINGIFY_SPACE } from "./constants";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 
 export function getFirstElementInListNotEqualTo(test: string, list: string[]) {
@@ -63,7 +62,7 @@ export function getCreate2MultisigAddress(
         ),
         solidityKeccak256(
           ["bytes", "uint256"],
-          [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
+          [`${HARDCODED_PROXY_BYTECODE}`, minimumViableMultisigAddress]
         )
       ]
     ).slice(-40)

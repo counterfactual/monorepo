@@ -1,5 +1,4 @@
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/cf-funding-protocol-contracts/build/Proxy.json";
 import { Node } from "@counterfactual/types";
 import {
   getAddress,
@@ -10,6 +9,7 @@ import {
 } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
+import { HARDCODED_PROXY_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
@@ -44,7 +44,10 @@ export default class GetStateDepositHolderAddressController extends NodeControll
           keccak256(
             solidityPack(
               ["bytes", "uint256"],
-              [`0x${Proxy.bytecode}`, networkContext.MinimumViableMultisig]
+              [
+                `${HARDCODED_PROXY_BYTECODE}`,
+                networkContext.MinimumViableMultisig
+              ]
             )
           )
         ]
