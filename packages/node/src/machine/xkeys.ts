@@ -20,6 +20,7 @@ export function sortAddresses(addrs: string[]): string[] {
 }
 
 function sortSigningkeys(addrs: SigningKey[]): SigningKey[] {
+  console.log(`Sorting keys: ${JSON.stringify(addrs)}`);
   return addrs.sort((a, b) =>
     parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
   );
@@ -36,6 +37,7 @@ export function xkeyKthHDNode(xkey: string, k: number): HDNode {
   }
   if (!cache.xkey.k) {
     cache.xkey.k = fromExtendedKey(xkey).derivePath(`${k}`);
+    console.log(`Added ${cache.xkey.k} to cache`);
   }
   return cache.xkey.k;
 }
@@ -51,7 +53,9 @@ export function xkeysToSortedKthSigningKeys(
   xkeys: string[],
   k: number
 ): SigningKey[] {
-  return sortSigningkeys(
-    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey))
+  const sortedKeys = sortSigningkeys(
+    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey));
   );
+  console.log(`Got sorted keys: ${JSON.stringify(sortedKeys)}`);
+  return sortedKeys;
 }
