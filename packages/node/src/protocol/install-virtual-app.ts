@@ -919,7 +919,7 @@ function constructVirtualAppInstance(
  * NOTE: This AppInstance is currently HARD-CODED to only work with interpreters
  *       that can understand the TwoPartyFixedOutcome outcome type. Currently
  *       we use the TwoPartyFixedOutcomeFromVirtualAppInterpreter for all
- *       commitments between users and intermediaries to handle Virtual Apps.
+ *       commitments between users and an intermediary to handle Virtual Apps.
  *
  * @param {StateChannel} threePartyStateChannel - The StateChannel object with all 3
  *        participants of this protocol as the owner-set.

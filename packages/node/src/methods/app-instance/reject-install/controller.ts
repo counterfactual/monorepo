@@ -37,7 +37,7 @@ export default class RejectInstallController extends NodeController {
       appInstanceId
     );
 
-    if (appInstanceProposal.intermediaries) {
+    if (appInstanceProposal.intermediaryIdentifier) {
       return rejectInstallVirtualController(requestHandler, params);
     }
 

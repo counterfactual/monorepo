@@ -30,7 +30,7 @@ export class AppInstance {
   readonly twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   readonly multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
 
-  readonly intermediaries?: string[];
+  readonly intermediaryIdentifier?: string;
 
   constructor(
     info: AppInstanceInfo | AppInstanceJson,
@@ -55,13 +55,13 @@ export class AppInstance {
 
     this.initiatorDeposit = info["initiatorDeposit"];
     this.responderDeposit = info["responderDeposit"];
-    this.intermediaries = info["intermediaries"];
+    this.intermediaryIdentifier = info["intermediaryIdentifier"];
   }
 
   /**
-   * Whether this app is virtual i.e. installation was routed through intermediaries
+   * Whether this app is virtual i.e. installation was routed through intermediaryIdentifier
    */
   get isVirtual(): boolean {
-    return Array.isArray(this.intermediaries) && this.intermediaries.length > 0;
+    return !!this.intermediaryIdentifier;
   }
 }

@@ -91,7 +91,7 @@ export class Provider {
   }
 
   /**
-   * Install a virtual app instance given its ID and a list of intermediaries.
+   * Install a virtual app instance given its ID and a list of intermediaryIdentifier.
    *
    * @note
    * Installs virtual app instances i.e. routed through at least one intermediary channel.
@@ -100,18 +100,18 @@ export class Provider {
    * @async
    *
    * @param appInstanceId ID of the app instance to be installed, generated with [[AppFactory.proposeInstallVirtual]].
-   * @param intermediaries Array of addresses of intermediary peers to route installation through
+   * @param intermediaryIdentifier Xpub of intermediary peer to route installation through
    * @return Installed AppInstance
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: string[]
+    intermediaryIdentifier: string
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
-        intermediaries
+        intermediaryIdentifier
       }
     );
     const { appInstance } = response.result as Node.InstallVirtualResult;
