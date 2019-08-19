@@ -7,7 +7,6 @@ import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { MULTISIG_DEPLOYED_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -21,6 +20,7 @@ import {
   CHANNEL_CREATION_FAILED,
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
+import { AddressZero } from "ethers/constants";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
@@ -204,5 +204,5 @@ async function checkForCorrectDeployedByteCode(
     multisigAddress,
     tx.blockHash
   );
-  return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
+  return multisigDeployedBytecode !== AddressZero;
 }
