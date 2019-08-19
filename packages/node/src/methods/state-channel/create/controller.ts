@@ -61,7 +61,7 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(
+    const transactionHash = await this.sendMultisigDeployTx(
       wallet,
       owners,
       networkContext,
@@ -70,7 +70,7 @@ export default class CreateChannelController extends NodeController {
 
     this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
 
-    return { transactionHash: tx.hash! };
+    return { transactionHash };
   }
 
   private async handleDeployedMultisigOnChain(
@@ -114,8 +114,8 @@ export default class CreateChannelController extends NodeController {
     signer: Signer,
     owners: string[],
     networkContext: NetworkContext,
-    retryCount: number = 3
-  ): Promise<TransactionResponse> {
+    retryCount: number = 4
+  ): Promise<string> {
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
       ProxyFactory.abi,
@@ -132,8 +132,36 @@ export default class CreateChannelController extends NodeController {
       provider.getBlockNumber()
     );
 
+    const multisigAddress = getCreate2MultisigAddress(
+      owners,
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    const multisigContract = new Contract(
+      multisigAddress,
+      MinimumViableMultisig.abi,
+      provider
+    );
+
+    try {
+      console.error("getting owners");
+      console.error(await multisigContract.functions.getOwners());
+      return Promise.resolve("channel has already been setup");
+    } catch (e) {
+      console.error("channel hasn't been setup yet");
+      console.error(e);
+    }
+
+    console.error(`Expected multisig address: ${multisigAddress}`);
+    console.error(owners);
+
+    const bytecode = await provider.getCode(multisigAddress);
+    console.error(bytecode);
+
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
+      console.error(`Attempt number ${tryCount}`);
       try {
         const extraGasLimit = tryCount * 1e6;
         const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
@@ -161,6 +189,11 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
+        const receipt = await tx.wait();
+        const event: Event = (receipt as any).events.pop();
+        console.error("got event");
+        console.error(event);
+
         if (
           !(await checkForCorrectDeployedByteCode(
             tx!,
@@ -169,12 +202,18 @@ export default class CreateChannelController extends NodeController {
             networkContext
           ))
         ) {
-          error = `Could not confirm the deployed multisig contract has the expected bytecode`;
+          error = `
+            Could not confirm the deployed multisig contract has the expected bytecode
+            for multisig address ${multisigAddress}
+            signer address: ${await signer.getAddress()}
+            gas limit: ${CREATE_PROXY_AND_SETUP_GAS + extraGasLimit}
+            tx: ${prettyPrintObject(tx)}
+            `;
           await sleep(1000 * tryCount ** 2);
           continue;
         }
 
-        return tx;
+        return tx.hash;
       } catch (e) {
         error = e;
         console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
@@ -202,5 +241,6 @@ async function checkForCorrectDeployedByteCode(
     multisigAddress,
     tx.blockHash
   );
+
   return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
 }
