@@ -38,8 +38,8 @@
     "url": "https://github.com/counterfactual/monorepo/issues"
   },
   "dependencies": {
-    "@counterfactual/firebase-client": "0.0.3",
-    "@counterfactual/node": "0.2.51",
+    "@counterfactual/firebase-client": "0.0.4",
+    "@counterfactual/node": "0.2.52",
     "@counterfactual/types": "0.0.35",
     "@counterfactual/typescript-typings": "0.1.0",
     "@ebryn/jsonapi-ts": "0.1.17",
