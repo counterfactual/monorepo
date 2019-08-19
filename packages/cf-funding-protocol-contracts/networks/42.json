@@ -1,40 +1,5 @@
 [
   {
-    "contractName": "ChallengeRegistry",
-    "address": "0x6a6fD42afcABc66f9CFa54597abB554a95B0C709",
-    "transactionHash": "0xc92a926f1e2e890ecea4d50cf58356e479293ac06fec4253fa8f416983aff696"
-  },
-  {
-    "contractName": "CoinBalanceRefundApp",
-    "address": "0xaaa25a08A35D8eEbB0759a4111cc7D64E1b22977",
-    "transactionHash": "0xd3ca482ccd27dfb47d4cc4625b9c573cb1c4d71c7f328eeaf6f45b620af62b12"
-  },
-  {
-    "contractName": "ConditionalTransactionDelegateTarget",
-    "address": "0x01D673a9D10eE7047FD4aCEC737c2eFcbeCFbADB",
-    "transactionHash": "0x038685937d9244eb935ff029cc4341544f13c4f5b8346bb0dd727f3d45d140bf"
-  },
-  {
-    "contractName": "IdentityApp",
-    "address": "0xFbc5f59915CbB93346530FEF0F9Ce8103D2468B1",
-    "transactionHash": "0xbecb30d9976b64e4f7a40846a8deb431eea1ea2012a2b57f8afa8a274a395d40"
-  },
-  {
-    "contractName": "MinimumViableMultisig",
-    "address": "0xD2a33338468E3a8c03a51F303695e8D724DD447A",
-    "transactionHash": "0x8b7e1b85d46a8f56f1fe82aad8257db2bc03a47eafae8842bb4d57f0abd47ac9"
-  },
-  {
-    "contractName": "MultiAssetMultiPartyCoinTransferInterpreter",
-    "address": "0x09595C01e5a69c86bF231f74dFe5816778b52d7D",
-    "transactionHash": "0x4cd99d7a7b1a122dd603056bf3301db814cbfafb1150252cd8014fed6f96a6cd"
-  },
-  {
-    "contractName": "SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter",
-    "address": "0x24Da083ef789053C531beb8171c7951bb6AbDB2a",
-    "transactionHash": "0x3882725ec4f010dc3307f00f54f6d7f31a99b95228ebf474fa4cb026d023a1c4"
-  },
-  {
     "contractName": "SingleAssetTwoPartyCoinTransferInterpreter",
     "address": "0x99dE88c1d24308Dea95245DCC63853fFDc84036C",
     "transactionHash": "0x790bb70ecd2bd6f8f80f034aaf7ade090fed06617c5f720d01bd145e3ffdeebc"
@@ -53,11 +18,6 @@
     "contractName": "TwoPartyFixedOutcomeInterpreter",
     "address": "0x7FD4543C031793096d6EfCCc9334002D5F8dcC70",
     "transactionHash": "0x55ad8fb1bd7c97eaf7ddf2cf498aeb8405069a99a68a059f9fa9c9470f20c968"
-  },
-  {
-    "contractName": "Migrations",
-    "address": "0xa1FE33b99b394B0033b1e6e83615ae04A2921e7F",
-    "transactionHash": "0xe555b4cac59d6525738944cbb42856b865bab74128e74d5f25daeedf7c66334d"
   },
   {
     "contractName": "ChallengeRegistry",
