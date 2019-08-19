@@ -32,14 +32,13 @@ export function xkeyKthAddress(xkey: string, k: number): string {
 
 const cache = {} as any;
 export function xkeyKthHDNode(xkey: string, k: number): HDNode {
-  if (!cache.xkey) {
-    cache.xkey = {};
+  if (!cache[xkey]) {
+    cache[xkey] = {};
   }
-  if (!cache.xkey.k) {
-    cache.xkey.k = fromExtendedKey(xkey).derivePath(`${k}`);
-    console.log(`Added ${cache.xkey.k} to cache`);
+  if (!cache[xkey][k]) {
+    cache[xkey][k] = fromExtendedKey(xkey).derivePath(`${k}`);
   }
-  return cache.xkey.k;
+  return cache[xkey][k];
 }
 
 export function xkeysToSortedKthAddresses(
