@@ -29,7 +29,7 @@
     "url": "git+https://github.com/counterfactual/monorepo.git"
   },
   "scripts": {
-    "start": "jest --runInBand"
+    "start": "jest --runInBand --bail"
   },
   "jest": {
     "roots": [

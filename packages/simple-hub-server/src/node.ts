@@ -166,7 +166,6 @@ export class NodeWrapper {
     if (NodeWrapper.node) {
       return NodeWrapper.node;
     }
-
     const serviceFactory = await serviceFactoryPromise;
 
     if (!devAndTestingEnvironments.has(process.env.NODE_ENV!)) {
@@ -189,6 +188,9 @@ export class NodeWrapper {
       store,
       messagingService
     );
+
+    console.log("Node signer address");
+    console.log(NodeWrapper.node.signerAddress);
 
     NodeWrapper.node.on(NodeTypes.EventName.DEPOSIT_CONFIRMED, response =>
       onDepositConfirmed(response)
