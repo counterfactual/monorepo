@@ -937,11 +937,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/apps@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@counterfactual/apps/-/apps-0.1.4.tgz#c12b6a22b73d90081a3448300fd04dc51695061a"
-  integrity sha512-jorW43aHWiKvINiezHkcgl1a0hz2DPV8RFirwG0adtihY+B4xakThqch44lNnWl2imdEmMh3gYEOinfMLy3A+w==
-
 "@counterfactual/cf.js@0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.3.tgz#7ed93e4376709ca17c635d211b0e87d0e0c9e05a"

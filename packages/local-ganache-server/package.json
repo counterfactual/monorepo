@@ -19,7 +19,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.2",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.3",
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
     "@counterfactual/types": "0.0.36",
     "@counterfactual/apps": "0.1.6",
