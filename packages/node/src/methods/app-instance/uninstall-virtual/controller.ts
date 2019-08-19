@@ -4,8 +4,8 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import {
-  getFirstElementInListNotEqualTo,
-  getCreate2MultisigAddress
+  getCreate2MultisigAddress,
+  getFirstElementInListNotEqualTo
 } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
