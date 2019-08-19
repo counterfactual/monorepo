@@ -4,6 +4,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
+import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -145,11 +146,10 @@ export default class CreateChannelController extends NodeController {
     );
 
     try {
-      console.error(await multisigContract.functions.getOwners());
+      await multisigContract.functions.getOwners();
       return Promise.resolve("Multisig has already been setup");
     } catch (e) {
-      console.error("Multisig hasn't been setup yet. Setting up now.");
-      console.error(e);
+      log.info("Multisig hasn't been setup yet. Setting up now.");
     }
 
     let error;
@@ -189,7 +189,7 @@ export default class CreateChannelController extends NodeController {
             gas limit: ${CREATE_PROXY_AND_SETUP_GAS + extraGasLimit}
             tx: ${prettyPrintObject(tx)}
             `;
-          console.error(error);
+          log.debug(error);
           await sleep(1000 * tryCount ** 2);
           continue;
         }
@@ -197,7 +197,7 @@ export default class CreateChannelController extends NodeController {
         return tx.hash;
       } catch (e) {
         error = e;
-        console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
+        log.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
                       Retrying ${retryCount - tryCount} more times`);
       }
     }
@@ -237,7 +237,7 @@ async function checkForOwners(
       await multisigContract.functions.getOwners()
     );
   } catch (e) {
-    console.error(`Failed to get owners: ${prettyPrintObject(e)}`);
+    log.debug(`Failed to get owners: ${prettyPrintObject(e)}`);
     return false;
   }
 
