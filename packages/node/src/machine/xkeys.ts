@@ -53,7 +53,7 @@ export function xkeysToSortedKthSigningKeys(
   k: number
 ): SigningKey[] {
   const sortedKeys = sortSigningkeys(
-    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey)),
+    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey))
   );
   console.log(`Got sorted keys: ${JSON.stringify(sortedKeys)}`);
   return sortedKeys;
