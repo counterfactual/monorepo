@@ -20,7 +20,6 @@ export function sortAddresses(addrs: string[]): string[] {
 }
 
 function sortSigningkeys(addrs: SigningKey[]): SigningKey[] {
-  console.log(`Sorting keys: ${JSON.stringify(addrs)}`);
   return addrs.sort((a, b) =>
     parseInt(a.address, 16) < parseInt(b.address, 16) ? -1 : 1
   );
@@ -52,9 +51,7 @@ export function xkeysToSortedKthSigningKeys(
   xkeys: string[],
   k: number
 ): SigningKey[] {
-  const sortedKeys = sortSigningkeys(
+  return sortSigningkeys(
     xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey))
   );
-  console.log(`Got sorted keys: ${JSON.stringify(sortedKeys)}`);
-  return sortedKeys;
 }
