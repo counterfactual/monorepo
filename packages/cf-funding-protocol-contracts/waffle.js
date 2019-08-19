@@ -17,7 +17,7 @@ var waffleConfig = {
     "outputSelection": {
       "*": {
         "*": [
-          "metadata", "evm.bytecode", "evm.bytecode.sourceMap"
+          "metadata", "evm.bytecode", "evm.bytecode.sourceMap", "abi"
         ],
       },
     }
