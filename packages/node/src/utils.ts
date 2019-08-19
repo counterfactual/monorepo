@@ -16,13 +16,8 @@ import {
 import { JSON_STRINGIFY_SPACE } from "./constants";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 
-export function getCounterpartyAddress(
-  myIdentifier: string,
-  appInstanceAddresses: string[]
-) {
-  return appInstanceAddresses.filter(address => {
-    return address !== myIdentifier;
-  })[0];
+export function getFirstElementInListNotEqualTo(test: string, list: string[]) {
+  return list.filter(x => x !== test)[0];
 }
 
 export function timeout(ms: number) {
