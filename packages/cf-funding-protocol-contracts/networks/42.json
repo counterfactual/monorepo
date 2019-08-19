@@ -35,11 +35,6 @@
     "transactionHash": "0x4cd99d7a7b1a122dd603056bf3301db814cbfafb1150252cd8014fed6f96a6cd"
   },
   {
-    "contractName": "ProxyFactory",
-    "address": "0x588DE1c1152a9A1a5e9ae5F67aA2AA135e627aF2",
-    "transactionHash": "0x5bbf20346521fbe34527be5f70d022eca8d06c04126867879a7e4f84a9374102"
-  },
-  {
     "contractName": "SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter",
     "address": "0x24Da083ef789053C531beb8171c7951bb6AbDB2a",
     "transactionHash": "0x3882725ec4f010dc3307f00f54f6d7f31a99b95228ebf474fa4cb026d023a1c4"
@@ -63,5 +58,12 @@
     "contractName": "TwoPartyFixedOutcomeInterpreter",
     "address": "0x7FD4543C031793096d6EfCCc9334002D5F8dcC70",
     "transactionHash": "0x55ad8fb1bd7c97eaf7ddf2cf498aeb8405069a99a68a059f9fa9c9470f20c968"
+  },
+  // DO NOT REMOVE ProxyFactory ENTRY
+  {
+    "contractName": "ProxyFactory",
+    "address": "0x6CF0c4Ab3F1e66913c0983DC0bb1202d958ABb8f",
+    "transactionHash": "0x3576fccaf822923864814c7ddc8a66effb32938a1bc7cbccf2aebbba7c1d4d1a"
   }
+  // DO NOT REMOVE ProxyFactory ENTRY
 ]
