@@ -8,7 +8,7 @@ const Wallet = ethers.Wallet;
 const InfuraProvider = ethers.providers.InfuraProvider;
 const getContractAddress = ethers.utils.getContractAddress;
 
-const provider = new InfuraProvider("kovan", process.env.INFURA_API_KEY);
+const provider = new InfuraProvider("rinkeby", process.env.INFURA_API_KEY);
 const wallet = Wallet.fromMnemonic(process.env.ETH_ACCOUNT_MNENOMIC).connect(provider);
 
 new ContractFactory(ProxyFactory.abi, ProxyFactory.bytecode, wallet)
@@ -16,7 +16,7 @@ new ContractFactory(ProxyFactory.abi, ProxyFactory.bytecode, wallet)
   .then(tx => {
     tx.deployed()
       .then(contract =>
-        console.info(JSON.stringify(contract, null, 2));
+        console.info(JSON.stringify(contract, null, 2))
       )
       .catch(console.error)
   })
