@@ -320,11 +320,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       done();
     });
 
-    await proxyFactory.functions.createProxy(
+    await proxyFactory.functions.createProxyWithNonce(
       network.MinimumViableMultisig,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
         multisigOwnerKeys.map(x => x.address)
       ]),
+      0,
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

@@ -290,12 +290,12 @@ export function constructAppProposalRpc(
 
 export function constructInstallVirtualRpc(
   appInstanceId: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId,
-      intermediaries
+      intermediaryIdentifier
     } as NodeTypes.InstallVirtualParams,
     id: Date.now(),
     method: NodeTypes.RpcMethodName.INSTALL_VIRTUAL,
@@ -305,7 +305,7 @@ export function constructInstallVirtualRpc(
 
 export function constructVirtualProposalRpc(
   proposedToIdentifier: string,
-  intermediaries: string[],
+  intermediaryIdentifier: string,
   appDefinition: string,
   abiEncodings: AppABIEncodings,
   initialState: SolidityValueType = {},
@@ -327,7 +327,7 @@ export function constructVirtualProposalRpc(
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
     ...installProposalParams,
-    intermediaries
+    intermediaryIdentifier
   };
 
   return jsonRpcDeserialize({
@@ -384,8 +384,8 @@ export function confirmProposedVirtualAppInstance(
     nonInitiatingNode
   );
   const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
-  expect(proposalParams.intermediaries).toEqual(
-    proposedAppInstance.intermediaries
+  expect(proposalParams.intermediaryIdentifier).toEqual(
+    proposedAppInstance.intermediaryIdentifier
   );
 }
 
@@ -544,7 +544,7 @@ export async function installVirtualApp(
       async (msg: ProposeVirtualMessage) => {
         const installReq = constructInstallVirtualRpc(
           msg.data.appInstanceId,
-          msg.data.params.intermediaries
+          msg.data.params.intermediaryIdentifier
         );
         await nodeC.rpcRouter.dispatch(installReq);
       }
@@ -606,7 +606,7 @@ export async function makeVirtualProposal(
 
   const virtualProposalRpc = constructVirtualProposalRpc(
     nodeC.publicIdentifier,
-    [nodeB.publicIdentifier],
+    nodeB.publicIdentifier,
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState,
@@ -635,11 +635,11 @@ export async function makeVirtualProposal(
 export function installTTTVirtual(
   node: Node,
   appInstanceId: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ) {
   const installVirtualReq = constructInstallVirtualRpc(
     appInstanceId,
-    intermediaries
+    intermediaryIdentifier
   );
   node.rpcRouter.dispatch(installVirtualReq);
 }
@@ -663,7 +663,7 @@ export async function makeVirtualProposeCall(
 
   const virtualProposalRpc = constructVirtualProposalRpc(
     nodeC.publicIdentifier,
-    [nodeB.publicIdentifier],
+    nodeB.publicIdentifier,
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState
