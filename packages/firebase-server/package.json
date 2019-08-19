@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/firebase-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "license": "MIT",
@@ -17,7 +17,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/firebase-client": "0.0.3",
+    "@counterfactual/firebase-client": "0.0.4",
     "@firebase/app-types": "0.4.0",
     "@firebase/util": "0.2.25",
     "@types/jest": "24.0.15",
