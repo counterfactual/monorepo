@@ -9,8 +9,7 @@ import {
   keccak256,
   recoverAddress,
   Signature,
-  solidityKeccak256,
-  solidityPack
+  solidityKeccak256
 } from "ethers/utils";
 
 import { JSON_STRINGIFY_SPACE } from "./constants";
@@ -67,11 +66,9 @@ export function getCreate2MultisigAddress(
             0
           ]
         ),
-        keccak256(
-          solidityPack(
-            ["bytes", "uint256"],
-            [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
-          )
+        solidityKeccak256(
+          ["bytes", "uint256"],
+          [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
         )
       ]
     ).slice(-40)

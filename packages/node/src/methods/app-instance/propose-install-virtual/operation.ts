@@ -60,8 +60,8 @@ export function getNextNodeAddress(
 ): string {
   if (thisAddress === intermediaryIdentifier) {
     return responderAddress;
-  } 
-  
+  }
+
   return intermediaryIdentifier;
 }
 
