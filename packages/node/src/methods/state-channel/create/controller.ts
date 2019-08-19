@@ -2,12 +2,12 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { MULTISIG_DEPLOYED_BYTECODE } from "../../../constants";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -204,5 +204,5 @@ async function checkForCorrectDeployedByteCode(
     multisigAddress,
     tx.blockHash
   );
-  return MULTISIG_DEPLOYED_BYTECODE === multisigDeployedBytecode;
+  return multisigDeployedBytecode !== AddressZero;
 }
