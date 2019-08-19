@@ -126,11 +126,12 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     globalChannelNonce += 1;
 
     createProxy = async function() {
-      await proxyFactory.functions.createProxy(
+      await proxyFactory.functions.createProxyWithNonce(
         network.MinimumViableMultisig,
         new Interface(MinimumViableMultisig.abi).functions.setup.encode([
           multisigOwnerKeys.map(x => x.address)
         ]),
+        0,
         { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
       );
     };
