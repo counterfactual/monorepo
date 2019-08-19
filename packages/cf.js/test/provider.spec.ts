@@ -178,9 +178,8 @@ describe("CF.js Provider", () => {
 
     it("can install an app instance virtually", async () => {
       expect.assertions(7);
-      const expectedIntermediaries = [
-        "0x6001600160016001600160016001600160016001"
-      ];
+      const expectedHubIdentifier =
+        "0x6001600160016001600160016001600160016001";
 
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.INSTALL_VIRTUAL,
@@ -190,14 +189,14 @@ describe("CF.js Provider", () => {
           expect(params.appInstanceId).toBe(
             TEST_APP_INSTANCE_INFO.identityHash
           );
-          expect(params.intermediaries).toBe(expectedIntermediaries);
+          expect(params.intermediaryIdentifier).toBe(expectedHubIdentifier);
 
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
               result: {
                 appInstance: {
-                  intermediaries: expectedIntermediaries,
+                  intermediaryIdentifier: expectedHubIdentifier,
                   ...TEST_APP_INSTANCE_INFO
                 }
               },
@@ -209,7 +208,7 @@ describe("CF.js Provider", () => {
       );
       const appInstance = await provider.installVirtual(
         TEST_APP_INSTANCE_INFO.identityHash,
-        expectedIntermediaries
+        expectedHubIdentifier
       );
       expect(appInstance.identityHash).toBe(
         TEST_APP_INSTANCE_INFO.identityHash
@@ -218,7 +217,7 @@ describe("CF.js Provider", () => {
         TEST_APP_INSTANCE_INFO.appDefinition
       );
       expect(appInstance.isVirtual).toBeTruthy();
-      expect(appInstance.intermediaries).toBe(expectedIntermediaries);
+      expect(appInstance.intermediaryIdentifier).toBe(expectedHubIdentifier);
     });
 
     it("can reject installation proposals", async () => {

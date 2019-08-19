@@ -103,7 +103,7 @@ export type AppInstanceInfo = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields
@@ -124,7 +124,7 @@ export type AppInstanceProposal = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields

@@ -42,7 +42,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
    * party to request to the intermediary to lock the state of the virtual app,
    * then upon receiving confirmation it has been locked, then request to the
    * intermediary to uninstall the agreement that was signed locking up the
-   * intermediaries capital based on the outcome of the virtul app at the
+   * intermediary's capital based on the outcome of the virtul app at the
    * agreed upon locked state.
    *
    * @param {Context} context
