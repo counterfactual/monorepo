@@ -198,6 +198,8 @@ async function checkForCorrectDeployedByteCode(
     networkContext.MinimumViableMultisig
   );
 
+  await tx.wait();
+
   const multisigDeployedBytecode = await provider.getCode(
     multisigAddress,
     tx.blockHash
