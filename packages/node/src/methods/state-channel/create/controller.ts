@@ -2,6 +2,7 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
+import { AddressZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
@@ -20,7 +21,6 @@ import {
   CHANNEL_CREATION_FAILED,
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
-import { AddressZero } from "ethers/constants";
 
 // TODO: Add good estimate for ProxyFactory.createProxy
 const CREATE_PROXY_AND_SETUP_GAS = 6e6;
