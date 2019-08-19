@@ -26,7 +26,9 @@ var waffleConfig = {
 };
 
 var selectSolc = () => {
-  waffleConfig.compiler = "solcjs";
+  if (process.env.NATIVE_SOLC == "true") {
+    waffleConfig.compiler = "native";
+  }
   return waffleConfig;
 }
 
