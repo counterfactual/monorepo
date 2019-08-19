@@ -3,7 +3,7 @@ import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/Pr
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
-import { Interface } from "ethers/utils";
+import { Interface, bigNumberify } from "ethers/utils";
 import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
@@ -129,9 +129,8 @@ export default class CreateChannelController extends NodeController {
       throw new Error("wallet must have a provider");
     }
 
-    const { gasLimit: networkGasLimit } = await provider.getBlock(
-      provider.getBlockNumber()
-    );
+    // minimum among kovan, ropsten, mainnet
+    const networkGasLimit = bigNumberify(6e6);
 
     const multisigAddress = getCreate2MultisigAddress(
       owners,
