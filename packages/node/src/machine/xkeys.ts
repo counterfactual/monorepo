@@ -32,7 +32,7 @@ export function xkeyKthAddress(xkey: string, k: number): string {
     cache[xkey] = {};
   }
   if (!cache[xkey][k]) {
-    cache[xkey][k] = computeAddress(xkeyKthHDNode(xkey, k).publicKey);;
+    cache[xkey][k] = computeAddress(xkeyKthHDNode(xkey, k).publicKey);
   }
   return cache[xkey][k];
 }
@@ -53,7 +53,7 @@ export function xkeysToSortedKthSigningKeys(
   k: number
 ): SigningKey[] {
   const sortedKeys = sortSigningkeys(
-    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey));
+    xkeys.map(xkey => new SigningKey(xkeyKthHDNode(xkey, k).privateKey)),
   );
   console.log(`Got sorted keys: ${JSON.stringify(sortedKeys)}`);
   return sortedKeys;
