@@ -1,7 +1,7 @@
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
-import { Contract, Signer, Wallet } from "ethers";
+import { Contract, Signer } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
@@ -111,7 +111,7 @@ export default class CreateChannelController extends NodeController {
   }
 
   private async sendMultisigDeployTx(
-    wallet: Wallet,
+    signer: Signer,
     owners: string[],
     networkContext: NetworkContext,
     retryCount: number = 3
@@ -119,10 +119,10 @@ export default class CreateChannelController extends NodeController {
     const proxyFactory = new Contract(
       networkContext.ProxyFactory,
       ProxyFactory.abi,
-      wallet
+      signer
     );
 
-    const provider = await wallet.provider;
+    const provider = await signer.provider;
 
     if (!provider) {
       throw new Error("wallet must have a provider");
@@ -149,7 +149,7 @@ export default class CreateChannelController extends NodeController {
           0, // TODO: Increment nonce as needed
           {
             gasLimit: clampedGasLimit,
-            gasPrice: await wallet.provider!.getGasPrice()
+            gasPrice: provider.getGasPrice()
           }
         );
 
@@ -164,7 +164,7 @@ export default class CreateChannelController extends NodeController {
         if (
           !(await checkForCorrectDeployedByteCode(
             tx!,
-            wallet.provider!,
+            provider,
             owners,
             networkContext
           ))
