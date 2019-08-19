@@ -21,8 +21,8 @@
   "dependencies": {
     "@counterfactual/cf-funding-protocol-contracts": "0.0.2",
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
-    "@counterfactual/types": "0.0.35",
-    "@counterfactual/apps": "0.1.4",
+    "@counterfactual/types": "0.0.36",
+    "@counterfactual/apps": "0.1.6",
     "ganache-core": "2.6.1",
     "ethers": "4.0.33"
   }
