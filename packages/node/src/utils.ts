@@ -39,35 +39,43 @@ export function timeout(ms: number) {
  *
  * @returns {string} the address of the multisig
  */
+// FIXME: More general caching strategy -- don't keep doing this
+const cache = {} as any;
 export function getCreate2MultisigAddress(
   owners: string[],
   proxyFactoryAddress: string,
   minimumViableMultisigAddress: string
 ): string {
-  return getAddress(
-    solidityKeccak256(
-      ["bytes1", "address", "uint256", "bytes32"],
-      [
-        "0xff",
-        proxyFactoryAddress,
-        solidityKeccak256(
-          ["bytes32", "uint256"],
-          [
-            keccak256(
-              new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-                xkeysToSortedKthAddresses(owners, 0)
-              ])
-            ),
-            0
-          ]
-        ),
-        solidityKeccak256(
-          ["bytes", "uint256"],
-          [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
-        )
-      ]
-    ).slice(-40)
-  );
+  const cacheKey = owners + proxyFactoryAddress + minimumViableMultisigAddress;
+
+  cache[cacheKey] =
+    cache[cacheKey] ||
+    getAddress(
+      solidityKeccak256(
+        ["bytes1", "address", "uint256", "bytes32"],
+        [
+          "0xff",
+          proxyFactoryAddress,
+          solidityKeccak256(
+            ["bytes32", "uint256"],
+            [
+              keccak256(
+                new Interface(MinimumViableMultisig.abi).functions.setup.encode(
+                  [xkeysToSortedKthAddresses(owners, 0)]
+                )
+              ),
+              0
+            ]
+          ),
+          solidityKeccak256(
+            ["bytes", "uint256"],
+            [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
+          )
+        ]
+      ).slice(-40)
+    );
+
+  return cache[cacheKey];
 }
 
 export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
