@@ -2,7 +2,6 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
-import { AddressZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import Queue from "p-queue";
@@ -11,11 +10,7 @@ import { jsonRpcMethod } from "rpc-server";
 import { xkeysToSortedKthAddresses } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
-import {
-  getCreate2MultisigAddress,
-  prettyPrintObject,
-  sleep
-} from "../../../utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -154,24 +149,25 @@ export default class CreateChannelController extends NodeController {
         );
 
         if (!tx.hash) {
-          throw Error(
+          throw new Error(
             `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
               tx
             )}`
           );
         }
 
-        if (
-          !(await checkForCorrectDeployedByteCode(
-            tx!,
-            provider,
-            owners,
-            networkContext
-          ))
-        ) {
+        const correctContractWasDeployed = await checkForCorrectDeployedByteCode(
+          tx!,
+          provider,
+          owners,
+          networkContext
+        );
+
+        if (!correctContractWasDeployed) {
           error = `Could not confirm the deployed multisig contract has the expected bytecode`;
-          await sleep(1000 * tryCount ** 2);
-          continue;
+          throw new Error(
+            `${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`
+          );
         }
 
         return tx;
@@ -182,7 +178,7 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
+    throw new Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
 }
 
@@ -200,9 +196,13 @@ async function checkForCorrectDeployedByteCode(
 
   await tx.wait();
 
-  const multisigDeployedBytecode = await provider.getCode(
+  const contract = new Contract(
     multisigAddress,
-    tx.blockHash
+    MinimumViableMultisig.abi,
+    provider
   );
-  return multisigDeployedBytecode !== AddressZero;
+
+  const ownersValues = await contract.functions.getOwners();
+
+  return owners[0] === ownersValues[0] && owners[1] === ownersValues[1];
 }
