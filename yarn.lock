@@ -937,11 +937,6 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf-funding-protocol-contracts@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf-funding-protocol-contracts/-/cf-funding-protocol-contracts-0.0.2.tgz#80ff1329ce21d433c760eb796b0b013e6a028e07"
-  integrity sha512-ezarvrWtP2lHd9bDQOu2aauH//KvzmsEeukB9iQbE8GRaYxW/HEZAzi5PIQOUC1HDP/bQ/64dlSS9ZN88b2nGw==
-
 "@counterfactual/cf.js@0.2.3":
   version "0.2.3"
   resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.3.tgz#7ed93e4376709ca17c635d211b0e87d0e0c9e05a"
@@ -959,24 +954,6 @@
   integrity sha512-7DrRocC9etadQq1hXNuLZr0FqEWuWcYrT3EtfnJWUkgHbk8C4/liOo2DS5pR0rYxZhh5SH6kn5QyX08W6Oackw==
   dependencies:
     eventemitter3 "^3.1.0"
-
-"@counterfactual/node@0.2.51":
-  version "0.2.51"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.51.tgz#2fb8044f880f50d1f14244d9ead228c7f0726657"
-  integrity sha512-DVapZ6hht10W6tquEbLCMcSGqDZ0le6rfZ9NG3zowyWLS69M/3jKvIK1UORBzJFXUMHSJkZMkfrUr8BM65V03A==
-  dependencies:
-    "@counterfactual/cf-adjudicator-contracts" "0.0.1"
-    "@counterfactual/cf-funding-protocol-contracts" "0.0.2"
-    "@counterfactual/cf.js" "0.2.3"
-    "@counterfactual/firebase-client" "0.0.4"
-    "@counterfactual/types" "0.0.36"
-    ethers "4.0.33"
-    eventemitter3 "^4.0.0"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    rpc-server "0.0.1"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
 
 "@counterfactual/types@0.0.25":
   version "0.0.25"
@@ -19365,10 +19342,10 @@ truffle-interface-adapter@^0.2.3:
     lodash "^4.17.13"
     web3 "1.2.1"
 
-truffle@5.0.31:
-  version "5.0.31"
-  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.31.tgz#372a826e330720e29514458ff25750aa2b5efa65"
-  integrity sha512-dNBH5OFcqHXCaaQO0YGcEtNarIPcToU+tbq+lBph4tI2YjboiwakguvrNCL+cTP4sySKqeg+2QA1W5miyOQGpA==
+truffle@5.0.32:
+  version "5.0.32"
+  resolved "https://registry.yarnpkg.com/truffle/-/truffle-5.0.32.tgz#14545a31548bf699a7d22da5b82642033cdbb8ef"
+  integrity sha512-h2S1FbxwtXg/gApsdU24fx0I4CTyzWxvDElVWsaInR79MEYGMHVbcJdisePvpxGsuZTz6foifzdj2PV9Xc/OOw==
   dependencies:
     app-module-path "^2.2.0"
     mocha "5.2.0"
