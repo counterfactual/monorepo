@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node-provider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
@@ -21,7 +21,7 @@
     "postinstall": "patch-package"
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.36",
+    "@counterfactual/types": "^0.0.37",
     "@types/jest": "24.0.15",
     "@types/node": "12.7.2",
     "@types/web3": "1.0.19",

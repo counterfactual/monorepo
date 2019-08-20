@@ -1,7 +1,7 @@
 {
   "name": "@counterfactual/greenboard",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "An automated end-to-end test suite for Counterfactual, built with Selenium.",
   "keywords": [
     "counterfactual",
@@ -53,6 +53,5 @@
     "selenium-webdriver": "4.0.0-alpha.4",
     "ts-jest": "24.0.2",
     "typescript": "3.5.3"
-  },
-  "dependencies": {}
+  }
 }

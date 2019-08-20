@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/typescript-typings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "engines": {
     "yarn": "1.17.3",
