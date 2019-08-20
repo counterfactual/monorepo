@@ -1,4 +1,5 @@
 import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import { Node } from "@counterfactual/types";
 import {
   Interface,
   joinSignature,
@@ -9,7 +10,7 @@ import {
 
 import { sortSignaturesBySignerAddress } from "../utils";
 
-import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
+import { EthereumCommitment, MultisigTransaction } from "./types";
 
 /// A commitment to make MinimumViableMultisig perform a message call
 export abstract class MultisigCommitment extends EthereumCommitment {
@@ -22,7 +23,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
 
   abstract getTransactionDetails(): MultisigTransaction;
 
-  public getSignedTransaction(sigs: Signature[]): Transaction {
+  public getSignedTransaction(sigs: Signature[]): Node.MinimalTransaction {
     const multisigInput = this.getTransactionDetails();
 
     const signaturesList = sortSignaturesBySignerAddress(

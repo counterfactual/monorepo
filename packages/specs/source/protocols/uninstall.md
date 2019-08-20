@@ -21,24 +21,21 @@ Using our Tic-Tac-Toe example, imagine Alice made the final winning move, declar
 |     Field     |                                    Description                                    |
 | ------------- | --------------------------------------------------------------------------------- |
 | `protocol`    | `"uninstall"`                                                                     |
-| `cfAddress`   | The counterfactual address / unique identifier of the off-chain application       |
-| `data`        | A object representing the updated balances of the of the free balance application |
-| `fromAddress` | The address of Alice                                                              |
-| `toAddress`   | The address of Bob                                                                |
+| `fromAddress` | The address of `initiator`                                                        |
+| `toAddress`   | The address of `responder`                                                        |
 | `seq`         | `1`                                                                               |
 | `signature`   | Alice's signed commitment digest                                                  |
 
 ### The **`UninstallAck`** Message
 
-|     Field     |                                 Description                                 |
-| ------------- | --------------------------------------------------------------------------- |
-| `protocol`    | `"uninstall"`                                                               |
-| `cfAddress`   | The counterfactual address / unique identifier of the off-chain application |
-| `data`        | `""`                                                                        |
-| `fromAddress` | The address of Alice                                                        |
-| `toAddress`   | The address of Bob                                                          |
-| `seq`         | `2`                                                                         |
-| `signature`   | Bob's signed commitment digest                                              |
+|       Field       |             Description              |
+| ----------------- | ------------------------------------ |
+| `protocol`        | `"uninstall"`                        |
+| `appIdentityHash` | Identifies app instance to uninstall |
+| `fromAddress`     | The address of `initiator`           |
+| `toAddress`       | The address of `responder`           |
+| `seq`             | `2`                                  |
+| `signature`       | Bob's signed commitment digest       |
 
 ## Commitments
 

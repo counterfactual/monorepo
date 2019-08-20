@@ -3,7 +3,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
 import { Store } from "../../../store";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
 import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
@@ -19,12 +19,12 @@ export async function createProposedVirtualAppInstance(
   params: Node.ProposeInstallVirtualParams,
   networkContext: NetworkContext
 ): Promise<string> {
-  const { intermediaries, proposedToIdentifier } = params;
+  const { intermediaryIdentifier, proposedToIdentifier } = params;
 
   const channel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     myIdentifier,
     proposedToIdentifier,
-    intermediaries,
+    intermediaryIdentifier,
     store,
     networkContext
   );
@@ -50,40 +50,31 @@ export async function createProposedVirtualAppInstance(
  * This determines which Node is the Node to send the msg to next during any
  * Virtual AppInstance operations.
  * @param thisAddress
- * @param intermediaries
+ * @param intermediaryIdentifier
  * @param responderAddress
  */
 export function getNextNodeAddress(
   thisAddress: string,
-  intermediaries: string[],
+  intermediaryIdentifier: string,
   responderAddress: string
 ): string {
-  const intermediaryIndex = intermediaries.findIndex(
-    intermediaryAddress => intermediaryAddress === thisAddress
-  );
-
-  if (intermediaryIndex === -1) {
-    return intermediaries[0];
-  }
-
-  if (intermediaryIndex + 1 === intermediaries.length) {
+  if (thisAddress === intermediaryIdentifier) {
     return responderAddress;
   }
-
-  return intermediaries[intermediaryIndex + 1];
+  return intermediaryIdentifier;
 }
 
 export function isNodeIntermediary(
   thisAddress: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ): boolean {
-  return intermediaries.includes(thisAddress);
+  return intermediaryIdentifier === thisAddress;
 }
 
 export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
   initiatorXpub: string,
   responderXpub: string,
-  intermediaries: string[],
+  hubXpub: string,
   store: Store,
   networkContext: NetworkContext
 ): Promise<StateChannel> {
@@ -100,7 +91,7 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
       e
         .toString()
         .includes(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress)) &&
-      intermediaries !== undefined
+      hubXpub !== undefined
     ) {
       const multisigAddress = getCreate2MultisigAddress(
         [initiatorXpub, responderXpub],
@@ -118,6 +109,6 @@ export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
       return stateChannel;
     }
 
-    throw e;
+    throw Error(prettyPrintObject(e));
   }
 }

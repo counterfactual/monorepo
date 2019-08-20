@@ -11,7 +11,8 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
-import { createFreeBalanceStateWithFundedTokenAmounts } from "../../integration/utils";
+import { FreeBalanceClass } from "../../../src/models/free-balance";
+import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -66,13 +67,22 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     );
 
     proxyFactory.once("ProxyCreation", async proxy => {
+      // TODO: Test this separately
+      expect(proxy).toBe(
+        getCreate2MultisigAddress(
+          xprvs,
+          network.ProxyFactory,
+          network.MinimumViableMultisig
+        )
+      );
+
       const stateChannel = StateChannel.setupChannel(
         network.IdentityApp,
         proxy,
         xprvs.map(extendedPrvKeyToExtendedPubKey),
         1
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedTokenAmounts(
+        FreeBalanceClass.createWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           WeiPerEther,
           [CONVENTION_FOR_ETH_TOKEN_ADDRESS]
@@ -141,11 +151,12 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       done();
     });
 
-    await proxyFactory.functions.createProxy(
+    await proxyFactory.functions.createProxyWithNonce(
       network.MinimumViableMultisig,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
         multisigOwnerKeys.map(x => x.address)
       ]),
+      0,
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

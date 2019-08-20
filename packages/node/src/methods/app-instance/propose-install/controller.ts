@@ -6,7 +6,6 @@ import { jsonRpcMethod } from "rpc-server";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { getBalancesFromFreeBalanceAppInstance } from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { getCreate2MultisigAddress } from "../../../utils";
@@ -54,7 +53,7 @@ export default class ProposeInstallController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
 
     const {
@@ -139,13 +138,12 @@ function assertSufficientFundsWithinFreeBalance(
   tokenAddress: string,
   depositAmount: BigNumber
 ) {
-  const freeBalanceForToken = getBalancesFromFreeBalanceAppInstance(
-    channel.freeBalance,
-    tokenAddress
-  )[xkeyKthAddress(publicIdentifier, 0)];
+  const freeBalanceForToken = channel
+    .getFreeBalanceClass()
+    .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0));
 
   if (freeBalanceForToken.lt(depositAmount)) {
-    throw new Error(
+    throw Error(
       INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET(
         publicIdentifier,
         channel.multisigAddress,

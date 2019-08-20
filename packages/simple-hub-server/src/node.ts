@@ -223,7 +223,7 @@ export class NodeWrapper {
 
     if (extendedPrvKey) {
       await store.set([
-        { key: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
+        { path: EXTENDED_PRIVATE_KEY_PATH, value: extendedPrvKey }
       ]);
     }
 

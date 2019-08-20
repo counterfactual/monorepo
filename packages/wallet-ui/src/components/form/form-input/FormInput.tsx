@@ -157,7 +157,7 @@ class FormInput extends React.Component<
             onChange={event => this.handleChange(event)}
           />
           {Array.isArray(units) && units.length === 1 ? (
-            <div className="unit">{units[0].name}</div>
+            <div className="unit">{units[0].shortName}</div>
           ) : Array.isArray(units) && units.length > 1 ? (
             <select
               className="unit-selector"

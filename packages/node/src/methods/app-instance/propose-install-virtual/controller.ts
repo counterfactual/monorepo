@@ -15,7 +15,7 @@ import {
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
- * proposal to the intermediaries and the responder Node.
+ * proposal to the intermediaryIdentifier and the responder Node.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
@@ -30,10 +30,10 @@ export default class ProposeInstallVirtualController extends NodeController {
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
     const { publicIdentifier, networkContext } = requestHandler;
-    const { proposedToIdentifier, intermediaries } = params;
+    const { proposedToIdentifier, intermediaryIdentifier } = params;
 
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -63,7 +63,7 @@ export default class ProposeInstallVirtualController extends NodeController {
     const { initialState } = params;
 
     if (!initialState) {
-      throw new Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
     }
     // TODO: check if channel is open with the first intermediary
     // and that there are sufficient funds
@@ -89,7 +89,7 @@ export default class ProposeInstallVirtualController extends NodeController {
 
     const nextNodeAddress = getNextNodeAddress(
       publicIdentifier,
-      params.intermediaries,
+      params.intermediaryIdentifier,
       params.proposedToIdentifier
     );
 

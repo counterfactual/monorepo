@@ -5,7 +5,7 @@ import {
   parseEther
 } from "ethers/utils";
 import { fromExtendedKey, HDNode } from "ethers/utils/hdnode";
-import { BalanceRequest, Deposit, User } from "../store/types";
+import { BalanceRequest, Deposit, User, AssetType } from "../store/types";
 import { CounterfactualEvent, CounterfactualMethod } from "../types";
 import delay from "./delay";
 
@@ -59,31 +59,38 @@ export async function forMultisig(): Promise<string> {
 export async function requestWithdraw({
   amount,
   multisigAddress,
-  ethAddress
+  ethAddress,
+  tokenAddress
 }: Deposit) {
   return window.ethereum.send(CounterfactualMethod.RequestWithdraw, [
     amount,
     multisigAddress,
-    ethAddress
+    ethAddress,
+    tokenAddress
   ]);
 }
 
-export async function requestDeposit({ amount, multisigAddress }: Deposit) {
+export async function requestDeposit({
+  amount,
+  multisigAddress,
+  tokenAddress
+}: Deposit) {
   return window.ethereum.send(CounterfactualMethod.RequestDeposit, [
     amount,
-    multisigAddress
+    multisigAddress,
+    tokenAddress
   ]);
 }
 
 export async function forFunds(
-  { multisigAddress, nodeAddress }: BalanceRequest,
+  { multisigAddress, nodeAddress, tokenAddress }: BalanceRequest,
   fundsOwner?: "user" | "counterparty" | "both"
 ): Promise<BigNumberish> {
   const MINIMUM_EXPECTED_BALANCE = parseEther("0.01");
 
   const freeBalance = (await window.ethereum.send(
     CounterfactualMethod.RequestBalances,
-    [multisigAddress]
+    [multisigAddress, tokenAddress]
   )).result;
   const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
 
@@ -101,7 +108,6 @@ export async function forFunds(
     MINIMUM_EXPECTED_BALANCE
   );
   const enoughMyBalance = myBalance.gte(MINIMUM_EXPECTED_BALANCE);
-
   switch (fundsOwner) {
     case "user":
       if (enoughMyBalance) {
@@ -123,20 +129,39 @@ export async function forFunds(
 
   // !TODO: This should die in a fire :-)
   await delay(1000);
-  return forFunds({ multisigAddress, nodeAddress }, fundsOwner);
+
+  return forFunds({ multisigAddress, nodeAddress, tokenAddress }, fundsOwner);
 }
 
 export async function getCFBalances({
   multisigAddress,
-  nodeAddress
+  nodeAddress,
+  tokenAddress
 }: BalanceRequest): Promise<BigNumberish> {
   const freeBalance = (await window.ethereum.send(
     CounterfactualMethod.RequestBalances,
-    [multisigAddress]
+    [multisigAddress, tokenAddress]
   )).result;
-
   const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
   return bigNumberify(freeBalance[freeBalanceAddress]);
+}
+
+export async function getIndexedCFBalances({
+  multisigAddress,
+  nodeAddress
+}: BalanceRequest): Promise<AssetType[]> {
+  const indexedBalances: {
+    [key: string]: { [key: string]: BigNumberish };
+  } = (await window.ethereum.send(CounterfactualMethod.RequestIndexedBalances, [
+    multisigAddress
+  ])).result;
+
+  const freeBalanceAddress = xkeyKthAddress(nodeAddress, 0);
+
+  return Object.entries(indexedBalances).map(([tokenAddress, balances]) => ({
+    tokenAddress,
+    counterfactualBalance: balances[freeBalanceAddress]
+  }));
 }
 
 export async function getChannelAddresses(): Promise<string[]> {

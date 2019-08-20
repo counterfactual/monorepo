@@ -2,6 +2,7 @@ import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/Ch
 import {
   AppIdentity,
   NetworkContext,
+  Node,
   SignedStateHashUpdate
 } from "@counterfactual/types";
 import {
@@ -14,7 +15,7 @@ import {
 
 import { sortSignaturesBySignerAddress } from "../utils";
 
-import { EthereumCommitment, Transaction } from "./types";
+import { EthereumCommitment } from "./types";
 import { appIdentityToHash } from "./utils/app-identity";
 
 const iface = new Interface(ChallengeRegistry.abi);
@@ -45,7 +46,7 @@ export class SetStateCommitment extends EthereumCommitment {
     );
   }
 
-  public getSignedTransaction(sigs: Signature[]): Transaction {
+  public getSignedTransaction(sigs: Signature[]): Node.MinimalTransaction {
     return {
       to: this.networkContext.ChallengeRegistry,
       value: 0,

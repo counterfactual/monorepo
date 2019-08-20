@@ -38,7 +38,7 @@ export async function handleReceivedInstallMessage(
   } = receivedInstallMessage;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -120,7 +120,7 @@ export async function handleReceivedProposeVirtualMessage(
   } = receivedProposeMessage;
 
   const {
-    intermediaries,
+    intermediaryIdentifier,
     proposedToIdentifier,
     responderDeposit,
     responderDepositTokenAddress,
@@ -131,7 +131,7 @@ export async function handleReceivedProposeVirtualMessage(
   const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     proposedByIdentifier,
     publicIdentifier,
-    intermediaries,
+    intermediaryIdentifier,
     store,
     networkContext
   );
@@ -150,12 +150,12 @@ export async function handleReceivedProposeVirtualMessage(
     )
   );
 
-  if (isNodeIntermediary(publicIdentifier, intermediaries)) {
+  if (isNodeIntermediary(publicIdentifier, intermediaryIdentifier)) {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(
       getNextNodeAddress(
         publicIdentifier,
-        intermediaries,
+        intermediaryIdentifier,
         proposedToIdentifier
       ),
       {

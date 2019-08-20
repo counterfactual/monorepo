@@ -1,5 +1,9 @@
 const tdr = require("truffle-deploy-registry");
 
+// TODO: Handle this deployment manually
+// artifacts.require("ProxyFactory")
+// Do not add to ARTIFACTS
+
 const ARTIFACTS = [
   artifacts.require("ChallengeRegistry"),
   artifacts.require("CoinBalanceRefundApp"),
@@ -7,7 +11,6 @@ const ARTIFACTS = [
   artifacts.require("IdentityApp"),
   artifacts.require("MinimumViableMultisig"),
   artifacts.require("MultiAssetMultiPartyCoinTransferInterpreter"),
-  artifacts.require("ProxyFactory"),
   artifacts.require("SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter"),
   artifacts.require("SingleAssetTwoPartyCoinTransferInterpreter"),
   artifacts.require("TimeLockedPassThrough"),

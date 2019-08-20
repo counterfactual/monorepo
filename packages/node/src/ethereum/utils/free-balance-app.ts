@@ -1,10 +1,9 @@
 import { AppInterface } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { BigNumber } from "ethers/utils";
 
 import {
   CoinTransferMap,
-  FreeBalanceStateJSON,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
 
@@ -25,10 +24,6 @@ export function getFreeBalanceAppInterface(addr: string): AppInterface {
     stateEncoding: freeBalanceAppStateEncoding,
     actionEncoding: undefined // because no actions exist for FreeBalanceApp
   };
-}
-
-export function encodeFreeBalanceAppState(state: FreeBalanceStateJSON) {
-  return defaultAbiCoder.encode([freeBalanceAppStateEncoding], [state]);
 }
 
 export function flipTokenIndexedBalances(
@@ -59,8 +54,8 @@ export function flip(coinTransferMap: CoinTransferMap): CoinTransferMap {
 /**
  * Returns the first base mapping, but incremented by values specified in the
  * second increment. Passing increments whose keys are not present in the base
- * is an error. Keys in the base mapping which are not explicitly incremented
- * are returned unchanged.
+ * sets them to the increment. Keys in the base mapping which are not explicitly
+ * incremented are returned unchanged.
  */
 export function merge(
   base: { [s: string]: BigNumber },
@@ -68,23 +63,11 @@ export function merge(
 ) {
   const ret = {} as { [s: string]: BigNumber };
 
-  for (const key of Object.keys(base)) {
-    if (increments[key]) {
-      ret[key] = base[key].add(increments[key]);
-      if (ret[key].lt(Zero)) {
-        throw new Error("Underflow in merge");
-      }
-    } else {
-      ret[key] = base[key];
-    }
-  }
+  const s1 = new Set(Object.keys(base));
+  const s2 = new Set(Object.keys(increments));
 
-  for (const key of Object.keys(increments)) {
-    if (!base[key]) {
-      throw new Error(
-        `mismatch: ${Object.keys(increments)} ⊄ ${Object.keys(base)}`
-      );
-    }
+  for (const key of new Set([...s1, ...s2])) {
+    ret[key] = (base[key] || Zero).add(increments[key] || Zero);
   }
 
   return ret;

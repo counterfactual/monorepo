@@ -35,17 +35,17 @@ describe("Postgres store service implementation behavior adheres to interface", 
   it("can save and load basic records", async done => {
     expect(await postgresService.get("A")).toBeUndefined();
 
-    const key = "A";
+    const path = "A";
     const value = 1;
 
     await postgresService.set([
       {
-        key,
+        path,
         value
       }
     ]);
 
-    expect(await postgresService.get(key)).toEqual(value);
+    expect(await postgresService.get(path)).toEqual(value);
 
     done();
   });

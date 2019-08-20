@@ -25,7 +25,7 @@ export function getProtocolFromName(
   protocolName: Protocol
 ): ProtocolExecutionFlow {
   if (!(protocolName in protocolsByName)) {
-    throw new Error(`Received invalid protocol type ${protocolName}`);
+    throw Error(`Received invalid protocol type ${protocolName}`);
   }
   return protocolsByName[protocolName];
 }

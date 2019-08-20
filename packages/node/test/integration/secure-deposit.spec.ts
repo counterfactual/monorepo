@@ -12,10 +12,10 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {
+  constructDepositRpc,
   createChannel,
   getFreeBalanceState,
   getTokenIndexedFreeBalanceStates,
-  makeDepositRequest,
   transferERC20Tokens
 } from "./utils";
 
@@ -27,17 +27,33 @@ describe("Node method follows spec - deposit", () => {
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
+  let multisigAddress: string;
 
   beforeEach(async () => {
     const context: SetupContext = await setup(global);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     provider = new JsonRpcProvider(global["ganacheURL"]);
+
+    multisigAddress = await createChannel(nodeA, nodeB);
+  });
+
+  it("has the right balance before an ERC20 deposit has been made", async () => {
+    const erc20ContractAddress = (global[
+      "networkContext"
+    ] as NetworkContextForTestSuite).DolphinCoin;
+
+    const freeBalanceState = await getFreeBalanceState(
+      nodeA,
+      multisigAddress,
+      erc20ContractAddress
+    );
+
+    expect(Object.values(freeBalanceState)).toMatchObject([Zero, Zero]);
   });
 
   it("has the right balance for both parties after deposits", async done => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
-    const depositReq = makeDepositRequest(multisigAddress, One);
+    const depositReq = constructDepositRpc(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
@@ -62,8 +78,6 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it("updates balances correctly when depositing both ERC20 tokens and ETH", async () => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
-
     const erc20ContractAddress = (global[
       "networkContext"
     ] as NetworkContextForTestSuite).DolphinCoin;
@@ -74,7 +88,7 @@ describe("Node method follows spec - deposit", () => {
       new JsonRpcProvider(global["ganacheURL"])
     );
 
-    const erc20DepositRequest = makeDepositRequest(
+    const erc20DepositRequest = constructDepositRpc(
       multisigAddress,
       One,
       erc20ContractAddress
@@ -121,7 +135,7 @@ describe("Node method follows spec - deposit", () => {
 
     // now deposits ETH
 
-    const ethDepositReq = makeDepositRequest(multisigAddress, One);
+    const ethDepositReq = constructDepositRpc(multisigAddress, One);
 
     preDepositBalance = await provider.getBalance(multisigAddress);
 

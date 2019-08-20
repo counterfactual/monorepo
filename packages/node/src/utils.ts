@@ -9,20 +9,14 @@ import {
   keccak256,
   recoverAddress,
   Signature,
-  solidityKeccak256,
-  solidityPack
+  solidityKeccak256
 } from "ethers/utils";
-import log from "loglevel";
 
+import { JSON_STRINGIFY_SPACE } from "./constants";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
 
-export function getCounterpartyAddress(
-  myIdentifier: string,
-  appInstanceAddresses: string[]
-) {
-  return appInstanceAddresses.filter(address => {
-    return address !== myIdentifier;
-  })[0];
+export function getFirstElementInListNotEqualTo(test: string, list: string[]) {
+  return list.filter(x => x !== test)[0];
 }
 
 export function timeout(ms: number) {
@@ -67,42 +61,13 @@ export function getCreate2MultisigAddress(
             0
           ]
         ),
-        keccak256(
-          solidityPack(
-            ["bytes", "uint256"],
-            [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
-          )
+        solidityKeccak256(
+          ["bytes", "uint256"],
+          [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
         )
       ]
     ).slice(-40)
   );
-}
-
-const isBrowser =
-  typeof window !== "undefined" &&
-  {}.toString.call(window) === "[object Window]";
-
-export function debugLog(...messages: any[]) {
-  try {
-    const logPrefix = "NodeDebugLog";
-    if (isBrowser) {
-      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
-        // for some reason `debug` doesn't actually log in the browser
-        log.info(logPrefix, messages);
-        log.trace();
-      }
-      // node.js side
-    } else if (
-      process.env.LOG_LEVEL !== undefined &&
-      process.env.LOG_LEVEL === "DEBUG"
-    ) {
-      log.debug(logPrefix, JSON.stringify(messages, null, 4));
-      log.trace();
-      log.debug("\n");
-    }
-  } catch (e) {
-    console.error("Failed to log: ", e);
-  }
 }
 
 export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -157,4 +122,12 @@ export function signaturesToBytesSortedBySignerAddress(
   return signaturesToBytes(
     ...sortSignaturesBySignerAddress(digest, signatures)
   );
+}
+
+export function prettyPrintObject(object: any) {
+  return JSON.stringify(object, null, JSON_STRINGIFY_SPACE);
+}
+
+export async function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }

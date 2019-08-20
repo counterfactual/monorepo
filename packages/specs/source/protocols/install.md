@@ -89,22 +89,23 @@ First we introduce a new type which we label `InstallParams`.
 
 **Type: `InstallParams`**
 
-| Field                   | Type           | Description                                                        |
-| ----------------------- | -------------- | ------------------------------------------------------------------ |
-| `aliceBalanceDecrement` | `uint256`      | The proposed sub-deposit into the AppInstance of the first party   |
-| `bobBalanceDecrement`   | `uint256`      | The proposed sub-deposit into the AppInstance of the second party  |
-| `participants`          | `address[]`    | The unique participants for this AppInstance                       |
-| `initialState`          | `object`       | An object representing the initial state of the AppInstance        |
-| `appInterface`          | `AppInterface` | The definition of the interface of the AppInstance to be installed |
-| `defaultTimeout`        | `uint256`      | The default challenge period length for this AppInstance           |
-| `interpreterAddress`    | `address`      | The address of an interpreter that will interpret the outcome      |
-| `interpreterParams`     | `bytes`        | Any parameters to be submitted to the interpreter upon execution   |
+|             Field              |      Type      |                            Description                             |
+| ------------------------------ | -------------- | ------------------------------------------------------------------ |
+| `initiatorBalanceDecrement`    | `uint256`      | The deposit into the AppInstance of the first party                |
+| `responderBalanceDecrement`    | `uint256`      | The deposit into the AppInstance of the second party               |
+| `initiatorDepositTokenAddress` | `address`      |                                                                    |
+| `responderDepositTokenAddress` | `address`      |                                                                    |
+| `participants`                 | `address[]`    | The unique participants for this AppInstance                       |
+| `initialState`                 | `object`       | An object representing the initial state of the AppInstance        |
+| `appInterface`                 | `AppInterface` | The definition of the interface of the AppInstance to be installed |
+| `defaultTimeout`               | `uint256`      | The default challenge period length for this AppInstance           |
+| `interpreterAddress`           | `address`      | The address of an interpreter that will interpret the outcome      |
 
 > NOTE: `participants` are deterministically generated based on the appSeqNo of the application in relation to the entire channel lifecycle. Specifically the key is computed as the (`appSeqNo`)-th derived child of an extended public key that is the unique identifier for a state channel user.
 
 ### M1: Initiating signs `ConditionalTransaction`
 
-| Field       | Description                                                               |
+|    Field    |                                Description                                |
 | ----------- | ------------------------------------------------------------------------- |
 | `protocol`  | `"install"`                                                               |
 | `multisig`  | The address of the on-chain multisignature wallet for this `StateChannel` |
@@ -115,7 +116,7 @@ First we introduce a new type which we label `InstallParams`.
 
 ### M2: Responder countersigns `ConditionalTransaction` and signs `FreeBalanceSetState`
 
-| Field        | Description                                                     |
+|    Field     |                           Description                           |
 | ------------ | --------------------------------------------------------------- |
 | `protocol`   | `"install"`                                                     |
 | `multisig`   | The address of the on-chain Alice-Bob multisignature wallet     |
@@ -126,7 +127,7 @@ First we introduce a new type which we label `InstallParams`.
 
 ### M3: Initiator signs `FreeBalanceSetState`
 
-| Field       | Description                                                  |
+|    Field    |                         Description                          |
 | ----------- | ------------------------------------------------------------ |
 | `protocol`  | `"install"`                                                  |
 | `multisig`  | The address of the on-chain Alice-Bob multisignature wallet  |

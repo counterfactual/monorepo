@@ -17,11 +17,9 @@ import {
 } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
+import { FreeBalanceClass } from "../../../src/models/free-balance";
 import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
-import {
-  createFreeBalanceStateWithFundedTokenAmounts,
-  transferERC20Tokens
-} from "../../integration/utils";
+import { transferERC20Tokens } from "../../integration/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -128,11 +126,12 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     globalChannelNonce += 1;
 
     createProxy = async function() {
-      await proxyFactory.functions.createProxy(
+      await proxyFactory.functions.createProxyWithNonce(
         network.MinimumViableMultisig,
         new Interface(MinimumViableMultisig.abi).functions.setup.encode([
           multisigOwnerKeys.map(x => x.address)
         ]),
+        0,
         { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
       );
     };
@@ -170,7 +169,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         proxyAddress,
         xpubs
       ).setFreeBalance(
-        createFreeBalanceStateWithFundedTokenAmounts(
+        FreeBalanceClass.createWithFundedTokenAmounts(
           multisigOwnerKeys.map<string>(key => key.address),
           tokenAmounts,
           [tokenAddress]

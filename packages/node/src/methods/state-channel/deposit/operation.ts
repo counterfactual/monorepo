@@ -22,6 +22,7 @@ import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
+import { prettyPrintObject } from "../../../utils";
 import { DEPOSIT_FAILED } from "../../errors";
 
 const DEPOSIT_RETRY_COUNT = 3;
@@ -78,7 +79,11 @@ export async function installBalanceRefundApp(
     defaultTimeout: 1008,
     outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
-    responderDepositTokenAddress: tokenAddress!
+    responderDepositTokenAddress: tokenAddress!,
+    // the balance refund is a special case where we want to set the limit to be
+    // MAX_UINT256 instead of
+    // `initiatorBalanceDecrement + responderBalanceDecrement` = 0
+    disableLimit: true
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
@@ -124,7 +129,7 @@ export async function makeDeposit(
     } catch (e) {
       if (e.toString().includes("reject") || e.toString().includes("denied")) {
         outgoing.emit(NODE_EVENTS.DEPOSIT_FAILED, e);
-        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
+        throw Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
       }
 
       retryCount -= 1;
@@ -134,7 +139,7 @@ export async function makeDeposit(
           NODE_EVENTS.DEPOSIT_FAILED,
           `Could not deposit after ${DEPOSIT_RETRY_COUNT} attempts`
         );
-        throw new Error(`${DEPOSIT_FAILED}: ${e}`);
+        throw Error(`${DEPOSIT_FAILED}: ${prettyPrintObject(e)}`);
       }
     }
   }
