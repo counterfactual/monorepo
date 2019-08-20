@@ -4,7 +4,7 @@
   "description": "Smart contracts for the Counterfactual multisig funding protocol",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "files": [
@@ -34,14 +34,14 @@
     "@counterfactual/types": "0.0.36",
     "@counterfactual/typescript-typings": "0.1.0",
     "@types/chai": "4.2.0",
-    "@types/node": "12.7.1",
+    "@types/node": "12.7.2",
     "chai": "4.2.0",
-    "dotenv": "8.0.0",
+    "dotenv": "8.1.0",
     "eth-gas-reporter": "0.2.10",
     "ethereum-waffle": "2.0.15",
     "ethers": "4.0.33",
     "ethlint": "1.2.4",
-    "ganache-cli": "6.5.1",
+    "ganache-cli": "6.6.0",
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
     "solc": "0.5.11",

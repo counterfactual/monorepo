@@ -5,7 +5,7 @@
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "files": [
@@ -25,8 +25,8 @@
   },
   "devDependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
-    "@counterfactual/types": "0.0.36",
     "@types/chai": "4.2.0",
+    "@counterfactual/types": "0.0.36",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.0.15",

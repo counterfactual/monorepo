@@ -6,7 +6,7 @@
   "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "scripts": {
@@ -30,13 +30,13 @@
     "@types/dotenv-safe": "5.0.3",
     "@types/jest": "24.0.15",
     "@types/loglevel": "1.6.3",
-    "@types/node": "12.7.1",
-    "@types/pg": "7.4.14",
+    "@types/node": "12.7.2",
+    "@types/pg": "7.11.0",
     "chai": "4.2.0",
     "dotenv-extended": "2.4.0",
     "dotenv-safe": "6.1.0",
     "ethereum-waffle": "2.0.15",
-    "ganache-cli": "6.5.1",
+    "ganache-cli": "6.6.0",
     "ganache-core": "2.6.1",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
@@ -56,7 +56,7 @@
   "dependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
     "@counterfactual/cf-funding-protocol-contracts": "0.0.4",
-    "@counterfactual/cf.js": "0.2.3",
+    "@counterfactual/cf.js": "0.2.4",
     "@counterfactual/firebase-client": "0.0.4",
     "@counterfactual/types": "0.0.36",
     "ethers": "4.0.33",

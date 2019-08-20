@@ -6,7 +6,7 @@
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "main": "src/index.ts",
@@ -69,7 +69,7 @@
     "env-cmd": "9.0.3",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
-    "sqlite3": "4.0.9",
+    "sqlite3": "4.1.0",
     "ts-jest": "24.0.2",
     "ts-node": "8.3.0",
     "tslint": "5.18.0",
