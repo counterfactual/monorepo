@@ -22,8 +22,9 @@ import {
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
 
-// TODO: Add good estimate for ProxyFactory.createProxy
-const CREATE_PROXY_AND_SETUP_GAS = 6e6;
+// Estimate based on:
+// https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
+const CREATE_PROXY_AND_SETUP_GAS = 167_394;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
@@ -135,7 +136,7 @@ export default class CreateChannelController extends NodeController {
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
-        const extraGasLimit = tryCount * 1e6;
+        const extraGasLimit = tryCount * 50_000;
         const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
         const clampedGasLimit = networkGasLimit.lt(gasLimit)
           ? networkGasLimit
