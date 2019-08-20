@@ -101,6 +101,7 @@ export namespace Node {
   export enum RpcMethodName {
     CREATE_CHANNEL = "chan_create",
     DEPOSIT = "chan_deposit",
+    GET_CHANNEL_ADDRESSES = "chan_getChannelAddresses",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
