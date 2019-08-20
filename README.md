@@ -74,7 +74,7 @@ The Playground currently only supports the Kovan network.
 
 ### Installing dependencies
 
-**Make sure you have Yarn v1.12.3 installed**. For easy management of specific Yarn versions, we recommend using [Yarn Version Manager (YVM)](https://github.com/tophat/yvm).
+**Make sure you have Yarn v1.17.3 installed**. For easy management of specific Yarn versions, we recommend using [Yarn Version Manager (YVM)](https://github.com/tophat/yvm).
 
 To install the dependencies:
 

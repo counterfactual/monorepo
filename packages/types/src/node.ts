@@ -9,11 +9,6 @@ import {
 } from "./data-types";
 import { SolidityValueType } from "./simple-types";
 
-export interface INodeProvider {
-  onMessage(callback: (message: Node.Message) => void);
-  sendMessage(message: Node.Message);
-}
-
 export interface IRpcNodeProvider {
   onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void);
   sendMessage(message: Rpc);

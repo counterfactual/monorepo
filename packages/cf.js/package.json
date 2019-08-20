@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "files": [
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@counterfactual/node-provider": "0.2.0",
-    "@counterfactual/types": "0.0.35",
+    "@counterfactual/types": "0.0.36",
     "ethers": "4.0.33",
     "eventemitter3": "^4.0.0",
     "rpc-server": "0.0.1"

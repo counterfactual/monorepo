@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "scripts": {
@@ -19,10 +19,10 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.2",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.4",
     "@counterfactual/cf-adjudicator-contracts": "0.0.1",
-    "@counterfactual/types": "0.0.35",
-    "@counterfactual/apps": "0.1.4",
+    "@counterfactual/types": "0.0.36",
+    "@counterfactual/apps": "0.1.6",
     "ganache-core": "2.6.1",
     "ethers": "4.0.33"
   }
