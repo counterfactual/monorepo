@@ -24,7 +24,7 @@ import {
 
 // Estimate based on:
 // https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
-const CREATE_PROXY_AND_SETUP_GAS = 200_000;
+const CREATE_PROXY_AND_SETUP_GAS = 500_000;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
