@@ -2,7 +2,7 @@ require("dotenv").config();
 
 var waffleConfig = {
   "npmPath": "../../node_modules",
-  "legacyOutput": true,
+  "legacyOutput": false,
   "compilerOptions": {
     "optimizer": {
       "enabled": true,
@@ -15,7 +15,7 @@ var waffleConfig = {
     "outputSelection": {
       "*": {
         "*": [
-          "metadata", "evm.bytecode", "evm.bytecode.sourceMap", "abi"
+          "evm.bytecode.object", "abi", /* "metadata" */
         ],
       },
     }
