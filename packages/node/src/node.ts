@@ -18,7 +18,7 @@ import {
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   getNetworkContextForNetworkName,
-  Network
+  EthereumNetworkName
 } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
@@ -62,7 +62,7 @@ export class Node {
     storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: Network | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -82,7 +82,7 @@ export class Node {
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: Network | NetworkContext,
+    networkContext: EthereumNetworkName | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
