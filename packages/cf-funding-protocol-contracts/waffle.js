@@ -21,7 +21,6 @@ var waffleConfig = {
         ],
       },
     }
-
   }
 };
 
