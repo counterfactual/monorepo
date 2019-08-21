@@ -1,4 +1,5 @@
 import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
+import { Node } from "@counterfactual/types";
 import {
   bigNumberify,
   Interface,
@@ -8,7 +9,6 @@ import {
 } from "ethers/utils";
 
 import { SetStateCommitment } from "../../../../src/ethereum";
-import { Transaction } from "../../../../src/ethereum/types";
 import { appIdentityToHash } from "../../../../src/ethereum/utils/app-identity";
 import { createAppInstanceForTest } from "../../../unit/utils";
 import { generateRandomNetworkContext } from "../../mocks";
@@ -20,7 +20,7 @@ import { generateRandomNetworkContext } from "../../mocks";
  */
 describe("Set State Commitment", () => {
   let commitment: SetStateCommitment;
-  let tx: Transaction;
+  let tx: Node.MinimalTransaction;
 
   const networkContext = generateRandomNetworkContext();
 

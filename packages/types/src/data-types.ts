@@ -103,7 +103,7 @@ export type AppInstanceInfo = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields
@@ -124,7 +124,7 @@ export type AppInstanceProposal = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields
@@ -141,13 +141,13 @@ export type AppABIEncodings = {
 
 export enum OutcomeType {
   // uint8
-  TWO_PARTY_FIXED_OUTCOME,
+  TWO_PARTY_FIXED_OUTCOME = "TWO_PARTY_FIXED_OUTCOME",
 
   // CoinTransfer[][]
-  MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
+  MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER = "MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER",
 
   // CoinTransfer[2]
-  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER = "SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER"
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

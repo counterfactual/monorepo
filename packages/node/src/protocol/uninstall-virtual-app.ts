@@ -42,7 +42,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
    * party to request to the intermediary to lock the state of the virtual app,
    * then upon receiving confirmation it has been locked, then request to the
    * intermediary to uninstall the agreement that was signed locking up the
-   * intermediaries capital based on the outcome of the virtul app at the
+   * intermediary's capital based on the outcome of the virtul app at the
    * agreed upon locked state.
    *
    * @param {Context} context
@@ -50,7 +50,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
   0 /* Initiating */: async function*(context: Context) {
     const {
-      message: { protocolExecutionID, params },
+      message: { processID, params },
       provider,
       stateChannelsMap,
       network
@@ -71,7 +71,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance
     ] = await getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
       stateChannelsMap,
-      params,
+      params!,
       provider,
       network
     );
@@ -91,18 +91,22 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m1 = {
       params,
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: 1,
       toXpub: intermediaryXpub,
-      signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m4 = yield [IO_SEND_AND_WAIT, m1];
+    const m4 = (yield [IO_SEND_AND_WAIT, m1]) as ProtocolMessage;
 
     const {
-      signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: responderSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } = m4;
 
     assertIsValidSignature(
@@ -131,17 +135,21 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m5 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,
-      signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
-    };
+      customData: {
+        signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
+      }
+    } as ProtocolMessage;
 
-    const m6 = yield [IO_SEND_AND_WAIT, m5];
+    const m6 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
 
     const {
-      signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+      customData: {
+        signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+      }
     } = m6;
 
     assertIsValidSignature(
@@ -169,9 +177,11 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Intermediary */: async function*(context: Context) {
     const {
       message: {
-        protocolExecutionID,
+        processID,
         params,
-        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+        customData: {
+          signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
+        }
       },
       provider,
       stateChannelsMap,
@@ -193,7 +203,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance
     ] = await getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
       stateChannelsMap,
-      params,
+      params!,
       provider,
       network
     );
@@ -218,19 +228,23 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m2 = {
-      protocolExecutionID,
+      processID,
       params,
       protocol: Protocol.UninstallVirtualApp,
       seq: 2,
       toXpub: responderXpub,
-      signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m3 = yield [IO_SEND_AND_WAIT, m2];
+    const m3 = (yield [IO_SEND_AND_WAIT, m2]) as ProtocolMessage;
 
     const {
-      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } = m3;
 
     assertIsValidSignature(
@@ -240,18 +254,22 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const m4 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: initiatorXpub,
-      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment,
-      signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m5 = yield [IO_SEND_AND_WAIT, m4];
+    const m5 = (yield [IO_SEND_AND_WAIT, m4]) as ProtocolMessage;
 
     const {
-      signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
+      customData: {
+        signature: initiatingSignatureOnAliceIngridAppDisactivationCommitment
+      }
     } = m5;
 
     const aliceIngridAppDisactivationCommitment = new SetStateCommitment(
@@ -276,11 +294,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       IO_SEND,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.UninstallVirtualApp,
         seq: UNASSIGNED_SEQ_NO,
         toXpub: initiatorXpub,
-        signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+        customData: {
+          signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+        }
       } as ProtocolMessage
     ];
 
@@ -298,17 +318,21 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m7 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: responderXpub,
-      signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+      customData: {
+        signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+      }
     } as ProtocolMessage;
 
-    const m8 = yield [IO_SEND_AND_WAIT, m7];
+    const m8 = (yield [IO_SEND_AND_WAIT, m7]) as ProtocolMessage;
 
     const {
-      signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+      customData: {
+        signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+      }
     } = m8;
 
     assertIsValidSignature(
@@ -336,10 +360,12 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   2 /* Responding */: async function*(context: Context) {
     const {
       message: {
-        protocolExecutionID,
+        processID,
         params,
-        signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
-        signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+        customData: {
+          signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+          signature2: intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+        }
       },
       provider,
       stateChannelsMap,
@@ -361,7 +387,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance
     ] = await getUpdatedStateChannelAndAppInstanceObjectsForResponding(
       stateChannelsMap,
-      params,
+      params!,
       provider,
       network
     );
@@ -392,17 +418,21 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m3 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,
-      signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+      customData: {
+        signature: respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+      }
     } as ProtocolMessage;
 
-    const m7 = yield [IO_SEND_AND_WAIT, m3];
+    const m7 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
 
     const {
-      signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+      customData: {
+        signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
+      }
     } = m7;
 
     const ingridBobAppDisactivationCommitment = new SetStateCommitment(
@@ -425,11 +455,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m8 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,
-      signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+      customData: {
+        signature: respondingSignatureOnIngridBobAppDisactivationCommitment
+      }
     } as ProtocolMessage;
 
     yield [IO_SEND, m8];
@@ -634,7 +666,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
   );
 
   if (expectedOutcome !== targetOutcome) {
-    throw new Error(
+    throw Error(
       "UninstallVirtualApp Protocol: Received targetOutcome that did not match expected outcome based on latest state of Virtual App."
     );
   }

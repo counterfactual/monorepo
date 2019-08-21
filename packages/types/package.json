@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/types",
-  "version": "0.0.30",
+  "version": "0.0.36",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -8,7 +8,7 @@
   "iife": "dist/index-iife.js",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
+    "yarn": "1.17.3",
     "node": "10.15.3"
   },
   "scripts": {
@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "ethers": "4.0.33",
-    "rollup": "1.18.0",
+    "rollup": "1.19.4",
     "rollup-plugin-typescript2": "0.22.1",
     "rpc-server": "0.0.1",
     "typescript": "3.5.3"

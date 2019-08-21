@@ -9,8 +9,8 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
+  constructUninstallRpc,
   createChannel,
-  generateUninstallRequest,
   getFreeBalanceState,
   getInstalledAppInstances,
   installApp
@@ -77,7 +77,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
         done();
       });
 
-      await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+      await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
 
       const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
       expect(balancesSeenByA[nodeA.freeBalanceAddress]).toBeEq(Two);
@@ -113,7 +113,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
         done();
       });
 
-      await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+      await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
 
       const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
       expect(balancesSeenByA[nodeB.freeBalanceAddress]).toBeEq(Two);
@@ -149,7 +149,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
         done();
       });
 
-      await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+      await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
 
       const balancesSeenByA = await getFreeBalanceState(nodeA, multisigAddress);
       expect(balancesSeenByA[nodeA.freeBalanceAddress]).toBeEq(depositAmount);

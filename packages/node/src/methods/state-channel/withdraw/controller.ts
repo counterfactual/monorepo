@@ -5,18 +5,13 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress } from "../../../machine";
-import {
-  convertCoinTransfersToCoinTransfersMap,
-  deserializeFreeBalanceState,
-  FreeBalanceStateJSON
-} from "../../../models/free-balance";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
+import { prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_WITHDRAW,
   INSUFFICIENT_FUNDS_TO_WITHDRAW,
-  INVALID_WITHDRAW,
   WITHDRAWAL_FAILED
 } from "../../errors";
 
@@ -28,7 +23,7 @@ export default class WithdrawController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  public static async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<Queue[]> {
@@ -39,28 +34,20 @@ export default class WithdrawController extends NodeController {
     if (
       stateChannel.hasAppInstanceOfKind(networkContext.CoinBalanceRefundApp)
     ) {
-      throw new Error(CANNOT_WITHDRAW);
+      throw Error(CANNOT_WITHDRAW);
     }
-
-    const freeBalance = deserializeFreeBalanceState(stateChannel.freeBalance
-      .state as FreeBalanceStateJSON);
 
     const tokenAddress =
       params.tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    if (!(tokenAddress in freeBalance.balancesIndexedByToken)) {
-      throw new Error(INVALID_WITHDRAW(tokenAddress));
-    }
-
-    const tokenFreeBalance = convertCoinTransfersToCoinTransfersMap(
-      freeBalance.balancesIndexedByToken[tokenAddress]
-    );
-
-    const senderBalance =
-      tokenFreeBalance[stateChannel.getFreeBalanceAddrOf(publicIdentifier)];
-
+    const senderBalance = stateChannel
+      .getFreeBalanceClass()
+      .getBalance(
+        tokenAddress,
+        stateChannel.getFreeBalanceAddrOf(publicIdentifier)
+      );
     if (senderBalance.lt(params.amount)) {
-      throw new Error(
+      throw Error(
         INSUFFICIENT_FUNDS_TO_WITHDRAW(
           tokenAddress,
           params.amount,
@@ -94,7 +81,7 @@ export default class WithdrawController extends NodeController {
     const commitment = await store.getWithdrawalCommitment(multisigAddress);
 
     if (!commitment) {
-      throw new Error("no commitment found");
+      throw Error("No withdrawal commitment found");
     }
 
     const tx = {
@@ -117,13 +104,17 @@ export default class WithdrawController extends NodeController {
         txHash: txResponse.hash
       });
 
-      await provider.waitForTransaction(
+      const txReceipt = await provider.waitForTransaction(
         txResponse.hash as string,
         blocksNeededForConfirmation
       );
+
+      outgoing.emit(NODE_EVENTS.WITHDRAWAL_CONFIRMED, {
+        txReceipt
+      });
     } catch (e) {
       outgoing.emit(NODE_EVENTS.WITHDRAWAL_FAILED, e);
-      throw new Error(`${WITHDRAWAL_FAILED}: ${e}`);
+      throw Error(`${WITHDRAWAL_FAILED}: ${prettyPrintObject(e)}`);
     }
 
     return {

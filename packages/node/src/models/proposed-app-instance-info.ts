@@ -19,7 +19,7 @@ export interface IAppInstanceProposal {
   initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
   outcomeType: OutcomeType;
 }
 
@@ -35,7 +35,7 @@ export interface AppInstanceProposalJSON {
   initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
   outcomeType: OutcomeType;
 }
 
@@ -61,7 +61,7 @@ export class AppInstanceProposal {
   initialState: SolidityValueType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
   outcomeType: OutcomeType;
 
   constructor(
@@ -81,7 +81,7 @@ export class AppInstanceProposal {
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
-    this.intermediaries = proposeParams.intermediaries;
+    this.intermediaryIdentifier = proposeParams.intermediaryIdentifier;
     this.outcomeType = proposeParams.outcomeType;
     this.identityHash = overrideId || this.getIdentityHashFor(channel!);
   }
@@ -98,14 +98,14 @@ export class AppInstanceProposal {
         addr: this.appDefinition,
         ...this.abiEncodings
       },
-      (this.intermediaries || []).length > 0,
+      (this.intermediaryIdentifier || []).length > 0,
       stateChannel.numInstalledApps,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
       // the below two arguments are not currently used in app identity
       // computation
-      -1,
+      ("" as unknown) as OutcomeType,
       undefined,
       // this is not relevant here as it gets set properly later in the context
       // of the channel during an install, and it's not used to calculate
@@ -129,7 +129,7 @@ export class AppInstanceProposal {
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
-      intermediaries: this.intermediaries,
+      intermediaryIdentifier: this.intermediaryIdentifier,
       outcomeType: this.outcomeType
     };
   }
@@ -146,7 +146,7 @@ export class AppInstanceProposal {
       initialState: json.initialState,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
-      intermediaries: json.intermediaries,
+      intermediaryIdentifier: json.intermediaryIdentifier,
       outcomeType: json.outcomeType
     };
 

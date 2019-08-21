@@ -1,4 +1,4 @@
-import { JsonRpcSigner, Web3Provider } from "ethers/providers";
+import { JsonRpcSigner } from "ethers/providers";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction, ThunkDispatch } from "redux-thunk";
@@ -7,7 +7,7 @@ import {
   buildRegistrationSignaturePayload,
   buildSignatureMessageForLogin,
   forMultisig,
-  getCFBalances,
+  getIndexedCFBalances,
   getNodeAddress,
   getUserFromStoredToken,
   storeTokenFromUser
@@ -96,8 +96,7 @@ export const addUser = (
 export const loginUser = (
   ethAddress: string,
   signer: JsonRpcSigner,
-  history: History,
-  provider: Web3Provider
+  history: History
 ): ThunkAction<
   void,
   ApplicationState,
@@ -117,16 +116,15 @@ export const loginUser = (
     // 4. Store the token.
     await storeTokenFromUser(user);
 
-    // 5. Get the balances.
-    const counterfactualBalance = await getCFBalances({
+    // 5. Get the user Balances
+    const tokenAddresses = await getIndexedCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
-    const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 6. Dispatch.
     dispatch({
-      data: { ethereumBalance, counterfactualBalance },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     dispatch({ data: { user }, type: ActionType.UserLogin });
@@ -139,7 +137,6 @@ export const loginUser = (
 };
 
 export const getUser = (
-  provider: Web3Provider,
   history: History
 ): ThunkAction<
   void,
@@ -154,13 +151,11 @@ export const getUser = (
       history.push(RoutePath.Root);
       return;
     }
-
-    // 2. Get the balances.
-    const counterfactualBalance = await getCFBalances({
+    // 2. Get the user Balances
+    const tokenAddresses = await getIndexedCFBalances({
       multisigAddress: user.multisigAddress as string,
       nodeAddress: user.nodeAddress
     });
-    const ethereumBalance = await provider.getBalance(user.ethAddress);
 
     // 3. Store data into UserState and WalletState.
     dispatch({
@@ -168,7 +163,7 @@ export const getUser = (
       type: ActionType.UserGet
     });
     dispatch({
-      data: { counterfactualBalance, ethereumBalance },
+      data: { tokenAddresses },
       type: ActionType.WalletSetBalance
     });
     history.push(RoutePath.Channels);

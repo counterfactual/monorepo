@@ -11,9 +11,9 @@ import {
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";
 import {
+  constructGetStateRpc,
+  constructTakeActionRpc,
   createChannel,
-  generateGetStateRequest,
-  generateTakeActionRequest,
   installApp
 } from "./utils";
 
@@ -32,7 +32,7 @@ describe("Node method follows spec - takeAction", () => {
       "Node B confirms receipt of state update",
     () => {
       it("sends takeAction with invalid appInstanceId", async () => {
-        const takeActionReq = generateTakeActionRequest("", validAction);
+        const takeActionReq = constructTakeActionRpc("", validAction);
 
         await expect(
           nodeA.rpcRouter.dispatch(takeActionReq)
@@ -72,7 +72,7 @@ describe("Node method follows spec - takeAction", () => {
               result: { state }
             }
           } = await nodeB.rpcRouter.dispatch(
-            generateGetStateRequest(appInstanceId)
+            constructGetStateRpc(appInstanceId)
           );
 
           expect(state).toEqual(expectedNewState);
@@ -80,7 +80,7 @@ describe("Node method follows spec - takeAction", () => {
           done();
         });
 
-        const takeActionReq = generateTakeActionRequest(
+        const takeActionReq = constructTakeActionRpc(
           appInstanceId,
           validAction
         );

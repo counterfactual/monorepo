@@ -4,7 +4,7 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress } from "../../../utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
@@ -21,10 +21,10 @@ export default class InstallVirtualController extends NodeController {
     params: Node.InstallVirtualParams
   ): Promise<Queue[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { appInstanceId, intermediaries } = params;
+    const { appInstanceId, intermediaryIdentifier } = params;
 
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -38,7 +38,9 @@ export default class InstallVirtualController extends NodeController {
       queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));
     } catch (e) {
       // It is possible the metachannel has never been created
-      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) throw e;
+      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) {
+        throw Error(prettyPrintObject(e));
+      }
     }
 
     return queues;
@@ -49,22 +51,16 @@ export default class InstallVirtualController extends NodeController {
     params: Node.InstallVirtualParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { intermediaries } = params;
+    const { intermediaryIdentifier } = params;
 
-    if (intermediaries.length === 0) {
-      throw new Error(
+    if (!intermediaryIdentifier) {
+      throw Error(
         "Cannot install virtual app: you did not provide an intermediary."
       );
     }
 
-    if (intermediaries.length > 1) {
-      throw new Error(
-        "Cannot install virtual app: Node only support single-hop virtual apps at the moment."
-      );
-    }
-
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -74,13 +70,13 @@ export default class InstallVirtualController extends NodeController {
     );
 
     if (!stateChannelWithIntermediary) {
-      throw new Error(
+      throw Error(
         "Cannot install virtual app: you do not have a channel with the intermediary provided."
       );
     }
 
     if (!stateChannelWithIntermediary.freeBalance) {
-      throw new Error(
+      throw Error(
         "Cannot install virtual app: channel with intermediary has no free balance app instance installed."
       );
     }

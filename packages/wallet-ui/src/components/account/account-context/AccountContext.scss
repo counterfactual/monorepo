@@ -1,7 +1,7 @@
 @import "../../../styles/variables";
 @import "../../../styles/button";
 
-.account-container {
+.account-context {
   display: flex;
   align-items: center;
 
@@ -24,6 +24,7 @@
       margin-right: $rhythm;
       max-height: 20px;
       align-self: flex-start;
+      z-index: 2;
     }
 
     .info-text {
@@ -45,11 +46,33 @@
         max-width: 95%;
         text-overflow: ellipsis;
       }
+
+      .info-hover {
+        position: absolute;
+        display: none;
+        background: #efefef;
+        top: 31px;
+        right: 142px;
+        padding: 6px;
+        width: 122px;
+        span {
+          color: $c-black;
+          margin-left: 30px;
+          width: 60px;
+          display: block;
+          padding-bottom: 4px;
+          margin-right: 70px;
+          text-align: right;
+        }
+      }
     }
 
     &:hover {
       background: #efefef;
       border-radius: 4px;
+      .info-hover {
+        display: block;
+      }
     }
   }
 }

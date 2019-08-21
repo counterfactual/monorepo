@@ -6,7 +6,13 @@ echo "(1/7) Running preflight checks and cleanups..."
 
 if [ -z "$PYTHON" ];
 then
-  echo "  > Error: Please set the PYTHON environment variable."
+  echo "  > Python env-var not found, attempting detection via which"
+  PYTHON="$(which python2.7)"
+fi
+
+if [ -z "$PYTHON" ];
+then
+  echo "  > ERROR: You need to install python2.7 to compile node-gyp related dependencies."
   exit
 else
   echo "  > Found Python at: $PYTHON"
@@ -26,7 +32,7 @@ fi
 
 echo "(2/7) Cloning metamask into /tmp/metamask-extension..."
 
-git clone --depth 1 --single-branch --branch alon/cf-rfc-middleware git@github.com:prototypal/metamask-extension /tmp/metamask-extension
+git clone --depth 1 --single-branch --branch develop git@github.com:prototypal/metamask-extension /tmp/metamask-extension
 
 echo "(3/7) Ensuring installed dependencies..."
 

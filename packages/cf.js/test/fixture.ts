@@ -3,8 +3,6 @@ import { AddressZero } from "ethers/constants";
 import EventEmitter from "eventemitter3";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
-import { jsonRpcMethodNames } from "../src/provider";
-
 // Randomly generated
 export const TEST_XPUBS = [
   "xpub6EAvo4pQADUK1nFB2UnC9nC5G9iDN3YaeVQ8vA77eU7GEjaZK8H5jDP8M89kJeajTqXJrfbKXgptCqtvpaG1ydED657Kj6dbfjYse6F7Uxy",
@@ -32,10 +30,7 @@ export class TestNodeProvider implements IRpcNodeProvider {
     methodName: Node.RpcMethodName,
     callback: (message: Rpc) => void
   ) {
-    this.messageEmitter.on(
-      jsonRpcMethodNames[methodName] || methodName,
-      callback
-    );
+    this.messageEmitter.on(methodName, callback);
   }
 
   public simulateMessageFromNode(

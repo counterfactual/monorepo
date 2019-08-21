@@ -8,7 +8,7 @@ Three users run the protocol. They are designated as `initiator`, `responder`, a
 
 ## The `UninstallVirtualAppParams` type
 
-| Field                       | type      | description                                                |
+|            Field            |   type    |                        description                         |
 | --------------------------- | --------- | ---------------------------------------------------------- |
 | `initiatorXpub`             | `xpub`    | xpub of `initiator`                                        |
 | `responderXpub`             | `xpub`    | xpub of `responder`                                        |
@@ -35,7 +35,7 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 
 ## Signatures
 
-| Signature | Commitment     | Signed By      |
+| Signature |   Commitment   |   Signed By    |
 | --------- | -------------- | -------------- |
 | s1        | lockCommitment | `initiator`    |
 | s2        | lockCommitment | `intermediary` |
@@ -64,82 +64,82 @@ A commitment to cancel the `rightETHVirtualAppAgreement` commitment produced by 
 
 ### M1
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `intermediaryAddress`     |
-| `seq`       | `number`                    | `1`                       |
-| `signature` | `signature`                 | The S1 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `intermediaryAddress`     |
+| `seq`                  | `number`                    | `1`                       |
+| `customData.signature` | `signature`                 | The S1 signature          |
 
 ### M2
 
-| Field        | Type                        | Description               |
-| ------------ | --------------------------- | ------------------------- |
-| `protocol`   | `string`                    | `"uninstall-virtual-app"` |
-| `params`     | `UninstallVirtualAppParams` |                           |
-| `toXpub`     | `address`                   | `responderAddress`        |
-| `seq`        | `number`                    | `2`                       |
-| `signature`  | `signature`                 | The S1 signature          |
-| `signature2` | `signature`                 | The S2 signature          |
+|          Field          |            Type             |        Description        |
+| ----------------------- | --------------------------- | ------------------------- |
+| `protocol`              | `string`                    | `"uninstall-virtual-app"` |
+| `params`                | `UninstallVirtualAppParams` |                           |
+| `toXpub`                | `address`                   | `responderAddress`        |
+| `seq`                   | `number`                    | `2`                       |
+| `customData.signature`  | `signature`                 | The S1 signature          |
+| `customData.signature2` | `signature`                 | The S2 signature          |
 
 ### M3
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `intermediaryAddress`     |
-| `seq`       | `number`                    | `-1`                      |
-| `signature` | `signature`                 | The S3 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `intermediaryAddress`     |
+| `seq`                  | `number`                    | `-1`                      |
+| `customData.signature` | `signature`                 | The S3 signature          |
 
 ### M4
 
-| Field        | Type                        | Description               |
-| ------------ | --------------------------- | ------------------------- |
-| `protocol`   | `string`                    | `"uninstall-virtual-app"` |
-| `params`     | `UninstallVirtualAppParams` |                           |
-| `toXpub`     | `address`                   | `initiatorAddress`        |
-| `seq`        | `number`                    | `-1`                      |
-| `signature`  | `signature`                 | The S3 signature          |
-| `signature2` | `signature`                 | The S2 signature          |
+|          Field          |            Type             |        Description        |
+| ----------------------- | --------------------------- | ------------------------- |
+| `protocol`              | `string`                    | `"uninstall-virtual-app"` |
+| `params`                | `UninstallVirtualAppParams` |                           |
+| `toXpub`                | `address`                   | `initiatorAddress`        |
+| `seq`                   | `number`                    | `-1`                      |
+| `customData.signature`  | `signature`                 | The S3 signature          |
+| `customData.signature2` | `signature`                 | The S2 signature          |
 
 ### M5
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `intermediaryAddress`     |
-| `seq`       | `number`                    | `-1`                      |
-| `signature` | `signature`                 | The S4 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `intermediaryAddress`     |
+| `seq`                  | `number`                    | `-1`                      |
+| `customData.signature` | `signature`                 | The S4 signature          |
 
 ### M6
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `initiatorAddress`        |
-| `seq`       | `number`                    | `-1`                      |
-| `signature` | `signature`                 | The S5 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `initiatorAddress`        |
+| `seq`                  | `number`                    | `-1`                      |
+| `customData.signature` | `signature`                 | The S5 signature          |
 
 ### M7
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `responderAddress`        |
-| `seq`       | `number`                    | `-1`                      |
-| `signature` | `signature`                 | The S6 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `responderAddress`        |
+| `seq`                  | `number`                    | `-1`                      |
+| `customData.signature` | `signature`                 | The S6 signature          |
 
 ### M8
 
-| Field       | Type                        | Description               |
-| ----------- | --------------------------- | ------------------------- |
-| `protocol`  | `string`                    | `"uninstall-virtual-app"` |
-| `params`    | `UninstallVirtualAppParams` |                           |
-| `toXpub`    | `address`                   | `intermediaryAddress`     |
-| `seq`       | `number`                    | `-1`                      |
-| `signature` | `signature`                 | The S7 signature          |
+|         Field          |            Type             |        Description        |
+| ---------------------- | --------------------------- | ------------------------- |
+| `protocol`             | `string`                    | `"uninstall-virtual-app"` |
+| `params`               | `UninstallVirtualAppParams` |                           |
+| `toXpub`               | `address`                   | `intermediaryAddress`     |
+| `seq`                  | `number`                    | `-1`                      |
+| `customData.signature` | `signature`                 | The S7 signature          |

@@ -19,7 +19,7 @@ import { defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
-import { bigNumberifyJson } from "../utils";
+import { bigNumberifyJson, prettyPrintObject } from "../utils";
 
 /**
  * Representation of an AppInstance.
@@ -67,7 +67,7 @@ export class AppInstance {
 
   get twoPartyOutcomeInterpreterParams() {
     if (this.outcomeType !== OutcomeType.TWO_PARTY_FIXED_OUTCOME) {
-      throw new Error(
+      throw Error(
         `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not TWO_PARTY_FIXED_OUTCOME`
       );
     }
@@ -79,7 +79,7 @@ export class AppInstance {
     if (
       this.outcomeType !== OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
     ) {
-      throw new Error(
+      throw Error(
         `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER`
       );
     }
@@ -89,7 +89,7 @@ export class AppInstance {
 
   get singleAssetTwoPartyCoinTransferInterpreterParams() {
     if (this.outcomeType !== OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER) {
-      throw new Error(
+      throw Error(
         `Invalid Accessor. AppInstance has outcomeType ${this.outcomeType}, not SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER `
       );
     }
@@ -194,7 +194,7 @@ export class AppInstance {
         }
 
         default: {
-          throw new Error(
+          throw Error(
             "The outcome type in this application logic contract is not supported yet."
           );
         }
@@ -231,7 +231,7 @@ export class AppInstance {
         }
 
         case OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER: {
-          throw new Error(
+          throw Error(
             "Unimplemented Error. There is no interpreter params encoded for the (virtual app case of) MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER OutcomeType on the AppInstance model."
           );
         }
@@ -257,7 +257,7 @@ export class AppInstance {
         }
 
         default: {
-          throw new Error(
+          throw Error(
             "The outcome type in this application logic contract is not supported yet."
           );
         }
@@ -285,16 +285,14 @@ export class AppInstance {
       defaultAbiCoder.encode([this.appInterface.stateEncoding], [newState]);
     } catch (e) {
       // TODO: Catch ethers.errors.INVALID_ARGUMENT specifically in catch {}
-      console.error(
-        `
-Attempted to setState on an app with an invalid state object.
-- appInstanceIdentityHash = ${this.identityHash}
-- newState = ${newState}
-- encodingExpected = ${this.appInterface.stateEncoding}
-`,
-        newState
+
+      throw Error(
+        `Attempted to setState on an app with an invalid state object.
+          - appInstanceIdentityHash = ${this.identityHash}
+          - newState = ${newState}
+          - encodingExpected = ${this.appInterface.stateEncoding}
+          Error: ${prettyPrintObject(e)}`
       );
-      throw e;
     }
 
     return AppInstance.fromJson({

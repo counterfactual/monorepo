@@ -25,12 +25,26 @@ function sortSigningkeys(addrs: SigningKey[]): SigningKey[] {
   );
 }
 
+const cache = {} as any;
 export function xkeyKthAddress(xkey: string, k: number): string {
-  return computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+  if (!cache[xkey]) {
+    cache[xkey] = {};
+  }
+  if (!cache[xkey][k]) {
+    cache[xkey][k] = computeAddress(xkeyKthHDNode(xkey, k).publicKey);
+  }
+  return cache[xkey][k];
 }
 
+const cache = {} as any;
 export function xkeyKthHDNode(xkey: string, k: number): HDNode {
-  return fromExtendedKey(xkey).derivePath(`${k}`);
+  if (!cache.xkey) {
+    cache.xkey = {};
+  }
+  if (!cache.xkey.k) {
+    cache.xkey.k = fromExtendedKey(xkey).derivePath(`${k}`);
+  }
+  return cache.xkey.k;
 }
 
 export function xkeysToSortedKthAddresses(

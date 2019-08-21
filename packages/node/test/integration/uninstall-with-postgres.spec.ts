@@ -9,8 +9,8 @@ import {
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
+  constructUninstallRpc,
   createChannel,
-  generateUninstallRequest,
   getInstalledAppInstances,
   installApp
 } from "./utils";
@@ -57,7 +57,7 @@ describe("Node method follows spec - uninstall", () => {
         done();
       });
 
-      await nodeA.rpcRouter.dispatch(generateUninstallRequest(appInstanceId));
+      await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
     });

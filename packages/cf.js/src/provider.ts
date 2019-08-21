@@ -21,21 +21,6 @@ import {
   UpdateStateEventData
 } from "./types";
 
-export const jsonRpcMethodNames = {
-  [Node.MethodName.GET_APP_INSTANCE_DETAILS]: "chan_getAppInstance",
-  [Node.MethodName.GET_APP_INSTANCES]: "chan_getAppInstances",
-  [Node.MethodName.GET_PROPOSED_APP_INSTANCES]: "chan_getProposedAppInstances",
-  [Node.MethodName.GET_STATE]: "chan_getState",
-  [Node.MethodName.INSTALL]: "chan_install",
-  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
-  [Node.MethodName.PROPOSE_INSTALL]: "chan_proposeInstall",
-  [Node.MethodName.PROPOSE_INSTALL_VIRTUAL]: "chan_proposeInstallVirtual",
-  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
-  [Node.MethodName.TAKE_ACTION]: "chan_takeAction",
-  [Node.MethodName.UNINSTALL]: "chan_uninstall",
-  [Node.MethodName.UNINSTALL_VIRTUAL]: "uninstallVirtual"
-};
-
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
@@ -106,7 +91,7 @@ export class Provider {
   }
 
   /**
-   * Install a virtual app instance given its ID and a list of intermediaries.
+   * Install a virtual app instance given its ID and a list of intermediaryIdentifier.
    *
    * @note
    * Installs virtual app instances i.e. routed through at least one intermediary channel.
@@ -115,18 +100,18 @@ export class Provider {
    * @async
    *
    * @param appInstanceId ID of the app instance to be installed, generated with [[AppFactory.proposeInstallVirtual]].
-   * @param intermediaries Array of addresses of intermediary peers to route installation through
+   * @param intermediaryIdentifier Xpub of intermediary peer to route installation through
    * @return Installed AppInstance
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: string[]
+    intermediaryIdentifier: string
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
-        intermediaries
+        intermediaryIdentifier
       }
     );
     const { appInstance } = response.result as Node.InstallVirtualResult;
