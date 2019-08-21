@@ -11,6 +11,8 @@ const getContractAddress = ethers.utils.getContractAddress;
 const provider = new InfuraProvider("rinkeby", process.env.INFURA_API_KEY);
 const wallet = Wallet.fromMnemonic(process.env.ETH_ACCOUNT_MNENOMIC).connect(provider);
 
+console.log(wallet.address);
+
 new ContractFactory(ProxyFactory.abi, ProxyFactory.bytecode, wallet)
   .deploy({ gasLimit: 1500000 })
   .then(tx => {
