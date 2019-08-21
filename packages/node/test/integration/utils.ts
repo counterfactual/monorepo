@@ -13,7 +13,6 @@ import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
-import { v4 as generateUUID } from "uuid";
 
 import {
   CreateChannelMessage,
@@ -67,13 +66,14 @@ export async function getMultisigCreationTransactionHash(
  * @returns list of multisig addresses
  */
 export async function getChannelAddresses(node: Node): Promise<Set<string>> {
-  const req: NodeTypes.MethodRequest = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
-    params: {} as NodeTypes.CreateChannelParams
-  };
-  const response: NodeTypes.MethodResponse = await node.call(req.type, req);
-  const result = response.result as NodeTypes.GetChannelAddressesResult;
+  const req = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_CHANNEL_ADDRESSES,
+    params: {}
+  });
+  const response = await node.rpcRouter.dispatch(req);
+  const result = response.result.result as NodeTypes.GetChannelAddressesResult;
   return new Set(result.multisigAddresses);
 }
 
