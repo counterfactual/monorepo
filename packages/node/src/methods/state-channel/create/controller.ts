@@ -175,6 +175,11 @@ export default class CreateChannelController extends NodeController {
           continue;
         }
 
+        if (tryCount > 0) {
+          console.log(
+            `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
+          );
+        }
         return tx;
       } catch (e) {
         error = e;
