@@ -254,7 +254,7 @@ describe("CF.js Provider", () => {
           result: {
             appInstanceId: "TEST"
           },
-          type: Node.MethodName.REJECT_INSTALL
+          type: Node.RpcMethodName.REJECT_INSTALL
         }
       });
       setTimeout(done, 100);
