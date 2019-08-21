@@ -37,7 +37,7 @@ export function getNetworkEnum(network: string): EthereumNetworkName {
     case "ropsten":
       return EthereumNetworkName.Ropsten;
     case "rinkeby":
-      return EthereumNetworkName.Ropsten;
+      return EthereumNetworkName.Rinkeby;
     case "kovan":
       return EthereumNetworkName.Kovan;
     default:
