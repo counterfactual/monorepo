@@ -1,5 +1,4 @@
 import { getNetworkEnum, Network } from "@counterfactual/node";
-import { NetworkContext } from "@counterfactual/types";
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
