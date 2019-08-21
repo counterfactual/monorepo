@@ -1,3 +1,4 @@
+import { getNetworkEnum, Network } from "@counterfactual/node";
 import { NetworkContext } from "@counterfactual/types";
 import { Log, LogLevel } from "logepi";
 
@@ -24,11 +25,9 @@ const API_TIMEOUT = 5 * 60 * 1000;
   await detectDBAndSchema();
 
   await NodeWrapper.createNodeSingleton(
-    (process.env.ETHEREUM_NETWORK || "kovan") as
-      | "kovan"
-      | "rinkeby"
-      | "ropsten"
-      | NetworkContext,
+    process.env.ETHEREUM_NETWORK
+      ? getNetworkEnum(process.env.ETHEREUM_NETWORK)
+      : Network.Kovan,
     process.env.NODE_EXTENDED_PRIVATE_KEY
   );
 
