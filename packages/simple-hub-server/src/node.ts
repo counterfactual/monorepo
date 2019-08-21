@@ -8,8 +8,8 @@ import {
 import {
   CreateChannelMessage,
   DepositConfirmationMessage,
+  EthereumNetworkName,
   EXTENDED_PRIVATE_KEY_PATH,
-  Network,
   Node
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
@@ -158,7 +158,7 @@ export class NodeWrapper {
   }
 
   public static async createNodeSingleton(
-    networkOrNetworkContext: Network | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     extendedPrvKey?: string,
     provider?: JsonRpcProvider,
     storeService?: NodeTypes.IStoreService,
@@ -207,7 +207,7 @@ export class NodeWrapper {
   }
 
   public static async createNode(
-    networkOrNetworkContext: Network | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     provider?: JsonRpcProvider,
     extendedPrvKey?: string,
     storeService?: NodeTypes.IStoreService,

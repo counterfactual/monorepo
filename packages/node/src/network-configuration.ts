@@ -16,30 +16,30 @@ import log from "loglevel";
 import { INVALID_NETWORK_NAME } from "./methods/errors";
 import { prettyPrintObject } from "./utils";
 
-export enum Network {
-  Main = "main",
+export enum EthereumNetworkName {
+  Main = "mainnet",
   Ropsten = "ropsten",
   Rinkeby = "rinkeby",
   Kovan = "kovan"
 }
 
 export const SUPPORTED_NETWORKS = new Set([
-  Network.Main,
-  Network.Ropsten,
-  Network.Rinkeby,
-  Network.Kovan
+  EthereumNetworkName.Main,
+  EthereumNetworkName.Ropsten,
+  EthereumNetworkName.Rinkeby,
+  EthereumNetworkName.Kovan
 ]);
 
-export function getNetworkEnum(network: string): Network {
+export function getNetworkEnum(network: string): EthereumNetworkName {
   switch (network.toLocaleLowerCase()) {
-    case "main":
-      return Network.Main;
+    case "mainnet":
+      return EthereumNetworkName.Main;
     case "ropsten":
-      return Network.Ropsten;
+      return EthereumNetworkName.Ropsten;
     case "rinkeby":
-      return Network.Ropsten;
+      return EthereumNetworkName.Ropsten;
     case "kovan":
-      return Network.Kovan;
+      return EthereumNetworkName.Kovan;
     default:
       throw Error(
         `Network ${network} not supported. Supported networks are ${SUPPORTED_NETWORKS.values()}`
@@ -55,26 +55,26 @@ export function getNetworkEnum(network: string): Network {
  * @returns {NetworkContext} - the corresponding NetworkContext
  */
 export function getNetworkContextForNetworkName(
-  networkName: Network
+  networkName: EthereumNetworkName
 ): NetworkContext {
   log.info(`Configuring Node to use contracts on networkName: ${networkName}`);
   switch (networkName) {
-    case Network.Main:
+    case EthereumNetworkName.Main:
       return getNetworkContextFromNetworksFile([
         ...MainnetContracts,
         ...AdjudicatorMainnetContracts
       ]);
-    case Network.Ropsten:
+    case EthereumNetworkName.Ropsten:
       return getNetworkContextFromNetworksFile([
         ...RopstenContracts,
         ...AdjudicatorRopstenContracts
       ]);
-    case Network.Rinkeby:
+    case EthereumNetworkName.Rinkeby:
       return getNetworkContextFromNetworksFile([
         ...RinkebyContracts,
         ...AdjudicatorRinkebyContracts
       ]);
-    case Network.Kovan:
+    case EthereumNetworkName.Kovan:
       return getNetworkContextFromNetworksFile([
         ...KovanContracts,
         ...AdjudicatorKovanContracts

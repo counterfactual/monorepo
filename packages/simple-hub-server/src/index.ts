@@ -1,4 +1,4 @@
-import { getNetworkEnum, Network } from "@counterfactual/node";
+import { EthereumNetworkName, getNetworkEnum } from "@counterfactual/node";
 import { Log, LogLevel } from "logepi";
 
 import mountApi from "./api";
@@ -26,7 +26,7 @@ const API_TIMEOUT = 5 * 60 * 1000;
   await NodeWrapper.createNodeSingleton(
     process.env.ETHEREUM_NETWORK
       ? getNetworkEnum(process.env.ETHEREUM_NETWORK)
-      : Network.Kovan,
+      : EthereumNetworkName.Kovan,
     process.env.NODE_EXTENDED_PRIVATE_KEY
   );
 
