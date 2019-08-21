@@ -6,7 +6,21 @@ var waffleConfig = {
   "npmPath": "../../node_modules",
   "legacyOutput": true,
   "compilerOptions": {
-    "evmVersion": "constantinople"
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "evmVersion": "petersburg",
+    "metadata": {
+      "useLiteralContent": true
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "metadata", "evm.bytecode", "evm.bytecode.sourceMap", "abi"
+        ],
+      },
+    }
   }
 };
 
