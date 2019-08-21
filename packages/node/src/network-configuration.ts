@@ -1,6 +1,8 @@
+import AdjudicatorMainnetContracts from "@counterfactual/cf-adjudicator-contracts/networks/1.json";
 import AdjudicatorRopstenContracts from "@counterfactual/cf-adjudicator-contracts/networks/3.json";
 import AdjudicatorRinkebyContracts from "@counterfactual/cf-adjudicator-contracts/networks/4.json";
 import AdjudicatorKovanContracts from "@counterfactual/cf-adjudicator-contracts/networks/42.json";
+import MainnetContracts from "@counterfactual/cf-funding-protocol-contracts/networks/1.json";
 import RopstenContracts from "@counterfactual/cf-funding-protocol-contracts/networks/3.json";
 import RinkebyContracts from "@counterfactual/cf-funding-protocol-contracts/networks/4.json";
 import KovanContracts from "@counterfactual/cf-funding-protocol-contracts/networks/42.json";
@@ -14,7 +16,36 @@ import log from "loglevel";
 import { INVALID_NETWORK_NAME } from "./methods/errors";
 import { prettyPrintObject } from "./utils";
 
-export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
+export enum Network {
+  Main = "main",
+  Ropsten = "ropsten",
+  Rinkeby = "rinkeby",
+  Kovan = "kovan"
+}
+
+export const SUPPORTED_NETWORKS = new Set([
+  Network.Main,
+  Network.Ropsten,
+  Network.Rinkeby,
+  Network.Kovan
+]);
+
+export function getNetworkEnum(network: string): Network {
+  switch (network.toLocaleLowerCase()) {
+    case "main":
+      return Network.Main;
+    case "ropsten":
+      return Network.Ropsten;
+    case "rinkeby":
+      return Network.Ropsten;
+    case "kovan":
+      return Network.Kovan;
+    default:
+      throw Error(
+        `Network ${network} not supported. Supported networks are ${SUPPORTED_NETWORKS.values()}`
+      );
+  }
+}
 
 /**
  * Fetches a `NetworkContext` object for some network name string.
@@ -24,21 +55,26 @@ export const SUPPORTED_NETWORKS = new Set(["ropsten", "rinkeby", "kovan"]);
  * @returns {NetworkContext} - the corresponding NetworkContext
  */
 export function getNetworkContextForNetworkName(
-  networkName: "ropsten" | "rinkeby" | "kovan"
+  networkName: Network
 ): NetworkContext {
   log.info(`Configuring Node to use contracts on networkName: ${networkName}`);
-  switch (networkName.toLocaleLowerCase()) {
-    case "ropsten":
+  switch (networkName) {
+    case Network.Main:
+      return getNetworkContextFromNetworksFile([
+        ...MainnetContracts,
+        ...AdjudicatorMainnetContracts
+      ]);
+    case Network.Ropsten:
       return getNetworkContextFromNetworksFile([
         ...RopstenContracts,
         ...AdjudicatorRopstenContracts
       ]);
-    case "rinkeby":
+    case Network.Rinkeby:
       return getNetworkContextFromNetworksFile([
         ...RinkebyContracts,
         ...AdjudicatorRinkebyContracts
       ]);
-    case "kovan":
+    case Network.Kovan:
       return getNetworkContextFromNetworksFile([
         ...KovanContracts,
         ...AdjudicatorKovanContracts
