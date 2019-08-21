@@ -36,7 +36,6 @@ export function xkeyKthAddress(xkey: string, k: number): string {
   return cache[xkey][k];
 }
 
-const cache = {} as any;
 export function xkeyKthHDNode(xkey: string, k: number): HDNode {
   if (!cache.xkey) {
     cache.xkey = {};
