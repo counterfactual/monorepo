@@ -17,8 +17,8 @@ import {
 } from "./machine";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
-  getNetworkContextForNetworkName,
-  EthereumNetworkName
+  EthereumNetworkName,
+  getNetworkContextForNetworkName
 } from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
