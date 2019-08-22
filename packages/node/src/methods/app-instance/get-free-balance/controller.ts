@@ -6,8 +6,6 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetFreeBalanceController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_FREE_BALANCE_STATE;
-
   @jsonRpcMethod(Node.RpcMethodName.GET_FREE_BALANCE_STATE)
   public executeMethod = super.executeMethod;
 
