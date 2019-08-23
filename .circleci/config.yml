@@ -54,6 +54,7 @@ jobs:
             - packages/greenboard
             - packages/wallet-ui
             - packages/simple-hub-server
+            - tsconfig.json
 
   run-tests:
     docker:
