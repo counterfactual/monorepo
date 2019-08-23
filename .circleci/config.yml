@@ -83,11 +83,11 @@ jobs:
 
   run-greenboard:
     docker:
-      image: counterfactual/greenboard-environment:latest
-      environment:
-        METAMASK_REPOSITORY: prototypal/metamask-extension
-        METAMASK_BRANCH: develop
-        COUNTERFACTUAL_PATH: "."
+      - image: counterfactual/greenboard-environment:latest
+        environment:
+          METAMASK_REPOSITORY: prototypal/metamask-extension
+          METAMASK_BRANCH: develop
+          COUNTERFACTUAL_PATH: "."
 
     steps:
       - <<: *restore_code
