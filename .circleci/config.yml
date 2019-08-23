@@ -87,7 +87,7 @@ jobs:
         environment:
           METAMASK_REPOSITORY: prototypal/metamask-extension
           METAMASK_BRANCH: develop
-          COUNTERFACTUAL_PATH: /greenboard-workspace/counterfactual
+          COUNTERFACTUAL_PATH: /home/circleci/project
 
     steps:
       - <<: *restore_code
@@ -97,7 +97,7 @@ jobs:
       - run: yarn --frozen-lockfile --ignore-engines
 
       - attach_workspace:
-          at: /greenboard-workspace/counterfactual
+          at: /home/circleci/project
 
       - run: yarn --ignore-engines test:e2e:ci
 
