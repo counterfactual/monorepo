@@ -87,7 +87,7 @@ jobs:
         environment:
           METAMASK_REPOSITORY: prototypal/metamask-extension
           METAMASK_BRANCH: develop
-          COUNTERFACTUAL_PATH: "."
+          COUNTERFACTUAL_PATH: /greenboard-workspace/counterfactual
 
     steps:
       - <<: *restore_code
