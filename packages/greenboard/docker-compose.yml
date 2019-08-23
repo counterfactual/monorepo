@@ -3,8 +3,8 @@ version: "3"
 services:
   greenboard:
     build:
-      context: "."
-      dockerfile: Dockerfile
+      context: "../.."
+      dockerfile: ./packages/greenboard/Dockerfile
       args:
         npm_version: 6
         yarn_version: 1.12.3
@@ -12,3 +12,4 @@ services:
         metamask_branch: develop
         counterfactual_branch: joel/greenboard-docker-image
         metamask_exclude_deps: \@sentry\/cli|\@storybook|eslint|chromedriver|geckodriver|selenium-webdriver|jsdom|\"karma|\"mocha|tape|testem|qunitjs|gh-pages|\"ganache-cli
+        counterfactual_path: .
