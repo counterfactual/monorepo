@@ -1,5 +1,6 @@
 #!/bin/sh
 
+alias yarn_install_command="yarn --ignore-engines"
 alias yarn_ci_command="yarn --frozen-lockfile --ignore-engines"
 alias yarn_build_command="yarn --ignore-engines build"
 alias yarn_dist_command="yarn --ignore-engines dist"
@@ -32,6 +33,9 @@ rm -rf $WORKING_DIRECTORY/metamask;
 
 # Set test runner directory.
 cd $COUNTERFACTUAL_PATH/packages/greenboard
+
+# Install dependencies for Greenboard.
+yarn_install_command
 
 # Run the tests through Xvfb.
 xvfb-run yarn start
