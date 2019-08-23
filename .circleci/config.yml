@@ -94,12 +94,12 @@ jobs:
       - checkout
       - <<: *restore_dep
 
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
+      - run: yarn --frozen-lockfile --ignore-engines
 
       - attach_workspace:
           at: /greenboard-workspace/counterfactual
 
-      - run: yarn test:e2e:ci
+      - run: yarn --ignore-engines test:e2e:ci
 
   run-tslint:
     <<: *defaults
