@@ -7,14 +7,14 @@ alias yarn_rm_command="yarn --ignore-engines remove"
 alias yarn_add_command="yarn --ignore-engines add -D"
 
 # Clone MetaMask.
-git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/${METAMASK_REPOSITORY} $CIRCLE_WORKING_DIRECTORY/metamask
+git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/${METAMASK_REPOSITORY} $WORKING_DIRECTORY/metamask
 
 # Inject CF IIFE dependencies into MetaMask.
-cp $COUNTERFACTUAL_PATH/packages/cf.js/dist/index-iife.js $CIRCLE_WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/cf.js.iife.js
-cp $COUNTERFACTUAL_PATH/packages/node/dist/index.iife.js $CIRCLE_WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/node.iife.js
-cp $COUNTERFACTUAL_PATH/packages/firebase-client/dist/index.iife.js $CIRCLE_WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/firebase-client.iife.js
+cp $COUNTERFACTUAL_PATH/packages/cf.js/dist/index-iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/cf.js.iife.js
+cp $COUNTERFACTUAL_PATH/packages/node/dist/index.iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/node.iife.js
+cp $COUNTERFACTUAL_PATH/packages/firebase-client/dist/index.iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/firebase-client.iife.js
 
-cd $CIRCLE_WORKING_DIRECTORY/metamask
+cd $WORKING_DIRECTORY/metamask
 
 # Build MetaMask without some heavy binaries. Mostly done because @sentry/cli
 # isn't compatible with Alpine Linux, and we don't need it in this case.
@@ -27,8 +27,8 @@ yarn_add_command @babel/core
 yarn_dist_command
 
 # Move MM distributable to Greenboard.
-mv $CIRCLE_WORKING_DIRECTORY/metamask/dist/chrome $COUNTERFACTUAL_PATH/packages/greenboard/extension
-rm -rf $CIRCLE_WORKING_DIRECTORY/metamask;
+mv $WORKING_DIRECTORY/metamask/dist/chrome $COUNTERFACTUAL_PATH/packages/greenboard/extension
+rm -rf $WORKING_DIRECTORY/metamask;
 
 # Set test runner directory.
 cd $COUNTERFACTUAL_PATH/packages/greenboard

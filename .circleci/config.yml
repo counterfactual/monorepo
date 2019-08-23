@@ -87,6 +87,7 @@ jobs:
         environment:
           METAMASK_REPOSITORY: prototypal/metamask-extension
           METAMASK_BRANCH: develop
+          WORKING_DIRECTORY: /home/circleci
           COUNTERFACTUAL_PATH: /home/circleci/project
 
     steps:
