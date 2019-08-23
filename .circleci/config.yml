@@ -51,6 +51,9 @@ jobs:
           paths:
             - packages/*/dist
             - packages/*/build
+            - packages/greenboard
+            - packages/wallet-ui
+            - packages/simple-hub-server
 
   run-tests:
     docker:
