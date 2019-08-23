@@ -21,7 +21,7 @@ import {
   twoPartyFixedOutcomeInterpreterParamsEncoding,
   virtualAppAgreementEncoding
 } from "./data-types";
-import { INodeProvider, IRpcNodeProvider, Node } from "./node";
+import { IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
@@ -81,7 +81,6 @@ export {
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   ContractABI,
   SolidityValueType,
-  INodeProvider,
   IRpcNodeProvider,
   Node,
   SignedStateHashUpdate,

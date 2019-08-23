@@ -78,7 +78,7 @@ const controllers = [
 export const methodNameToImplementation = controllers.reduce(
   (acc, controller) => {
     if (!controller.methodName) {
-      throw Error(`Fatal: Every controller must have a "methodName" property`);
+      return acc;
     }
 
     if (acc[controller.methodName]) {

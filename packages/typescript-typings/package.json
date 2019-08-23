@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/typescript-typings",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
   "engines": {
     "yarn": "1.12.3",
@@ -19,7 +19,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@types/node": "12.7.1",
-    "truffle-contract": "4.0.28"
+    "@types/node": "12.7.2",
+    "truffle-contract": "4.0.29"
   }
 }

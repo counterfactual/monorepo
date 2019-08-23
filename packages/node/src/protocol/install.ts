@@ -40,7 +40,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID },
+      message: { params, processID },
       network
     } = context;
 
@@ -73,7 +73,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         params,
         protocol: Protocol.Install,
         toXpub: responderXpub,
@@ -145,7 +145,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Install,
         toXpub: responderXpub,
         customData: {
@@ -170,7 +170,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelsMap,
       message: {
         params,
-        protocolExecutionID,
+        processID,
         customData: { signature }
       },
       network
@@ -243,7 +243,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Install,
         toXpub: initiatorXpub,
         customData: {

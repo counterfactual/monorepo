@@ -47,7 +47,7 @@ const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
-      message: { params, protocolExecutionID },
+      message: { params, processID },
       stateChannelsMap,
       network,
       provider
@@ -101,7 +101,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m1 = {
       params, // Must include as this is the first message received by intermediary
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: intermediaryXpub,
       seq: 1,
       customData: {
@@ -201,7 +201,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m5 = {
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
       customData: {
@@ -281,7 +281,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const {
       params,
-      protocolExecutionID,
+      processID,
       customData: {
         signature: initiatorSignatureOnAliceIngridVirtualAppAgreement,
         // FIXME: We are abusing these typed parameters in the ProtocolMessage
@@ -358,7 +358,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const m2 = {
       params, // Must include as this is the first message received by responder
       protocol,
-      protocolExecutionID,
+      processID,
       seq: 2,
       toXpub: responderXpub,
       customData: {
@@ -427,7 +427,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m4 = {
       protocol,
-      protocolExecutionID,
+      processID,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: initiatorXpub,
       customData: {
@@ -502,7 +502,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m6 = {
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: responderXpub,
       seq: UNASSIGNED_SEQ_NO,
       customData: {
@@ -541,7 +541,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m8 = {
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: initiatorXpub,
       seq: UNASSIGNED_SEQ_NO,
       customData: {
@@ -574,7 +574,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const {
       params,
-      protocolExecutionID,
+      processID,
       customData: {
         signature: intermediarySignatureOnIngridBobVirtualAppAgreement
       }
@@ -656,7 +656,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m3 = {
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
       customData: {
@@ -761,7 +761,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m7 = {
       protocol,
-      protocolExecutionID,
+      processID,
       toXpub: intermediaryXpub,
       seq: UNASSIGNED_SEQ_NO,
       customData: {
@@ -919,7 +919,7 @@ function constructVirtualAppInstance(
  * NOTE: This AppInstance is currently HARD-CODED to only work with interpreters
  *       that can understand the TwoPartyFixedOutcome outcome type. Currently
  *       we use the TwoPartyFixedOutcomeFromVirtualAppInterpreter for all
- *       commitments between users and intermediaries to handle Virtual Apps.
+ *       commitments between users and an intermediary to handle Virtual Apps.
  *
  * @param {StateChannel} threePartyStateChannel - The StateChannel object with all 3
  *        participants of this protocol as the owner-set.

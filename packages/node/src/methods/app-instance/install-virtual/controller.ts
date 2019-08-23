@@ -11,8 +11,6 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 import { installVirtual } from "./operation";
 
 export default class InstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
@@ -21,10 +19,10 @@ export default class InstallVirtualController extends NodeController {
     params: Node.InstallVirtualParams
   ): Promise<Queue[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { appInstanceId, intermediaries } = params;
+    const { appInstanceId, intermediaryIdentifier } = params;
 
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -51,22 +49,16 @@ export default class InstallVirtualController extends NodeController {
     params: Node.InstallVirtualParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { intermediaries } = params;
+    const { intermediaryIdentifier } = params;
 
-    if (intermediaries.length === 0) {
+    if (!intermediaryIdentifier) {
       throw Error(
         "Cannot install virtual app: you did not provide an intermediary."
       );
     }
 
-    if (intermediaries.length > 1) {
-      throw Error(
-        "Cannot install virtual app: Node only support single-hop virtual apps at the moment."
-      );
-    }
-
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );

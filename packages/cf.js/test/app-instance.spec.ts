@@ -4,7 +4,6 @@ import { JsonRpcResponse } from "rpc-server";
 
 import { Provider } from "../src";
 import { AppInstance, AppInstanceEventType } from "../src/app-instance";
-import { jsonRpcMethodNames } from "../src/provider";
 import { ErrorEventData, UpdateStateEventData } from "../src/types";
 
 import {
@@ -46,9 +45,7 @@ describe("CF.js AppInstance", () => {
 
       const expectedState = { someState: "4000" };
       nodeProvider.onMethodRequest(Node.RpcMethodName.GET_STATE, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.GET_STATE]
-        );
+        expect(request.methodName).toBe(Node.RpcMethodName.GET_STATE);
         const params = request.parameters as Node.GetStateParams;
         expect(params.appInstanceId).toBe(appInstance.identityHash);
         nodeProvider.simulateMessageFromNode({
@@ -72,9 +69,7 @@ describe("CF.js AppInstance", () => {
       const expectedAction = { action: "1337" };
       const expectedNewState = { val: "5337" };
       nodeProvider.onMethodRequest(Node.RpcMethodName.TAKE_ACTION, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.TAKE_ACTION]
-        );
+        expect(request.methodName).toBe(Node.RpcMethodName.TAKE_ACTION);
         const params = request.parameters as Node.TakeActionParams;
         expect(params.appInstanceId).toBe(appInstance.identityHash);
         expect(params.action).toBe(expectedAction);
@@ -99,9 +94,7 @@ describe("CF.js AppInstance", () => {
       expect.assertions(2);
 
       nodeProvider.onMethodRequest(Node.RpcMethodName.UNINSTALL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.UNINSTALL]
-        );
+        expect(request.methodName).toBe(Node.RpcMethodName.UNINSTALL);
         const params = request.parameters as Node.UninstallParams;
         expect(params.appInstanceId).toBe(appInstance.identityHash);
 

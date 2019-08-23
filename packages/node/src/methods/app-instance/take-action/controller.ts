@@ -8,7 +8,10 @@ import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
-import { getCounterpartyAddress, prettyPrintObject } from "../../../utils";
+import {
+  getFirstElementInListNotEqualTo,
+  prettyPrintObject
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -18,8 +21,6 @@ import {
 } from "../../errors";
 
 export default class TakeActionController extends NodeController {
-  public static readonly methodName = Node.MethodName.TAKE_ACTION;
-
   @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
@@ -69,7 +70,7 @@ export default class TakeActionController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const responderXpub = getCounterpartyAddress(
+    const responderXpub = getFirstElementInListNotEqualTo(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );

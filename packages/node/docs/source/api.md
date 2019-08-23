@@ -84,8 +84,8 @@ Params:
   - Number of blocks until a submitted state for this app is considered finalized
 - `initialState:`[`AppState`](#data-type-appstate)
   - Initial state of app instance
-- `intermediaries: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through
+- `intermediaryIdentifier: string`
+  - Node identifier of hub to route the virtual app installation through
 
 Result:
 
@@ -139,8 +139,8 @@ Params:
 - `appInstanceId: string`
   - ID of the app instance to install
   - Counterparty must have called `proposedInstall` and generated this ID
-- `intermediaries: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through
+- `intermediaryIdentifier: string`
+  - Node identifier of hub to route the virtual app installation through
 
 Result:
 
@@ -252,6 +252,8 @@ Params:
 
 - `owners: string[]`
   - the addresses who should be the owners of the multisig
+- `retryCount?: number`
+  - the number of times to retry _deploying the multisig_ using an expontential backoff period between each successive retry, starting with 1 second. This defaults to 3 if no retry count is provided.
 
 Result:
 
@@ -346,8 +348,7 @@ Error(s):
 
 ### Method: `getFreeBalance`
 
-Gets the free balance AppInstance of the specified channel for the specified
-token. Defaults to ETH if no token is specified.
+Gets the free balance AppInstance of the specified channel for the specified token. Defaults to ETH if no token is specified.
 
 Params:
 
@@ -364,8 +365,7 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
-Note: calling this a specific token address will return Zero even if the channel
-has never had any deposits/withdrawals of that token.
+Note: calling this with a specific token address will return Zero even if the channel has never had any deposits/withdrawals of that token.
 
 ### Method: `getTokenIndexedFreeBalanceStates`
 
@@ -482,8 +482,8 @@ An instance of an installed app.
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
-- `intermediaries?: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
+- `intermediaryIdentifier?: string`
+  - Xpub of a hub to route the virtual app installation through. Undefined if app instance is not virtual.
 
 ### Data Type: `AppABIEncodings`
 

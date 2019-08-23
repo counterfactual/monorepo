@@ -13,7 +13,6 @@ import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
-import { v4 as generateUUID } from "uuid";
 
 import {
   CreateChannelMessage,
@@ -67,13 +66,14 @@ export async function getMultisigCreationTransactionHash(
  * @returns list of multisig addresses
  */
 export async function getChannelAddresses(node: Node): Promise<Set<string>> {
-  const req: NodeTypes.MethodRequest = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_CHANNEL_ADDRESSES,
-    params: {} as NodeTypes.CreateChannelParams
-  };
-  const response: NodeTypes.MethodResponse = await node.call(req.type, req);
-  const result = response.result as NodeTypes.GetChannelAddressesResult;
+  const req = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_CHANNEL_ADDRESSES,
+    params: {}
+  });
+  const response = await node.rpcRouter.dispatch(req);
+  const result = response.result.result as NodeTypes.GetChannelAddressesResult;
   return new Set(result.multisigAddresses);
 }
 
@@ -81,14 +81,15 @@ export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const req = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_APP_INSTANCE_DETAILS,
+  const req = jsonRpcDeserialize({
+    jsonrpc: "2.0",
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_APP_INSTANCE_DETAILS,
     params: {
       appInstanceId
     }
-  };
-  const response = await node.call(req.type, req);
+  });
+  const response = await node.rpcRouter.dispatch(req);
   return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
@@ -96,16 +97,15 @@ export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceProposal> {
-  const req = {
-    requestId: generateUUID(),
-    type: NodeTypes.MethodName.GET_PROPOSED_APP_INSTANCE,
-    params: {
-      appInstanceId
-    }
-  };
-  const response = await node.call(req.type, req);
-  return (response.result as NodeTypes.GetProposedAppInstanceResult)
-    .appInstance;
+  const candidates = (await getProposedAppInstances(node)).filter(proposal => {
+    return proposal.identityHash === appInstanceId;
+  });
+
+  if (candidates.length !== 1) {
+    throw new Error("Failed to match exactly one proposed app instance");
+  }
+
+  return candidates[0];
 }
 
 export async function getFreeBalanceState(
@@ -290,12 +290,12 @@ export function constructAppProposalRpc(
 
 export function constructInstallVirtualRpc(
   appInstanceId: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ): Rpc {
   return jsonRpcDeserialize({
     params: {
       appInstanceId,
-      intermediaries
+      intermediaryIdentifier
     } as NodeTypes.InstallVirtualParams,
     id: Date.now(),
     method: NodeTypes.RpcMethodName.INSTALL_VIRTUAL,
@@ -305,7 +305,7 @@ export function constructInstallVirtualRpc(
 
 export function constructVirtualProposalRpc(
   proposedToIdentifier: string,
-  intermediaries: string[],
+  intermediaryIdentifier: string,
   appDefinition: string,
   abiEncodings: AppABIEncodings,
   initialState: SolidityValueType = {},
@@ -327,7 +327,7 @@ export function constructVirtualProposalRpc(
 
   const installVirtualParams: NodeTypes.ProposeInstallVirtualParams = {
     ...installProposalParams,
-    intermediaries
+    intermediaryIdentifier
   };
 
   return jsonRpcDeserialize({
@@ -384,8 +384,8 @@ export function confirmProposedVirtualAppInstance(
     nonInitiatingNode
   );
   const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
-  expect(proposalParams.intermediaries).toEqual(
-    proposedAppInstance.intermediaries
+  expect(proposalParams.intermediaryIdentifier).toEqual(
+    proposedAppInstance.intermediaryIdentifier
   );
 }
 
@@ -439,10 +439,6 @@ export function constructUninstallVirtualRpc(
     jsonrpc: "2.0",
     method: NodeTypes.RpcMethodName.UNINSTALL_VIRTUAL
   });
-}
-
-export async function sleep(timeInMilliseconds: number) {
-  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }
 
 export async function collateralizeChannel(
@@ -548,7 +544,7 @@ export async function installVirtualApp(
       async (msg: ProposeVirtualMessage) => {
         const installReq = constructInstallVirtualRpc(
           msg.data.appInstanceId,
-          msg.data.params.intermediaries
+          msg.data.params.intermediaryIdentifier
         );
         await nodeC.rpcRouter.dispatch(installReq);
       }
@@ -610,7 +606,7 @@ export async function makeVirtualProposal(
 
   const virtualProposalRpc = constructVirtualProposalRpc(
     nodeC.publicIdentifier,
-    [nodeB.publicIdentifier],
+    nodeB.publicIdentifier,
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState,
@@ -639,11 +635,11 @@ export async function makeVirtualProposal(
 export function installTTTVirtual(
   node: Node,
   appInstanceId: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ) {
   const installVirtualReq = constructInstallVirtualRpc(
     appInstanceId,
-    intermediaries
+    intermediaryIdentifier
   );
   node.rpcRouter.dispatch(installVirtualReq);
 }
@@ -667,7 +663,7 @@ export async function makeVirtualProposeCall(
 
   const virtualProposalRpc = constructVirtualProposalRpc(
     nodeC.publicIdentifier,
-    [nodeB.publicIdentifier],
+    nodeB.publicIdentifier,
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState

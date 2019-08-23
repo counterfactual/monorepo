@@ -15,13 +15,11 @@ import {
 
 /**
  * This creates an entry of a proposed Virtual AppInstance while sending the
- * proposal to the intermediaries and the responder Node.
+ * proposal to the intermediaryIdentifier and the responder Node.
  * @param params
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default class ProposeInstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.PROPOSE_INSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
@@ -30,10 +28,10 @@ export default class ProposeInstallVirtualController extends NodeController {
     params: Node.ProposeInstallVirtualParams
   ): Promise<Queue[]> {
     const { publicIdentifier, networkContext } = requestHandler;
-    const { proposedToIdentifier, intermediaries } = params;
+    const { proposedToIdentifier, intermediaryIdentifier } = params;
 
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -89,7 +87,7 @@ export default class ProposeInstallVirtualController extends NodeController {
 
     const nextNodeAddress = getNextNodeAddress(
       publicIdentifier,
-      params.intermediaries,
+      params.intermediaryIdentifier,
       params.proposedToIdentifier
     );
 

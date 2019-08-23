@@ -42,7 +42,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
    * party to request to the intermediary to lock the state of the virtual app,
    * then upon receiving confirmation it has been locked, then request to the
    * intermediary to uninstall the agreement that was signed locking up the
-   * intermediaries capital based on the outcome of the virtul app at the
+   * intermediary's capital based on the outcome of the virtul app at the
    * agreed upon locked state.
    *
    * @param {Context} context
@@ -50,7 +50,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
   0 /* Initiating */: async function*(context: Context) {
     const {
-      message: { protocolExecutionID, params },
+      message: { processID, params },
       provider,
       stateChannelsMap,
       network
@@ -91,7 +91,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     const m1 = {
       params,
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: 1,
       toXpub: intermediaryXpub,
@@ -135,7 +135,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m5 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,
@@ -177,7 +177,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Intermediary */: async function*(context: Context) {
     const {
       message: {
-        protocolExecutionID,
+        processID,
         params,
         customData: {
           signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
@@ -228,7 +228,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m2 = {
-      protocolExecutionID,
+      processID,
       params,
       protocol: Protocol.UninstallVirtualApp,
       seq: 2,
@@ -254,7 +254,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const m4 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: initiatorXpub,
@@ -294,7 +294,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       IO_SEND,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.UninstallVirtualApp,
         seq: UNASSIGNED_SEQ_NO,
         toXpub: initiatorXpub,
@@ -318,7 +318,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m7 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: responderXpub,
@@ -360,7 +360,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   2 /* Responding */: async function*(context: Context) {
     const {
       message: {
-        protocolExecutionID,
+        processID,
         params,
         customData: {
           signature: initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
@@ -418,7 +418,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m3 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,
@@ -455,7 +455,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const m8 = {
-      protocolExecutionID,
+      processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
       toXpub: intermediaryXpub,

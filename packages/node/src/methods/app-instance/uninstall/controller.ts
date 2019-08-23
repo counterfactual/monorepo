@@ -3,7 +3,7 @@ import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
-import { getCounterpartyAddress } from "../../../utils";
+import { getFirstElementInListNotEqualTo } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   APP_ALREADY_UNINSTALLED,
@@ -14,8 +14,6 @@ import {
 import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL;
-
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
@@ -67,7 +65,7 @@ export default class UninstallController extends NodeController {
       throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
-    const to = getCounterpartyAddress(
+    const to = getFirstElementInListNotEqualTo(
       publicIdentifier,
       stateChannel.userNeuteredExtendedKeys
     );

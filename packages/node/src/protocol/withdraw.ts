@@ -49,7 +49,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID },
+      message: { params, processID },
       network
     } = context;
 
@@ -95,7 +95,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         params,
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
@@ -184,7 +184,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Withdraw,
         toXpub: responderXpub,
         customData: {
@@ -234,7 +234,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND,
       {
         protocol: Protocol.Withdraw,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnUninstallCommitment
@@ -286,7 +286,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID, customData },
+      message: { params, processID, customData },
       network
     } = context;
 
@@ -373,7 +373,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
         customData: {
@@ -462,7 +462,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Withdraw,
         toXpub: initiatorXpub,
         customData: {

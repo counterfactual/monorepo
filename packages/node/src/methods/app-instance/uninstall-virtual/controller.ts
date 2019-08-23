@@ -4,8 +4,8 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import {
-  getCounterpartyAddress,
-  getCreate2MultisigAddress
+  getCreate2MultisigAddress,
+  getFirstElementInListNotEqualTo
 } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -16,8 +16,6 @@ import {
 import { uninstallVirtualAppInstanceFromChannel } from "./operation";
 
 export default class UninstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
@@ -83,7 +81,7 @@ export default class UninstallVirtualController extends NodeController {
       throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
-    const to = getCounterpartyAddress(
+    const to = getFirstElementInListNotEqualTo(
       publicIdentifier,
       stateChannel.userNeuteredExtendedKeys
     );

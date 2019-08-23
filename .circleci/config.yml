@@ -37,6 +37,7 @@ jobs:
       - <<: *save_code
 
       - <<: *restore_dep
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
       - run:
           name: "yarn --frozen-lockfile"
           command: yarn --frozen-lockfile
@@ -67,8 +68,8 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
+
       - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
@@ -85,7 +86,6 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
@@ -99,9 +99,7 @@ jobs:
     <<: *defaults
     steps:
       - <<: *restore_code
-
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
@@ -120,12 +118,14 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - run:
           name: Add NPM_TOKEN auth

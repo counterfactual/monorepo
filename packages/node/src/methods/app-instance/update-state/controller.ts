@@ -7,7 +7,10 @@ import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { getCounterpartyAddress, prettyPrintObject } from "../../../utils";
+import {
+  getFirstElementInListNotEqualTo,
+  prettyPrintObject
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -16,8 +19,6 @@ import {
 } from "../../errors";
 
 export default class UpdateStateController extends NodeController {
-  public static readonly methodName = Node.MethodName.UPDATE_STATE;
-
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
@@ -67,7 +68,7 @@ export default class UpdateStateController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const responderXpub = getCounterpartyAddress(
+    const responderXpub = getFirstElementInListNotEqualTo(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
