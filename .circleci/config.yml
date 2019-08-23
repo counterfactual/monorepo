@@ -81,6 +81,26 @@ jobs:
           name: Run Counterfactual tests
           command: yarn test:ci
 
+  run-greenboard:
+    docker:
+      image: counterfactual/greenboard-environment:latest
+      environment:
+        METAMASK_REPOSITORY: prototypal/metamask-extension
+        METAMASK_BRANCH: develop
+        COUNTERFACTUAL_PATH: "."
+
+    steps:
+      - <<: *restore_code
+      - checkout
+      - <<: *restore_dep
+
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
+
+      - attach_workspace:
+          at: /greenboard-workspace/counterfactual
+
+      - run: yarn test:e2e:ci
+
   run-tslint:
     <<: *defaults
     steps:
@@ -145,6 +165,10 @@ workflows:
             - build
 
       - run-tests:
+          requires:
+            - build
+
+      - run-greenboard:
           requires:
             - build
 
