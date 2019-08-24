@@ -36,7 +36,7 @@ cd $COUNTERFACTUAL_PATH/packages/greenboard
 
 # Install dependencies for Greenboard.
 yarn_install_command
-mv node_modules/* ../../node_modules/
+cp -rl node_modules/* ../../node_modules/
 
 # Run the tests through Xvfb.
 xvfb-run yarn start
