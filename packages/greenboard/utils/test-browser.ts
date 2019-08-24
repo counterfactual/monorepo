@@ -43,7 +43,7 @@ import {
 } from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
-export const LOCATOR_TIMEOUT = 10000;
+export const LOCATOR_TIMEOUT = 60000;
 
 export const METAMASK_ETH_ADDRESS =
   "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
