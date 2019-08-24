@@ -36,7 +36,7 @@
     semver "^5.4.1"
     source-map "^0.5.0"
 
-"@babel/core@^7.1.0", "@babel/core@^7.1.6", "@babel/core@^7.4.5", "@babel/core@^7.5.5":
+"@babel/core@7.5.5", "@babel/core@^7.1.0", "@babel/core@^7.1.6", "@babel/core@^7.4.5":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/core/-/core-7.5.5.tgz#17b2686ef0d6bc58f963dddd68ab669755582c30"
   integrity sha512-i4qoSr2KTtce0DmkuuQBV4AuQgGPUcPXMr9L5MyYAtk06z068lQ10a4O009fe5OB/DfNV+h+qqT7ddNV8UnRjg==
@@ -315,7 +315,7 @@
     "@babel/helper-plugin-utils" "^7.0.0"
     "@babel/plugin-syntax-object-rest-spread" "^7.2.0"
 
-"@babel/plugin-proposal-object-rest-spread@^7.4.3", "@babel/plugin-proposal-object-rest-spread@^7.5.5":
+"@babel/plugin-proposal-object-rest-spread@7.5.5", "@babel/plugin-proposal-object-rest-spread@^7.4.3", "@babel/plugin-proposal-object-rest-spread@^7.5.5":
   version "7.5.5"
   resolved "https://registry.yarnpkg.com/@babel/plugin-proposal-object-rest-spread/-/plugin-proposal-object-rest-spread-7.5.5.tgz#61939744f71ba76a3ae46b5eea18a54c16d22e58"
   integrity sha512-F2DxJJSQ7f64FyTVl5cw/9MWn6naXGdk3Q3UhDbFEEHv+EilCPoeRD3Zh/Utx1CJz4uyKlQ4uH+bJPbEhMV7Zw==
@@ -937,51 +937,12 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf-funding-protocol-contracts@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf-funding-protocol-contracts/-/cf-funding-protocol-contracts-0.0.2.tgz#80ff1329ce21d433c760eb796b0b013e6a028e07"
-  integrity sha512-ezarvrWtP2lHd9bDQOu2aauH//KvzmsEeukB9iQbE8GRaYxW/HEZAzi5PIQOUC1HDP/bQ/64dlSS9ZN88b2nGw==
-
-"@counterfactual/cf.js@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.3.tgz#7ed93e4376709ca17c635d211b0e87d0e0c9e05a"
-  integrity sha512-1rHbIc4tq1KpE/8bO2KXpU9JZ5hflt84kaln4kB9tCoRpJiisJrMALR0CQ7t/5kIpgnicVQQqhOYKw6uoTHcEQ==
-  dependencies:
-    "@counterfactual/node-provider" "0.1.2"
-    "@counterfactual/types" "0.0.25"
-    ethers "4.0.33"
-    eventemitter3 "^4.0.0"
-    rpc-server "0.0.1"
-
 "@counterfactual/node-provider@0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.1.2.tgz#423fa7c516a32e36e56143a9e6b4f9aa05194733"
   integrity sha512-7DrRocC9etadQq1hXNuLZr0FqEWuWcYrT3EtfnJWUkgHbk8C4/liOo2DS5pR0rYxZhh5SH6kn5QyX08W6Oackw==
   dependencies:
     eventemitter3 "^3.1.0"
-
-"@counterfactual/node@0.2.51":
-  version "0.2.51"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.51.tgz#2fb8044f880f50d1f14244d9ead228c7f0726657"
-  integrity sha512-DVapZ6hht10W6tquEbLCMcSGqDZ0le6rfZ9NG3zowyWLS69M/3jKvIK1UORBzJFXUMHSJkZMkfrUr8BM65V03A==
-  dependencies:
-    "@counterfactual/cf-adjudicator-contracts" "0.0.1"
-    "@counterfactual/cf-funding-protocol-contracts" "0.0.2"
-    "@counterfactual/cf.js" "0.2.3"
-    "@counterfactual/firebase-client" "0.0.4"
-    "@counterfactual/types" "0.0.36"
-    ethers "4.0.33"
-    eventemitter3 "^4.0.0"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    rpc-server "0.0.1"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
-"@counterfactual/types@0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.25.tgz#017d4bbb7e226598f5cec3b54973cfe6f403e47f"
-  integrity sha512-TnOtQvpIXweqISg81Z6LyUJf9IlgI7PST5if/gl776NJAiaAGevx+27lG2YmUxX5fheecNLddc1+3WDJy87WrA==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -3134,7 +3095,7 @@
     "@types/bn.js" "*"
     "@types/underscore" "*"
 
-"@types/web3@1.0.19", "@types/web3@^1.0.14", "@types/web3@^1.0.19":
+"@types/web3@1.0.19", "@types/web3@^1.0.14":
   version "1.0.19"
   resolved "https://registry.yarnpkg.com/@types/web3/-/web3-1.0.19.tgz#46b85d91d398ded9ab7c85a5dd57cb33ac558924"
   integrity sha512-fhZ9DyvDYDwHZUp5/STa9XW2re0E8GxoioYJ4pEUZ13YHpApSagixj7IAdoYH5uAK+UalGq6Ml8LYzmgRA/q+A==
@@ -7922,7 +7883,7 @@ etag@~1.8.1:
   resolved "https://registry.npmjs.org/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha1-Qa4u62XvpiJorr/qg6x9eSmbCIc=
 
-eth-balance-checker@^0.1.1:
+eth-balance-checker@0.1.1:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/eth-balance-checker/-/eth-balance-checker-0.1.1.tgz#56200e273d867f29c7a6426aa701376000bfb61e"
   integrity sha512-WHoYHoLEZntfkt+0KrzvaialOnH+nJ1J404gwp9gZ2DAJbc8YXvdaWX1x+DrY1g86nJSkLbKMcb+TeqH5WXXmg==
@@ -17436,7 +17397,7 @@ rlp@^2.0.0, rlp@^2.2.1:
     bn.js "^4.11.1"
     safe-buffer "^5.1.1"
 
-rollup-plugin-babel@^4.3.3:
+rollup-plugin-babel@4.3.3:
   version "4.3.3"
   resolved "https://registry.yarnpkg.com/rollup-plugin-babel/-/rollup-plugin-babel-4.3.3.tgz#7eb5ac16d9b5831c3fd5d97e8df77ba25c72a2aa"
   integrity sha512-tKzWOCmIJD/6aKNz0H1GMM+lW1q9KyFubbWzGiOG540zxPPifnEAHTZwjo0g991Y+DyOZcLqBgqOdqazYE5fkw==
