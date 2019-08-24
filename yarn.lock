@@ -937,51 +937,12 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
-"@counterfactual/cf-funding-protocol-contracts@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf-funding-protocol-contracts/-/cf-funding-protocol-contracts-0.0.2.tgz#80ff1329ce21d433c760eb796b0b013e6a028e07"
-  integrity sha512-ezarvrWtP2lHd9bDQOu2aauH//KvzmsEeukB9iQbE8GRaYxW/HEZAzi5PIQOUC1HDP/bQ/64dlSS9ZN88b2nGw==
-
-"@counterfactual/cf.js@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@counterfactual/cf.js/-/cf.js-0.2.3.tgz#7ed93e4376709ca17c635d211b0e87d0e0c9e05a"
-  integrity sha512-1rHbIc4tq1KpE/8bO2KXpU9JZ5hflt84kaln4kB9tCoRpJiisJrMALR0CQ7t/5kIpgnicVQQqhOYKw6uoTHcEQ==
-  dependencies:
-    "@counterfactual/node-provider" "0.1.2"
-    "@counterfactual/types" "0.0.25"
-    ethers "4.0.33"
-    eventemitter3 "^4.0.0"
-    rpc-server "0.0.1"
-
 "@counterfactual/node-provider@0.1.2":
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/@counterfactual/node-provider/-/node-provider-0.1.2.tgz#423fa7c516a32e36e56143a9e6b4f9aa05194733"
   integrity sha512-7DrRocC9etadQq1hXNuLZr0FqEWuWcYrT3EtfnJWUkgHbk8C4/liOo2DS5pR0rYxZhh5SH6kn5QyX08W6Oackw==
   dependencies:
     eventemitter3 "^3.1.0"
-
-"@counterfactual/node@0.2.51":
-  version "0.2.51"
-  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.51.tgz#2fb8044f880f50d1f14244d9ead228c7f0726657"
-  integrity sha512-DVapZ6hht10W6tquEbLCMcSGqDZ0le6rfZ9NG3zowyWLS69M/3jKvIK1UORBzJFXUMHSJkZMkfrUr8BM65V03A==
-  dependencies:
-    "@counterfactual/cf-adjudicator-contracts" "0.0.1"
-    "@counterfactual/cf-funding-protocol-contracts" "0.0.2"
-    "@counterfactual/cf.js" "0.2.3"
-    "@counterfactual/firebase-client" "0.0.4"
-    "@counterfactual/types" "0.0.36"
-    ethers "4.0.33"
-    eventemitter3 "^4.0.0"
-    loglevel "^1.6.1"
-    p-queue "^5.0.0"
-    rpc-server "0.0.1"
-    typescript-memoize "^1.0.0-alpha.3"
-    uuid "^3.3.2"
-
-"@counterfactual/types@0.0.25":
-  version "0.0.25"
-  resolved "https://registry.yarnpkg.com/@counterfactual/types/-/types-0.0.25.tgz#017d4bbb7e226598f5cec3b54973cfe6f403e47f"
-  integrity sha512-TnOtQvpIXweqISg81Z6LyUJf9IlgI7PST5if/gl776NJAiaAGevx+27lG2YmUxX5fheecNLddc1+3WDJy87WrA==
 
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
@@ -1416,10 +1377,10 @@
   dependencies:
     tslib "1.10.0"
 
-"@firebase/util@0.2.25":
-  version "0.2.25"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.25.tgz#f09fc9c8231ee939aff1673d4a1b601b3cdf17c1"
-  integrity sha512-J/JgYhvFLCpejzfzjzNDZGFZD3kNtTlMu+2EjiQ3tCII6w0N/uEza5GtFiYTKCjGBa51Lmi2j/OPLz+yhlQCWg==
+"@firebase/util@0.2.26":
+  version "0.2.26"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.26.tgz#d55d767134fd9da033f7f5d639fb4b1ac6a80e92"
+  integrity sha512-GcKcDAlJ85i1MsURKr8v2k5fkE0FkuM0ap/rYuWs44vxd2U5x6fUdoUQrKnZlclTH/xj0z+qHVQB9Vrwvp7alw==
   dependencies:
     tslib "1.10.0"
 
