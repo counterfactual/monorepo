@@ -39,7 +39,7 @@
     "dotenv": "8.1.0",
     "eth-gas-reporter": "0.2.10",
     "ethereum-waffle": "2.1.0",
-    "ethers": "4.0.33",
+    "ethers": "4.0.36",
     "ethlint": "1.2.4",
     "ganache-cli": "6.6.0",
     "openzeppelin-solidity": "2.3.0",
