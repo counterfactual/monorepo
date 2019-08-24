@@ -24,6 +24,6 @@
     "@counterfactual/types": "0.0.36",
     "@counterfactual/apps": "0.1.6",
     "ganache-core": "2.7.0",
-    "ethers": "4.0.33"
+    "ethers": "4.0.36"
   }
 }
