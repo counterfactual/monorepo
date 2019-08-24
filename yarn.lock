@@ -7271,24 +7271,24 @@ dotenv-extended@2.4.0:
     is-windows "^1.0.0"
     lodash "^4.17.10"
 
-dotenv-safe@6.1.0:
-  version "6.1.0"
-  resolved "https://registry.npmjs.org/dotenv-safe/-/dotenv-safe-6.1.0.tgz#df6e72ced7d5bcfd9d870c9f656962a02197337b"
-  integrity sha512-O02OUTS+XmoRNZR4kRjJ9jlUGvQoXpMeTVVEBc8hUtgvPTgVZpsZH7TOocq4RVDpPrs2xGPwj6gIWjqRX+ErHA==
+dotenv-safe@8.1.0:
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/dotenv-safe/-/dotenv-safe-8.1.0.tgz#9046f1c9b70183d49275c0b6c383db37f432b346"
+  integrity sha512-ONrR6gKNtaaQxV1GUvlLB4jHXtEixUe0a+x5QdnYdKJKelg9J/Kv6hPHXYBJqgJ6HBrEFtS2g2NcB6Hx78/l/Q==
   dependencies:
-    dotenv "^6.1.0"
+    dotenv "^8.1.0"
 
 dotenv@6.0.0:
   version "6.0.0"
   resolved "https://registry.npmjs.org/dotenv/-/dotenv-6.0.0.tgz#24e37c041741c5f4b25324958ebbc34bca965935"
   integrity sha512-FlWbnhgjtwD+uNLUGHbMykMOYQaTivdHEmYwAKFjn6GKe/CqY0fNae93ZHTd20snh9ZLr8mTzIL9m0APQ1pjQg==
 
-dotenv@6.2.0, dotenv@^6.1.0, dotenv@^6.2.0:
+dotenv@6.2.0, dotenv@^6.2.0:
   version "6.2.0"
   resolved "https://registry.npmjs.org/dotenv/-/dotenv-6.2.0.tgz#941c0410535d942c8becf28d3f357dbd9d476064"
   integrity sha512-HygQCKUBSFl8wKQZBSemMywRWcEDNidvNbjGVyZu3nbZ8qq9ubiPoGLMdRDpfSrpkkm9BXYFkpKxxFX38o/76w==
 
-dotenv@8.1.0:
+dotenv@8.1.0, dotenv@^8.1.0:
   version "8.1.0"
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.1.0.tgz#d811e178652bfb8a1e593c6dd704ec7e90d85ea2"
   integrity sha512-GUE3gqcDCaMltj2++g6bRQ5rBJWtkWTmqmD0fo1RnnMuUqHNCt2oTPeDnS9n6fKYvlhn7AeBkb38lymBtWBQdA==

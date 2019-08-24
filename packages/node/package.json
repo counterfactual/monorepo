@@ -34,7 +34,7 @@
     "@types/pg": "7.11.0",
     "chai": "4.2.0",
     "dotenv-extended": "2.4.0",
-    "dotenv-safe": "6.1.0",
+    "dotenv-safe": "8.1.0",
     "ethereum-waffle": "2.1.0",
     "ganache-cli": "6.6.0",
     "ganache-core": "2.7.0",
