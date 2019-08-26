@@ -1,9 +1,9 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcMethod } from "rpc-server";
 
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
-import { jsonRpcMethod } from "rpc-server";
 
 export default class GetStateChannelController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.GET_STATE_CHANNEL)
