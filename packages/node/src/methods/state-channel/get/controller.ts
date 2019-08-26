@@ -5,7 +5,7 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetAllChannelAddressesController extends NodeController {
-  @jsonRpcMethod(Node.RpcMethodName.GET_STATE_CHANNEL)
+  @jsonRpcMethod(Node.RpcMethodName.GET_CHANNEL_ADDRESSES)
   public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(

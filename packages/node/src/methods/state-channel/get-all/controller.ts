@@ -6,7 +6,7 @@ import { NodeController } from "../../controller";
 import { jsonRpcMethod } from "rpc-server";
 
 export default class GetStateChannelController extends NodeController {
-  @jsonRpcMethod(Node.RpcMethodName.GET_CHANNEL_ADDRESSES)
+  @jsonRpcMethod(Node.RpcMethodName.GET_STATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
