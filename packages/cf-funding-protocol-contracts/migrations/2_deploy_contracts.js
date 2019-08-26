@@ -5,7 +5,6 @@ const tdr = require("truffle-deploy-registry");
 // Do not add to ARTIFACTS
 
 const ARTIFACTS = [
-  artifacts.require("ChallengeRegistry"),
   artifacts.require("CoinBalanceRefundApp"),
   artifacts.require("ConditionalTransactionDelegateTarget"),
   artifacts.require("IdentityApp"),
