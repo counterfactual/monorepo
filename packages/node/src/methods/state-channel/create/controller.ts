@@ -17,8 +17,9 @@ import {
   NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT
 } from "../../errors";
 
-// TODO: Add good estimate for ProxyFactory.createProxy
-const CREATE_PROXY_AND_SETUP_GAS = 6e6;
+// Estimate based on:
+// https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
+const CREATE_PROXY_AND_SETUP_GAS = 500_000;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
@@ -32,8 +33,6 @@ const CREATE_PROXY_AND_SETUP_GAS = 6e6;
  * to whoever subscribed to the `NODE_EVENTS.CREATE_CHANNEL` event on the Node.
  */
 export default class CreateChannelController extends NodeController {
-  public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
-
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
@@ -130,7 +129,7 @@ export default class CreateChannelController extends NodeController {
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
-        const extraGasLimit = tryCount * 1e6;
+        const extraGasLimit = tryCount * 50_000;
         const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
         const clampedGasLimit = networkGasLimit.lt(gasLimit)
           ? networkGasLimit
@@ -170,6 +169,11 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
+        if (tryCount > 0) {
+          console.log(
+            `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
+          );
+        }
         return tx;
       } catch (e) {
         error = e;

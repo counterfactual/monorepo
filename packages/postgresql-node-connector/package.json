@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/postgresql-node-connector",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "src/index.ts",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
@@ -18,14 +18,14 @@
   },
   "dependencies": {
     "pg": "7.12.1",
-    "@counterfactual/types": "0.0.36",
+    "@counterfactual/types": "0.0.37",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.2.18"
   },
   "devDependencies": {
     "@types/jest": "24.0.15",
-    "@types/node": "12.7.1",
-    "@types/pg": "7.4.14",
+    "@types/node": "12.7.2",
+    "@types/pg": "7.11.0",
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
     "tslint": "5.18.0",

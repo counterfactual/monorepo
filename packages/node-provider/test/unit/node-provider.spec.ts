@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcDeserialize } from "rpc-server";
 
 import NodeProvider from "../../src/node-provider";
 import {
@@ -67,9 +68,13 @@ describe("NodeProvider", () => {
     const nodeProvider = new NodeProvider();
 
     expect(() => {
-      nodeProvider.sendMessage({
-        type: Node.MethodName.INSTALL
-      } as Node.Message);
+      nodeProvider.sendMessage(
+        jsonRpcDeserialize({
+          jsonrpc: "2.0",
+          method: Node.RpcMethodName.INSTALL,
+          id: new Date().valueOf()
+        })
+      );
     }).toThrow(
       "It's not possible to use postMessage() before the NodeProvider is connected. Call the connect() method first."
     );
@@ -78,9 +83,11 @@ describe("NodeProvider", () => {
     const nodeProvider = new NodeProvider();
     await nodeProvider.connect();
 
-    const messageToSend = {
-      type: Node.MethodName.INSTALL
-    } as Node.Message;
+    const messageToSend = jsonRpcDeserialize({
+      jsonrpc: "2.0",
+      method: Node.RpcMethodName.INSTALL,
+      id: new Date().valueOf()
+    });
 
     const port = context.nodeProviderPort as MockMessagePort;
     const spyPortPostMessage = jest.spyOn(port, "postMessage");
