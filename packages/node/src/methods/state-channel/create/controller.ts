@@ -4,6 +4,7 @@ import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
+import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -11,7 +12,11 @@ import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
 import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
+import {
+  getCreate2MultisigAddress,
+  prettyPrintObject,
+  sleep
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -128,7 +133,7 @@ export default class CreateChannelController extends NodeController {
     );
 
     let error;
-    for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
+    for (let tryCount = 1; tryCount < retryCount + 1; tryCount += 1) {
       try {
         const extraGasLimit = tryCount * 50_000;
         const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
@@ -156,29 +161,31 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
-        const correctContractWasDeployed = await checkForCorrectOwners(
+        const ownersAreCorrectlySet = await checkForCorrectOwners(
           tx!,
           provider,
           owners,
           networkContext
         );
 
-        if (!correctContractWasDeployed) {
-          error = `Could not confirm the deployed multisig contract has the expected bytecode`;
-          throw Error(
-            `${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`
+        if (!ownersAreCorrectlySet) {
+          log.error(
+            `${CHANNEL_CREATION_FAILED}: Could not confirm, on the ${tryCount} try, that the deployed multisig contract has the expected owners`
           );
+          // wait on a linear backoff interval before retrying
+          await sleep(1000 * tryCount);
+          continue;
         }
 
         if (tryCount > 0) {
-          console.log(
+          log.debug(
             `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
           );
         }
         return tx;
       } catch (e) {
         error = e;
-        console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
+        log.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
                       Retrying ${retryCount - tryCount} more times`);
       }
     }
