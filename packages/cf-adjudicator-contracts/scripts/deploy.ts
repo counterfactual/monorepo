@@ -20,6 +20,9 @@ const networkId = {
 }[NETWORK_NAME];
 
 (async () => {
+
+  // todo: verify already deployed
+
   const factory = new ContractFactory(ChallengeRegistry.abi, ChallengeRegistry.evm.bytecode.object, wallet);
   const f = await factory.deploy();
   const contract = await f.deployed();

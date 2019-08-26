@@ -64,7 +64,6 @@ export const EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT = [
 export interface DeployedContractNetworksFileEntry {
   contractName: string;
   address: string;
-  transactionHash: string;
 }
 
 export {
