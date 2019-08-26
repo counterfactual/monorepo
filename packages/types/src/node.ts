@@ -71,8 +71,7 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",
-    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
-    GET_STATE_CHANNEL = "getStateChannel"
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance"
   }
 
   export enum RpcMethodName {
@@ -86,6 +85,7 @@ export namespace Node {
     GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
+    GET_STATE_CHANNEL = "getStateChannel",
     INSTALL = "chan_install",
     INSTALL_VIRTUAL = "chan_installVirtual",
     PROPOSE_INSTALL = "chan_proposeInstall",

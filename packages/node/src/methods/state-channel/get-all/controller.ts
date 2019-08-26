@@ -3,9 +3,11 @@ import { Node } from "@counterfactual/types";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
+import { jsonRpcMethod } from "rpc-server";
 
 export default class GetStateChannelController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_STATE_CHANNEL;
+  @jsonRpcMethod(Node.RpcMethodName.GET_CHANNEL_ADDRESSES)
+  public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
