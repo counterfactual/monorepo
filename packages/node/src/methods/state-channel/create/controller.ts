@@ -7,7 +7,8 @@ import { Interface } from "ethers/utils";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeysToSortedKthAddresses } from "../../../machine";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
+import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
@@ -155,7 +156,7 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
-        const correctContractWasDeployed = await checkForCorrectDeployedByteCode(
+        const correctContractWasDeployed = await checkForCorrectOwners(
           tx!,
           provider,
           owners,
@@ -186,14 +187,14 @@ export default class CreateChannelController extends NodeController {
   }
 }
 
-async function checkForCorrectDeployedByteCode(
+async function checkForCorrectOwners(
   tx: TransactionResponse,
   provider: Provider,
-  owners: string[],
+  xpubs: string[],
   networkContext: NetworkContext
 ): Promise<boolean> {
   const multisigAddress = getCreate2MultisigAddress(
-    owners,
+    xpubs,
     networkContext.ProxyFactory,
     networkContext.MinimumViableMultisig
   );
@@ -206,7 +207,14 @@ async function checkForCorrectDeployedByteCode(
     provider
   );
 
-  const ownersValues = await contract.functions.getOwners();
+  const expectedOwners = sortAddresses(
+    xpubs.map(xpub => xkeyKthAddress(xpub, 0))
+  );
 
-  return owners[0] === ownersValues[0] && owners[1] === ownersValues[1];
+  const actualOwners = sortAddresses(await contract.functions.getOwners());
+
+  return (
+    expectedOwners[0] === actualOwners[0] &&
+    expectedOwners[1] === actualOwners[1]
+  );
 }
