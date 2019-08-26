@@ -120,7 +120,7 @@ export default class CreateChannelController extends NodeController {
     const provider = await signer.provider;
 
     if (!provider) {
-      throw new Error("wallet must have a provider");
+      throw Error("wallet must have a provider");
     }
 
     const { gasLimit: networkGasLimit } = await provider.getBlock(
@@ -149,7 +149,7 @@ export default class CreateChannelController extends NodeController {
         );
 
         if (!tx.hash) {
-          throw new Error(
+          throw Error(
             `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
               tx
             )}`
@@ -165,7 +165,7 @@ export default class CreateChannelController extends NodeController {
 
         if (!correctContractWasDeployed) {
           error = `Could not confirm the deployed multisig contract has the expected bytecode`;
-          throw new Error(
+          throw Error(
             `${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`
           );
         }
@@ -183,7 +183,7 @@ export default class CreateChannelController extends NodeController {
       }
     }
 
-    throw new Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
+    throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
   }
 }
 
