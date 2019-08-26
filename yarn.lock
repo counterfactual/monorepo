@@ -19390,7 +19390,7 @@ ts-node@7.0.1:
     source-map-support "^0.5.6"
     yn "^2.0.0"
 
-ts-node@8.3.0:
+ts-node@8.3.0, ts-node@^8.3.0:
   version "8.3.0"
   resolved "https://registry.npmjs.org/ts-node/-/ts-node-8.3.0.tgz#e4059618411371924a1fb5f3b125915f324efb57"
   integrity sha512-dyNS/RqyVTDcmNM4NIBAeDMpsAdaQ+ojdf0GOLqE6nwJOgzEkdRNzJywhDfwnuvB10oa6NLVG1rUJQCpRN7qoQ==
@@ -19466,7 +19466,7 @@ tslint-eslint-rules@^5.4.0:
 
 tslint-microsoft-contrib@^6.0.0, tslint-microsoft-contrib@~5.2.1:
   version "6.2.0"
-  resolved "https://registry.npmjs.org/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
+  resolved "https://registry.yarnpkg.com/tslint-microsoft-contrib/-/tslint-microsoft-contrib-6.2.0.tgz#8aa0f40584d066d05e6a5e7988da5163b85f2ad4"
   integrity sha512-6tfi/2tHqV/3CL77pULBcK+foty11Rr0idRDxKnteTaKm6gWF9qmaCNU17HVssOuwlYNyOmd9Jsmjd+1t3a3qw==
   dependencies:
     tsutils "^2.27.2 <2.29.0"

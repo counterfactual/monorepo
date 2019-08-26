@@ -18,7 +18,6 @@
     "esModuleInterop": true,
     "lib": ["es2017", "dom", "esnext.asynciterable"],
     "target": "es2017",
-    "module": "esnext",
     "sourceMap": true,
     "typeRoots": [
       "./node_modules/@types",
