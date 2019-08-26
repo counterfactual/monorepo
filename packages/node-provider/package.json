@@ -1,11 +1,11 @@
 {
   "name": "@counterfactual/node-provider",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
   "engines": {
-    "yarn": "1.17.3",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "files": [
@@ -17,11 +17,10 @@
     "test": "tsc -b . && jest --runInBand --detectOpenHandles --bail --forceExit",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
-    "lint": "tslint -c tslint.json -p .",
-    "postinstall": "patch-package"
+    "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.36",
+    "@counterfactual/types": "0.0.37",
     "@types/jest": "24.0.15",
     "@types/node": "12.7.2",
     "@types/web3": "1.0.19",

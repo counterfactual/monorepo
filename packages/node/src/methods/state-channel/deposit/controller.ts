@@ -24,8 +24,6 @@ import {
 } from "./operation";
 
 export default class DepositController extends NodeController {
-  public static readonly methodName = Node.MethodName.DEPOSIT;
-
   @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 

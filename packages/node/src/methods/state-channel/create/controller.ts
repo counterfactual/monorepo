@@ -24,7 +24,7 @@ import {
 
 // Estimate based on:
 // https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
-const CREATE_PROXY_AND_SETUP_GAS = 167_394;
+const CREATE_PROXY_AND_SETUP_GAS = 500_000;
 
 /**
  * This instantiates a StateChannel object to encapsulate the "channel"
@@ -38,8 +38,6 @@ const CREATE_PROXY_AND_SETUP_GAS = 167_394;
  * to whoever subscribed to the `NODE_EVENTS.CREATE_CHANNEL` event on the Node.
  */
 export default class CreateChannelController extends NodeController {
-  public static readonly methodName = Node.MethodName.CREATE_CHANNEL;
-
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
@@ -129,19 +127,9 @@ export default class CreateChannelController extends NodeController {
       throw new Error("wallet must have a provider");
     }
 
-    const { gasLimit: networkGasLimit } = await provider.getBlock(
-      provider.getBlockNumber()
-    );
-
     let error;
     for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
       try {
-        const extraGasLimit = tryCount * 50_000;
-        const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
-        const clampedGasLimit = networkGasLimit.lt(gasLimit)
-          ? networkGasLimit
-          : gasLimit;
-
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
           new Interface(MinimumViableMultisig.abi).functions.setup.encode([
@@ -149,7 +137,7 @@ export default class CreateChannelController extends NodeController {
           ]),
           0, // TODO: Increment nonce as needed
           {
-            gasLimit: clampedGasLimit,
+            gasLimit: CREATE_PROXY_AND_SETUP_GAS,
             gasPrice: provider.getGasPrice()
           }
         );
@@ -175,6 +163,11 @@ export default class CreateChannelController extends NodeController {
           continue;
         }
 
+        if (tryCount > 0) {
+          console.log(
+            `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
+          );
+        }
         return tx;
       } catch (e) {
         error = e;
