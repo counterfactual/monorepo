@@ -65,6 +65,7 @@
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
     "rpc-server": "0.0.1",
+    "truffle-deploy-registry": "^0.5.1",
     "typescript-memoize": "^1.0.0-alpha.3",
     "uuid": "^3.3.2"
   }

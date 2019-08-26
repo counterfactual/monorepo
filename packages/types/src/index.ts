@@ -29,6 +29,9 @@ import {
   SolidityValueType
 } from "./simple-types";
 
+/*
+Contracts that need to be deployed for the node to function
+*/
 export interface NetworkContext {
   ChallengeRegistry: string;
   CoinBalanceRefundApp: string;
