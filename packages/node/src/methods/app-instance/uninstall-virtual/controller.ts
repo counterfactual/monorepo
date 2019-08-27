@@ -16,8 +16,6 @@ import {
 import { uninstallVirtualAppInstanceFromChannel } from "./operation";
 
 export default class UninstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 

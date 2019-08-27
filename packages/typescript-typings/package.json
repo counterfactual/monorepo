@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "description": "Counterfactual Types",
@@ -13,13 +13,13 @@
   },
   "devDependencies": {
     "copyfiles": "2.1.1",
-    "ethereum-waffle": "2.0.15",
-    "ethers": "4.0.33",
-    "tslint": "5.18.0",
+    "ethereum-waffle": "2.1.0",
+    "tslint": "5.19.0",
+    "ethers": "4.0.36",
     "typescript": "3.5.3"
   },
   "dependencies": {
     "@types/node": "12.7.2",
-    "truffle-contract": "4.0.29"
+    "truffle-contract": "4.0.30"
   }
 }

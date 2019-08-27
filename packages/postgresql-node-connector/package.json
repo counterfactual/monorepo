@@ -5,7 +5,7 @@
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
+    "yarn": "1.12.3",
     "node": "10.15.3"
   },
   "scripts": {
@@ -19,6 +19,7 @@
   "dependencies": {
     "@counterfactual/types": "^0.0.37",
     "pg": "7.12.1",
+    "@counterfactual/types": "0.0.37",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.2.18"
   },
@@ -28,7 +29,7 @@
     "@types/pg": "7.11.0",
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
-    "tslint": "5.18.0",
+    "tslint": "5.19.0",
     "typescript": "3.5.3"
   }
 }
