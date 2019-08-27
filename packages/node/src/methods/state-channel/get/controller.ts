@@ -1,10 +1,12 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetAllChannelAddressesController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_CHANNEL_ADDRESSES;
+  @jsonRpcMethod(Node.RpcMethodName.GET_CHANNEL_ADDRESSES)
+  public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler

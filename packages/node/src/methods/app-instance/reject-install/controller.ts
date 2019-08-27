@@ -8,8 +8,6 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.REJECT_INSTALL;
-
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams

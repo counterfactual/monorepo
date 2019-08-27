@@ -1,1 +1,3 @@
-../cf-adjudicator-contracts/waffle.js
+const selectSolc = require("../../waffle.js");
+
+module.exports = selectSolc();
