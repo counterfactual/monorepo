@@ -30,9 +30,9 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "^0.0.4",
-    "@counterfactual/types": "^0.0.38",
-    "@counterfactual/typescript-typings": "^0.1.2",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.4",
+    "@counterfactual/types": "0.0.38",
+    "@counterfactual/typescript-typings": "0.1.2",
     "@types/chai": "4.2.0",
     "@types/node": "12.7.2",
     "chai": "4.2.0",

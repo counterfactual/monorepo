@@ -33,7 +33,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/node-provider": "^0.2.2",
+    "@counterfactual/node-provider": "0.2.2",
     "@counterfactual/types": "0.0.38",
     "ethers": "4.0.36",
     "eventemitter3": "^4.0.0",
