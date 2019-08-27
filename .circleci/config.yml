@@ -159,6 +159,8 @@ workflows:
       - build
 
       - verify-solc
+          requires:
+            - build
 
       - run-tslint:
           requires:
