@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/firebase-client",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/index.d.ts",
@@ -16,7 +16,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.37",
+    "@counterfactual/types": "^0.0.38",
     "@firebase/app-types": "0.4.3",
     "@firebase/util": "0.2.26",
     "@types/firebase": "3.2.1",
