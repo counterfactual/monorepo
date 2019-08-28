@@ -39,8 +39,11 @@ contract SingleAssetTwoPartyCoinTransferInterpreter is Interpreter {
     );
 
     if (params.tokenAddress == CONVENTION_FOR_ETH_TOKEN_ADDRESS) {
-      outcome[0].to.transfer(outcome[0].amount);
-      outcome[1].to.transfer(outcome[1].amount);
+      // note: send() is deliberately used instead of coinTransfer() here
+      // so that a revert does not stop the rest of the sends
+      // see decenter audit for context
+      outcome[0].to.send(outcome[0].amount);
+      outcome[1].to.send(outcome[1].amount);
     } else {
       ERC20(params.tokenAddress).transfer(outcome[0].to, outcome[0].amount);
       ERC20(params.tokenAddress).transfer(outcome[1].to, outcome[1].amount);
