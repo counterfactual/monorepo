@@ -801,7 +801,7 @@ export function getAppContext(
       return {
         appDefinition,
         abiEncodings: tttAbiEncodings,
-        initialState: initialState ? initialState : initialEmptyTTTState()
+        initialState: initialState || initialEmptyTTTState()
       };
 
     case (global["networkContext"] as NetworkContextForTestSuite)
@@ -823,7 +823,7 @@ export function getAppContext(
       const { state } = initialLinkedState(senderAddress!, receiverAddress!);
       return {
         appDefinition,
-        initialState: initialState ? initialState : state,
+        initialState: initialState || state,
         abiEncodings: linkedAbiEncodings
       };
 
