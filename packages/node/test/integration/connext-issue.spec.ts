@@ -4,6 +4,7 @@ import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Node } from "../../src";
+import { prettyPrintObject } from "../../src/utils";
 
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
@@ -200,8 +201,14 @@ describe("Can update and install multiple apps simultaneously", () => {
     redeemer: Node,
     statesAndActions: any[]
   ) {
+    console.log("******* poller started");
     setTimeout(async () => {
       if (statesAndActions.length > 0) {
+        console.log(
+          "******* trying to redeem link",
+          statesAndActions.length,
+          "remaining"
+        );
         await redeemLink(
           funder,
           intermediary,
@@ -209,7 +216,7 @@ describe("Can update and install multiple apps simultaneously", () => {
           statesAndActions.pop()
         );
       }
-    }, 500);
+    }, 100);
   }
 
   // installs, updates, and uninstalls a virtual eth unidirectional
@@ -219,6 +226,7 @@ describe("Can update and install multiple apps simultaneously", () => {
     intermediary: Node,
     receiver: Node
   ) {
+    console.log("******* trying to transfer as virtual app");
     // install a virtual transfer app
     const transferDef = (global["networkContext"] as NetworkContextForTestSuite)
       .UnidirectionalTransferApp;
@@ -229,6 +237,8 @@ describe("Can update and install multiple apps simultaneously", () => {
       receiver.freeBalanceAddress
     );
 
+    console.log("***** initial state:", prettyPrintObject(initialState));
+
     const appId = await installVirtualApp(
       sender,
       intermediary,
@@ -237,11 +247,15 @@ describe("Can update and install multiple apps simultaneously", () => {
       initialState
     );
 
+    console.log("******* transfer app installed");
+
     // take action on the virtual transfer app to send money
     await takeAppAction(sender, appId, {
       actionType: ActionType.SEND_MONEY,
       amount: 1
     });
+
+    console.log("******* transfer app updated");
 
     // take action on virtual transfer app to finalize state
     await takeAppAction(sender, appId, {
@@ -249,8 +263,12 @@ describe("Can update and install multiple apps simultaneously", () => {
       amount: 0
     });
 
+    console.log("******* transfer app finalized");
+
     // uninstall the virtual transfer app
     await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
+
+    console.log("******* transfer app uninstalled");
   }
 
   beforeAll(async () => {
@@ -274,6 +292,8 @@ describe("Can update and install multiple apps simultaneously", () => {
     const multisigAddressAB = await createChannel(nodeA, nodeB);
     const multisigAddressBC = await createChannel(nodeB, nodeC);
 
+    console.log("******* channels created");
+
     // this deposits into both nodes. realistically, we want
     // to have nodeA deposit into AB, and nodeB collateralize
     // BC
@@ -290,14 +310,20 @@ describe("Can update and install multiple apps simultaneously", () => {
       bigNumberify(15)
     );
 
+    console.log("******* channels collateralized");
+
     // first, pregenerate several linked app initial states
     const {
       linkStatesRedeemer,
       linkStatesSender
     } = generateInitialLinkedTransferStates();
 
+    console.log("******* link initial states generated");
+
     // install all the linked apps on the sender side
     await installLinks(nodeA, nodeB, linkStatesSender);
+
+    console.log("******* link apps installed with sender");
 
     // begin redeeming apps as the receiver on an interval
     redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer);

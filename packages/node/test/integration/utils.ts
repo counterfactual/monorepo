@@ -546,7 +546,10 @@ export async function installVirtualApp(
   nodeB: Node,
   nodeC: Node,
   appDefinition: string,
-  initialState?: SolidityValueType
+  initialState?: SolidityValueType,
+  assetId?: string,
+  initiatorDeposit?: BigNumber,
+  responderDeposit?: BigNumber
 ): Promise<string> {
   const {
     appInstanceId,
@@ -613,7 +616,10 @@ export async function makeVirtualProposal(
   nodeC: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityValueType
+  initialState?: SolidityValueType,
+  assetId?: string,
+  initiatorDeposit?: BigNumber,
+  responderDeposit?: BigNumber
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -626,10 +632,10 @@ export async function makeVirtualProposal(
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState,
-    One,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-    Zero,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    initiatorDeposit || One,
+    assetId || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDeposit || Zero,
+    assetId || CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
 
   const params = virtualProposalRpc.parameters as NodeTypes.ProposeInstallVirtualParams;
