@@ -42,7 +42,7 @@ cd packages/greenboard
 yarn start
 
 echo "(4/4) Shutting down..."
-killall -9 -q node
-killall -9 -q chromedriver
+killall -9 node
+killall -9 chromedriver
 
 echo "Finished!"
