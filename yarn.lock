@@ -832,6 +832,24 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@counterfactual/node@0.2.63":
+  version "0.2.63"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.2.63.tgz#26c4fe6a2845cc50bd6f0fe879ece8b4a2c3805a"
+  integrity sha512-E9eRsI+oQmxxPYC7oHYgVvLcX3vfkTqVngW0tC65nxpab0BDRGc9Xhu7N5lPwkDDa+Z/Ob1GaFzrOp25yWV7UA==
+  dependencies:
+    "@counterfactual/cf-adjudicator-contracts" "0.0.3"
+    "@counterfactual/cf-funding-protocol-contracts" "0.0.6"
+    "@counterfactual/cf.js" "0.2.5"
+    "@counterfactual/firebase-client" "0.0.5"
+    "@counterfactual/types" "0.0.37"
+    ethers "4.0.33"
+    eventemitter3 "^4.0.0"
+    loglevel "^1.6.1"
+    p-queue "^5.0.0"
+    rpc-server "0.0.1"
+    typescript-memoize "^1.0.0-alpha.3"
+    uuid "^3.3.2"
+
 "@counterfactual/types@0.0.36":
   version "0.0.36"
   resolved "https://registry.npmjs.org/@counterfactual/types/-/types-0.0.36.tgz#48523fdc44eae0d52d947661b7aca50f62eaa68e"
@@ -21282,7 +21300,6 @@ websocket@1.0.29, websocket@^1.0.28:
   dependencies:
     debug "^2.2.0"
     es5-ext "^0.10.50"
-    gulp "^4.0.2"
     nan "^2.14.0"
     typedarray-to-buffer "^3.1.5"
     yaeti "^0.0.6"
