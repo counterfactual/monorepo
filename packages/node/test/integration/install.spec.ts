@@ -41,7 +41,7 @@ describe("Node method follows spec - install", () => {
       });
 
       it("install app with ETH", async done => {
-        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+        await collateralizeChannel(multisigAddress, nodeA, nodeB);
 
         let preInstallETHBalanceNodeA: BigNumber;
         let postInstallETHBalanceNodeA: BigNumber;
@@ -105,9 +105,9 @@ describe("Node method follows spec - install", () => {
         ] as NetworkContextForTestSuite).DolphinCoin;
 
         await collateralizeChannel(
+          multisigAddress,
           nodeA,
           nodeB,
-          multisigAddress,
           One,
           erc20TokenAddress
         );
