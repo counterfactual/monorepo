@@ -2,6 +2,7 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
+import { HashZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import log from "loglevel";
@@ -53,7 +54,7 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const { owners, retryCount } = params;
-    const { wallet, networkContext } = requestHandler;
+    const { wallet, networkContext, provider, store } = requestHandler;
 
     const multisigAddress = getCreate2MultisigAddress(
       owners,
@@ -61,14 +62,28 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(
-      wallet,
-      owners,
-      networkContext,
-      retryCount
-    );
+    // By default, if the contract has been deployed and
+    // DB has records of it, controller will return HashZero
+    let tx = { hash: HashZero } as TransactionResponse;
 
-    this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
+    // Check if the database has stored the relevant data for this state channel
+    if (!(await store.hasStateChannel(multisigAddress))) {
+      // Check if the contract has already been deployed on-chain
+      if ((await provider.getCode(multisigAddress)) === "0x") {
+        tx = await this.sendMultisigDeployTx(
+          wallet,
+          owners,
+          networkContext,
+          retryCount
+        );
+      }
+
+      this.handleDeployedMultisigOnChain(
+        multisigAddress,
+        requestHandler,
+        params
+      );
+    }
 
     return { transactionHash: tx.hash! };
   }
