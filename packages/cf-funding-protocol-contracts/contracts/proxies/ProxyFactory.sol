@@ -60,6 +60,8 @@ contract ProxyFactory {
     // solium-disable-next-line security/no-inline-assembly
     assembly {
       proxy := create2(0x0, add(0x20, deploymentData), mload(deploymentData), salt)
+      let codeSize := extcodesize(proxy)
+      if eq(proxy, 0) { revert(0, 0) }
     }
 
     if (initializer.length > 0)
