@@ -1,10 +1,9 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
-import { Address, AppInstanceInfo } from "@counterfactual/types";
+import { Address, AppInstanceJson } from "@counterfactual/types";
 import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Node } from "../../src";
-import { prettyPrintObject } from "../../src/utils";
 
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
@@ -19,6 +18,7 @@ import {
   installApp,
   installVirtualApp
 } from "./utils";
+import { prettyPrintObject } from "../../src/utils";
 
 type UnidirectionalLinkedTransferAppAction = {
   amount: BigNumber;
@@ -98,19 +98,38 @@ describe("Can update and install multiple apps simultaneously", () => {
   ) {
     const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
       .UnidirectionalLinkedTransferApp;
-    return statesAndActions.map(async ({ state, action }) => {
-      // initiator == sender, iniator deposit == sender.amount
-      return await installApp(
-        funder,
-        redeemer,
-        linkDef,
-        state,
-        action.amount,
-        action.assetId,
-        Zero,
-        action.assetId
+
+    const expectedFunderApps = (await getApps(funder)).length + 1;
+    const expectedRedeemerApps = (await getApps(redeemer)).length + 1;
+    const result: any[] = [];
+    for (let i = 0; i < statesAndActions.length; i += 1) {
+      const { state, action } = statesAndActions[i];
+      result.push(
+        await installApp(
+          funder,
+          redeemer,
+          linkDef,
+          state,
+          bigNumberify(action.amount),
+          action.assetId,
+          Zero,
+          action.assetId
+        )
       );
-    });
+    }
+    // sanity check
+    const fApps = await getApps(funder);
+    const rApps = await getApps(redeemer);
+    if (
+      fApps.length !== expectedFunderApps ||
+      rApps.length !== expectedRedeemerApps
+    ) {
+      throw new Error(
+        `Installed app length between two parties mismatch. redeemer apps: ${rApps.length}, funder apps: ${fApps.length}`
+      );
+    }
+    console.log(`successfully installed ${result.length} link apps`);
+    return result;
   }
 
   async function takeAppAction(
@@ -120,9 +139,10 @@ describe("Can update and install multiple apps simultaneously", () => {
       | UnidirectionalLinkedTransferAppAction
       | UnidirectionalTransferAppAction
   ) {
-    return (await node.rpcRouter.dispatch(
+    const res = await node.rpcRouter.dispatch(
       constructTakeActionRpc(appId, action)
-    )).result.result;
+    );
+    return res.result.result;
   }
 
   async function uninstallApp(node: Node, appId: string) {
@@ -139,8 +159,9 @@ describe("Can update and install multiple apps simultaneously", () => {
     return (await node.rpcRouter.dispatch(rpc)).result.result;
   }
 
-  async function getApps(node: Node) {
-    return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result;
+  async function getApps(node: Node): Promise<AppInstanceJson[]> {
+    return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
+      .appInstances;
   }
 
   // will uninstall an app between the intermediary and the funder
@@ -154,52 +175,77 @@ describe("Can update and install multiple apps simultaneously", () => {
   ) {
     const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
       .UnidirectionalLinkedTransferApp;
-    const apps: AppInstanceInfo[] = await getApps(intermediary);
+    const hubApps = await getApps(intermediary);
+
     // NOTE: this may return more than one valid app, thats fine, just take
     // the first.
-    const funderApp = apps.filter(a => {
-      a.appDefinition === linkDef &&
-        a.proposedByIdentifier === funder.publicIdentifier &&
-        a.proposedToIdentifier === intermediary.publicIdentifier;
-    })[0];
-    if (!funderApp) {
+    const hasAddressInTransfers = (
+      app: AppInstanceJson,
+      addr: string
+    ): boolean => {
+      return (
+        (app.latestState as any).transfers[0].to === addr ||
+        (app.latestState as any).transfers[1].to === addr
+      );
+    };
+    const matchedApp = hubApps.filter(
+      a =>
+        a.appInterface.addr === linkDef &&
+        hasAddressInTransfers(a, funder.freeBalanceAddress)
+    )[0];
+    if (!matchedApp) {
       throw new Error(
         `Could not find installed app with intermediary with desired properties`
       );
     }
 
+    console.log(
+      "******** found matching app in hubs channel with id",
+      matchedApp.identityHash
+    );
+
     // install app between the redeemer and the intermediary
-    const [redeemerAppId, redeemerParams] = await installLinks(
-      intermediary,
-      redeemer,
-      [stateAndAction]
-    )[0];
-    console.log("redeemer app installed with params:", redeemerParams);
+    const [redeemerAppId] = (await installLinks(intermediary, redeemer, [
+      stateAndAction
+    ]))[0];
+    console.log("***** redeemer app installed with id:", redeemerAppId);
 
     // take action to finalize state and claim funds from intermediary
     await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
 
+    console.log(
+      "********** redeemer apps after action",
+      prettyPrintObject(await getApps(redeemer))
+    );
+
     // uninstall the app between the redeemer and the intermediary
     await uninstallApp(redeemer, redeemerAppId);
+
+    console.log(
+      "********** redeemer apps after uninstall",
+      prettyPrintObject(await getApps(redeemer))
+    );
 
     // take action with funder and intermediary to finalize
     // NOTE: this should already be installed
     await takeAppAction(
       intermediary,
-      funderApp.identityHash,
+      matchedApp.identityHash,
       stateAndAction.action
     );
 
     // uninstall the app between the funder and intermediary to break even
-    await uninstallApp(intermediary, funderApp.identityHash);
+    await uninstallApp(intermediary, matchedApp.identityHash);
   }
 
+  /*
   // calls `redeemLink` every half second on a poller
   function redeemLinkPoller(
     funder: Node,
     intermediary: Node,
     redeemer: Node,
-    statesAndActions: any[]
+    statesAndActions: any[],
+    done: any
   ) {
     console.log("******* poller started");
     setTimeout(async () => {
@@ -215,9 +261,12 @@ describe("Can update and install multiple apps simultaneously", () => {
           redeemer,
           statesAndActions.pop()
         );
+      } else {
+        done();
       }
     }, 100);
   }
+  */
 
   // installs, updates, and uninstalls a virtual eth unidirectional
   // transfer app
@@ -236,8 +285,6 @@ describe("Can update and install multiple apps simultaneously", () => {
       sender.freeBalanceAddress,
       receiver.freeBalanceAddress
     );
-
-    console.log("***** initial state:", prettyPrintObject(initialState));
 
     const appId = await installVirtualApp(
       sender,
@@ -288,11 +335,9 @@ describe("Can update and install multiple apps simultaneously", () => {
    * These errors were successfully reproduced by connext in the `test-bot-farm`
    * script, both with the postgres store and the memory store.
    */
-  it("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transer", async () => {
+  it("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transer", async done => {
     const multisigAddressAB = await createChannel(nodeA, nodeB);
     const multisigAddressBC = await createChannel(nodeB, nodeC);
-
-    console.log("******* channels created");
 
     // this deposits into both nodes. realistically, we want
     // to have nodeA deposit into AB, and nodeB collateralize
@@ -310,23 +355,22 @@ describe("Can update and install multiple apps simultaneously", () => {
       bigNumberify(15)
     );
 
-    console.log("******* channels collateralized");
-
     // first, pregenerate several linked app initial states
     const {
       linkStatesRedeemer,
       linkStatesSender
-    } = generateInitialLinkedTransferStates();
-
-    console.log("******* link initial states generated");
+    } = generateInitialLinkedTransferStates(1);
 
     // install all the linked apps on the sender side
     await installLinks(nodeA, nodeB, linkStatesSender);
 
-    console.log("******* link apps installed with sender");
+    // try to redeem links
+    await redeemLink(nodeA, nodeB, nodeC, linkStatesRedeemer.pop());
 
-    // begin redeeming apps as the receiver on an interval
-    redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer);
+    done();
+
+    // // begin redeeming apps as the receiver on an interval
+    // redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
 
     // while links are redeeming, try to send receiver a
     // direct transfer
