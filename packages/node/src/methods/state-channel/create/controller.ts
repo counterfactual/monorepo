@@ -8,7 +8,7 @@ import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
+import { xkeysToSortedKthAddresses } from "../../../machine";
 import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -204,9 +204,7 @@ async function checkForCorrectOwners(
     provider
   );
 
-  const expectedOwners = sortAddresses(
-    xpubs.map(xpub => xkeyKthAddress(xpub, 0))
-  );
+  const expectedOwners = xkeysToSortedKthAddresses(xpubs, 0);
 
   const actualOwners = sortAddresses(await contract.functions.getOwners());
 
