@@ -3,6 +3,8 @@
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "dist/",
+    "noUnusedParameters": false,
+    "noUnusedLocals": false,
     "outDir": "dist/",
     "resolveJsonModule": true,
     "typeRoots": [
