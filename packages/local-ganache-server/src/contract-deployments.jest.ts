@@ -1,4 +1,6 @@
 import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
+import UnidirectionalLinkedTransferApp from "@counterfactual/apps/build/UnidirectionalLinkedTransferApp.json";
+import UnidirectionalTransferApp from "@counterfactual/apps/build/UnidirectionalTransferApp.json";
 import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/build/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
@@ -17,6 +19,8 @@ import { ContractFactory, Wallet } from "ethers";
 export type NetworkContextForTestSuite = NetworkContext & {
   TicTacToeApp: string;
   DolphinCoin: string;
+  UnidirectionalTransferApp: string;
+  UnidirectionalLinkedTransferApp: string;
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
@@ -86,6 +90,18 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const transferContract = await new ContractFactory(
+    UnidirectionalTransferApp.abi,
+    UnidirectionalTransferApp.bytecode,
+    wallet
+  ).deploy();
+
+  const linkContract = await new ContractFactory(
+    UnidirectionalLinkedTransferApp.abi,
+    UnidirectionalLinkedTransferApp.bytecode,
+    wallet
+  ).deploy();
+
   const timeLockedPassThrough = await new ContractFactory(
     TimeLockedPassThrough.abi,
     TimeLockedPassThrough.bytecode,
@@ -115,6 +131,8 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppInterpreter:
-      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address,
+    UnidirectionalLinkedTransferApp: linkContract.address,
+    UnidirectionalTransferApp: transferContract.address
   } as NetworkContextForTestSuite;
 }
