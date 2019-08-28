@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { Provider, TransactionResponse } from "ethers/providers";
@@ -128,19 +128,9 @@ export default class CreateChannelController extends NodeController {
       throw Error("wallet must have a provider");
     }
 
-    const { gasLimit: networkGasLimit } = await provider.getBlock(
-      provider.getBlockNumber()
-    );
-
     let error;
     for (let tryCount = 1; tryCount < retryCount + 1; tryCount += 1) {
       try {
-        const extraGasLimit = tryCount * 50_000;
-        const gasLimit = CREATE_PROXY_AND_SETUP_GAS + extraGasLimit;
-        const clampedGasLimit = networkGasLimit.lt(gasLimit)
-          ? networkGasLimit
-          : gasLimit;
-
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
           new Interface(MinimumViableMultisig.abi).functions.setup.encode([
@@ -148,7 +138,7 @@ export default class CreateChannelController extends NodeController {
           ]),
           0, // TODO: Increment nonce as needed
           {
-            gasLimit: clampedGasLimit,
+            gasLimit: CREATE_PROXY_AND_SETUP_GAS,
             gasPrice: provider.getGasPrice()
           }
         );

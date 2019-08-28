@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/cf-funding-protocol-contracts/build/Proxy.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
+import Proxy from "@counterfactual/cf-funding-protocol-contracts/expected-build/Proxy.json";
 import { Node } from "@counterfactual/types";
 import {
   getAddress,
@@ -41,7 +41,10 @@ export default class GetStateDepositHolderAddressController extends NodeControll
           keccak256(
             solidityPack(
               ["bytes", "uint256"],
-              [`0x${Proxy.bytecode}`, networkContext.MinimumViableMultisig]
+              [
+                `0x${Proxy.evm.bytecode.object}`,
+                networkContext.MinimumViableMultisig
+              ]
             )
           )
         ]
