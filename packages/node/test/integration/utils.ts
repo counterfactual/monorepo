@@ -794,16 +794,15 @@ export function getAppContext(
 
   switch (appDefinition) {
     case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
-      initialAppState = initialState ? initialState : initialEmptyTTTState();
+      initialAppState = initialState || initialEmptyTTTState();
       abiEncodings = tttAbiEncodings;
       break;
 
     case (global["networkContext"] as NetworkContextForTestSuite)
       .UnidirectionalTransferApp:
       checkForAddresses();
-      initialAppState = initialState
-        ? initialState
-        : initialTransferState(senderAddress!, receiverAddress!);
+      initialAppState =
+        initialState || initialTransferState(senderAddress!, receiverAddress!);
       abiEncodings = transferAbiEncodings;
       break;
 
@@ -813,7 +812,7 @@ export function getAppContext(
       // TODO: need a better way to return the action info that generated
       // the linked hash as well
       const { state } = initialLinkedState(senderAddress!, receiverAddress!);
-      initialAppState = initialState ? initialState : state;
+      initialAppState = initialState || state;
       abiEncodings = linkedAbiEncodings;
       break;
 
