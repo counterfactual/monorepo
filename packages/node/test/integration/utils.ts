@@ -96,7 +96,8 @@ export async function getAppInstance(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  return (response.result.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
+  return (response.result.result as NodeTypes.GetAppInstanceDetailsResult)
+    .appInstance;
 }
 
 export async function getAppInstanceProposal(
