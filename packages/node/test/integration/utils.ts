@@ -38,6 +38,7 @@ interface AppContext {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initialState: SolidityValueType;
+  outcomeType: OutcomeType;
 }
 
 /**
@@ -95,7 +96,7 @@ export async function getAppInstance(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
+  return (response.result.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -274,6 +275,7 @@ export function constructAppProposalRpc(
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
+  const { outcomeType } = getAppContext(appDefinition, initialState);
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
@@ -287,8 +289,8 @@ export function constructAppProposalRpc(
       appDefinition,
       initialState,
       abiEncodings,
-      timeout: One,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      outcomeType,
+      timeout: One
     } as NodeTypes.ProposeInstallParams
   });
 }
@@ -553,7 +555,6 @@ export async function installVirtualApp(
 ): Promise<string> {
   return new Promise(async resolve => {
     nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      console.log("****** caught install event, resolving");
       resolve(msg.data.params.appInstanceId);
     });
 
@@ -564,7 +565,6 @@ export async function installVirtualApp(
           msg.data.appInstanceId,
           msg.data.params.intermediaryIdentifier
         );
-        console.log("****** sending install virtual request");
         await nodeC.rpcRouter.dispatch(installReq);
       }
     );
@@ -782,6 +782,7 @@ export function getAppContext(
 ): AppContext {
   let abiEncodings: AppABIEncodings;
   let initialAppState: SolidityValueType;
+  let outcomeType: OutcomeType;
 
   const checkForAddresses = () => {
     const missingAddr = !senderAddress || !receiverAddress;
@@ -796,6 +797,7 @@ export function getAppContext(
     case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
       initialAppState = initialState || initialEmptyTTTState();
       abiEncodings = tttAbiEncodings;
+      outcomeType = OutcomeType.TWO_PARTY_FIXED_OUTCOME;
       break;
 
     case (global["networkContext"] as NetworkContextForTestSuite)
@@ -804,6 +806,7 @@ export function getAppContext(
       initialAppState =
         initialState || initialTransferState(senderAddress!, receiverAddress!);
       abiEncodings = transferAbiEncodings;
+      outcomeType = OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER;
       break;
 
     case (global["networkContext"] as NetworkContextForTestSuite)
@@ -814,6 +817,7 @@ export function getAppContext(
       const { state } = initialLinkedState(senderAddress!, receiverAddress!);
       initialAppState = initialState || state;
       abiEncodings = linkedAbiEncodings;
+      outcomeType = OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER;
       break;
 
     default:
@@ -825,6 +829,7 @@ export function getAppContext(
   return {
     appDefinition,
     abiEncodings,
+    outcomeType,
     initialState: initialAppState
   };
 }
