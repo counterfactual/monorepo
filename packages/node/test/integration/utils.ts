@@ -38,6 +38,7 @@ interface AppContext {
   appDefinition: string;
   abiEncodings: AppABIEncodings;
   initialState: SolidityValueType;
+  outcomeType: OutcomeType;
 }
 
 /**
@@ -95,7 +96,7 @@ export async function getAppInstance(
     }
   });
   const response = await node.rpcRouter.dispatch(req);
-  return (response.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
+  return (response.result.result as NodeTypes.GetAppInstanceDetailsResult).appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -274,6 +275,7 @@ export function constructAppProposalRpc(
   responderDeposit: BigNumber = Zero,
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Rpc {
+  const { outcomeType } = getAppContext(appDefinition, initialState);
   return jsonRpcDeserialize({
     id: Date.now(),
     method: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
@@ -287,8 +289,8 @@ export function constructAppProposalRpc(
       appDefinition,
       initialState,
       abiEncodings,
-      timeout: One,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      outcomeType,
+      timeout: One
     } as NodeTypes.ProposeInstallParams
   });
 }
@@ -551,6 +553,7 @@ export async function installVirtualApp(
   initiatorDeposit?: BigNumber,
   responderDeposit?: BigNumber
 ): Promise<string> {
+<<<<<<< HEAD
   const {
     appInstanceId,
     params: { intermediaryIdentifier }
@@ -561,12 +564,49 @@ export async function installVirtualApp(
     appDefinition,
     initialState
   );
+||||||| merged common ancestors
+  return new Promise(async resolve => {
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
+      console.log("****** caught install event, resolving");
+      resolve(msg.data.params.appInstanceId);
+    });
+=======
+  return new Promise(async resolve => {
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
+      resolve(msg.data.params.appInstanceId);
+    });
+>>>>>>> remove logs, fix getAppInstance, add outcome type to app context
 
+<<<<<<< HEAD
   nodeC.once(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
     nodeC.rpcRouter.dispatch(
       constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
     )
   );
+||||||| merged common ancestors
+    nodeC.on(
+      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+      async (msg: ProposeVirtualMessage) => {
+        const installReq = constructInstallVirtualRpc(
+          msg.data.appInstanceId,
+          msg.data.params.intermediaryIdentifier
+        );
+        console.log("****** sending install virtual request");
+        await nodeC.rpcRouter.dispatch(installReq);
+      }
+    );
+=======
+    nodeC.on(
+      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+      async (msg: ProposeVirtualMessage) => {
+        const installReq = constructInstallVirtualRpc(
+          msg.data.appInstanceId,
+          msg.data.params.intermediaryIdentifier
+        );
+        await nodeC.rpcRouter.dispatch(installReq);
+      }
+    );
+>>>>>>> remove logs, fix getAppInstance, add outcome type to app context
 
   return new Promise((resolve: (appInstanceId: string) => void) =>
     nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => resolve(appInstanceId))
@@ -801,7 +841,8 @@ export function getAppContext(
       return {
         appDefinition,
         abiEncodings: tttAbiEncodings,
-        initialState: initialState || initialEmptyTTTState()
+        initialState: initialState || initialEmptyTTTState(),
+        outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       };
 
     case (global["networkContext"] as NetworkContextForTestSuite)
@@ -812,7 +853,8 @@ export function getAppContext(
         initialState: initialState
           ? initialState
           : initialTransferState(senderAddress!, receiverAddress!),
-        abiEncodings: transferAbiEncodings
+        abiEncodings: transferAbiEncodings,
+        outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       };
 
     case (global["networkContext"] as NetworkContextForTestSuite)
@@ -824,7 +866,8 @@ export function getAppContext(
       return {
         appDefinition,
         initialState: initialState || state,
-        abiEncodings: linkedAbiEncodings
+        abiEncodings: linkedAbiEncodings,
+        outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       };
 
     default:
