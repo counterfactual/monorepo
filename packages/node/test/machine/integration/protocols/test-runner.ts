@@ -1,4 +1,4 @@
-import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/expected-build/IdentityApp.json";
+import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/build/IdentityApp.json";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
@@ -43,7 +43,7 @@ export class TestRunner {
 
     this.identityApp = await new ContractFactory(
       IdentityApp.abi,
-      IdentityApp.evm.bytecode,
+      IdentityApp.bytecode,
       wallet
     ).deploy();
 
