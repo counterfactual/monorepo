@@ -36,6 +36,7 @@ describe("Node method follows spec - deposit", () => {
     provider = new JsonRpcProvider(global["ganacheURL"]);
 
     multisigAddress = await createChannel(nodeA, nodeB);
+    expect(multisigAddress).toBeDefined();
   });
 
   it("has the right balance before an ERC20 deposit has been made", async () => {
