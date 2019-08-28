@@ -42,7 +42,9 @@ contract SingleAssetTwoPartyCoinTransferInterpreter is Interpreter {
       // note: send() is deliberately used instead of coinTransfer() here
       // so that a revert does not stop the rest of the sends
       // see decenter audit for context
+      /* solium-disable-next-line */
       outcome[0].to.send(outcome[0].amount);
+      /* solium-disable-next-line */
       outcome[1].to.send(outcome[1].amount);
     } else {
       ERC20(params.tokenAddress).transfer(outcome[0].to, outcome[0].amount);
