@@ -1,38 +1,38 @@
-import TicTacToeApp from "@counterfactual/apps/expected-build/TicTacToeApp.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build/MultiAssetMultiPartyCoinTransferInterpreter.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build/ProxyFactory.json";
-import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
+import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/MultiAssetMultiPartyCoinTransferInterpreter.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
   const mvmContract = await new ContractFactory(
     MinimumViableMultisig.abi,
-    MinimumViableMultisig.evm.bytecode,
+    MinimumViableMultisig.bytecode,
     wallet
   ).deploy();
 
   const proxyFactoryContract = await new ContractFactory(
     ProxyFactory.abi,
-    ProxyFactory.evm.bytecode,
+    ProxyFactory.bytecode,
     wallet
   ).deploy();
 
   const tttContract = await new ContractFactory(
-    TicTacToeApp.abi,
-    TicTacToeApp.evm.bytecode,
+    TicTacToeApp.interface,
+    TicTacToeApp.bytecode,
     wallet
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
     MultiAssetMultiPartyCoinTransferInterpreter.abi,
-    MultiAssetMultiPartyCoinTransferInterpreter.evm.bytecode,
+    MultiAssetMultiPartyCoinTransferInterpreter.bytecode,
     wallet
   ).deploy();
 
   const twoPartyFixedOutcomeFromVirtualAppETHInterpreter = await new ContractFactory(
     TwoPartyFixedOutcomeFromVirtualAppInterpreter.abi,
-    TwoPartyFixedOutcomeFromVirtualAppInterpreter.evm.bytecode,
+    TwoPartyFixedOutcomeFromVirtualAppInterpreter.bytecode,
     wallet
   ).deploy();
 

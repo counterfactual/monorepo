@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/cf-funding-protocol-contracts/expected-build/Proxy.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import Proxy from "@counterfactual/cf-funding-protocol-contracts/build/Proxy.json";
 import {
   BigNumber,
   bigNumberify,
@@ -69,7 +69,7 @@ export function getCreate2MultisigAddress(
           ),
           solidityKeccak256(
             ["bytes", "uint256"],
-            [`0x${Proxy.evm.bytecode.object}`, minimumViableMultisigAddress]
+            [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
           )
         ]
       ).slice(-40)
