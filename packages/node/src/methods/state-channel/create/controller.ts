@@ -2,13 +2,14 @@ import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts
 import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
-import { AddressZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
+import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeysToSortedKthAddresses } from "../../../machine";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
+import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import {
@@ -124,11 +125,11 @@ export default class CreateChannelController extends NodeController {
     const provider = await signer.provider;
 
     if (!provider) {
-      throw new Error("wallet must have a provider");
+      throw Error("wallet must have a provider");
     }
 
     let error;
-    for (let tryCount = 0; tryCount < retryCount; tryCount += 1) {
+    for (let tryCount = 1; tryCount < retryCount + 1; tryCount += 1) {
       try {
         const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
           networkContext.MinimumViableMultisig,
@@ -150,28 +151,31 @@ export default class CreateChannelController extends NodeController {
           );
         }
 
-        if (
-          !(await checkForCorrectDeployedByteCode(
-            tx!,
-            provider,
-            owners,
-            networkContext
-          ))
-        ) {
-          error = `Could not confirm the deployed multisig contract has the expected bytecode`;
-          await sleep(1000 * tryCount ** 2);
+        const ownersAreCorrectlySet = await checkForCorrectOwners(
+          tx!,
+          provider,
+          owners,
+          networkContext
+        );
+
+        if (!ownersAreCorrectlySet) {
+          log.error(
+            `${CHANNEL_CREATION_FAILED}: Could not confirm, on the ${tryCount} try, that the deployed multisig contract has the expected owners`
+          );
+          // wait on a linear backoff interval before retrying
+          await sleep(1000 * tryCount);
           continue;
         }
 
         if (tryCount > 0) {
-          console.log(
+          log.debug(
             `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
           );
         }
         return tx;
       } catch (e) {
         error = e;
-        console.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
+        log.error(`Channel creation attempt ${tryCount} failed: ${e}.\n
                       Retrying ${retryCount - tryCount} more times`);
       }
     }
@@ -180,23 +184,34 @@ export default class CreateChannelController extends NodeController {
   }
 }
 
-async function checkForCorrectDeployedByteCode(
+async function checkForCorrectOwners(
   tx: TransactionResponse,
   provider: Provider,
-  owners: string[],
+  xpubs: string[],
   networkContext: NetworkContext
 ): Promise<boolean> {
   const multisigAddress = getCreate2MultisigAddress(
-    owners,
+    xpubs,
     networkContext.ProxyFactory,
     networkContext.MinimumViableMultisig
   );
 
   await tx.wait();
 
-  const multisigDeployedBytecode = await provider.getCode(
+  const contract = new Contract(
     multisigAddress,
-    tx.blockHash
+    MinimumViableMultisig.abi,
+    provider
   );
-  return multisigDeployedBytecode !== AddressZero;
+
+  const expectedOwners = sortAddresses(
+    xpubs.map(xpub => xkeyKthAddress(xpub, 0))
+  );
+
+  const actualOwners = sortAddresses(await contract.functions.getOwners());
+
+  return (
+    expectedOwners[0] === actualOwners[0] &&
+    expectedOwners[1] === actualOwners[1]
+  );
 }
