@@ -546,15 +546,16 @@ export async function installVirtualApp(
   nodeB: Node,
   nodeC: Node,
   appDefinition: string,
-  initialState?: SolidityValueType
+  initialState?: SolidityValueType,
+  assetId?: string,
+  initiatorDeposit?: BigNumber,
+  responderDeposit?: BigNumber
 ): Promise<string> {
   return new Promise(async resolve => {
-    nodeA.on(
-      NODE_EVENTS.INSTALL_VIRTUAL,
-      async (msg: InstallVirtualMessage) => {
-        resolve(msg.data.params.appInstanceId);
-      }
-    );
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
+      console.log("****** caught install event, resolving");
+      resolve(msg.data.params.appInstanceId);
+    });
 
     nodeC.on(
       NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
@@ -563,11 +564,21 @@ export async function installVirtualApp(
           msg.data.appInstanceId,
           msg.data.params.intermediaryIdentifier
         );
+        console.log("****** sending install virtual request");
         await nodeC.rpcRouter.dispatch(installReq);
       }
     );
 
-    await makeVirtualProposal(nodeA, nodeC, nodeB, appDefinition, initialState);
+    await makeVirtualProposal(
+      nodeA,
+      nodeC,
+      nodeB,
+      appDefinition,
+      initialState,
+      assetId,
+      initiatorDeposit,
+      responderDeposit
+    );
   });
 }
 
@@ -614,7 +625,10 @@ export async function makeVirtualProposal(
   nodeC: Node,
   nodeB: Node,
   appDefinition: string,
-  initialState?: SolidityValueType
+  initialState?: SolidityValueType,
+  assetId?: string,
+  initiatorDeposit?: BigNumber,
+  responderDeposit?: BigNumber
 ): Promise<{
   appInstanceId: string;
   params: NodeTypes.ProposeInstallVirtualParams;
@@ -627,10 +641,10 @@ export async function makeVirtualProposal(
     appContext.appDefinition,
     appContext.abiEncodings,
     appContext.initialState,
-    One,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-    Zero,
-    CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    initiatorDeposit || One,
+    assetId || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDeposit || Zero,
+    assetId || CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
   const params = virtualProposalRpc.parameters as NodeTypes.ProposeInstallVirtualParams;
   const {
