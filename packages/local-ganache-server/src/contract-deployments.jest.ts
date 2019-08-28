@@ -92,13 +92,13 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
 
   const transferContract = await new ContractFactory(
     UnidirectionalTransferApp.abi,
-    UnidirectionalTransferApp.bytecode,
+    UnidirectionalTransferApp.evm.bytecode,
     wallet
   ).deploy();
 
   const linkContract = await new ContractFactory(
     UnidirectionalLinkedTransferApp.abi,
-    UnidirectionalLinkedTransferApp.bytecode,
+    UnidirectionalLinkedTransferApp.evm.bytecode,
     wallet
   ).deploy();
 

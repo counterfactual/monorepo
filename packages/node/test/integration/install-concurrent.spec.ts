@@ -40,9 +40,9 @@ describe("Node method follows spec - install", () => {
         let completedInstalls = 0;
 
         await collateralizeChannel(
+          multisigAddress,
           nodeA,
           nodeB,
-          multisigAddress,
           parseEther("2") // We are depositing in 2 and use 1 for each concurrent app
         );
 

@@ -2,7 +2,7 @@ import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server
 import { parseEther } from "ethers/utils";
 
 import { Node } from "../../src";
-import { NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { NODE_EVENTS } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -33,16 +33,16 @@ describe("Concurrently installing virtual applications with same intermediary", 
     multisigAddressBC = await createChannel(nodeB, nodeC);
 
     await collateralizeChannel(
+      multisigAddressAB,
       nodeA,
       nodeB,
-      multisigAddressAB,
       parseEther("2")
     );
 
     await collateralizeChannel(
+      multisigAddressBC,
       nodeB,
       nodeC,
-      multisigAddressBC,
       parseEther("2")
     );
   });

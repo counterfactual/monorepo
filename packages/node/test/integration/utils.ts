@@ -27,7 +27,12 @@ import {
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 
+import { initialLinkedState, linkedAbiEncodings } from "./linked-transfer";
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
+import {
+  initialTransferState,
+  transferAbiEncodings
+} from "./unidirectional-transfer";
 
 interface AppContext {
   appDefinition: string;
@@ -763,14 +768,48 @@ export async function transferERC20Tokens(
 
 export function getAppContext(
   appDefinition: string,
-  initialState?: SolidityValueType
+  initialState?: SolidityValueType,
+  senderAddress?: string, // needed for both types of transfer apps
+  receiverAddress?: string // needed for both types of transfer apps
 ): AppContext {
+  const checkForAddresses = () => {
+    const missingAddr = !senderAddress || !receiverAddress;
+    if (missingAddr && !initialState) {
+      throw new Error(
+        "Must have sender and redeemer addresses to generate initial state for either transfer app context"
+      );
+    }
+  };
+
   switch (appDefinition) {
     case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
       return {
         appDefinition,
         abiEncodings: tttAbiEncodings,
         initialState: initialState ? initialState : initialEmptyTTTState()
+      };
+
+    case (global["networkContext"] as NetworkContextForTestSuite)
+      .UnidirectionalTransferApp:
+      checkForAddresses();
+      return {
+        appDefinition,
+        initialState: initialState
+          ? initialState
+          : initialTransferState(senderAddress!, receiverAddress!),
+        abiEncodings: transferAbiEncodings
+      };
+
+    case (global["networkContext"] as NetworkContextForTestSuite)
+      .UnidirectionalLinkedTransferApp:
+      checkForAddresses();
+      // TODO: need a better way to return the action info that generated
+      // the linked hash as well
+      const { state } = initialLinkedState(senderAddress!, receiverAddress!);
+      return {
+        appDefinition,
+        initialState: initialState ? initialState : state,
+        abiEncodings: linkedAbiEncodings
       };
 
     default:
