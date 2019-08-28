@@ -420,6 +420,15 @@ export function constructTakeActionRpc(
   });
 }
 
+export function constructGetAppsRpc(): Rpc {
+  return jsonRpcDeserialize({
+    params: {},
+    id: Date.now(),
+    method: NodeTypes.RpcMethodName.GET_APP_INSTANCES,
+    jsonrpc: "2.0"
+  });
+}
+
 export function constructUninstallRpc(appInstanceId: string): Rpc {
   return jsonRpcDeserialize({
     params: {
