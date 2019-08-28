@@ -37,6 +37,9 @@ type UnidirectionalTransferAppAction = {
   amount: BigNumberish;
 };
 
+const delay = (ms: number): Promise<void> =>
+  new Promise((res: any): any => setTimeout(res, ms));
+
 /**
  * The connext team has seen some strange issues in production that
  * only appear when multiple bots are running. This test suite will
@@ -99,8 +102,10 @@ describe("Can update and install multiple apps simultaneously", () => {
     const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
       .UnidirectionalLinkedTransferApp;
 
-    const expectedFunderApps = (await getApps(funder)).length + 1;
-    const expectedRedeemerApps = (await getApps(redeemer)).length + 1;
+    const expectedFunderApps =
+      (await getApps(funder)).length + statesAndActions.length;
+    const expectedRedeemerApps =
+      (await getApps(redeemer)).length + statesAndActions.length;
     const result: any[] = [];
     for (let i = 0; i < statesAndActions.length; i += 1) {
       const { state, action } = statesAndActions[i];
@@ -128,7 +133,11 @@ describe("Can update and install multiple apps simultaneously", () => {
         `Installed app length between two parties mismatch. redeemer apps: ${rApps.length}, funder apps: ${fApps.length}`
       );
     }
-    console.log(`successfully installed ${result.length} link apps`);
+    console.log(
+      `successfully installed ${result.length} link apps with ids${result.map(
+        r => ` ${r[0]}`
+      )}`
+    );
     return result;
   }
 
@@ -238,7 +247,6 @@ describe("Can update and install multiple apps simultaneously", () => {
     await uninstallApp(intermediary, matchedApp.identityHash);
   }
 
-  /*
   // calls `redeemLink` every half second on a poller
   function redeemLinkPoller(
     funder: Node,
@@ -247,13 +255,10 @@ describe("Can update and install multiple apps simultaneously", () => {
     statesAndActions: any[],
     done: any
   ) {
-    console.log("******* poller started");
     setTimeout(async () => {
-      if (statesAndActions.length > 0) {
+      while (statesAndActions.length > 0) {
         console.log(
-          "******* trying to redeem link",
-          statesAndActions.length,
-          "remaining"
+          `******* trying to redeem link. ${statesAndActions.length} remaining`
         );
         await redeemLink(
           funder,
@@ -261,12 +266,10 @@ describe("Can update and install multiple apps simultaneously", () => {
           redeemer,
           statesAndActions.pop()
         );
-      } else {
-        done();
       }
-    }, 100);
+      done();
+    }, 1000);
   }
-  */
 
   // installs, updates, and uninstalls a virtual eth unidirectional
   // transfer app
@@ -364,13 +367,11 @@ describe("Can update and install multiple apps simultaneously", () => {
     // install all the linked apps on the sender side
     await installLinks(nodeA, nodeB, linkStatesSender);
 
-    // try to redeem links
-    await redeemLink(nodeA, nodeB, nodeC, linkStatesRedeemer.pop());
+    expect((await getApps(nodeA)).length).toBe(linkStatesSender.length);
+    // TODO: check for state
 
-    done();
-
-    // // begin redeeming apps as the receiver on an interval
-    // redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
+    // begin redeeming apps as the receiver on an interval
+    redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
 
     // while links are redeeming, try to send receiver a
     // direct transfer
