@@ -442,16 +442,19 @@ export function constructUninstallVirtualRpc(
 }
 
 export async function collateralizeChannel(
-  node1: Node,
-  node2: Node,
   multisigAddress: string,
+  node1: Node,
+  node2?: Node,
   amount: BigNumber = One,
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
   const depositReq = constructDepositRpc(multisigAddress, amount, tokenAddress);
   node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
-  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node1.rpcRouter.dispatch(depositReq);
+  if (!node2) {
+    return;
+  }
+  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node2.rpcRouter.dispatch(depositReq);
 }
 
@@ -632,7 +635,7 @@ export async function makeVirtualProposal(
   return { appInstanceId, params };
 }
 
-export function installTTTVirtual(
+export async function installTTTVirtual(
   node: Node,
   appInstanceId: string,
   intermediaryIdentifier: string
@@ -641,7 +644,7 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaryIdentifier
   );
-  node.rpcRouter.dispatch(installVirtualReq);
+  await node.rpcRouter.dispatch(installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {

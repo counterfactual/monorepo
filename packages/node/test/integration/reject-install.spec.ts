@@ -32,7 +32,7 @@ describe("Node method follows spec - rejectInstall", () => {
     () => {
       it("sends proposal with non-null initial state", async done => {
         const multisigAddress = await createChannel(nodeA, nodeB);
-        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+        await collateralizeChannel(multisigAddress, nodeA, nodeB);
 
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
