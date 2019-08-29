@@ -34,7 +34,7 @@ describe("Node method follows spec - install", () => {
         multisigAddress = await createChannel(nodeA, nodeB);
       });
 
-      it("install app with ETH", async () => {
+      it("install app with ETH", async done => {
         await collateralizeChannel(nodeA, nodeB, multisigAddress);
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
@@ -47,7 +47,9 @@ describe("Node method follows spec - install", () => {
           expect(appInstanceNodeA).toBeDefined();
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
 
-          console.log("done");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+
+          done();
         });
 
         const proposeRpc = () => makeProposeCall(
