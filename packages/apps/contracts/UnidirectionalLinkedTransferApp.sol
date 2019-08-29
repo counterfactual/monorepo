@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
 import "openzeppelin-solidity/contracts/math/SafeMath.sol";
@@ -8,7 +8,7 @@ import "@counterfactual/contracts/contracts/libs/LibOutcome.sol";
 
 
 /// @title Unidirectional Linked Transfer App
-/// @notice This contract allows users to claim a payment locked in 
+/// @notice This contract allows users to claim a payment locked in.
 ///         the application if they provide the correct preimage
 
 contract UnidirectionalLinkedTransferApp is CounterfactualApp {
@@ -95,12 +95,14 @@ contract UnidirectionalLinkedTransferApp is CounterfactualApp {
       (Action)
     );
 
-    bytes32 generatedHash = keccak256(abi.encodePacked(
-      action.amount,
-      action.assetId,
-      action.paymentId,
-      action.preImage
-    ));
+    bytes32 generatedHash = keccak256(
+      abi.encodePacked(
+        action.amount,
+        action.assetId,
+        action.paymentId,
+        action.preImage
+      )
+    );
     if (generatedHash == state.linkedHash) {
       /**
        * If the hash is correct, finalize the state with provided transfers.
