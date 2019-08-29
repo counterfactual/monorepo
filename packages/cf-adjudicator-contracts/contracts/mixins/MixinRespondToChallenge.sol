@@ -72,7 +72,7 @@ contract MixinRespondToChallenge is
       );
       challenge.appStateHash = keccak256(newAppState);
       challenge.latestSubmitter = msg.sender;
-      challenge.finalizesAt = block.number;
+      challenge.finalizesAt = uint248(block.number);
       challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
       delete appChallenges[identityHash];
