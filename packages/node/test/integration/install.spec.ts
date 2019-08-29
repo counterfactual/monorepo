@@ -2,7 +2,7 @@ import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server
 import { One } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
-import { Node } from "../../src";
+import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
@@ -11,11 +11,14 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
+  constructAppProposalRpc,
   createChannel,
+  getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
   makeInstallCall,
   makeAndSendProposeCall,
+  transferERC20Tokens
 } from "./utils";
 
 expect.extend({ toBeLt });
@@ -91,6 +94,96 @@ describe("Node method follows spec - install", () => {
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS
         );
+      });
+
+      it("install app with ERC20", async done => {
+        await transferERC20Tokens(await nodeA.signerAddress());
+        await transferERC20Tokens(await nodeB.signerAddress());
+
+        const erc20TokenAddress = (global[
+          "networkContext"
+        ] as NetworkContextForTestSuite).DolphinCoin;
+
+        await collateralizeChannel(
+          nodeA,
+          nodeB,
+          multisigAddress,
+          One,
+          erc20TokenAddress
+        );
+
+        let preInstallERC20BalanceNodeA: BigNumber;
+        let postInstallERC20BalanceNodeA: BigNumber;
+        let preInstallERC20BalanceNodeB: BigNumber;
+        let postInstallERC20BalanceNodeB: BigNumber;
+
+        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+          [
+            preInstallERC20BalanceNodeA,
+            preInstallERC20BalanceNodeB
+          ] = await getBalances(
+            nodeA,
+            nodeB,
+            multisigAddress,
+            erc20TokenAddress
+          );
+          makeInstallCall(nodeB, msg.data.appInstanceId);
+        });
+
+        nodeA.on(NODE_EVENTS.INSTALL, async () => {
+          const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
+          const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
+          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+
+          [
+            postInstallERC20BalanceNodeA,
+            postInstallERC20BalanceNodeB
+          ] = await getBalances(
+            nodeA,
+            nodeB,
+            multisigAddress,
+            erc20TokenAddress
+          );
+
+          expect(postInstallERC20BalanceNodeA).toBeLt(
+            preInstallERC20BalanceNodeA
+          );
+
+          expect(postInstallERC20BalanceNodeB).toBeLt(
+            preInstallERC20BalanceNodeB
+          );
+
+          done();
+        });
+
+        await makeAndSendProposeCall(
+          nodeA,
+          nodeB,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          undefined,
+          One,
+          erc20TokenAddress,
+          One,
+          erc20TokenAddress
+        );
+      });
+
+      it("sends proposal with null initial state", async () => {
+        const appContext = getAppContext(
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+        );
+        const appInstanceProposalReq = constructAppProposalRpc(
+          nodeB.publicIdentifier,
+          appContext.appDefinition,
+          appContext.abiEncodings,
+          appContext.initialState
+        );
+
+        appInstanceProposalReq.parameters["initialState"] = undefined;
+
+        await expect(
+          nodeA.rpcRouter.dispatch(appInstanceProposalReq)
+        ).rejects.toThrowError(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
     }
   );
