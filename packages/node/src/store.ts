@@ -69,6 +69,15 @@ export class Store {
   }
 
   /**
+   * Checks if a StateChannel is in the store
+   */
+  public async hasStateChannel(multisigAddress: string): Promise<boolean> {
+    return !!(await this.storeService.get(
+      `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
+    ));
+  }
+
+  /**
    * Returns a string identifying the multisig address the specified app instance
    * belongs to.
    * @param appInstanceId

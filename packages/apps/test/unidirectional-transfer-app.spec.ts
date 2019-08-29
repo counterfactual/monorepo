@@ -10,7 +10,7 @@ import {
   getAddress
 } from "ethers/utils";
 
-import UnidirectionalTransferApp from "../build/UnidirectionalTransferApp.json";
+import UnidirectionalTransferApp from "../expected-build-artifacts/UnidirectionalTransferApp.json";
 
 const { expect } = chai.use(waffle.solidity);
 

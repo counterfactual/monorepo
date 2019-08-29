@@ -5,7 +5,7 @@ import { Contract } from "ethers";
 import { HashZero } from "ethers/constants";
 import { defaultAbiCoder, solidityKeccak256 } from "ethers/utils";
 
-import HighRollerApp from "../build/HighRollerApp.json";
+import HighRollerApp from "../expected-build-artifacts/HighRollerApp.json";
 
 chai.use(waffle.solidity);
 

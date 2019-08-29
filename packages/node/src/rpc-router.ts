@@ -34,25 +34,20 @@ export default class RpcRouter extends Router {
       throw Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
-    try {
-      const result = jsonRpcSerializeAsResponse(
-        {
-          result: await new controller.type()[controller.callback](
-            this.requestHandler,
-            rpc.parameters
-          ),
-          type: rpc.methodName
-        },
-        rpc.id as number
-      );
+    const result = jsonRpcSerializeAsResponse(
+      {
+        result: await new controller.type()[controller.callback](
+          this.requestHandler,
+          rpc.parameters
+        ),
+        type: rpc.methodName
+      },
+      rpc.id as number
+    );
 
-      this.requestHandler.outgoing.emit(rpc.methodName, result);
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
 
-      return result;
-    } catch (e) {
-      console.error(e.stack);
-      throw Error(e);
-    }
+    return result;
   }
 
   async subscribe(event: string, callback: AsyncCallback) {
