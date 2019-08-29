@@ -1,4 +1,4 @@
-import { Address, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { Address, SolidityValueType } from "@counterfactual/types";
 import chai from "chai";
 import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
@@ -11,7 +11,7 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import UnidirectionalLinkedTransferApp from "../build/UnidirectionalLinkedTransferApp.json";
+import UnidirectionalLinkedTransferApp from "../expected-build-artifacts/UnidirectionalLinkedTransferApp.json";
 
 chai.use(waffle.solidity);
 
@@ -82,14 +82,14 @@ function decodeAppState(
   )[0];
 }
 
-function encodeAppState(state: SolidityABIEncoderV2Type): string {
+function encodeAppState(state: SolidityValueType): string {
   return defaultAbiCoder.encode(
     [unidirectionalLinkedTransferAppStateEncoding],
     [state]
   );
 }
 
-function encodeAppAction(state: SolidityABIEncoderV2Type): string {
+function encodeAppAction(state: SolidityValueType): string {
   return defaultAbiCoder.encode(
     [unidirectionalLinkedTransferAppActionEncoding],
     [state]
@@ -148,15 +148,15 @@ describe("LinkedUnidirectionalTransferApp", () => {
   let unidirectionalLinkedTransferApp: Contract;
 
   const applyAction = (
-    state: SolidityABIEncoderV2Type,
-    action: SolidityABIEncoderV2Type
+    state: SolidityValueType,
+    action: SolidityValueType
   ): any =>
     unidirectionalLinkedTransferApp.functions.applyAction(
       encodeAppState(state),
       encodeAppAction(action)
     );
 
-  const computeOutcome = (state: SolidityABIEncoderV2Type): any =>
+  const computeOutcome = (state: SolidityValueType): any =>
     unidirectionalLinkedTransferApp.functions.computeOutcome(
       encodeAppState(state)
     );
@@ -164,6 +164,7 @@ describe("LinkedUnidirectionalTransferApp", () => {
   before(async () => {
     const provider = waffle.createMockProvider();
     const wallet = await waffle.getWallets(provider)[0];
+    // @ts-ignore
     unidirectionalLinkedTransferApp = await waffle.deployContract(
       wallet,
       UnidirectionalLinkedTransferApp
