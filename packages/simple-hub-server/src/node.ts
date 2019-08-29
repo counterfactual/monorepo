@@ -262,7 +262,7 @@ export class NodeWrapper {
     const { result } = await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
-        method: "chan_create",
+        method: NodeTypes.RpcMethodName.CREATE_CHANNEL,
         params: {
           owners: [node.publicIdentifier, nodeAddress]
         },
