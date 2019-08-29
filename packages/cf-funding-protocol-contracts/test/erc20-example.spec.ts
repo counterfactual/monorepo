@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import DolphinCoin from "../expected-build-artifacts/DolphinCoin.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { Web3Provider } from "ethers/providers";

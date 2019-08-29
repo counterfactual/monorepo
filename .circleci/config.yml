@@ -29,6 +29,24 @@ restore_dep: &restore_dep
     key: dependency-cache-{{ checksum "yarn.lock" }}
 
 jobs:
+  verify-solc:
+    <<: *defaults
+    steps:
+      - <<: *restore_code
+      - checkout
+      - <<: *restore_dep
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run: yarn run patch-package
+
+      - run: "cd packages/cf-funding-protocol-contracts && yarn run verify-solc"
+      - run: "cd packages/cf-adjudicator-contracts && yarn run verify-solc"
+      - run: "cd packages/apps && yarn run verify-solc"
+
   build:
     <<: *defaults
     steps:
@@ -139,6 +157,8 @@ workflows:
   counterfactual:
     jobs:
       - build
+
+      - verify-solc
 
       - run-tslint:
           requires:
