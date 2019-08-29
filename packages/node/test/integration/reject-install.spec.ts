@@ -13,7 +13,7 @@ import {
   getAppInstanceProposal,
   getInstalledAppInstances,
   getProposedAppInstances,
-  makeProposeCall
+  makeAndSendProposeCall
 } from "./utils";
 
 describe("Node method follows spec - rejectInstall", () => {
@@ -57,7 +57,7 @@ describe("Node method follows spec - rejectInstall", () => {
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
-        const result = await makeProposeCall(
+        const result = await makeAndSendProposeCall(
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
