@@ -45,11 +45,6 @@ contract MixinRespondToChallenge is
 
     require(
       keccak256(appState) == challenge.appStateHash,
-      "Invalid state submitted"
-    );
-
-    require(
-      keccak256(appState) == challenge.appStateHash,
       "Tried to progress a challenge with non-agreed upon app"
     );
 
