@@ -1,8 +1,8 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build/ProxyFactory.json";
-import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/expected-build/TwoPartyFixedOutcomeApp.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
+import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TwoPartyFixedOutcomeApp.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";

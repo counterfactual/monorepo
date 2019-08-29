@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build/ProxyFactory.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { HashZero } from "ethers/constants";

@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";

@@ -1,5 +1,5 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/cf-funding-protocol-contracts/expected-build/Proxy.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import Proxy from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/Proxy.json";
 import {
   BigNumber,
   bigNumberify,

@@ -1,8 +1,8 @@
-import TicTacToeApp from "@counterfactual/apps/expected-build/TicTacToeApp.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build/MinimumViableMultisig.json";
-import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build/MultiAssetMultiPartyCoinTransferInterpreter.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build/ProxyFactory.json";
-import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
+import TicTacToeApp from "@counterfactual/apps/expected-build-artifacts/TicTacToeApp.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MultiAssetMultiPartyCoinTransferInterpreter.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
+import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
 import { ContractFactory, Wallet } from "ethers";
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {

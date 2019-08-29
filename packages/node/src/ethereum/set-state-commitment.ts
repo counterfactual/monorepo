@@ -1,4 +1,4 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build/ChallengeRegistry.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
 import {
   AppIdentity,
   NetworkContext,

@@ -1,4 +1,4 @@
-import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build/ERC20.json";
+import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ERC20.json";
 import {
   AppInterface,
   CoinBalanceRefundState,

@@ -11,8 +11,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import AppWithAction from "../expected-build/AppWithAction.json";
-import ChallengeRegistry from "../expected-build/ChallengeRegistry.json";
+import AppWithAction from "../expected-build-artifacts/AppWithAction.json";
+import ChallengeRegistry from "../expected-build-artifacts/ChallengeRegistry.json";
 
 import {
   AppIdentityTestClass,

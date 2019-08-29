@@ -1,4 +1,4 @@
-import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/expected-build/IdentityApp.json";
+import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/IdentityApp.json";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
