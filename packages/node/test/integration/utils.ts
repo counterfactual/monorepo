@@ -523,7 +523,7 @@ export async function installApp(
     nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
       confirmProposedAppInstance(
         installationProposalRpc.parameters,
-        await getAppInstanceProposal(nodeA, appInstanceId)
+        await getAppInstanceProposal(nodeA, msg.data.appInstanceId)
       );
 
       const installRpc = constructInstallRpc(msg.data.appInstanceId);
