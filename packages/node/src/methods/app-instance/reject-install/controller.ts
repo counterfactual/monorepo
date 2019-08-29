@@ -8,8 +8,6 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.REJECT_INSTALL;
-
   protected async enqueueByShard(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
@@ -24,7 +22,7 @@ export default class RejectInstallController extends NodeController {
     ];
   }
 
-  @jsonRpcMethod("chan_rejectInstall")
+  @jsonRpcMethod(Node.RpcMethodName.REJECT_INSTALL)
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
@@ -37,7 +35,7 @@ export default class RejectInstallController extends NodeController {
       appInstanceId
     );
 
-    if (appInstanceProposal.intermediaries) {
+    if (appInstanceProposal.intermediaryIdentifier) {
       return rejectInstallVirtualController(requestHandler, params);
     }
 

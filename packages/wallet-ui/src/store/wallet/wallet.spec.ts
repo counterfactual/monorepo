@@ -19,6 +19,8 @@ import {
   reducers,
   WalletDepositTransition
 } from "./wallet";
+import { USER_KOVAN_TOKENS_MOCK } from "../test-utils/nodeTokenClient";
+import { AddressZero } from "ethers/constants";
 
 describe("Store > Wallet", () => {
   beforeEach(() => {
@@ -123,7 +125,8 @@ describe("Store > Wallet", () => {
             amount: parseEther("1.0"),
             ethAddress: window.ethereum.selectedAddress,
             multisigAddress: MULTISIG_MOCK_ADDRESS,
-            nodeAddress: NODE_MOCK_ADDRESS
+            nodeAddress: NODE_MOCK_ADDRESS,
+            tokenAddress: AddressZero
           },
           web3Provider
         ],
@@ -132,11 +135,16 @@ describe("Store > Wallet", () => {
 
       expect(dispatchedActions).toEqual([
         { type: WalletDepositTransition.CheckWallet },
-        { type: WalletDepositTransition.WaitForFunds },
+        { type: WalletDepositTransition.WaitForUserFunds },
+        { type: WalletDepositTransition.WaitForCollateralFunds },
         {
           data: {
-            counterfactualBalance: USER_MOCK_BALANCE,
-            ethereumBalance: ETHEREUM_MOCK_BALANCE
+            tokenAddresses: [
+              USER_KOVAN_TOKENS_MOCK(
+                USER_MOCK_BALANCE,
+                ETHEREUM_MOCK_BALANCE
+              )[0]
+            ]
           },
           type: ActionType.WalletSetBalance
         }
@@ -144,11 +152,13 @@ describe("Store > Wallet", () => {
 
       expect(reducedStates).toEqual([
         { status: WalletDepositTransition.CheckWallet },
-        { status: WalletDepositTransition.WaitForFunds },
+        { status: WalletDepositTransition.WaitForUserFunds },
+        { status: WalletDepositTransition.WaitForCollateralFunds },
         {
           status: ActionType.WalletSetBalance,
-          counterfactualBalance: USER_MOCK_BALANCE,
-          ethereumBalance: ETHEREUM_MOCK_BALANCE
+          tokenAddresses: [
+            USER_KOVAN_TOKENS_MOCK(USER_MOCK_BALANCE, ETHEREUM_MOCK_BALANCE)[0]
+          ]
         }
       ]);
     });

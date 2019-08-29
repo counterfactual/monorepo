@@ -11,9 +11,7 @@ import { NO_APP_INSTANCE_ID_FOR_GET_STATE } from "../../errors";
  * @param params
  */
 export default class GetStateController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_STATE;
-
-  @jsonRpcMethod("chan_getState")
+  @jsonRpcMethod(Node.RpcMethodName.GET_STATE)
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: Node.GetStateParams
@@ -22,7 +20,7 @@ export default class GetStateController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_ID_FOR_GET_STATE);
+      throw Error(NO_APP_INSTANCE_ID_FOR_GET_STATE);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);

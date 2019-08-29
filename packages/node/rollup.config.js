@@ -1,3 +1,4 @@
+import babel from "rollup-plugin-babel";
 import commonjs from "rollup-plugin-commonjs";
 import json from "rollup-plugin-json";
 import nodeResolve from "rollup-plugin-node-resolve";
@@ -8,7 +9,7 @@ import pkg from "./package.json";
 const globals = {
   "@counterfactual/cf.js": "cfjs",
   eventemitter3: "EventEmitter",
-  "ethers": "ethers",
+  ethers: "ethers",
   "ethers/constants": "ethers.constants",
   "ethers/errors": "ethers.errors",
   "ethers/providers": "ethers.providers",
@@ -24,7 +25,8 @@ const globals = {
 
 const bundledDependencies = new Set([
   "@counterfactual/firebase-client",
-  "@counterfactual/contracts",
+  "@counterfactual/cf-funding-protocol-contracts",
+  "@counterfactual/cf-adjudicator-contracts",
   "@counterfactual/types",
   "typescript-memoize",
   "p-queue",
@@ -39,6 +41,33 @@ const external = [
     return !bundledDependencies.has(dependency);
   })
 ];
+
+const onwarn = warning => {
+  // Silence circular dependency warnings specifically for reasonable
+  // circular dependencies
+  // Rationale: The current implementation requires the `src/api.ts` to setup
+  // the mapping between method & event names to controllers. Each controller
+  // refers to the `RequestHandler` to access certain resources. The
+  // `RequestHandler` refers to the `src/api.ts` file to lookup the method & event
+  // mapping so it knows how to route the call.
+  // The more elegant solution, instead of overlooking this circular dependency,
+  // is to refactor how calls are routed to controllers, specifically the
+  // behavior around `mapPublicApiMethods` and `mapEventHandlers`
+  const circularDependencyWarnings = new Set([
+    "Circular dependency: src/api.ts -> src/methods/index.ts -> src/methods/app-instance/get-app-instance/controller.ts -> src/request-handler.ts -> src/api.ts"
+  ]);
+
+  if (
+    circularDependencyWarnings.has(warning.message) ||
+    // It's expected that the ethers package is an external dependency
+    // meaning its import technically is unresolved at rollup time
+    (warning.code === "UNRESOLVED_IMPORT" && warning.message.includes("ethers"))
+  ) {
+    return;
+  }
+
+  console.warn(`(!) ${warning.message}`);
+};
 
 export default [
   {
@@ -73,6 +102,12 @@ export default [
         only: [...bundledDependencies]
       }),
       typescript(),
-    ]
+      // use Babel to transpile to ES5
+      babel({
+        exclude: "node_modules/**",
+        plugins: ["@babel/plugin-proposal-object-rest-spread"]
+      })
+    ],
+    onwarn
   }
 ];

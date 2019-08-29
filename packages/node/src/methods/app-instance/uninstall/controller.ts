@@ -3,7 +3,7 @@ import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
-import { getCounterpartyAddress } from "../../../utils";
+import { getFirstElementInListNotEqualTo } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   APP_ALREADY_UNINSTALLED,
@@ -14,9 +14,7 @@ import {
 import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL;
-
-  @jsonRpcMethod("chan_uninstall")
+  @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
@@ -28,7 +26,7 @@ export default class UninstallController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
     if (sc.freeBalance.identityHash === appInstanceId) {
-      throw new Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
+      throw Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
     return [
@@ -39,16 +37,14 @@ export default class UninstallController extends NodeController {
   }
 
   protected async beforeExecution(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UninstallParams
   ) {
-    const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
-
-    if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
+    if (!appInstanceId) {
+      throw Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
   }
 
@@ -60,16 +56,16 @@ export default class UninstallController extends NodeController {
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
+      throw Error(NO_APP_INSTANCE_ID_TO_UNINSTALL);
     }
 
     const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
     if (!stateChannel.hasAppInstance(appInstanceId)) {
-      throw new Error(APP_ALREADY_UNINSTALLED(appInstanceId));
+      throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
-    const to = getCounterpartyAddress(
+    const to = getFirstElementInListNotEqualTo(
       publicIdentifier,
       stateChannel.userNeuteredExtendedKeys
     );

@@ -2,7 +2,6 @@ import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -17,35 +16,51 @@ export async function installVirtual(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
 
+  const {
+    abiEncodings,
+    appDefinition,
+    initialState,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    intermediaryIdentifier,
+    outcomeType,
+    proposedByIdentifier,
+    proposedToIdentifier,
+    responderDeposit,
+    responderDepositTokenAddress,
+    timeout
+  } = proposal;
+
   let updatedStateChannelsMap: Map<string, StateChannel>;
+
+  if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
+    throw Error("Cannot install virtual app with different token addresses");
+  }
 
   try {
     updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
       Protocol.InstallVirtualApp,
-      new Map(Object.entries(await store.getAllChannels())),
+      await store.getStateChannelsMap(),
       {
-        initiatorXpub: proposal.proposedToIdentifier,
-        responderXpub: proposal.proposedByIdentifier,
-        intermediaryXpub: proposal.intermediaries![0],
-        defaultTimeout: proposal.timeout.toNumber(),
-        appInterface: {
-          addr: proposal.appDefinition,
-          ...proposal.abiEncodings
-        },
-        initialState: proposal.initialState,
-        initiatorBalanceDecrement: proposal.initiatorDeposit,
-        responderBalanceDecrement: proposal.responderDeposit,
-        tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-        outcomeType: proposal.outcomeType
+        initialState,
+        outcomeType,
+        initiatorXpub: proposedToIdentifier,
+        responderXpub: proposedByIdentifier,
+        intermediaryXpub: intermediaryIdentifier!,
+        defaultTimeout: timeout.toNumber(),
+        appInterface: { addr: appDefinition, ...abiEncodings },
+        initiatorBalanceDecrement: initiatorDeposit,
+        responderBalanceDecrement: responderDeposit,
+        tokenAddress: initiatorDepositTokenAddress
       }
     );
   } catch (e) {
-    throw new Error(
+    throw Error(
       // TODO: We should generalize this error handling style everywhere
       `Node Error: ${VIRTUAL_APP_INSTALLATION_FAIL}\nStack Trace: ${e.stack}`
     );

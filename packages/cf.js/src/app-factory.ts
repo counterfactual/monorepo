@@ -2,7 +2,7 @@ import {
   AppABIEncodings,
   Node,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { BigNumber, BigNumberish } from "ethers/utils";
 
@@ -63,7 +63,7 @@ export class AppFactory {
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
     /** The outcome type of the app instance */
     outcomeType: OutcomeType;
   }): Promise<string> {
@@ -111,9 +111,9 @@ export class AppFactory {
     /** Number of blocks until an on-chain submitted state is considered final */
     timeout: BigNumberish;
     /** Initial state of app instance */
-    initialState: SolidityABIEncoderV2Type;
-    /** List of intermediary peers to route installation through */
-    intermediaries: string[];
+    initialState: SolidityValueType;
+    /** Intermediary peer to route installation through */
+    intermediaryIdentifier: string;
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const initiatorDeposit = parseBigNumber(
@@ -133,7 +133,7 @@ export class AppFactory {
         initiatorDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
-        intermediaries: params.intermediaries,
+        intermediaryIdentifier: params.intermediaryIdentifier,
         appDefinition: this.appDefinition,
         abiEncodings: this.encodings,
         // FIXME: Hard-coded temporarily

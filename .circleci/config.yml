@@ -37,11 +37,12 @@ jobs:
       - <<: *save_code
 
       - <<: *restore_dep
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
       - run:
           name: "yarn --frozen-lockfile"
           command: yarn --frozen-lockfile
 
-      - run: yarn build
+      - run: yarn build:ci
 
       - <<: *save_dep
 
@@ -51,7 +52,7 @@ jobs:
             - packages/*/dist
             - packages/*/build
 
-  run-non-playground-tests:
+  run-tests:
     docker:
       - image: circleci/node:10.15.3
         environment:
@@ -60,35 +61,13 @@ jobs:
           POSTGRES_DATABASE: postgres
           POSTGRES_PORT: 5432
 
-      - image: circleci/postgres:9.6.14-alpine
+      - image: circleci/postgres:9.6.15-alpine
         environment:
           POSTGRES_USER: postgres
 
     steps:
       - <<: *restore_code
       - checkout
-
-      - <<: *restore_dep
-      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
-
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
-
-      - attach_workspace:
-          at: /home/circleci/project
-
-      - run:
-          name: Run Non-Playground-related tests
-          command: yarn test:ci-non-playground
-
-  run-playground-tests:
-    <<: *defaults
-    docker:
-      - image: circleci/node:10.15.3-browsers
-    steps:
-      - <<: *restore_code
-
-      - checkout
-
       - <<: *restore_dep
 
       - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
@@ -97,22 +76,16 @@ jobs:
 
       - attach_workspace:
           at: /home/circleci/project
+
       - run:
-          name: Run Simple Hub Server tests
-          command: cd packages/simple-hub-server && yarn test:ci
-      - run:
-          name: Run High Roller tests
-          command: cd packages/dapp-high-roller && yarn test
-      - run:
-          name: Run Tic-Tac-Toe tests
-          command: cd packages/dapp-tic-tac-toe && yarn test
+          name: Run Counterfactual tests
+          command: yarn test:ci
 
   run-tslint:
     <<: *defaults
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
@@ -126,9 +99,7 @@ jobs:
     <<: *defaults
     steps:
       - <<: *restore_code
-
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
@@ -147,12 +118,14 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
+
+      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - run:
           name: Add NPM_TOKEN auth
@@ -163,7 +136,7 @@ jobs:
           command: yarn run publish
 
 workflows:
-  run-tests:
+  counterfactual:
     jobs:
       - build
 
@@ -171,11 +144,7 @@ workflows:
           requires:
             - build
 
-      - run-non-playground-tests:
-          requires:
-            - build
-
-      - run-playground-tests:
+      - run-tests:
           requires:
             - build
 
@@ -187,8 +156,7 @@ workflows:
           requires:
             - build
             - ensure-updated-lockfiles
-            - run-non-playground-tests
-            - run-playground-tests
+            - run-tests
             - run-tslint
           filters:
             branches:
@@ -196,22 +164,6 @@ workflows:
 
       - heroku/deploy-via-git:
           app-name: simple-hub-server-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
-
-      - heroku/deploy-via-git:
-          app-name: hr-bot-staging
-          requires:
-            - publish-to-npm
-          filters:
-            branches:
-              only: master
-
-      - heroku/deploy-via-git:
-          app-name: ttt-bot-staging
           requires:
             - publish-to-npm
           filters:

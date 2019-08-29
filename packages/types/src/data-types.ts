@@ -1,11 +1,11 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
 import { BigNumber } from "ethers/utils";
 
-import { AppInterface, SolidityABIEncoderV2Type } from ".";
+import { AppInterface, SolidityValueType } from ".";
 
 export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
+  // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
   playerAddrs: [string, string];
   amount: BigNumber;
   tokenAddress: string;
@@ -13,7 +13,7 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
 
 export type MultiAssetMultiPartyCoinTransferInterpreterParams = {
   // Derived from:
-  // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
+  // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
   limit: BigNumber[];
   tokenAddresses: string[];
 };
@@ -62,7 +62,7 @@ export type AppInstanceJson = {
   appInterface: AppInterface;
   isVirtualApp: boolean;
   appSeqNo: number;
-  latestState: SolidityABIEncoderV2Type;
+  latestState: SolidityValueType;
   latestVersionNumber: number;
   latestTimeout: number;
 
@@ -73,7 +73,7 @@ export type AppInstanceJson = {
    */
   twoPartyOutcomeInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
+    // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
     playerAddrs: [string, string];
     amount: { _hex: string };
     tokenAddress: string;
@@ -81,7 +81,7 @@ export type AppInstanceJson = {
 
   multiAssetMultiPartyCoinTransferInterpreterParams?: {
     // Derived from:
-    // packages/contracts/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
+    // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
     limit: { _hex: string }[];
     tokenAddresses: string[];
   };
@@ -103,7 +103,7 @@ export type AppInstanceInfo = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields
@@ -124,7 +124,7 @@ export type AppInstanceProposal = {
   timeout: BigNumber;
   proposedByIdentifier: string; // xpub
   proposedToIdentifier: string; // xpub
-  intermediaries?: string[];
+  intermediaryIdentifier?: string;
 
   /**
    * Interpreter-related Fields
@@ -141,13 +141,13 @@ export type AppABIEncodings = {
 
 export enum OutcomeType {
   // uint8
-  TWO_PARTY_FIXED_OUTCOME,
+  TWO_PARTY_FIXED_OUTCOME = "TWO_PARTY_FIXED_OUTCOME",
 
   // CoinTransfer[][]
-  MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
+  MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER = "MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER",
 
   // CoinTransfer[2]
-  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+  SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER = "SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER"
 }
 
 // TwoPartyFixedOutcome.sol::Outcome

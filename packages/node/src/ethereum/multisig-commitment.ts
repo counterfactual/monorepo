@@ -1,9 +1,16 @@
-import { utils } from "@counterfactual/cf.js";
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import { Interface, keccak256, Signature, solidityPack } from "ethers/utils";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import { Node } from "@counterfactual/types";
+import {
+  Interface,
+  joinSignature,
+  keccak256,
+  Signature,
+  solidityPack
+} from "ethers/utils";
 
-import { EthereumCommitment, MultisigTransaction, Transaction } from "./types";
-const { signaturesToBytesSortedBySignerAddress } = utils;
+import { sortSignaturesBySignerAddress } from "../utils";
+
+import { EthereumCommitment, MultisigTransaction } from "./types";
 
 /// A commitment to make MinimumViableMultisig perform a message call
 export abstract class MultisigCommitment extends EthereumCommitment {
@@ -16,13 +23,13 @@ export abstract class MultisigCommitment extends EthereumCommitment {
 
   abstract getTransactionDetails(): MultisigTransaction;
 
-  public getSignedTransaction(sigs: Signature[]): Transaction {
+  public getSignedTransaction(sigs: Signature[]): Node.MinimalTransaction {
     const multisigInput = this.getTransactionDetails();
 
-    const signatureBytes = signaturesToBytesSortedBySignerAddress(
+    const signaturesList = sortSignaturesBySignerAddress(
       this.hashToSign(),
-      ...sigs
-    );
+      sigs
+    ).map(joinSignature);
 
     const txData = new Interface(
       MinimumViableMultisig.abi
@@ -31,7 +38,7 @@ export abstract class MultisigCommitment extends EthereumCommitment {
       multisigInput.value,
       multisigInput.data,
       multisigInput.operation,
-      signatureBytes
+      signaturesList
     ]);
 
     // TODO: Deterministically compute `to` address

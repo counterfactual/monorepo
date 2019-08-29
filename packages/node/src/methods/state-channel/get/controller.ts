@@ -1,18 +1,20 @@
 import { Node } from "@counterfactual/types";
+import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetAllChannelAddressesController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_CHANNEL_ADDRESSES;
+  @jsonRpcMethod(Node.RpcMethodName.GET_CHANNEL_ADDRESSES)
+  public executeMethod = super.executeMethod;
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler
   ): Promise<Node.GetChannelAddressesResult> {
     return {
-      multisigAddresses: Object.keys(
-        await requestHandler.store.getAllChannels()
-      )
+      multisigAddresses: [
+        ...(await requestHandler.store.getStateChannelsMap()).keys()
+      ]
     };
   }
 }

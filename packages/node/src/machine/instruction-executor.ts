@@ -63,7 +63,7 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
   ) {
     return "responderXpub";
   }
-  throw new Error(
+  throw Error(
     `Unknown protocolName ${protocolName} passed to firstRecipientFromProtocolName`
   );
 }
@@ -92,7 +92,7 @@ export class InstructionExecutor {
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
-      throw new Error(
+      throw Error(
         `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
       );
     }
@@ -107,9 +107,10 @@ export class InstructionExecutor {
     return this.runProtocol(sc, getProtocolFromName(protocolName)[0], {
       params,
       protocol: protocolName,
-      protocolExecutionID: uuid.v1(),
+      processID: uuid.v1(),
       seq: 0,
-      toXpub: params[firstRecipientFromProtocolName(protocolName)]
+      toXpub: params[firstRecipientFromProtocolName(protocolName)],
+      customData: {}
     });
   }
 
@@ -121,9 +122,10 @@ export class InstructionExecutor {
       {
         protocol,
         params,
-        protocolExecutionID: uuid.v1(),
+        processID: uuid.v1(),
         seq: 0,
-        toXpub: params.responderXpub
+        toXpub: params.responderXpub,
+        customData: {}
       }
     );
   }
@@ -141,9 +143,9 @@ export class InstructionExecutor {
     };
 
     let lastMiddlewareRet: any = undefined;
-    const it = instruction(context);
+    const process = instruction(context);
     while (true) {
-      const ret = await it.next(lastMiddlewareRet);
+      const ret = await process.next(lastMiddlewareRet);
       if (ret.done) {
         break;
       }

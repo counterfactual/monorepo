@@ -1,7 +1,5 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "schedule": ["every weekend"],
   "baseBranches": ["next"],
   "automerge": true,
@@ -18,12 +16,10 @@
     "@ebryn/jsonapi-ts",
     "@counterfactual/apps",
     "@counterfactual/cf.js",
-    "@counterfactual/contracts",
-    "@counterfactual/dapp-high-roller",
-    "@counterfactual/dapp-tic-tac-toe",
+    "@counterfactual/cf-adjudicator-contracts",
+    "@counterfactual/cf-funding-protocol-contracts",
     "@counterfactual/node-provider",
     "@counterfactual/node",
-    "@counterfactual/playground",
     "@counterfactual/specs",
     "@counterfactual/types",
     "@counterfactual/typescript-typings"

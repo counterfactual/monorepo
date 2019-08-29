@@ -1,46 +1,65 @@
 import Enzyme, { mount } from "enzyme";
 import Adapter from "enzyme-adapter-react-16";
-import { formatEther } from "ethers/utils";
+import { JsonRpcSigner, Web3Provider } from "ethers/providers";
 import { createMemoryHistory } from "history";
 import React from "react";
 import { Provider } from "react-redux";
 import { MemoryRouter as Router } from "react-router-dom";
+import { EthereumService } from "../../../providers/EthereumService";
+import EthereumMock from "../../../store/test-utils/ethereum.mock";
+import { AssetType } from "../../../store/types";
 import { testSelector } from "../../../utils/testSelector";
 import store from "./../../../store/store";
 import { AccountContext, AccountContextProps } from "./AccountContext";
 import mock from "./AccountContext.mock.json";
-
+import { USER_KOVAN_TOKENS_MOCK } from "../../../store/test-utils/nodeTokenClient";
+import { Zero } from "ethers/constants";
 Enzyme.configure({ adapter: new Adapter() });
 
 function setup(scenario: keyof typeof mock.scenarios) {
   const history = createMemoryHistory();
-  const props: AccountContextProps = {
+  const props = {
     ...mock.scenarios[scenario].props,
     history,
+    tokens: USER_KOVAN_TOKENS_MOCK(Zero, Zero),
     location: history.location,
     loginUser: jest.fn()
   };
 
+  window.ethereum = new EthereumMock();
+  const provider = new Web3Provider(window.ethereum);
+  const signer = provider.getSigner();
+
+  const context = { provider, signer };
+
   const component = mount(
     <Provider store={store}>
-      <Router>
-        <AccountContext {...props} />
-      </Router>
+      <EthereumService.Provider value={context}>
+        <Router>
+          <AccountContext {...props} />
+        </Router>
+      </EthereumService.Provider>
     </Provider>
   );
 
-  return { props, component };
+  return {
+    props,
+    component,
+    context
+  };
 }
 
 describe("<AccountContext />", () => {
   describe("Unauthenticated", () => {
     let component: Enzyme.ReactWrapper;
     let props: AccountContextProps;
+    let context: { provider: Web3Provider; signer: JsonRpcSigner };
 
     beforeEach(() => {
       const mock = setup("unauthenticated");
       component = mock.component;
       props = mock.props;
+      context = mock.context;
     });
 
     it("should render an account context container", () => {
@@ -70,7 +89,7 @@ describe("<AccountContext />", () => {
       expect(props.loginUser).toHaveBeenNthCalledWith(
         1,
         props.ethAddress,
-        component.context("signer"),
+        context.signer,
         props.history
       );
     });
@@ -118,9 +137,7 @@ describe("<AccountContext />", () => {
 
       it("should show the current balance", () => {
         expect(balanceWrapper.find(".info-header").text()).toBe("Balance");
-        expect(balanceWrapper.find(".info-content").text()).toBe(
-          `${formatEther(props.counterfactualBalance)} ETH`
-        );
+        expect(balanceWrapper.find(".info-content").text()).toBe(`0.0 ETH`);
       });
 
       it("should render an icon for the container", () => {

@@ -32,8 +32,8 @@ export const EMPTY_POSTGRES_CONFIG: ConnectionOptions = {
 };
 
 export class PostgresServiceFactory implements Node.ServiceFactory {
-  private connectionManager: ConnectionManager;
-  private connection: Connection;
+  private readonly connectionManager: ConnectionManager;
+  private readonly connection: Connection;
 
   constructor(
     readonly configuration: PostgresConnectionOptions,
@@ -87,17 +87,17 @@ export class PostgresStoreService implements Node.IStoreService {
     await connection.dropDatabase();
   }
 
-  async set(pairs: { key: string; value: any }[]): Promise<void> {
+  async set(pairs: { path: string; value: any }[]): Promise<void> {
     const connection = this.connectionMgr.get();
 
     await connection.transaction(async transactionalEntityManager => {
       for (const pair of pairs) {
-        const storeKey = `${this.storeServiceKey}_${pair.key}`;
+        const storeKey = `${this.storeServiceKey}_${pair.path}`;
         // Wrapping the value into an object is necessary for Postgres because the JSON column breaks
         // if you use anything other than JSON (i.e. a raw string). In some cases, the node code is
         // inserting strings as values instead of objects.
         const storeValue = {
-          [pair.key]: pair.value
+          [pair.path]: pair.value
         };
         let record = await transactionalEntityManager.findOne(
           NodeRecord,
@@ -113,8 +113,8 @@ export class PostgresStoreService implements Node.IStoreService {
     });
   }
 
-  async get(key: string): Promise<StringKeyValue | string | undefined> {
-    const storeKey = `${this.storeServiceKey}_${key}`;
+  async get(path: string): Promise<StringKeyValue | string | undefined> {
+    const storeKey = `${this.storeServiceKey}_${path}`;
 
     let res;
     // FIXME: this queries for all channels or proposed app instances, which
@@ -122,8 +122,8 @@ export class PostgresStoreService implements Node.IStoreService {
     // Action item: this hack won't be needed when a more robust schema around
     // node records is implemented
     if (
-      key.endsWith("channel") ||
-      key.endsWith("appInstanceIdToProposedAppInstance")
+      path.endsWith("channel") ||
+      path.endsWith("appInstanceIdToProposedAppInstance")
     ) {
       res = await this.connectionMgr
         .get()
@@ -163,7 +163,7 @@ export class PostgresStoreService implements Node.IStoreService {
       return undefined;
     }
 
-    return res.value[key];
+    return res.value[path];
   }
 }
 

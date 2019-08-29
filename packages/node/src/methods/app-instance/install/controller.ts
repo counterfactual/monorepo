@@ -2,9 +2,9 @@ import { Node } from "@counterfactual/types";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { InstallMessage, NODE_EVENTS } from "../../../types";
-import { getPeersAddressFromAppInstanceID } from "../../../utils";
 import { NodeController } from "../../controller";
 
 import { install } from "./operation";
@@ -15,9 +15,7 @@ import { install } from "./operation";
  * @param params
  */
 export default class InstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.INSTALL;
-
-  @jsonRpcMethod("chan_install")
+  @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
@@ -47,7 +45,9 @@ export default class InstallController extends NodeController {
       messagingService
     } = requestHandler;
 
-    const [responderAddress] = await getPeersAddressFromAppInstanceID(
+    const [
+      responderAddress
+    ] = await StateChannel.getPeersAddressFromAppInstanceID(
       publicIdentifier,
       store,
       params.appInstanceId

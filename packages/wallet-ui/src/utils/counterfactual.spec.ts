@@ -6,7 +6,8 @@ import EthereumMock, {
   FREE_BALANCE_MOCK_ADDRESS,
   HDNODE_MOCK,
   MULTISIG_MOCK_ADDRESS,
-  NODE_MOCK_ADDRESS
+  NODE_MOCK_ADDRESS,
+  ETHEREUM_MOCK_TOKEN_ADDRESS
 } from "../store/test-utils/ethereum.mock";
 import { BalanceRequest, Deposit } from "../store/types";
 import { USER_MOCK_BALANCE, USER_MOCK_DATA } from "../store/user/user.mock";
@@ -73,10 +74,7 @@ describe("Utils > Counterfactual", () => {
     it("should return the user or an empty object accordingly", async () => {
       const user = await getUserFromStoredToken();
 
-      expect(user).toEqual({
-        balance: formatEther(USER_MOCK_BALANCE),
-        user: USER_MOCK_DATA
-      });
+      expect(user).toEqual(USER_MOCK_DATA);
 
       enableEthereumMockBehavior("returnEmptyUserOnRequestUser");
 
@@ -147,14 +145,15 @@ describe("Utils > Counterfactual", () => {
     it("should send the counterfactual:request:deposit RPC", async () => {
       await requestDeposit({
         amount: USER_MOCK_BALANCE,
-        multisigAddress: MULTISIG_MOCK_ADDRESS
+        multisigAddress: MULTISIG_MOCK_ADDRESS,
+        tokenAddress: ETHEREUM_MOCK_TOKEN_ADDRESS
       } as Deposit);
 
       expect(send).toHaveBeenCalledTimes(1);
       expect(send).toHaveBeenNthCalledWith(
         1,
         CounterfactualMethod.RequestDeposit,
-        [USER_MOCK_BALANCE, MULTISIG_MOCK_ADDRESS]
+        [USER_MOCK_BALANCE, MULTISIG_MOCK_ADDRESS, ETHEREUM_MOCK_TOKEN_ADDRESS]
       );
     });
   });
@@ -163,14 +162,15 @@ describe("Utils > Counterfactual", () => {
     it("should send the counterfactual:request:balances RPC", async () => {
       await forFunds({
         multisigAddress: MULTISIG_MOCK_ADDRESS,
-        nodeAddress: NODE_MOCK_ADDRESS
+        nodeAddress: NODE_MOCK_ADDRESS,
+        tokenAddress: ETHEREUM_MOCK_TOKEN_ADDRESS
       } as BalanceRequest);
 
       expect(send).toBeCalledTimes(1);
       expect(send).toHaveBeenNthCalledWith(
         1,
         CounterfactualMethod.RequestBalances,
-        [MULTISIG_MOCK_ADDRESS]
+        [MULTISIG_MOCK_ADDRESS, ETHEREUM_MOCK_TOKEN_ADDRESS]
       );
     });
     // TODO: It seems like the number in the setTimeout call is set such that
@@ -182,7 +182,8 @@ describe("Utils > Counterfactual", () => {
 
       forFunds({
         multisigAddress: MULTISIG_MOCK_ADDRESS,
-        nodeAddress: NODE_MOCK_ADDRESS
+        nodeAddress: NODE_MOCK_ADDRESS,
+        tokenAddress: ETHEREUM_MOCK_TOKEN_ADDRESS
       } as BalanceRequest);
 
       setTimeout(() => {
@@ -192,12 +193,12 @@ describe("Utils > Counterfactual", () => {
         expect(send).toHaveBeenNthCalledWith(
           1,
           CounterfactualMethod.RequestBalances,
-          [MULTISIG_MOCK_ADDRESS]
+          [MULTISIG_MOCK_ADDRESS, ETHEREUM_MOCK_TOKEN_ADDRESS]
         );
         expect(send).toHaveBeenNthCalledWith(
           2,
           CounterfactualMethod.RequestBalances,
-          [MULTISIG_MOCK_ADDRESS]
+          [MULTISIG_MOCK_ADDRESS, ETHEREUM_MOCK_TOKEN_ADDRESS]
         );
         done();
       }, 1750);

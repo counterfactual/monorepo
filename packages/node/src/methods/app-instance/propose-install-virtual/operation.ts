@@ -1,13 +1,10 @@
 import { NetworkContext, Node } from "@counterfactual/types";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { AppInstanceProposal, StateChannel } from "../../../models";
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../models/free-balance";
 import { Store } from "../../../store";
-import {
-  getCreate2MultisigAddress,
-  getStateChannelWithOwners
-} from "../../../utils";
-import { NO_CHANNEL_BETWEEN_NODES } from "../../errors";
+import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
+import { NO_STATE_CHANNEL_FOR_MULTISIG_ADDR } from "../../errors";
 
 /**
  * Creates a AppInstanceProposal to reflect the proposal received from
@@ -20,16 +17,16 @@ export async function createProposedVirtualAppInstance(
   myIdentifier: string,
   store: Store,
   params: Node.ProposeInstallVirtualParams,
-  network: NetworkContext
+  networkContext: NetworkContext
 ): Promise<string> {
-  const { intermediaries, proposedToIdentifier } = params;
+  const { intermediaryIdentifier, proposedToIdentifier } = params;
 
-  const channel = await getOrCreateStateChannelThatWrapsVirtualAppInstance(
+  const channel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
     myIdentifier,
     proposedToIdentifier,
-    intermediaries,
+    intermediaryIdentifier,
     store,
-    network
+    networkContext
   );
 
   const appInstanceProposal = new AppInstanceProposal(
@@ -53,72 +50,65 @@ export async function createProposedVirtualAppInstance(
  * This determines which Node is the Node to send the msg to next during any
  * Virtual AppInstance operations.
  * @param thisAddress
- * @param intermediaries
+ * @param intermediaryIdentifier
  * @param responderAddress
  */
 export function getNextNodeAddress(
   thisAddress: string,
-  intermediaries: string[],
+  intermediaryIdentifier: string,
   responderAddress: string
 ): string {
-  const intermediaryIndex = intermediaries.findIndex(
-    intermediaryAddress => intermediaryAddress === thisAddress
-  );
-
-  if (intermediaryIndex === -1) {
-    return intermediaries[0];
-  }
-
-  if (intermediaryIndex + 1 === intermediaries.length) {
+  if (thisAddress === intermediaryIdentifier) {
     return responderAddress;
   }
-
-  return intermediaries[intermediaryIndex + 1];
+  return intermediaryIdentifier;
 }
 
 export function isNodeIntermediary(
   thisAddress: string,
-  intermediaries: string[]
+  intermediaryIdentifier: string
 ): boolean {
-  return intermediaries.includes(thisAddress);
+  return intermediaryIdentifier === thisAddress;
 }
 
-export async function getOrCreateStateChannelThatWrapsVirtualAppInstance(
+export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
   initiatorXpub: string,
   responderXpub: string,
-  intermediaries: string[],
+  hubXpub: string,
   store: Store,
-  network: NetworkContext
+  networkContext: NetworkContext
 ): Promise<StateChannel> {
-  let stateChannel: StateChannel;
+  const multisigAddress = getCreate2MultisigAddress(
+    [initiatorXpub, responderXpub],
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
+  );
+
   try {
-    stateChannel = await getStateChannelWithOwners(
-      initiatorXpub,
-      responderXpub,
-      store
-    );
+    return await store.getStateChannel(multisigAddress);
   } catch (e) {
     if (
       e
         .toString()
-        .includes(NO_CHANNEL_BETWEEN_NODES(initiatorXpub, responderXpub)) &&
-      intermediaries !== undefined
+        .includes(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress)) &&
+      hubXpub !== undefined
     ) {
       const multisigAddress = getCreate2MultisigAddress(
         [initiatorXpub, responderXpub],
-        network.ProxyFactory,
-        network.MinimumViableMultisig
+        networkContext.ProxyFactory,
+        networkContext.MinimumViableMultisig
       );
 
-      stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
+      const stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
         initiatorXpub,
         responderXpub
       ]);
 
       await store.saveStateChannel(stateChannel);
-    } else {
-      throw e;
+
+      return stateChannel;
     }
+
+    throw Error(prettyPrintObject(e));
   }
-  return stateChannel;
 }

@@ -1,14 +1,12 @@
 import { Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
-import { fromSeed } from "ethers/utils/hdnode";
 
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
 import { xkeyKthAddress } from "../../../../../src/machine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import {
-  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-  getBalancesFromFreeBalanceAppInstance
-} from "../../../../../src/models/free-balance";
+import { FreeBalanceClass } from "../../../../../src/models/free-balance";
 import { createAppInstanceForTest } from "../../../../unit/utils";
+import { getRandomExtendedPubKeys } from "../../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../../mocks";
 
 describe("StateChannel::uninstallApp", () => {
@@ -20,10 +18,7 @@ describe("StateChannel::uninstallApp", () => {
 
   beforeAll(() => {
     const multisigAddress = getAddress(hexlify(randomBytes(20)));
-    const xpubs = [
-      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey,
-      fromSeed(hexlify(randomBytes(32))).neuter().extendedKey
-    ];
+    const xpubs = getRandomExtendedPubKeys(2);
 
     sc1 = StateChannel.setupChannel(
       networkContext.IdentityApp,
@@ -66,18 +61,15 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   describe("the updated ETH Free Balance", () => {
-    let fb: AppInstance;
+    let fb: FreeBalanceClass;
 
     beforeAll(() => {
-      fb = sc2.freeBalance;
+      fb = sc2.getFreeBalanceClass();
     });
 
     it("should have updated balances for Alice and Bob", () => {
       for (const amount of Object.values(
-        getBalancesFromFreeBalanceAppInstance(
-          fb,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        )
+        fb.withTokenAddress(CONVENTION_FOR_ETH_TOKEN_ADDRESS) || {}
       )) {
         expect(amount).toEqual(Zero);
       }

@@ -18,6 +18,7 @@ import {
   GetProposedAppInstancesController,
   GetStateChannelController,
   GetStateDepositHolderAddressController,
+  GetTokenIndexedFreeBalancesController,
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
   ProposeInstallAppInstanceController,
@@ -27,6 +28,7 @@ import {
   UninstallController,
   UninstallVirtualController,
   UpdateStateController,
+  WithdrawCommitmentController,
   WithdrawController
 } from "./methods";
 import { RequestHandler } from "./request-handler";
@@ -48,6 +50,7 @@ const controllers = [
   UninstallController,
   UninstallVirtualController,
   UpdateStateController,
+  WithdrawCommitmentController,
   WithdrawController,
 
   /**
@@ -57,6 +60,7 @@ const controllers = [
   GetAppInstanceController,
   GetAppInstanceStateController,
   GetFreeBalanceStateController,
+  GetTokenIndexedFreeBalancesController,
   GetInstalledAppInstancesController,
   GetProposedAppInstanceController,
   GetProposedAppInstancesController,
@@ -74,13 +78,11 @@ const controllers = [
 export const methodNameToImplementation = controllers.reduce(
   (acc, controller) => {
     if (!controller.methodName) {
-      throw new Error(
-        `Fatal: Every controller must have a "methodName" property`
-      );
+      return acc;
     }
 
     if (acc[controller.methodName]) {
-      throw new Error(
+      throw Error(
         `Fatal: Multiple controllers connected to ${controller.methodName}`
       );
     }

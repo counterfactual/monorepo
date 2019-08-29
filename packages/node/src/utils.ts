@@ -1,93 +1,22 @@
-import MinimumViableMultisig from "@counterfactual/contracts/build/MinimumViableMultisig.json";
-import Proxy from "@counterfactual/contracts/build/Proxy.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
+import Proxy from "@counterfactual/cf-funding-protocol-contracts/build/Proxy.json";
 import {
   BigNumber,
   bigNumberify,
   getAddress,
-  hashMessage,
   Interface,
+  joinSignature,
   keccak256,
-  solidityKeccak256,
-  solidityPack
+  recoverAddress,
+  Signature,
+  solidityKeccak256
 } from "ethers/utils";
-import { fromExtendedKey } from "ethers/utils/hdnode";
-import log from "loglevel";
 
+import { JSON_STRINGIFY_SPACE } from "./constants";
 import { xkeysToSortedKthAddresses } from "./machine/xkeys";
-import { NO_CHANNEL_BETWEEN_NODES } from "./methods/errors";
-import { StateChannel } from "./models";
-import { CoinTransfer, CoinTransferMap } from "./models/free-balance";
-import { Store } from "./store";
 
-export function hashOfOrderedPublicIdentifiers(addresses: string[]): string {
-  return hashMessage(addresses.sort().join(""));
-}
-
-/**
- * Finds a StateChannel based on two xpubs in a store.
- *
- * @param myXpub - first xpub
- * @param theirXpub - second xpub
- * @param store - store to search within
- */
-export async function getStateChannelWithOwners(
-  myXpub: string,
-  theirXpub: string,
-  store: Store
-): Promise<StateChannel> {
-  const multisigAddress = await store.getMultisigAddressFromOwnersHash(
-    hashOfOrderedPublicIdentifiers([myXpub, theirXpub])
-  );
-
-  if (!multisigAddress) {
-    throw new Error(NO_CHANNEL_BETWEEN_NODES(myXpub, theirXpub));
-  }
-
-  return await store.getStateChannel(multisigAddress);
-}
-
-export async function getPeersAddressFromChannel(
-  myIdentifier: string,
-  store: Store,
-  multisigAddress: string
-): Promise<string[]> {
-  const stateChannel = await store.getStateChannel(multisigAddress);
-  const owners = stateChannel.userNeuteredExtendedKeys;
-  return owners.filter(owner => owner !== myIdentifier);
-}
-
-export async function getPeersAddressFromAppInstanceID(
-  myIdentifier: string,
-  store: Store,
-  appInstanceId: string
-): Promise<string[]> {
-  const multisigAddress = await store.getMultisigAddressFromAppInstance(
-    appInstanceId
-  );
-
-  if (!multisigAddress) {
-    throw new Error(
-      `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
-    );
-  }
-
-  return getPeersAddressFromChannel(myIdentifier, store, multisigAddress);
-}
-
-export function getCounterpartyAddress(
-  myIdentifier: string,
-  appInstanceAddresses: string[]
-) {
-  return appInstanceAddresses.filter(address => {
-    return address !== myIdentifier;
-  })[0];
-}
-
-export function getBalanceIncrement(
-  beforeDeposit: BigNumber,
-  afterDeposit: BigNumber
-): BigNumber {
-  return afterDeposit.sub(beforeDeposit);
+export function getFirstElementInListNotEqualTo(test: string, list: string[]) {
+  return list.filter(x => x !== test)[0];
 }
 
 export function timeout(ms: number) {
@@ -100,7 +29,7 @@ export function timeout(ms: number) {
  * ProxyFactory contract with the bytecode of a Proxy contract pointing to
  * a `masterCopy` of a MinimumViableMultisig contract.
  *
- * See https://solidity.readthedocs.io/en/v0.5.10/assembly.html?highlight=create2
+ * See https://solidity.readthedocs.io/en/v0.5.11/assembly.html?highlight=create2
  * for information on how CREAT2 addresses are calculated.
  *
  * @export
@@ -110,71 +39,43 @@ export function timeout(ms: number) {
  *
  * @returns {string} the address of the multisig
  */
+// FIXME: More general caching strategy -- don't keep doing this
+const cache = {} as any;
 export function getCreate2MultisigAddress(
   owners: string[],
   proxyFactoryAddress: string,
   minimumViableMultisigAddress: string
 ): string {
-  return getAddress(
-    solidityKeccak256(
-      ["bytes1", "address", "uint256", "bytes32"],
-      [
-        "0xff",
-        proxyFactoryAddress,
-        solidityKeccak256(
-          ["bytes32", "uint256"],
-          [
-            keccak256(
-              new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-                xkeysToSortedKthAddresses(owners, 0)
-              ])
-            ),
-            0
-          ]
-        ),
-        keccak256(
-          solidityPack(
+  const cacheKey = owners + proxyFactoryAddress + minimumViableMultisigAddress;
+
+  cache[cacheKey] =
+    cache[cacheKey] ||
+    getAddress(
+      solidityKeccak256(
+        ["bytes1", "address", "uint256", "bytes32"],
+        [
+          "0xff",
+          proxyFactoryAddress,
+          solidityKeccak256(
+            ["bytes32", "uint256"],
+            [
+              keccak256(
+                new Interface(MinimumViableMultisig.abi).functions.setup.encode(
+                  [xkeysToSortedKthAddresses(owners, 0)]
+                )
+              ),
+              0
+            ]
+          ),
+          solidityKeccak256(
             ["bytes", "uint256"],
             [`0x${Proxy.bytecode}`, minimumViableMultisigAddress]
           )
-        )
-      ]
-    ).slice(-40)
-  );
-}
+        ]
+      ).slice(-40)
+    );
 
-/**
- * Address used for a Node's free balance
- */
-export function getFreeBalanceAddress(publicIdentifier: string) {
-  return fromExtendedKey(publicIdentifier).derivePath("0").address;
-}
-
-const isBrowser =
-  typeof window !== "undefined" &&
-  {}.toString.call(window) === "[object Window]";
-
-export function debugLog(...messages: any[]) {
-  try {
-    const logPrefix = "NodeDebugLog";
-    if (isBrowser) {
-      if (localStorage.getItem("LOG_LEVEL") === "DEBUG") {
-        // for some reason `debug` doesn't actually log in the browser
-        log.info(logPrefix, messages);
-        log.trace();
-      }
-      // node.js side
-    } else if (
-      process.env.LOG_LEVEL !== undefined &&
-      process.env.LOG_LEVEL === "DEBUG"
-    ) {
-      log.debug(logPrefix, JSON.stringify(messages, null, 4));
-      log.trace();
-      log.debug("\n");
-    }
-  } catch (e) {
-    console.error("Failed to log: ", e);
-  }
+  return cache[cacheKey];
 }
 
 export const wait = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -186,20 +87,55 @@ export const bigNumberifyJson = (json: object) =>
     val
   ) => (val && val["_hex"] ? bigNumberify(val) : val));
 
-export function convertCoinTransfersToCoinTransfersMap(
-  coinTransfers: CoinTransfer[]
-): CoinTransferMap {
-  return (coinTransfers || []).reduce(
-    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
-    {}
+/**
+ * Converts an array of signatures into a single string
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function signaturesToBytes(...signatures: Signature[]): string {
+  return signatures
+    .map(joinSignature)
+    .map(s => s.substr(2))
+    .reduce((acc, v) => acc + v, "0x");
+}
+
+/**
+ * Sorts signatures in ascending order of signer address
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function sortSignaturesBySignerAddress(
+  digest: string,
+  signatures: Signature[]
+): Signature[] {
+  const ret = signatures.slice();
+  ret.sort((sigA, sigB) => {
+    const addrA = recoverAddress(digest, signaturesToBytes(sigA));
+    const addrB = recoverAddress(digest, signaturesToBytes(sigB));
+    return new BigNumber(addrA).lt(addrB) ? -1 : 1;
+  });
+  return ret;
+}
+
+/**
+ * Sorts signatures in ascending order of signer address
+ * and converts them into bytes
+ *
+ * @param signatures An array of etherium signatures
+ */
+export function signaturesToBytesSortedBySignerAddress(
+  digest: string,
+  ...signatures: Signature[]
+): string {
+  return signaturesToBytes(
+    ...sortSignaturesBySignerAddress(digest, signatures)
   );
 }
 
-export function convertCoinTransfersMapToCoinTransfers(
-  coinTransfersMap: CoinTransferMap
-): CoinTransfer[] {
-  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
-    to,
-    amount
-  }));
+export function prettyPrintObject(object: any) {
+  return JSON.stringify(object, null, JSON_STRINGIFY_SPACE);
+}
+
+export async function sleep(timeInMilliseconds: number) {
+  return new Promise(resolve => setTimeout(resolve, timeInMilliseconds));
 }

@@ -12,11 +12,20 @@ export type User = {
   email: string;
 };
 
+export type AssetType = {
+  name?: string;
+  shortName?: string;
+  tokenAddress: string;
+  counterfactualBalance?: BigNumberish;
+  walletBalance?: BigNumberish;
+};
+
 export type Deposit = {
   amount: BigNumberish; // parseEther
   multisigAddress: string;
   nodeAddress: string;
   ethAddress: string;
+  tokenAddress?: string;
 };
 
 export type Connection = {
@@ -29,12 +38,13 @@ export type Connection = {
 export type BalanceRequest = {
   nodeAddress: string;
   multisigAddress: string;
+  tokenAddress?: string;
 };
 
 export type ErrorData = {
-  message: string;
-  code: string;
-  field: string;
+  message?: string;
+  code?: string;
+  field?: string;
 };
 
 export enum ActionType {
@@ -43,6 +53,7 @@ export enum ActionType {
   UserError = "USER_ERROR",
   UserLogin = "USER_LOGIN",
   WalletSetAddress = "WALLET_SET_ADDRESS",
+  WalletSetNodeTokens = "WALLET_SET_NODE_TOKENS",
   WalletError = "WALLET_ERROR",
   WalletDeposit = "WALLET_DEPOSIT",
   WalletWithdraw = "WALLET_WITHDRAW",
@@ -62,9 +73,8 @@ export type UserState = AppState & {
 
 export type WalletState = AppState & {
   ethAddress: string;
-  counterfactualBalance: BigNumberish;
-  ethereumBalance: BigNumberish;
   status: string;
+  tokenAddresses: AssetType[];
 };
 
 export type ChannelsMap = { [key: string]: Connection };

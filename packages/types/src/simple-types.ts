@@ -9,17 +9,13 @@ export type ContractABI = Array<string | ParamType> | string | Interface;
 
 export type SolidityPrimitiveType = string | BigNumberish | boolean;
 
-export type SolidityValueType =
-  | SolidityPrimitiveType
-  | SolidityABIEncoderV2Struct
-  | SolidityABIEncoderV2SArray;
-
 // The application-specific state of an app instance, to be interpreted by the
 // app developer. We just treat it as an opaque blob; however since we pass this
 // around in protocol messages and include this in transaction data in challenges,
 // we impose some restrictions on the type; they must be serializable both as
 // JSON and as solidity structs.
-export type SolidityABIEncoderV2Type =
+export type SolidityValueType =
+  | SolidityPrimitiveType
   | SolidityABIEncoderV2Struct
   | SolidityABIEncoderV2SArray;
 

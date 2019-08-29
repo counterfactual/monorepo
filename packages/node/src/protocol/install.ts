@@ -5,6 +5,7 @@ import {
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
+import { MaxUint256 } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
@@ -39,7 +40,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID },
+      message: { params, processID },
       network
     } = context;
 
@@ -65,16 +66,20 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     const {
-      signature: counterpartySignatureOnConditionalTransaction,
-      signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      customData: {
+        signature: counterpartySignatureOnConditionalTransaction,
+        signature2: counterpartySignatureOnFreeBalanceStateUpdate
+      }
     } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         params,
         protocol: Protocol.Install,
         toXpub: responderXpub,
-        signature: mySignatureOnConditionalTransaction,
+        customData: {
+          signature: mySignatureOnConditionalTransaction
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -140,10 +145,12 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [
       Opcode.IO_SEND,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Install,
         toXpub: responderXpub,
-        signature: mySignatureOnFreeBalanceStateUpdate,
+        customData: {
+          signature: mySignatureOnFreeBalanceStateUpdate
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -161,7 +168,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
   1 /* Responding */: async function*(context: Context) {
     const {
       stateChannelsMap,
-      message: { params, protocolExecutionID, signature },
+      message: {
+        params,
+        processID,
+        customData: { signature }
+      },
       network
     } = context;
 
@@ -227,14 +238,18 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       freeBalanceUpdateData
     ];
 
-    const { signature: counterpartySignatureOnFreeBalanceStateUpdate } = yield [
+    const {
+      customData: { signature: counterpartySignatureOnFreeBalanceStateUpdate }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
-        protocolExecutionID,
+        processID,
         protocol: Protocol.Install,
         toXpub: initiatorXpub,
-        signature: mySignatureOnConditionalTransaction,
-        signature2: mySignatureOnFreeBalanceStateUpdate,
+        customData: {
+          signature: mySignatureOnConditionalTransaction,
+          signature2: mySignatureOnFreeBalanceStateUpdate
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -285,8 +300,8 @@ function computeStateChannelTransition(
     initialState,
     appInterface,
     defaultTimeout,
-    multisigAddress,
-    outcomeType
+    outcomeType,
+    disableLimit
   } = params;
 
   const initiatorFbAddress = stateChannel.getFreeBalanceAddrOf(initiatorXpub);
@@ -303,11 +318,11 @@ function computeStateChannelTransition(
     initiatorBalanceDecrement,
     responderBalanceDecrement,
     initiatorFbAddress,
-    responderFbAddress
+    responderFbAddress,
+    disableLimit
   );
 
   const appInstanceToBeInstalled = new AppInstance(
-    /* multisigAddress */ multisigAddress,
     /* participants */ participants,
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
@@ -380,7 +395,8 @@ function computeInterpreterParameters(
   initiatorBalanceDecrement: BigNumber,
   responderBalanceDecrement: BigNumber,
   initiatorFbAddress: string,
-  responderFbAddress: string
+  responderFbAddress: string,
+  disableLimit: boolean
 ): {
   twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
@@ -389,7 +405,7 @@ function computeInterpreterParameters(
   switch (outcomeType) {
     case OutcomeType.TWO_PARTY_FIXED_OUTCOME: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -427,7 +443,7 @@ function computeInterpreterParameters(
 
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
-        throw new Error(
+        throw Error(
           TWO_PARTY_OUTCOME_DIFFERENT_ASSETS(
             initiatorDepositTokenAddress,
             responderDepositTokenAddress
@@ -437,14 +453,16 @@ function computeInterpreterParameters(
 
       return {
         singleAssetTwoPartyCoinTransferInterpreterParams: {
-          limit: initiatorBalanceDecrement.add(responderBalanceDecrement),
+          limit: disableLimit
+            ? MaxUint256
+            : initiatorBalanceDecrement.add(responderBalanceDecrement),
           tokenAddress: initiatorDepositTokenAddress
         }
       };
     }
 
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }
@@ -495,7 +513,7 @@ function getInterpreterAddressFromOutcomeType(
       return networkContext.TwoPartyFixedOutcomeInterpreter;
     }
     default: {
-      throw new Error(
+      throw Error(
         "The outcome type in this application logic contract is not supported yet."
       );
     }

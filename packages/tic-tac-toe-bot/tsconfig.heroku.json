@@ -1,4 +1,0 @@
-{
-  "extends": "./tsconfig.do-not-edit-merged.json",
-  "include": ["src"]
-}

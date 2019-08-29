@@ -1,5 +1,6 @@
 import { EXPECTED_CONTRACT_NAMES_IN_NETWORK_CONTEXT } from "@counterfactual/types";
 import { Wallet } from "ethers";
+import { fromMnemonic } from "ethers/utils/hdnode";
 
 import { LocalGanacheServer } from "../src";
 
@@ -9,7 +10,9 @@ describe("Contracts get deployed as expected", () => {
   let chain: LocalGanacheServer;
 
   beforeAll(async () => {
-    chain = new LocalGanacheServer([Wallet.createRandom().mnemonic]);
+    chain = new LocalGanacheServer([
+      fromMnemonic(Wallet.createRandom().mnemonic).extendedKey
+    ]);
     await chain.runMigrations();
   });
 

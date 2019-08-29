@@ -1,11 +1,12 @@
 import { Web3Provider } from "ethers/providers";
-import { parseEther } from "ethers/utils";
 import { History } from "history";
 import { Action } from "redux";
 import { ThunkAction } from "redux-thunk";
 import { RoutePath } from "../../types";
 import { ActionType, ApplicationState, Deposit, WalletState } from "../types";
-import { WalletDepositTransition } from "./wallet";
+import { WalletDepositTransition, WalletWithdrawTransition } from "./wallet";
+import { USER_KOVAN_TOKENS_MOCK } from "../test-utils/nodeTokenClient";
+import { Zero } from "ethers/constants";
 
 export const connectToWallet = (): ThunkAction<
   void,
@@ -52,11 +53,11 @@ export const deposit = (
 > => async dispatch => {
   try {
     dispatch({ type: WalletDepositTransition.CheckWallet });
-    dispatch({ type: WalletDepositTransition.WaitForFunds });
+    dispatch({ type: WalletDepositTransition.WaitForUserFunds });
+    dispatch({ type: WalletDepositTransition.WaitForCollateralFunds });
     dispatch({
       data: {
-        ethereumBalance: parseEther("0.2"),
-        counterfactualBalance: parseEther("0.2")
+        tokenAddresses: USER_KOVAN_TOKENS_MOCK(Zero, Zero)
       },
       type: ActionType.WalletSetBalance
     });
@@ -76,11 +77,6 @@ export const deposit = (
   }
 };
 
-export enum WalletWithdrawTransition {
-  CheckWallet = "WALLET_WITHDRAW_CHECK_WALLET",
-  WaitForFunds = "WALLET_WITHDRAW_WAITING_FOR_FUNDS"
-}
-
 export const withdraw = (
   // @ts-ignore
   transaction: Deposit,
@@ -96,8 +92,12 @@ export const withdraw = (
   try {
     dispatch({ type: WalletWithdrawTransition.CheckWallet });
     dispatch({ type: WalletWithdrawTransition.WaitForFunds });
-    dispatch({ data: {}, type: ActionType.WalletSetBalance });
-
+    dispatch({
+      data: {
+        tokenAddresses: USER_KOVAN_TOKENS_MOCK(Zero, Zero)
+      },
+      type: ActionType.WalletSetBalance
+    });
     // Optional: Redirect to Channels.
     if (history) {
       history.push(RoutePath.Channels);

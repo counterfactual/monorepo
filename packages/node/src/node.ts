@@ -3,6 +3,7 @@ import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
+import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
@@ -14,12 +15,16 @@ import {
   Protocol,
   ProtocolMessage
 } from "./machine";
-import { getNetworkContextForNetworkName } from "./network-configuration";
+import { getFreeBalanceAddress } from "./models/free-balance";
+import {
+  EthereumNetworkName,
+  getNetworkContextForNetworkName
+} from "./network-configuration";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
-import { debugLog, getFreeBalanceAddress, timeout } from "./utils";
+import { timeout } from "./utils";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -36,7 +41,7 @@ export class Node {
   private readonly instructionExecutor: InstructionExecutor;
   private readonly networkContext: NetworkContext;
 
-  private ioSendDeferrals = new Map<
+  private readonly ioSendDeferrals = new Map<
     string,
     Deferred<NodeMessageWrappedProtocolMessage>
   >();
@@ -57,7 +62,7 @@ export class Node {
     storeService: NodeTypes.IStoreService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -77,29 +82,28 @@ export class Node {
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
-    networkContext: "ropsten" | "kovan" | "rinkeby" | NetworkContext,
+    networkContext: EthereumNetworkName | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
 
-    if (typeof networkContext === "string") {
-      this.networkContext = getNetworkContextForNetworkName(networkContext);
-    } else {
-      this.networkContext = networkContext;
-    }
+    this.networkContext =
+      typeof networkContext === "string"
+        ? getNetworkContextForNetworkName(networkContext)
+        : networkContext;
 
     this.instructionExecutor = this.buildInstructionExecutor();
 
-    debugLog(
+    log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
     );
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
     this.signer = await getHDNode(this.storeService);
-    debugLog(`Node signer address: ${this.signer.address}`);
-    debugLog(`Node public identifier: ${this.publicIdentifier}`);
+    log.info(`Node signer address: ${this.signer.address}`);
+    log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -147,9 +151,7 @@ export class Node {
 
     instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
-        throw new Error(
-          "OP_SIGN middleware received wrong number of arguments."
-        );
+        throw Error("OP_SIGN middleware received wrong number of arguments.");
       }
 
       const [commitment, overrideKeyIndex] = args;
@@ -186,7 +188,7 @@ export class Node {
 
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
-        this.ioSendDeferrals.set(data.protocolExecutionID, deferral);
+        this.ioSendDeferrals.set(data.processID, deferral);
 
         const counterpartyResponse = deferral.promise;
 
@@ -199,7 +201,7 @@ export class Node {
         const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
 
         if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
-          throw new Error(
+          throw Error(
             `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
           );
         }
@@ -208,7 +210,7 @@ export class Node {
         // its promise has been resolved and the necessary callback (above)
         // has been called. Note that, as is, only one defferal can be open
         // per counterparty at the moment.
-        this.ioSendDeferrals.delete(data.protocolExecutionID);
+        this.ioSendDeferrals.delete(data.processID);
 
         return (msg as NodeMessageWrappedProtocolMessage).data;
       }
@@ -331,7 +333,7 @@ export class Node {
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
-      this.ioSendDeferrals.has(msg.data.protocolExecutionID);
+      this.ioSendDeferrals.has(msg.data.processID);
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
@@ -345,10 +347,10 @@ export class Node {
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
-    const key = msg.data.protocolExecutionID;
+    const key = msg.data.processID;
 
     if (!this.ioSendDeferrals.has(key)) {
-      throw new Error(
+      throw Error(
         "Node received message intended for machine but no handler was present"
       );
     }

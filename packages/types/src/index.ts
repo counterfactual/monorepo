@@ -21,12 +21,12 @@ import {
   twoPartyFixedOutcomeInterpreterParamsEncoding,
   virtualAppAgreementEncoding
 } from "./data-types";
-import { INodeProvider, IRpcNodeProvider, Node } from "./node";
+import { IRpcNodeProvider, Node } from "./node";
 import {
   ABIEncoding,
   Address,
   ContractABI,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "./simple-types";
 
 export interface NetworkContext {
@@ -80,8 +80,7 @@ export {
   multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding,
   ContractABI,
-  SolidityABIEncoderV2Type,
-  INodeProvider,
+  SolidityValueType,
   IRpcNodeProvider,
   Node,
   SignedStateHashUpdate,

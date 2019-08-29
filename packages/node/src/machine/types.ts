@@ -2,12 +2,11 @@ import {
   AppInterface,
   NetworkContext,
   OutcomeType,
-  SolidityABIEncoderV2Type
+  SolidityValueType
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, Signature } from "ethers/utils";
+import { BigNumber } from "ethers/utils";
 
-import { Transaction } from "../ethereum/types";
 import { StateChannel } from "../models";
 
 import { Opcode, Protocol } from "./enums";
@@ -31,15 +30,17 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
-  protocolExecutionID: string;
+  processID: string;
   protocol: Protocol;
-  params: ProtocolParameters;
+  params?: ProtocolParameters;
   toXpub: string;
   seq: number;
-  signature?: Signature;
-  signature2?: Signature;
-  signature3?: Signature;
-  signature4?: Signature;
+  /*
+  Additional data which depends on the protocol (or even the specific message
+  number in a protocol) lives here. Includes signatures, final outcome of a
+  virtual app instance
+  */
+  customData: { [key: string]: any };
 };
 
 export type SetupParams = {
@@ -53,7 +54,7 @@ export type UpdateParams = {
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  newState: SolidityABIEncoderV2Type;
+  newState: SolidityValueType;
 };
 
 export type TakeActionParams = {
@@ -61,7 +62,7 @@ export type TakeActionParams = {
   responderXpub: string;
   multisigAddress: string;
   appIdentityHash: string;
-  action: SolidityABIEncoderV2Type;
+  action: SolidityValueType;
 };
 
 export type WithdrawParams = {
@@ -82,12 +83,18 @@ export type InstallParams = {
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   participants: string[];
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
   appInterface: AppInterface;
   defaultTimeout: number;
 
   // Outcome Type returned by the app instance, as defined by `appInterface`
   outcomeType: OutcomeType;
+
+  // By default, the SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER interpreter params
+  // contains a "limit" that is computed as
+  // `initiatorBalanceDecrement + responderBalanceDecrement`; setting this
+  // flag disables the limit by setting it to MAX_UINT256
+  disableLimit: boolean;
 };
 
 export type UninstallParams = {
@@ -103,7 +110,7 @@ export type InstallVirtualAppParams = {
   intermediaryXpub: string;
   defaultTimeout: number;
   appInterface: AppInterface;
-  initialState: SolidityABIEncoderV2Type;
+  initialState: SolidityValueType;
 
   // initiator and respondor must fund the installed virtual app with the same
   // token type `tokenAddress`, but may use different amounts
@@ -131,5 +138,3 @@ export type ProtocolParameters =
   | WithdrawParams
   | InstallVirtualAppParams
   | UninstallVirtualAppParams;
-
-export { Transaction };

@@ -1,12 +1,16 @@
-import { Node, SolidityABIEncoderV2Type } from "@counterfactual/types";
+import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import Queue from "p-queue";
+import { jsonRpcMethod } from "rpc-server";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
-import { getCounterpartyAddress } from "../../../utils";
+import {
+  getFirstElementInListNotEqualTo,
+  prettyPrintObject
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -15,7 +19,8 @@ import {
 } from "../../errors";
 
 export default class UpdateStateController extends NodeController {
-  public static readonly methodName = Node.MethodName.UPDATE_STATE;
+  @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
+  public executeMethod = super.executeMethod;
 
   protected async enqueueByShard(
     requestHandler: RequestHandler,
@@ -39,7 +44,7 @@ export default class UpdateStateController extends NodeController {
     const { appInstanceId, newState } = params;
 
     if (!appInstanceId) {
-      throw new Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
+      throw Error(NO_APP_INSTANCE_FOR_TAKE_ACTION);
     }
 
     const appInstance = await store.getAppInstance(appInstanceId);
@@ -48,9 +53,9 @@ export default class UpdateStateController extends NodeController {
       appInstance.encodeState(newState);
     } catch (e) {
       if (e.code === INVALID_ARGUMENT) {
-        throw new Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${e}`);
+        throw Error(`${IMPROPERLY_FORMATTED_STRUCT}: ${prettyPrintObject(e)}`);
       }
-      throw new Error(STATE_OBJECT_NOT_ENCODABLE);
+      throw Error(STATE_OBJECT_NOT_ENCODABLE);
     }
   }
 
@@ -63,7 +68,7 @@ export default class UpdateStateController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const responderXpub = getCounterpartyAddress(
+    const responderXpub = getFirstElementInListNotEqualTo(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
@@ -87,7 +92,7 @@ async function runUpdateStateProtocol(
   instructionExecutor: InstructionExecutor,
   initiatorXpub: string,
   responderXpub: string,
-  newState: SolidityABIEncoderV2Type
+  newState: SolidityValueType
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 

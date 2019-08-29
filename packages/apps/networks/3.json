@@ -20,13 +20,13 @@
     "transactionHash": "0xa3022d3406aa1480ac4ba6fb94e534a6ff51d25d7f65ab97d3159434a5ea9ac1"
   },
   {
-    "contractName": "SimpleTwoPartySwapApp",
-    "address": "0x8F11E6e4beDbD542d75aD94D860173adCcE06D6B",
-    "transactionHash": "0x9f06dfb4a1fb6075ba154a79c09db4a17d78205bb95d81c4ae08be92e491abee"
-  },
-  {
     "contractName": "UnidirectionalTransferApp",
     "address": "0xc79036513BCFF37F31f66EED5af502BaDc1a7aeC",
     "transactionHash": "0x6d4dc8124958cfcab652a3f268a191dec1a6afd34f607cb5c801a149f5277afc"
+  },
+  {
+    "contractName": "SimpleTwoPartySwapApp",
+    "address": "0x5830C7cD707711783E13a9f3F04ba8183298715E",
+    "transactionHash": "0xaf1519af61727671ae0a8709f353484559d04ff4c6be2ce70229be4996d18d57"
   }
 ]

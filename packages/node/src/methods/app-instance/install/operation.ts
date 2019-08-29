@@ -13,7 +13,7 @@ export async function install(
   const { appInstanceId } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
-    throw new Error(NO_APP_INSTANCE_ID_TO_INSTALL);
+    throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
@@ -43,7 +43,8 @@ export async function install(
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
       initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
-      responderDepositTokenAddress: proposal.responderDepositTokenAddress
+      responderDepositTokenAddress: proposal.responderDepositTokenAddress,
+      disableLimit: false
     }
   );
 

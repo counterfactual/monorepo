@@ -25,14 +25,14 @@ describe("Storage client can get / set", () => {
   });
 
   it("can save and retrieve a key-value pair", async () => {
-    const key = generateUUID();
+    const path = generateUUID();
     const value = generateUUID();
-    await storeService.set([{ key, value }]);
-    expect(await storeService.get(key)).toBe(value);
+    await storeService.set([{ path, value }]);
+    expect(await storeService.get(path)).toBe(value);
   });
 
   it("rejects null entries", async () => {
-    const key = generateUUID();
+    const path = generateUUID();
     const value = {
       a: "a",
       b: "b",
@@ -41,14 +41,14 @@ describe("Storage client can get / set", () => {
         y: null
       }
     };
-    await expect(storeService.set([{ key, value }])).rejects.toThrowError(
+    await expect(storeService.set([{ path, value }])).rejects.toThrowError(
       WRITE_NULL_TO_FIREBASE
     );
   });
 
-  it("can save values under nested keys", async () => {
-    await storeService.set([{ key: "A/0x111", value: valueOne }]);
-    await storeService.set([{ key: "A/0x222", value: valueTwo }]);
+  it("can save values under nested paths", async () => {
+    await storeService.set([{ path: "A/0x111", value: valueOne }]);
+    await storeService.set([{ path: "A/0x222", value: valueTwo }]);
     expect(await storeService.get("A")).toEqual({
       "0x111": valueOne,
       "0x222": valueTwo
@@ -57,8 +57,8 @@ describe("Storage client can get / set", () => {
 
   it("can save values under nested keys in one call", async () => {
     await storeService.set([
-      { key: "A/0x111", value: valueOne },
-      { key: "A/0x222", value: valueTwo }
+      { path: "A/0x111", value: valueOne },
+      { path: "A/0x222", value: valueTwo }
     ]);
     expect(await storeService.get("A")).toEqual({
       "0x111": valueOne,

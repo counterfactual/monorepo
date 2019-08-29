@@ -13,9 +13,10 @@ import { BigNumber, defaultAbiCoder } from "ethers/utils";
 import { AppInstance } from "../../models";
 import {
   CoinTransfer,
+  convertCoinTransfersToCoinTransfersMap,
   TokenIndexedCoinTransferMap
 } from "../../models/free-balance";
-import { convertCoinTransfersToCoinTransfersMap, wait } from "../../utils";
+import { wait } from "../../utils";
 
 /**
  * Get the outcome of the app instance given, decode it according
@@ -63,7 +64,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
       );
     }
     default: {
-      throw new Error(
+      throw Error(
         "computeTokenIndexedFreeBalanceIncrements received an AppInstance with unknown OutcomeType"
       );
     }
@@ -107,7 +108,7 @@ async function handleRefundAppOutcomeSpecialCase(
     mutableOutcome = await appInstance.computeOutcomeWithCurrentState(provider);
   }
 
-  throw new Error(
+  throw Error(
     "When attempting to check for a deposit having been made to the multisig, did not find any non-zero deposits."
   );
 }
@@ -151,15 +152,12 @@ function handleMultiAssetMultiPartyCoinTransfer(
   );
 
   return interpreterParams.tokenAddresses.reduce(
-    (
-      tokenIndexedCoinTransferMap: TokenIndexedCoinTransferMap,
-      tokenAddress: string,
-      index: number
-    ) => {
-      return (tokenIndexedCoinTransferMap[
-        tokenAddress
-      ] = convertCoinTransfersToCoinTransfersMap(decodedTransfers[index]));
-    },
+    (acc, tokenAddress, index) => ({
+      ...acc,
+      [tokenAddress]: convertCoinTransfersToCoinTransfersMap(
+        decodedTransfers[index]
+      )
+    }),
     {}
   );
 }

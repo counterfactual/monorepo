@@ -1,8 +1,4 @@
-import {
-  multiAssetMultiPartyCoinTransferInterpreterParamsEncoding,
-  NetworkContext
-} from "@counterfactual/types";
-import { defaultAbiCoder } from "ethers/utils";
+import { NetworkContext } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -30,19 +26,23 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       .params as SetupParams;
     const responderAddress = xkeyKthAddress(responderXpub, 0);
     const setupCommitment = proposeStateTransition(
-      context.message.params,
+      context.message.params!,
       context
     );
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
 
-    const { signature: theirSig } = yield [
+    const {
+      customData: { signature: theirSig }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Setup,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         params: context.message.params,
         toXpub: responderXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: 1
       } as ProtocolMessage
     ];
@@ -67,11 +67,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
 
     const setupCommitment = proposeStateTransition(
-      context.message.params,
+      context.message.params!,
       context
     );
 
-    const theirSig = context.message.signature!;
+    const theirSig = context.message.customData.signature!;
     assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, setupCommitment];
@@ -91,9 +91,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       Opcode.IO_SEND,
       {
         protocol: Protocol.Setup,
-        protocolExecutionID: context.message.protocolExecutionID,
+        processID: context.message.processID,
         toXpub: initiatorXpub,
-        signature: mySig,
+        customData: {
+          signature: mySig
+        },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
@@ -111,7 +113,7 @@ function proposeStateTransition(
   } = params as SetupParams;
 
   if (context.stateChannelsMap.has(multisigAddress)) {
-    throw new Error(`Found an already-setup channel at ${multisigAddress}`);
+    throw Error(`Found an already-setup channel at ${multisigAddress}`);
   }
 
   const newStateChannel = StateChannel.setupChannel(
@@ -143,10 +145,6 @@ export function constructSetupCommitment(
     network,
     stateChannel.multisigAddress,
     stateChannel.multisigOwners,
-    freeBalance.identity,
-    defaultAbiCoder.encode(
-      [multiAssetMultiPartyCoinTransferInterpreterParamsEncoding],
-      [freeBalance.multiAssetMultiPartyCoinTransferInterpreterParams]
-    )
+    freeBalance.identity
   );
 }

@@ -6,11 +6,13 @@ import { NODE_EVENTS, UninstallVirtualMessage } from "../../src/types";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
+  constructUninstallVirtualRpc,
   createChannel,
-  generateUninstallVirtualRequest,
   getInstalledAppInstances,
   installVirtualApp
 } from "./utils";
+
+jest.setTimeout(10000);
 
 describe("Node method follows spec - uninstall virtual", () => {
   let nodeA: Node;
@@ -64,7 +66,7 @@ describe("Node method follows spec - uninstall virtual", () => {
         );
 
         await nodeA.rpcRouter.dispatch(
-          generateUninstallVirtualRequest(appInstanceId, nodeB.publicIdentifier)
+          constructUninstallVirtualRpc(appInstanceId, nodeB.publicIdentifier)
         );
 
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);

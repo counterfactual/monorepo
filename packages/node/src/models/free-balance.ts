@@ -1,10 +1,14 @@
 import { OutcomeType } from "@counterfactual/types";
-import { AddressZero, MaxUint256, Zero } from "ethers/constants";
-import { BigNumber, bigNumberify } from "ethers/utils";
+import { Zero } from "ethers/constants";
+import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
 
-import { getFreeBalanceAppInterface } from "../ethereum/utils/free-balance-app";
-import { xkeysToSortedKthAddresses } from "../machine/xkeys";
-import { convertCoinTransfersToCoinTransfersMap } from "../utils";
+import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
+import {
+  getFreeBalanceAppInterface,
+  merge
+} from "../ethereum/utils/free-balance-app";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";
 
@@ -14,44 +18,179 @@ const HARD_CODED_ASSUMPTIONS = {
   appSequenceNumberForFreeBalance: 0
 };
 
-/**
- * We use 0x00...000 to represent an identifier for the ETH token
- * in places where values are indexed on token address. Of course,
- * in practice, there is no "token address" for ETH because it is a
- * native asset on the ethereum blockchain, but using this as an index
- * is convenient for storing this data in the same data structure that
- * also carries data about ERC20 tokens.
- */
-export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
-
-export type CoinTransferMap = {
-  [to: string]: BigNumber;
-};
-
-export type TokenIndexedCoinTransferMap = {
-  [tokenAddress: string]: CoinTransferMap;
-};
-
+/*
+Keep in sync with the solidity struct LibOutcome::CoinTransfer
+*/
 export type CoinTransfer = {
   to: string;
   amount: BigNumber;
 };
 
-export type CoinTransferJSON = {
+/*
+Equivalent to the above type but with serialized BigNumbers
+*/
+type CoinTransferJSON = {
   to: string;
   amount: {
     _hex: string;
   };
 };
 
+/*
+CoinTransferMap is isomorphic to the solidity type `CoinTransfer[]`, with the
+restriction that values of the solidity type be arrays such that no two
+elements are CoinTransfers with the same `to` field. We prefer CoinTransferMap
+in client-side code for easier access, but we cannot use it in solidity due to
+nonexistent support for non-storage mappings.
+*/
+export type CoinTransferMap = {
+  [to: string]: BigNumber;
+};
+
+/*
+A doubly-nested map of BigNumbers indexed first (outermost) by the tokenAddress
+and secondly (innermost) by the beneficiary address
+*/
+export type TokenIndexedCoinTransferMap = {
+  [tokenAddress: string]: CoinTransferMap;
+};
+
+// todo(xuanji): replace with Set
 export type ActiveAppsMap = { [appInstanceIdentityHash: string]: true };
 
-export type FreeBalanceState = {
+export class FreeBalanceClass {
+  private constructor(
+    private readonly activeAppsMap: ActiveAppsMap,
+    private readonly balancesIndexedByToken: {
+      // todo: change this type to TokenIndexedCoinTransferMap
+      [tokenAddress: string]: CoinTransfer[];
+    }
+  ) {}
+  public toFreeBalanceState(): FreeBalanceState {
+    return {
+      activeAppsMap: this.activeAppsMap,
+      balancesIndexedByToken: this.balancesIndexedByToken
+    };
+  }
+  public toTokenIndexedCoinTransferMap() {
+    const ret = {};
+    for (const tokenAddress of Object.keys(this.balancesIndexedByToken)) {
+      ret[tokenAddress] = convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      );
+    }
+    return ret;
+  }
+  public toAppInstance(oldAppInstance: AppInstance) {
+    return oldAppInstance.setState(
+      serializeFreeBalanceState(this.toFreeBalanceState())
+    );
+  }
+
+  public static createWithFundedTokenAmounts(
+    addresses: string[],
+    amount: BigNumber,
+    tokenAddresses: string[]
+  ): FreeBalanceClass {
+    return new FreeBalanceClass(
+      {},
+      tokenAddresses.reduce(
+        (balancesIndexedByToken, tokenAddress) => ({
+          ...balancesIndexedByToken,
+          [tokenAddress]: addresses.map(to => ({ to, amount }))
+        }),
+        {} as { [tokenAddress: string]: CoinTransfer[] }
+      )
+    );
+  }
+
+  public static fromAppInstance(appInstance: AppInstance): FreeBalanceClass {
+    const freeBalanceState = deserializeFreeBalanceState(
+      appInstance.state as FreeBalanceStateJSON
+    );
+    return new FreeBalanceClass(
+      freeBalanceState.activeAppsMap,
+      freeBalanceState.balancesIndexedByToken
+    );
+  }
+  public getBalance(tokenAddress: string, beneficiary: string) {
+    try {
+      return convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      )[beneficiary];
+    } catch {
+      return Zero;
+    }
+  }
+  public withTokenAddress(tokenAddress: string): CoinTransferMap {
+    let balances: CoinTransferMap = {};
+    balances = convertCoinTransfersToCoinTransfersMap(
+      this.balancesIndexedByToken[tokenAddress]
+    );
+    if (Object.keys(balances).length === 0) {
+      const addresses = Object.keys(
+        convertCoinTransfersToCoinTransfersMap(
+          this.balancesIndexedByToken[CONVENTION_FOR_ETH_TOKEN_ADDRESS]
+        )
+      );
+      for (const address of addresses) {
+        balances[address] = Zero;
+      }
+    }
+    return balances;
+  }
+  public removeActiveApp(activeApp: string) {
+    delete this.activeAppsMap[activeApp];
+    return this;
+  }
+  public addActiveApp(activeApp: string) {
+    this.activeAppsMap[activeApp] = true;
+    return this;
+  }
+  public prettyPrint() {
+    const balances = this.balancesIndexedByToken;
+    const ret = {} as any;
+    for (const tokenAddress of Object.keys(balances)) {
+      const ret2 = {} as any;
+      for (const coinTransfer of balances[tokenAddress]) {
+        ret2[coinTransfer.to] = coinTransfer.amount;
+      }
+      ret[tokenAddress] = ret2;
+    }
+    console.table(ret);
+  }
+  public increment(increments: TokenIndexedCoinTransferMap) {
+    for (const tokenAddress of Object.keys(increments)) {
+      const t1 = convertCoinTransfersToCoinTransfersMap(
+        this.balancesIndexedByToken[tokenAddress]
+      );
+      const t2 = merge(t1, increments[tokenAddress]);
+
+      for (const val of Object.values(t2)) {
+        if (val.lt(Zero)) {
+          throw Error(
+            `FreeBalanceClass::increment ended up with a negative balance when
+            merging ${prettyPrintObject(t1)} and ${prettyPrintObject(
+              increments[tokenAddress]
+            )}`
+          );
+        }
+      }
+
+      this.balancesIndexedByToken[
+        tokenAddress
+      ] = convertCoinTransfersMapToCoinTransfers(t2);
+    }
+    return this;
+  }
+}
+
+type FreeBalanceState = {
   activeAppsMap: ActiveAppsMap;
   balancesIndexedByToken: { [tokenAddress: string]: CoinTransfer[] };
 };
 
-export type FreeBalanceStateJSON = {
+type FreeBalanceStateJSON = {
   tokenAddresses: string[];
   balances: CoinTransferJSON[][];
   activeApps: string[];
@@ -62,7 +201,6 @@ export type FreeBalanceStateJSON = {
  * and only converted to more complex types (i.e. BigNumber) upon usage.
  */
 export function createFreeBalance(
-  multisigAddress: string,
   userNeuteredExtendedKeys: string[],
   coinBucketAddress: string,
   freeBalanceTimeout: number
@@ -86,55 +224,19 @@ export function createFreeBalance(
   };
 
   return new AppInstance(
-    multisigAddress,
-    sortedTopLevelKeys,
-    freeBalanceTimeout,
-    getFreeBalanceAppInterface(coinBucketAddress),
-    false,
-    HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
-    serializeFreeBalanceState(initialState),
-    0,
-    HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
-    OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
-    undefined,
-    // FIXME: refactor how the interpreter parameters get plumbed through
-    { limit: [MaxUint256], tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS] },
-    undefined
+    /* participants */ sortedTopLevelKeys,
+    /* defaultTimeout */ freeBalanceTimeout,
+    /* appInterface */ getFreeBalanceAppInterface(coinBucketAddress),
+    /* isVirtualApp */ false,
+    /* appSeqNo */ HARD_CODED_ASSUMPTIONS.appSequenceNumberForFreeBalance,
+    /* latestState */ serializeFreeBalanceState(initialState),
+    /* latestVersionNumber */ 0,
+    /* latestTimeout */ HARD_CODED_ASSUMPTIONS.freeBalanceInitialStateTimeout,
+    /* outcomeType */ OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER
   );
 }
 
-/**
- * Given an AppInstance whose state is FreeBalanceState, convert the state
- * into the locally more convenient data type CoinTransferMap and return that.
- *
- * Note that this function will also default the `to` addresses of a new token
- * to the 0th derived public addresses of the StateChannel, the same as all
- * FreeBalanceApp AppInstances.
- *
- * @export
- * @param {AppInstance} freeBalance - an AppInstance that is a FreeBalanceApp
- *
- * @returns {CoinTransferMap} - HexFreeBalanceState indexed on tokenAddresses
- */
-export function getBalancesFromFreeBalanceAppInstance(
-  freeBalanceAppInstance: AppInstance,
-  tokenAddress: string
-): CoinTransferMap {
-  const freeBalanceState = deserializeFreeBalanceState(
-    freeBalanceAppInstance.state as FreeBalanceStateJSON
-  );
-
-  const coinTransfers = freeBalanceState.balancesIndexedByToken[
-    tokenAddress
-  ] || [
-    { to: freeBalanceAppInstance.participants[0], amount: Zero },
-    { to: freeBalanceAppInstance.participants[1], amount: Zero }
-  ];
-
-  return convertCoinTransfersToCoinTransfersMap(coinTransfers);
-}
-
-export function deserializeFreeBalanceState(
+function deserializeFreeBalanceState(
   freeBalanceStateJSON: FreeBalanceStateJSON
 ): FreeBalanceState {
   const { activeApps, tokenAddresses, balances } = freeBalanceStateJSON;
@@ -142,7 +244,7 @@ export function deserializeFreeBalanceState(
     balancesIndexedByToken: (tokenAddresses || []).reduce(
       (acc, tokenAddress, idx) => ({
         ...acc,
-        [tokenAddress]: balances[idx].map(({ to, amount }) => ({
+        [getAddress(tokenAddress)]: balances[idx].map(({ to, amount }) => ({
           to,
           amount: bigNumberify(amount._hex)
         }))
@@ -156,7 +258,7 @@ export function deserializeFreeBalanceState(
   };
 }
 
-export function serializeFreeBalanceState(
+function serializeFreeBalanceState(
   freeBalanceState: FreeBalanceState
 ): FreeBalanceStateJSON {
   return {
@@ -172,4 +274,31 @@ export function serializeFreeBalanceState(
         }))
     )
   };
+}
+
+// The following conversion functions are only relevant in the context
+// of reading/writing to a channel's Free Balance
+export function convertCoinTransfersToCoinTransfersMap(
+  coinTransfers: CoinTransfer[]
+): CoinTransferMap {
+  return (coinTransfers || []).reduce(
+    (acc, { to, amount }) => ({ ...acc, [to]: amount }),
+    {}
+  );
+}
+
+function convertCoinTransfersMapToCoinTransfers(
+  coinTransfersMap: CoinTransferMap
+): CoinTransfer[] {
+  return Object.entries(coinTransfersMap).map(([to, amount]) => ({
+    to,
+    amount
+  }));
+}
+
+/**
+ * Address used for a Node's free balance
+ */
+export function getFreeBalanceAddress(publicIdentifier: string) {
+  return xkeyKthAddress(publicIdentifier, 0);
 }

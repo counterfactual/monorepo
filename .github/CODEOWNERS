@@ -1,7 +1,8 @@
 /* @snario
 /packages/apps @snario
 /packages/cf.js @ebryn
-/packages/contracts @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll
+/packages/cf-adjudicator-contracts @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll
+/packages/cf-funding-protocol-contracts @IIIIllllIIIIllllIIIIllllIIIIllllIIIIll
 /packages/dapp-tic-tac-toe @patience-tema-baron
 /packages/dapp-high-roller @Alonski
 /packages/high-roller-bot @cf19drofxots

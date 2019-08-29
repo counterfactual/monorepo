@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { OutcomeType } from ".";
@@ -7,12 +7,7 @@ import {
   AppInstanceJson,
   AppInstanceProposal
 } from "./data-types";
-import { SolidityABIEncoderV2Type } from "./simple-types";
-
-export interface INodeProvider {
-  onMessage(callback: (message: Node.Message) => void);
-  sendMessage(message: Node.Message);
-}
+import { SolidityValueType } from "./simple-types";
 
 export interface IRpcNodeProvider {
   onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void);
@@ -26,6 +21,15 @@ export namespace Node {
   export type NodeMessage = {
     from: string;
     type: EventName;
+  };
+
+  // This is used instead of the ethers `Transaction` because that type
+  // requires the nonce and chain ID to be specified, when sometimes those
+  // arguments are not known at the time of creating a transaction.
+  export type MinimalTransaction = {
+    to: string;
+    value: BigNumberish;
+    data: string;
   };
 
   export interface ServiceFactory {
@@ -50,12 +54,11 @@ export namespace Node {
    * deletes entries at the path extended by the subvalue's path within the object. `set` must
    * have the same behaviour if the `allowDelete` flag is passed; otherwise, any null values or
    * subvalues throws an error.
-   * todo(xuanji): rename `key` to `path`
    */
   export interface IStoreService {
-    get(key: string): Promise<any>;
+    get(path: string): Promise<any>;
     set(
-      pairs: { key: string; value: any }[],
+      pairs: { path: string; value: any }[],
       allowDelete?: Boolean
     ): Promise<void>;
     reset?(): Promise<void>;
@@ -68,40 +71,21 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",
-    CREATE_CHANNEL = "createChannel",
-    DEPOSIT = "deposit",
-    GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
-    GET_APP_INSTANCES = "getAppInstances",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
-    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress",
-    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
-    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
-    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
-    GET_STATE = "getState",
-    GET_STATE_CHANNEL = "getStateChannel",
-    INSTALL = "install",
-    INSTALL_VIRTUAL = "installVirtual",
-    PROPOSE_INSTALL = "proposeInstall",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
-    PROPOSE_STATE = "proposeState",
-    REJECT_INSTALL = "rejectInstall",
-    REJECT_STATE = "rejectState",
-    UPDATE_STATE = "updateState",
-    TAKE_ACTION = "takeAction",
-    UNINSTALL = "uninstall",
-    UNINSTALL_VIRTUAL = "uninstallVirtual",
-    WITHDRAW = "withdraw"
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance"
   }
 
   export enum RpcMethodName {
     CREATE_CHANNEL = "chan_create",
     DEPOSIT = "chan_deposit",
+    GET_CHANNEL_ADDRESSES = "chan_getChannelAddresses",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
+    GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
+    GET_STATE_CHANNEL = "chan_getStateChannel",
     INSTALL = "chan_install",
     INSTALL_VIRTUAL = "chan_installVirtual",
     PROPOSE_INSTALL = "chan_proposeInstall",
@@ -113,7 +97,8 @@ export namespace Node {
     TAKE_ACTION = "chan_takeAction",
     UNINSTALL = "chan_uninstall",
     UNINSTALL_VIRTUAL = "chan_uninstallVirtual",
-    WITHDRAW = "chan_withdraw"
+    WITHDRAW = "chan_withdraw",
+    WITHDRAW_COMMITMENT = "chan_withdrawCommitment"
   }
 
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#events
@@ -143,6 +128,7 @@ export namespace Node {
 
   export type CreateChannelParams = {
     owners: string[];
+    retryCount?: number;
   };
 
   export type CreateChannelResult = {
@@ -210,6 +196,16 @@ export namespace Node {
     [s: string]: BigNumber;
   };
 
+  export type GetTokenIndexedFreeBalanceStatesParams = {
+    multisigAddress: string;
+  };
+
+  export type GetTokenIndexedFreeBalanceStatesResult = {
+    [tokenAddress: string]: {
+      [s: string]: BigNumber;
+    };
+  };
+
   export type GetProposedAppInstancesParams = {};
 
   export type GetProposedAppInstancesResult = {
@@ -229,7 +225,7 @@ export namespace Node {
   };
 
   export type GetStateResult = {
-    state: SolidityABIEncoderV2Type;
+    state: SolidityValueType;
   };
 
   export type InstallParams = {
@@ -241,7 +237,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type InstallVirtualResult = InstallResult;
@@ -254,13 +250,13 @@ export namespace Node {
     responderDeposit: BigNumber;
     responderDepositTokenAddress?: string;
     timeout: BigNumber;
-    initialState: SolidityABIEncoderV2Type;
+    initialState: SolidityValueType;
     proposedToIdentifier: string;
     outcomeType: OutcomeType;
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type ProposeInstallVirtualResult = ProposeInstallResult;
@@ -277,11 +273,11 @@ export namespace Node {
 
   export type TakeActionParams = {
     appInstanceId: string;
-    action: SolidityABIEncoderV2Type;
+    action: SolidityValueType;
   };
 
   export type TakeActionResult = {
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type UninstallParams = {
@@ -298,11 +294,11 @@ export namespace Node {
 
   export type UpdateStateParams = {
     appInstanceId: string;
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type UpdateStateResult = {
-    newState: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
   };
 
   export type WithdrawParams = {
@@ -315,6 +311,12 @@ export namespace Node {
   export type WithdrawResult = {
     recipient: string;
     txHash: string;
+  };
+
+  export type WithdrawCommitmentParams = WithdrawParams;
+
+  export type WithdrawCommitmentResult = {
+    transaction: MinimalTransaction;
   };
 
   export type MethodParams =
@@ -365,8 +367,8 @@ export namespace Node {
 
   export type UpdateStateEventData = {
     appInstanceId: string;
-    newState: SolidityABIEncoderV2Type;
-    action?: SolidityABIEncoderV2Type;
+    newState: SolidityValueType;
+    action?: SolidityValueType;
   };
 
   export type WithdrawEventData = {
