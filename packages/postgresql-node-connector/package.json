@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/postgresql-node-connector",
-  "version": "0.0.5",
+  "version": "0.0.7",
   "main": "src/index.ts",
   "description": "Implementation of a PostgreSQL storage service for the Counterfactual Node",
   "license": "MIT",
@@ -17,8 +17,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "dependencies": {
+    "@counterfactual/types": "0.0.38",
     "pg": "7.12.1",
-    "@counterfactual/types": "0.0.36",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.2.18"
   },
@@ -28,7 +28,7 @@
     "@types/pg": "7.11.0",
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
-    "tslint": "5.18.0",
+    "tslint": "5.19.0",
     "typescript": "3.5.3"
   }
 }

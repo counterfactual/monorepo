@@ -8,6 +8,7 @@ import {
 import {
   CreateChannelMessage,
   DepositConfirmationMessage,
+  EthereumNetworkName,
   EXTENDED_PRIVATE_KEY_PATH,
   Node
 } from "@counterfactual/node";
@@ -157,7 +158,7 @@ export class NodeWrapper {
   }
 
   public static async createNodeSingleton(
-    networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     extendedPrvKey?: string,
     provider?: JsonRpcProvider,
     storeService?: NodeTypes.IStoreService,
@@ -206,7 +207,7 @@ export class NodeWrapper {
   }
 
   public static async createNode(
-    networkOrNetworkContext: "kovan" | "ropsten" | "rinkeby" | NetworkContext,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     provider?: JsonRpcProvider,
     extendedPrvKey?: string,
     storeService?: NodeTypes.IStoreService,
@@ -261,7 +262,7 @@ export class NodeWrapper {
     const { result } = await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
-        method: "chan_create",
+        method: NodeTypes.RpcMethodName.CREATE_CHANNEL,
         params: {
           owners: [node.publicIdentifier, nodeAddress]
         },

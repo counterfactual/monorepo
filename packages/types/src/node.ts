@@ -71,36 +71,13 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",
-    CREATE_CHANNEL = "createChannel",
-    DEPOSIT = "deposit",
-    GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
-    GET_APP_INSTANCES = "getAppInstances",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
-    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress",
-    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
-    GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "getTokenIndexedFreeBalanceStates",
-    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
-    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
-    GET_STATE = "getState",
-    GET_STATE_CHANNEL = "getStateChannel",
-    INSTALL = "install",
-    INSTALL_VIRTUAL = "installVirtual",
-    PROPOSE_INSTALL = "proposeInstall",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
-    PROPOSE_STATE = "proposeState",
-    REJECT_INSTALL = "rejectInstall",
-    REJECT_STATE = "rejectState",
-    UPDATE_STATE = "updateState",
-    TAKE_ACTION = "takeAction",
-    UNINSTALL = "uninstall",
-    UNINSTALL_VIRTUAL = "uninstallVirtual",
-    WITHDRAW = "withdraw",
-    WITHDRAW_COMMITMENT = "withdrawCommitment"
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance"
   }
 
   export enum RpcMethodName {
     CREATE_CHANNEL = "chan_create",
     DEPOSIT = "chan_deposit",
+    GET_CHANNEL_ADDRESSES = "chan_getChannelAddresses",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
@@ -108,6 +85,7 @@ export namespace Node {
     GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
+    GET_STATE_CHANNEL = "chan_getStateChannel",
     INSTALL = "chan_install",
     INSTALL_VIRTUAL = "chan_installVirtual",
     PROPOSE_INSTALL = "chan_proposeInstall",

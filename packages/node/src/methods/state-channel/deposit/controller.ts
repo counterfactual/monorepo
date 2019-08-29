@@ -1,4 +1,4 @@
-import ERC20 from "@counterfactual/cf-funding-protocol-contracts/build/ERC20.json";
+import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ERC20.json";
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers/utils";
@@ -24,8 +24,6 @@ import {
 } from "./operation";
 
 export default class DepositController extends NodeController {
-  public static readonly methodName = Node.MethodName.DEPOSIT;
-
   @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 

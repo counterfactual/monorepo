@@ -19,8 +19,6 @@ import {
 } from "../../errors";
 
 export default class UpdateStateController extends NodeController {
-  public static readonly methodName = Node.MethodName.UPDATE_STATE;
-
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
