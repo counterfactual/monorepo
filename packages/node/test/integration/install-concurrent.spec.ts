@@ -1,10 +1,8 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { One } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
 
 import { Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
@@ -12,10 +10,9 @@ import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
-  getFreeBalanceState,
   getInstalledAppInstances,
   makeInstallCall,
-  makeAndSendProposeCall,
+  makeProposeCall,
 } from "./utils";
 
 expect.extend({ toBeLt });
@@ -40,21 +37,7 @@ describe("Node method follows spec - install", () => {
       it("install app with ETH", async done => {
         await collateralizeChannel(nodeA, nodeB, multisigAddress);
 
-        let preInstallETHBalanceNodeA: BigNumber;
-        let postInstallETHBalanceNodeA: BigNumber;
-        let preInstallETHBalanceNodeB: BigNumber;
-        let postInstallETHBalanceNodeB: BigNumber;
-
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          [
-            preInstallETHBalanceNodeA,
-            preInstallETHBalanceNodeB
-          ] = await getBalances(
-            nodeA,
-            nodeB,
-            multisigAddress,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS
-          );
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
@@ -64,61 +47,24 @@ describe("Node method follows spec - install", () => {
           expect(appInstanceNodeA).toBeDefined();
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
 
-          [
-            postInstallETHBalanceNodeA,
-            postInstallETHBalanceNodeB
-          ] = await getBalances(
-            nodeA,
-            nodeB,
-            multisigAddress,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS
-          );
-
-          expect(postInstallETHBalanceNodeA).toBeLt(preInstallETHBalanceNodeA);
-
-          expect(postInstallETHBalanceNodeB).toBeLt(preInstallETHBalanceNodeB);
-
           done();
         });
 
-        await makeAndSendProposeCall(
-          nodeA,
+        const proposeRpc = () => makeProposeCall(
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          undefined,
+          /* initialState */ undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS
         );
+        await Promise.all([
+          nodeA.rpcRouter.dispatch(proposeRpc()),
+          nodeA.rpcRouter.dispatch(proposeRpc())
+        ])
       });
     }
   );
 });
 
-async function getBalances(
-  nodeA: Node,
-  nodeB: Node,
-  multisigAddress: string,
-  tokenAddress: string
-) {
-  let tokenFreeBalanceState = await getFreeBalanceState(
-    nodeA,
-    multisigAddress,
-    tokenAddress
-  );
-
-  const tokenBalanceNodeA =
-    tokenFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
-
-  tokenFreeBalanceState = await getFreeBalanceState(
-    nodeB,
-    multisigAddress,
-    tokenAddress
-  );
-
-  const tokenBalanceNodeB =
-    tokenFreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
-
-  return [tokenBalanceNodeA, tokenBalanceNodeB];
-}
