@@ -245,6 +245,7 @@ export class Store {
     );
 
     if (!appInstanceProposal) {
+      console.trace("hi");
       throw Error(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId));
     }
 

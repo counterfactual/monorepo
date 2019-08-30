@@ -10,7 +10,6 @@ import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
-  getInstalledAppInstances,
   makeInstallCall,
   makeProposeCall,
 } from "./utils";
@@ -38,18 +37,11 @@ describe("Node method follows spec - install", () => {
         await collateralizeChannel(nodeA, nodeB, multisigAddress);
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+          await new Promise(resolve => setTimeout(resolve, 1000));
           makeInstallCall(nodeB, msg.data.appInstanceId);
-        });
-
-        nodeA.on(NODE_EVENTS.INSTALL, async () => {
-          const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
-          const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
-          expect(appInstanceNodeA).toBeDefined();
-          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-
           await new Promise(resolve => setTimeout(resolve, 1000));
 
-          done();
+          expect(done);
         });
 
         const proposeRpc = () => makeProposeCall(

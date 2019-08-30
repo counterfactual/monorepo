@@ -16,6 +16,7 @@ export async function install(
     throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
+  console.log("install");
   const proposal = await store.getAppInstanceProposal(appInstanceId);
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -53,6 +54,8 @@ export async function install(
   );
 
   await store.saveRealizedProposedAppInstance(proposal);
+
+  console.log("install done");
 
   return proposal;
 }

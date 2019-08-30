@@ -100,6 +100,9 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<Node.ProposeInstallResult> {
+
+    console.log("propose install");
+
     const {
       store,
       publicIdentifier,
@@ -123,6 +126,8 @@ export default class ProposeInstallController extends NodeController {
     };
 
     await messagingService.send(proposedToIdentifier, proposalMsg);
+
+    console.log("propose install done", appInstanceId);
 
     return {
       appInstanceId
