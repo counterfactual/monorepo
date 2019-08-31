@@ -16,7 +16,7 @@ export async function install(
     throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
   }
 
-  console.log("install");
+  console.log("installing", appInstanceId);
   const proposal = await store.getAppInstanceProposal(appInstanceId);
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);

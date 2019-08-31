@@ -18,7 +18,10 @@ export async function createProposedAppInstance(
   networkContext,
   params: Node.ProposeInstallParams
 ): Promise<string> {
-  const { proposedToIdentifier } = params;
+  const { proposedToIdentifier, identityHash } = params;
+  if (!identityHash) {
+    throw new Error(`no identity hash found on params`);
+  }
 
   const multisigAddress = getCreate2MultisigAddress(
     [myIdentifier, proposedToIdentifier],
@@ -37,7 +40,8 @@ export async function createProposedAppInstance(
       responderDepositTokenAddress:
         params.responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
     },
-    stateChannel
+    stateChannel,
+    params.identityHash
   );
 
   await store.addAppInstanceProposal(stateChannel, appInstanceProposal);

@@ -33,7 +33,7 @@ describe("Node method follows spec - install", () => {
         multisigAddress = await createChannel(nodeA, nodeB);
       });
 
-      it("install app with ETH", async done => {
+      it("install apps with ETH concurrently", async done => {
         await collateralizeChannel(nodeA, nodeB, multisigAddress);
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {

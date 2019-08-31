@@ -77,6 +77,9 @@ export async function handleReceivedProposalMessage(
 
   const stateChannel = await store.getStateChannel(multisigAddress);
 
+  if (!params.identityHash) {
+    throw new Error(`no identity hash found on params`);
+  }
   await store.addAppInstanceProposal(
     stateChannel,
     new AppInstanceProposal(
@@ -88,7 +91,8 @@ export async function handleReceivedProposalMessage(
         responderDeposit: params.initiatorDeposit!,
         responderDepositTokenAddress: params.initiatorDepositTokenAddress!
       },
-      stateChannel
+      stateChannel,
+      params.identityHash
     )
   );
 }

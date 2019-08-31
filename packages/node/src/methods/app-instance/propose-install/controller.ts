@@ -32,7 +32,10 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ): Promise<Queue[]> {
     const { publicIdentifier, networkContext } = requestHandler;
-    const { proposedToIdentifier } = params;
+    const { proposedToIdentifier, identityHash } = params;
+    if (!identityHash) {
+      throw new Error(`no identity hash found on params`);
+    }
 
     const multisigAddress = getCreate2MultisigAddress(
       [publicIdentifier, proposedToIdentifier],
@@ -48,7 +51,10 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { initialState } = params;
+    const { initialState, identityHash } = params;
+    if (!identityHash) {
+      throw new Error(`no identity hash found on params`);
+    }
 
     if (!initialState) {
       throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
@@ -110,7 +116,10 @@ export default class ProposeInstallController extends NodeController {
       networkContext
     } = requestHandler;
 
-    const { proposedToIdentifier } = params;
+    const { proposedToIdentifier, identityHash } = params;
+    if (!identityHash) {
+      throw new Error(`no identity hash found on params`);
+    }
 
     const appInstanceId = await createProposedAppInstance(
       publicIdentifier,
@@ -128,6 +137,10 @@ export default class ProposeInstallController extends NodeController {
     await messagingService.send(proposedToIdentifier, proposalMsg);
 
     console.log("propose install done", appInstanceId);
+    console.log(
+      "total proposed apps",
+      (await store.getProposedAppInstances()).length
+    );
 
     return {
       appInstanceId

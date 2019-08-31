@@ -25,6 +25,10 @@ export default class InstallController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
+    const proposed = (await store.getProposedAppInstances()).map(
+      a => a.identityHash
+    );
+    console.log("proposed ids:", proposed);
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
     return [
@@ -68,6 +72,8 @@ export default class InstallController extends NodeController {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(responderAddress, installApprovalMsg);
 
+    const chan = await store.getChannelFromAppInstanceID(appInstanceProposal.identityHash)
+    console.log("can u see me", chan.appInstances);
     return {
       appInstance: (await store.getAppInstance(
         appInstanceProposal.identityHash

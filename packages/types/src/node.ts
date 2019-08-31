@@ -245,6 +245,7 @@ export namespace Node {
   export type ProposeInstallParams = {
     appDefinition: string;
     abiEncodings: AppABIEncodings;
+    identityHash: string; // hexlify(randomBytes(32))
     initiatorDeposit: BigNumber;
     initiatorDepositTokenAddress?: string;
     responderDeposit: BigNumber;

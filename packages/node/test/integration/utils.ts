@@ -12,7 +12,7 @@ import {
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, hexlify, randomBytes } from "ethers/utils";
 
 import {
   CreateChannelMessage,
@@ -283,7 +283,8 @@ export function constructAppProposalRpc(
       initialState,
       abiEncodings,
       timeout: One,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
+      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      identityHash: hexlify(randomBytes(32))
     } as NodeTypes.ProposeInstallParams
   });
 }
