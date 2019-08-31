@@ -25,7 +25,7 @@
   "devDependencies": {
     "jest": "24.8.0",
     "rollup": "1.20.3",
-    "rollup-plugin-commonjs": "10.0.2",
+    "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-typescript2": "0.23.0",
     "tslint": "5.19.0",
