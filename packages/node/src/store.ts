@@ -95,6 +95,7 @@ export class Store {
    * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
+    console.log("saving state channel", JSON.stringify(stateChannel, null, 2))
     await this.storeService.set([
       {
         path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
@@ -137,6 +138,7 @@ export class Store {
   public async saveRealizedProposedAppInstance(
     proposedAppInstance: AppInstanceProposal
   ) {
+    console.log("saving realized app instance", proposedAppInstance.identityHash)
     await this.storeService.set(
       [
         {
@@ -162,6 +164,7 @@ export class Store {
     stateChannel: StateChannel,
     proposedAppInstance: AppInstanceProposal
   ) {
+    console.log("adding app instance proposal to store", proposedAppInstance.identityHash)
     await this.storeService.set([
       {
         path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,

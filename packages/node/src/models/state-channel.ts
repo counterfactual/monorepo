@@ -321,6 +321,7 @@ export class StateChannel {
   }
 
   public addAppInstance(appInstance: AppInstance) {
+    console.log("trying to add app instance", appInstance.identityHash)
     if (appInstance.appSeqNo !== this.numInstalledApps) {
       throw Error(
         `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`

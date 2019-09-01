@@ -45,15 +45,18 @@ export async function install(
       outcomeType: proposal.outcomeType,
       initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
       responderDepositTokenAddress: proposal.responderDepositTokenAddress,
-      disableLimit: false
+      disableLimit: false,
+      appIdentityHash: proposal.identityHash
     }
   );
 
+  // WHY IS THIS SAVING THE WRONG APP INSTANCE ID WTF
   await store.saveStateChannel(
     stateChannelsMap.get(stateChannel.multisigAddress)!
   );
 
   await store.saveRealizedProposedAppInstance(proposal);
+  console.log("saved realized proposal", proposal.identityHash);
 
   console.log("install done");
 

@@ -95,6 +95,8 @@ export type InstallParams = {
   // `initiatorBalanceDecrement + responderBalanceDecrement`; setting this
   // flag disables the limit by setting it to MAX_UINT256
   disableLimit: boolean;
+
+  appIdentityHash: string;
 };
 
 export type UninstallParams = {
