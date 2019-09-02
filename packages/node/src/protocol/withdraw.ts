@@ -539,6 +539,7 @@ function addRefundAppToStateChannel(
     0,
     defaultTimeout,
     OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
+    undefined, // identity hash
     undefined,
     undefined,
     { tokenAddress, limit: MaxUint256 }

@@ -141,6 +141,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         0,
         stateChannel.freeBalance.timeout, // Re-use ETH FreeBalance timeout
         OutcomeType.MULTI_ASSET_MULTI_PARTY_COIN_TRANSFER,
+        undefined, // identity hash
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred

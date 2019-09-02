@@ -192,6 +192,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         1, // latest versionNumber
         0, // latest timeout
         /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+        undefined, // identity hash
         {
           playerAddrs: [AddressZero, AddressZero],
           amount: Zero,

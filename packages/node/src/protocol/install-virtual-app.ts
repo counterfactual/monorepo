@@ -906,6 +906,7 @@ function constructVirtualAppInstance(
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
     outcomeType,
+    undefined, // identity hash
     twoPartyOutcomeInterpreterParams,
     multiAssetMultiPartyCoinTransferInterpreterParams,
     singleAssetTwoPartyCoinTransferInterpreterParams
@@ -997,6 +998,7 @@ function constructTimeLockedPassThroughAppInstance(
     /* versionNumber */ 0,
     /* latestTimeout */ HARD_CODED_CHALLENGE_TIMEOUT,
     /* outcomeType */ outcomeType,
+    /* identityHash */ undefined,
     /* twoPartyOutcomeInterpreterParams */ twoPartyOutcomeInterpreterParams,
     /* multiAssetMultiPartyCoinTransferInterpreterParams */ multiAssetMultiPartyCoinTransferInterpreterParams,
     /* singleAssetTwoPartyCoinTransferInterpreterParams */ singleAssetTwoPartyCoinTransferInterpreterParams

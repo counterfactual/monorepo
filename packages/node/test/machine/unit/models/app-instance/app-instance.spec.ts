@@ -25,6 +25,7 @@ describe("AppInstance", () => {
       /* versionNumber */ 999,
       Math.ceil(1000 * Math.random()),
       OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+      undefined, // identity hash
       {
         playerAddrs: [AddressZero, AddressZero],
         amount: Zero,

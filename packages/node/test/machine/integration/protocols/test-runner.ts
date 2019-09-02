@@ -3,7 +3,7 @@ import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { Protocol, xkeyKthAddress } from "../../../../src/machine";
@@ -264,7 +264,8 @@ export class TestRunner {
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddress,
         responderDepositTokenAddress: tokenAddress,
-        disableLimit: false
+        disableLimit: false,
+        appIdentityHash: hexlify(randomBytes(32))
       }
     );
   }
@@ -333,7 +334,8 @@ export class TestRunner {
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddressA,
         responderDepositTokenAddress: tokenAddressB,
-        disableLimit: false
+        disableLimit: false,
+        appIdentityHash: hexlify(randomBytes(32))
       }
     );
   }
