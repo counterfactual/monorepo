@@ -39,7 +39,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
 
       - run: yarn run patch-package
 
