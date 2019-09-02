@@ -15,7 +15,7 @@ import {
   TransactionRequest,
   TransactionResponse
 } from "ethers/providers";
-import { bigNumberify } from "ethers/utils";
+import { bigNumberify, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
@@ -83,7 +83,8 @@ export async function installBalanceRefundApp(
     // the balance refund is a special case where we want to set the limit to be
     // MAX_UINT256 instead of
     // `initiatorBalanceDecrement + responderBalanceDecrement` = 0
-    disableLimit: true
+    disableLimit: true,
+    appIdentityHash: hexlify(randomBytes(32))
   };
 
   const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
