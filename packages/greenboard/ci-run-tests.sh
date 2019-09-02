@@ -50,6 +50,11 @@ echo -n "Installing Greenboard dependencies..."
   cp -rl node_modules/* ../../node_modules/
 echo "OK"
 
+# Run the Hub and the Wallet UI.
+pushd $COUNTERFACTUAL_PATH/
+  yarn run:wallet:e2e &
+popd
+
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
   while ! timeout 1 bash -c "echo > /dev/tcp/localhost/9000" &>/dev/null; do sleep 0.1; done
