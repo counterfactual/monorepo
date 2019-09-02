@@ -72,8 +72,6 @@ export default class InstallController extends NodeController {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(responderAddress, installApprovalMsg);
 
-    const chan = await store.getChannelFromAppInstanceID(appInstanceProposal.identityHash)
-    console.log("can u see me", chan.appInstances);
     return {
       appInstance: (await store.getAppInstance(
         appInstanceProposal.identityHash
