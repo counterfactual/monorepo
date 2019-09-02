@@ -14,6 +14,7 @@ import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+import { Signature } from "ethers/utils";
 
 /**
  * @description This exchange is described at the following URL:
@@ -29,11 +30,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       context.message.params!,
       context
     );
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const mySig: Signature = yield [Opcode.OP_SIGN, setupCommitment];
 
     const {
       customData: { signature: theirSig }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Setup,
@@ -46,6 +47,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1
       } as ProtocolMessage
     ];
+
     assertIsValidSignature(responderAddress, setupCommitment, theirSig);
 
     const finalCommitment = setupCommitment.getSignedTransaction([
@@ -74,7 +76,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     const theirSig = context.message.customData.signature!;
     assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
 
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const mySig: Signature = yield [Opcode.OP_SIGN, setupCommitment];
 
     const finalCommitment = setupCommitment.getSignedTransaction([
       mySig,

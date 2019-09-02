@@ -5,7 +5,7 @@ import {
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, defaultAbiCoder, Signature } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import {
@@ -82,7 +82,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const mySignatureOnConditionalTransaction: Signature = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
@@ -92,7 +92,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature: counterpartySignatureOnConditionalTransaction,
         signature2: counterpartySignatureOnFreeBalanceStateUpdate
       }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,
@@ -145,7 +145,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnFreeBalanceStateUpdate
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const mySignatureOnFreeBalanceStateUpdate: Signature = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
@@ -171,7 +171,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       tokenAddress
     );
 
-    const mySignatureOnWithdrawalCommitment = yield [
+    const mySignatureOnWithdrawalCommitment: Signature = yield [
       Opcode.OP_SIGN,
       withdrawCommitment
     ];
@@ -181,7 +181,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature: counterpartySignatureOnWithdrawalCommitment,
         signature2: counterpartySignatureOnUninstallCommitment
       }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,
@@ -225,7 +225,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnUninstallCommitment
     );
 
-    const mySignatureOnUninstallCommitment = yield [
+    const mySignatureOnUninstallCommitment: Signature = yield [
       Opcode.OP_SIGN,
       uninstallRefundAppCommitment
     ];
@@ -328,7 +328,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnConditionalTransaction
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const mySignatureOnConditionalTransaction: Signature = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
@@ -360,7 +360,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postInstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const mySignatureOnFreeBalanceStateUpdate: Signature = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
@@ -370,7 +370,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature: counterpartySignatureOnFreeBalanceStateUpdate,
         signature2: counterpartySignatureOnWithdrawalCommitment
       }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,
@@ -417,7 +417,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnWithdrawalCommitment
     );
 
-    const mySignatureOnWithdrawalCommitment = yield [
+    const mySignatureOnWithdrawalCommitment: Signature = yield [
       Opcode.OP_SIGN,
       withdrawCommitment
     ];
@@ -452,14 +452,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       postUninstallRefundAppStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnUninstallCommitment = yield [
+    const mySignatureOnUninstallCommitment: Signature = yield [
       Opcode.OP_SIGN,
       uninstallRefundAppCommitment
     ];
 
     const {
       customData: { signature: counterpartySignatureOnUninstallCommitment }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,

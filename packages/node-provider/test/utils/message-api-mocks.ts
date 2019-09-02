@@ -8,7 +8,7 @@ export interface Context {
 
 export function createMockMessageEvent(
   message: string,
-  transferables: MockMessagePort[]
+  transferables: Transferable[] | undefined
 ) {
   return {
     data: message,
@@ -83,7 +83,7 @@ export function mockPostMessageFunction(context: Context) {
     message: string,
     // @ts-ignore https://github.com/microsoft/TypeScript/issues/9458
     target: string,
-    transferables: MockMessagePort[]
+    transferables: Transferable[] | undefined
   ) => {
     context.messageCallbacks.forEach(callback => {
       callback(createMockMessageEvent(message, transferables));

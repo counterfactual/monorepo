@@ -51,7 +51,7 @@
     "ts-jest": "24.0.2",
     "ts-mockito": "2.4.2",
     "tslint": "5.19.0",
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   },
   "dependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.4",

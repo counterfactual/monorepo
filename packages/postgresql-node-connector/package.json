@@ -29,6 +29,6 @@
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
     "tslint": "5.19.0",
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   }
 }

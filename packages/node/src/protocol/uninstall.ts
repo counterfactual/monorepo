@@ -1,4 +1,5 @@
 import { BaseProvider } from "ethers/providers";
+import { Signature } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { Opcode, Protocol } from "../machine/enums";
@@ -32,11 +33,11 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
+    const mySig: Signature = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const {
       customData: { signature: theirSig }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Uninstall,
@@ -78,7 +79,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
 
-    const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
+    const mySig: Signature = yield [Opcode.OP_SIGN, uninstallCommitment];
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,

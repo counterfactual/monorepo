@@ -1,4 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
+import { Signature } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -31,11 +32,15 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appSeqNo
     ] = proposeStateTransition(context.message.params!, context);
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig: Signature = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
     const {
       customData: { signature: theirSig }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.Update,
@@ -84,7 +89,11 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       theirSig
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig: Signature = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
     const finalCommitment = setStateCommitment.getSignedTransaction([
       mySig,

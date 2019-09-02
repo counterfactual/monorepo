@@ -15,7 +15,7 @@ import {
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder, Signature } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
 import { Opcode, Protocol } from "../machine/enums";
@@ -93,7 +93,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    const initiatorSignatureOnAliceIngridVirtualAppAgreement = yield [
+    const initiatorSignatureOnAliceIngridVirtualAppAgreement: Signature = yield [
       OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
@@ -115,7 +115,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m4 = (yield [IO_SEND_AND_WAIT, m1]) as ProtocolMessage;
+    const m4: Signature = yield [IO_SEND_AND_WAIT, m1];
 
     const {
       customData: {
@@ -156,7 +156,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnAliceIngridFreeBalanceAppActivation
     );
 
-    const initiatorSignatureOnAliceIngridFreeBalanceAppActivation = yield [
+    const initiatorSignatureOnAliceIngridFreeBalanceAppActivation: Signature = yield [
       OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
@@ -189,12 +189,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.defaultTimeout
     );
 
-    const initiatorSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const initiatorSignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
 
-    const initiatorSignatureOnVirtualAppSetStateCommitment = yield [
+    const initiatorSignatureOnVirtualAppSetStateCommitment: Signature = yield [
       OP_SIGN,
       virtualAppSetStateCommitment
     ];
@@ -211,7 +211,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m8 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
+    const m8: Signature = yield [IO_SEND_AND_WAIT, m5];
 
     const {
       customData: {
@@ -350,7 +350,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       )
     );
 
-    const intermediarySignatureOnIngridBobVirtualAppAgreement = yield [
+    const intermediarySignatureOnIngridBobVirtualAppAgreement: Signature = yield [
       OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
@@ -366,7 +366,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m3 = (yield [IO_SEND_AND_WAIT, m2]) as ProtocolMessage;
+    const m3: Signature = yield [IO_SEND_AND_WAIT, m2];
 
     const {
       customData: {
@@ -403,12 +403,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.freeBalance.timeout
     );
 
-    const intermediarySignatureOnAliceIngridFreeBalanceAppActivation = yield [
+    const intermediarySignatureOnAliceIngridFreeBalanceAppActivation: Signature = yield [
       OP_SIGN,
       freeBalanceAliceIngridVirtualAppAgreementActivationCommitment
     ];
 
-    const intermediarySignatureOnAliceIngridVirtualAppAgreement = yield [
+    const intermediarySignatureOnAliceIngridVirtualAppAgreement: Signature = yield [
       OP_SIGN,
       presignedMultisigTxForAliceIngridVirtualAppAgreement
     ];
@@ -436,7 +436,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m5 = (yield [IO_SEND_AND_WAIT, m4]) as ProtocolMessage;
+    const m5: Signature = yield [IO_SEND_AND_WAIT, m4];
 
     const {
       customData: {
@@ -478,7 +478,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    const intermediarySignatureOnIngridBobFreeBalanceAppActivation = yield [
+    const intermediarySignatureOnIngridBobFreeBalanceAppActivation: Signature = yield [
       OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
@@ -495,7 +495,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.identityHash
     ];
 
-    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
@@ -513,7 +513,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m7 = (yield [IO_SEND_AND_WAIT, m6]) as ProtocolMessage;
+    const m7: Signature = yield [IO_SEND_AND_WAIT, m6];
 
     const {
       customData: {
@@ -626,7 +626,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnIngridBobVirtualAppAgreement
     );
 
-    const responderSignatureOnIngridBobVirtualAppAgreement = yield [
+    const responderSignatureOnIngridBobVirtualAppAgreement: Signature = yield [
       OP_SIGN,
       presignedMultisigTxForIngridBobVirtualAppAgreement
     ];
@@ -649,7 +649,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    const responderSignatureOnIngridBobFreeBalanceAppActivation = yield [
+    const responderSignatureOnIngridBobFreeBalanceAppActivation: Signature = yield [
       OP_SIGN,
       freeBalanceIngridBobVirtualAppAgreementActivationCommitment
     ];
@@ -665,7 +665,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m6 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
+    const m6: Signature = yield [IO_SEND_AND_WAIT, m3];
 
     const {
       customData: {
@@ -728,12 +728,12 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignatureOnVirtualAppSetStateCommitment
     );
 
-    const responderSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const responderSignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
 
-    const responderSignatureOnVirtualAppSetStateCommitment = yield [
+    const responderSignatureOnVirtualAppSetStateCommitment: Signature = yield [
       OP_SIGN,
       virtualAppSetStateCommitment
     ];

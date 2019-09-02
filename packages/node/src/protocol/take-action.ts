@@ -1,4 +1,5 @@
 import { BaseProvider } from "ethers/providers";
+import { Signature } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
@@ -32,9 +33,15 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       context.provider
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig: Signature = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
-    const { signature } = yield [
+    const {
+      customData: { signature }
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.TakeAction,
@@ -54,6 +61,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       signature
     );
   },
+
   1: async function*(context: Context) {
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
       context.message as TakeActionProtocolMessage,
@@ -77,7 +85,11 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       customData.signature
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const mySig: Signature = yield [
+      Opcode.OP_SIGN,
+      setStateCommitment,
+      appSeqNo
+    ];
 
     yield [
       Opcode.IO_SEND,
@@ -86,7 +98,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         processID: context.message.processID,
         toXpub: initiatorXpub,
         seq: -1,
-        signature: mySig
+        customData: {
+          signature: mySig
+        }
       }
     ];
   }
