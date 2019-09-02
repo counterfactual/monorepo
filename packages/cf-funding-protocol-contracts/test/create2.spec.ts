@@ -8,9 +8,9 @@ import {
   solidityPack
 } from "ethers/utils";
 
-import Echo from "../build/Echo.json";
-import Proxy from "../build/Proxy.json";
-import ProxyFactory from "../build/ProxyFactory.json";
+import Echo from "../expected-build-artifacts/Echo.json";
+import Proxy from "../expected-build-artifacts/Proxy.json";
+import ProxyFactory from "../expected-build-artifacts/ProxyFactory.json";
 
 import { expect } from "./utils/index";
 
@@ -58,7 +58,7 @@ describe("ProxyFactory with CREATE2", function(this: Mocha) {
 
       const initcode = solidityPack(
         ["bytes", "uint256"],
-        [`0x${Proxy.bytecode}`, echo.address]
+        [`0x${Proxy.evm.bytecode.object}`, echo.address]
       );
 
       const saltNonce = 0;

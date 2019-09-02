@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
@@ -36,6 +36,7 @@ describe("Node method follows spec - deposit", () => {
     provider = new JsonRpcProvider(global["ganacheURL"]);
 
     multisigAddress = await createChannel(nodeA, nodeB);
+    expect(multisigAddress).toBeDefined();
   });
 
   it("has the right balance before an ERC20 deposit has been made", async () => {

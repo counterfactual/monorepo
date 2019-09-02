@@ -4,7 +4,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import NimApp from "../build/NimApp.json";
+import NimApp from "../expected-build-artifacts/NimApp.json";
 
 chai.use(waffle.solidity);
 

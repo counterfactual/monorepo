@@ -107,6 +107,10 @@ contract ConditionalTransactionDelegateTarget {
 
     require(appIsFunded, "Referenced AppInstance is not funded");
 
+    require(
+      challengeRegistry.isStateFinalized(appIdentityHash),
+      "Referenced AppInstance is not finalized");
+
     bytes memory outcome = challengeRegistry.getOutcome(appIdentityHash);
 
     (
