@@ -73,6 +73,7 @@ jobs:
             - packages/wallet-ui
             - packages/simple-hub-server
             - tsconfig.json
+            - package.json
 
   run-tests:
     docker:
