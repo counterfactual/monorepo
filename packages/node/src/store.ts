@@ -95,7 +95,6 @@ export class Store {
    * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    console.log("saving state channel", JSON.stringify(stateChannel, null, 2))
     await this.storeService.set([
       {
         path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
