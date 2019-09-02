@@ -415,7 +415,7 @@ export class StateChannel {
     tokenIndexedDecrements: TokenIndexedCoinTransferMap
   ) {
     // Verify appInstance has expected signingkeys
-
+    console.trace("***** installApp", appInstance.identityHash)
     if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
       throw Error("AppInstance passed to installApp has incorrect appSeqNo");
     } else {
