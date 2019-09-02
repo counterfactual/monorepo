@@ -156,8 +156,8 @@ describe("Node method follows spec - install", () => {
 
         await pollApps();
         const aApps = await getInstalledAppInstances(nodeA);
-        const bApps = await getInstalledAppInstances(nodeB);
-        expect(aApps).toEqual(bApps);
+        const cApps = await getInstalledAppInstances(nodeC);
+        expect(aApps).toEqual(cApps);
         done();
       });
     }
