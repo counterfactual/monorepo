@@ -633,7 +633,7 @@ export async function makeVirtualProposal(
   return { appInstanceId, params };
 }
 
-export function installTTTVirtual(
+export async function installTTTVirtual(
   node: Node,
   appInstanceId: string,
   intermediaryIdentifier: string
@@ -642,7 +642,7 @@ export function installTTTVirtual(
     appInstanceId,
     intermediaryIdentifier
   );
-  node.rpcRouter.dispatch(installVirtualReq);
+  await node.rpcRouter.dispatch(installVirtualReq);
 }
 
 export function makeInstallCall(node: Node, appInstanceId: string) {
