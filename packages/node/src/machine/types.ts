@@ -11,8 +11,12 @@ import { StateChannel } from "../models";
 
 import { Opcode, Protocol } from "./enums";
 
+interface It<T, TResult> extends AsyncIterableIterator<T> {
+  [Symbol.asyncIterator](): It<T, TResult>;
+}
+
 export type ProtocolExecutionFlow = {
-  [x: number]: (context: Context) => AsyncIterableIterator<any[]>;
+  [x: number]: (context: Context) => It<[Opcode, any, any?, any?], any>;
 };
 
 export type Middleware = {

@@ -1,6 +1,6 @@
 import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, Signature } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { SetStateCommitment } from "../ethereum";
@@ -84,7 +84,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.defaultTimeout
     );
 
-    const initiatingSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const initiatingSignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
@@ -100,7 +100,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m4 = (yield [IO_SEND_AND_WAIT, m1]) as ProtocolMessage;
+    const m4: ProtocolMessage = yield [IO_SEND_AND_WAIT, m1];
 
     const {
       customData: {
@@ -129,7 +129,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    const initiatingSignatureOnAliceIngridAppDisactivationCommitment = yield [
+    const initiatingSignatureOnAliceIngridAppDisactivationCommitment: Signature = yield [
       OP_SIGN,
       aliceIngridAppDisactivationCommitment
     ];
@@ -144,7 +144,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m6 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
+    const m6: ProtocolMessage = yield [IO_SEND_AND_WAIT, m5];
 
     const {
       customData: {
@@ -222,7 +222,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatingSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const intermediarySignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
@@ -239,7 +239,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m3 = (yield [IO_SEND_AND_WAIT, m2]) as ProtocolMessage;
+    const m3: ProtocolMessage = yield [IO_SEND_AND_WAIT, m2];
 
     const {
       customData: {
@@ -264,7 +264,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m5 = (yield [IO_SEND_AND_WAIT, m4]) as ProtocolMessage;
+    const m5: ProtocolMessage = yield [IO_SEND_AND_WAIT, m4];
 
     const {
       customData: {
@@ -286,7 +286,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       initiatingSignatureOnAliceIngridAppDisactivationCommitment
     );
 
-    const intermediarySignatureOnAliceIngridAppDisactivationCommitment = yield [
+    const intermediarySignatureOnAliceIngridAppDisactivationCommitment: ProtocolMessage = yield [
       OP_SIGN,
       aliceIngridAppDisactivationCommitment
     ];
@@ -312,7 +312,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.freeBalance.timeout
     );
 
-    const intermediarySignatureOnIngridBobAppDisactivationCommitment = yield [
+    const intermediarySignatureOnIngridBobAppDisactivationCommitment: Signature = yield [
       OP_SIGN,
       ingridBobAppDisactivationCommitment
     ];
@@ -327,7 +327,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m8 = (yield [IO_SEND_AND_WAIT, m7]) as ProtocolMessage;
+    const m8: ProtocolMessage = yield [IO_SEND_AND_WAIT, m7];
 
     const {
       customData: {
@@ -412,7 +412,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
-    const respondingSignatureOnTimeLockedPassThroughSetStateCommitment = yield [
+    const respondingSignatureOnTimeLockedPassThroughSetStateCommitment: Signature = yield [
       OP_SIGN,
       timeLockedPassThroughSetStateCommitment
     ];
@@ -427,7 +427,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m7 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
+    const m7: ProtocolMessage = yield [IO_SEND_AND_WAIT, m3];
 
     const {
       customData: {
@@ -449,7 +449,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnIngridBobAppDisactivationCommitment
     );
 
-    const respondingSignatureOnIngridBobAppDisactivationCommitment = yield [
+    const respondingSignatureOnIngridBobAppDisactivationCommitment: Signature = yield [
       OP_SIGN,
       ingridBobAppDisactivationCommitment
     ];

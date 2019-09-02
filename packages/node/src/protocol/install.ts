@@ -6,7 +6,7 @@ import {
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, Signature } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
@@ -60,7 +60,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const mySignatureOnConditionalTransaction: Signature = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
@@ -70,7 +70,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         signature: counterpartySignatureOnConditionalTransaction,
         signature2: counterpartySignatureOnFreeBalanceStateUpdate
       }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,
@@ -123,7 +123,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnFreeBalanceStateUpdate
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const mySignatureOnFreeBalanceStateUpdate: Signature = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
@@ -201,7 +201,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnConditionalTransaction
     );
 
-    const mySignatureOnConditionalTransaction = yield [
+    const mySignatureOnConditionalTransaction: Signature = yield [
       Opcode.OP_SIGN,
       conditionalTransactionData
     ];
@@ -233,14 +233,14 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.timeout
     );
 
-    const mySignatureOnFreeBalanceStateUpdate = yield [
+    const mySignatureOnFreeBalanceStateUpdate: Signature = yield [
       Opcode.OP_SIGN,
       freeBalanceUpdateData
     ];
 
     const {
       customData: { signature: counterpartySignatureOnFreeBalanceStateUpdate }
-    } = yield [
+    }: ProtocolMessage = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         processID,
