@@ -15,9 +15,3 @@ export const CONVENTION_FOR_ETH_TOKEN_ADDRESS = AddressZero;
 
 // 25446 is 0x6366... or "cf" in ascii, for "Counterfactual".
 export const CF_PATH = "m/44'/60'/0'/25446";
-
-// When the source code of the contract changes, the deployed bytecode will
-// also change and the tests will fail as the deplyed bytecode checking
-// in the create channel call will fail.
-export const MULTISIG_DEPLOYED_BYTECODE =
-  "0x608060405273ffffffffffffffffffffffffffffffffffffffff600054163660008037600080366000845af43d6000803e6000811415603d573d6000fd5b3d6000f3fea265627a7a723058202b014062fac5bbf2f3a320134dac5811a29f916a0f071e16e4493bf4a28fe8a064736f6c634300050a0032";

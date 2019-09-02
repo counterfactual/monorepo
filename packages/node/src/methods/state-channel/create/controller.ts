@@ -1,14 +1,15 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
+import { HashZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import log from "loglevel";
 import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
+import { xkeysToSortedKthAddresses } from "../../../machine";
 import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
@@ -53,7 +54,7 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ): Promise<Node.CreateChannelTransactionResult> {
     const { owners, retryCount } = params;
-    const { wallet, networkContext } = requestHandler;
+    const { wallet, networkContext, provider, store } = requestHandler;
 
     const multisigAddress = getCreate2MultisigAddress(
       owners,
@@ -61,14 +62,28 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    const tx = await this.sendMultisigDeployTx(
-      wallet,
-      owners,
-      networkContext,
-      retryCount
-    );
+    // By default, if the contract has been deployed and
+    // DB has records of it, controller will return HashZero
+    let tx = { hash: HashZero } as TransactionResponse;
 
-    this.handleDeployedMultisigOnChain(multisigAddress, requestHandler, params);
+    // Check if the database has stored the relevant data for this state channel
+    if (!(await store.hasStateChannel(multisigAddress))) {
+      // Check if the contract has already been deployed on-chain
+      if ((await provider.getCode(multisigAddress)) === "0x") {
+        tx = await this.sendMultisigDeployTx(
+          wallet,
+          owners,
+          networkContext,
+          retryCount
+        );
+      }
+
+      this.handleDeployedMultisigOnChain(
+        multisigAddress,
+        requestHandler,
+        params
+      );
+    }
 
     return { transactionHash: tx.hash! };
   }
@@ -204,9 +219,7 @@ async function checkForCorrectOwners(
     provider
   );
 
-  const expectedOwners = sortAddresses(
-    xpubs.map(xpub => xkeyKthAddress(xpub, 0))
-  );
+  const expectedOwners = xkeysToSortedKthAddresses(xpubs, 0);
 
   const actualOwners = sortAddresses(await contract.functions.getOwners());
 

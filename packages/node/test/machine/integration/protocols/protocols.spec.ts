@@ -1,4 +1,4 @@
-import AppWithAction from "@counterfactual/cf-adjudicator-contracts/build/AppWithAction.json";
+import AppWithAction from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/AppWithAction.json";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
 import { BaseProvider } from "ethers/providers";
@@ -26,7 +26,7 @@ beforeAll(async () => {
 
   appWithAction = await new ContractFactory(
     AppWithAction.abi,
-    AppWithAction.bytecode,
+    AppWithAction.evm.bytecode,
     wallet
   ).deploy();
 });
