@@ -60,6 +60,7 @@ export class AppInstance {
     public readonly latestVersionNumber: number,
     public readonly latestTimeout: number,
     public readonly outcomeType: OutcomeType,
+    public readonly identityHashInternal?: string,
     private readonly twoPartyOutcomeInterpreterParamsInternal?: TwoPartyFixedOutcomeInterpreterParams,
     private readonly multiAssetMultiPartyCoinTransferInterpreterParamsInternal?: MultiAssetMultiPartyCoinTransferInterpreterParams,
     private readonly singleAssetTwoPartyCoinTransferInterpreterParamsInternal?: SingleAssetTwoPartyCoinTransferInterpreterParams
@@ -109,6 +110,7 @@ export class AppInstance {
       deserialized.latestVersionNumber,
       deserialized.latestTimeout,
       deserialized.outcomeType,
+      deserialized.identityHash,
       deserialized.twoPartyOutcomeInterpreterParams,
       deserialized.multiAssetMultiPartyCoinTransferInterpreterParams,
       deserialized.singleAssetTwoPartyCoinTransferInterpreterParams
@@ -141,7 +143,7 @@ export class AppInstance {
 
   @Memoize()
   public get identityHash() {
-    return appIdentityToHash(this.identity);
+    return this.identityHashInternal || appIdentityToHash(this.identity);
   }
 
   @Memoize()
