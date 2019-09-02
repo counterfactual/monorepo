@@ -51,9 +51,9 @@ echo -n "Installing Greenboard dependencies..."
 echo "OK"
 
 # Run the Hub and the Wallet UI.
-pushd $COUNTERFACTUAL_PATH/
-  yarn run:wallet:e2e &
-popd
+cd $COUNTERFACTUAL_PATH/
+yarn run:wallet:e2e &
+cd $COUNTERFACTUAL_PATH/packages/greenboard
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
