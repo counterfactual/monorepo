@@ -74,6 +74,7 @@ jobs:
             - packages/simple-hub-server
             - tsconfig.json
             - package.json
+            - lerna.json
 
   run-tests:
     docker:
