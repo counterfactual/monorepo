@@ -82,15 +82,15 @@ contract MixinSetStateWithAction is
         LibAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
         "Attempted to claim non-terminal state was terminal in setStateWithAction"
       );
-      challenge.finalizesAt = block.number;
+      challenge.finalizesAt = uint248(block.number);
       challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
-      challenge.finalizesAt = block.number + req.timeout;
+      challenge.finalizesAt = uint248(block.number + req.timeout);
       challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     }
 
     challenge.appStateHash = keccak256(newState);
-    challenge.versionNumber = req.versionNumber;
+    challenge.versionNumber = uint128(req.versionNumber);
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }

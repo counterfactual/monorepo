@@ -65,8 +65,8 @@ contract MixinSetState is
       ChallengeStatus.EXPLICITLY_FINALIZED;
 
     challenge.appStateHash = req.appStateHash;
-    challenge.versionNumber = req.versionNumber;
-    challenge.finalizesAt = block.number + req.timeout;
+    challenge.versionNumber = uint128(req.versionNumber);
+    challenge.finalizesAt = uint248(block.number + req.timeout);
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }
