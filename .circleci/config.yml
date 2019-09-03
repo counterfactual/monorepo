@@ -198,6 +198,9 @@ workflows:
       - run-greenboard:
           requires:
             - build
+            - ensure-updated-lockfiles
+            - run-tests
+            - run-tslint
 
       - ensure-updated-lockfiles:
           requires:
@@ -209,6 +212,7 @@ workflows:
             - ensure-updated-lockfiles
             - run-tests
             - run-tslint
+            - run-greenboard
           filters:
             branches:
               only: master
