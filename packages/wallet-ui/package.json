@@ -15,8 +15,9 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "start:e2e": "REACT_APP_HUB_API_URL=http://localhost:9001 CI=true react-scripts start",
+    "start:e2e": "yarn build:e2e; serve build -l 3334",
     "build": "react-scripts build",
+    "build:e2e": "REACT_APP_HUB_API_URL=http://localhost:9001 CI=true yarn build",
     "test": "CI=true react-scripts test",
     "test:coverage": "CI=true react-scripts test --coverage",
     "eject": "react-scripts eject",
@@ -66,6 +67,7 @@
     "enzyme-adapter-react-16": "1.14.0",
     "jest-fetch-mock": "2.1.2",
     "react-scripts": "3.0.1",
+    "serve": "^11.1.0",
     "typescript": "3.5.3"
   }
 }
