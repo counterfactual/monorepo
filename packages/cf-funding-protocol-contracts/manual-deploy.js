@@ -2,13 +2,13 @@ const ProxyFactory = require("./build/ProxyFactory.json");
 
 const ethers = require("ethers");
 
-const Contract = ethers.Contract;
+require("dotenv-safe").config();
+
 const ContractFactory = ethers.ContractFactory
 const Wallet = ethers.Wallet;
 const InfuraProvider = ethers.providers.InfuraProvider;
-const getContractAddress = ethers.utils.getContractAddress;
 
-const provider = new InfuraProvider("kovan", process.env.INFURA_API_KEY);
+const provider = new InfuraProvider("mainnet", process.env.INFURA_API_KEY);
 const wallet = Wallet.fromMnemonic(process.env.ETH_ACCOUNT_MNENOMIC).connect(provider);
 
 new ContractFactory(ProxyFactory.abi, ProxyFactory.evm.bytecode.object, wallet)
