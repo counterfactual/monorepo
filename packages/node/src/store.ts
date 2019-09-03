@@ -245,7 +245,9 @@ export class Store {
     );
 
     if (!appInstanceProposal) {
-      throw Error(NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId));
+      throw new Error(
+        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+      );
     }
 
     return AppInstanceProposal.fromJson(appInstanceProposal);
