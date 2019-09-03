@@ -8,7 +8,7 @@ import {
 } from "../utils/test-browser";
 import { CounterfactualScreenName, MetamaskFlowType } from "../utils/types";
 
-jest.setTimeout(100000);
+jest.setTimeout(600000);
 
 let browser: TestBrowser;
 

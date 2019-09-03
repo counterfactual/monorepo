@@ -32,7 +32,7 @@ fi
 
 echo "(2/7) Cloning metamask into /tmp/metamask-extension..."
 
-git clone --depth 1 --single-branch --branch develop git@github.com:prototypal/metamask-extension /tmp/metamask-extension
+git clone --depth 1 --single-branch --branch alon/merge-origin-develop git@github.com:prototypal/metamask-extension /tmp/metamask-extension
 
 echo "(3/7) Ensuring installed dependencies..."
 

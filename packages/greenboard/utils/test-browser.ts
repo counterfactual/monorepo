@@ -43,7 +43,7 @@ import {
 } from "./types";
 
 export const EXTENSION_INSPECTOR = "chrome://inspect/#extensions";
-export const LOCATOR_TIMEOUT = 10000;
+export const LOCATOR_TIMEOUT = 60000;
 
 export const METAMASK_ETH_ADDRESS =
   "0x212C90fdF90BbD5E9b352b9d2B086f2666CFEED6";
@@ -110,11 +110,26 @@ export class TestBrowser {
     const browserFactory = new Builder().forBrowser("chrome");
 
     const options = new Options();
-    options.addArguments(
+    const browserArgs: string[] = [
       `--load-extension=${extensionDirectory}`,
       `--disable-web-security`,
-      `--user-data-dir=${chromeProfileDirectory}`
-    );
+      `--no-sandbox`,
+      `--user-data-dir=${chromeProfileDirectory}`,
+      ...Object.keys(process.env)
+        .filter(key => key.startsWith("TEST_BROWSER_FLAG_"))
+        .map(
+          key =>
+            `--${key
+              .replace(/TEST_BROWSER_FLAG_/g, "")
+              .toLowerCase()
+              .replace(/_/g, "-")}${
+              process.env[key] !== "#" ? `=${process.env[key]}` : ""
+            }`
+        )
+    ];
+
+    console.debug("Browser arguments:", browserArgs);
+    options.addArguments(...browserArgs);
 
     if (process.env.CHROME_BINARY_PATH) {
       options.setChromeBinaryPath(process.env.CHROME_BINARY_PATH as string);

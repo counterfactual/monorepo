@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  greenboard-environment:
+    build:
+      context: "."
+      dockerfile: ./environment.dockerfile
+      args:
+        yarn_version: 1.12.3

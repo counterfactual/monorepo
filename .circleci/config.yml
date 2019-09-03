@@ -69,6 +69,12 @@ jobs:
           paths:
             - packages/*/dist
             - packages/*/build
+            - packages/greenboard
+            - packages/wallet-ui
+            - packages/simple-hub-server
+            - tsconfig.json
+            - package.json
+            - lerna.json
 
   run-tests:
     docker:
@@ -98,6 +104,27 @@ jobs:
       - run:
           name: Run Counterfactual tests
           command: yarn test:ci
+
+  run-greenboard:
+    docker:
+      - image: counterfactual/greenboard-environment:latest
+        environment:
+          METAMASK_REPOSITORY: prototypal/metamask-extension
+          METAMASK_BRANCH: develop
+          WORKING_DIRECTORY: /home/circleci
+          COUNTERFACTUAL_PATH: /home/circleci/project
+
+    steps:
+      - <<: *restore_code
+      - checkout
+      - <<: *restore_dep
+
+      - run: yarn --frozen-lockfile --ignore-engines
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run: yarn --ignore-engines test:e2e:ci
 
   run-tslint:
     <<: *defaults
@@ -168,6 +195,13 @@ workflows:
           requires:
             - build
 
+      - run-greenboard:
+          requires:
+            - build
+            - ensure-updated-lockfiles
+            - run-tests
+            - run-tslint
+
       - ensure-updated-lockfiles:
           requires:
             - build
@@ -178,6 +212,7 @@ workflows:
             - ensure-updated-lockfiles
             - run-tests
             - run-tslint
+            - run-greenboard
           filters:
             branches:
               only: master
