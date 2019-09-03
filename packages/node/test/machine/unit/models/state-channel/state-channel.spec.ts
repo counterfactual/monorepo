@@ -15,6 +15,6 @@ describe("StateChannel", () => {
     expect(sc.multisigAddress).toBe(multisigAddress);
     expect(sc.userNeuteredExtendedKeys).toBe(xpubs);
     expect(sc.numActiveApps).toBe(0);
-    expect(sc.numInstalledApps).toBe(0);
+    expect(sc.numProposedApps).toBe(0);
   });
 });

@@ -530,7 +530,7 @@ function addRefundAppToStateChannel(
       actionEncoding: undefined
     },
     false,
-    stateChannel.numInstalledApps,
+    stateChannel.numProposedApps,
     {
       recipient,
       multisig: multisigAddress,

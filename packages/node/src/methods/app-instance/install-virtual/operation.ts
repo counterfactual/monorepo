@@ -54,6 +54,7 @@ export async function installVirtual(
         intermediaryXpub: intermediaryIdentifier!,
         defaultTimeout: timeout.toNumber(),
         appInterface: { addr: appDefinition, ...abiEncodings },
+        appSeqNo: proposal.appSeqNo,
         initiatorBalanceDecrement: initiatorDeposit,
         responderBalanceDecrement: responderDeposit,
         tokenAddress: initiatorDepositTokenAddress

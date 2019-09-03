@@ -43,6 +43,8 @@ export async function createProposedVirtualAppInstance(
 
   await store.addVirtualAppInstanceProposal(appInstanceProposal);
 
+  await store.saveStateChannel(channel.bumpProposedApps());
+
   return appInstanceProposal.identityHash;
 }
 

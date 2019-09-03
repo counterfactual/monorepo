@@ -863,7 +863,6 @@ function computeInterpreterParameters(
  * @returns {AppInstance} an AppInstance with the correct metadata
  */
 function constructVirtualAppInstance(
-  stateChannelBetweenEndpoints: StateChannel,
   params: InstallVirtualAppParams
 ): AppInstance {
   const {
@@ -875,13 +874,12 @@ function constructVirtualAppInstance(
     outcomeType,
     initiatorBalanceDecrement,
     responderBalanceDecrement,
-    tokenAddress
+    tokenAddress,
+    appSeqNo
   } = params;
 
-  const seqNo = stateChannelBetweenEndpoints.numInstalledApps;
-
-  const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
-  const responderAddress = xkeyKthAddress(responderXpub, seqNo);
+  const initiatorAddress = xkeyKthAddress(initiatorXpub, appSeqNo);
+  const responderAddress = xkeyKthAddress(responderXpub, appSeqNo);
 
   const {
     multiAssetMultiPartyCoinTransferInterpreterParams,
@@ -901,7 +899,7 @@ function constructVirtualAppInstance(
     defaultTimeout,
     appInterface,
     /* isVirtualApp */ true,
-    /* appSeqNo */ seqNo,
+    /* appSeqNo */ appSeqNo,
     /* initialState */ initialState,
     /* versionNumber */ 0,
     /* latestTimeout */ defaultTimeout,
@@ -945,7 +943,7 @@ function constructTimeLockedPassThroughAppInstance(
     tokenAddress
   } = params;
 
-  const seqNo = threePartyStateChannel.numInstalledApps;
+  const seqNo = threePartyStateChannel.numProposedApps;
 
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, seqNo);
   const initiatorAddress = xkeyKthAddress(initiatorXpub, seqNo);
@@ -1066,10 +1064,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
     network
   );
 
-  const virtualAppInstance = constructVirtualAppInstance(
-    stateChannelWithResponding,
-    params
-  );
+  const virtualAppInstance = constructVirtualAppInstance(params);
 
   const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
     stateChannelWithAllThreeParties,
@@ -1264,10 +1259,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     network
   );
 
-  const virtualAppInstance = constructVirtualAppInstance(
-    stateChannelWithInitiating,
-    params
-  );
+  const virtualAppInstance = constructVirtualAppInstance(params);
 
   const timeLockedPassThroughAppInstance = await constructTimeLockedPassThroughAppInstance(
     stateChannelWithAllThreeParties,

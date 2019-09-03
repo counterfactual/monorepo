@@ -87,6 +87,8 @@ export type InstallParams = {
   appInterface: AppInterface;
   defaultTimeout: number;
 
+  appSeqNo: number;
+
   // Outcome Type returned by the app instance, as defined by `appInterface`
   outcomeType: OutcomeType;
 
@@ -117,6 +119,8 @@ export type InstallVirtualAppParams = {
   initiatorBalanceDecrement: BigNumber;
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
+
+  appSeqNo: number;
 
   // outcomeType returned by the app instance, as defined by the app definition `appInterface`
   outcomeType: OutcomeType;

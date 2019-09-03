@@ -91,6 +91,8 @@ export async function handleReceivedProposalMessage(
       stateChannel
     )
   );
+
+  await store.saveStateChannel(stateChannel.bumpProposedApps());
 }
 
 export async function handleRejectProposalMessage(

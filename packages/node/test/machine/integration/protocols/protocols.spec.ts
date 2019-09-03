@@ -54,6 +54,7 @@ describe("Three mininodes", () => {
         initialState: {
           counter: 0
         },
+        appSeqNo: 0,
         initiatorBalanceDecrement: bigNumberify(0),
         responderBalanceDecrement: bigNumberify(0),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,

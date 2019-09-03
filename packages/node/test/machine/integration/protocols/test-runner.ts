@@ -194,6 +194,7 @@ export class TestRunner {
         responderXpub: this.mininodeC.xpub,
         initiatorBalanceDecrement: One,
         responderBalanceDecrement: One,
+        appSeqNo: 1,
         appInterface: {
           stateEncoding,
           addr: this.identityApp.address,
@@ -261,6 +262,7 @@ export class TestRunner {
           addr: this.identityApp.address,
           actionEncoding: undefined
         },
+        appSeqNo: 1,
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddress,
         responderDepositTokenAddress: tokenAddress,
@@ -330,6 +332,7 @@ export class TestRunner {
           addr: this.identityApp.address,
           actionEncoding: undefined
         },
+        appSeqNo: 1,
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddressA,
         responderDepositTokenAddress: tokenAddressB,

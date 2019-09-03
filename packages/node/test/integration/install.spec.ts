@@ -16,8 +16,8 @@ import {
   getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
+  makeAndSendProposeCall,
   makeInstallCall,
-  makeProposeCall,
   transferERC20Tokens
 } from "./utils";
 
@@ -84,7 +84,7 @@ describe("Node method follows spec - install", () => {
           done();
         });
 
-        await makeProposeCall(
+        await makeAndSendProposeCall(
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
@@ -156,7 +156,7 @@ describe("Node method follows spec - install", () => {
           done();
         });
 
-        await makeProposeCall(
+        await makeAndSendProposeCall(
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,

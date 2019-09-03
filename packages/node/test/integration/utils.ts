@@ -678,7 +678,29 @@ export async function makeVirtualProposeCall(
   };
 }
 
-export async function makeProposeCall(
+export function makeProposeCall(
+  nodeB: Node,
+  appDefinition: string,
+  initialState?: SolidityValueType,
+  initiatorDeposit: BigNumber = Zero,
+  initiatorDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  responderDeposit: BigNumber = Zero,
+  responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
+): Rpc {
+  const appContext = getAppContext(appDefinition, initialState);
+  return constructAppProposalRpc(
+    nodeB.publicIdentifier,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
+  );
+}
+
+export async function makeAndSendProposeCall(
   nodeA: Node,
   nodeB: Node,
   appDefinition: string,
@@ -691,12 +713,10 @@ export async function makeProposeCall(
   appInstanceId: string;
   params: NodeTypes.ProposeInstallParams;
 }> {
-  const appContext = getAppContext(appDefinition, initialState);
-  const installationProposalRpc = constructAppProposalRpc(
-    nodeB.publicIdentifier,
-    appContext.appDefinition,
-    appContext.abiEncodings,
-    appContext.initialState,
+  const installationProposalRpc = makeProposeCall(
+    nodeB,
+    appDefinition,
+    initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
     responderDeposit,
