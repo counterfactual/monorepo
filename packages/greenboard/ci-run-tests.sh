@@ -48,6 +48,7 @@ cd $COUNTERFACTUAL_PATH/packages/greenboard
 echo -n "Installing Greenboard dependencies..."
   yarn_install_command &>/dev/null
   cp -rl node_modules/* ../../node_modules/
+  yarn global add serve
 echo "OK"
 
 # Run the Hub and the Wallet UI.
