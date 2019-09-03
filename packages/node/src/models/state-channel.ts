@@ -159,7 +159,7 @@ export class StateChannel {
   public getSigningKeysFor(addressIndex: number): string[] {
     return sortAddresses(
       this.userNeuteredExtendedKeys.map(xpub =>
-        xkeyKthAddress(xpub, addressIndex || 0)
+        xkeyKthAddress(xpub, addressIndex)
       )
     );
   }
