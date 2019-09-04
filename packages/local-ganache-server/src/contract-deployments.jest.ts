@@ -1,6 +1,7 @@
 import TicTacToeApp from "@counterfactual/apps/expected-build-artifacts/TicTacToeApp.json";
 import UnidirectionalLinkedTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalLinkedTransferApp.json";
 import UnidirectionalTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalTransferApp.json";
+import SimpleTransferApp from "@counterfactual/apps/expected-build-artifacts/SimpleTransferApp.json";
 import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ConditionalTransactionDelegateTarget.json";
@@ -96,6 +97,12 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const simpleTransferContract = await new ContractFactory(
+    SimpleTransferApp.abi,
+    SimpleTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
   const linkContract = await new ContractFactory(
     UnidirectionalLinkedTransferApp.abi,
     UnidirectionalLinkedTransferApp.evm.bytecode,
@@ -127,6 +134,7 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ProxyFactory: proxyFactoryContract.address,
     SingleAssetTwoPartyCoinTransferInterpreter:
       singleAssetTwoPartyCoinTransferInterpreter.address,
+    SimpleTransferApp: simpleTransferContract.address,
     TicTacToeApp: tttContract.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
