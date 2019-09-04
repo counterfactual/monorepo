@@ -17,7 +17,7 @@ RUN \
   # Install dependencies.
   apk update; \
   apk add \
-  git python2 make gcc g++ openssh tar gzip ca-certificates dbus \
+  git python2 make gcc g++ openssh tar gzip ca-certificates dbus libexecinfo-dev libexecinfo \
   xvfb-run chromium=73.0.3683.103-r0 chromium-chromedriver=73.0.3683.103-r0; \
   \
   # Set a machine-id (this makes Chromium complain a bit less).
