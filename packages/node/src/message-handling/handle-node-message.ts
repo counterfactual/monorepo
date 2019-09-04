@@ -152,6 +152,8 @@ export async function handleReceivedProposeVirtualMessage(
     )
   );
 
+  await store.saveStateChannel(stateChannel.bumpProposedApps());
+
   if (isNodeIntermediary(publicIdentifier, intermediaryIdentifier)) {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(
