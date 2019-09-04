@@ -21,8 +21,8 @@
   },
   {
     "contractName": "ProxyFactory",
-    "address": "0x6CF0c4Ab3F1e66913c0983DC0bb1202d958ABb8f",
-    "transactionHash": "0xc096060ab0a2310ac08af74a0b289c4f8bef63cf99d0a380216aae3a10d3164c"
+    "address": "0xc8d7Cf5638dfa5b79A070c5aC983716575bEF4B0",
+    "transactionHash": "0xaf565cca14e8b5b66d5ec3552ec8ed5135b9e27518d6a8838e48ada7a643f003"
   },
   {
     "contractName": "SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter",

@@ -300,6 +300,7 @@ function computeStateChannelTransition(
     initialState,
     appInterface,
     defaultTimeout,
+    appSeqNo,
     outcomeType,
     disableLimit
   } = params;
@@ -327,7 +328,7 @@ function computeStateChannelTransition(
     /* defaultTimeout */ defaultTimeout,
     /* appInterface */ appInterface,
     /* isVirtualApp */ false,
-    /* appSeqNo */ stateChannel.numInstalledApps,
+    /* appSeqNo */ appSeqNo,
     /* latestState */ initialState,
     /* latestVersionNumber */ 0,
     /* defaultTimeout */ defaultTimeout,

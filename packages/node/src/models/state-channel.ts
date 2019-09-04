@@ -65,7 +65,7 @@ export type StateChannelJSON = {
     SingleAssetTwoPartyIntermediaryAgreementJSON
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
-  readonly monotonicNumInstalledApps: number;
+  readonly monotonicNumProposedApps: number;
   readonly createdAt: number;
 };
 
@@ -82,7 +82,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     > = new Map<string, SingleAssetTwoPartyIntermediaryAgreement>([]),
     private readonly freeBalanceAppInstance?: AppInstance,
-    private readonly monotonicNumInstalledApps: number = 0,
+    private readonly monotonicNumProposedApps: number = 0,
     public readonly createdAt: number = Date.now()
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
@@ -100,8 +100,8 @@ export class StateChannel {
     return this.getSigningKeysFor(0);
   }
 
-  public get numInstalledApps() {
-    return this.monotonicNumInstalledApps;
+  public get numProposedApps() {
+    return this.monotonicNumProposedApps;
   }
 
   public get numActiveApps() {
@@ -165,7 +165,13 @@ export class StateChannel {
   }
 
   public getNextSigningKeys(): string[] {
-    return this.getSigningKeysFor(this.monotonicNumInstalledApps);
+    return this.getSigningKeysFor(this.monotonicNumProposedApps);
+  }
+
+  public bumpProposedApps(): StateChannel {
+    return this.build({
+      monotonicNumProposedApps: this.monotonicNumProposedApps + 1
+    });
   }
 
   public get freeBalance(): AppInstance {
@@ -219,7 +225,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     >;
     freeBalanceAppInstance?: AppInstance;
-    monotonicNumInstalledApps?: number;
+    monotonicNumProposedApps?: number;
     createdAt?: number;
   }) {
     return new StateChannel(
@@ -229,7 +235,7 @@ export class StateChannel {
       args.singleAssetTwoPartyIntermediaryAgreements ||
         this.singleAssetTwoPartyIntermediaryAgreements,
       args.freeBalanceAppInstance || this.freeBalanceAppInstance,
-      args.monotonicNumInstalledApps || this.monotonicNumInstalledApps,
+      args.monotonicNumProposedApps || this.monotonicNumProposedApps,
       args.createdAt || this.createdAt
     );
   }
@@ -321,11 +327,6 @@ export class StateChannel {
   }
 
   public addAppInstance(appInstance: AppInstance) {
-    if (appInstance.appSeqNo !== this.numInstalledApps) {
-      throw Error(
-        `Tried to install app with sequence number ${appInstance.appSeqNo} into channel with ${this.numInstalledApps} active apps`
-      );
-    }
     const appInstances = new Map<string, AppInstance>(
       this.appInstances.entries()
     );
@@ -334,7 +335,7 @@ export class StateChannel {
 
     return this.build({
       appInstances,
-      monotonicNumInstalledApps: this.monotonicNumInstalledApps + 1
+      monotonicNumProposedApps: this.monotonicNumProposedApps + 1
     });
   }
 
@@ -415,17 +416,12 @@ export class StateChannel {
   ) {
     // Verify appInstance has expected signingkeys
 
-    if (appInstance.appSeqNo !== this.monotonicNumInstalledApps) {
-      throw Error("AppInstance passed to installApp has incorrect appSeqNo");
-    } else {
-      const participants = this.getSigningKeysFor(appInstance.appSeqNo);
-      if (
-        !participants.every((v, idx) => v === appInstance.participants[idx])
-      ) {
-        throw Error(
-          "AppInstance passed to installApp has incorrect participants"
-        );
-      }
+    const participants = this.getSigningKeysFor(appInstance.appSeqNo);
+
+    if (!participants.every((v, idx) => v === appInstance.participants[idx])) {
+      throw Error(
+        "AppInstance passed to installApp has incorrect participants"
+      );
     }
 
     /// Add modified FB and new AppInstance to appInstances
@@ -437,8 +433,7 @@ export class StateChannel {
     appInstances.set(appInstance.identityHash, appInstance);
 
     return this.build({
-      appInstances,
-      monotonicNumInstalledApps: this.monotonicNumInstalledApps + 1
+      appInstances
     }).addActiveAppAndIncrementFreeBalance(
       appInstance.identityHash,
       flipTokenIndexedBalances(tokenIndexedDecrements)
@@ -504,7 +499,7 @@ export class StateChannel {
         : // Note that this FreeBalance is undefined because a channel technically
           // does not have a FreeBalance before the `setup` protocol gets run
           undefined,
-      monotonicNumInstalledApps: this.monotonicNumInstalledApps,
+      monotonicNumProposedApps: this.monotonicNumProposedApps,
       singleAssetTwoPartyIntermediaryAgreements: [
         ...this.singleAssetTwoPartyIntermediaryAgreements.entries()
       ].map(([key, val]) => [
@@ -547,7 +542,7 @@ export class StateChannel {
       json.freeBalanceAppInstance
         ? AppInstance.fromJson(json.freeBalanceAppInstance)
         : undefined,
-      json.monotonicNumInstalledApps,
+      json.monotonicNumProposedApps,
       json.createdAt
     );
   }

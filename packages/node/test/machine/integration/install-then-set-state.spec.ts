@@ -111,7 +111,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
         xprvs,
-        stateChannel.numInstalledApps
+        stateChannel.numProposedApps
       );
 
       // todo(xuanji): don't reuse state
@@ -125,7 +125,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           actionEncoding: undefined
         },
         false,
-        stateChannel.numInstalledApps,
+        stateChannel.numProposedApps,
         [
           // ETH token index
           [

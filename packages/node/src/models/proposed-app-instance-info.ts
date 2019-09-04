@@ -17,6 +17,7 @@ export interface IAppInstanceProposal {
   responderDepositTokenAddress: string;
   timeout: BigNumberish;
   initialState: SolidityValueType;
+  appSeqNo?: number;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaryIdentifier?: string;
@@ -33,6 +34,7 @@ export interface AppInstanceProposalJSON {
   responderDepositTokenAddress: string;
   timeout: { _hex: string };
   initialState: SolidityValueType;
+  appSeqNo: number;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaryIdentifier?: string;
@@ -59,6 +61,7 @@ export class AppInstanceProposal {
   responderDepositTokenAddress: string;
   timeout: BigNumber;
   initialState: SolidityValueType;
+  appSeqNo: number;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
   intermediaryIdentifier?: string;
@@ -81,6 +84,8 @@ export class AppInstanceProposal {
     this.proposedByIdentifier = proposeParams.proposedByIdentifier;
     this.proposedToIdentifier = proposeParams.proposedToIdentifier;
     this.initialState = proposeParams.initialState;
+    this.appSeqNo =
+      proposeParams.appSeqNo || (channel ? channel.numProposedApps : 0);
     this.intermediaryIdentifier = proposeParams.intermediaryIdentifier;
     this.outcomeType = proposeParams.outcomeType;
     this.identityHash = overrideId || this.getIdentityHashFor(channel!);
@@ -92,14 +97,14 @@ export class AppInstanceProposal {
 
   toAppInstanceFor(stateChannel: StateChannel) {
     return new AppInstance(
-      stateChannel.getNextSigningKeys(),
+      stateChannel.getSigningKeysFor(this.appSeqNo),
       bigNumberify(this.timeout).toNumber(),
       {
         addr: this.appDefinition,
         ...this.abiEncodings
       },
       (this.intermediaryIdentifier || []).length > 0,
-      stateChannel.numInstalledApps,
+      this.appSeqNo,
       this.initialState,
       0,
       bigNumberify(this.timeout).toNumber(),
@@ -126,6 +131,7 @@ export class AppInstanceProposal {
       responderDeposit: { _hex: this.responderDeposit.toHexString() },
       responderDepositTokenAddress: this.responderDepositTokenAddress,
       initialState: this.initialState,
+      appSeqNo: this.appSeqNo,
       timeout: { _hex: this.timeout.toHexString() },
       proposedByIdentifier: this.proposedByIdentifier,
       proposedToIdentifier: this.proposedToIdentifier,
@@ -135,7 +141,7 @@ export class AppInstanceProposal {
   }
 
   static fromJson(json: AppInstanceProposalJSON): AppInstanceProposal {
-    const proposeParams: IAppInstanceProposal = {
+    const proposeParams = {
       appDefinition: json.appDefinition,
       abiEncodings: json.abiEncodings,
       initiatorDeposit: bigNumberify(json.initiatorDeposit._hex),
@@ -144,6 +150,7 @@ export class AppInstanceProposal {
       responderDepositTokenAddress: json.responderDepositTokenAddress,
       timeout: bigNumberify(json.timeout._hex),
       initialState: json.initialState,
+      appSeqNo: json.appSeqNo,
       proposedByIdentifier: json.proposedByIdentifier,
       proposedToIdentifier: json.proposedToIdentifier,
       intermediaryIdentifier: json.intermediaryIdentifier,
