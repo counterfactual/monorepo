@@ -99,11 +99,11 @@ export default class DepositController extends NodeController {
       multisigAddress
     );
 
-    const payload = {
+    const payload: DepositConfirmationMessage = {
       from: publicIdentifier,
       type: NODE_EVENTS.DEPOSIT_CONFIRMED,
       data: params
-    } as DepositConfirmationMessage;
+    };
 
     await messagingService.send(counterpartyAddress, payload);
     outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, payload);
