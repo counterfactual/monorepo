@@ -1,9 +1,10 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { Address, AppInstanceJson } from "@counterfactual/types";
-import { Zero } from "ethers/constants";
+import { One, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
 import { Node } from "../../src";
+import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
@@ -15,10 +16,12 @@ import {
   constructUninstallRpc,
   constructUninstallVirtualRpc,
   createChannel,
+  getAppInstance,
   installApp,
   installVirtualApp
 } from "./utils";
-import { prettyPrintObject } from "../../src/utils";
+
+expect.extend({ toBeEq });
 
 type UnidirectionalLinkedTransferAppAction = {
   amount: BigNumber;
@@ -36,9 +39,6 @@ type UnidirectionalTransferAppAction = {
   actionType: ActionType;
   amount: BigNumberish;
 };
-
-const delay = (ms: number): Promise<void> =>
-  new Promise((res: any): any => setTimeout(res, ms));
 
 /**
  * The connext team has seen some strange issues in production that
@@ -200,7 +200,8 @@ describe("Can update and install multiple apps simultaneously", () => {
     const matchedApp = hubApps.filter(
       a =>
         a.appInterface.addr === linkDef &&
-        hasAddressInTransfers(a, funder.freeBalanceAddress)
+        hasAddressInTransfers(a, funder.freeBalanceAddress) &&
+        (a.latestState as any).linkedHash === stateAndAction.state.linkedHash
     )[0];
     if (!matchedApp) {
       throw new Error(
@@ -208,32 +209,25 @@ describe("Can update and install multiple apps simultaneously", () => {
       );
     }
 
-    console.log(
-      "******** found matching app in hubs channel with id",
-      matchedApp.identityHash
-    );
-
     // install app between the redeemer and the intermediary
     const [redeemerAppId] = (await installLinks(intermediary, redeemer, [
       stateAndAction
     ]))[0];
-    console.log("***** redeemer app installed with id:", redeemerAppId);
 
     // take action to finalize state and claim funds from intermediary
     await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
-
-    console.log(
-      "********** redeemer apps after action",
-      prettyPrintObject(await getApps(redeemer))
-    );
+    // should be finalized
+    // should transfer to redeemer
+    const redeemerApp = await getAppInstance(redeemer, redeemerAppId);
+    const assertRedemption = (app: AppInstanceJson) => {
+      expect((app.latestState as any).finalized).toEqual(true);
+      expect((app.latestState as any).transfers[1][1]).toBeEq(One);
+      expect((app.latestState as any).transfers[0][1]).toBeEq(Zero);
+    };
+    assertRedemption(redeemerApp);
 
     // uninstall the app between the redeemer and the intermediary
     await uninstallApp(redeemer, redeemerAppId);
-
-    console.log(
-      "********** redeemer apps after uninstall",
-      prettyPrintObject(await getApps(redeemer))
-    );
 
     // take action with funder and intermediary to finalize
     // NOTE: this should already be installed
@@ -242,6 +236,11 @@ describe("Can update and install multiple apps simultaneously", () => {
       matchedApp.identityHash,
       stateAndAction.action
     );
+    const intermediaryApp = await getAppInstance(
+      intermediary,
+      matchedApp.identityHash
+    );
+    assertRedemption(intermediaryApp);
 
     // uninstall the app between the funder and intermediary to break even
     await uninstallApp(intermediary, matchedApp.identityHash);
@@ -297,6 +296,15 @@ describe("Can update and install multiple apps simultaneously", () => {
       initialState
     );
 
+    const getTransferApp = async (node: Node) => {
+      return (await getApps(node)).filter(
+        app => app.appInterface.addr === transferDef
+      )[0];
+    };
+    let senderTransferApp = await getTransferApp(sender);
+    let receiverTransferApp = await getTransferApp(receiver);
+    expect(senderTransferApp).toEqual(receiverTransferApp);
+
     console.log("******* transfer app installed");
 
     // take action on the virtual transfer app to send money
@@ -305,6 +313,11 @@ describe("Can update and install multiple apps simultaneously", () => {
       amount: 1
     });
 
+    senderTransferApp = await getTransferApp(sender);
+    receiverTransferApp = await getTransferApp(receiver);
+    expect(senderTransferApp).toEqual(receiverTransferApp);
+    expect((senderTransferApp.latestState as any).transfers[0][1]).toBeEq(Zero);
+    expect((senderTransferApp.latestState as any).transfers[1][1]).toBeEq(One);
     console.log("******* transfer app updated");
 
     // take action on virtual transfer app to finalize state
@@ -313,11 +326,19 @@ describe("Can update and install multiple apps simultaneously", () => {
       amount: 0
     });
 
+    senderTransferApp = await getTransferApp(sender);
+    receiverTransferApp = await getTransferApp(receiver);
+    expect(senderTransferApp).toEqual(receiverTransferApp);
+    expect((senderTransferApp.latestState as any).finalized).toEqual(true);
     console.log("******* transfer app finalized");
 
     // uninstall the virtual transfer app
     await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
 
+    senderTransferApp = await getTransferApp(sender);
+    receiverTransferApp = await getTransferApp(receiver);
+    expect(senderTransferApp).toBeUndefined();
+    expect(receiverTransferApp).toBeUndefined();
     console.log("******* transfer app uninstalled");
   }
 
@@ -362,22 +383,39 @@ describe("Can update and install multiple apps simultaneously", () => {
     const {
       linkStatesRedeemer,
       linkStatesSender
-    } = generateInitialLinkedTransferStates(2);
+    } = generateInitialLinkedTransferStates(1);
 
-    // install all the linked apps on the sender side
+    // while links are redeeming, try to send receiver a
+    // direct transfer
+    await makeTransfer(nodeA, nodeB, nodeC);
+
+    // try to install a linked app
     await installLinks(nodeA, nodeB, linkStatesSender);
 
-    expect((await getApps(nodeA)).length).toBe(linkStatesSender.length);
-    // TODO: check for state
+    // sanity check that all installed apps have expected hashes
+    const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
+      .UnidirectionalLinkedTransferApp;
 
-    await delay(1000);
+    const verifyLinkedHashes = async (node: Node, states: any[]) => {
+      const hashes = (await getApps(node)).map(app => {
+        if (app.appInterface.addr === linkDef) {
+          return (app.latestState as any).linkedHash;
+        }
+      });
+      hashes.forEach((hash, i) => {
+        expect(hash).toEqual(states[i].state.linkedHash);
+      });
+    };
+
+    await verifyLinkedHashes(nodeB, linkStatesRedeemer);
+    await verifyLinkedHashes(nodeA, linkStatesSender);
+
+    // try to redeem a linked app
+    await redeemLink(nodeA, nodeB, nodeC, linkStatesRedeemer.pop());
+
     done();
 
     // // begin redeeming apps as the receiver on an interval
     // redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
-
-    // // while links are redeeming, try to send receiver a
-    // // direct transfer
-    // await makeTransfer(nodeA, nodeB, nodeC);
   });
 });
