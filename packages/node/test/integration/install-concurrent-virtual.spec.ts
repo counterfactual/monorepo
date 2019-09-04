@@ -8,11 +8,8 @@ import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
-  constructVirtualProposalRpc,
   createChannel,
-  getAppContext,
   installVirtualApp,
-  makeInstallVirtualCall
 } from "./utils";
 
 expect.extend({ toBeLt });
@@ -50,7 +47,14 @@ describe("Concurrently installing virtual applications with same intermediary", 
     );
   });
 
-  it("can handle two TicTacToeApp proposals", async () => {
+  it("can handle two TicTacToeApp proposals", async done => {
+    let i = 0;
+
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => {
+      i += 1;
+      if (i === 2) done();
+    });
+
     for (const i of Array(2)) {
       await installVirtualApp(
         nodeA,
