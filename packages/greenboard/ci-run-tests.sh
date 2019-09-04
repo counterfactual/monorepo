@@ -5,6 +5,7 @@ alias yarn_build_command="yarn --ignore-engines build"
 alias yarn_dist_command="yarn --ignore-engines dist"
 alias yarn_rm_command="yarn --ignore-engines remove"
 alias yarn_add_command="yarn --ignore-engines add -D"
+alias yann_add_global_command="yarn global add"
 
 # Clone MetaMask.
 echo -n "Cloning MetaMask..."
@@ -46,7 +47,7 @@ echo -n "Installing Greenboard dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/greenboard
   yarn_install_command &>/dev/null
   cp -rl node_modules/* ../../node_modules/
-  yarn global add serve
+  yann_add_global_command serve &>/dev/null
 echo "OK"
 
 # Install dependencies for the Hub.
@@ -56,22 +57,42 @@ echo -n "Installing Hub dependencies..."
   cp -rl node_modules/* ../../node_modules/
 echo "OK"
 
+# Initialize logs.
+echo -n "Initializing logs..."
+  mkdir -p $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile
+  touch /tmp/hub-wallet.log
+  touch $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile/chrome_debug.log
+  touch $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile/greenboard-local-storage.json
+echo "OK"
+
 # Run the Hub and the Wallet UI.
 cd $COUNTERFACTUAL_PATH/
-yarn run:wallet:e2e &
+yarn run:wallet:e2e & wait %1; WALLET_E2E_EXIT_CODE=$?
 cd $COUNTERFACTUAL_PATH/packages/greenboard
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
-  while ! sh -c "nc -n localhost 9001 < /dev/null"; do sleep 0.1; done
+  while ! sh -c "nc -n localhost 9001 < /dev/null";
+  do
+    if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
+    then
+      break
+    fi
+
+    sleep 0.1;
+  done
 echo "OK"
 
 echo -n "Waiting for the Wallet UI to spin up..."
   while ! sh -c "nc -n localhost 3334 < /dev/null"; do sleep 0.1; done
 echo "OK"
 
-echo "Running tests now!"
-xvfb-run yarn start
+if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ]; then
+  echo "Cannot run tests, Hub/Wallet UI initialization failed"
+else
+  echo "Running tests now!"
+  xvfb-run yarn start
+fi
 
 echo "Hub & Wallet UI logs ==========================================="
 cat /tmp/hub-wallet.log
