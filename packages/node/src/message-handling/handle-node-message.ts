@@ -130,30 +130,8 @@ export async function handleReceivedProposeVirtualMessage(
     initiatorDepositTokenAddress
   } = params;
 
-  const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-    proposedByIdentifier,
-    publicIdentifier,
-    intermediaryIdentifier,
-    store,
-    networkContext
-  );
-
-  await store.addVirtualAppInstanceProposal(
-    new AppInstanceProposal(
-      {
-        ...params,
-        proposedByIdentifier,
-        initiatorDeposit: responderDeposit,
-        initiatorDepositTokenAddress: responderDepositTokenAddress!,
-        responderDeposit: initiatorDeposit,
-        responderDepositTokenAddress: initiatorDepositTokenAddress!
-      },
-      stateChannel
-    )
-  );
-
-  await store.saveStateChannel(stateChannel.bumpProposedApps());
-
+  // The only responsibility of the intermediary is to relay the message,
+  // so they don't need to be doing any DB saving of AppInstanceProposals
   if (isNodeIntermediary(publicIdentifier, intermediaryIdentifier)) {
     // TODO: Remove this and add a handler in protocolMessageEventController
     await messagingService.send(
@@ -168,5 +146,29 @@ export async function handleReceivedProposeVirtualMessage(
         data: receivedProposeMessage.data
       } as ProposeVirtualMessage
     );
+  } else {
+    const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+      proposedByIdentifier,
+      publicIdentifier,
+      intermediaryIdentifier,
+      store,
+      networkContext
+    );
+
+    const proposal = new AppInstanceProposal(
+      {
+        ...params,
+        proposedByIdentifier,
+        initiatorDeposit: responderDeposit,
+        initiatorDepositTokenAddress: responderDepositTokenAddress!,
+        responderDeposit: initiatorDeposit,
+        responderDepositTokenAddress: initiatorDepositTokenAddress!
+      },
+      stateChannel
+    );
+
+    await store.addVirtualAppInstanceProposal(proposal);
+
+    await store.saveStateChannel(stateChannel.bumpProposedApps());
   }
 }
