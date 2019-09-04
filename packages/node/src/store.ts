@@ -264,7 +264,7 @@ export class Store {
     );
 
     if (!multisigAddress) {
-      throw Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+      throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
     }
 
     return await this.getStateChannel(multisigAddress);
