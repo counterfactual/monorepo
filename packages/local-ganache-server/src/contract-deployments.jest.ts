@@ -22,6 +22,7 @@ export type NetworkContextForTestSuite = NetworkContext & {
   DolphinCoin: string;
   UnidirectionalTransferApp: string;
   UnidirectionalLinkedTransferApp: string;
+  SimpleTransferApp: string;
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
