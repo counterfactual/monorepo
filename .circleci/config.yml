@@ -119,12 +119,16 @@ jobs:
       - checkout
       - <<: *restore_dep
 
-      - run: yarn --frozen-lockfile --ignore-engines
+      - run:
+          name: Symlink dependencies
+          command: yarn --frozen-lockfile --ignore-engines
 
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: yarn --ignore-engines test:e2e:ci
+      - run:
+          name: Build Greenboard workspace and run tests
+          command: yarn --ignore-engines test:e2e:ci
 
   run-tslint:
     <<: *defaults
