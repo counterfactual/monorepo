@@ -8,6 +8,7 @@ import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
+import { initialSimpleTransferState } from "./simple-transfer";
 import { initialTransferState } from "./unidirectional-transfer";
 import {
   collateralizeChannel,
@@ -270,6 +271,65 @@ describe("Can update and install multiple apps simultaneously", () => {
     }, 1000);
   }
 
+  async function makeSimpleTransfer(
+    sender: Node,
+    intermediary: Node,
+    receiver: Node
+  ) {
+    console.log("******* trying to simple transfer as virtual app");
+    // install a virtual transfer app
+    const transferDef = (global["networkContext"] as NetworkContextForTestSuite)
+      .SimpleTransferApp;
+
+    // create transfer app with default transfer value of 1
+    const initialState = initialSimpleTransferState(
+      sender.freeBalanceAddress,
+      receiver.freeBalanceAddress
+    );
+
+    const appId = await installVirtualApp(
+      sender,
+      intermediary,
+      receiver,
+      transferDef,
+      initialState
+    );
+
+    console.log("******* installed with id", appId);
+
+    const getTransferApp = async (node: Node) => {
+      return (await getApps(node)).filter(
+        app =>
+          app.appInterface.addr === transferDef && app.identityHash === appId
+      )[0];
+    };
+
+    let senderTransferApp = await getTransferApp(sender);
+    let receiverTransferApp = await getTransferApp(receiver);
+    expect(senderTransferApp).toEqual(receiverTransferApp);
+    expect(
+      (senderTransferApp.latestState as any).coinTransfers[0].amount
+    ).toBeEq(One);
+    expect(
+      (senderTransferApp.latestState as any).coinTransfers[1].amount
+    ).toBeEq(Zero);
+    console.log("******* installed");
+
+    // uninstall the virtual transfer app
+    await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
+    receiverTransferApp = await getTransferApp(receiver);
+    senderTransferApp = await getTransferApp(sender);
+    console.log("senderTransferApp", senderTransferApp);
+    console.log("receiverTransferApp", receiverTransferApp);
+    while (receiverTransferApp) {
+      console.log("still found receiver app, retrying...")
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      receiverTransferApp = await getTransferApp(receiver);
+    }
+    expect(receiverTransferApp).toBeUndefined();
+    expect(senderTransferApp).toBeUndefined();
+  }
+
   // installs, updates, and uninstalls a virtual eth unidirectional
   // transfer app
   async function makeTransfer(
@@ -387,7 +447,8 @@ describe("Can update and install multiple apps simultaneously", () => {
 
     // while links are redeeming, try to send receiver a
     // direct transfer
-    await makeTransfer(nodeA, nodeB, nodeC);
+    // await makeTransfer(nodeA, nodeB, nodeC);
+    await makeSimpleTransfer(nodeA, nodeB, nodeC);
 
     // try to install a linked app
     await installLinks(nodeA, nodeB, linkStatesSender);
