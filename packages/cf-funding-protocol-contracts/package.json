@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf-funding-protocol-contracts",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Smart contracts for the Counterfactual multisig funding protocol",
   "license": "MIT",
   "engines": {
@@ -10,7 +10,8 @@
   "files": [
     "build",
     "contracts",
-    "networks"
+    "networks",
+    "expected-build-artifacts"
   ],
   "scripts": {
     "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
@@ -31,7 +32,7 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.5",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.6",
     "@counterfactual/types": "0.0.38",
     "@counterfactual/typescript-typings": "0.1.2",
     "@types/chai": "4.2.0",

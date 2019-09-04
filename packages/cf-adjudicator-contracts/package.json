@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf-adjudicator-contracts",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Smart contracts for an State Channel AppInstance Adjudicator",
   "license": "MIT",
   "engines": {
@@ -10,7 +10,8 @@
   "files": [
     "build",
     "contracts",
-    "networks"
+    "networks",
+    "expected-build-artifacts"
   ],
   "scripts": {
     "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
