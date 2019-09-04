@@ -58,11 +58,11 @@ cd $COUNTERFACTUAL_PATH/packages/greenboard
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
-  while ! timeout 1 bash -c "nc -N localhost 9001 < /dev/null"; do sleep 0.1; done
+  while ! sh -c "nc -N localhost 9001 < /dev/null"; do sleep 0.1; done
 echo "OK"
 
 echo -n "Waiting for the Wallet UI to spin up..."
-  while ! timeout 1 bash -c "nc -N localhost 3334 < /dev/null"; do sleep 0.1; done
+  while ! sh -c "nc -N localhost 3334 < /dev/null"; do sleep 0.1; done
 echo "OK"
 
 echo "Running tests now!"
