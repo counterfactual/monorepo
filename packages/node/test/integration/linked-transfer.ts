@@ -1,5 +1,7 @@
 import { AppABIEncodings } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import {
+  bigNumberify,
   BigNumberish,
   hexlify,
   randomBytes,
@@ -35,8 +37,8 @@ export function validAction(
   assetId: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ) {
   return {
-    amount,
     assetId,
+    amount: bigNumberify(amount),
     paymentId: hexlify(randomBytes(32)),
     preImage: hexlify(randomBytes(32))
   };
@@ -66,14 +68,14 @@ export function initialLinkedState(
       linkedHash,
       stage: 0, // POST_FUND
       finalized: false,
-      turnNum: 0,
+      turnNum: Zero,
       transfers: [
         {
-          amount,
+          amount: bigNumberify(amount),
           to: senderAddr
         },
         {
-          amount: 0,
+          amount: Zero,
           to: redeemerAddr
         }
       ]
