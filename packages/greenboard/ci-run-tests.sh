@@ -67,3 +67,12 @@ echo "OK"
 
 echo "Running tests now!"
 xvfb-run yarn start
+
+echo "Hub & Wallet UI logs ==========================================="
+cat /tmp/hub-wallet.log
+
+echo "ChromeDriver logs =============================================="
+cat ./chrome-profile/chrome_debug.log
+
+echo "Node storage dump =============================================="
+cat ./chrome-profile/greenboard-local-storage.json
