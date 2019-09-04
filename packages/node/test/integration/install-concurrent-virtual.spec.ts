@@ -9,7 +9,7 @@ import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
   createChannel,
-  installVirtualApp,
+  installVirtualApp
 } from "./utils";
 
 expect.extend({ toBeLt });
