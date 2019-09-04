@@ -1,5 +1,6 @@
 import { AppABIEncodings } from "@counterfactual/types";
-import { BigNumberish } from "ethers/utils";
+import { BigNumberish, bigNumberify } from "ethers/utils";
+import { Zero } from "ethers/constants";
 
 const singleAssetTwoPartyCoinTransferEncoding = `
 tuple(address to, uint256 amount)[2]
@@ -36,12 +37,12 @@ export function initialTransferState(
     stage: 0, // POST_FUND
     transfers: [
       {
-        amount,
+        amount: bigNumberify(amount),
         to: senderAddr
       },
       {
         to: receiverAddr,
-        amount: 0
+        amount: Zero
       }
     ],
     turnNum: 0,
