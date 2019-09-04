@@ -13,9 +13,8 @@
     "networks"
   ],
   "scripts": {
-    "build": "waffle waffle.js",
+    "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
     "verify-solc": "waffle waffle.js && diff build expected-build-artifacts",
-    "update-expected-build-artficats": "waffle waffle.js && cp build/*.json expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
