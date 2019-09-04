@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.2.69",
+  "version": "0.2.70",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
@@ -54,8 +54,8 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.4",
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.8",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.5",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.9",
     "@counterfactual/cf.js": "0.2.6",
     "@counterfactual/firebase-client": "0.0.6",
     "@counterfactual/types": "0.0.38",
