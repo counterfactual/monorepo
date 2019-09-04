@@ -5,7 +5,7 @@ When any of the contracts get updated, their corresponding _expected_ build arti
 To do make this update, run:
 
 ```shell
-yarn update-expected-build-artficats
+yarn build
 ```
 
 # Migrations
