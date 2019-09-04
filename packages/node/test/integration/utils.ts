@@ -542,7 +542,7 @@ export async function installVirtualApp(
     initialState
   );
 
-  nodeC.on(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
+  nodeC.once(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
     nodeC.rpcRouter.dispatch(
       constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
     )
