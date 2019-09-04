@@ -41,14 +41,19 @@ echo -n "Cleaning up..."
   rm -rf $WORKING_DIRECTORY/metamask;
 echo "OK"
 
-# Set test runner directory.
-cd $COUNTERFACTUAL_PATH/packages/greenboard
-
 # Install dependencies for Greenboard.
 echo -n "Installing Greenboard dependencies..."
+  cd $COUNTERFACTUAL_PATH/packages/greenboard
   yarn_install_command &>/dev/null
   cp -rl node_modules/* ../../node_modules/
   yarn global add serve
+echo "OK"
+
+# Install dependencies for the Hub.
+echo -n "Installing Hub dependencies..."
+  cd $COUNTERFACTUAL_PATH/packages/simple-hub-server
+  yarn_install_command &>/dev/null
+  cp -rl node_modules/* ../../node_modules/
 echo "OK"
 
 # Run the Hub and the Wallet UI.
