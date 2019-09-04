@@ -33,6 +33,7 @@ import {
   initialTransferState,
   transferAbiEncodings
 } from "./unidirectional-transfer";
+import { initialSimpleTransferState, simpleTransferAbiEncodings } from "./simple-transfer";
 
 interface AppContext {
   appDefinition: string;
@@ -870,6 +871,16 @@ export function getAppContext(
         abiEncodings: linkedAbiEncodings,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       };
+
+    case (global["networkContext"] as NetworkContextForTestSuite)
+      .SimpleTransferApp:
+      checkForAddresses();
+      initialAppState =
+        initialState ||
+        initialSimpleTransferState(senderAddress!, receiverAddress!);
+      abiEncodings = simpleTransferAbiEncodings;
+      outcomeType = OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER;
+      break;
 
     default:
       throw new Error(
