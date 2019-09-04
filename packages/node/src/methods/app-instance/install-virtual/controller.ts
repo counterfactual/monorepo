@@ -37,7 +37,7 @@ export default class InstallVirtualController extends NodeController {
     } catch (e) {
       // It is possible the metachannel has never been created
       if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) {
-        throw Error(prettyPrintObject(e));
+        throw e;
       }
     }
 
