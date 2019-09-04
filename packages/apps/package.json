@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/apps",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
@@ -13,9 +13,8 @@
     "networks"
   ],
   "scripts": {
-    "build": "echo 'no build'",
+    "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
     "verify-solc": "waffle waffle.js && diff build expected-build-artifacts",
-    "update-expected-build-artficats": "waffle waffle.js && cp build/*.json expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -26,7 +25,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.4",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.5",
     "@types/chai": "4.2.0",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
