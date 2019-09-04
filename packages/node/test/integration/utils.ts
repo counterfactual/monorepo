@@ -531,27 +531,26 @@ export async function installVirtualApp(
   appDefinition: string,
   initialState?: SolidityValueType
 ): Promise<string> {
-  return new Promise(async resolve => {
-    nodeA.on(
-      NODE_EVENTS.INSTALL_VIRTUAL,
-      async (msg: InstallVirtualMessage) => {
-        resolve(msg.data.params.appInstanceId);
-      }
-    );
+  const {
+    appInstanceId,
+    params: { intermediaryIdentifier }
+  } = await makeVirtualProposal(
+    nodeA,
+    nodeC,
+    nodeB,
+    appDefinition,
+    initialState
+  );
 
-    nodeC.on(
-      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      async (msg: ProposeVirtualMessage) => {
-        const installReq = constructInstallVirtualRpc(
-          msg.data.appInstanceId,
-          msg.data.params.intermediaryIdentifier
-        );
-        await nodeC.rpcRouter.dispatch(installReq);
-      }
-    );
+  nodeC.on(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
+    nodeC.rpcRouter.dispatch(
+      constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
+    )
+  );
 
-    await makeVirtualProposal(nodeA, nodeC, nodeB, appDefinition, initialState);
-  });
+  return new Promise((resolve: (appInstanceId: string) => void) =>
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => resolve(appInstanceId))
+  );
 }
 
 export async function confirmChannelCreation(
