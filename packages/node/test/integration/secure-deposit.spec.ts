@@ -37,6 +37,8 @@ describe("Node method follows spec - deposit", () => {
 
     multisigAddress = await createChannel(nodeA, nodeB);
     expect(multisigAddress).toBeDefined();
+    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
+    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
   });
 
   it("has the right balance before an ERC20 deposit has been made", async () => {
@@ -58,7 +60,7 @@ describe("Node method follows spec - deposit", () => {
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
-    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
+    nodeB.once(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
       await nodeB.rpcRouter.dispatch(depositReq);
       expect(await provider.getBalance(multisigAddress)).toBeEq(
         preDepositBalance.add(2)
@@ -109,8 +111,6 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress
     );
 
-    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
-    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
     await nodeA.rpcRouter.dispatch(erc20DepositRequest);
     await nodeB.rpcRouter.dispatch(erc20DepositRequest);
 

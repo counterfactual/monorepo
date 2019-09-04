@@ -79,7 +79,7 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { provider } = requestHandler;
+    const { outgoing, provider } = requestHandler;
     const { multisigAddress, tokenAddress } = params;
 
     params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
@@ -99,11 +99,14 @@ export default class DepositController extends NodeController {
       multisigAddress
     );
 
-    await messagingService.send(counterpartyAddress, {
+    const payload: DepositConfirmationMessage = {
       from: publicIdentifier,
       type: NODE_EVENTS.DEPOSIT_CONFIRMED,
       data: params
-    } as DepositConfirmationMessage);
+    };
+
+    await messagingService.send(counterpartyAddress, payload);
+    outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, payload);
 
     return {
       multisigBalance: await provider.getBalance(multisigAddress)
