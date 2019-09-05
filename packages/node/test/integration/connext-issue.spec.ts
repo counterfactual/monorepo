@@ -3,13 +3,13 @@ import { Address, AppInstanceJson } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
-import { Node } from "../../src";
+import { prettyPrintObject } from "../../src/utils";
+import { Node, NODE_EVENTS, InstallMessage } from "../../src";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
 import { initialSimpleTransferState } from "./simple-transfer";
-import { initialTransferState } from "./unidirectional-transfer";
 import {
   collateralizeChannel,
   constructGetAppsRpc,
@@ -50,6 +50,9 @@ describe("Can update and install multiple apps simultaneously", () => {
   let nodeA: Node; // sending client
   let nodeB: Node; // node
   let nodeC: Node; // receiving client
+
+  let multisigAddressAB: string;
+  let multisigAddressBC: string;
 
   ///////// Define helper fns for nodes
 
@@ -100,17 +103,23 @@ describe("Can update and install multiple apps simultaneously", () => {
     redeemer: Node,
     statesAndActions: any[]
   ) {
-    const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
-      .UnidirectionalLinkedTransferApp;
+    const appIds: string[] = await new Promise(async resolve => {
+      const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
+        .UnidirectionalLinkedTransferApp;
 
-    const expectedFunderApps =
-      (await getApps(funder)).length + statesAndActions.length;
-    const expectedRedeemerApps =
-      (await getApps(redeemer)).length + statesAndActions.length;
-    const result: any[] = [];
-    for (let i = 0; i < statesAndActions.length; i += 1) {
-      const { state, action } = statesAndActions[i];
-      result.push(
+      const appIds: string[] = [];
+      funder.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        const id = msg.data.params.appInstanceId;
+        const redeemerApp = await getAppInstance(redeemer, id);
+        const funderApp = await getAppInstance(funder, id);
+        expect(redeemerApp).toEqual(funderApp);
+        appIds.push(id);
+        if (appIds.length === statesAndActions.length) {
+          resolve(appIds);
+        }
+      });
+
+      statesAndActions.forEach(async ({ state, action }) => {
         await installApp(
           funder,
           redeemer,
@@ -120,26 +129,15 @@ describe("Can update and install multiple apps simultaneously", () => {
           action.assetId,
           Zero,
           action.assetId
-        )
-      );
-    }
-    // sanity check
-    const fApps = await getApps(funder);
-    const rApps = await getApps(redeemer);
-    if (
-      fApps.length !== expectedFunderApps ||
-      rApps.length !== expectedRedeemerApps
-    ) {
-      throw new Error(
-        `Installed app length between two parties mismatch. redeemer apps: ${rApps.length}, funder apps: ${fApps.length}`
-      );
-    }
+        );
+      });
+    });
     console.log(
-      `successfully installed ${result.length} link apps with ids${result.map(
-        r => ` ${r[0]}`
-      )}`
+      `successfully installed ${
+        appIds.length
+      } link apps with ids ${prettyPrintObject(appIds)}`
     );
-    return result;
+    return appIds;
   }
 
   async function takeAppAction(
@@ -174,6 +172,12 @@ describe("Can update and install multiple apps simultaneously", () => {
       .appInstances;
   }
 
+  const assertLinkRedemption = (app: AppInstanceJson) => {
+    expect((app.latestState as any).finalized).toEqual(true);
+    expect((app.latestState as any).transfers[1][1]).toBeEq(One);
+    expect((app.latestState as any).transfers[0][1]).toBeEq(Zero);
+  };
+
   // will uninstall an app between the intermediary and the funder
   // after the redeemer installs an app and reveals a secret between
   // the redeemer and the intermediary
@@ -187,8 +191,6 @@ describe("Can update and install multiple apps simultaneously", () => {
       .UnidirectionalLinkedTransferApp;
     const hubApps = await getApps(intermediary);
 
-    // NOTE: this may return more than one valid app, thats fine, just take
-    // the first.
     const hasAddressInTransfers = (
       app: AppInstanceJson,
       addr: string
@@ -211,24 +213,20 @@ describe("Can update and install multiple apps simultaneously", () => {
     }
 
     // install app between the redeemer and the intermediary
-    const [redeemerAppId] = (await installLinks(intermediary, redeemer, [
+    const redeemerAppId = (await installLinks(intermediary, redeemer, [
       stateAndAction
     ]))[0];
 
     // take action to finalize state and claim funds from intermediary
     await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
-    // should be finalized
-    // should transfer to redeemer
+
     const redeemerApp = await getAppInstance(redeemer, redeemerAppId);
-    const assertRedemption = (app: AppInstanceJson) => {
-      expect((app.latestState as any).finalized).toEqual(true);
-      expect((app.latestState as any).transfers[1][1]).toBeEq(One);
-      expect((app.latestState as any).transfers[0][1]).toBeEq(Zero);
-    };
-    assertRedemption(redeemerApp);
+    assertLinkRedemption(redeemerApp);
+    console.log("**** successfully redeemed by redeemer");
 
     // uninstall the app between the redeemer and the intermediary
     await uninstallApp(redeemer, redeemerAppId);
+    console.log("**** successfully uninstalled by redeemer");
 
     // take action with funder and intermediary to finalize
     // NOTE: this should already be installed
@@ -241,10 +239,12 @@ describe("Can update and install multiple apps simultaneously", () => {
       intermediary,
       matchedApp.identityHash
     );
-    assertRedemption(intermediaryApp);
+    assertLinkRedemption(intermediaryApp);
+    console.log("**** successfully redeemed by intermediary");
 
     // uninstall the app between the funder and intermediary to break even
     await uninstallApp(intermediary, matchedApp.identityHash);
+    console.log("**** successfully uninstalled by intermediary");
   }
 
   // calls `redeemLink` every half second on a poller
@@ -271,6 +271,22 @@ describe("Can update and install multiple apps simultaneously", () => {
     }, 1000);
   }
 
+  async function getAppType(
+    node: Node,
+    appId: string,
+    type:
+      | "SimpleTransferApp"
+      | "UnidirectionalTransferApp"
+      | "UnidirectionalLinkedTransferApp"
+  ) {
+    const appDef = (global["networkContext"] as NetworkContextForTestSuite)[
+      type
+    ];
+    return (await getApps(node)).filter(
+      app => app.appInterface.addr === appDef && app.identityHash === appId
+    )[0];
+  }
+
   async function makeSimpleTransfer(
     sender: Node,
     intermediary: Node,
@@ -295,17 +311,16 @@ describe("Can update and install multiple apps simultaneously", () => {
       initialState
     );
 
-    console.log("******* installed with id", appId);
-
-    const getTransferApp = async (node: Node) => {
-      return (await getApps(node)).filter(
-        app =>
-          app.appInterface.addr === transferDef && app.identityHash === appId
-      )[0];
-    };
-
-    let senderTransferApp = await getTransferApp(sender);
-    let receiverTransferApp = await getTransferApp(receiver);
+    let senderTransferApp = await getAppType(
+      sender,
+      appId,
+      "SimpleTransferApp"
+    );
+    let receiverTransferApp = await getAppType(
+      receiver,
+      appId,
+      "SimpleTransferApp"
+    );
     expect(senderTransferApp).toEqual(receiverTransferApp);
     expect(
       (senderTransferApp.latestState as any).coinTransfers[0].amount
@@ -313,115 +328,42 @@ describe("Can update and install multiple apps simultaneously", () => {
     expect(
       (senderTransferApp.latestState as any).coinTransfers[1].amount
     ).toBeEq(Zero);
-    console.log("******* installed");
+    console.log("******* installed simple transfer");
 
     // uninstall the virtual transfer app
     await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
-    receiverTransferApp = await getTransferApp(receiver);
-    senderTransferApp = await getTransferApp(sender);
-    console.log("senderTransferApp", senderTransferApp);
-    console.log("receiverTransferApp", receiverTransferApp);
+    senderTransferApp = await getAppType(sender, appId, "SimpleTransferApp");
+    receiverTransferApp = await getAppType(
+      receiver,
+      appId,
+      "SimpleTransferApp"
+    );
+    // TODO: find race condition to get rid of polling
     while (receiverTransferApp) {
-      console.log("still found receiver app, retrying...")
+      console.log("still found receiver app, retrying...");
       await new Promise(resolve => setTimeout(resolve, 1000));
-      receiverTransferApp = await getTransferApp(receiver);
+      receiverTransferApp = await getAppType(
+        receiver,
+        appId,
+        "SimpleTransferApp"
+      );
     }
     expect(receiverTransferApp).toBeUndefined();
     expect(senderTransferApp).toBeUndefined();
+
+    console.log("******* uninstalled simple transfer");
+
+    // TODO: check balance transferred
   }
 
-  // installs, updates, and uninstalls a virtual eth unidirectional
-  // transfer app
-  async function makeTransfer(
-    sender: Node,
-    intermediary: Node,
-    receiver: Node
-  ) {
-    console.log("******* trying to transfer as virtual app");
-    // install a virtual transfer app
-    const transferDef = (global["networkContext"] as NetworkContextForTestSuite)
-      .UnidirectionalTransferApp;
-
-    // create transfer app with default transfer value of 1
-    const initialState = initialTransferState(
-      sender.freeBalanceAddress,
-      receiver.freeBalanceAddress
-    );
-
-    const appId = await installVirtualApp(
-      sender,
-      intermediary,
-      receiver,
-      transferDef,
-      initialState
-    );
-
-    const getTransferApp = async (node: Node) => {
-      return (await getApps(node)).filter(
-        app => app.appInterface.addr === transferDef
-      )[0];
-    };
-    let senderTransferApp = await getTransferApp(sender);
-    let receiverTransferApp = await getTransferApp(receiver);
-    expect(senderTransferApp).toEqual(receiverTransferApp);
-
-    console.log("******* transfer app installed");
-
-    // take action on the virtual transfer app to send money
-    await takeAppAction(sender, appId, {
-      actionType: ActionType.SEND_MONEY,
-      amount: 1
-    });
-
-    senderTransferApp = await getTransferApp(sender);
-    receiverTransferApp = await getTransferApp(receiver);
-    expect(senderTransferApp).toEqual(receiverTransferApp);
-    expect((senderTransferApp.latestState as any).transfers[0][1]).toBeEq(Zero);
-    expect((senderTransferApp.latestState as any).transfers[1][1]).toBeEq(One);
-    console.log("******* transfer app updated");
-
-    // take action on virtual transfer app to finalize state
-    await takeAppAction(sender, appId, {
-      actionType: ActionType.END_CHANNEL,
-      amount: 0
-    });
-
-    senderTransferApp = await getTransferApp(sender);
-    receiverTransferApp = await getTransferApp(receiver);
-    expect(senderTransferApp).toEqual(receiverTransferApp);
-    expect((senderTransferApp.latestState as any).finalized).toEqual(true);
-    console.log("******* transfer app finalized");
-
-    // uninstall the virtual transfer app
-    await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
-
-    senderTransferApp = await getTransferApp(sender);
-    receiverTransferApp = await getTransferApp(receiver);
-    expect(senderTransferApp).toBeUndefined();
-    expect(receiverTransferApp).toBeUndefined();
-    console.log("******* transfer app uninstalled");
-  }
-
-  beforeAll(async () => {
+  beforeEach(async () => {
     const context: SetupContext = await setup(global, true, true);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     nodeC = context["C"].node;
-  });
 
-  /**
-   * In production, this flow has resulted in several varying bugs including:
-   * - IO send and wait timed out
-   * - Validating a signature with expected signer 0xFFF but recovered 0xAAA
-   * - cannot find agreement with target hash 0xCCC
-   * - hanging on client or node
-   *
-   * These errors were successfully reproduced by connext in the `test-bot-farm`
-   * script, both with the postgres store and the memory store.
-   */
-  it("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transer", async done => {
-    const multisigAddressAB = await createChannel(nodeA, nodeB);
-    const multisigAddressBC = await createChannel(nodeB, nodeC);
+    multisigAddressAB = await createChannel(nodeA, nodeB);
+    multisigAddressBC = await createChannel(nodeB, nodeC);
 
     // this deposits into both nodes. realistically, we want
     // to have nodeA deposit into AB, and nodeB collateralize
@@ -438,17 +380,24 @@ describe("Can update and install multiple apps simultaneously", () => {
       undefined, // choose not to fund nodeC
       bigNumberify(15)
     );
+  });
 
+  /**
+   * In production, this flow has resulted in several varying bugs including:
+   * - IO send and wait timed out
+   * - Validating a signature with expected signer 0xFFF but recovered 0xAAA
+   * - cannot find agreement with target hash 0xCCC
+   * - hanging on client or node
+   *
+   * These errors were successfully reproduced by connext in the `test-bot-farm`
+   * script, both with the postgres store and the memory store.
+   */
+  it("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transfer", async done => {
     // first, pregenerate several linked app initial states
     const {
       linkStatesRedeemer,
       linkStatesSender
     } = generateInitialLinkedTransferStates(1);
-
-    // while links are redeeming, try to send receiver a
-    // direct transfer
-    // await makeTransfer(nodeA, nodeB, nodeC);
-    await makeSimpleTransfer(nodeA, nodeB, nodeC);
 
     // try to install a linked app
     await installLinks(nodeA, nodeB, linkStatesSender);
@@ -471,12 +420,11 @@ describe("Can update and install multiple apps simultaneously", () => {
     await verifyLinkedHashes(nodeB, linkStatesRedeemer);
     await verifyLinkedHashes(nodeA, linkStatesSender);
 
-    // try to redeem a linked app
-    await redeemLink(nodeA, nodeB, nodeC, linkStatesRedeemer.pop());
+    // begin redeeming apps as the receiver on an interval
+    redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
 
-    done();
-
-    // // begin redeeming apps as the receiver on an interval
-    // redeemLinkPoller(nodeA, nodeB, nodeC, linkStatesRedeemer, done);
+    // while links are redeeming, try to send receiver a
+    // direct transfer
+    await makeSimpleTransfer(nodeA, nodeB, nodeC);
   });
 });
