@@ -3,6 +3,7 @@ import {
   getOrCreateStateChannelBetweenVirtualAppParticipants
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
+import { executeFunctionWithinQueues } from "../methods/queued-execution";
 import { AppInstanceProposal } from "../models";
 import { RequestHandler } from "../request-handler";
 import {
@@ -74,24 +75,29 @@ export async function handleReceivedProposalMessage(
     networkContext.MinimumViableMultisig
   );
 
-  const stateChannel = await store.getStateChannel(multisigAddress);
+  await executeFunctionWithinQueues(
+    [await requestHandler.getShardedQueue(multisigAddress)],
+    async () => {
+      const stateChannel = await store.getStateChannel(multisigAddress);
 
-  await store.addAppInstanceProposal(
-    stateChannel,
-    new AppInstanceProposal(
-      {
-        ...params,
-        proposedByIdentifier,
-        initiatorDeposit: params.responderDeposit,
-        initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
-        responderDeposit: params.initiatorDeposit!,
-        responderDepositTokenAddress: params.initiatorDepositTokenAddress!
-      },
-      stateChannel
-    )
+      await store.addAppInstanceProposal(
+        stateChannel,
+        new AppInstanceProposal(
+          {
+            ...params,
+            proposedByIdentifier,
+            initiatorDeposit: params.responderDeposit,
+            initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
+            responderDeposit: params.initiatorDeposit!,
+            responderDepositTokenAddress: params.initiatorDepositTokenAddress!
+          },
+          stateChannel
+        )
+      );
+
+      await store.saveStateChannel(stateChannel.bumpProposedApps());
+    }
   );
-
-  await store.saveStateChannel(stateChannel.bumpProposedApps());
 }
 
 export async function handleRejectProposalMessage(
@@ -144,28 +150,40 @@ export async function handleReceivedProposeVirtualMessage(
       } as ProposeVirtualMessage
     );
   } else {
-    const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-      proposedByIdentifier,
-      publicIdentifier,
-      intermediaryIdentifier,
-      store,
-      networkContext
+    const multisigAddress = getCreate2MultisigAddress(
+      [proposedByIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
-    const proposal = new AppInstanceProposal(
-      {
-        ...params,
-        proposedByIdentifier,
-        initiatorDeposit: responderDeposit,
-        initiatorDepositTokenAddress: responderDepositTokenAddress!,
-        responderDeposit: initiatorDeposit,
-        responderDepositTokenAddress: initiatorDepositTokenAddress!
-      },
-      stateChannel
+    await executeFunctionWithinQueues(
+      [await requestHandler.getShardedQueue(multisigAddress)],
+      async () => {
+        const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+          multisigAddress,
+          proposedByIdentifier,
+          proposedToIdentifier,
+          intermediaryIdentifier,
+          store,
+          networkContext
+        );
+
+        await store.addVirtualAppInstanceProposal(
+          new AppInstanceProposal(
+            {
+              ...params,
+              proposedByIdentifier,
+              initiatorDeposit: responderDeposit,
+              initiatorDepositTokenAddress: responderDepositTokenAddress!,
+              responderDeposit: initiatorDeposit,
+              responderDepositTokenAddress: initiatorDepositTokenAddress!
+            },
+            stateChannel
+          )
+        );
+
+        await store.saveStateChannel(stateChannel.bumpProposedApps());
+      }
     );
-
-    await store.addVirtualAppInstanceProposal(proposal);
-
-    await store.saveStateChannel(stateChannel.bumpProposedApps());
   }
 }
