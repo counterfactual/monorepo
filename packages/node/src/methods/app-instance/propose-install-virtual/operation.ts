@@ -66,13 +66,6 @@ export function getNextNodeAddress(
   return intermediaryIdentifier;
 }
 
-export function isNodeIntermediary(
-  thisAddress: string,
-  intermediaryIdentifier: string
-): boolean {
-  return intermediaryIdentifier === thisAddress;
-}
-
 export async function getOrCreateStateChannelBetweenVirtualAppParticipants(
   initiatorXpub: string,
   responderXpub: string,
