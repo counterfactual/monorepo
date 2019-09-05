@@ -29,11 +29,7 @@ export default class UninstallController extends NodeController {
       throw Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(sc.multisigAddress)
-      )
-    ];
+    return [requestHandler.getShardedQueue(sc.multisigAddress)];
   }
 
   protected async beforeExecution(
