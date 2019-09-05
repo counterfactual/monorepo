@@ -559,7 +559,6 @@ export async function installVirtualApp(
   initiatorDeposit?: BigNumber,
   responderDeposit?: BigNumber
 ): Promise<string> {
-<<<<<<< HEAD
   const {
     appInstanceId,
     params: { intermediaryIdentifier }
@@ -570,49 +569,12 @@ export async function installVirtualApp(
     appDefinition,
     initialState
   );
-||||||| merged common ancestors
-  return new Promise(async resolve => {
-    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      console.log("****** caught install event, resolving");
-      resolve(msg.data.params.appInstanceId);
-    });
-=======
-  return new Promise(async resolve => {
-    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      resolve(msg.data.params.appInstanceId);
-    });
->>>>>>> remove logs, fix getAppInstance, add outcome type to app context
 
-<<<<<<< HEAD
   nodeC.once(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
     nodeC.rpcRouter.dispatch(
       constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
     )
   );
-||||||| merged common ancestors
-    nodeC.on(
-      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      async (msg: ProposeVirtualMessage) => {
-        const installReq = constructInstallVirtualRpc(
-          msg.data.appInstanceId,
-          msg.data.params.intermediaryIdentifier
-        );
-        console.log("****** sending install virtual request");
-        await nodeC.rpcRouter.dispatch(installReq);
-      }
-    );
-=======
-    nodeC.on(
-      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-      async (msg: ProposeVirtualMessage) => {
-        const installReq = constructInstallVirtualRpc(
-          msg.data.appInstanceId,
-          msg.data.params.intermediaryIdentifier
-        );
-        await nodeC.rpcRouter.dispatch(installReq);
-      }
-    );
->>>>>>> remove logs, fix getAppInstance, add outcome type to app context
 
   return new Promise((resolve: (appInstanceId: string) => void) =>
     nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => resolve(appInstanceId))
@@ -879,12 +841,14 @@ export function getAppContext(
     case (global["networkContext"] as NetworkContextForTestSuite)
       .SimpleTransferApp:
       checkForAddresses();
-      initialAppState =
-        initialState ||
-        initialSimpleTransferState(senderAddress!, receiverAddress!);
-      abiEncodings = simpleTransferAbiEncodings;
-      outcomeType = OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER;
-      break;
+      return {
+        appDefinition,
+        initialState:
+          initialState ||
+          initialSimpleTransferState(senderAddress!, receiverAddress!),
+        abiEncodings: simpleTransferAbiEncodings,
+        outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
+      };
 
     default:
       throw new Error(

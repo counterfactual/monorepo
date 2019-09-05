@@ -387,7 +387,7 @@ describe("Can update and install multiple apps simultaneously", () => {
     const {
       linkStatesRedeemer,
       linkStatesSender
-    } = generateInitialLinkedTransferStates(nodeA, nodeB, nodeC, 1);
+    } = generateInitialLinkedTransferStates(nodeA, nodeB, nodeC, 2);
 
     // try to install a linked app
     await installLinks(nodeA, nodeB, linkStatesSender);
