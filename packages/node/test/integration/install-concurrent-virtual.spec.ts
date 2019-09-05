@@ -47,7 +47,25 @@ describe("Concurrently installing virtual applications with same intermediary", 
     );
   });
 
-  it("can handle two TicTacToeApp proposals", async done => {
+  it("can handle two TicTacToeApp proposals syncronously made", done => {
+    let i = 0;
+
+    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => {
+      i += 1;
+      if (i === 2) done();
+    });
+
+    for (const i of Array(2)) {
+      installVirtualApp(
+        nodeA,
+        nodeB,
+        nodeC,
+        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+      );
+    }
+  });
+
+  it("can handle two TicTacToeApp proposals asyncronously made", async done => {
     let i = 0;
 
     nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => {

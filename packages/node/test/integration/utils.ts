@@ -614,38 +614,34 @@ export async function makeVirtualProposal(
     Zero,
     CONVENTION_FOR_ETH_TOKEN_ADDRESS
   );
+
   const params = virtualProposalRpc.parameters as NodeTypes.ProposeInstallVirtualParams;
+
   const {
     result: {
       result: { appInstanceId }
     }
-  } = await nodeA.rpcRouter.dispatch(
-    jsonRpcDeserialize({
-      params,
-      jsonrpc: "2.0",
-      method: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
-      id: Date.now()
-    })
-  );
-  // expect(appInstanceId).toBeDefined();
+  } = await nodeA.rpcRouter.dispatch({
+    parameters: params,
+    methodName: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+    id: Date.now()
+  });
+
   return { appInstanceId, params };
 }
 
-export function installTTTVirtual(
+export async function installTTTVirtual(
   node: Node,
   appInstanceId: string,
   intermediaryIdentifier: string
 ) {
-  const installVirtualReq = constructInstallVirtualRpc(
-    appInstanceId,
-    intermediaryIdentifier
+  return await node.rpcRouter.dispatch(
+    constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
   );
-  node.rpcRouter.dispatch(installVirtualReq);
 }
 
-export function makeInstallCall(node: Node, appInstanceId: string) {
-  const installRpc = constructInstallRpc(appInstanceId);
-  return node.rpcRouter.dispatch(installRpc);
+export async function makeInstallCall(node: Node, appInstanceId: string) {
+  return await node.rpcRouter.dispatch(constructInstallRpc(appInstanceId));
 }
 
 export async function makeVirtualProposeCall(
@@ -766,24 +762,17 @@ export function getAppContext(
   appDefinition: string,
   initialState?: SolidityValueType
 ): AppContext {
-  let abiEncodings: AppABIEncodings;
-  let initialAppState: SolidityValueType;
-
   switch (appDefinition) {
     case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
-      initialAppState = initialState ? initialState : initialEmptyTTTState();
-      abiEncodings = tttAbiEncodings;
-      break;
+      return {
+        appDefinition,
+        abiEncodings: tttAbiEncodings,
+        initialState: initialState ? initialState : initialEmptyTTTState()
+      };
 
     default:
-      throw Error(
+      throw new Error(
         `Proposing the specified app is not supported: ${appDefinition}`
       );
   }
-
-  return {
-    appDefinition,
-    abiEncodings,
-    initialState: initialAppState
-  };
 }
