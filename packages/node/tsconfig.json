@@ -3,8 +3,6 @@
   "compilerOptions": {
     "declaration": true,
     "declarationDir": "dist/",
-    "noUnusedParameters": false,
-    "noUnusedLocals": false,
     "outDir": "dist/",
     "resolveJsonModule": true,
     "typeRoots": [
@@ -13,6 +11,7 @@
     ],
     "types": ["jest"]
   },
+
   "references": [
     { "path": "../types" },
     { "path": "../local-ganache-server"}
