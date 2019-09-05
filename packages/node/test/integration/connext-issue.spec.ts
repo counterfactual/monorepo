@@ -3,7 +3,13 @@ import { Address, AppInstanceJson } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, BigNumberish } from "ethers/utils";
 
-import { InstallMessage, Node, NODE_EVENTS } from "../../src";
+import {
+  InstallMessage,
+  Node,
+  NODE_EVENTS,
+  UninstallVirtualMessage,
+  UninstallMessage
+} from "../../src";
 import { prettyPrintObject } from "../../src/utils";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
@@ -22,7 +28,7 @@ import {
   installVirtualApp
 } from "./utils";
 
-jest.setTimeout(5_000);
+jest.setTimeout(10_000);
 
 expect.extend({ toBeEq });
 
@@ -150,20 +156,34 @@ async function takeAppAction(
   return res.result.result;
 }
 
-async function uninstallApp(node: Node, appId: string) {
-  return (await node.rpcRouter.dispatch(constructUninstallRpc(appId))).result
-    .result;
+async function uninstallApp(node: Node, counterparty: Node, appId: string) {
+  return new Promise(async resolve => {
+    counterparty.once(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
+      console.log(`uninstalled app: ${msg.data.appInstanceId}`);
+      resolve(msg.data.appInstanceId);
+    });
+    await node.rpcRouter.dispatch(constructUninstallRpc(appId));
+  });
 }
 
 async function uninstallVirtualApp(
   node: Node,
+  counterparty: Node,
   intermediaryPubId: string,
   appId: string
 ) {
   const rpc = constructUninstallVirtualRpc(appId, intermediaryPubId);
-  return (await node.rpcRouter.dispatch(rpc)).result.result;
+  return new Promise(async resolve => {
+    counterparty.once(
+      NODE_EVENTS.UNINSTALL_VIRTUAL,
+      (msg: UninstallVirtualMessage) => {
+        console.log(`uninstalled virtual app: ${msg.data.appInstanceId}`);
+        resolve(msg.data.appInstanceId);
+      }
+    );
+    await node.rpcRouter.dispatch(rpc);
+  });
 }
-
 async function getApps(node: Node): Promise<AppInstanceJson[]> {
   return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
     .appInstances;
@@ -186,7 +206,7 @@ async function redeemLink(
 ) {
   const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
     .UnidirectionalLinkedTransferApp;
-    
+
   const hubApps = await getApps(intermediary);
 
   const hasAddressInTransfers = (
@@ -211,22 +231,22 @@ async function redeemLink(
       `Could not find installed app with intermediary with desired properties`
     );
   }
+  console.log(`intermediaryAppId: ${matchedApp.identityHash}`);
 
   // install app between the redeemer and the intermediary
   const redeemerAppId = (await installLinks(intermediary, redeemer, [
     stateAndAction
   ]))[0];
+  console.log(`redeemerAppId: ${redeemerAppId}`);
 
   // take action to finalize state and claim funds from intermediary
   await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
 
   const redeemerApp = await getAppInstance(redeemer, redeemerAppId);
   assertLinkRedemption(redeemerApp);
-  console.log("**** successfully redeemed by redeemer");
 
   // uninstall the app between the redeemer and the intermediary
-  await uninstallApp(redeemer, redeemerAppId);
-  console.log("**** successfully uninstalled by redeemer");
+  await uninstallApp(redeemer, intermediary, redeemerAppId);
 
   // take action with funder and intermediary to finalize
   // NOTE: this should already be installed
@@ -240,11 +260,9 @@ async function redeemLink(
     matchedApp.identityHash
   );
   assertLinkRedemption(intermediaryApp);
-  console.log("**** successfully redeemed by intermediary");
 
   // uninstall the app between the funder and intermediary to break even
-  await uninstallApp(intermediary, matchedApp.identityHash);
-  console.log("**** successfully uninstalled by intermediary");
+  await uninstallApp(intermediary, funder, intermediaryApp.identityHash);
 }
 
 // calls `redeemLink` every half second on a poller
@@ -263,7 +281,7 @@ function redeemLinkPoller(
       await redeemLink(funder, intermediary, redeemer, statesAndActions.pop());
     }
     done();
-  }, 1000);
+  }, 200);
 }
 
 async function getAppType(
@@ -306,8 +324,12 @@ async function makeSimpleTransfer(
     initialState
   );
 
-  let senderTransferApp = await getAppType(sender, appId, "SimpleTransferApp");
-  let receiverTransferApp = await getAppType(
+  const senderTransferApp = await getAppType(
+    sender,
+    appId,
+    "SimpleTransferApp"
+  );
+  const receiverTransferApp = await getAppType(
     receiver,
     appId,
     "SimpleTransferApp"
@@ -319,26 +341,17 @@ async function makeSimpleTransfer(
   expect((senderTransferApp.latestState as any).coinTransfers[1].amount).toBeEq(
     Zero
   );
-  console.log("******* installed simple transfer");
+  console.log(`installed simple transfer: ${appId}`);
 
   // uninstall the virtual transfer app
-  await uninstallVirtualApp(sender, intermediary.publicIdentifier, appId);
-  senderTransferApp = await getAppType(sender, appId, "SimpleTransferApp");
-  receiverTransferApp = await getAppType(receiver, appId, "SimpleTransferApp");
-  // TODO: find race condition to get rid of polling
-  while (receiverTransferApp) {
-    console.log("still found receiver app, retrying...");
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    receiverTransferApp = await getAppType(
-      receiver,
-      appId,
-      "SimpleTransferApp"
-    );
-  }
-  expect(receiverTransferApp).toBeUndefined();
-  expect(senderTransferApp).toBeUndefined();
+  await uninstallVirtualApp(
+    sender,
+    receiver,
+    intermediary.publicIdentifier,
+    appId
+  );
 
-  console.log("******* uninstalled simple transfer");
+  console.log(`uninstalled simple transfer: ${appId}`);
 
   // TODO: check balance transferred
 }
@@ -427,5 +440,8 @@ describe("Can update and install multiple apps simultaneously", () => {
     // while links are redeeming, try to send receiver a
     // direct transfer
     await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    // for (const i of Array(2)) {
+    //   await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    // }
   });
 });

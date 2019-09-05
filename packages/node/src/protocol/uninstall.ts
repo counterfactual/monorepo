@@ -15,6 +15,7 @@ import { StateChannel } from "../models";
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+import { prettyPrintObject } from "../utils";
 
 /**
  * @description This exchange is described at the following URL:
@@ -50,7 +51,23 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
+    const { stateChannelsMap } = context;
+    const { multisigAddress } = context.message.params as UninstallParams;
+    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+    const fb = await sc.getFreeBalanceClass();
+    console.log(`free balance responder: ${prettyPrintObject(fb)}`);
+
+    try {
+      assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
+      console.log(
+        `successfully recovered responder sig on app ${appIdentityHash}`
+      );
+    } catch (e) {
+      console.trace(
+        `failed to uninstall app (responder recovery) ${appIdentityHash}`
+      );
+      throw e;
+    }
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,
@@ -76,7 +93,20 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.customData.signature;
 
-    assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
+    const { stateChannelsMap } = context;
+    const { multisigAddress } = context.message.params as UninstallParams;
+    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+    const fb = await sc.getFreeBalanceClass();
+    console.log(`free balance initiator: ${prettyPrintObject(fb)}`);
+
+    try {
+      assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
+    } catch (e) {
+      console.trace(
+        `failed to uninstall app (initiator recovery) ${appIdentityHash}`
+      );
+      throw e;
+    }
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 

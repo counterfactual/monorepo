@@ -22,7 +22,8 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  Rpc
+  Rpc,
+  InstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 
@@ -575,17 +576,27 @@ export async function installVirtualApp(
     nodeC,
     nodeB,
     appDefinition,
-    initialState
+    initialState,
+    assetId,
+    initiatorDeposit,
+    responderDeposit
   );
 
-  nodeC.once(NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL, () =>
-    nodeC.rpcRouter.dispatch(
-      constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
-    )
+  nodeC.once(
+    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    async () =>
+      await nodeC.rpcRouter.dispatch(
+        constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
+      )
   );
 
   return new Promise((resolve: (appInstanceId: string) => void) =>
-    nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => resolve(appInstanceId))
+    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
+      console.log(
+        `caught install virtual event on nodeA: ${msg.data.params.appInstanceId}`
+      );
+      resolve(appInstanceId);
+    })
   );
 }
 
