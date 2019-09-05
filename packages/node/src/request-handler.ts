@@ -125,6 +125,7 @@ export class RequestHandler {
     if (controllerExecutionMethod) {
       await controllerExecutionMethod(this, msg);
     }
+
     this.router.emit(event, msg);
   }
 

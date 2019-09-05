@@ -22,6 +22,8 @@ import {
   installVirtualApp
 } from "./utils";
 
+jest.setTimeout(5_000);
+
 expect.extend({ toBeEq });
 
 type UnidirectionalLinkedTransferAppAction = {
@@ -100,6 +102,8 @@ async function installLinks(
       .UnidirectionalLinkedTransferApp;
 
     const appIds: string[] = [];
+
+    // TODO: Figure out why this does not work with redeemer.on(...)
     funder.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
       const id = msg.data.params.appInstanceId;
       const redeemerApp = await getAppInstance(redeemer, id);
@@ -111,7 +115,7 @@ async function installLinks(
       }
     });
 
-    statesAndActions.forEach(async ({ state, action }) => {
+    for (const { state, action } of statesAndActions) {
       await installApp(
         funder,
         redeemer,
@@ -122,8 +126,9 @@ async function installLinks(
         Zero,
         action.assetId
       );
-    });
+    }
   });
+
   console.log(
     `successfully installed ${
       appIds.length
@@ -181,6 +186,7 @@ async function redeemLink(
 ) {
   const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
     .UnidirectionalLinkedTransferApp;
+    
   const hubApps = await getApps(intermediary);
 
   const hasAddressInTransfers = (
@@ -192,12 +198,14 @@ async function redeemLink(
       (app.latestState as any).transfers[1].to === addr
     );
   };
+
   const matchedApp = hubApps.filter(
     a =>
       a.appInterface.addr === linkDef &&
       hasAddressInTransfers(a, funder.freeBalanceAddress) &&
       (a.latestState as any).linkedHash === stateAndAction.state.linkedHash
   )[0];
+
   if (!matchedApp) {
     throw new Error(
       `Could not find installed app with intermediary with desired properties`
@@ -266,9 +274,11 @@ async function getAppType(
     | "UnidirectionalTransferApp"
     | "UnidirectionalLinkedTransferApp"
 ) {
-  const appDef = (global["networkContext"] as NetworkContextForTestSuite)[type];
   return (await getApps(node)).filter(
-    app => app.appInterface.addr === appDef && app.identityHash === appId
+    app =>
+      app.appInterface.addr ===
+        (global["networkContext"] as NetworkContextForTestSuite)[type] &&
+      app.identityHash === appId
   )[0];
 }
 
@@ -364,6 +374,7 @@ describe("Can update and install multiple apps simultaneously", () => {
       undefined, // choose not to fund nodeB
       bigNumberify(15)
     );
+
     await collateralizeChannel(
       multisigAddressBC,
       nodeB,

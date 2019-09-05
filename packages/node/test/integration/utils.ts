@@ -496,6 +496,7 @@ export async function createChannel(nodeA: Node, nodeB: Node): Promise<string> {
   });
 }
 
+// NOTE: Do not run this concurrently, it won't work
 export async function installApp(
   nodeA: Node,
   nodeB: Node,
@@ -507,38 +508,45 @@ export async function installApp(
   responderDepositTokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<[string, NodeTypes.ProposeInstallParams]> {
   const appContext = getAppContext(appDefinition, initialState);
-  let proposedParams: NodeTypes.ProposeInstallParams;
+
+  const installationProposalRpc = constructAppProposalRpc(
+    nodeB.publicIdentifier,
+    appContext.appDefinition,
+    appContext.abiEncodings,
+    appContext.initialState,
+    initiatorDeposit,
+    initiatorDepositTokenAddress,
+    responderDeposit,
+    responderDepositTokenAddress
+  );
+
+  const proposedParams = installationProposalRpc.parameters as NodeTypes.ProposeInstallParams;
 
   return new Promise(async resolve => {
-    const installationProposalRpc = constructAppProposalRpc(
-      nodeB.publicIdentifier,
-      appContext.appDefinition,
-      appContext.abiEncodings,
-      appContext.initialState,
-      initiatorDeposit,
-      initiatorDepositTokenAddress,
-      responderDeposit,
-      responderDepositTokenAddress
-    );
+    nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+      const {
+        data: { appInstanceId }
+      } = msg;
 
-    proposedParams = installationProposalRpc.parameters as NodeTypes.ProposeInstallParams;
-
-    nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
+      // Sanity-check
       confirmProposedAppInstance(
         installationProposalRpc.parameters,
-        await getAppInstanceProposal(nodeA, msg.data.appInstanceId)
+        await getAppInstanceProposal(nodeA, appInstanceId)
       );
 
-      const installRpc = constructInstallRpc(msg.data.appInstanceId);
-      await nodeB.rpcRouter.dispatch(installRpc);
-    });
+      nodeA.once(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+        if (msg.data.params.appInstanceId === appInstanceId) {
+          const appInstanceId = msg.data.params.appInstanceId;
+          const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
+          const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
+          expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+          resolve([appInstanceId, proposedParams]);
+        }
+      });
 
-    nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
-      const appInstanceId = msg.data.params.appInstanceId;
-      const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
-      const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
-      expect(appInstanceNodeA).toEqual(appInstanceNodeB);
-      resolve([appInstanceId, proposedParams]);
+      await nodeB.rpcRouter.dispatch(
+        constructInstallRpc(msg.data.appInstanceId)
+      );
     });
 
     const response = await nodeA.rpcRouter.dispatch(installationProposalRpc);
