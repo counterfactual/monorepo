@@ -16,24 +16,26 @@ import { BigNumber } from "ethers/utils";
 
 import {
   CreateChannelMessage,
-  InstallVirtualMessage,
+  InstallMessage,
   jsonRpcDeserialize,
   JsonRpcResponse,
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  ProposeVirtualMessage,
   Rpc
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 
 import { initialLinkedState, linkedAbiEncodings } from "./linked-transfer";
+import {
+  initialSimpleTransferState,
+  simpleTransferAbiEncodings
+} from "./simple-transfer";
 import { initialEmptyTTTState, tttAbiEncodings } from "./tic-tac-toe";
 import {
   initialTransferState,
   transferAbiEncodings
 } from "./unidirectional-transfer";
-import { initialSimpleTransferState, simpleTransferAbiEncodings } from "./simple-transfer";
 
 interface AppContext {
   appDefinition: string;
@@ -531,7 +533,8 @@ export async function installApp(
       await nodeB.rpcRouter.dispatch(installRpc);
     });
 
-    nodeA.on(NODE_EVENTS.INSTALL, async () => {
+    nodeA.on(NODE_EVENTS.INSTALL, async (msg: InstallMessage) => {
+      const appInstanceId = msg.data.params.appInstanceId;
       const appInstanceNodeA = await getAppInstance(nodeA, appInstanceId);
       const appInstanceNodeB = await getAppInstance(nodeB, appInstanceId);
       expect(appInstanceNodeA).toEqual(appInstanceNodeB);
@@ -540,8 +543,9 @@ export async function installApp(
 
     const response = await nodeA.rpcRouter.dispatch(installationProposalRpc);
 
-    const { appInstanceId } = response.result
-      .result as NodeTypes.ProposeInstallResult;
+    if (!response.result.result) {
+      console.trace("this is not how this should be tho", response);
+    }
   });
 }
 
