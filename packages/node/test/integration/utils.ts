@@ -552,9 +552,9 @@ export async function installApp(
 
     const response = await nodeA.rpcRouter.dispatch(installationProposalRpc);
 
-    if (!response.result.result) {
-      console.trace("this is not how this should be tho", response);
-    }
+    const { appInstanceId } = response.result
+      .result as NodeTypes.ProposeInstallResult;
+    return appInstanceId;
   });
 }
 
