@@ -26,14 +26,9 @@ export default class UpdateStateController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
   ): Promise<Queue[]> {
-    const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(appInstanceId)
-      )
-    ];
+    return [requestHandler.getShardedQueue(appInstanceId)];
   }
 
   protected async beforeExecution(
