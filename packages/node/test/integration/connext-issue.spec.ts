@@ -231,8 +231,8 @@ async function redeemLink(
   ]))[0];
   console.log("installed redeemer link", redeemerAppId);
 
-  // take action to finalize state and claim funds from intermediary
   console.log("taking action on redeemer link", redeemerAppId);
+  // take action to finalize state and claim funds from intermediary
   await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
   console.log("took action on redeemer link", redeemerAppId);
 
@@ -437,9 +437,9 @@ describe("Can update and install multiple apps simultaneously", () => {
 
     // while links are redeeming, try to send receiver a
     // direct transfer
-    // await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    for (const i of Array(2)) {
-      await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    }
+    await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    // for (const i of Array(2)) {
+    //   await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    // }
   });
 });
