@@ -592,9 +592,6 @@ export async function installVirtualApp(
 
   return new Promise((resolve: (appInstanceId: string) => void) =>
     nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      console.log(
-        `caught install virtual event on nodeA: ${msg.data.params.appInstanceId}`
-      );
       resolve(appInstanceId);
     })
   );

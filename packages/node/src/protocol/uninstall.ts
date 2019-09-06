@@ -15,7 +15,6 @@ import { StateChannel } from "../models";
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
-import { prettyPrintObject } from "../utils";
 
 /**
  * @description This exchange is described at the following URL:
@@ -35,12 +34,6 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
-    const { stateChannelsMap } = context;
-    const { multisigAddress } = context.message.params as UninstallParams;
-    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-    const fb = await sc.getFreeBalanceClass();
-    console.log(`free balance initiatier (idx 0): ${prettyPrintObject(fb)}`);
-
     const {
       customData: { signature: theirSig }
     } = yield [
@@ -57,19 +50,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-
-    try {
-      assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
-      console.log(
-        `successfully recovered initiatier (idx 0) sig on app ${appIdentityHash}`
-      );
-      console.log('====================== this worked ===========')
-    } catch (e) {
-      console.trace(
-        `failed to uninstall app (initiatier (idx 0) recovery) ${appIdentityHash}`
-      );
-      throw e;
-    }
+    assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
 
     const finalCommitment = uninstallCommitment.getSignedTransaction([
       mySig,
@@ -95,20 +76,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const theirSig = context.message.customData.signature;
 
-    const { stateChannelsMap } = context;
-    const { multisigAddress } = context.message.params as UninstallParams;
-    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-    const fb = await sc.getFreeBalanceClass();
-    console.log(`free balance responder (idx 1): ${prettyPrintObject(fb)}`);
-
-    try {
-      assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
-    } catch (e) {
-      console.trace(
-        `failed to uninstall app (responder (idx 1) recovery) ${appIdentityHash}`
-      );
-      throw e;
-    }
+    assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 

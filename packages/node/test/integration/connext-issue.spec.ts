@@ -10,7 +10,6 @@ import {
   UninstallVirtualMessage,
   UninstallMessage
 } from "../../src";
-import { prettyPrintObject } from "../../src/utils";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
 import { initialLinkedState } from "./linked-transfer";
@@ -25,8 +24,7 @@ import {
   createChannel,
   getAppInstance,
   installApp,
-  installVirtualApp,
-  getInstalledAppInstances
+  installVirtualApp
 } from "./utils";
 
 jest.setTimeout(10_000);
@@ -136,11 +134,6 @@ async function installLinks(
     }
   });
 
-  console.log(
-    `successfully installed ${
-      appIds.length
-    } link apps with ids ${prettyPrintObject(appIds)}`
-  );
   return appIds;
 }
 
@@ -160,7 +153,6 @@ async function takeAppAction(
 async function uninstallApp(node: Node, counterparty: Node, appId: string) {
   return new Promise(async resolve => {
     counterparty.once(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
-      console.log(`uninstalled app: ${msg.data.appInstanceId}`);
       resolve(msg.data.appInstanceId);
     });
     await node.rpcRouter.dispatch(constructUninstallRpc(appId));
@@ -178,7 +170,6 @@ async function uninstallVirtualApp(
     counterparty.once(
       NODE_EVENTS.UNINSTALL_VIRTUAL,
       (msg: UninstallVirtualMessage) => {
-        console.log(`uninstalled virtual app: ${msg.data.appInstanceId}`);
         resolve(msg.data.appInstanceId);
       }
     );
@@ -232,17 +223,11 @@ async function redeemLink(
       `Could not find installed app with intermediary with desired properties`
     );
   }
-  console.log(`intermediaryAppId: ${matchedApp.identityHash}`);
 
   // install app between the redeemer and the intermediary
   const redeemerAppId = (await installLinks(intermediary, redeemer, [
     stateAndAction
   ]))[0];
-  console.log(`redeemerAppId: ${redeemerAppId}`);
-
-  console.log((await getInstalledAppInstances(funder)).map(x => x.identityHash))
-  console.log((await getInstalledAppInstances(redeemer)).map(x => x.identityHash))
-  console.log((await getInstalledAppInstances(intermediary)).map(x => x.identityHash))
 
   // take action to finalize state and claim funds from intermediary
   await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
@@ -266,7 +251,6 @@ async function redeemLink(
   );
   assertLinkRedemption(intermediaryApp);
 
-  console.error(`uninstall this thing: ${intermediaryApp.identityHash}`)
   // uninstall the app between the funder and intermediary to break even
   await uninstallApp(intermediary, funder, intermediaryApp.identityHash);
 }
@@ -281,9 +265,6 @@ function redeemLinkPoller(
 ) {
   setTimeout(async () => {
     while (statesAndActions.length > 0) {
-      console.log(
-        `******* trying to redeem link. ${statesAndActions.length} remaining`
-      );
       await redeemLink(funder, intermediary, redeemer, statesAndActions.pop());
     }
     done();
@@ -311,7 +292,6 @@ async function makeSimpleTransfer(
   intermediary: Node,
   receiver: Node
 ) {
-  console.log("******* trying to simple transfer as virtual app");
   // install a virtual transfer app
   const transferDef = (global["networkContext"] as NetworkContextForTestSuite)
     .SimpleTransferApp;
@@ -347,7 +327,6 @@ async function makeSimpleTransfer(
   expect((senderTransferApp.latestState as any).coinTransfers[1].amount).toBeEq(
     Zero
   );
-  console.log(`installed simple transfer: ${appId}`);
 
   // uninstall the virtual transfer app
   await uninstallVirtualApp(
@@ -356,8 +335,6 @@ async function makeSimpleTransfer(
     intermediary.publicIdentifier,
     appId
   );
-
-  console.log(`uninstalled simple transfer: ${appId}`);
 
   // TODO: check balance transferred
 }

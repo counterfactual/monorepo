@@ -403,7 +403,6 @@ export class StateChannel {
       );
     }
 
-    console.log(`removing ${targetIdentityHash} from free balance of someone`)
     return this.build({
       singleAssetTwoPartyIntermediaryAgreements
     }).removeActiveAppAndIncrementFreeBalance(targetIdentityHash, {
