@@ -55,12 +55,13 @@ describe("Concurrently uninstalling virtual and regular applications without iss
 
   it("can handle a virtual and regular TTT app uninstall", async done => {
     let totalAppsUninstalled = 0;
-    // install a regular app
-    const appId = await new Promise(resolve => {
-      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-        makeInstallCall(nodeB, msg.data.appInstanceId);
-      });
 
+    // install a regular app
+    nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+      makeInstallCall(nodeB, msg.data.appInstanceId);
+    });
+
+    const appId = await new Promise(resolve => {
       nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {
         resolve(msg.data.params.appInstanceId);
       });
@@ -86,6 +87,7 @@ describe("Concurrently uninstalling virtual and regular applications without iss
       (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
     );
 
+    // set up uninstall handlers
     nodeC.on(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
       totalAppsUninstalled += 1;
       if (totalAppsUninstalled === 2) {
