@@ -215,12 +215,10 @@ async function getQueueNamesListByProtocolName(
      */
     case Protocol.Install:
     case Protocol.Setup:
-    case Protocol.Uninstall:
     case Protocol.Withdraw:
       const { multisigAddress } = params as
         | InstallParams
         | SetupParams
-        | UninstallParams
         | WithdrawParams;
 
       return [multisigAddress];
@@ -233,6 +231,14 @@ async function getQueueNamesListByProtocolName(
       const { appIdentityHash } = params as TakeActionParams | UpdateParams;
 
       return [appIdentityHash];
+
+    case Protocol.Uninstall:
+      const {
+        multisigAddress: addr,
+        appIdentityHash: appInstanceId
+      } = params as UninstallParams;
+
+      return [addr, appInstanceId];
 
     /**
      * Queue on the multisig addresses of both direct channels involved.
