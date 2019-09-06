@@ -15,11 +15,19 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult> {
     await this.beforeExecution(requestHandler, params);
 
+    const queueNames = await this.getShardKeysForQueueing(
+      requestHandler,
+      params
+    );
+
+    const queues = queueNames.map(q => requestHandler.getShardedQueue(q));
+
+    const createExecutionPromise = () =>
+      this.executeMethodImplementation(requestHandler, params);
+
     const ret = await executeFunctionWithinQueues(
-      (await this.getShardKeysForQueueing(requestHandler, params)).map(
-        requestHandler.getShardedQueue.bind(requestHandler)
-      ),
-      () => this.executeMethodImplementation(requestHandler, params)
+      queues,
+      createExecutionPromise
     );
 
     await this.afterExecution(requestHandler, params);
