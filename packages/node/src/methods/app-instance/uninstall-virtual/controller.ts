@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -19,10 +18,10 @@ export default class UninstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
 
@@ -37,12 +36,8 @@ export default class UninstallVirtualController extends NodeController {
     );
 
     return [
-      requestHandler.getShardedQueue(
-        stateChannelWithResponding.multisigAddress
-      ),
-      requestHandler.getShardedQueue(
-        multisigAddressForStateChannelWithIntermediary
-      )
+      stateChannelWithResponding.multisigAddress,
+      multisigAddressForStateChannelWithIntermediary
     ];
   }
 

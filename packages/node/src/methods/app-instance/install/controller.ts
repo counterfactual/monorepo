@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { StateChannel } from "../../../models";
@@ -18,16 +17,16 @@ export default class InstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.InstallParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    return [requestHandler.getShardedQueue(sc.multisigAddress)];
+    return [sc.multisigAddress];
   }
 
   protected async executeMethodImplementation(

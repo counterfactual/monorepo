@@ -16,7 +16,9 @@ export abstract class NodeController extends Controller {
     await this.beforeExecution(requestHandler, params);
 
     const ret = await executeFunctionWithinQueues(
-      await this.enqueueByShard(requestHandler, params),
+      (await this.getShardKeysForQueueing(requestHandler, params)).map(
+        requestHandler.getShardedQueue.bind(requestHandler)
+      ),
       () => this.executeMethodImplementation(requestHandler, params)
     );
 
@@ -44,12 +46,12 @@ export abstract class NodeController extends Controller {
     params: Node.MethodParams
   ): Promise<void> {}
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     // @ts-ignore
     requestHandler: RequestHandler,
     // @ts-ignore
     params: Node.MethodParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     return [];
   }
 }

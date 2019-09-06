@@ -1,6 +1,5 @@
 import { Node } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
@@ -27,10 +26,10 @@ export default class ProposeInstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { publicIdentifier, networkContext } = requestHandler;
     const { proposedToIdentifier } = params;
 
@@ -40,7 +39,7 @@ export default class ProposeInstallController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    return [requestHandler.getShardedQueue(multisigAddress)];
+    return [multisigAddress];
   }
 
   protected async beforeExecution(

@@ -1,6 +1,5 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { InstructionExecutor, Protocol } from "../../../machine";
@@ -22,13 +21,12 @@ export default class UpdateStateController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
-  ): Promise<Queue[]> {
-    const { appInstanceId } = params;
-
-    return [requestHandler.getShardedQueue(appInstanceId)];
+  ): Promise<string[]> {
+    return [params.appInstanceId];
   }
 
   protected async beforeExecution(

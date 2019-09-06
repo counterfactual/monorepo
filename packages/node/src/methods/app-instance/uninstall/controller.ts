@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -17,10 +16,10 @@ export default class UninstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
@@ -30,10 +29,7 @@ export default class UninstallController extends NodeController {
       throw Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
-    return [
-      requestHandler.getShardedQueue(sc.multisigAddress),
-      requestHandler.getShardedQueue(appInstanceId)
-    ];
+    return [sc.multisigAddress, appInstanceId];
   }
 
   protected async beforeExecution(

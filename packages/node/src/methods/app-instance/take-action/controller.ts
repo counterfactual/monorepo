@@ -24,14 +24,12 @@ export default class TakeActionController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
-  ): Promise<Queue[]> {
-    const { store } = requestHandler;
-    const { appInstanceId } = params;
-
-    return [requestHandler.getShardedQueue(appInstanceId)];
+  ): Promise<string[]> {
+    return [params.appInstanceId];
   }
 
   protected async beforeExecution(
