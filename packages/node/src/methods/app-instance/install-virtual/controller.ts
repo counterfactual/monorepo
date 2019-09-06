@@ -21,27 +21,26 @@ export default class InstallVirtualController extends NodeController {
     const { store, publicIdentifier, networkContext } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
 
-    const multisigAddress = getCreate2MultisigAddress(
+    const multisigAddressWithHub = getCreate2MultisigAddress(
       [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
 
-    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+    const proposal = await store.getAppInstanceProposal(appInstanceId);
 
-    try {
-      const metachannel = await store.getChannelFromAppInstanceID(
-        appInstanceId
-      );
-      queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));
-    } catch (e) {
-      // It is possible the metachannel has never been created
-      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) {
-        throw e;
-      }
-    }
+    const { proposedToIdentifier } = proposal;
 
-    return queues;
+    const multisigAddressWithResponding = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    return [
+      requestHandler.getShardedQueue(multisigAddressWithHub),
+      requestHandler.getShardedQueue(multisigAddressWithResponding)
+    ];
   }
 
   protected async beforeExecution(

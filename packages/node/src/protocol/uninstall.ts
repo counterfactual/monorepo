@@ -35,6 +35,12 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, uninstallCommitment];
 
+    const { stateChannelsMap } = context;
+    const { multisigAddress } = context.message.params as UninstallParams;
+    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
+    const fb = await sc.getFreeBalanceClass();
+    console.log(`free balance initiatier (idx 0): ${prettyPrintObject(fb)}`);
+
     const {
       customData: { signature: theirSig }
     } = yield [
@@ -51,20 +57,16 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    const { stateChannelsMap } = context;
-    const { multisigAddress } = context.message.params as UninstallParams;
-    const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
-    const fb = await sc.getFreeBalanceClass();
-    console.log(`free balance responder: ${prettyPrintObject(fb)}`);
 
     try {
       assertIsValidSignature(responderAddress, uninstallCommitment, theirSig);
       console.log(
-        `successfully recovered responder sig on app ${appIdentityHash}`
+        `successfully recovered initiatier (idx 0) sig on app ${appIdentityHash}`
       );
+      console.log('====================== this worked ===========')
     } catch (e) {
       console.trace(
-        `failed to uninstall app (responder recovery) ${appIdentityHash}`
+        `failed to uninstall app (initiatier (idx 0) recovery) ${appIdentityHash}`
       );
       throw e;
     }
@@ -97,13 +99,13 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     const { multisigAddress } = context.message.params as UninstallParams;
     const sc = stateChannelsMap.get(multisigAddress) as StateChannel;
     const fb = await sc.getFreeBalanceClass();
-    console.log(`free balance initiator: ${prettyPrintObject(fb)}`);
+    console.log(`free balance responder (idx 1): ${prettyPrintObject(fb)}`);
 
     try {
       assertIsValidSignature(initiatorAddress, uninstallCommitment, theirSig);
     } catch (e) {
       console.trace(
-        `failed to uninstall app (initiator recovery) ${appIdentityHash}`
+        `failed to uninstall app (responder (idx 1) recovery) ${appIdentityHash}`
       );
       throw e;
     }

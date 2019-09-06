@@ -25,7 +25,8 @@ import {
   createChannel,
   getAppInstance,
   installApp,
-  installVirtualApp
+  installVirtualApp,
+  getInstalledAppInstances
 } from "./utils";
 
 jest.setTimeout(10_000);
@@ -239,6 +240,10 @@ async function redeemLink(
   ]))[0];
   console.log(`redeemerAppId: ${redeemerAppId}`);
 
+  console.log((await getInstalledAppInstances(funder)).map(x => x.identityHash))
+  console.log((await getInstalledAppInstances(redeemer)).map(x => x.identityHash))
+  console.log((await getInstalledAppInstances(intermediary)).map(x => x.identityHash))
+
   // take action to finalize state and claim funds from intermediary
   await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
 
@@ -261,6 +266,7 @@ async function redeemLink(
   );
   assertLinkRedemption(intermediaryApp);
 
+  console.error(`uninstall this thing: ${intermediaryApp.identityHash}`)
   // uninstall the app between the funder and intermediary to break even
   await uninstallApp(intermediary, funder, intermediaryApp.identityHash);
 }
