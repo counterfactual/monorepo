@@ -30,66 +30,62 @@ describe("Node method follows spec - uninstall", () => {
   let nodeA: Node;
   let nodeB: Node;
 
-  describe(
-    "Should be able to successfully uninstall apps concurrently",
-    () => {
-      beforeEach(async () => {
-        const context: SetupContext = await setup(global);
-        nodeA = context["A"].node;
-        nodeB = context["B"].node;
+  describe("Should be able to successfully uninstall apps concurrently", () => {
+    beforeEach(async () => {
+      const context: SetupContext = await setup(global);
+      nodeA = context["A"].node;
+      nodeB = context["B"].node;
 
-        multisigAddress = await createChannel(nodeA, nodeB);
+      multisigAddress = await createChannel(nodeA, nodeB);
+    });
+
+    it("uninstall apps with ETH concurrently", async done => {
+      const appIds: string[] = [];
+      let uninstalledApps = 0;
+      await collateralizeChannel(
+        multisigAddress,
+        nodeA,
+        nodeB,
+        parseEther("2") // We are depositing in 2 and use 1 for each concurrent app
+      );
+
+      nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
+        makeInstallCall(nodeB, msg.data.appInstanceId);
       });
 
-      it("uninstall apps with ETH concurrently", async done => {
-        const appIds: string[] = [];
-        let uninstalledApps = 0;
-        await collateralizeChannel(
-          multisigAddress,
-          nodeA,
+      nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {
+        appIds.push(msg.data.params.appInstanceId);
+      });
+
+      const proposeRpc = () =>
+        makeProposeCall(
           nodeB,
-          parseEther("2") // We are depositing in 2 and use 1 for each concurrent app
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          /* initialState */ undefined,
+          One,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+          One,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
         );
 
-        nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-          makeInstallCall(nodeB, msg.data.appInstanceId);
-        });
+      nodeA.rpcRouter.dispatch(proposeRpc());
+      nodeA.rpcRouter.dispatch(proposeRpc());
 
-        nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {
-          appIds.push(msg.data.params.appInstanceId);
-        });
+      while (appIds.length !== 2) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
 
-        const proposeRpc = () =>
-          makeProposeCall(
-            nodeB,
-            (global["networkContext"] as NetworkContextForTestSuite)
-              .TicTacToeApp,
-            /* initialState */ undefined,
-            One,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-            One,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS
-          );
+      nodeA.rpcRouter.dispatch(constructUninstallRpc(appIds[0]));
+      nodeA.rpcRouter.dispatch(constructUninstallRpc(appIds[1]));
 
-        nodeA.rpcRouter.dispatch(proposeRpc());
-        nodeA.rpcRouter.dispatch(proposeRpc());
-
-        while (appIds.length !== 2) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+      // NOTE: nodeA does not ever emit this event
+      nodeB.on(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
+        expect(appIds.includes(msg.data.appInstanceId)).toBe(true);
+        uninstalledApps += 1;
+        if (uninstalledApps === 2) {
+          done();
         }
-
-        nodeA.rpcRouter.dispatch(constructUninstallRpc(appIds[0]));
-        nodeA.rpcRouter.dispatch(constructUninstallRpc(appIds[1]));
-
-        // NOTE: nodeA does not ever emit this event
-        nodeB.on(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
-          expect(appIds.includes(msg.data.appInstanceId)).toBe(true);
-          uninstalledApps += 1;
-          if (uninstalledApps === 2) {
-            done();
-          }
-        });
       });
-    }
-  );
+    });
+  });
 });
