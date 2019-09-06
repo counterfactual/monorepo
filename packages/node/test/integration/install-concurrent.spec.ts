@@ -34,17 +34,17 @@ describe("Node method follows spec - install", () => {
         nodeB = context["B"].node;
 
         multisigAddress = await createChannel(nodeA, nodeB);
-      });
-
-      it("install app with ETH", async done => {
-        let completedInstalls = 0;
 
         await collateralizeChannel(
+          multisigAddress,
           nodeA,
           nodeB,
-          multisigAddress,
           parseEther("2") // We are depositing in 2 and use 1 for each concurrent app
         );
+      });
+
+      it("install app with ETH", done => {
+        let completedInstalls = 0;
 
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
@@ -57,20 +57,18 @@ describe("Node method follows spec - install", () => {
           }
         });
 
-        const proposeRpc = () =>
-          makeProposeCall(
-            nodeB,
-            (global["networkContext"] as NetworkContextForTestSuite)
-              .TicTacToeApp,
-            /* initialState */ undefined,
-            One,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-            One,
-            CONVENTION_FOR_ETH_TOKEN_ADDRESS
-          );
+        const rpc = makeProposeCall(
+          nodeB,
+          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          /* initialState */ undefined,
+          One,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+          One,
+          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        );
 
-        nodeA.rpcRouter.dispatch(proposeRpc());
-        nodeA.rpcRouter.dispatch(proposeRpc());
+        nodeA.rpcRouter.dispatch(rpc);
+        nodeA.rpcRouter.dispatch(rpc);
       });
     }
   );

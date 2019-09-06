@@ -31,6 +31,7 @@ export default class GetAppInstancesController extends NodeController {
       },
       []
     );
+
     return {
       appInstances
     };

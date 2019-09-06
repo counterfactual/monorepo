@@ -27,11 +27,7 @@ export default class InstallController extends NodeController {
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(sc.multisigAddress)
-      )
-    ];
+    return [requestHandler.getShardedQueue(sc.multisigAddress)];
   }
 
   protected async executeMethodImplementation(

@@ -31,11 +31,7 @@ export default class TakeActionController extends NodeController {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(appInstanceId)
-      )
-    ];
+    return [requestHandler.getShardedQueue(appInstanceId)];
   }
 
   protected async beforeExecution(

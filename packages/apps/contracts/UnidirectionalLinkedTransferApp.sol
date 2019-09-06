@@ -8,10 +8,10 @@ import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/Counterfac
 /* solium-disable-next-line */
 import "@counterfactual/cf-funding-protocol-contracts/contracts/libs/LibOutcome.sol";
 
-
 /// @title Unidirectional Linked Transfer App
-/// @notice This contract allows users to claim a payment locked in.
+/// @notice This contract allows users to claim a payment locked in
 ///         the application if they provide the correct preimage
+
 
 contract UnidirectionalLinkedTransferApp is CounterfactualApp {
 
@@ -40,7 +40,7 @@ contract UnidirectionalLinkedTransferApp is CounterfactualApp {
     // NOTE: These following parameters are soon
     //       to be built in as framework-level
     //       constants but for now must be app-level.
-    uint256 turnNum; // TODO: is this needed here?
+    uint256 turnNum;
     bool finalized;
   }
 
@@ -118,12 +118,12 @@ contract UnidirectionalLinkedTransferApp is CounterfactualApp {
             LibOutcome.CoinTransfer(
               state.transfers[0].to,
               /* should always be 0 */
-              state.transfers[0].amount
+              state.transfers[1].amount
             ),
             LibOutcome.CoinTransfer(
               state.transfers[1].to,
               /* should always be full value of linked payment */
-              state.transfers[1].amount
+              state.transfers[0].amount
             )
           ]),
           /* link hash */
@@ -146,11 +146,11 @@ contract UnidirectionalLinkedTransferApp is CounterfactualApp {
           LibOutcome.CoinTransfer[2]([
             LibOutcome.CoinTransfer(
               state.transfers[0].to,
-              state.transfers[1].amount
+              state.transfers[0].amount
             ),
             LibOutcome.CoinTransfer(
               state.transfers[1].to,
-              state.transfers[0].amount
+              state.transfers[1].amount
             )
           ]),
           /* link hash */

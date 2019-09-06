@@ -1,4 +1,7 @@
+import SimpleTransferApp from "@counterfactual/apps/expected-build-artifacts/SimpleTransferApp.json";
 import TicTacToeApp from "@counterfactual/apps/expected-build-artifacts/TicTacToeApp.json";
+import UnidirectionalLinkedTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalLinkedTransferApp.json";
+import UnidirectionalTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalTransferApp.json";
 import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
 import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/CoinBalanceRefundApp.json";
 import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ConditionalTransactionDelegateTarget.json";
@@ -17,6 +20,9 @@ import { ContractFactory, Wallet } from "ethers";
 export type NetworkContextForTestSuite = NetworkContext & {
   TicTacToeApp: string;
   DolphinCoin: string;
+  UnidirectionalTransferApp: string;
+  UnidirectionalLinkedTransferApp: string;
+  SimpleTransferApp: string;
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
@@ -86,6 +92,24 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     wallet
   ).deploy();
 
+  const transferContract = await new ContractFactory(
+    UnidirectionalTransferApp.abi,
+    UnidirectionalTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
+  const simpleTransferContract = await new ContractFactory(
+    SimpleTransferApp.abi,
+    SimpleTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
+  const linkContract = await new ContractFactory(
+    UnidirectionalLinkedTransferApp.abi,
+    UnidirectionalLinkedTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
   const timeLockedPassThrough = await new ContractFactory(
     TimeLockedPassThrough.abi,
     TimeLockedPassThrough.evm.bytecode,
@@ -111,10 +135,13 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ProxyFactory: proxyFactoryContract.address,
     SingleAssetTwoPartyCoinTransferInterpreter:
       singleAssetTwoPartyCoinTransferInterpreter.address,
+    SimpleTransferApp: simpleTransferContract.address,
     TicTacToeApp: tttContract.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppInterpreter:
-      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address,
+    UnidirectionalLinkedTransferApp: linkContract.address,
+    UnidirectionalTransferApp: transferContract.address
   } as NetworkContextForTestSuite;
 }

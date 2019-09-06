@@ -40,8 +40,8 @@ describe("Node method follows spec - uninstall virtual", () => {
         const multisigAddressAB = await createChannel(nodeA, nodeB);
         const multisigAddressBC = await createChannel(nodeB, nodeC);
 
-        await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
-        await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
+        await collateralizeChannel(multisigAddressAB, nodeA, nodeB);
+        await collateralizeChannel(multisigAddressBC, nodeB, nodeC);
 
         const appInstanceId = await installVirtualApp(
           nodeA,

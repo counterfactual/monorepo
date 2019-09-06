@@ -11,6 +11,7 @@
     ],
     "types": ["jest"]
   },
+
   "references": [
     { "path": "../types" },
     { "path": "../local-ganache-server"}
