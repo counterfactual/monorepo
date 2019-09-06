@@ -288,7 +288,7 @@ async function getAppType(
 }
 
 async function makeSimpleTransfer(
-  sender: Node,yarn test
+  sender: Node,
   intermediary: Node,
   receiver: Node
 ) {
