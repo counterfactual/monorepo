@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/local-ganache-server",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
   "license": "MIT",
@@ -19,7 +19,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/apps": "0.1.11",
+    "@counterfactual/apps": "0.1.12",
     "@counterfactual/cf-adjudicator-contracts": "0.0.6",
     "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
     "@counterfactual/types": "0.0.38",
