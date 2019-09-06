@@ -43,7 +43,7 @@ export default class CreateChannelController extends NodeController {
   public executeMethod = super.executeMethod;
 
   protected async getShardKeysForQueueing(): Promise<string[]> {
-    return [CreateChannelController.methodName];
+    return [Node.RpcMethodName.CREATE_CHANNEL];
   }
 
   protected async executeMethodImplementation(
