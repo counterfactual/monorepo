@@ -225,26 +225,34 @@ async function redeemLink(
   }
 
   // install app between the redeemer and the intermediary
+  console.log("trying to install redeemer link");
   const redeemerAppId = (await installLinks(intermediary, redeemer, [
     stateAndAction
   ]))[0];
+  console.log("installed redeemer link", redeemerAppId);
 
   // take action to finalize state and claim funds from intermediary
+  console.log("taking action on redeemer link", redeemerAppId);
   await takeAppAction(redeemer, redeemerAppId, stateAndAction.action);
+  console.log("took action on redeemer link", redeemerAppId);
 
   const redeemerApp = await getAppInstance(redeemer, redeemerAppId);
   assertLinkRedemption(redeemerApp);
 
   // uninstall the app between the redeemer and the intermediary
+  console.log("trying to uninstall redeemer link", redeemerAppId);
   await uninstallApp(redeemer, intermediary, redeemerAppId);
+  console.log("uninstalled redeemer link", redeemerAppId);
 
   // take action with funder and intermediary to finalize
   // NOTE: this should already be installed
+  console.log("trying to action on intermediary link", matchedApp.identityHash);
   await takeAppAction(
     intermediary,
     matchedApp.identityHash,
     stateAndAction.action
   );
+  console.log("took action on intermediary link", matchedApp.identityHash);
   const intermediaryApp = await getAppInstance(
     intermediary,
     matchedApp.identityHash
@@ -252,7 +260,9 @@ async function redeemLink(
   assertLinkRedemption(intermediaryApp);
 
   // uninstall the app between the funder and intermediary to break even
+  console.log("trying to uninstall hub link", intermediaryApp.identityHash);
   await uninstallApp(intermediary, funder, intermediaryApp.identityHash);
+  console.log("uninstalled hub link", intermediaryApp.identityHash);
 }
 
 // calls `redeemLink` every half second on a poller
@@ -302,6 +312,7 @@ async function makeSimpleTransfer(
     receiver.freeBalanceAddress
   );
 
+  console.log("trying to install virtual transfer");
   const appId = await installVirtualApp(
     sender,
     intermediary,
@@ -309,6 +320,7 @@ async function makeSimpleTransfer(
     transferDef,
     initialState
   );
+  console.log("install virtual transfer", appId);
 
   const senderTransferApp = await getAppType(
     sender,
@@ -329,12 +341,14 @@ async function makeSimpleTransfer(
   );
 
   // uninstall the virtual transfer app
+  console.log("trying to uninstall virtual transfer", appId);
   await uninstallVirtualApp(
     sender,
     receiver,
     intermediary.publicIdentifier,
     appId
   );
+  console.log("virtual transfer uninstalled", appId);
 
   // TODO: check balance transferred
 }
@@ -354,6 +368,7 @@ describe("Can update and install multiple apps simultaneously", () => {
 
   beforeEach(async () => {
     const context: SetupContext = await setup(global, true, true);
+    // const context: SetupContext = await setupWithMemoryMessagingAndPostgresStore(global, true, true);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     nodeC = context["C"].node;
@@ -422,9 +437,9 @@ describe("Can update and install multiple apps simultaneously", () => {
 
     // while links are redeeming, try to send receiver a
     // direct transfer
-    await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    // for (const i of Array(2)) {
-    //   await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    // }
+    // await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    for (const i of Array(2)) {
+      await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    }
   });
 });
