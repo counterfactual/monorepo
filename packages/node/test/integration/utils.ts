@@ -17,13 +17,13 @@ import { BigNumber } from "ethers/utils";
 import {
   CreateChannelMessage,
   InstallMessage,
+  InstallVirtualMessage,
   jsonRpcDeserialize,
   JsonRpcResponse,
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  Rpc,
-  InstallVirtualMessage
+  Rpc
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 

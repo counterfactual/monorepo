@@ -1,6 +1,6 @@
 import { AppABIEncodings } from "@counterfactual/types";
-import { BigNumberish, bigNumberify } from "ethers/utils";
 import { Zero } from "ethers/constants";
+import { bigNumberify, BigNumberish } from "ethers/utils";
 
 const singleAssetTwoPartyCoinTransferEncoding = `
 tuple(address to, uint256 amount)[2]

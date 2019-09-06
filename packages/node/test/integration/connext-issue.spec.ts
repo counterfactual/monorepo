@@ -7,8 +7,8 @@ import {
   InstallMessage,
   Node,
   NODE_EVENTS,
-  UninstallVirtualMessage,
-  UninstallMessage
+  UninstallMessage,
+  UninstallVirtualMessage
 } from "../../src";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
