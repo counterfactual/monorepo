@@ -54,6 +54,9 @@ describe("executeFunctionWithinQueues", () => {
 
   it.only("should work when called concurrently with one queue", async () => {
     const sharedQueue = new Queue({ concurrency: 1 });
+    const logSizeAndPending = (queue: Queue) => {
+      return `size: ${queue.size}, pending: ${queue.pending}`;
+    };
 
     let i = 0;
     let hasExecutionStartedOnFirstOne = false;
@@ -62,14 +65,16 @@ describe("executeFunctionWithinQueues", () => {
     let hasExecutionFinishedOnSecondOne = false;
 
     sharedQueue.on("active", () => {
-      console.log("something is now running");
-      if (i === 0) {
+      i += 1;
+      console.log(
+        `Working on item #${i}, queue1. Size: ${sharedQueue.size} Pending: ${sharedQueue.pending}`
+      );
+      if (i === 1) {
         expect(hasExecutionStartedOnFirstOne).toBe(false);
         expect(hasExecutionFinishedOnFirstOne).toBe(false);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
         expect(hasExecutionFinishedOnSecondOne).toBe(false);
-        i += 1;
-      } else if (i === 1) {
+      } else if (i === 2) {
         expect(hasExecutionStartedOnFirstOne).toBe(true);
         expect(hasExecutionFinishedOnFirstOne).toBe(true);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
@@ -81,14 +86,24 @@ describe("executeFunctionWithinQueues", () => {
       [sharedQueue],
       () =>
         new Promise(async r => {
-          console.log("first one code starts");
+          console.log("first one code starts", logSizeAndPending(sharedQueue));
           expect(sharedQueue.pending).toBe(1);
           hasExecutionStartedOnFirstOne = true;
-          console.log("first one code waits");
+          console.log("first one code waits", logSizeAndPending(sharedQueue));
           await new Promise(r => setTimeout(r, 250));
-          console.log("first one code continues");
+          console.log(
+            "first one code continues",
+            logSizeAndPending(sharedQueue)
+          );
           expect(hasExecutionStartedOnSecondOne).toBe(false);
-          expect(sharedQueue.pending).toBe(2);
+          console.log(
+            "correctly has not started on second",
+            logSizeAndPending(sharedQueue)
+          );
+          // ensure second promise is added to queue, but not acted on
+          // pending promises are those that are already triggered
+          // size of queue doesnt necessarily include pending promises
+          expect(sharedQueue.pending + sharedQueue.size).toEqual(2);
           hasExecutionFinishedOnFirstOne = true;
           r();
         })
@@ -98,7 +113,7 @@ describe("executeFunctionWithinQueues", () => {
       [sharedQueue],
       () =>
         new Promise(r => {
-          console.log("second one code runs");
+          console.log("second one code runs", logSizeAndPending(sharedQueue));
           hasExecutionStartedOnSecondOne = true;
           hasExecutionFinishedOnSecondOne = true;
           r();
@@ -112,5 +127,6 @@ describe("executeFunctionWithinQueues", () => {
     expect(hasExecutionFinishedOnFirstOne).toBe(true);
     expect(hasExecutionFinishedOnSecondOne).toBe(true);
     expect(sharedQueue.size).toBe(0);
+    expect(sharedQueue.pending).toBe(0);
   });
 });
