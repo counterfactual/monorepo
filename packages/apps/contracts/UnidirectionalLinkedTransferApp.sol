@@ -12,6 +12,7 @@ import "@counterfactual/cf-funding-protocol-contracts/contracts/libs/LibOutcome.
 /// @notice This contract allows users to claim a payment locked in
 ///         the application if they provide the correct preimage
 
+
 contract UnidirectionalLinkedTransferApp is CounterfactualApp {
 
   using SafeMath for uint256;

@@ -42,8 +42,9 @@ const encodeAppState = (
   state: SimpleTransferAppState,
   onlyCoinTransfers: boolean = false
 ): string => {
-  if (!onlyCoinTransfers)
+  if (!onlyCoinTransfers) {
     return defaultAbiCoder.encode([transferAppStateEncoding], [state]);
+  }
   return defaultAbiCoder.encode(
     [multiAssetMultiPartyCoinTransferEncoding],
     [state.coinTransfers]
