@@ -42,7 +42,8 @@ export default class UninstallVirtualController extends NodeController {
       ),
       requestHandler.getShardedQueue(
         multisigAddressForStateChannelWithIntermediary
-      )
+      ),
+      requestHandler.getShardedQueue(appInstanceId)
     ];
   }
 
