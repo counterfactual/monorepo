@@ -42,8 +42,6 @@ export async function handleReceivedProtocolMessage(
 
   if (seq === UNASSIGNED_SEQ_NO) return;
 
-  const preProtocolStateChannelsMap = await store.getStateChannelsMap();
-
   const queueNames = await getQueueNamesListByProtocolName(
     protocol,
     params!,
@@ -53,6 +51,8 @@ export async function handleReceivedProtocolMessage(
   const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
     queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
     async () => {
+      const preProtocolStateChannelsMap = await store.getStateChannelsMap();
+
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
