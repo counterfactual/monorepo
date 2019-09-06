@@ -50,9 +50,11 @@ export async function handleReceivedProtocolMessage(
     requestHandler
   );
 
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
-    async () => {
+  // const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
+  //   queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
+  const postProtocolStateChannelsMap = await requestHandler
+    .getShardedQueue("global-queue-temporary")
+    .add(async () => {
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
@@ -63,8 +65,7 @@ export async function handleReceivedProtocolMessage(
       }
 
       return stateChannelsMap;
-    }
-  );
+    });
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(
     protocol,
