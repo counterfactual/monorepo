@@ -52,7 +52,7 @@ describe("executeFunctionWithinQueues", () => {
     expect(noTimesQueueBecameActive).toBe(10);
   });
 
-  it.only("should work when called concurrently with one queue", async () => {
+  it("should work when called concurrently with one queue", async () => {
     const sharedQueue = new Queue({ concurrency: 1 });
 
     let i = 0;
@@ -114,5 +114,103 @@ describe("executeFunctionWithinQueues", () => {
     expect(hasExecutionFinishedOnSecondOne).toBe(true);
     expect(sharedQueue.size).toBe(0);
     expect(sharedQueue.pending).toBe(0);
+  });
+
+  it("should work when called concurrently with two queues", async () => {
+    ///// Test scoped vars
+    const queue0 = new Queue({ concurrency: 1 });
+    const queue1 = new Queue({ concurrency: 1 });
+
+    const noTimesExecutionFunctionRan = [0, 0]; // firstfn, secondfn
+    const noTimesQueueBecameActive = [0, 0]; // queue0, queue1
+
+    let hasExecutionStartedOnFirstOne = false;
+    let hasExecutionFinishedOnFirstOne = false;
+    let hasExecutionStartedOnSecondOne = false;
+    let hasExecutionFinishedOnSecondOne = false;
+
+    ///// Test helpers
+    const assertCompletion = () => {
+      const bothBotsActiveOnce =
+        noTimesQueueBecameActive[0] === 1 && noTimesQueueBecameActive[1] === 1;
+      const bothBotsActiveTwice =
+        noTimesQueueBecameActive[0] === 2 && noTimesQueueBecameActive[1] === 2;
+
+      // must account for bot activity, otherwise you will run into race
+      // conditions with the `hasStarted` check
+      if (
+        noTimesExecutionFunctionRan[0] === 0 &&
+        noTimesExecutionFunctionRan[1] === 0 &&
+        !bothBotsActiveOnce
+      ) {
+        expect(hasExecutionStartedOnFirstOne).toBe(false);
+        expect(hasExecutionFinishedOnFirstOne).toBe(false);
+        expect(hasExecutionStartedOnSecondOne).toBe(false);
+        expect(hasExecutionFinishedOnSecondOne).toBe(false);
+      } else if (
+        noTimesExecutionFunctionRan[0] === 1 &&
+        noTimesExecutionFunctionRan[1] === 0 &&
+        !bothBotsActiveTwice
+      ) {
+        expect(hasExecutionStartedOnFirstOne).toBe(true);
+        expect(hasExecutionFinishedOnFirstOne).toBe(true);
+        expect(hasExecutionStartedOnSecondOne).toBe(false);
+        expect(hasExecutionFinishedOnSecondOne).toBe(false);
+      } else if (
+        // this means its out of order, throw an error
+        noTimesExecutionFunctionRan[0] === 0 &&
+        noTimesExecutionFunctionRan[1] === 1
+      ) {
+        throw new Error(
+          `Seems like the first function was not completed before the second one.. Yikes.`
+        );
+      }
+    };
+
+    ///// Queue Listeners
+    queue0.on("active", () => {
+      noTimesQueueBecameActive[0] += 1;
+      assertCompletion();
+    });
+
+    queue1.on("active", () => {
+      noTimesQueueBecameActive[1] += 1;
+      assertCompletion();
+    });
+
+    executeFunctionWithinQueues(
+      [queue0, queue1],
+      () =>
+        new Promise(async r => {
+          hasExecutionStartedOnFirstOne = true;
+          await new Promise(r => setTimeout(r, 250));
+          expect(hasExecutionStartedOnSecondOne).toEqual(false);
+          // ensure second promise is added to queue, but not acted on
+          // pending promises are those that are already triggered
+          // size of queue doesnt necessarily include pending promises
+          expect(queue0.pending + queue0.size).toEqual(2);
+          expect(queue1.pending + queue1.size).toEqual(2);
+          noTimesExecutionFunctionRan[0] += 1;
+          hasExecutionFinishedOnFirstOne = true;
+          r();
+        })
+    );
+
+    executeFunctionWithinQueues(
+      [queue0, queue1],
+      () =>
+        new Promise(r => {
+          hasExecutionStartedOnSecondOne = true;
+          noTimesExecutionFunctionRan[1] += 1;
+          hasExecutionFinishedOnSecondOne = true;
+          r();
+        })
+    );
+
+    await queue0.onIdle();
+    await queue1.onIdle();
+
+    expect(noTimesExecutionFunctionRan).toEqual([1, 1]);
+    expect(noTimesQueueBecameActive).toEqual([2, 2]);
   });
 });
