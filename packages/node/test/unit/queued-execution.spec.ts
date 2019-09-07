@@ -54,9 +54,6 @@ describe("executeFunctionWithinQueues", () => {
 
   it.only("should work when called concurrently with one queue", async () => {
     const sharedQueue = new Queue({ concurrency: 1 });
-    const logSizeAndPending = (queue: Queue) => {
-      return `size: ${queue.size}, pending: ${queue.pending}`;
-    };
 
     let i = 0;
     let hasExecutionStartedOnFirstOne = false;
@@ -66,9 +63,6 @@ describe("executeFunctionWithinQueues", () => {
 
     sharedQueue.on("active", () => {
       i += 1;
-      console.log(
-        `Working on item #${i}, queue1. Size: ${sharedQueue.size} Pending: ${sharedQueue.pending}`
-      );
       if (i === 1) {
         expect(hasExecutionStartedOnFirstOne).toBe(false);
         expect(hasExecutionFinishedOnFirstOne).toBe(false);
@@ -86,20 +80,10 @@ describe("executeFunctionWithinQueues", () => {
       [sharedQueue],
       () =>
         new Promise(async r => {
-          console.log("first one code starts", logSizeAndPending(sharedQueue));
           expect(sharedQueue.pending).toBe(1);
           hasExecutionStartedOnFirstOne = true;
-          console.log("first one code waits", logSizeAndPending(sharedQueue));
           await new Promise(r => setTimeout(r, 250));
-          console.log(
-            "first one code continues",
-            logSizeAndPending(sharedQueue)
-          );
           expect(hasExecutionStartedOnSecondOne).toBe(false);
-          console.log(
-            "correctly has not started on second",
-            logSizeAndPending(sharedQueue)
-          );
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
@@ -113,14 +97,16 @@ describe("executeFunctionWithinQueues", () => {
       [sharedQueue],
       () =>
         new Promise(r => {
-          console.log("second one code runs", logSizeAndPending(sharedQueue));
           hasExecutionStartedOnSecondOne = true;
           hasExecutionFinishedOnSecondOne = true;
           r();
         })
     );
 
-    await sharedQueue.onEmpty();
+    // NOTE: onEmpty could also be used, but doesnt guarantee
+    // that the work from the queue is completed, just that the
+    // queue is empty
+    await sharedQueue.onIdle();
 
     expect(hasExecutionStartedOnFirstOne).toBe(true);
     expect(hasExecutionStartedOnSecondOne).toBe(true);
