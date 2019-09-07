@@ -1,6 +1,8 @@
 pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "../libs/LibStateChannelApp.sol";
 
 import "./MChallengeRegistryCore.sol";
@@ -10,6 +12,8 @@ contract MixinSetState is
   LibStateChannelApp,
   MChallengeRegistryCore
 {
+
+  using SafeMath for uint256;
 
   struct SignedAppChallengeUpdate {
     bytes32 appStateHash;
@@ -66,7 +70,7 @@ contract MixinSetState is
 
     challenge.appStateHash = req.appStateHash;
     challenge.versionNumber = uint128(req.versionNumber);
-    challenge.finalizesAt = uint248(block.number + req.timeout);
+    challenge.finalizesAt = uint248(block.number.add(req.timeout));
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }

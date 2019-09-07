@@ -1,6 +1,8 @@
 pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
+import "openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 import "../libs/LibStateChannelApp.sol";
 import "../libs/LibAppCaller.sol";
 
@@ -12,6 +14,8 @@ contract MixinSetStateWithAction is
   LibAppCaller,
   MChallengeRegistryCore
 {
+
+  using SafeMath for uint256;
 
   struct SignedAppChallengeUpdateWithAppState {
     // NOTE: We include the full bytes of the state update,
@@ -85,7 +89,7 @@ contract MixinSetStateWithAction is
       challenge.finalizesAt = uint248(block.number);
       challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
-      challenge.finalizesAt = uint248(block.number + req.timeout);
+      challenge.finalizesAt = uint248(block.number.add(req.timeout));
       challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     }
 
