@@ -61,6 +61,34 @@ describe("Concurrently uninstalling virtual and regular applications without iss
       makeInstallCall(nodeB, msg.data.appInstanceId);
     });
 
+    const decodeNode = (pubId: string) => {
+      switch (pubId) {
+        case nodeA.publicIdentifier:
+          return "Node A";
+        case nodeB.publicIdentifier:
+          return "Node B";
+        case nodeC.publicIdentifier:
+          return "Node C";
+        default:
+          return "unknown";
+      }
+    };
+    nodeA.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
+      console.log(
+        `Node A got protocol message event from ${decodeNode(msg.from)}`
+      );
+    });
+    nodeB.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
+      console.log(
+        `Node B got protocol message event from ${decodeNode(msg.from)}`
+      );
+    });
+    nodeC.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
+      console.log(
+        `Node C got protocol message event from ${decodeNode(msg.from)}`
+      );
+    });
+
     const appId = await new Promise(resolve => {
       nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {
         resolve(msg.data.params.appInstanceId);
