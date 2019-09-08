@@ -51,10 +51,10 @@ export async function handleReceivedProtocolMessage(
   const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
     queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
     async () => {
-      const preProtocolStateChannelsMap = await store.getStateChannelsMap();
-
       let stateChannelsMap;
-      for (let i = 0; i < 2; i += 1) {
+
+      for (let i = 0; i < 5; i += 1) {
+        const preProtocolStateChannelsMap = await store.getStateChannelsMap();
         try {
           console.log("running protocol: ", protocol);
           stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
@@ -69,11 +69,12 @@ export async function handleReceivedProtocolMessage(
           );
           console.log(preProtocolStateChannelsMap);
           console.log(data);
-          if (i < 2) {
+          if (i < 5) {
             console.log("Retrying protocol...");
           }
         }
       }
+      console.log("finished protocol");
       if (!stateChannelsMap) {
         throw Error("Couldn't successfully run the protocol");
       }
