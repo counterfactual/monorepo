@@ -457,11 +457,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
+    console.log("fail 2");
     assertIsValidSignature(
       intermediaryAddress,
       ingridBobAppDisactivationCommitment,
       intermediarySignatureOnIngridBobAppDisactivationCommitment
     );
+    console.log("fail 2.1");
 
     const respondingSignatureOnIngridBobAppDisactivationCommitment = yield [
       OP_SIGN,
