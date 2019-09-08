@@ -64,7 +64,7 @@ export async function handleReceivedProtocolMessage(
           break;
         } catch (e) {
           console.log(
-            `Caught the protocol execution failing after ${i + 1} tries`,
+            `Caught the protocol execution failing after ${i} retries`,
             e
           );
           console.log(preProtocolStateChannelsMap);
