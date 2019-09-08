@@ -20,13 +20,13 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@babel/core": "7.5.5",
+    "@babel/core": "7.6.0",
     "@babel/plugin-proposal-object-rest-spread": "7.5.5",
     "@counterfactual/apps": "0.1.12",
     "@counterfactual/firebase-server": "0.0.4",
     "@counterfactual/local-ganache-server": "0.0.8",
     "@counterfactual/postgresql-node-connector": "0.0.7",
-    "@types/chai": "4.2.0",
+    "@types/chai": "4.2.1",
     "@types/dotenv-safe": "5.0.3",
     "@types/jest": "24.0.15",
     "@types/loglevel": "1.6.3",
