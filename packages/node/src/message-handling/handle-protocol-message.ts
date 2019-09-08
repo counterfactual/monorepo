@@ -53,10 +53,23 @@ export async function handleReceivedProtocolMessage(
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
-      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        data,
-        preProtocolStateChannelsMap
-      );
+      let stateChannelsMap;
+      for (let i = 0; i < 2; i += 1) {
+        try {
+          console.log("running protocol: ", protocol);
+          console.log(preProtocolStateChannelsMap);
+          console.log(data);
+          stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+            data,
+            preProtocolStateChannelsMap
+          );
+        } catch (e) {
+          console.log("Caught the protocol execution failing...", e);
+        }
+      }
+      if (!stateChannelsMap) {
+        throw Error("Couldn't successfully run the protocol");
+      }
 
       for (const stateChannel of stateChannelsMap.values()) {
         await store.saveStateChannel(stateChannel);

@@ -129,6 +129,11 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
+    console.log("multisig address from uninstall virtual - initiating party");
+    console.log(stateChannelWithIntermediary.multisigAddress);
+    console.log("latest fb state - initiating party");
+    console.log(stateChannelWithIntermediary.freeBalance.hashOfLatestState);
+
     const initiatingSignatureOnAliceIngridAppDisactivationCommitment = yield [
       OP_SIGN,
       aliceIngridAppDisactivationCommitment
@@ -280,11 +285,20 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiating.freeBalance.timeout
     );
 
+    console.log(
+      "multisig address from uninstall virtual protocol - intermediary"
+    );
+    console.log(stateChannelWithInitiating.multisigAddress);
+    console.log("latest fb state - intermediary");
+    console.log(stateChannelWithInitiating.freeBalance.hashOfLatestState);
+
+    console.log("fail - 1");
     assertIsValidSignature(
       initiatorAddress,
       aliceIngridAppDisactivationCommitment,
       initiatingSignatureOnAliceIngridAppDisactivationCommitment
     );
+    console.log("fail - 1.1");
 
     const intermediarySignatureOnAliceIngridAppDisactivationCommitment = yield [
       OP_SIGN,

@@ -132,6 +132,9 @@ async function proposeStateTransition(
     provider
   );
 
+  console.log("multisig address from uninstall protocol");
+  console.log(sc.multisigAddress);
+
   const newStateChannel = sc.uninstallApp(
     appIdentityHash,
     tokenIndexedIncrements
