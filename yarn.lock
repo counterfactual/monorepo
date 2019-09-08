@@ -1280,10 +1280,10 @@
   dependencies:
     tslib "1.10.0"
 
-"@firebase/util@0.2.26":
-  version "0.2.26"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.26.tgz#d55d767134fd9da033f7f5d639fb4b1ac6a80e92"
-  integrity sha512-GcKcDAlJ85i1MsURKr8v2k5fkE0FkuM0ap/rYuWs44vxd2U5x6fUdoUQrKnZlclTH/xj0z+qHVQB9Vrwvp7alw==
+"@firebase/util@0.2.27":
+  version "0.2.27"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.27.tgz#6adac01023af835ed44379534b09fd1399f6f469"
+  integrity sha512-kFlbWNX1OuLfHrDXZ5QLmNNiLtMyxzbBgMo1DY1tXMjKK1AMYsHnyjInA8esvO0SCDp5XN3Pt9EDlhY4sRiLsw==
   dependencies:
     tslib "1.10.0"
 

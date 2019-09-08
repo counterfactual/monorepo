@@ -19,7 +19,7 @@
   "devDependencies": {
     "@counterfactual/firebase-client": "0.0.6",
     "@firebase/app-types": "0.4.3",
-    "@firebase/util": "0.2.26",
+    "@firebase/util": "0.2.27",
     "@types/jest": "24.0.15",
     "firebase-server": "1.0.2",
     "jest": "24.8.0",
