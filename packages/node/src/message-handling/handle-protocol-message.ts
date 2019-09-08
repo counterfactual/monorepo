@@ -57,14 +57,21 @@ export async function handleReceivedProtocolMessage(
       for (let i = 0; i < 2; i += 1) {
         try {
           console.log("running protocol: ", protocol);
-          console.log(preProtocolStateChannelsMap);
-          console.log(data);
           stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
             data,
             preProtocolStateChannelsMap
           );
+          break;
         } catch (e) {
-          console.log("Caught the protocol execution failing...", e);
+          console.log(
+            `Caught the protocol execution failing after ${i + 1} tries`,
+            e
+          );
+          console.log(preProtocolStateChannelsMap);
+          console.log(data);
+          if (i < 2) {
+            console.log("Retrying protocol...");
+          }
         }
       }
       if (!stateChannelsMap) {
