@@ -112,3 +112,5 @@ cat ./chrome-profile/chrome_debug.log
 
 echo "Node storage dump =============================================="
 cat ./chrome-profile/greenboard-local-storage.json
+
+exit $WALLET_E2E_EXIT_CODE
