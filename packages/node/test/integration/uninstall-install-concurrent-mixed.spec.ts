@@ -81,7 +81,7 @@ describe("Node method follows spec when happening concurrently - install / unins
       expect(installedAppInstanceId).toBeDefined();
     });
 
-    it("install app with ETH then uninstall and install apps simultaneously from the same node", async done => {
+    it.only("install app with ETH then uninstall and install apps simultaneously from the same node", async done => {
       let completedActions = 0;
 
       nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
@@ -95,7 +95,7 @@ describe("Node method follows spec when happening concurrently - install / unins
         }
       });
 
-      nodeA.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
+      nodeB.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
         completedActions += 1;
         if (completedActions === 2) {
           done();
@@ -121,7 +121,7 @@ describe("Node method follows spec when happening concurrently - install / unins
       );
     });
 
-    it.only("install app with ETH then uninstall and install apps simultaneously from separate nodes", async done => {
+    it("install app with ETH then uninstall and install apps simultaneously from separate nodes", async done => {
       let completedActions = 0;
 
       nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
