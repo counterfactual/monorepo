@@ -337,8 +337,8 @@ export class Node {
    *     solely to the deffered promise's resolve callback.
    */
   private async handleReceivedMessage(msg: NodeTypes.NodeMessage) {
-    if (!Object.values(NODE_EVENTS).includes(msg.type)) {
-      console.error(`Received message with unknown event type: ${msg.type}`);
+    if (!this.requestHandler.isLegacyEvent(msg.type)) {
+      throw new Error(`Received message with unknown event type: ${msg.type}`);
     }
 
     const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
@@ -346,16 +346,17 @@ export class Node {
 
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.processID);
+
     if (
       isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
-      await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);
-    } else if (this.requestHandler.isLegacyEvent(msg.type)) {
-      await this.requestHandler.callEvent(msg.type, msg);
-    } else {
-      await this.rpcRouter.emit(msg.type, msg);
+      return await this.handleIoSendDeferral(
+        msg as NodeMessageWrappedProtocolMessage
+      );
     }
+
+    return await this.requestHandler.callEvent(msg.type, msg);
   }
 
   private async handleIoSendDeferral(msg: NodeMessageWrappedProtocolMessage) {
