@@ -121,7 +121,7 @@ jobs:
 
       - run:
           name: Symlink dependencies
-          command: yarn --frozen-lockfile --ignore-engines
+          command: yarn --frozen-lockfile --ignore-engines --unsafe-perm --build-from-source
 
       - attach_workspace:
           at: /home/circleci/project

@@ -7,7 +7,7 @@ alias yarn_build_command="yarn $YARN_OP_FLAGS build"
 alias yarn_dist_command="yarn $YARN_OP_FLAGS dist"
 alias yarn_rm_command="yarn $YARN_OP_FLAGS remove"
 alias yarn_add_command="yarn $YARN_BUILD_FLAGS add -D"
-alias yann_add_global_command="yarn $YARN_BUILD_FLAGS global add"
+alias yann_add_global_command="yarn global add $YARN_BUILD_FLAGS"
 
 # Clone MetaMask.
 echo -n "Cloning MetaMask..."
