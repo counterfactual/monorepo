@@ -27,7 +27,7 @@ import {
   installVirtualApp
 } from "./utils";
 
-jest.setTimeout(10_000);
+jest.setTimeout(60_000);
 
 expect.extend({ toBeEq });
 

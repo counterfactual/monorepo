@@ -156,9 +156,11 @@ export async function handleReceivedProposeVirtualMessage(
       networkContext.MinimumViableMultisig
     );
 
-    await executeFunctionWithinQueues(
-      [await requestHandler.getShardedQueue(multisigAddress)],
-      async () => {
+    // await executeFunctionWithinQueues(
+    //   [await requestHandler.getShardedQueue(multisigAddress)],
+    await requestHandler
+      .getShardedQueue("global-queue-temporary")
+      .add(async () => {
         const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
           multisigAddress,
           proposedByIdentifier,
@@ -183,7 +185,6 @@ export async function handleReceivedProposeVirtualMessage(
         );
 
         await store.saveStateChannel(stateChannel.bumpProposedApps());
-      }
-    );
+      });
   }
 }

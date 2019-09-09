@@ -42,52 +42,30 @@ export async function handleReceivedProtocolMessage(
 
   if (seq === UNASSIGNED_SEQ_NO) return;
 
+  const preProtocolStateChannelsMap = await store.getStateChannelsMap();
+
   const queueNames = await getQueueNamesListByProtocolName(
     protocol,
     params!,
     requestHandler
   );
 
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
-    async () => {
-      let stateChannelsMap;
-
-      for (let i = 0; i < 5; i += 1) {
-        const preProtocolStateChannelsMap = await store.getStateChannelsMap();
-        try {
-          console.log("running protocol: ", protocol);
-          console.log("node xpub: " + publicIdentifier);
-          console.log("======================================= TRIAL NUMBER: " + i)
-          stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-            data,
-            preProtocolStateChannelsMap
-          );
-          break;
-        } catch (e) {
-          console.log(
-            `Caught the protocol execution failing after ${i} retries`,
-            e
-          );
-          console.log(preProtocolStateChannelsMap);
-          console.log(data);
-          if (i < 5) {
-            console.log("Retrying protocol...");
-          }
-        }
-      }
-      console.log("finished protocol");
-      if (!stateChannelsMap) {
-        throw Error("Couldn't successfully run the protocol");
-      }
+  // const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
+  //   queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
+  const postProtocolStateChannelsMap = await requestHandler
+    .getShardedQueue("global-queue-temporary")
+    .add(async () => {
+      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+        data,
+        preProtocolStateChannelsMap
+      );
 
       for (const stateChannel of stateChannelsMap.values()) {
         await store.saveStateChannel(stateChannel);
       }
 
       return stateChannelsMap;
-    }
-  );
+    });
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(
     protocol,

@@ -15,10 +15,11 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult> {
     await this.beforeExecution(requestHandler, params);
 
-    const ret = await executeFunctionWithinQueues(
-      await this.enqueueByShard(requestHandler, params),
-      () => this.executeMethodImplementation(requestHandler, params)
-    );
+    // const ret = await executeFunctionWithinQueues(
+    //   await this.enqueueByShard(requestHandler, params),
+    const ret = await requestHandler
+      .getShardedQueue("global-queue-temporary")
+      .add(() => this.executeMethodImplementation(requestHandler, params));
 
     await this.afterExecution(requestHandler, params);
 
