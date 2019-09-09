@@ -153,34 +153,31 @@ export async function handleReceivedProposeVirtualMessage(
       networkContext.MinimumViableMultisig
     );
 
-    await requestHandler.processQueue.addTask(
-      [multisigAddress],
-      async () => {
-        const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-          multisigAddress,
-          proposedByIdentifier,
-          proposedToIdentifier,
-          intermediaryIdentifier,
-          store,
-          networkContext
-        );
+    await requestHandler.processQueue.addTask([multisigAddress], async () => {
+      const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+        multisigAddress,
+        proposedByIdentifier,
+        proposedToIdentifier,
+        intermediaryIdentifier,
+        store,
+        networkContext
+      );
 
-        await store.addVirtualAppInstanceProposal(
-          new AppInstanceProposal(
-            {
-              ...params,
-              proposedByIdentifier,
-              initiatorDeposit: responderDeposit,
-              initiatorDepositTokenAddress: responderDepositTokenAddress!,
-              responderDeposit: initiatorDeposit,
-              responderDepositTokenAddress: initiatorDepositTokenAddress!
-            },
-            stateChannel
-          )
-        );
+      await store.addVirtualAppInstanceProposal(
+        new AppInstanceProposal(
+          {
+            ...params,
+            proposedByIdentifier,
+            initiatorDeposit: responderDeposit,
+            initiatorDepositTokenAddress: responderDepositTokenAddress!,
+            responderDeposit: initiatorDeposit,
+            responderDepositTokenAddress: initiatorDepositTokenAddress!
+          },
+          stateChannel
+        )
+      );
 
-        await store.saveStateChannel(stateChannel.bumpProposedApps());
-      }
-    );
+      await store.saveStateChannel(stateChannel.bumpProposedApps());
+    });
   }
 }
