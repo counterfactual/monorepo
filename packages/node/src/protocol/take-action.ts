@@ -34,7 +34,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
 
     const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
 
-    const { signature } = yield [
+    const {
+      customData: { signature }
+    } = yield [
       Opcode.IO_SEND_AND_WAIT,
       {
         protocol: Protocol.TakeAction,
@@ -54,6 +56,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       signature
     );
   },
+
   1: async function*(context: Context) {
     const setStateCommitment = await addStateTransitionAndCommitmentToContext(
       context.message as TakeActionProtocolMessage,
@@ -86,8 +89,10 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         processID: context.message.processID,
         toXpub: initiatorXpub,
         seq: -1,
-        signature: mySig
-      }
+        customData: {
+          signature: mySig
+        }
+      } as ProtocolMessage
     ];
   }
 };
