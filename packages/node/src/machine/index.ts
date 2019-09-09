@@ -1,7 +1,7 @@
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
 
 import { Opcode, Protocol } from "./enums";
-import { ProtocolRunner } from "./instruction-executor";
+import { ProtocolRunner } from "./protocol-runner";
 import {
   Context,
   InstallParams,
