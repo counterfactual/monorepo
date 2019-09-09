@@ -5,33 +5,31 @@ import Queue, { Task } from "p-queue";
  *
  * @export
  * @param {Queue[]} queueList - a list of p-queue queues
- * @param {Task} f - any asyncronous function
+ * @param {() => Promise<any>} task - any asyncronous function
  * @returns
  */
 export async function executeFunctionWithinQueues(
   queueList: Queue[],
-  task: Task<any>
+  task: () => Task<any>
 ) {
-  let promise: Promise<any>;
+  if (queueList.length === 0) return await task();
+
+  let promise: Task<any>;
 
   function executeCached() {
     if (!promise) promise = task();
     return promise;
   }
 
-  if (queueList.length > 0) {
-    const waitForEveryQueueToFinish = Promise.all(
-      queueList.map(q => q.add(() => {}))
-    );
+  const waitForEveryQueueToFinish = Promise.all(
+    queueList.map(q => q.add(() => {}))
+  );
 
-    await Promise.all(
-      queueList.map(q =>
-        q.add(() => waitForEveryQueueToFinish.then(executeCached))
-      )
-    );
+  await Promise.all(
+    queueList.map(q =>
+      q.add(() => waitForEveryQueueToFinish.then(executeCached))
+    )
+  );
 
-    return await executeCached();
-  }
-
-  return await task();
+  return await executeCached();
 }
