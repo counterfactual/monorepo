@@ -3,7 +3,6 @@ import {
   getOrCreateStateChannelBetweenVirtualAppParticipants
 } from "../methods/app-instance/propose-install-virtual/operation";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../methods/errors";
-import { executeFunctionWithinQueues } from "../methods/queued-execution";
 import { AppInstanceProposal } from "../models";
 import { RequestHandler } from "../request-handler";
 import {
