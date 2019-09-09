@@ -36,6 +36,10 @@ export default class UninstallVirtualController extends NodeController {
       appInstanceId
     );
 
+console.log('====== these quues are being requested now on UNINSTALL_VIRTUAL caller =====')
+  console.log(stateChannelWithResponding.multisigAddress)
+  console.log(multisigAddressForStateChannelWithIntermediary)
+  console.log(appInstanceId)
     return [
       requestHandler.getShardedQueue(
         stateChannelWithResponding.multisigAddress
@@ -63,6 +67,8 @@ export default class UninstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<Node.UninstallVirtualResult> {
+
+    console.log('RUnning UNINSTALL_VIRTUAL')
     const {
       store,
       instructionExecutor,

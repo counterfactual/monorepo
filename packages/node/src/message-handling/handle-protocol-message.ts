@@ -55,6 +55,8 @@ export async function handleReceivedProtocolMessage(
   const postProtocolStateChannelsMap = await requestHandler
     .getShardedQueue("global-queue-temporary")
     .add(async () => {
+      console.log(`RUnning ${protocol}`);
+
       const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
@@ -63,6 +65,8 @@ export async function handleReceivedProtocolMessage(
       for (const stateChannel of stateChannelsMap.values()) {
         await store.saveStateChannel(stateChannel);
       }
+
+      console.log(`Finished rUnning ${protocol}`);
 
       return stateChannelsMap;
     });

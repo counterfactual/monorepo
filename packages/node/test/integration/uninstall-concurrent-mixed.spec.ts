@@ -125,6 +125,7 @@ describe("Concurrently uninstalling virtual and regular applications without iss
         done();
       }
     });
+
     nodeA.on(NODE_EVENTS.UNINSTALL, () => {
       totalAppsUninstalled += 1;
       if (totalAppsUninstalled === 2) {

@@ -188,18 +188,23 @@ describe("executeFunctionWithinQueues", () => {
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
-          expect(queue0.pending + queue0.size).toEqual(2);
-          expect(queue1.pending + queue1.size).toEqual(2);
+          expect(queue0.pending).toEqual(1);
+          expect(queue0.size).toEqual(1);
+          expect(queue1.pending).toEqual(1);
+          expect(queue1.size).toEqual(1);
           noTimesExecutionFunctionRan[0] += 1;
           hasExecutionFinishedOnFirstOne = true;
           r();
         })
     );
 
-    executeFunctionWithinQueues(
+    await executeFunctionWithinQueues(
       [queue0, queue1],
       () =>
         new Promise(r => {
+          expect(noTimesExecutionFunctionRan).toEqual([1, 0]);
+          expect(queue0.pending).toEqual(1);
+          expect(queue0.size).toEqual(0);
           hasExecutionStartedOnSecondOne = true;
           noTimesExecutionFunctionRan[1] += 1;
           hasExecutionFinishedOnSecondOne = true;

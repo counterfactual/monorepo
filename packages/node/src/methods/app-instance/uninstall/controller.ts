@@ -52,6 +52,8 @@ export default class UninstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallParams
   ): Promise<Node.UninstallResult> {
+    console.log('RUnning UNINSTALL')
+
     const { store, instructionExecutor, publicIdentifier } = requestHandler;
     const { appInstanceId } = params;
 

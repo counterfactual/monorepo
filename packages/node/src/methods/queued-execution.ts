@@ -19,11 +19,12 @@ export async function executeFunctionWithinQueues(
     return promise;
   }
 
-  const p: Promise<any>[] = [];
   if (queueList.length > 0) {
-    for (const queue of queueList) queue.add(executeCached);
-    for (const queue of queueList) p.push(queue.onIdle());
-    await Promise.all(p);
+    const p1 = queueList.map(q => q.onIdle());
+    const p2 = queueList.map(q =>
+      q.add(() => Promise.all(p1).then(executeCached))
+    );
+    await Promise.all(p2);
     return await executeCached();
   }
 
