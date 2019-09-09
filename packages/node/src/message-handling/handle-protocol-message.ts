@@ -1,4 +1,4 @@
-import { SolidityValueType } from "@counterfactual/types";
+import { NetworkContext, SolidityValueType } from "@counterfactual/types";
 
 import {
   InstallParams,
@@ -12,6 +12,7 @@ import {
   WithdrawParams
 } from "../machine";
 import { ProtocolParameters } from "../machine/types";
+import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
 import { executeFunctionWithinQueues } from "../methods/queued-execution";
 import { StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
@@ -29,7 +30,13 @@ export async function handleReceivedProtocolMessage(
   requestHandler: RequestHandler,
   msg: NodeMessageWrappedProtocolMessage
 ) {
-  const { publicIdentifier, protocolRunner, store, router } = requestHandler;
+  const {
+    publicIdentifier,
+    protocolRunner,
+    store,
+    router,
+    networkContext
+  } = requestHandler;
 
   const { data } = bigNumberifyJson(msg) as NodeMessageWrappedProtocolMessage;
 
@@ -65,8 +72,35 @@ export async function handleReceivedProtocolMessage(
     protocol,
     params!,
     publicIdentifier,
-    postProtocolStateChannelsMap
+    postProtocolStateChannelsMap,
+    networkContext
   );
+
+  if (
+    outgoingEventData &&
+    (protocol === Protocol.Install || protocol === Protocol.InstallVirtualApp)
+  ) {
+    const appInstanceId = outgoingEventData!.data["appInstanceId"];
+    if (appInstanceId) {
+      let proposal;
+      try {
+        proposal = await store.getAppInstanceProposal(appInstanceId);
+      } catch (e) {
+        if (
+          !e
+            .toString()
+            .includes(
+              NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+            )
+        ) {
+          throw e;
+        }
+      }
+      if (proposal) {
+        await store.saveRealizedProposedAppInstance(proposal);
+      }
+    }
+  }
 
   if (outgoingEventData) {
     await emitOutgoingNodeMessage(router, outgoingEventData);
@@ -81,16 +115,32 @@ function getOutgoingEventDataFromProtocol(
   protocol: string,
   params: ProtocolParameters,
   publicIdentifier: string,
-  stateChannelsMap: Map<string, StateChannel>
+  stateChannelsMap: Map<string, StateChannel>,
+  networkContext: NetworkContext
 ) {
   const baseEvent = { from: publicIdentifier };
 
   switch (protocol) {
     case Protocol.Install:
-      // TODO: Have to take an InstallParams object and somehow compute the
-      //       appInstanceIdentityHash from it and then emit an event with
-      //       that value inside of it.
-      return;
+      return {
+        ...baseEvent,
+        type: NODE_EVENTS.INSTALL,
+        data: {
+          // TODO: It is weird that `params` is in the event data, we should
+          // remove it, but after telling all consumers about this change
+          params: {
+            appInstanceId: stateChannelsMap
+              .get(
+                getCreate2MultisigAddress(
+                  [params.responderXpub, params.initiatorXpub],
+                  networkContext.ProxyFactory,
+                  networkContext.MinimumViableMultisig
+                )
+              )!
+              .mostRecentlyInstalledAppInstance().identityHash
+          }
+        }
+      };
     case Protocol.Uninstall:
       return {
         ...baseEvent,
@@ -128,9 +178,26 @@ function getOutgoingEventDataFromProtocol(
         )
       };
     case Protocol.InstallVirtualApp:
-      // TODO: Have to take an InstallParams object and somehow compute the
-      //       appInstanceIdentityHash from it and then emit an event with
-      //       that value inside of it.
+      const virtualChannel = getCreate2MultisigAddress(
+        [params.responderXpub, params.initiatorXpub],
+        networkContext.ProxyFactory,
+        networkContext.MinimumViableMultisig
+      );
+      if (stateChannelsMap.has(virtualChannel)) {
+        return {
+          ...baseEvent,
+          type: NODE_EVENTS.INSTALL_VIRTUAL,
+          data: {
+            // TODO: It is weird that `params` is in the event data, we should
+            // remove it, but after telling all consumers about this change
+            params: {
+              appInstanceId: stateChannelsMap
+                .get(virtualChannel)!
+                .mostRecentlyInstalledAppInstance().identityHash
+            }
+          }
+        };
+      }
       return;
     case Protocol.UninstallVirtualApp:
       return {
