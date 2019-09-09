@@ -117,6 +117,14 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
+      - <<: *restore_dep
+
+      - run:
+          command: |
+            ulimit -c unlimited
+            mkdir -p /tmp/core_dumps
+            cp core.* /tmp/core_dumps
+          when: on_fail
 
       - run:
           name: Symlink dependencies
@@ -128,6 +136,9 @@ jobs:
       - run:
           name: Build Greenboard workspace and run tests
           command: yarn --ignore-engines test:e2e:ci
+
+      - store_artifacts:
+          path: /tmp/core_dumps
 
   run-tslint:
     <<: *defaults
