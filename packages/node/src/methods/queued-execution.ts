@@ -21,7 +21,7 @@ export async function executeFunctionWithinQueues(
 
   if (queueList.length > 0) {
     const waitForEveryQueueToFinish = Promise.all(
-      queueList.map(q => q.add(() => new Promise(r => r())))
+      queueList.map(q => q.add(() => {}))
     );
 
     await Promise.all(
