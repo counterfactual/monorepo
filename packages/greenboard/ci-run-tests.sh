@@ -86,7 +86,15 @@ echo -n "Waiting for the Hub to spin up..."
 echo "OK"
 
 echo -n "Waiting for the Wallet UI to spin up..."
-  while ! sh -c "nc -n localhost 3334 < /dev/null"; do sleep 0.1; done
+  while ! sh -c "nc -n localhost 3334 < /dev/null";
+  do
+    if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
+    then
+      break
+    fi
+
+    sleep 0.1;
+  done
 echo "OK"
 
 if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ]; then
