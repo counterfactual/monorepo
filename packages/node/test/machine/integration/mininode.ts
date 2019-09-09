@@ -29,7 +29,7 @@ const makeSigner = (hdNode: HDNode) => {
 
 export class MiniNode {
   private readonly hdNode: HDNode;
-  public readonly ie: ProtocolRunner;
+  public readonly protocolRunner: ProtocolRunner;
   public scm: Map<string, StateChannel>;
   public readonly xpub: string;
 
@@ -40,12 +40,15 @@ export class MiniNode {
     [this.hdNode] = getRandomHDNodes(1);
     this.xpub = this.hdNode.neuter().extendedKey;
     this.scm = new Map<string, StateChannel>();
-    this.ie = new ProtocolRunner(networkContext, provider);
-    this.ie.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
-    this.ie.register(Opcode.WRITE_COMMITMENT, () => {});
+    this.protocolRunner = new ProtocolRunner(networkContext, provider);
+    this.protocolRunner.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
+    this.protocolRunner.register(Opcode.WRITE_COMMITMENT, () => {});
   }
 
   public async dispatchMessage(message: any) {
-    this.scm = await this.ie.runProtocolWithMessage(message, this.scm);
+    this.scm = await this.protocolRunner.runProtocolWithMessage(
+      message,
+      this.scm
+    );
   }
 }

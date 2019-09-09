@@ -37,7 +37,7 @@ const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
-  let ie: ProtocolRunner;
+  let protocolRunner: ProtocolRunner;
 
   beforeAll(() => {
     store = new Store(
@@ -45,7 +45,7 @@ describe("Can handle correct & incorrect installs", () => {
       "install.spec.ts-test-store",
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
     );
-    ie = new ProtocolRunner(
+    protocolRunner = new ProtocolRunner(
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
       {} as BaseProvider
     );
@@ -53,19 +53,19 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
-      install(store, ie, { appInstanceId: undefined! })
+      install(store, protocolRunner, { appInstanceId: undefined! })
     ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
     await expect(
-      install(store, ie, { appInstanceId: "" })
+      install(store, protocolRunner, { appInstanceId: "" })
     ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
-      install(store, ie, { appInstanceId: HashZero })
+      install(store, protocolRunner, { appInstanceId: HashZero })
     ).rejects.toThrowError(
       NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
     );
@@ -88,13 +88,13 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     await expect(
-      install(instance(mockedStore), ie, { appInstanceId })
+      install(instance(mockedStore), protocolRunner, { appInstanceId })
     ).rejects.toThrowError(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
     const mockedProtocolRunner = mock(ProtocolRunner);
-    const ie = instance(mockedProtocolRunner);
+    const protocolRunner = instance(mockedProtocolRunner);
 
     const mockedStore = mock(Store);
     const store = instance(mockedStore);
@@ -147,7 +147,7 @@ describe("Can handle correct & incorrect installs", () => {
     // The AppInstanceProposal that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
-      install(store, ie, {
+      install(store, protocolRunner, {
         appInstanceId
       })
     ).resolves.toEqual(appInstanceProposal);
