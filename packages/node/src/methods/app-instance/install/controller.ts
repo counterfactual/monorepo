@@ -35,7 +35,7 @@ export default class InstallController extends NodeController {
   ): Promise<Node.InstallResult> {
     const {
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       messagingService
     } = requestHandler;
@@ -48,11 +48,7 @@ export default class InstallController extends NodeController {
       params.appInstanceId
     );
 
-    const appInstanceProposal = await install(
-      store,
-      instructionExecutor,
-      params
-    );
+    const appInstanceProposal = await install(store, protocolRunner, params);
 
     const installApprovalMsg: InstallMessage = {
       from: publicIdentifier,

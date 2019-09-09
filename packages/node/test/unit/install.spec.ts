@@ -15,8 +15,8 @@ import {
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import {
-  InstructionExecutor,
   Protocol,
+  ProtocolRunner,
   xkeysToSortedKthAddresses
 } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
@@ -37,7 +37,7 @@ const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
-  let ie: InstructionExecutor;
+  let ie: ProtocolRunner;
 
   beforeAll(() => {
     store = new Store(
@@ -45,7 +45,7 @@ describe("Can handle correct & incorrect installs", () => {
       "install.spec.ts-test-store",
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
     );
-    ie = new InstructionExecutor(
+    ie = new ProtocolRunner(
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
       {} as BaseProvider
     );
@@ -93,8 +93,8 @@ describe("Can handle correct & incorrect installs", () => {
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
-    const mockedInstructionExecutor = mock(InstructionExecutor);
-    const ie = instance(mockedInstructionExecutor);
+    const mockedProtocolRunner = mock(ProtocolRunner);
+    const ie = instance(mockedProtocolRunner);
 
     const mockedStore = mock(Store);
     const store = instance(mockedStore);
@@ -137,7 +137,7 @@ describe("Can handle correct & incorrect installs", () => {
     // and just returns a basic <string, StateChannel> map with the
     // expected multisigAddress in it.
     when(
-      mockedInstructionExecutor.initiateProtocol(
+      mockedProtocolRunner.initiateProtocol(
         Protocol.Install,
         anything(),
         anything()

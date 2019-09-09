@@ -6,7 +6,7 @@ import log from "loglevel";
 import Queue from "p-queue";
 
 import { eventNameToImplementation, methodNameToImplementation } from "./api";
-import { InstructionExecutor } from "./machine";
+import { ProtocolRunner } from "./machine";
 import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
@@ -30,7 +30,7 @@ export class RequestHandler {
     readonly outgoing: EventEmitter,
     readonly storeService: Node.IStoreService,
     readonly messagingService: Node.IMessagingService,
-    readonly instructionExecutor: InstructionExecutor,
+    readonly protocolRunner: ProtocolRunner,
     readonly networkContext: NetworkContext,
     readonly provider: BaseProvider,
     readonly wallet: Signer,

@@ -82,7 +82,7 @@ export default class InstallVirtualController extends NodeController {
   ): Promise<Node.InstallVirtualResult> {
     const {
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       messagingService
     } = requestHandler;
@@ -93,7 +93,7 @@ export default class InstallVirtualController extends NodeController {
 
     const appInstanceProposal = await installVirtual(
       store,
-      instructionExecutor,
+      protocolRunner,
       params
     );
 
