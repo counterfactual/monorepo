@@ -81,7 +81,8 @@ describe("Node method follows spec when happening concurrently - install / unins
         }
       });
 
-      nodeA.once(NODE_EVENTS.UNINSTALL, () => {
+      // if this is on nodeA, test fails
+      nodeB.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
         if (completedActions === 2) {
           done();
@@ -116,7 +117,8 @@ describe("Node method follows spec when happening concurrently - install / unins
         }
       });
 
-      nodeB.once(NODE_EVENTS.UNINSTALL, () => {
+      // if this is on nodeB, test fails
+      nodeA.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
         if (completedActions === 2) {
           done();
