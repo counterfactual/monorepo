@@ -24,21 +24,24 @@ export class MessageRouter {
     for (const node of nodes) {
       this.nodesMap.set(node.xpub, node);
 
-      node.ie.register(Opcode.IO_SEND, (args: [any]) => {
+      node.protocolRunner.register(Opcode.IO_SEND, (args: [any]) => {
         const [message] = args;
         this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
       });
-      node.ie.register(Opcode.IO_SEND_AND_WAIT, async (args: [any]) => {
-        const [message] = args;
-        message.fromXpub = node.xpub;
+      node.protocolRunner.register(
+        Opcode.IO_SEND_AND_WAIT,
+        async (args: [any]) => {
+          const [message] = args;
+          message.fromXpub = node.xpub;
 
-        this.deferrals.set(node.xpub, new Deferred());
-        this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
-        const ret = await this.deferrals.get(node.xpub)!.promise;
-        this.deferrals.delete(node.xpub);
+          this.deferrals.set(node.xpub, new Deferred());
+          this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
+          const ret = await this.deferrals.get(node.xpub)!.promise;
+          this.deferrals.delete(node.xpub);
 
-        return ret;
-      });
+          return ret;
+        }
+      );
     }
   }
 

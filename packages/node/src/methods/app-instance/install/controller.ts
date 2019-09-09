@@ -32,7 +32,7 @@ export default class InstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<Node.InstallResult> {
-    const { store, instructionExecutor, publicIdentifier } = requestHandler;
+    const { store, protocolRunner, publicIdentifier } = requestHandler;
 
     const [
       responderAddress
@@ -42,11 +42,7 @@ export default class InstallController extends NodeController {
       params.appInstanceId
     );
 
-    const appInstanceProposal = await install(
-      store,
-      instructionExecutor,
-      params
-    );
+    const appInstanceProposal = await install(store, protocolRunner, params);
 
     return {
       appInstance: (await store.getAppInstance(

@@ -9,12 +9,7 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import {
-  InstructionExecutor,
-  Opcode,
-  Protocol,
-  ProtocolMessage
-} from "./machine";
+import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   EthereumNetworkName,
@@ -38,7 +33,7 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly instructionExecutor: InstructionExecutor;
+  private readonly protocolRunner: ProtocolRunner;
   private readonly networkContext: NetworkContext;
 
   private readonly ioSendDeferrals = new Map<
@@ -93,7 +88,7 @@ export class Node {
         ? getNetworkContextForNetworkName(networkContext)
         : networkContext;
 
-    this.instructionExecutor = this.buildInstructionExecutor();
+    this.protocolRunner = this.buildProtocolRunner();
 
     log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
@@ -110,7 +105,7 @@ export class Node {
       this.outgoing,
       this.storeService,
       this.messagingService,
-      this.instructionExecutor,
+      this.protocolRunner,
       this.networkContext,
       this.provider,
       new AutoNonceWallet(this.signer.privateKey, this.provider),
@@ -140,16 +135,16 @@ export class Node {
   }
 
   /**
-   * Instantiates a new _InstructionExecutor_ object and attaches middleware
+   * Instantiates a new _ProtocolRunner_ object and attaches middleware
    * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
    */
-  private buildInstructionExecutor(): InstructionExecutor {
-    const instructionExecutor = new InstructionExecutor(
+  private buildProtocolRunner(): ProtocolRunner {
+    const protocolRunner = new ProtocolRunner(
       this.networkContext,
       this.provider
     );
 
-    instructionExecutor.register(Opcode.OP_SIGN, async (args: any[]) => {
+    protocolRunner.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
         throw Error("OP_SIGN middleware received wrong number of arguments.");
       }
@@ -164,22 +159,19 @@ export class Node {
       return signingKey.signDigest(commitment.hashToSign());
     });
 
-    instructionExecutor.register(
-      Opcode.IO_SEND,
-      async (args: [ProtocolMessage]) => {
-        const [data] = args;
-        const fromXpub = this.publicIdentifier;
-        const to = data.toXpub;
+    protocolRunner.register(Opcode.IO_SEND, async (args: [ProtocolMessage]) => {
+      const [data] = args;
+      const fromXpub = this.publicIdentifier;
+      const to = data.toXpub;
 
-        await this.messagingService.send(to, {
-          data,
-          from: fromXpub,
-          type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-        } as NodeMessageWrappedProtocolMessage);
-      }
-    );
+      await this.messagingService.send(to, {
+        data,
+        from: fromXpub,
+        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
+      } as NodeMessageWrappedProtocolMessage);
+    });
 
-    instructionExecutor.register(
+    protocolRunner.register(
       Opcode.IO_SEND_AND_WAIT,
       async (args: [ProtocolMessage]) => {
         const [data] = args;
@@ -216,23 +208,20 @@ export class Node {
       }
     );
 
-    instructionExecutor.register(
-      Opcode.WRITE_COMMITMENT,
-      async (args: any[]) => {
-        const { store } = this.requestHandler;
+    protocolRunner.register(Opcode.WRITE_COMMITMENT, async (args: any[]) => {
+      const { store } = this.requestHandler;
 
-        const [protocol, commitment, ...key] = args;
+      const [protocol, commitment, ...key] = args;
 
-        if (protocol === Protocol.Withdraw) {
-          const [multisigAddress] = key;
-          await store.storeWithdrawalCommitment(multisigAddress, commitment);
-        } else {
-          await store.setCommitment([protocol, ...key], commitment);
-        }
+      if (protocol === Protocol.Withdraw) {
+        const [multisigAddress] = key;
+        await store.storeWithdrawalCommitment(multisigAddress, commitment);
+      } else {
+        await store.setCommitment([protocol, ...key], commitment);
       }
-    );
+    });
 
-    return instructionExecutor;
+    return protocolRunner;
   }
 
   /**

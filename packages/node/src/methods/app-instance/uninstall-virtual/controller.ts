@@ -59,7 +59,7 @@ export default class UninstallVirtualController extends NodeController {
   ): Promise<Node.UninstallVirtualResult> {
     const {
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       provider
     } = requestHandler;
@@ -83,7 +83,7 @@ export default class UninstallVirtualController extends NodeController {
 
     await uninstallVirtualAppInstanceFromChannel(
       store,
-      instructionExecutor,
+      protocolRunner,
       provider,
       publicIdentifier,
       to,

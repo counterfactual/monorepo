@@ -23,7 +23,7 @@ import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
- * protocol execution directly to the instructionExecutor's message handler:
+ * protocol execution directly to the protocolRunner's message handler:
  * `runProtocolWithMessage`
  */
 export async function handleReceivedProtocolMessage(
@@ -32,7 +32,7 @@ export async function handleReceivedProtocolMessage(
 ) {
   const {
     publicIdentifier,
-    instructionExecutor,
+    protocolRunner,
     store,
     router,
     networkContext
@@ -55,7 +55,7 @@ export async function handleReceivedProtocolMessage(
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
-      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+      const stateChannelsMap = await protocolRunner.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
       );
