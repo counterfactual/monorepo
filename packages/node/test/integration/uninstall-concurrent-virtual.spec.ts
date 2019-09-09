@@ -5,7 +5,7 @@ import { Node } from "../../src";
 import {
   InstallVirtualMessage,
   NODE_EVENTS,
-  UninstallVirtualMessage,
+  UninstallVirtualMessage
 } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 

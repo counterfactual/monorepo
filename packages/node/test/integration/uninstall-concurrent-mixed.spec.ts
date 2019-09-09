@@ -90,9 +90,9 @@ describe.skip("Concurrently uninstalling virtual and regular applications withou
         `Node C got protocol message event from ${decodeNode(msg.from)}`
       );
     });
-    console.log("Node A: " + nodeA.publicIdentifier);
-    console.log("Node B: " + nodeB.publicIdentifier);
-    console.log("Node C: " + nodeC.publicIdentifier);
+    console.log(`Node A: ${nodeA.publicIdentifier}`);
+    console.log(`Node B: ${nodeB.publicIdentifier}`);
+    console.log(`Node C: ${nodeC.publicIdentifier}`);
 
     const appId = await new Promise(resolve => {
       nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {

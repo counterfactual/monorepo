@@ -5,20 +5,18 @@ import { Node } from "../../src";
 import {
   InstallVirtualMessage,
   NODE_EVENTS,
-  UninstallVirtualMessage,
   UpdateStateMessage
 } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
+import { validAction } from "./tic-tac-toe";
 import {
   collateralizeChannel,
-  constructUninstallVirtualRpc,
+  constructTakeActionRpc,
   createChannel,
-  installVirtualApp,
-  constructTakeActionRpc
+  installVirtualApp
 } from "./utils";
-import { validAction } from "./tic-tac-toe";
 
 expect.extend({ toBeLt });
 

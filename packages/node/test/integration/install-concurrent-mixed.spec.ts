@@ -15,7 +15,7 @@ import {
   getAppContext,
   installTTTVirtual,
   makeInstallCall,
-  makeProposeCall,
+  makeProposeCall
 } from "./utils";
 
 expect.extend({ toBeLt });
