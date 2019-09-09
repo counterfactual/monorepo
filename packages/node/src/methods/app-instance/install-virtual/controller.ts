@@ -14,10 +14,10 @@ export default class InstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
-  ): Promise<Queue[]> {
+  ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
 
@@ -37,10 +37,7 @@ export default class InstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    return [
-      requestHandler.getShardedQueue(multisigAddressWithHub),
-      requestHandler.getShardedQueue(multisigAddressWithResponding)
-    ];
+    return [multisigAddressWithHub, multisigAddressWithResponding];
   }
 
   protected async beforeExecution(

@@ -5,17 +5,17 @@ import Queue from "p-queue";
  *
  * @export
  * @param {Queue[]} queueList - a list of p-queue queues
- * @param {() => Promise<any>} f - any asyncronous function
+ * @param {() => Promise<any>} createExecutionPromise - any asyncronous function
  * @returns
  */
 export async function executeFunctionWithinQueues(
   queueList: Queue[],
-  f: () => Promise<any>
+  createExecutionPromise: () => Promise<any>
 ) {
   let promise: Promise<any>;
 
   function executeCached() {
-    if (!promise) promise = f();
+    if (!promise) promise = createExecutionPromise();
     return promise;
   }
 
@@ -27,5 +27,5 @@ export async function executeFunctionWithinQueues(
     return await executeCached();
   }
 
-  return await f();
+  return await createExecutionPromise();
 }
