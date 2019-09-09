@@ -1,12 +1,12 @@
 import Queue, { Task } from "p-queue";
 
-import { executeFunctionWithinQueues } from "./methods/queued-execution";
+import { addToManyQueues } from "./methods/queued-execution";
 
 export default class ProcessQueue {
   private readonly queues: Map<string, Queue> = new Map<string, Queue>();
 
   addTask(queueKeys: string[], task: Task<any>) {
-    return executeFunctionWithinQueues(
+    return addToManyQueues(
       queueKeys.map(this.getOrCreateQueue.bind(this)),
       task
     );

@@ -1,6 +1,6 @@
 import Queue from "p-queue";
 
-import { executeFunctionWithinQueues } from "../../src/methods/queued-execution";
+import { addToManyQueues } from "../../src/methods/queued-execution";
 
 describe("p-queue", () => {
   it("should be possible to mimic onEmpty via inspection of _queue", async () => {
@@ -32,9 +32,9 @@ describe("p-queue", () => {
   });
 });
 
-describe("executeFunctionWithinQueues", () => {
+describe("addToManyQueues", () => {
   it("should work with one queue", async () => {
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       [new Queue({ concurrency: 1 })],
       () => new Promise(r => setTimeout(() => r("abc"), 1))
     );
@@ -48,7 +48,7 @@ describe("executeFunctionWithinQueues", () => {
     const queue2 = new Queue({ concurrency: 1 });
     queue1.on("active", () => (noTimesQueueBecameActive += 1));
     queue2.on("active", () => (noTimesQueueBecameActive += 1));
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       [queue1, queue2],
       () =>
         new Promise(r => {
@@ -69,7 +69,7 @@ describe("executeFunctionWithinQueues", () => {
       queues.push(new Queue({ concurrency: 1 }));
     }
     queues.forEach(q => q.on("active", () => (noTimesQueueBecameActive += 1)));
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       queues,
       () =>
         new Promise(r => {
@@ -106,7 +106,7 @@ describe("executeFunctionWithinQueues", () => {
       }
     });
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [sharedQueue],
       () =>
         new Promise(async r => {
@@ -123,7 +123,7 @@ describe("executeFunctionWithinQueues", () => {
         })
     );
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [sharedQueue],
       () =>
         new Promise(r => {
@@ -208,7 +208,7 @@ describe("executeFunctionWithinQueues", () => {
       assertCompletion();
     });
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [queue0, queue1],
       () =>
         new Promise(async r => {
@@ -228,7 +228,7 @@ describe("executeFunctionWithinQueues", () => {
         })
     );
 
-    await executeFunctionWithinQueues(
+    await addToManyQueues(
       [queue0, queue1],
       () =>
         new Promise(r => {
