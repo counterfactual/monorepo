@@ -81,7 +81,7 @@ describe("Node method follows spec when happening concurrently - install / unins
       expect(installedAppInstanceId).toBeDefined();
     });
 
-    it.only("install app with ETH then uninstall and install apps simultaneously from the same node", async done => {
+    it("install app with ETH then uninstall and install apps simultaneously from the same node", async done => {
       let completedActions = 0;
 
       nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
@@ -96,7 +96,7 @@ describe("Node method follows spec when happening concurrently - install / unins
       });
 
       // note: if this is on nodeA, test fails with timeout
-      nodeB.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
+      nodeC.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
         completedActions += 1;
         if (completedActions === 2) {
           done();
@@ -136,7 +136,7 @@ describe("Node method follows spec when happening concurrently - install / unins
         }
       });
 
-      nodeB.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
+      nodeA.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
         completedActions += 1;
         if (completedActions === 2) {
           done();
@@ -154,7 +154,7 @@ describe("Node method follows spec when happening concurrently - install / unins
       );
 
       nodeA.rpcRouter.dispatch(installCall);
-      nodeB.rpcRouter.dispatch(
+      nodeC.rpcRouter.dispatch(
         constructUninstallVirtualRpc(
           installedAppInstanceId,
           nodeB.publicIdentifier
