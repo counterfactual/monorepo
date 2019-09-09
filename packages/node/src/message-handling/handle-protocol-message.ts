@@ -57,6 +57,8 @@ export async function handleReceivedProtocolMessage(
         const preProtocolStateChannelsMap = await store.getStateChannelsMap();
         try {
           console.log("running protocol: ", protocol);
+          console.log("node xpub: " + publicIdentifier);
+          console.log("======================================= TRIAL NUMBER: " + i)
           stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
             data,
             preProtocolStateChannelsMap

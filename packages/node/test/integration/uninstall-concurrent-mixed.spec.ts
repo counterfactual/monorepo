@@ -88,6 +88,9 @@ describe("Concurrently uninstalling virtual and regular applications without iss
         `Node C got protocol message event from ${decodeNode(msg.from)}`
       );
     });
+    console.log("Node A: " + nodeA.publicIdentifier);
+    console.log("Node B: " + nodeB.publicIdentifier);
+    console.log("Node C: " + nodeC.publicIdentifier);
 
     const appId = await new Promise(resolve => {
       nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {

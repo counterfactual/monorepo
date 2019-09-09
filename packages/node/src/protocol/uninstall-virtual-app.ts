@@ -76,6 +76,17 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       network
     );
 
+    // console.log("1: ===========================================================================================");
+    // console.log("State Channel with all three parties");
+    // console.log(stateChannelWithAllThreeParties);
+    // console.log(".");
+    // console.log("State Channel with all intermediary");
+    // console.log(stateChannelWithIntermediary);
+    // console.log(".");
+    // console.log("State Channel with all responding");
+    // console.log(stateChannelWithResponding);
+    // console.log(".");
+
     const timeLockedPassThroughSetStateCommitment = new SetStateCommitment(
       network,
       timeLockedPassThroughAppInstance.identity,
@@ -201,7 +212,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
     const responderAddress = xkeyKthAddress(responderXpub, 0);
 
-    const [
+    let [
       stateChannelWithAllThreeParties,
       stateChannelWithInitiating,
       stateChannelWithResponding,
@@ -277,6 +288,18 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } = m5;
 
+    // [
+    //   stateChannelWithAllThreeParties,
+    //   stateChannelWithInitiating,
+    //   stateChannelWithResponding,
+    //   timeLockedPassThroughAppInstance
+    // ] = await getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
+    //   stateChannelsMap,
+    //   params!,
+    //   provider,
+    //   network
+    // );
+
     const aliceIngridAppDisactivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithInitiating.freeBalance.identity,
@@ -293,6 +316,8 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     console.log(stateChannelWithInitiating.freeBalance.hashOfLatestState);
 
     console.log("fail - 1");
+    console.log("free balance: ");
+    // console.log(stateChannelWithInitiating.freeBalance)
     assertIsValidSignature(
       initiatorAddress,
       aliceIngridAppDisactivationCommitment,
@@ -441,7 +466,11 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
+    console.log("fail 2");
+
     const m7 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
+
+    console.log("fail 2.1");
 
     const {
       customData: {
@@ -457,13 +486,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithIntermediary.freeBalance.timeout
     );
 
-    console.log("fail 2");
+    console.log("fail 2.2");
+    console.log("free balance: ");
+    console.log(stateChannelWithIntermediary.freeBalance);
     assertIsValidSignature(
       intermediaryAddress,
       ingridBobAppDisactivationCommitment,
       intermediarySignatureOnIngridBobAppDisactivationCommitment
     );
-    console.log("fail 2.1");
+    console.log("fail 2.3");
 
     const respondingSignatureOnIngridBobAppDisactivationCommitment = yield [
       OP_SIGN,
