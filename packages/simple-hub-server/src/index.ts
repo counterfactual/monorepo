@@ -1,7 +1,7 @@
-if (process.env.CI) {
-  const segfault = require("segfault-handler");
-  segfault.registerHandler("/tmp/hub-segfault.log");
-}
+// if (process.env.CI) {
+//   const segfault = require("segfault-handler");
+//   segfault.registerHandler("/tmp/hub-segfault.log");
+// }
 
 import { EthereumNetworkName, getNetworkEnum } from "@counterfactual/node";
 import { Log, LogLevel } from "logepi";
@@ -58,3 +58,4 @@ process.on("SIGINT", async () => {
 });
 
 export * from "./types";
+

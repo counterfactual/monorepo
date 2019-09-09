@@ -1,11 +1,13 @@
 #!/bin/sh
-alias yarn_install_command="yarn --ignore-engines --unsafe-perm --build-from-source"
-alias yarn_ci_command="yarn --frozen-lockfile --ignore-engines --unsafe-perm --build-from-source"
-alias yarn_build_command="yarn --ignore-engines build"
-alias yarn_dist_command="yarn --ignore-engines dist"
-alias yarn_rm_command="yarn --ignore-engines remove"
-alias yarn_add_command="yarn --ignore-engines add -D"
-alias yann_add_global_command="yarn global add"
+YARN_OP_FLAGS="--ignore-engines"
+YARN_BUILD_FLAGS="$YARN_OP_FLAGS --unsafe-perm --build-from-source"
+alias yarn_install_command="yarn $YARN_BUILD_FLAGS"
+alias yarn_ci_command="yarn $YARN_OP_FLAGS --frozen-lockfile"
+alias yarn_build_command="yarn $YARN_OP_FLAGS build"
+alias yarn_dist_command="yarn $YARN_OP_FLAGS dist"
+alias yarn_rm_command="yarn $YARN_OP_FLAGS remove"
+alias yarn_add_command="yarn $YARN_BUILD_FLAGS add -D"
+alias yann_add_global_command="yarn $YARN_BUILD_FLAGS global add"
 
 # Clone MetaMask.
 echo -n "Cloning MetaMask..."
@@ -31,9 +33,9 @@ echo -n "Removing non-essential dependencies..."
 echo "OK"
 
 echo -n "Building MetaMask..."
-  yarn_ci_command &>/dev/null
-  yarn_add_command @babel/core &>/dev/null
-  yarn_dist_command &>/dev/null
+  yarn_ci_command #&>/dev/null
+  yarn_add_command @babel/core #&>/dev/null
+  yarn_dist_command #&>/dev/null
 echo "OK"
 
 # Move MM distributable to Greenboard.
@@ -45,9 +47,9 @@ echo "OK"
 # Install dependencies for Greenboard.
 echo -n "Installing Greenboard dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/greenboard
-  yarn_install_command &>/dev/null
+  yarn_install_command #&>/dev/null
   cp -rl node_modules/* ../../node_modules/
-  yann_add_global_command serve &>/dev/null
+  yann_add_global_command serve #&>/dev/null
 echo "OK"
 
 # Install dependencies for the Hub.
