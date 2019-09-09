@@ -58,4 +58,3 @@ process.on("SIGINT", async () => {
 });
 
 export * from "./types";
-
