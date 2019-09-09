@@ -95,6 +95,7 @@ describe("Node method follows spec when happening concurrently - install / unins
         }
       });
 
+      // note: if this is on nodeA, test fails with timeout
       nodeB.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
         completedActions += 1;
         if (completedActions === 2) {
