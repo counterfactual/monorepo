@@ -3,7 +3,6 @@ import { jsonRpcMethod } from "rpc-server";
 
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import { InstallMessage, NODE_EVENTS } from "../../../types";
 import { NodeController } from "../../controller";
 
 import { install } from "./operation";
@@ -33,12 +32,7 @@ export default class InstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<Node.InstallResult> {
-    const {
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      messagingService
-    } = requestHandler;
+    const { store, instructionExecutor, publicIdentifier } = requestHandler;
 
     const [
       responderAddress
@@ -53,15 +47,6 @@ export default class InstallController extends NodeController {
       instructionExecutor,
       params
     );
-
-    const installApprovalMsg: InstallMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.INSTALL,
-      data: { params }
-    };
-
-    // TODO: Remove this and add a handler in protocolMessageEventController
-    await messagingService.send(responderAddress, installApprovalMsg);
 
     return {
       appInstance: (await store.getAppInstance(
