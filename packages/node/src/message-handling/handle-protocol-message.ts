@@ -48,8 +48,8 @@ export async function handleReceivedProtocolMessage(
     requestHandler
   );
 
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
+  const postProtocolStateChannelsMap = await requestHandler.processQueue.addTask(
+    queueNames,
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 

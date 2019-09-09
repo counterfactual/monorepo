@@ -75,29 +75,26 @@ export async function handleReceivedProposalMessage(
     networkContext.MinimumViableMultisig
   );
 
-  await executeFunctionWithinQueues(
-    [await requestHandler.getShardedQueue(multisigAddress)],
-    async () => {
-      const stateChannel = await store.getStateChannel(multisigAddress);
+  await requestHandler.processQueue.addTask([multisigAddress], async () => {
+    const stateChannel = await store.getStateChannel(multisigAddress);
 
-      await store.addAppInstanceProposal(
-        stateChannel,
-        new AppInstanceProposal(
-          {
-            ...params,
-            proposedByIdentifier,
-            initiatorDeposit: params.responderDeposit,
-            initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
-            responderDeposit: params.initiatorDeposit!,
-            responderDepositTokenAddress: params.initiatorDepositTokenAddress!
-          },
-          stateChannel
-        )
-      );
+    await store.addAppInstanceProposal(
+      stateChannel,
+      new AppInstanceProposal(
+        {
+          ...params,
+          proposedByIdentifier,
+          initiatorDeposit: params.responderDeposit,
+          initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
+          responderDeposit: params.initiatorDeposit!,
+          responderDepositTokenAddress: params.initiatorDepositTokenAddress!
+        },
+        stateChannel
+      )
+    );
 
-      await store.saveStateChannel(stateChannel.bumpProposedApps());
-    }
-  );
+    await store.saveStateChannel(stateChannel.bumpProposedApps());
+  });
 }
 
 export async function handleRejectProposalMessage(
@@ -156,8 +153,8 @@ export async function handleReceivedProposeVirtualMessage(
       networkContext.MinimumViableMultisig
     );
 
-    await executeFunctionWithinQueues(
-      [await requestHandler.getShardedQueue(multisigAddress)],
+    await requestHandler.processQueue.addTask(
+      [multisigAddress],
       async () => {
         const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
           multisigAddress,
