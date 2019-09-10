@@ -83,7 +83,7 @@ export class TestRunner {
   async setup() {
     this.mininodeA.scm.set(
       this.multisigAB,
-      (await this.mininodeA.ie.runSetupProtocol({
+      (await this.mininodeA.protocolRunner.runSetupProtocol({
         initiatorXpub: this.mininodeA.xpub,
         responderXpub: this.mininodeB.xpub,
         multisigAddress: this.multisigAB
@@ -94,7 +94,7 @@ export class TestRunner {
 
     this.mininodeB.scm.set(
       this.multisigBC,
-      (await this.mininodeB.ie.runSetupProtocol({
+      (await this.mininodeB.protocolRunner.runSetupProtocol({
         initiatorXpub: this.mininodeB.xpub,
         responderXpub: this.mininodeC.xpub,
         multisigAddress: this.multisigBC
@@ -182,7 +182,7 @@ export class TestRunner {
       ]
     }[outcomeType];
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       this.mininodeA.scm,
       {
@@ -245,7 +245,7 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Install,
       this.mininodeA.scm,
       {
@@ -315,7 +315,7 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Install,
       this.mininodeA.scm,
       {
@@ -346,7 +346,7 @@ export class TestRunner {
       ...this.mininodeA.scm.get(this.multisigAC)!.appInstances.values()
     ];
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.UninstallVirtualApp,
       this.mininodeA.scm,
       {
@@ -375,7 +375,7 @@ export class TestRunner {
       );
     });
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Uninstall,
       this.mininodeA.scm,
       {

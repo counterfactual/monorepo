@@ -93,14 +93,14 @@ export default class CreateChannelController extends NodeController {
     const { owners } = params;
     const {
       publicIdentifier,
-      instructionExecutor,
+      protocolRunner,
       store,
       outgoing
     } = requestHandler;
 
     const [responderXpub] = owners.filter(x => x !== publicIdentifier);
 
-    const channel = (await instructionExecutor.runSetupProtocol({
+    const channel = (await protocolRunner.runSetupProtocol({
       multisigAddress,
       responderXpub,
       initiatorXpub: publicIdentifier
