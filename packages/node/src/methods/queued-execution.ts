@@ -1,5 +1,7 @@
 import Queue, { Task } from "p-queue";
 
+const q = new Queue({ concurrency: 1 });
+
 /**
  * Executes a function call and adds it to one or more promise queues.
  *
@@ -12,6 +14,8 @@ export async function executeFunctionWithinQueues(
   queueList: Queue[],
   task: Task<any>
 ) {
+  return await q.add(task);
+
   let promise: Promise<any>;
 
   function executeCached() {
