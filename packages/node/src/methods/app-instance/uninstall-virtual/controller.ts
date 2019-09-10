@@ -37,7 +37,8 @@ export default class UninstallVirtualController extends NodeController {
 
     return [
       stateChannelWithResponding.multisigAddress,
-      multisigAddressForStateChannelWithIntermediary
+      multisigAddressForStateChannelWithIntermediary,
+      appInstanceId
     ];
   }
 
