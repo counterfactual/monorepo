@@ -34,13 +34,16 @@ export async function addToManyQueues(
    */
   console.trace();
   async function runTaskWithMemoization() {
+    console.log(`${xpub} running task for ${protocolOrMethodName} on queues`);
+    console.log(queueNames);
     let error;
     let blockingQueue;
+    let lock: Lock;
     for (let i = 0; i < 5; i += 1) {
       try {
         if (!promise) {
           for (const queueName of queueNames) {
-            const lock: Lock = await lockService.get(queueName);
+            lock = await lockService.get(queueName);
             if (lock.locked) {
               if (
                 !operationIsNestedInProtocol(
@@ -82,7 +85,6 @@ export async function addToManyQueues(
           break;
         }
       } catch (e) {
-        console.error(e);
         for (const queueToUnlock of queuesToUnlock) {
           await lockService.set(queueToUnlock, {
             operation: protocolOrMethodName,
@@ -93,8 +95,11 @@ export async function addToManyQueues(
             `Failed to get promise for task - ${xpub} unlocked queue ${queueToUnlock} for protocol/method ${protocolOrMethodName}`
           );
         }
-        console.log(
-          `${xpub} sleeping for 500 before trying ${protocolOrMethodName} on queue ${blockingQueue} to get task promise again for ${i} time...`
+        console.error(
+          `${xpub} sleeping for 500 before trying ${protocolOrMethodName} on queue ${blockingQueue} with lock ${
+            lock!.operation
+          } to get task promise again for ${i} time...
+          ${e}`
         );
         await sleep(500);
       }
@@ -128,9 +133,11 @@ export async function addToManyQueues(
        * tasks to ensure that we wait for _all_ of them to finish before
        * actually executing the task.
        */
-      q.add(() => waitForEveryQueueToFinish.then(runTaskWithMemoization))
+      q.add(() => waitForEveryQueueToFinish)
     )
   );
+
+  await runTaskWithMemoization();
 
   for (const queueToUnlock of queuesToUnlock) {
     await lockService.set(queueToUnlock, {
@@ -173,6 +180,16 @@ function operationIsNestedInProtocol(
 
   if (
     operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL &&
+    operationBeingPerformed === Node.RpcMethodName.PROPOSE_INSTALL
+  ) {
+    console.log(
+      `${xpub} Adding proposed app on the receiving end of a proposal from a counter party`
+    );
+    return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL &&
     operationBeingPerformed === Protocol.Install
   ) {
     console.log(`${xpub} Performing install app within the proposal flow`);
@@ -190,12 +207,56 @@ function operationIsNestedInProtocol(
   }
 
   if (
+    operationOnLock === Node.RpcMethodName.UNINSTALL &&
+    operationBeingPerformed === Protocol.Uninstall
+  ) {
+    console.log(
+      `${xpub} Performing uninstall protocol in response to counter party initiating uninstall`
+    );
+    return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL &&
+    operationBeingPerformed === Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL
+  ) {
+    console.log(
+      `${xpub} Adding proposed virtual app on the receiving end of a proposal from a counter party`
+    );
+    return true;
+  }
+
+  if (
     operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL &&
     operationBeingPerformed === Protocol.InstallVirtualApp
   ) {
     console.log(
       `${xpub} Performing install virtual protocol in response to counter party proposing install`
     );
+    return true;
   }
+
+  if (
+    (operationOnLock === Node.RpcMethodName.INSTALL_VIRTUAL ||
+      operationOnLock === Protocol.InstallVirtualApp) &&
+    operationBeingPerformed === Protocol.InstallVirtualApp
+  ) {
+    console.log(
+      `${xpub} Performing install virtual protocol in response to counter party proposing install`
+    );
+    return true;
+  }
+
+  if (
+    (operationOnLock === Node.RpcMethodName.UNINSTALL_VIRTUAL ||
+      operationOnLock === Protocol.UninstallVirtualApp) &&
+    operationBeingPerformed === Protocol.UninstallVirtualApp
+  ) {
+    console.log(
+      `${xpub} Performing uninstall virtual protocol in response to counter party uninstalling`
+    );
+    return true;
+  }
+
   return false;
 }
