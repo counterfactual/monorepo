@@ -3,10 +3,10 @@ import { Signer } from "ethers";
 import { BaseProvider, JsonRpcProvider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import log from "loglevel";
-import Queue from "p-queue";
 
 import { eventNameToImplementation, methodNameToImplementation } from "./api";
 import { ProtocolRunner } from "./machine";
+import ProcessQueue from "./process-queue";
 import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeEvents } from "./types";
@@ -19,7 +19,7 @@ import { prettyPrintObject } from "./utils";
 export class RequestHandler {
   private readonly methods = new Map();
   private readonly events = new Map();
-  private readonly shardedQueues = new Map<string, Queue>();
+  public readonly processQueue = new ProcessQueue();
 
   store: Store;
   router!: RpcRouter;
@@ -131,15 +131,6 @@ export class RequestHandler {
 
   public async isLegacyEvent(event: NodeEvents) {
     return this.events.has(event);
-  }
-
-  public getShardedQueue(shardKey: string): Queue {
-    let shardedQueue: Queue;
-    if (!this.shardedQueues.has(shardKey)) {
-      shardedQueue = new Queue({ concurrency: 1 });
-      this.shardedQueues.set(shardKey, shardedQueue);
-    }
-    return this.shardedQueues.get(shardKey)!;
   }
 
   public async getSigner(): Promise<Signer> {

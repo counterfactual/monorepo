@@ -1,21 +1,21 @@
-import Queue from "p-queue";
+import Queue, { Task } from "p-queue";
 
 /**
  * Executes a function call and adds it to one or more promise queues.
  *
  * @export
  * @param {Queue[]} queueList - a list of p-queue queues
- * @param {() => Promise<any>} createExecutionPromise - any asyncronous function
+ * @param {Task} f - any asyncronous function
  * @returns
  */
 export async function executeFunctionWithinQueues(
   queueList: Queue[],
-  createExecutionPromise: () => Promise<any>
+  task: Task<any>
 ) {
   let promise: Promise<any>;
 
   function executeCached() {
-    if (!promise) promise = createExecutionPromise();
+    if (!promise) promise = task();
     return promise;
   }
 
@@ -27,5 +27,5 @@ export async function executeFunctionWithinQueues(
     return await executeCached();
   }
 
-  return await createExecutionPromise();
+  return await task();
 }

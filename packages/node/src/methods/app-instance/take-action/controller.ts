@@ -1,6 +1,5 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { Protocol, ProtocolRunner } from "../../../machine";

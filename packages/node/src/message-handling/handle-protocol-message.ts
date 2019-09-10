@@ -13,7 +13,6 @@ import {
 } from "../machine";
 import { ProtocolParameters } from "../machine/types";
 import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
-import { executeFunctionWithinQueues } from "../methods/queued-execution";
 import { StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
 import { RequestHandler } from "../request-handler";
@@ -50,8 +49,8 @@ export async function handleReceivedProtocolMessage(
     requestHandler
   );
 
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
+  const postProtocolStateChannelsMap = await requestHandler.processQueue.addTask(
+    queueNames,
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
