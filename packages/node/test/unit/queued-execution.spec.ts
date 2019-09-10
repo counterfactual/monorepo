@@ -1,10 +1,40 @@
 import Queue from "p-queue";
 
-import { executeFunctionWithinQueues } from "../../src/methods/queued-execution";
+import { addToManyQueues } from "../../src/methods/queued-execution";
 
-describe("executeFunctionWithinQueues", () => {
+describe("p-queue", () => {
+  it("should be possible to mimic onEmpty via inspection of _queue", async () => {
+    const q = new Queue({ concurrency: 1 });
+    q.add(() => new Promise(r => setTimeout(() => r("abc"), 250)));
+    const p = Promise.all(q["queue"]["_queue"]);
+    const ret = await q.add(
+      () =>
+        new Promise(async r => {
+          await p;
+          r("abc");
+        })
+    );
+    expect(ret).toBe("abc");
+  });
+
+  it("should be possible mimic onIdle (for a subset of queue) via dummy promise", async () => {
+    const q = new Queue({ concurrency: 1 });
+    q.add(() => new Promise(r => setTimeout(() => r("abc"), 250)));
+    const p = q.add(() => new Promise(r => r()));
+    const ret = await q.add(
+      () =>
+        new Promise(async r => {
+          await p;
+          r("abc");
+        })
+    );
+    expect(ret).toBe("abc");
+  });
+});
+
+describe("addToManyQueues", () => {
   it("should work with one queue", async () => {
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       [new Queue({ concurrency: 1 })],
       () => new Promise(r => setTimeout(() => r("abc"), 1))
     );
@@ -18,7 +48,7 @@ describe("executeFunctionWithinQueues", () => {
     const queue2 = new Queue({ concurrency: 1 });
     queue1.on("active", () => (noTimesQueueBecameActive += 1));
     queue2.on("active", () => (noTimesQueueBecameActive += 1));
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       [queue1, queue2],
       () =>
         new Promise(r => {
@@ -28,7 +58,7 @@ describe("executeFunctionWithinQueues", () => {
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
-    expect(noTimesQueueBecameActive).toBe(2);
+    expect(noTimesQueueBecameActive).toBe(4);
   });
 
   it("should work with 10 queues", async () => {
@@ -39,7 +69,7 @@ describe("executeFunctionWithinQueues", () => {
       queues.push(new Queue({ concurrency: 1 }));
     }
     queues.forEach(q => q.on("active", () => (noTimesQueueBecameActive += 1)));
-    const ret = await executeFunctionWithinQueues(
+    const ret = await addToManyQueues(
       queues,
       () =>
         new Promise(r => {
@@ -49,7 +79,7 @@ describe("executeFunctionWithinQueues", () => {
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
-    expect(noTimesQueueBecameActive).toBe(10);
+    expect(noTimesQueueBecameActive).toBe(20);
   });
 
   it("should work when called concurrently with one queue", async () => {
@@ -68,7 +98,7 @@ describe("executeFunctionWithinQueues", () => {
         expect(hasExecutionFinishedOnFirstOne).toBe(false);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
         expect(hasExecutionFinishedOnSecondOne).toBe(false);
-      } else if (i === 2) {
+      } else if (i === 3) {
         expect(hasExecutionStartedOnFirstOne).toBe(true);
         expect(hasExecutionFinishedOnFirstOne).toBe(true);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
@@ -76,7 +106,7 @@ describe("executeFunctionWithinQueues", () => {
       }
     });
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [sharedQueue],
       () =>
         new Promise(async r => {
@@ -87,13 +117,13 @@ describe("executeFunctionWithinQueues", () => {
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
-          expect(sharedQueue.pending + sharedQueue.size).toEqual(2);
+          expect(sharedQueue.pending + sharedQueue.size).toEqual(3);
           hasExecutionFinishedOnFirstOne = true;
           r();
         })
     );
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [sharedQueue],
       () =>
         new Promise(r => {
@@ -178,7 +208,7 @@ describe("executeFunctionWithinQueues", () => {
       assertCompletion();
     });
 
-    executeFunctionWithinQueues(
+    addToManyQueues(
       [queue0, queue1],
       () =>
         new Promise(async r => {
@@ -188,18 +218,23 @@ describe("executeFunctionWithinQueues", () => {
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
-          expect(queue0.pending + queue0.size).toEqual(2);
-          expect(queue1.pending + queue1.size).toEqual(2);
+          expect(queue0.pending).toEqual(1);
+          expect(queue0.size).toEqual(2);
+          expect(queue1.pending).toEqual(1);
+          expect(queue1.size).toEqual(2);
           noTimesExecutionFunctionRan[0] += 1;
           hasExecutionFinishedOnFirstOne = true;
           r();
         })
     );
 
-    executeFunctionWithinQueues(
+    await addToManyQueues(
       [queue0, queue1],
       () =>
         new Promise(r => {
+          expect(noTimesExecutionFunctionRan).toEqual([1, 0]);
+          expect(queue0.pending).toEqual(1);
+          expect(queue0.size).toEqual(0);
           hasExecutionStartedOnSecondOne = true;
           noTimesExecutionFunctionRan[1] += 1;
           hasExecutionFinishedOnSecondOne = true;
@@ -211,6 +246,6 @@ describe("executeFunctionWithinQueues", () => {
     await queue1.onIdle();
 
     expect(noTimesExecutionFunctionRan).toEqual([1, 1]);
-    expect(noTimesQueueBecameActive).toEqual([2, 2]);
+    expect(noTimesQueueBecameActive).toEqual([4, 4]);
   });
 });
