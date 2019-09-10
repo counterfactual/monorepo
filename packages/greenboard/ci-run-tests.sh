@@ -102,6 +102,8 @@ echo "OK"
 
 if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ]; then
   echo "Cannot run tests, Hub/Wallet UI initialization failed"
+  mkdir -p /tmp/core_dumps
+  cp /home/circleci/project/packages/simple-hub-server/core* /tmp/core_dumps
 else
   echo "Running tests now!"
   xvfb-run yarn start
