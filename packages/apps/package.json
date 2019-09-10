@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
-    "verify-solc": "waffle waffle.js && diff build expected-build-artifacts",
+    "ensure-build-artifacts-match-solidity-code": "waffle waffle.js && diff build expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.6",
-    "@types/chai": "4.2.0",
+    "@types/chai": "4.2.1",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.1.0",
@@ -35,7 +35,7 @@
     "ethlint": "1.2.4",
     "mocha": "6.2.0",
     "solc": "0.5.11",
-    "truffle": "5.0.34",
+    "truffle": "5.0.35",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",

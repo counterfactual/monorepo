@@ -6,7 +6,6 @@ import { HashZero } from "ethers/constants";
 import { Provider, TransactionResponse } from "ethers/providers";
 import { Interface } from "ethers/utils";
 import log from "loglevel";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { xkeysToSortedKthAddresses } from "../../../machine";
@@ -43,10 +42,8 @@ export default class CreateChannelController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
-    requestHandler: RequestHandler
-  ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue(CreateChannelController.methodName)];
+  protected async getShardKeysForQueueing(): Promise<string[]> {
+    return [Node.RpcMethodName.CREATE_CHANNEL];
   }
 
   protected async executeMethodImplementation(
@@ -96,14 +93,14 @@ export default class CreateChannelController extends NodeController {
     const { owners } = params;
     const {
       publicIdentifier,
-      instructionExecutor,
+      protocolRunner,
       store,
       outgoing
     } = requestHandler;
 
     const [responderXpub] = owners.filter(x => x !== publicIdentifier);
 
-    const channel = (await instructionExecutor.runSetupProtocol({
+    const channel = (await protocolRunner.runSetupProtocol({
       multisigAddress,
       responderXpub,
       initiatorXpub: publicIdentifier

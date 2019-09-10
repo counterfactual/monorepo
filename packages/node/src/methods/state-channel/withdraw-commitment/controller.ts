@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { WithdrawController } from "../..";
@@ -14,11 +13,11 @@ export default class WithdrawCommitmentController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW_COMMITMENT)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.WithdrawCommitmentParams
-  ): Promise<Queue[]> {
-    return WithdrawController.enqueueByShard(requestHandler, params);
+  ): Promise<string[]> {
+    return WithdrawController.getShardKeysForQueueing(requestHandler, params);
   }
 
   protected async executeMethodImplementation(

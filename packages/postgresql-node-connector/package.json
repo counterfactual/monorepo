@@ -24,8 +24,8 @@
   },
   "devDependencies": {
     "@types/jest": "24.0.15",
-    "@types/node": "12.7.3",
-    "@types/pg": "7.11.0",
+    "@types/node": "12.7.4",
+    "@types/pg": "7.11.1",
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
     "tslint": "5.19.0",

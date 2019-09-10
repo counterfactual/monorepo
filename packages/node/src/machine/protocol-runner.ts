@@ -68,7 +68,7 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
   );
 }
 
-export class InstructionExecutor {
+export class ProtocolRunner {
   public middlewares: MiddlewareContainer;
 
   constructor(

@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
-    "verify-solc": "waffle waffle.js && diff build expected-build-artifacts",
+    "ensure-build-artifacts-match-solidity-code": "waffle waffle.js && diff build expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -34,8 +34,8 @@
   "devDependencies": {
     "@counterfactual/types": "0.0.38",
     "@counterfactual/typescript-typings": "0.1.2",
-    "@types/chai": "4.2.0",
-    "@types/node": "12.7.3",
+    "@types/node": "12.7.4",
+    "@types/chai": "4.2.1",
     "chai": "4.2.0",
     "dotenv": "8.1.0",
     "eth-gas-reporter": "0.2.11",
@@ -46,7 +46,7 @@
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
     "solc": "0.5.11",
-    "truffle": "5.0.34",
+    "truffle": "5.0.35",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",

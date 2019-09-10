@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -14,10 +13,10 @@ export default class InstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
-  ): Promise<Queue[]> {
+  ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
 
@@ -37,10 +36,7 @@ export default class InstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    return [
-      requestHandler.getShardedQueue(multisigAddressWithHub),
-      requestHandler.getShardedQueue(multisigAddressWithResponding)
-    ];
+    return [multisigAddressWithHub, multisigAddressWithResponding];
   }
 
   protected async beforeExecution(
@@ -83,38 +79,13 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ): Promise<Node.InstallVirtualResult> {
-    const {
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      messagingService
-    } = requestHandler;
+    const { store, protocolRunner } = requestHandler;
 
     const { appInstanceId } = params;
 
     await store.getAppInstanceProposal(appInstanceId);
 
-    const appInstanceProposal = await installVirtual(
-      store,
-      instructionExecutor,
-      params
-    );
-
-    const installVirtualApprovalMsg: InstallVirtualMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.INSTALL_VIRTUAL,
-      data: {
-        params: {
-          appInstanceId
-        }
-      }
-    };
-
-    // TODO: Remove this and add a handler in protocolMessageEventController
-    await messagingService.send(
-      appInstanceProposal.proposedByIdentifier,
-      installVirtualApprovalMsg
-    );
+    await installVirtual(store, protocolRunner, params);
 
     return {
       appInstance: (await store.getAppInstance(appInstanceId)).toJson()

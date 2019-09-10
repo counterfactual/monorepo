@@ -1,6 +1,4 @@
 import {
-  handleReceivedInstallMessage,
-  handleReceivedInstallVirtualMessage,
   handleReceivedProposalMessage,
   handleReceivedProposeVirtualMessage,
   handleRejectProposalMessage
@@ -100,8 +98,6 @@ export const createRpcRouter = (requestHandler: RequestHandler) =>
   new RpcRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
-  [NODE_EVENTS.INSTALL]: handleReceivedInstallMessage,
-  [NODE_EVENTS.INSTALL_VIRTUAL]: handleReceivedInstallVirtualMessage,
   [NODE_EVENTS.PROPOSE_INSTALL]: handleReceivedProposalMessage,
   [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: handleReceivedProposeVirtualMessage,
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: handleReceivedProtocolMessage,

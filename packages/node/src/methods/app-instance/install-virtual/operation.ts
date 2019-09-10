@@ -1,6 +1,6 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import {
@@ -10,7 +10,7 @@ import {
 
 export async function installVirtual(
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   params: Node.InstallParams
 ): Promise<AppInstanceProposal> {
   const { appInstanceId } = params;
@@ -43,7 +43,7 @@ export async function installVirtual(
   }
 
   try {
-    updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+    updatedStateChannelsMap = await protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       await store.getStateChannelsMap(),
       {

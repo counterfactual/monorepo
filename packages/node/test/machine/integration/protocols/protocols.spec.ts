@@ -38,7 +38,7 @@ describe("Three mininodes", () => {
 
     await tr.setup();
 
-    await tr.mininodeA.ie.initiateProtocol(
+    await tr.mininodeA.protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       tr.mininodeA.scm,
       {
@@ -68,17 +68,21 @@ describe("Three mininodes", () => {
 
     expect(virtualAppInstance.isVirtualApp);
 
-    await tr.mininodeA.ie.initiateProtocol(Protocol.Update, tr.mininodeA.scm, {
-      initiatorXpub: tr.mininodeA.xpub,
-      responderXpub: tr.mininodeC.xpub,
-      multisigAddress: tr.multisigAC,
-      appIdentityHash: virtualAppInstance.identityHash,
-      newState: {
-        counter: 1
+    await tr.mininodeA.protocolRunner.initiateProtocol(
+      Protocol.Update,
+      tr.mininodeA.scm,
+      {
+        initiatorXpub: tr.mininodeA.xpub,
+        responderXpub: tr.mininodeC.xpub,
+        multisigAddress: tr.multisigAC,
+        appIdentityHash: virtualAppInstance.identityHash,
+        newState: {
+          counter: 1
+        }
       }
-    });
+    );
 
-    await tr.mininodeA.ie.initiateProtocol(
+    await tr.mininodeA.protocolRunner.initiateProtocol(
       Protocol.TakeAction,
       tr.mininodeA.scm,
       {
@@ -93,7 +97,7 @@ describe("Three mininodes", () => {
       }
     );
 
-    await tr.mininodeA.ie.initiateProtocol(
+    await tr.mininodeA.protocolRunner.initiateProtocol(
       Protocol.UninstallVirtualApp,
       tr.mininodeA.scm,
       {
