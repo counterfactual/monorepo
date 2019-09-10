@@ -120,10 +120,6 @@ jobs:
       - <<: *restore_dep
 
       - run:
-          name: Enabling core dumps
-          command: ulimit -c unlimited
-
-      - run:
           command: |
             mkdir -p /tmp/core_dumps
             cp /home/circleci/project/packages/greenboard/core /tmp/core_dumps/greenboard-core

@@ -9,6 +9,9 @@ alias yarn_rm_command="yarn $YARN_OP_FLAGS remove"
 alias yarn_add_command="yarn $YARN_BUILD_FLAGS add -D"
 alias yann_add_global_command="yarn global add $YARN_BUILD_FLAGS"
 
+# Enable core dumps.
+ulimit -c unlimited
+
 # Clone MetaMask.
 echo -n "Cloning MetaMask..."
   git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/${METAMASK_REPOSITORY} $WORKING_DIRECTORY/metamask &>/dev/null
