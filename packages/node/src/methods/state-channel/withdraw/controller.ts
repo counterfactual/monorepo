@@ -1,6 +1,5 @@
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
@@ -21,10 +20,10 @@ export default class WithdrawController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
-  public static async enqueueByShard(
+  public static async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
 
     const stateChannel = await store.getStateChannel(params.multisigAddress);
@@ -54,7 +53,7 @@ export default class WithdrawController extends NodeController {
       );
     }
 
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
+    return [params.multisigAddress];
   }
 
   protected async executeMethodImplementation(

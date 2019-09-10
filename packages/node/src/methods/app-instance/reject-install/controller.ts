@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -8,18 +7,13 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
-  ): Promise<Queue[]> {
-    const { store } = requestHandler;
+  ): Promise<string[]> {
     const { appInstanceId } = params;
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(appInstanceId)
-      )
-    ];
+    return [appInstanceId];
   }
 
   @jsonRpcMethod(Node.RpcMethodName.REJECT_INSTALL)

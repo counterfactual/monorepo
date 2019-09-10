@@ -1,10 +1,10 @@
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   initiatorXpub: string,
   responderXpub: string,
   appInstanceId: string
@@ -13,7 +13,7 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  const stateChannelsMap = await protocolRunner.initiateProtocol(
     Protocol.Uninstall,
     await store.getStateChannelsMap(),
     {

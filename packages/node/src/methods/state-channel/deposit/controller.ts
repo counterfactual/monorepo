@@ -2,7 +2,6 @@ import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build-
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers/utils";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
@@ -27,11 +26,11 @@ export default class DepositController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.DepositParams
-  ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
+  ): Promise<string[]> {
+    return [params.multisigAddress];
   }
 
   protected async beforeExecution(

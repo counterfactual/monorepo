@@ -1,9 +1,8 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
@@ -22,13 +21,12 @@ export default class UpdateStateController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
-  ): Promise<Queue[]> {
-    const { appInstanceId } = params;
-
-    return [requestHandler.getShardedQueue(appInstanceId)];
+  ): Promise<string[]> {
+    return [params.appInstanceId];
   }
 
   protected async beforeExecution(
@@ -58,7 +56,7 @@ export default class UpdateStateController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
   ): Promise<Node.UpdateStateResult> {
-    const { store, publicIdentifier, instructionExecutor } = requestHandler;
+    const { store, publicIdentifier, protocolRunner } = requestHandler;
     const { appInstanceId, newState } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -71,7 +69,7 @@ export default class UpdateStateController extends NodeController {
     await runUpdateStateProtocol(
       appInstanceId,
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       responderXpub,
       newState
@@ -84,14 +82,14 @@ export default class UpdateStateController extends NodeController {
 async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   initiatorXpub: string,
   responderXpub: string,
   newState: SolidityValueType
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  const stateChannelsMap = await protocolRunner.initiateProtocol(
     Protocol.Update,
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]

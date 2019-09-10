@@ -1,10 +1,7 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { Controller } from "rpc-server";
 
 import { RequestHandler } from "../request-handler";
-
-import { executeFunctionWithinQueues } from "./queued-execution";
 
 export abstract class NodeController extends Controller {
   public static readonly methodName: Node.MethodName;
@@ -15,9 +12,17 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult> {
     await this.beforeExecution(requestHandler, params);
 
-    const ret = await executeFunctionWithinQueues(
-      await this.enqueueByShard(requestHandler, params),
-      () => this.executeMethodImplementation(requestHandler, params)
+    const queueNames = await this.getShardKeysForQueueing(
+      requestHandler,
+      params
+    );
+
+    const createExecutionPromise = () =>
+      this.executeMethodImplementation(requestHandler, params);
+
+    const ret = await requestHandler.processQueue.addTask(
+      queueNames,
+      createExecutionPromise
     );
 
     await this.afterExecution(requestHandler, params);
@@ -44,12 +49,12 @@ export abstract class NodeController extends Controller {
     params: Node.MethodParams
   ): Promise<void> {}
 
-  protected async enqueueByShard(
+  protected async getShardKeysForQueueing(
     // @ts-ignore
     requestHandler: RequestHandler,
     // @ts-ignore
     params: Node.MethodParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     return [];
   }
 }
