@@ -20,6 +20,10 @@ export abstract class NodeController extends Controller {
     const createExecutionPromise = () =>
       this.executeMethodImplementation(requestHandler, params);
 
+    if (!this.methodName) {
+      console.log("undefined method name", this);
+    }
+
     const ret = await requestHandler.processQueue.addTask(
       this.methodName!,
       requestHandler.publicIdentifier,

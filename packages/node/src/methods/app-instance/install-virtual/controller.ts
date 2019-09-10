@@ -10,6 +10,11 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 import { installVirtual } from "./operation";
 
 export default class InstallVirtualController extends NodeController {
+  constructor() {
+    super();
+    this.methodName = Node.RpcMethodName.INSTALL_VIRTUAL;
+  }
+
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 

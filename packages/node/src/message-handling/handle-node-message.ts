@@ -1,3 +1,5 @@
+import { Node } from "@counterfactual/types";
+
 import {
   getNextNodeAddress,
   getOrCreateStateChannelBetweenVirtualAppParticipants
@@ -11,7 +13,6 @@ import {
   RejectProposalMessage
 } from "../types";
 import { getCreate2MultisigAddress } from "../utils";
-import { Protocol } from "../machine";
 
 export async function handleReceivedProposalMessage(
   requestHandler: RequestHandler,
@@ -31,7 +32,7 @@ export async function handleReceivedProposalMessage(
   );
 
   await requestHandler.processQueue.addTask(
-    Protocol.Install,
+    Node.RpcMethodName.PROPOSE_INSTALL,
     publicIdentifier,
     [multisigAddress],
     async () => {
@@ -115,7 +116,7 @@ export async function handleReceivedProposeVirtualMessage(
     );
 
     await requestHandler.processQueue.addTask(
-      Protocol.InstallVirtualApp,
+      Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
       publicIdentifier,
       [multisigAddress],
       async () => {

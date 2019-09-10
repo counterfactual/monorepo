@@ -32,6 +32,7 @@ export async function addToManyQueues(
    * will be called in every queue) and so to ensure it only runs
    * once overall we memoize it.
    */
+  console.trace();
   async function runTaskWithMemoization() {
     let error;
     let blockingQueue;
@@ -168,6 +169,33 @@ function operationIsNestedInProtocol(
       `${xpub} Performing uninstall balance refund app within the deposit protocol`
     );
     return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL &&
+    operationBeingPerformed === Protocol.Install
+  ) {
+    console.log(`${xpub} Performing install app within the proposal flow`);
+    return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.INSTALL &&
+    operationBeingPerformed === Protocol.Install
+  ) {
+    console.log(
+      `${xpub} Performing install protocol in response to counter party initiating install`
+    );
+    return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL &&
+    operationBeingPerformed === Protocol.InstallVirtualApp
+  ) {
+    console.log(
+      `${xpub} Performing install virtual protocol in response to counter party proposing install`
+    );
   }
   return false;
 }
