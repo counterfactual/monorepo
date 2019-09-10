@@ -1,16 +1,16 @@
 import { Node } from "@counterfactual/types";
 
 export class MemoryLockService implements Node.ILockService {
-  private readonly locks: Map<string, JSON> = new Map();
+  private readonly locks: Map<string, boolean> = new Map();
   constructor() {}
-  async get(path: string): Promise<JSON> {
+  async get(path: string): Promise<boolean> {
     if (this.locks.has(path)) {
       return this.locks.get(path)!;
     }
-    throw Error(`No lock exists for path: ${path}`);
+    return false;
   }
 
-  async set(path: string, value: JSON): Promise<void> {
+  async set(path: string, value: boolean): Promise<void> {
     this.locks.set(path, value);
   }
 }

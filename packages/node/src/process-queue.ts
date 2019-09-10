@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import Queue, { Task } from "p-queue";
 
 import { addToManyQueues } from "./methods/queued-execution";
@@ -5,10 +6,16 @@ import { addToManyQueues } from "./methods/queued-execution";
 export default class ProcessQueue {
   private readonly queues: Map<string, Queue> = new Map<string, Queue>();
 
-  addTask(queueKeys: string[], task: Task<any>) {
+  addTask(
+    queueKeys: string[],
+    task: Task<any>,
+    lockService: Node.ILockService
+  ) {
     return addToManyQueues(
+      queueKeys,
       queueKeys.map(this.getOrCreateQueue.bind(this)),
-      task
+      task,
+      lockService
     );
   }
 

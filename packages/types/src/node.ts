@@ -65,8 +65,8 @@ export namespace Node {
   }
 
   export interface ILockService {
-    get(path: string): Promise<JSON>;
-    set(path: string, value: JSON): Promise<void>;
+    get(path: string): Promise<boolean>;
+    set(path: string, value: boolean): Promise<void>;
   }
 
   export enum ErrorType {

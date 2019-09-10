@@ -107,6 +107,7 @@ export class Node {
       this.incoming,
       this.outgoing,
       this.storeService,
+      this.lockService,
       this.messagingService,
       this.protocolRunner,
       this.networkContext,

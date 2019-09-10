@@ -29,26 +29,30 @@ export async function handleReceivedProposalMessage(
     networkContext.MinimumViableMultisig
   );
 
-  await requestHandler.processQueue.addTask([multisigAddress], async () => {
-    const stateChannel = await store.getStateChannel(multisigAddress);
+  await requestHandler.processQueue.addTask(
+    [multisigAddress],
+    async () => {
+      const stateChannel = await store.getStateChannel(multisigAddress);
 
-    await store.addAppInstanceProposal(
-      stateChannel,
-      new AppInstanceProposal(
-        {
-          ...params,
-          proposedByIdentifier,
-          initiatorDeposit: params.responderDeposit,
-          initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
-          responderDeposit: params.initiatorDeposit!,
-          responderDepositTokenAddress: params.initiatorDepositTokenAddress!
-        },
-        stateChannel
-      )
-    );
+      await store.addAppInstanceProposal(
+        stateChannel,
+        new AppInstanceProposal(
+          {
+            ...params,
+            proposedByIdentifier,
+            initiatorDeposit: params.responderDeposit,
+            initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
+            responderDeposit: params.initiatorDeposit!,
+            responderDepositTokenAddress: params.initiatorDepositTokenAddress!
+          },
+          stateChannel
+        )
+      );
 
-    await store.saveStateChannel(stateChannel.bumpProposedApps());
-  });
+      await store.saveStateChannel(stateChannel.bumpProposedApps());
+    },
+    requestHandler.lockService
+  );
 }
 
 export async function handleRejectProposalMessage(
@@ -107,31 +111,35 @@ export async function handleReceivedProposeVirtualMessage(
       networkContext.MinimumViableMultisig
     );
 
-    await requestHandler.processQueue.addTask([multisigAddress], async () => {
-      const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-        multisigAddress,
-        proposedByIdentifier,
-        proposedToIdentifier,
-        intermediaryIdentifier,
-        store,
-        networkContext
-      );
+    await requestHandler.processQueue.addTask(
+      [multisigAddress],
+      async () => {
+        const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+          multisigAddress,
+          proposedByIdentifier,
+          proposedToIdentifier,
+          intermediaryIdentifier,
+          store,
+          networkContext
+        );
 
-      await store.addVirtualAppInstanceProposal(
-        new AppInstanceProposal(
-          {
-            ...params,
-            proposedByIdentifier,
-            initiatorDeposit: responderDeposit,
-            initiatorDepositTokenAddress: responderDepositTokenAddress!,
-            responderDeposit: initiatorDeposit,
-            responderDepositTokenAddress: initiatorDepositTokenAddress!
-          },
-          stateChannel
-        )
-      );
+        await store.addVirtualAppInstanceProposal(
+          new AppInstanceProposal(
+            {
+              ...params,
+              proposedByIdentifier,
+              initiatorDeposit: responderDeposit,
+              initiatorDepositTokenAddress: responderDepositTokenAddress!,
+              responderDeposit: initiatorDeposit,
+              responderDepositTokenAddress: initiatorDepositTokenAddress!
+            },
+            stateChannel
+          )
+        );
 
-      await store.saveStateChannel(stateChannel.bumpProposedApps());
-    });
+        await store.saveStateChannel(stateChannel.bumpProposedApps());
+      },
+      requestHandler.lockService
+    );
   }
 }

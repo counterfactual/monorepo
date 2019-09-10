@@ -29,6 +29,7 @@ export class RequestHandler {
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
     readonly storeService: Node.IStoreService,
+    readonly lockService: Node.ILockService,
     readonly messagingService: Node.IMessagingService,
     readonly protocolRunner: ProtocolRunner,
     readonly networkContext: NetworkContext,

@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import Queue, { Task } from "p-queue";
 
 /**
@@ -8,7 +9,12 @@ import Queue, { Task } from "p-queue";
  * @param {Task<any>} task - any function which returns a promise-like
  * @returns
  */
-export async function addToManyQueues(queues: Queue[], task: Task<any>) {
+export async function addToManyQueues(
+  queueNames: string[],
+  queues: Queue[],
+  task: Task<any>,
+  lockService: Node.ILockService
+) {
   if (queues.length === 0) return await task();
 
   let promise: PromiseLike<any>;
@@ -18,8 +24,30 @@ export async function addToManyQueues(queues: Queue[], task: Task<any>) {
    * will be called in every queue) and so to ensure it only runs
    * once overall we memoize it.
    */
-  function runTaskWithMemoization() {
-    if (!promise) promise = task();
+  async function runTaskWithMemoization() {
+    const queuesToUnlock: string[] = [];
+    try {
+      if (!promise) {
+        for (const queueName of queueNames) {
+          const queueLocked = await lockService.get(queueName);
+          if (queueLocked) {
+            throw Error(`Can't run task ${task} on locked queue ${queueName}`);
+          }
+
+          console.log(`Locking queue ${queueName}`);
+          await lockService.set(queueName, true);
+          console.log(
+            `Queue ${queueName} locked: ${await lockService.get(queueName)}`
+          );
+          queuesToUnlock.push(queueName);
+        }
+        promise = task();
+      }
+    } finally {
+      for (const queueToUnlock of queuesToUnlock) {
+        await lockService.set(queueToUnlock, false);
+      }
+    }
     return promise;
   }
 

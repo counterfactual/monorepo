@@ -43,7 +43,14 @@ export default class CreateChannelController extends NodeController {
   public executeMethod = super.executeMethod;
 
   protected async getShardKeysForQueueing(): Promise<string[]> {
-    return [Node.RpcMethodName.CREATE_CHANNEL];
+    const { owners, retryCount } = params;
+    const { wallet, networkContext, provider, store } = requestHandler;
+    const multisigAddress = getCreate2MultisigAddress(
+      owners,
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+    return [multisigAddress];
   }
 
   protected async executeMethodImplementation(

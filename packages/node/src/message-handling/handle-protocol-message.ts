@@ -33,6 +33,7 @@ export async function handleReceivedProtocolMessage(
     publicIdentifier,
     protocolRunner,
     store,
+    lockService,
     router,
     networkContext
   } = requestHandler;
@@ -64,7 +65,8 @@ export async function handleReceivedProtocolMessage(
       }
 
       return stateChannelsMap;
-    }
+    },
+    lockService
   );
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(

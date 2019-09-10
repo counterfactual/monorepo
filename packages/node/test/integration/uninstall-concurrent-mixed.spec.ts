@@ -22,7 +22,7 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
-describe.skip("Concurrently uninstalling virtual and regular applications without issue", () => {
+describe("Concurrently uninstalling virtual and regular applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
   let nodeA: Node;
