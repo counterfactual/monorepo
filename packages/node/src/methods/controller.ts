@@ -4,7 +4,7 @@ import { Controller } from "rpc-server";
 import { RequestHandler } from "../request-handler";
 
 export abstract class NodeController extends Controller {
-  public static readonly methodName: Node.MethodName;
+  public methodName?: Node.RpcMethodName;
 
   public async executeMethod(
     requestHandler: RequestHandler,
@@ -21,6 +21,8 @@ export abstract class NodeController extends Controller {
       this.executeMethodImplementation(requestHandler, params);
 
     const ret = await requestHandler.processQueue.addTask(
+      this.methodName!,
+      requestHandler.publicIdentifier,
       queueNames,
       createExecutionPromise,
       requestHandler.lockService

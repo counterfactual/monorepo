@@ -11,6 +11,7 @@ import {
   RejectProposalMessage
 } from "../types";
 import { getCreate2MultisigAddress } from "../utils";
+import { Protocol } from "../machine";
 
 export async function handleReceivedProposalMessage(
   requestHandler: RequestHandler,
@@ -30,6 +31,8 @@ export async function handleReceivedProposalMessage(
   );
 
   await requestHandler.processQueue.addTask(
+    Protocol.Install,
+    publicIdentifier,
     [multisigAddress],
     async () => {
       const stateChannel = await store.getStateChannel(multisigAddress);
@@ -112,6 +115,8 @@ export async function handleReceivedProposeVirtualMessage(
     );
 
     await requestHandler.processQueue.addTask(
+      Protocol.InstallVirtualApp,
+      publicIdentifier,
       [multisigAddress],
       async () => {
         const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(

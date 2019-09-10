@@ -13,6 +13,11 @@ import { install } from "./operation";
  * @param params
  */
 export default class InstallController extends NodeController {
+  constructor() {
+    super();
+    this.methodName = Node.RpcMethodName.INSTALL;
+  }
+
   @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 

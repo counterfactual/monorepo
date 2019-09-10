@@ -1,6 +1,11 @@
 import { Node } from "@counterfactual/types";
 import Queue, { Task } from "p-queue";
 
+import { Protocol } from "../machine";
+import { sleep } from "../utils";
+
+type Lock = Node.Lock;
+
 /**
  * Executes a function call and adds it to one or more promise queues.
  *
@@ -10,6 +15,8 @@ import Queue, { Task } from "p-queue";
  * @returns
  */
 export async function addToManyQueues(
+  protocolOrMethodName: Protocol | Node.RpcMethodName,
+  xpub: string,
   queueNames: string[],
   queues: Queue[],
   task: Task<any>,
@@ -19,34 +26,80 @@ export async function addToManyQueues(
 
   let promise: PromiseLike<any>;
 
+  const queuesToUnlock: string[] = [];
   /**
    * This promise will get run `n` times for `n` queues (since it
    * will be called in every queue) and so to ensure it only runs
    * once overall we memoize it.
    */
   async function runTaskWithMemoization() {
-    const queuesToUnlock: string[] = [];
-    try {
-      if (!promise) {
-        for (const queueName of queueNames) {
-          const queueLocked = await lockService.get(queueName);
-          if (queueLocked) {
-            throw Error(`Can't run task ${task} on locked queue ${queueName}`);
+    let error;
+    let blockingQueue;
+    for (let i = 0; i < 5; i += 1) {
+      try {
+        if (!promise) {
+          for (const queueName of queueNames) {
+            const lock: Lock = await lockService.get(queueName);
+            if (lock.locked) {
+              if (
+                !operationIsNestedInProtocol(
+                  lock.operation,
+                  protocolOrMethodName,
+                  xpub
+                )
+              ) {
+                blockingQueue = queueName;
+                error = `${xpub} can't run task on locked queue ${queueName} for protocol/method ${protocolOrMethodName}`;
+                throw Error(error);
+              }
+              // else it's safe to operate on channel with an already-held lock
+              // since the operation is nested within the protocol operating
+              // on the channel
+            }
+
+            // if an operation is nested within a protocol that already has a
+            // lock on the channel, we don't modify the lock
+            if (!lock.locked) {
+              console.log(
+                `${xpub} locking queue ${queueName} for protocol/method ${protocolOrMethodName}`
+              );
+
+              await lockService.set(queueName, {
+                operation: protocolOrMethodName,
+                locked: true
+              } as Lock);
+
+              console.log(
+                `${xpub} locked queue ${queueName} for protocol/method ${protocolOrMethodName}`
+              );
+              queuesToUnlock.push(queueName);
+            }
           }
 
-          console.log(`Locking queue ${queueName}`);
-          await lockService.set(queueName, true);
-          console.log(
-            `Queue ${queueName} locked: ${await lockService.get(queueName)}`
-          );
-          queuesToUnlock.push(queueName);
+          promise = task();
+          error = null;
+          break;
         }
-        promise = task();
+      } catch (e) {
+        console.error(e);
+        for (const queueToUnlock of queuesToUnlock) {
+          await lockService.set(queueToUnlock, {
+            operation: protocolOrMethodName,
+            locked: false
+          });
+
+          console.log(
+            `Failed to get promise for task - ${xpub} unlocked queue ${queueToUnlock} for protocol/method ${protocolOrMethodName}`
+          );
+        }
+        console.log(
+          `${xpub} sleeping for 500 before trying ${protocolOrMethodName} on queue ${blockingQueue} to get task promise again for ${i} time...`
+        );
+        await sleep(500);
       }
-    } finally {
-      for (const queueToUnlock of queuesToUnlock) {
-        await lockService.set(queueToUnlock, false);
-      }
+    }
+    if (!promise) {
+      throw Error(error);
     }
     return promise;
   }
@@ -78,5 +131,43 @@ export async function addToManyQueues(
     )
   );
 
+  for (const queueToUnlock of queuesToUnlock) {
+    await lockService.set(queueToUnlock, {
+      operation: protocolOrMethodName,
+      locked: false
+    });
+
+    console.log(
+      `${xpub} unlocked queue ${queueToUnlock} for protocol ${protocolOrMethodName}`
+    );
+  }
+
   return await runTaskWithMemoization();
+}
+
+function operationIsNestedInProtocol(
+  operationOnLock: string,
+  operationBeingPerformed: Protocol | Node.RpcMethodName,
+  xpub: string
+) {
+  if (
+    operationOnLock === Node.RpcMethodName.DEPOSIT &&
+    operationBeingPerformed === Protocol.Install
+  ) {
+    console.log(
+      `${xpub} Performing install balance refund app within the deposit protocol`
+    );
+    return true;
+  }
+
+  if (
+    operationOnLock === Node.RpcMethodName.DEPOSIT &&
+    operationBeingPerformed === Protocol.Uninstall
+  ) {
+    console.log(
+      `${xpub} Performing uninstall balance refund app within the deposit protocol`
+    );
+    return true;
+  }
+  return false;
 }

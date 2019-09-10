@@ -39,18 +39,16 @@ const CREATE_PROXY_AND_SETUP_GAS = 500_000;
  * to whoever subscribed to the `NODE_EVENTS.CREATE_CHANNEL` event on the Node.
  */
 export default class CreateChannelController extends NodeController {
+  constructor() {
+    super();
+    this.methodName = Node.RpcMethodName.CREATE_CHANNEL;
+  }
+
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
   protected async getShardKeysForQueueing(): Promise<string[]> {
-    const { owners, retryCount } = params;
-    const { wallet, networkContext, provider, store } = requestHandler;
-    const multisigAddress = getCreate2MultisigAddress(
-      owners,
-      networkContext.ProxyFactory,
-      networkContext.MinimumViableMultisig
-    );
-    return [multisigAddress];
+    return [Node.RpcMethodName.CREATE_CHANNEL];
   }
 
   protected async executeMethodImplementation(

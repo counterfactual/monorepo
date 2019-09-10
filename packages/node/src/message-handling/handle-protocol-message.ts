@@ -51,6 +51,8 @@ export async function handleReceivedProtocolMessage(
   );
 
   const postProtocolStateChannelsMap = await requestHandler.processQueue.addTask(
+    protocol,
+    publicIdentifier,
     queueNames,
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
