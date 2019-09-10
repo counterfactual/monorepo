@@ -122,9 +122,9 @@ jobs:
       - run:
           command: |
             mkdir -p /tmp/core_dumps
-            cp /home/circleci/project/packages/greenboard/core /tmp/core_dumps/greenboard-core
-            cp /home/circleci/project/packages/simple-hub-server/core /tmp/core_dumps/hub-core
-            cp /home/circleci/project/packages/node/core /tmp/core_dumps/node-core
+            cp /home/circleci/project/packages/greenboard/core* /tmp/core_dumps/greenboard-core
+            cp /home/circleci/project/packages/simple-hub-server/core* /tmp/core_dumps/hub-core
+            cp /home/circleci/project/packages/node/core* /tmp/core_dumps/node-core
           when: on_fail
 
       - run:
