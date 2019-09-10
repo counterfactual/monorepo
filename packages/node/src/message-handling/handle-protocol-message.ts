@@ -337,7 +337,7 @@ async function getQueueNamesListByProtocolName(
         targetAppIdentityHash
       } = params as UninstallVirtualAppParams;
 
-      if (publicIdentifier === intermediaryXpub) {
+      if (publicIdentifier === intermediary) {
         return [
           multisigAddressFor([initiator, intermediary]),
           multisigAddressFor([responder, intermediary]),
@@ -345,10 +345,10 @@ async function getQueueNamesListByProtocolName(
         ];
       }
 
-      if (publicIdentifier === responderXpub) {
+      if (publicIdentifier === responder) {
         return [
-          multisigAddressFor([responderXpub, intermediaryXpub]),
-          multisigAddressFor([responderXpub, initiatorXpub]),
+          multisigAddressFor([responder, intermediary]),
+          multisigAddressFor([responder, initiator]),
           targetAppIdentityHash
         ];
       }
