@@ -22,7 +22,7 @@
     "@counterfactual/apps": "0.1.12",
     "@counterfactual/cf-adjudicator-contracts": "0.0.6",
     "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
-    "@counterfactual/types": "0.0.38",
+    "@counterfactual/types": "0.0.39-lock",
     "ethers": "4.0.36",
     "ganache-core": "2.7.0"
   }

@@ -55,6 +55,7 @@ export class Node {
   static async create(
     messagingService: NodeTypes.IMessagingService,
     storeService: NodeTypes.IStoreService,
+    lockService: NodeTypes.ILockService,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
@@ -63,6 +64,7 @@ export class Node {
     const node = new Node(
       messagingService,
       storeService,
+      lockService,
       nodeConfig,
       provider,
       networkOrNetworkContext,
@@ -75,6 +77,7 @@ export class Node {
   private constructor(
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
+    private readonly lockService: NodeTypes.ILockService,
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: EthereumNetworkName | NetworkContext,

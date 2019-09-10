@@ -64,6 +64,11 @@ export namespace Node {
     reset?(): Promise<void>;
   }
 
+  export interface ILockService {
+    get(path: string): Promise<JSON>;
+    set(path: string, value: JSON): Promise<void>;
+  }
+
   export enum ErrorType {
     ERROR = "error"
   }

@@ -13,6 +13,7 @@ import { v4 as generateUUID } from "uuid";
 
 import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
 import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
+import { MemoryLockService } from "../services/memory-lock-service";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import {
@@ -63,6 +64,7 @@ export async function setup(
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ): Promise<SetupContext> {
+  const globalLockService = new MemoryLockService();
   const setupContext: SetupContext = {};
 
   const nodeConfig = {
@@ -94,6 +96,7 @@ export async function setup(
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
+    globalLockService,
     nodeConfig,
     provider,
     global["networkContext"]
@@ -113,6 +116,7 @@ export async function setup(
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
+    globalLockService,
     nodeConfig,
     provider,
     global["networkContext"]
@@ -130,6 +134,7 @@ export async function setup(
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
+      globalLockService,
       nodeConfig,
       provider,
       global["networkContext"]
