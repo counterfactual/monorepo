@@ -29,7 +29,7 @@ restore_dep: &restore_dep
     key: dependency-cache-{{ checksum "yarn.lock" }}
 
 jobs:
-  verify-solc:
+  ensure-build-artifacts-match-solidity-code:
     <<: *defaults
     steps:
       - <<: *restore_code
@@ -43,9 +43,9 @@ jobs:
 
       - run: yarn run patch-package
 
-      - run: "cd packages/cf-funding-protocol-contracts && yarn run verify-solc"
-      - run: "cd packages/cf-adjudicator-contracts && yarn run verify-solc"
-      - run: "cd packages/apps && yarn run verify-solc"
+      - run: "cd packages/cf-funding-protocol-contracts && yarn run ensure-build-artifacts-match-solidity-code"
+      - run: "cd packages/cf-adjudicator-contracts && yarn run ensure-build-artifacts-match-solidity-code"
+      - run: "cd packages/apps && yarn run ensure-build-artifacts-match-solidity-code"
 
   build:
     <<: *defaults
@@ -158,7 +158,7 @@ workflows:
     jobs:
       - build
 
-      - verify-solc:
+      - ensure-build-artifacts-match-solidity-code:
           requires:
             - build
 
