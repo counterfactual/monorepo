@@ -116,4 +116,12 @@ cat ./chrome-profile/chrome_debug.log
 echo "Node storage dump =============================================="
 cat ./chrome-profile/greenboard-local-storage.json
 
+echo "File lists ====================================================="
+echo "Node"
+ls -alF $COUNTERFACTUAL_PATH/packages/node/*
+echo "Greenboard"
+ls -alF $COUNTERFACTUAL_PATH/packages/greenboard/*
+echo "Simple Hub Server"
+ls -alF $COUNTERFACTUAL_PATH/packages/simple-hub-server/*
+
 exit $WALLET_E2E_EXIT_CODE
