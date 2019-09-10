@@ -1,10 +1,7 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { Controller } from "rpc-server";
 
 import { RequestHandler } from "../request-handler";
-
-import { executeFunctionWithinQueues } from "./queued-execution";
 
 export abstract class NodeController extends Controller {
   public static readonly methodName: Node.MethodName;
@@ -20,13 +17,11 @@ export abstract class NodeController extends Controller {
       params
     );
 
-    const queues = queueNames.map(q => requestHandler.getShardedQueue(q));
-
     const createExecutionPromise = () =>
       this.executeMethodImplementation(requestHandler, params);
 
-    const ret = await executeFunctionWithinQueues(
-      queues,
+    const ret = await requestHandler.processQueue.addTask(
+      queueNames,
       createExecutionPromise
     );
 

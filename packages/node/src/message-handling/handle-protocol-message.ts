@@ -13,7 +13,6 @@ import {
 } from "../machine";
 import { ProtocolParameters } from "../machine/types";
 import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
-import { executeFunctionWithinQueues } from "../methods/queued-execution";
 import { StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
 import { RequestHandler } from "../request-handler";
@@ -23,7 +22,7 @@ import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
- * protocol execution directly to the instructionExecutor's message handler:
+ * protocol execution directly to the protocolRunner's message handler:
  * `runProtocolWithMessage`
  */
 export async function handleReceivedProtocolMessage(
@@ -32,7 +31,7 @@ export async function handleReceivedProtocolMessage(
 ) {
   const {
     publicIdentifier,
-    instructionExecutor,
+    protocolRunner,
     store,
     router,
     networkContext
@@ -50,12 +49,12 @@ export async function handleReceivedProtocolMessage(
     requestHandler
   );
 
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
+  const postProtocolStateChannelsMap = await requestHandler.processQueue.addTask(
+    queueNames,
     async () => {
       const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
-      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
+      const stateChannelsMap = await protocolRunner.runProtocolWithMessage(
         data,
         preProtocolStateChannelsMap
       );

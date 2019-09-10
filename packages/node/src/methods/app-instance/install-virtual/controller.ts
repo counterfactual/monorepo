@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -80,13 +79,13 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ): Promise<Node.InstallVirtualResult> {
-    const { store, instructionExecutor } = requestHandler;
+    const { store, protocolRunner } = requestHandler;
 
     const { appInstanceId } = params;
 
     await store.getAppInstanceProposal(appInstanceId);
 
-    await installVirtual(store, instructionExecutor, params);
+    await installVirtual(store, protocolRunner, params);
 
     return {
       appInstance: (await store.getAppInstance(appInstanceId)).toJson()

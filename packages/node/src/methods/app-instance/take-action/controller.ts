@@ -1,9 +1,8 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
@@ -59,7 +58,7 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<Node.TakeActionResult> {
-    const { store, publicIdentifier, instructionExecutor } = requestHandler;
+    const { store, publicIdentifier, protocolRunner } = requestHandler;
     const { appInstanceId, action } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -72,7 +71,7 @@ export default class TakeActionController extends NodeController {
     await runTakeActionProtocol(
       appInstanceId,
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       responderXpub,
       action
@@ -105,7 +104,7 @@ export default class TakeActionController extends NodeController {
 async function runTakeActionProtocol(
   appIdentityHash: string,
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   initiatorXpub: string,
   responderXpub: string,
   action: SolidityValueType
@@ -115,7 +114,7 @@ async function runTakeActionProtocol(
   let stateChannelsMap: Map<string, StateChannel>;
 
   try {
-    stateChannelsMap = await instructionExecutor.initiateProtocol(
+    stateChannelsMap = await protocolRunner.initiateProtocol(
       Protocol.TakeAction,
       new Map<string, StateChannel>([
         [stateChannel.multisigAddress, stateChannel]

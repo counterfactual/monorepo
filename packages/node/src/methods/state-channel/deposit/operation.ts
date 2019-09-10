@@ -38,7 +38,7 @@ export async function installBalanceRefundApp(
 ) {
   const {
     publicIdentifier,
-    instructionExecutor,
+    protocolRunner,
     networkContext,
     store,
     provider
@@ -87,7 +87,7 @@ export async function installBalanceRefundApp(
     disableLimit: true
   };
 
-  const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+  const updatedStateChannelsMap = await protocolRunner.initiateProtocol(
     Protocol.Install,
     stateChannelsMap,
     installParams
@@ -160,7 +160,7 @@ export async function uninstallBalanceRefundApp(
   const {
     publicIdentifier,
     store,
-    instructionExecutor,
+    protocolRunner,
     networkContext
   } = requestHandler;
 
@@ -178,7 +178,7 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(CoinBalanceRefundApp);
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  const stateChannelsMap = await protocolRunner.initiateProtocol(
     Protocol.Uninstall,
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([
