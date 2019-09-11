@@ -1,5 +1,7 @@
 import Queue, { Task } from "p-queue";
 
+import { Deferred } from "../deferred";
+
 /**
  * Executes a function call and adds it to one or more promise queues.
  *
@@ -34,19 +36,21 @@ export async function addToManyQueues(queues: Queue[], task: Task<any>) {
    * create a promise that says "every queue has finished up until
    * the time that addToManyQueues was called".
    */
-  const waitForEveryQueueToFinish = Promise.all(
-    queues.map(q => q.add(() => {}))
-  );
+  const deferreds = Array(queues.length).fill(new Deferred());
+  const waitForEveryQueueToFinish = Promise.all(deferreds);
 
   await Promise.all(
-    queues.map(q =>
+    queues.map((q, i) =>
       /**
        * Since any one of the queues could potentially finish early, we
        * add the `waitForEveryQueueToFinish` promise to all of the added
        * tasks to ensure that we wait for _all_ of them to finish before
        * actually executing the task.
        */
-      q.add(() => waitForEveryQueueToFinish.then(runTaskWithMemoization))
+      q.add(() => {
+        deferreds[i].resolve();
+        return waitForEveryQueueToFinish.then(runTaskWithMemoization);
+      })
     )
   );
 
