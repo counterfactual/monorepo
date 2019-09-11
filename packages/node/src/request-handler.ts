@@ -19,7 +19,6 @@ import { prettyPrintObject } from "./utils";
 export class RequestHandler {
   private readonly methods = new Map();
   private readonly events = new Map();
-  public readonly processQueue = new ProcessQueue();
 
   store: Store;
   router!: RpcRouter;
@@ -35,7 +34,8 @@ export class RequestHandler {
     readonly provider: BaseProvider,
     readonly wallet: Signer,
     storeKeyPrefix: string,
-    readonly blocksNeededForConfirmation: number
+    readonly blocksNeededForConfirmation: number,
+    public readonly processQueue: ProcessQueue
   ) {
     this.store = new Store(storeService, storeKeyPrefix, networkContext);
   }
