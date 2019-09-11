@@ -58,7 +58,7 @@ describe("addToManyQueues", () => {
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
-    expect(noTimesQueueBecameActive).toBe(4);
+    expect(noTimesQueueBecameActive).toBe(2);
   });
 
   it("should work with 10 queues", async () => {
@@ -79,7 +79,7 @@ describe("addToManyQueues", () => {
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
-    expect(noTimesQueueBecameActive).toBe(20);
+    expect(noTimesQueueBecameActive).toBe(10);
   });
 
   it("should work when called concurrently with one queue", async () => {
@@ -117,7 +117,7 @@ describe("addToManyQueues", () => {
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
-          expect(sharedQueue.pending + sharedQueue.size).toEqual(3);
+          expect(sharedQueue.pending + sharedQueue.size).toEqual(2);
           hasExecutionFinishedOnFirstOne = true;
           r();
         })
@@ -219,9 +219,9 @@ describe("addToManyQueues", () => {
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
           expect(queue0.pending).toEqual(1);
-          expect(queue0.size).toEqual(2);
+          expect(queue0.size).toEqual(1);
           expect(queue1.pending).toEqual(1);
-          expect(queue1.size).toEqual(2);
+          expect(queue1.size).toEqual(1);
           noTimesExecutionFunctionRan[0] += 1;
           hasExecutionFinishedOnFirstOne = true;
           r();
@@ -246,6 +246,6 @@ describe("addToManyQueues", () => {
     await queue1.onIdle();
 
     expect(noTimesExecutionFunctionRan).toEqual([1, 1]);
-    expect(noTimesQueueBecameActive).toEqual([4, 4]);
+    expect(noTimesQueueBecameActive).toEqual([2, 2]);
   });
 });
