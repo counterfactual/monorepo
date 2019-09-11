@@ -57,7 +57,7 @@ describe("Concurrently uninstalling virtual and installing virtual applications 
     );
   });
 
-  it.skip("will uninstall virtual and install virtual successfully when called by the same node", async done => {
+  it("will uninstall virtual and install virtual successfully when called by the same node", async done => {
     console.log('=========================')
     let completedEvents = 0;
     const registerEvent = () => {
@@ -88,7 +88,7 @@ describe("Concurrently uninstalling virtual and installing virtual applications 
     );
   });
 
-  it.skip("will uninstall virtual and install virtual successfully when called by different nodes", async done => {
+  it("will uninstall virtual and install virtual successfully when called by different nodes", async done => {
     let completedEvents = 0;
     const registerEvent = () => {
       completedEvents += 1;
