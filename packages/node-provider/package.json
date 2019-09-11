@@ -20,7 +20,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.39-lock",
+    "@counterfactual/types": "0.0.38",
     "@types/jest": "24.0.15",
     "@types/node": "12.7.4",
     "@types/web3": "1.0.19",

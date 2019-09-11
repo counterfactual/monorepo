@@ -17,6 +17,9 @@ import {
 import { runWithdrawProtocol } from "./operation";
 
 export default class WithdrawController extends NodeController {
+  public readonly methodName = Node.RpcMethodName.WITHDRAW;
+  public static readonly methodName = Node.RpcMethodName.WITHDRAW;
+
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 

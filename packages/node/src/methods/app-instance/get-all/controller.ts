@@ -10,6 +10,9 @@ import { NodeController } from "../../controller";
  * this Node.
  */
 export default class GetAppInstancesController extends NodeController {
+  public readonly methodName = Node.RpcMethodName.GET_APP_INSTANCES;
+  public static readonly methodName = Node.RpcMethodName.GET_APP_INSTANCES;
+
   @jsonRpcMethod(Node.RpcMethodName.GET_APP_INSTANCES)
   public executeMethod = super.executeMethod;
 

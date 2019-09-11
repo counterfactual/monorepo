@@ -15,6 +15,11 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetStateDepositHolderAddressController extends NodeController {
+  public readonly methodName =
+    Node.RpcMethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS;
+  public static readonly methodName =
+    Node.RpcMethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS;
+
   @jsonRpcMethod(Node.RpcMethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS)
   public executeMethod = super.executeMethod;
 

@@ -137,7 +137,7 @@ export async function addToManyQueues(
     )
   );
 
-  await runTaskWithMemoization();
+  const ret = await runTaskWithMemoization();
 
   for (const queueToUnlock of queuesToUnlock) {
     await lockService.set(queueToUnlock, {
@@ -150,7 +150,7 @@ export async function addToManyQueues(
     );
   }
 
-  return await runTaskWithMemoization();
+  return ret;
 }
 
 function operationIsNestedInProtocol(

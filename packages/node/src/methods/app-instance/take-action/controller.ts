@@ -20,6 +20,9 @@ import {
 } from "../../errors";
 
 export default class TakeActionController extends NodeController {
+  public readonly methodName = Node.RpcMethodName.TAKE_ACTION;
+  public static readonly methodName = Node.RpcMethodName.TAKE_ACTION;
+
   @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 

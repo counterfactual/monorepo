@@ -4,7 +4,9 @@ import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
 export default class GetProposedAppInstanceController extends NodeController {
-  public static readonly methodName = Node.MethodName.GET_PROPOSED_APP_INSTANCE;
+  public readonly methodName = Node.RpcMethodName.GET_PROPOSED_APP_INSTANCE;
+  public static readonly methodName =
+    Node.RpcMethodName.GET_PROPOSED_APP_INSTANCE;
 
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,

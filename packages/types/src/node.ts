@@ -93,6 +93,7 @@ export namespace Node {
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
     GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState",
     GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
+    GET_PROPOSED_APP_INSTANCE = "chan_getProposedAppInstance",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
     GET_STATE_CHANNEL = "chan_getStateChannel",
