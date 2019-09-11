@@ -9,6 +9,7 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
+import { ILockInterface } from "./lock/types";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
@@ -22,6 +23,7 @@ import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
+import ProcessQueue from "./process-queue";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
