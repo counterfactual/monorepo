@@ -11,14 +11,14 @@ ENV TEST_BROWSER_FLAG_DISABLE_GPU=#
 
 RUN \
   # Switch to apk branch 3.10.
-  echo "http://dl-cdn.alpinelinux.org/alpine/v3.10/main" > /etc/apk/repositories; \
-  echo "http://dl-cdn.alpinelinux.org/alpine/v3.10/community" >> /etc/apk/repositories; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/main" > /etc/apk/repositories; \
+  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories; \
   \
   # Install dependencies.
   apk update; \
   apk add \
   git python2 make gcc g++ openssh tar gzip ca-certificates dbus libexecinfo-dev libexecinfo \
-  xvfb-run chromium=73.0.3683.103-r0 chromium-chromedriver=73.0.3683.103-r0; \
+  xvfb-run chromium chromium-chromedriver; \
   \
   # Set a machine-id (this makes Chromium complain a bit less).
   dbus-uuidgen > /etc/machine-id; \
