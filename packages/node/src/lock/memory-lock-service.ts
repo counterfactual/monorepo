@@ -22,7 +22,7 @@ export class MemoryLockService implements ILockInterface {
 
         try {
           unlockKey = await lock.acquireLock(timeout);
-          retval = callback();
+          retval = await callback();
         } catch (e) {
           // TODO: check exception... if the lock failed
           rejectReason = e;
