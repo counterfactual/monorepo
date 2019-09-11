@@ -25,13 +25,7 @@ export default class ProcessQueue {
     QueueWithLockingServiceConnection | Queue
   > = new Map<string, QueueWithLockingServiceConnection | Queue>();
 
-  constructor(
-    // NOTE: This hard-codes a LOCAL single lock service in any ProcessQueue,
-    // this means it is not acting as a centralized lock service right now; a
-    // further implementation should extend this primitive and pass in a global
-    // service into this constructor that also implements the interface.
-    private readonly lockingService?: Node.ILockService
-  ) {}
+  constructor(private readonly lockingService?: Node.ILockService) {}
 
   addTask(queueKeys: string[], task: Task<any>) {
     return addToManyQueues(
