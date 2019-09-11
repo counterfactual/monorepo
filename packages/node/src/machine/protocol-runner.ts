@@ -89,6 +89,7 @@ export class ProtocolRunner {
     msg: ProtocolMessage,
     sc: Map<string, StateChannel>
   ) {
+    console.log(`run ${msg.protocol}.${msg.seq} as ${msg.params!.responderXpub.substr(4, 8)}`)
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
@@ -104,6 +105,7 @@ export class ProtocolRunner {
     sc: Map<string, StateChannel>,
     params: ParamTypeOf<T>
   ) {
+    console.log(`run ${protocolName}.0 as ${params.initiatorXpub.substr(4, 8)}`)
     return this.runProtocol(sc, getProtocolFromName(protocolName)[0], {
       params,
       protocol: protocolName,
