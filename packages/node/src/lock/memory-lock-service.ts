@@ -9,31 +9,25 @@ export class MemoryLockService implements ILockInterface {
     callback: (...args: any[]) => any,
     timeout: number
   ): Promise<any> {
-    return new Promise(
-      async (
-        resolve: (value?: any) => void,
-        reject: (reason?: any) => void
-      ) => {
-        const lock = this.getOrCreateLock(lockName);
+    const lock = this.getOrCreateLock(lockName);
 
-        let retval = null;
-        let rejectReason = null;
-        let unlockKey = "";
+    let retval = null;
+    let rejectReason = null;
+    let unlockKey = "";
 
-        try {
-          unlockKey = await lock.acquireLock(timeout);
-          retval = callback();
-        } catch (e) {
-          // TODO: check exception... if the lock failed
-          rejectReason = e;
-        } finally {
-          await lock.releaseLock(unlockKey);
-        }
+    try {
+      unlockKey = await lock.acquireLock(timeout);
+      retval = await callback();
+    } catch (e) {
+      // TODO: check exception... if the lock failed
+      rejectReason = e;
+    } finally {
+      await lock.releaseLock(unlockKey);
+    }
 
-        if (rejectReason) reject(rejectReason);
-        else resolve(retval);
-      }
-    );
+    if (rejectReason) throw new Error(rejectReason);
+
+    return retval;
   }
 
   private getOrCreateLock(lockName: string) {
