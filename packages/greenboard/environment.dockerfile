@@ -28,3 +28,5 @@ RUN \
   \
   # Install specified versions of `yarn`.
   npm i -g yarn@${yarn_version};
+
+USER nobody
