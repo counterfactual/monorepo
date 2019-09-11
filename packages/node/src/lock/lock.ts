@@ -15,11 +15,12 @@ export class Lock {
 
   async acquireLock(timeout: number): Promise<string> {
     const unlockKey = uuid.v1();
-    const lockAvailableNow = this.requestsForLock.add(() => {});
-    this.requestsForLock.add(() =>
-      this.acquireLockInternal(unlockKey, timeout)
-    );
-    await lockAvailableNow;
+    const lockAvailableNow = new Deferred();
+    this.requestsForLock.add(() => {
+      lockAvailableNow.resolve();
+      return this.acquireLockInternal(unlockKey, timeout);
+    });
+    await lockAvailableNow.promise;
     return unlockKey;
   }
 
