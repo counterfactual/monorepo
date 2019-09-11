@@ -123,6 +123,10 @@ describe.only("addToManyQueues", () => {
         expect(hasExecutionStartedOnSecondOne).toBe(false);
         expect(hasExecutionFinishedOnSecondOne).toBe(false);
       } else if (i === 3) {
+        console.log(
+          "expecting hasExecutionStartedOnFirstOne to be true",
+          hasExecutionStartedOnFirstOne
+        );
         expect(hasExecutionStartedOnFirstOne).toBe(true);
         expect(hasExecutionFinishedOnFirstOne).toBe(true);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
@@ -138,8 +142,12 @@ describe.only("addToManyQueues", () => {
       [sharedQueue],
       () =>
         new Promise(async r => {
-          expect(sharedQueue.pending).toBe(1);
+          console.log("pending expect about to run");
+          expect(sharedQueue.size).toBe(2);
+          console.log("pending expect passed");
           hasExecutionStartedOnFirstOne = true;
+          console.log("marking hasExecutionStartedOnFirstOne as true");
+          console.log(hasExecutionStartedOnFirstOne);
           await new Promise(r => setTimeout(r, 250));
           expect(hasExecutionStartedOnSecondOne).toBe(false);
           // ensure second promise is added to queue, but not acted on

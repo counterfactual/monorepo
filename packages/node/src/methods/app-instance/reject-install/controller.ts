@@ -7,6 +7,9 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
+  public readonly methodName = Node.RpcMethodName.REJECT_INSTALL;
+  public static readonly methodName = Node.RpcMethodName.REJECT_INSTALL;
+
   protected async getShardKeysForQueueing(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams

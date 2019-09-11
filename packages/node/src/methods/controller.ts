@@ -4,7 +4,8 @@ import { Controller } from "rpc-server";
 import { RequestHandler } from "../request-handler";
 
 export abstract class NodeController extends Controller {
-  public methodName?: Node.RpcMethodName;
+  // @ts-ignore
+  public readonly methodName: Node.RpcMethodName = "";
 
   public async executeMethod(
     requestHandler: RequestHandler,
@@ -19,10 +20,6 @@ export abstract class NodeController extends Controller {
 
     const createExecutionPromise = () =>
       this.executeMethodImplementation(requestHandler, params);
-
-    if (!this.methodName) {
-      console.log("undefined method name", this);
-    }
 
     const ret = await requestHandler.processQueue.addTask(
       this.methodName!,
