@@ -1,6 +1,6 @@
 #!/bin/sh
 YARN_OP_FLAGS="--ignore-engines"
-YARN_BUILD_FLAGS="$YARN_OP_FLAGS --unsafe-perm --build-from-source"
+YARN_BUILD_FLAGS="$YARN_OP_FLAGS --build-from-source"
 alias yarn_install_command="yarn $YARN_BUILD_FLAGS"
 alias yarn_ci_command="yarn $YARN_OP_FLAGS --frozen-lockfile"
 alias yarn_build_command="yarn $YARN_OP_FLAGS build"
