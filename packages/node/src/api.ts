@@ -75,23 +75,18 @@ const controllers = [
  */
 export const methodNameToImplementation = controllers.reduce(
   (acc, controller) => {
-    // @ts-ignore
-    if (!controller.methodName) {
+    const handler = new controller();
+    if (!handler.methodName) {
       return acc;
     }
 
-    // @ts-ignore
-    if (acc[controller.methodName]) {
+    if (acc[handler.methodName]) {
       throw Error(
-        // @ts-ignore
-        `Fatal: Multiple controllers connected to ${controller.methodName}`
+        `Fatal: Multiple controllers connected to ${handler.methodName}`
       );
     }
 
-    const handler = new controller();
-
-    // @ts-ignore
-    acc[controller.methodName] = handler.executeMethod.bind(handler);
+    acc[handler.methodName] = handler.executeMethod.bind(handler);
 
     return acc;
   },
