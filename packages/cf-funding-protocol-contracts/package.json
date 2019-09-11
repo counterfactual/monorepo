@@ -15,7 +15,7 @@
   ],
   "scripts": {
     "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
-    "verify-solc": "waffle waffle.js && diff build expected-build-artifacts",
+    "ensure-build-artifacts-match-solidity-code": "waffle waffle.js && diff build expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
