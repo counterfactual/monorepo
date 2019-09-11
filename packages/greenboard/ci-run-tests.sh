@@ -1,4 +1,5 @@
 #!/bin/sh
+NODE_ENV=test
 YARN_OP_FLAGS="--ignore-engines"
 YARN_BUILD_FLAGS="$YARN_OP_FLAGS --build-from-source"
 alias yarn_install_command="yarn $YARN_BUILD_FLAGS"

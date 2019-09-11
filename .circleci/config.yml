@@ -6,7 +6,7 @@ orbs:
 defaults: &defaults
   working_directory: /home/circleci/project
   docker:
-    - image: counterfactual/circleci-environment:latest
+    - image: counterfactual/circleci-environment:greenboard-test
 
 save_code: &save_code
   save_cache:
@@ -107,7 +107,7 @@ jobs:
 
   run-greenboard:
     docker:
-      - image: counterfactual/greenboard-environment:latest
+      - image: counterfactual/circleci-environment:greenboard-test
         environment:
           METAMASK_REPOSITORY: prototypal/metamask-extension
           METAMASK_BRANCH: develop
