@@ -27,6 +27,7 @@ RUN \
   PYTHON=$(which python2.7); \
   \
   # Install specified versions of `yarn`.
+  # see unsafe-perm: https://github.com/npm/uid-number/issues/7
+  npm config set unsafe-perm true; \
   npm i -g yarn@${yarn_version};
 
-USER node
