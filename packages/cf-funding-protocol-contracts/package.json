@@ -33,7 +33,7 @@
   ],
   "devDependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.6",
-    "@counterfactual/types": "0.0.39-lock",
+    "@counterfactual/types": "0.0.38",
     "@counterfactual/typescript-typings": "0.1.2",
     "@types/node": "12.7.4",
     "@types/chai": "4.2.1",
