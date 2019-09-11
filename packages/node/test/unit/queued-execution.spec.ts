@@ -109,7 +109,7 @@ describe("addToManyQueues", () => {
     expect(noTimesQueueBecameActive).toBe(20);
   });
 
-  it.skip("should work when called concurrently with one queue", async () => {
+  it("should work when called concurrently with one queue", async () => {
     const sharedQueue = new Queue({ concurrency: 1 });
 
     let i = 0;
@@ -196,7 +196,7 @@ describe("addToManyQueues", () => {
     expect(sharedQueue.pending).toBe(0);
   });
 
-  it.skip("should work when called concurrently with two queues", async () => {
+  it("should work when called concurrently with two queues", async () => {
     ///// Test scoped vars
     const queue0 = new Queue({ concurrency: 1 });
     const queue1 = new Queue({ concurrency: 1 });
