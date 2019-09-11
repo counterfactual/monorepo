@@ -1,6 +1,9 @@
+import { Node as NodeTypes } from "@counterfactual/types";
 import Queue from "p-queue";
 
 import { addToManyQueues } from "../../src/methods/queued-execution";
+import { setup, SetupContext } from "../integration/setup";
+import { MemoryLockService } from "../services/memory-lock-service";
 
 describe("p-queue", () => {
   it("should be possible to mimic onEmpty via inspection of _queue", async () => {
@@ -33,10 +36,23 @@ describe("p-queue", () => {
 });
 
 describe("addToManyQueues", () => {
+  let lockService: NodeTypes.ILockService;
+  let xpub: string;
+
+  beforeEach(async () => {
+    const context: SetupContext = await setup(global);
+    xpub = context["A"].node.publicIdentifier;
+    lockService = new MemoryLockService();
+  });
+
   it("should work with one queue", async () => {
     const ret = await addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["queue1"],
       [new Queue({ concurrency: 1 })],
-      () => new Promise(r => setTimeout(() => r("abc"), 1))
+      () => new Promise(r => setTimeout(() => r("abc"), 1)),
+      lockService
     );
     expect(ret).toBe("abc");
   });
@@ -49,12 +65,16 @@ describe("addToManyQueues", () => {
     queue1.on("active", () => (noTimesQueueBecameActive += 1));
     queue2.on("active", () => (noTimesQueueBecameActive += 1));
     const ret = await addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["one", "two"],
       [queue1, queue2],
       () =>
         new Promise(r => {
           noTimesExecutionFunctionRan += 1;
           r("abc");
-        })
+        }),
+      lockService
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
@@ -65,17 +85,23 @@ describe("addToManyQueues", () => {
     let noTimesExecutionFunctionRan = 0;
     let noTimesQueueBecameActive = 0;
     const queues: Queue[] = [];
+    const names: string[] = [];
     for (const i of Array(10)) {
       queues.push(new Queue({ concurrency: 1 }));
+      names.push(names.length.toString());
     }
     queues.forEach(q => q.on("active", () => (noTimesQueueBecameActive += 1)));
     const ret = await addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      names,
       queues,
       () =>
         new Promise(r => {
           noTimesExecutionFunctionRan += 1;
           r("abc");
-        })
+        }),
+      lockService
     );
     expect(ret).toBe("abc");
     expect(noTimesExecutionFunctionRan).toBe(1);
@@ -91,14 +117,23 @@ describe("addToManyQueues", () => {
     let hasExecutionStartedOnSecondOne = false;
     let hasExecutionFinishedOnSecondOne = false;
 
+    const logBooleans = (prefix?: string) => {
+      const str = `${
+        prefix ? `${prefix}\n` : null
+      }\nhasExecutionStartedOnFirstOne: ${hasExecutionStartedOnFirstOne}\nhasExecutionFinishedOnFirstOne: ${hasExecutionFinishedOnFirstOne}\nhasExecutionStartedOnSecondOne: ${hasExecutionStartedOnSecondOne}\nhasExecutionFinishedOnSecondOne: ${hasExecutionFinishedOnSecondOne}`;
+      console.log(str);
+    };
+
     sharedQueue.on("active", () => {
       i += 1;
+      logBooleans(`i: ${i}`);
       if (i === 1) {
         expect(hasExecutionStartedOnFirstOne).toBe(false);
         expect(hasExecutionFinishedOnFirstOne).toBe(false);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
         expect(hasExecutionFinishedOnSecondOne).toBe(false);
       } else if (i === 3) {
+        // NOTE: queue is
         expect(hasExecutionStartedOnFirstOne).toBe(true);
         expect(hasExecutionFinishedOnFirstOne).toBe(true);
         expect(hasExecutionStartedOnSecondOne).toBe(false);
@@ -107,36 +142,49 @@ describe("addToManyQueues", () => {
     });
 
     addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["sharedQueue"],
       [sharedQueue],
       () =>
         new Promise(async r => {
           expect(sharedQueue.pending).toBe(1);
+          logBooleans(`in first, before delay`);
           hasExecutionStartedOnFirstOne = true;
           await new Promise(r => setTimeout(r, 250));
+          logBooleans(`in first, after delay`);
           expect(hasExecutionStartedOnSecondOne).toBe(false);
           // ensure second promise is added to queue, but not acted on
           // pending promises are those that are already triggered
           // size of queue doesnt necessarily include pending promises
           expect(sharedQueue.pending + sharedQueue.size).toEqual(3);
           hasExecutionFinishedOnFirstOne = true;
+          logBooleans();
           r();
-        })
+        }),
+      lockService
     );
 
     addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["sharedQueue"],
       [sharedQueue],
       () =>
         new Promise(r => {
           hasExecutionStartedOnSecondOne = true;
           hasExecutionFinishedOnSecondOne = true;
+          logBooleans(`in second, after delay`);
           r();
-        })
+        }),
+      lockService
     );
 
     // NOTE: onEmpty could also be used, but doesnt guarantee
     // that the work from the queue is completed, just that the
     // queue is empty
     await sharedQueue.onIdle();
+    logBooleans(`after idle`);
 
     expect(hasExecutionStartedOnFirstOne).toBe(true);
     expect(hasExecutionStartedOnSecondOne).toBe(true);
@@ -209,6 +257,9 @@ describe("addToManyQueues", () => {
     });
 
     addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["0", "1"],
       [queue0, queue1],
       () =>
         new Promise(async r => {
@@ -225,10 +276,14 @@ describe("addToManyQueues", () => {
           noTimesExecutionFunctionRan[0] += 1;
           hasExecutionFinishedOnFirstOne = true;
           r();
-        })
+        }),
+      lockService
     );
 
     await addToManyQueues(
+      NodeTypes.RpcMethodName.INSTALL,
+      xpub,
+      ["0", "1"],
       [queue0, queue1],
       () =>
         new Promise(r => {
@@ -239,7 +294,8 @@ describe("addToManyQueues", () => {
           noTimesExecutionFunctionRan[1] += 1;
           hasExecutionFinishedOnSecondOne = true;
           r();
-        })
+        }),
+      lockService
     );
 
     await queue0.onIdle();
