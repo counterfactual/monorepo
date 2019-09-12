@@ -10,6 +10,7 @@ import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
+import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   EthereumNetworkName,
@@ -220,6 +221,15 @@ export class Node {
         await store.setCommitment([protocol, ...key], commitment);
       }
     });
+
+    protocolRunner.register(
+      Opcode.PERSIST_STATE_CHANNEL,
+      async (args: [StateChannel]) => {
+        const { store } = this.requestHandler;
+        const [channel] = args;
+        await store.saveStateChannel(channel);
+      }
+    );
 
     return protocolRunner;
   }
