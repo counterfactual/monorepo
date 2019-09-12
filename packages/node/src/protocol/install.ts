@@ -20,7 +20,13 @@ import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
+const {
+  OP_SIGN,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  PERSIST_STATE_CHANNEL,
+  WRITE_COMMITMENT
+} = Opcode;
 const { Update, Install } = Protocol;
 
 /**
@@ -145,8 +151,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
-    yield [
-      IO_SEND,
+    const {
+      customData: { ack }
+    } = yield [
+      IO_SEND_AND_WAIT,
       {
         processID,
         protocol: Install,
@@ -157,6 +165,14 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
     ];
+
+    // TODO: better error typing here, should use const fn?
+    if (!ack) {
+      throw new Error(
+        `did not receive ack from responder ${responderXpub} on Install protocol`
+      );
+    }
+    // now initiator can release lock
   },
 
   /**
@@ -275,6 +291,21 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       Update,
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
+    ];
+
+    yield [PERSIST_STATE_CHANNEL, postProtocolStateChannel];
+
+    yield [
+      IO_SEND,
+      {
+        processID,
+        protocol: Install,
+        toXpub: initiatorXpub,
+        customData: {
+          ack: true
+        },
+        seq: UNASSIGNED_SEQ_NO // is this the right seq no?
+      } as ProtocolMessage
     ];
   }
 };
