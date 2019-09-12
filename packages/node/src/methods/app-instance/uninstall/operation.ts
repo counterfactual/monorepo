@@ -13,7 +13,7 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const stateChannelsMap = await protocolRunner.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Uninstall,
     await store.getStateChannelsMap(),
     {
@@ -23,8 +23,4 @@ export async function uninstallAppInstanceFromChannel(
       appIdentityHash: appInstance.identityHash
     }
   );
-
-  await store.saveStateChannel(stateChannelsMap.get(
-    stateChannel.multisigAddress
-  ) as StateChannel);
 }
