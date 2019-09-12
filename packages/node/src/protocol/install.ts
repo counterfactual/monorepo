@@ -17,6 +17,7 @@ import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
+import { assertAck } from "./utils/ack-validator";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
@@ -166,13 +167,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       } as ProtocolMessage
     ];
 
-    // TODO: better error typing here, should use const fn?
-    if (!ack) {
-      throw Error(
-        `did not receive ack from responder ${responderXpub} on Install protocol`
-      );
-    }
-    // now initiator can release lock
+    assertAck(ack, responderXpub);
+    // now we can release lock
   },
 
   /**
