@@ -168,7 +168,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     // TODO: better error typing here, should use const fn?
     if (!ack) {
-      throw new Error(
+      throw Error(
         `did not receive ack from responder ${responderXpub} on Install protocol`
       );
     }
