@@ -10,6 +10,7 @@ import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
+import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   EthereumNetworkName,
@@ -175,7 +176,6 @@ export class Node {
       Opcode.IO_SEND_AND_WAIT,
       async (args: [ProtocolMessage]) => {
         const [data] = args;
-        const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
@@ -186,7 +186,7 @@ export class Node {
 
         await this.messagingService.send(to, {
           data,
-          from: fromXpub,
+          from: this.publicIdentifier,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
@@ -220,6 +220,18 @@ export class Node {
         await store.setCommitment([protocol, ...key], commitment);
       }
     });
+
+    protocolRunner.register(
+      Opcode.PERSIST_STATE_CHANNEL,
+      async (args: [StateChannel[]]) => {
+        const { store } = this.requestHandler;
+        const [stateChannels] = args;
+
+        for (const stateChannel of stateChannels) {
+          await store.saveStateChannel(stateChannel);
+        }
+      }
+    );
 
     return protocolRunner;
   }

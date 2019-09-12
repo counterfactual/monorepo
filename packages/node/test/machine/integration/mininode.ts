@@ -43,6 +43,7 @@ export class MiniNode {
     this.protocolRunner = new ProtocolRunner(networkContext, provider);
     this.protocolRunner.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
     this.protocolRunner.register(Opcode.WRITE_COMMITMENT, () => {});
+    this.protocolRunner.register(Opcode.PERSIST_STATE_CHANNEL, () => {});
   }
 
   public async dispatchMessage(message: any) {

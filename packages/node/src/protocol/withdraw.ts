@@ -22,6 +22,14 @@ import { AppInstance, StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
+const {
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  OP_SIGN,
+  PERSIST_STATE_CHANNEL,
+  WRITE_COMMITMENT
+} = Opcode;
+const { Install, Update, Withdraw } = Protocol;
 /**
  * @description This exchange is described at the following URL:
  * https://specs.counterfactual.com/11-withdraw-protocol *
@@ -83,7 +91,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnConditionalTransaction = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       conditionalTransactionData
     ];
 
@@ -93,11 +101,11 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature2: counterpartySignatureOnFreeBalanceStateUpdate
       }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
         params,
-        protocol: Protocol.Withdraw,
+        protocol: Withdraw,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnConditionalTransaction
@@ -125,8 +133,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedConditionalTransaction,
       refundApp.identityHash
     ];
@@ -146,7 +154,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceUpdateData
     ];
 
@@ -158,8 +166,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedFreeBalanceStateUpdate,
       postInstallRefundAppStateChannel.freeBalance.identityHash
     ];
@@ -172,7 +180,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnWithdrawalCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       withdrawCommitment
     ];
 
@@ -182,10 +190,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature2: counterpartySignatureOnUninstallCommitment
       }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
-        protocol: Protocol.Withdraw,
+        protocol: Withdraw,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnFreeBalanceStateUpdate,
@@ -226,14 +234,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnUninstallCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       uninstallRefundAppCommitment
     ];
 
     yield <[Opcode, ProtocolMessage]>[
-      Opcode.IO_SEND,
+      IO_SEND,
       {
-        protocol: Protocol.Withdraw,
+        protocol: Withdraw,
         processID: context.message.processID,
         toXpub: responderXpub,
         customData: {
@@ -249,8 +257,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ]);
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Withdraw,
+      WRITE_COMMITMENT,
+      Withdraw,
       signedWithdrawalCommitment,
       multisigAddress
     ];
@@ -263,8 +271,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
@@ -329,7 +337,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnConditionalTransaction = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       conditionalTransactionData
     ];
 
@@ -346,8 +354,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedConditionalTransaction,
       refundApp.identityHash
     ];
@@ -361,7 +369,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceUpdateData
     ];
 
@@ -371,10 +379,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         signature2: counterpartySignatureOnWithdrawalCommitment
       }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
-        protocol: Protocol.Withdraw,
+        protocol: Withdraw,
         toXpub: initiatorXpub,
         customData: {
           signature: mySignatureOnConditionalTransaction,
@@ -398,8 +406,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedFreeBalanceStateUpdate,
       postInstallRefundAppStateChannel.freeBalance.identityHash
     ];
@@ -418,7 +426,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnWithdrawalCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       withdrawCommitment
     ];
 
@@ -428,8 +436,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ]);
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Withdraw,
+      WRITE_COMMITMENT,
+      Withdraw,
       signedWithdrawalCommitment,
       multisigAddress
     ];
@@ -453,17 +461,17 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnUninstallCommitment = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       uninstallRefundAppCommitment
     ];
 
     const {
       customData: { signature: counterpartySignatureOnUninstallCommitment }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
-        protocol: Protocol.Withdraw,
+        protocol: Withdraw,
         toXpub: initiatorXpub,
         customData: {
           signature: mySignatureOnWithdrawalCommitment,
@@ -487,8 +495,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
+      WRITE_COMMITMENT,
+      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
