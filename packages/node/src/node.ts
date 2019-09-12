@@ -176,7 +176,6 @@ export class Node {
       Opcode.IO_SEND_AND_WAIT,
       async (args: [ProtocolMessage]) => {
         const [data] = args;
-        const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
@@ -187,7 +186,7 @@ export class Node {
 
         await this.messagingService.send(to, {
           data,
-          from: fromXpub,
+          from: this.publicIdentifier,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
