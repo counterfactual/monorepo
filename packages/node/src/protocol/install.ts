@@ -151,7 +151,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
-    // TODO: before or after the IO_SEND?
     yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
