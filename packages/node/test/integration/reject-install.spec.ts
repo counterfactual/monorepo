@@ -1,5 +1,4 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
-import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
@@ -55,7 +54,7 @@ describe("Node method follows spec - rejectInstall", () => {
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
-        
+
         await confirmProposedAppInstance(
           params,
           await getAppInstanceProposal(nodeA, appInstanceId)

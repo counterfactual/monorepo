@@ -17,7 +17,7 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
  * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+  0 /* Initiating */: async function*(context: Context) {
     const { message, network } = context;
 
     const { processID, params } = message;
@@ -65,10 +65,12 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       responderSignature
     );
 
+    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
+
     context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
   },
 
-  1: async function*(context: Context) {
+  1 /* Responding */: async function*(context: Context) {
     const { message, network } = context;
 
     const {

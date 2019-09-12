@@ -276,6 +276,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
+
+    yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
   },
 
   /**
@@ -500,6 +502,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
+
+    yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
 
     yield [
       IO_SEND,

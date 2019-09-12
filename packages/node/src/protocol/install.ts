@@ -20,7 +20,13 @@ import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
+const {
+  OP_SIGN,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  WRITE_COMMITMENT,
+  PERSIST_STATE_CHANNEL
+} = Opcode;
 const { Update, Install } = Protocol;
 
 /**
@@ -144,6 +150,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
     ];
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
       IO_SEND_AND_WAIT,
@@ -276,6 +284,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
     ];
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     const m4 = {
       processID,
