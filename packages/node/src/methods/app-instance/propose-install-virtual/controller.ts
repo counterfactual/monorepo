@@ -54,7 +54,8 @@ export default class ProposeInstallVirtualController extends NodeController {
       messagingService,
       networkContext
     } = requestHandler;
-    const { initialState } = params;
+
+    const { initialState, intermediaryIdentifier } = params;
 
     if (!initialState) {
       throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
@@ -81,13 +82,7 @@ export default class ProposeInstallVirtualController extends NodeController {
       }
     };
 
-    const nextNodeAddress = getNextNodeAddress(
-      publicIdentifier,
-      params.intermediaryIdentifier,
-      params.proposedToIdentifier
-    );
-
-    await messagingService.send(nextNodeAddress, proposalMsg);
+    await messagingService.send(intermediaryIdentifier, proposalMsg);
 
     return {
       appInstanceId
