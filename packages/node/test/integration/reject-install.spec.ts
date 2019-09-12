@@ -36,8 +36,6 @@ describe("Node method follows spec - rejectInstall", () => {
 
         expect(await getInstalledAppInstances(nodeA)).toEqual([]);
         expect(await getInstalledAppInstances(nodeB)).toEqual([]);
-        let appInstanceId: string;
-        let params: NodeTypes.ProposeInstallParams;
 
         nodeA.on(NODE_EVENTS.REJECT_INSTALL, async () => {
           expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
@@ -46,24 +44,22 @@ describe("Node method follows spec - rejectInstall", () => {
 
         // node B then decides to reject the proposal
         nodeB.on(NODE_EVENTS.PROPOSE_INSTALL, async (msg: ProposeMessage) => {
-          await confirmProposedAppInstance(
-            params,
-            await getAppInstanceProposal(nodeA, appInstanceId)
-          );
-
           const rejectReq = constructRejectInstallRpc(msg.data.appInstanceId);
           expect((await getProposedAppInstances(nodeA)).length).toEqual(1);
           await nodeB.rpcRouter.dispatch(rejectReq);
           expect((await getProposedAppInstances(nodeB)).length).toEqual(0);
         });
 
-        const result = await makeAndSendProposeCall(
+        const { params, appInstanceId } = await makeAndSendProposeCall(
           nodeA,
           nodeB,
           (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
         );
-        appInstanceId = result.appInstanceId;
-        params = result.params;
+
+        await confirmProposedAppInstance(
+          params,
+          await getAppInstanceProposal(nodeA, appInstanceId)
+        );
       });
     }
   );
