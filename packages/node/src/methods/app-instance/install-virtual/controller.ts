@@ -28,10 +28,10 @@ export default class InstallVirtualController extends NodeController {
 
     const proposal = await store.getAppInstanceProposal(appInstanceId);
 
-    const { proposedToIdentifier } = proposal;
+    const { proposedByIdentifier } = proposal;
 
     const multisigAddressWithResponding = getCreate2MultisigAddress(
-      [publicIdentifier, proposedToIdentifier],
+      [publicIdentifier, proposedByIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
