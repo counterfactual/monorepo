@@ -106,7 +106,6 @@ export default class CreateChannelController extends NodeController {
       initiatorXpub: publicIdentifier
     })).get(multisigAddress)!;
 
-    await store.saveStateChannel(channel);
     await store.saveFreeBalance(channel);
 
     const msg: CreateChannelMessage = {
