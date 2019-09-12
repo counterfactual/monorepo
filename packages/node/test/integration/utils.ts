@@ -114,7 +114,11 @@ export async function getAppInstanceProposal(
     return proposal.identityHash === appInstanceId;
   });
 
-  if (candidates.length !== 1) {
+  if (candidates.length === 0) {
+    throw new Error("Could not find proposal");
+  }
+
+  if (candidates.length > 1) {
     throw new Error("Failed to match exactly one proposed app instance");
   }
 
