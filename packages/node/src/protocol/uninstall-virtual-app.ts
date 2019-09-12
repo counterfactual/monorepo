@@ -158,6 +158,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnAliceIngridAppDisactivationCommitment
     );
 
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithIntermediary,
+        stateChannelWithAllThreeParties,
+        stateChannelWithResponding
+      ]
+    ];
+
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
       stateChannelWithIntermediary
