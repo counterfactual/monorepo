@@ -135,11 +135,5 @@ async function runTakeActionProtocol(
     throw Error(prettyPrintObject(e));
   }
 
-  const updatedStateChannel = stateChannelsMap.get(
-    stateChannel.multisigAddress
-  )!;
-
-  await store.saveStateChannel(updatedStateChannel);
-
   return {};
 }
