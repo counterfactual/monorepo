@@ -29,6 +29,7 @@ import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
+import { assertAck } from "./utils/ack-validator";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
@@ -37,7 +38,13 @@ export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>
 
 const protocol = Protocol.InstallVirtualApp;
 
-const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
+const {
+  OP_SIGN,
+  WRITE_COMMITMENT,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  PERSIST_STATE_CHANNEL
+} = Opcode;
 
 /**
  * This exchange is described at the following URL:
@@ -250,7 +257,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughAppInstance.identityHash
     ];
 
-    yield [
+    const {
+      customData: { ack }
+    } = yield [
       WRITE_COMMITMENT,
       Protocol.Update,
       virtualAppSetStateCommitment.getSignedTransaction([
@@ -259,6 +268,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ]),
       virtualAppInstance.identityHash
     ];
+
+    // initiator gets ack from intermediary
+    assertAck(ack, intermediaryXpub);
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -274,6 +286,8 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithInitiatingAndIntermediary.multisigAddress,
       stateChannelWithInitiatingAndIntermediary
     );
+
+    // release lock
   },
 
   1 /* Intermediary */: async function*(context: Context) {
@@ -551,7 +565,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    yield [IO_SEND, m8];
+    // persist channels
+    yield [PERSIST_STATE_CHANNEL, stateChannelBetweenVirtualAppUsers];
+    yield [PERSIST_STATE_CHANNEL, stateChannelWithInitiating];
+    yield [PERSIST_STATE_CHANNEL, stateChannelWithResponding];
+
+    // intermediary gets ack from responder, also sends ack to initiator
+    const {
+      customData: { ack }
+    } = yield [IO_SEND_AND_WAIT, { ...m8, ack: true }];
+
+    assertAck(ack, responderXpub);
 
     context.stateChannelsMap.set(
       stateChannelBetweenVirtualAppUsers.multisigAddress,
@@ -759,6 +783,11 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppInstance.identityHash
     ];
 
+    // persist channels
+    yield [PERSIST_STATE_CHANNEL, stateChannelWithIntermediary];
+    yield [PERSIST_STATE_CHANNEL, stateChannelWithInitiating];
+    yield [PERSIST_STATE_CHANNEL, stateChannelWithRespondingAndIntermediary];
+
     const m7 = {
       protocol,
       processID,
@@ -770,7 +799,7 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    yield [IO_SEND, m7];
+    yield [IO_SEND, { ...m7, ack: true }];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
