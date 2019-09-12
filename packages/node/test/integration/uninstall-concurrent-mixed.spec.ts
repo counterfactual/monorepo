@@ -122,8 +122,6 @@ describe("Concurrently uninstalling virtual and regular applications without iss
       }
     });
 
-    console.log('==========')
-
     // uninstall both simultaneously
     nodeA.rpcRouter.dispatch(
       constructUninstallVirtualRpc(virtualId, nodeB.publicIdentifier)
