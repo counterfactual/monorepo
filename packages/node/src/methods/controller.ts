@@ -17,7 +17,7 @@ export abstract class NodeController extends Controller {
       params
     );
 
-    console.log(`❓ ${requestHandler.publicIdentifier.substr(4, 8)} reuqesting locks ${queueNames.map(x => x.substr(0, 4))}`)
+    console.log(`❓ ${requestHandler.publicIdentifier.substr(4, 8)} reuqesting locks ${queueNames.map(x => x.substr(0, 6))} for ${this.constructor.name}`)
 
     const createExecutionPromise = () =>
       this.executeMethodImplementation(requestHandler, params);

@@ -27,7 +27,8 @@ function xkeyTo0thAddress(xpub: string) {
 const {
   OP_SIGN,
   IO_SEND_AND_WAIT,
-  IO_SEND
+  IO_SEND,
+  PERSIST_STATE_CHANNEL
   // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
 } = Opcode;
 
@@ -352,6 +353,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding
     );
 
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithResponding
+      ]
+    ];
+
     const m8 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
@@ -471,6 +481,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         signature: respondingSignatureOnIngridBobAppDisactivationCommitment
       }
     } as ProtocolMessage;
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithIntermediary
+      ]
+    ];
 
     yield [IO_SEND, m7];
 
