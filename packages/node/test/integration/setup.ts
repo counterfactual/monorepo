@@ -12,7 +12,6 @@ import { fromExtendedKey } from "ethers/utils/hdnode";
 import { v4 as generateUUID } from "uuid";
 
 import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
-import MemoryLockService from "../../src/lock/memory-lock-service";
 import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
@@ -20,6 +19,8 @@ import {
   A_EXTENDED_PRIVATE_KEY,
   B_EXTENDED_PRIVATE_KEY
 } from "../test-constants.jest";
+
+import MemoryLockService from "./memory-lock-service";
 
 export interface NodeContext {
   node: Node;
