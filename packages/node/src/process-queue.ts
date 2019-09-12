@@ -1,7 +1,7 @@
 import Queue, { Task } from "p-queue";
 
-import { ILockInterface } from "./lock/types";
 import { addToManyQueues } from "./methods/queued-execution";
+import { ILockInterface } from "./types";
 
 class QueueWithLockingServiceConnection extends Queue {
   constructor(

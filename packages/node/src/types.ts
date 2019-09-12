@@ -6,6 +6,14 @@ import { ProtocolMessage } from "./machine";
 export type NodeEvents = Node.EventName;
 export const NODE_EVENTS = Node.EventName;
 
+export interface ILockInterface {
+  acquireLock(
+    lockName: string,
+    callback: (...args: any[]) => any,
+    timeout: number
+  ): Promise<any>;
+}
+
 export interface NodeMessageWrappedProtocolMessage extends Node.NodeMessage {
   data: ProtocolMessage;
 }

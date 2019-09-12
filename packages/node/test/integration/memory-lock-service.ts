@@ -1,5 +1,6 @@
+import { ILockInterface } from "../../src/types";
+
 import { Lock } from "./lock";
-import { ILockInterface } from "./types";
 
 export class MemoryLockService implements ILockInterface {
   public readonly locks: Map<string, Lock> = new Map<string, Lock>();
