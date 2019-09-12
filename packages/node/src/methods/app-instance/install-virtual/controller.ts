@@ -36,7 +36,15 @@ export default class InstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    return [multisigAddressWithHub, multisigAddressWithResponding];
+
+    const notMyMultisig = getCreate2MultisigAddress(
+      [intermediaryIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+
+    return [multisigAddressWithHub, multisigAddressWithResponding, notMyMultisig];
   }
 
   protected async beforeExecution(
