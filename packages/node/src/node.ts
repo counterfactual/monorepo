@@ -235,7 +235,6 @@ export class Node {
         for (const stateChannel of stateChannels) {
           await store.saveStateChannel(stateChannel);
         }
-        console.log(`⚾️ Saved DB for ${this.publicIdentifier.substr(4, 8)}`);
       }
     );
 
