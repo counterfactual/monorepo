@@ -31,11 +31,7 @@ export default class ProcessQueue {
     return addToManyQueues(
       queueKeys.map(this.getOrCreateQueue.bind(this)),
       task
-    ).then(r => {
-      console.log(
-        `ℹ️ Task using ${queueKeys.map(x => x.substr(0, 4))} is done.`
-      ); return r;
-    });
+    );
   }
 
   private getOrCreateQueue(
