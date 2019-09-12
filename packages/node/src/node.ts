@@ -60,7 +60,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
-    lockService?: NodeTypes.ILockInterface,
+    lockService?: NodeTypes.ILockService,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -83,7 +83,7 @@ export class Node {
     private readonly provider: BaseProvider,
     networkContext: EthereumNetworkName | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT,
-    private readonly lockService?: NodeTypes.ILockInterface
+    private readonly lockService?: NodeTypes.ILockService
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
