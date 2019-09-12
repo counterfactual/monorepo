@@ -23,6 +23,7 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
+  ProposeVirtualMessage,
   Rpc,
   UninstallMessage,
   UninstallVirtualMessage
@@ -574,10 +575,30 @@ export async function installVirtualApp(
   initiatorDeposit?: BigNumber,
   responderDeposit?: BigNumber
 ): Promise<string> {
-  const {
-    appInstanceId,
-    params: { intermediaryIdentifier }
-  } = await makeVirtualProposal(
+  nodeC.on(
+    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    async ({
+      data: {
+        appInstanceId: eventAppInstanceId,
+        params: { intermediaryIdentifier: eventIntermediaryIdentifier }
+      }
+    }: ProposeVirtualMessage) => {
+      const {
+        appInstanceId,
+        params: { intermediaryIdentifier }
+      } = await proposal;
+      if (
+        eventAppInstanceId === appInstanceId &&
+        eventIntermediaryIdentifier === intermediaryIdentifier
+      ) {
+        nodeC.rpcRouter.dispatch(
+          constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
+        );
+      }
+    }
+  );
+
+  const proposal = makeVirtualProposal(
     nodeA,
     nodeC,
     nodeB,
@@ -588,18 +609,18 @@ export async function installVirtualApp(
     responderDeposit
   );
 
-  nodeC.once(
-    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-    async () =>
-      await nodeC.rpcRouter.dispatch(
-        constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
-      )
-  );
-
   return new Promise((resolve: (appInstanceId: string) => void) =>
-    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      resolve(appInstanceId);
-    })
+    nodeA.once(
+      NODE_EVENTS.INSTALL_VIRTUAL,
+      async ({
+        data: {
+          params: { appInstanceId: eventAppInstanceId }
+        }
+      }: InstallVirtualMessage) => {
+        const { appInstanceId } = await proposal;
+        if (eventAppInstanceId === appInstanceId) resolve(appInstanceId);
+      }
+    )
   );
 }
 

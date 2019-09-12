@@ -353,6 +353,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding
     );
 
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithResponding
+      ]
+    ];
+
     const m8 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
@@ -461,6 +470,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const respondingSignatureOnIngridBobAppDisactivationCommitment = yield [
       OP_SIGN,
       ingridBobAppDisactivationCommitment
+    ];
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithIntermediary
+      ]
     ];
 
     const m7 = {

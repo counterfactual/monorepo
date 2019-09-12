@@ -87,13 +87,11 @@ export async function installBalanceRefundApp(
     disableLimit: true
   };
 
-  const updatedStateChannelsMap = await protocolRunner.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Install,
     stateChannelsMap,
     installParams
   );
-
-  await store.saveStateChannel(updatedStateChannelsMap.get(multisigAddress)!);
 }
 
 export async function makeDeposit(
@@ -190,10 +188,6 @@ export async function uninstallBalanceRefundApp(
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }
-  );
-
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
   );
 }
 

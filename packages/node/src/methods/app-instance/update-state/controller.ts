@@ -102,8 +102,4 @@ async function runUpdateStateProtocol(
       multisigAddress: stateChannel.multisigAddress
     }
   );
-
-  const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
-
-  await store.saveStateChannel(sc);
 }
