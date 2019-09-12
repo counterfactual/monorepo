@@ -1,4 +1,3 @@
-import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server/src/contract-deployments.jest";
 import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
@@ -12,14 +11,13 @@ import {
 } from "./connext-utils";
 import { initialLinkedState } from "./linked-transfer";
 import { setup, SetupContext } from "./setup";
-import { collateralizeChannel, createChannel, getApps } from "./utils";
+import { collateralizeChannel, createChannel } from "./utils";
 
 jest.setTimeout(10_000);
 
 expect.extend({ toBeEq });
 
-///////// Define helper fns for nodes
-
+///////// Define helper fns
 // creates a number of linked transfer states for redeemers and senders
 function generateInitialLinkedTransferStates(
   sender: Node,
