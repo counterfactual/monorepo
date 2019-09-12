@@ -169,8 +169,8 @@ export async function installAndRedeemLink(
   const getMatchingHubApp = (apps: AppInstanceJson[]) => {
     return apps.find(
       app =>
-        hasAddressInTransfers(app, funder.freeBalanceAddress) &&
         app.appInterface.addr === linkDef &&
+        hasAddressInTransfers(app, funder.freeBalanceAddress) &&
         (app.latestState as UnidirectionalLinkedTransferAppState).linkedHash ===
           state.linkedHash
     );

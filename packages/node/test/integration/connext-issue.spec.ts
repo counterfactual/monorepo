@@ -151,7 +151,7 @@ describe("Can update and install multiple apps simultaneously", () => {
    */
 
   // FIXME: This test causes a deadlock
-  it.skip("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transfer", async done => {
+  it("should be able to redeem a pregenerated linked payment while simultaneously receiving a direct transfer", async done => {
     // first, pregenerate several linked app initial states
     const {
       linkStatesRedeemer,
