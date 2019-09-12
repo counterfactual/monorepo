@@ -285,6 +285,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
     const m4 = {
       processID,
       protocol: Install,
@@ -294,8 +296,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       },
       seq: UNASSIGNED_SEQ_NO
     } as ProtocolMessage;
-
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [IO_SEND, m4];
   }
