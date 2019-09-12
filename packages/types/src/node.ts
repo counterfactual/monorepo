@@ -64,6 +64,17 @@ export namespace Node {
     reset?(): Promise<void>;
   }
 
+  /**
+   * Centralized locking service (i.e. redis)
+   */
+  export interface ILockInterface {
+    acquireLock(
+      lockName: string,
+      callback: (...args: any[]) => any,
+      timeout: number
+    ): Promise<any>;
+  }
+
   export enum ErrorType {
     ERROR = "error"
   }

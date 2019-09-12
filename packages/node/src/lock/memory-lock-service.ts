@@ -1,7 +1,8 @@
-import { Lock } from "./lock";
-import { ILockInterface } from "./types";
+import { Node } from "@counterfactual/types";
 
-export class MemoryLockService implements ILockInterface {
+import { Lock } from "./lock";
+
+export class MemoryLockService implements Node.ILockInterface {
   public readonly locks: Map<string, Lock> = new Map<string, Lock>();
 
   async acquireLock(

@@ -1,13 +1,13 @@
+import { Node } from "@counterfactual/types";
 import Queue, { Task } from "p-queue";
 
 import MemoryLockService from "./lock/memory-lock-service";
-import { ILockInterface } from "./lock/types";
 import { addToManyQueues } from "./methods/queued-execution";
 
 class QueueWithLockingServiceConnection extends Queue {
   constructor(
     private readonly queueName,
-    private readonly lockingService: ILockInterface,
+    private readonly lockingService: Node.ILockInterface,
     ...args: any[]
   ) {
     super(...args);
@@ -31,7 +31,7 @@ export default class ProcessQueue {
     // this means it is not acting as a centralized lock service right now; a
     // further implementation should extend this primitive and pass in a global
     // service into this constructor that also implements the interface.
-    private readonly lockingService: ILockInterface = new MemoryLockService()
+    private readonly lockingService: Node.ILockInterface = new MemoryLockService()
   ) {}
 
   addTask(queueKeys: string[], task: Task<any>) {
