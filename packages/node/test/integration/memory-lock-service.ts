@@ -18,14 +18,12 @@ export class MemoryLockService implements Node.ILockService {
 
     try {
       unlockKey = await lock.acquireLock(timeout);
-      console.log(`🔒 ${lockName.substring(0, 4)} acquired`);
       retval = await callback();
     } catch (e) {
       // TODO: check exception... if the lock failed
       rejectReason = e;
     } finally {
       await lock.releaseLock(unlockKey);
-      console.log(`🔓 ${lockName.substring(0, 4)} released`);
     }
 
     if (rejectReason) throw new Error(rejectReason);

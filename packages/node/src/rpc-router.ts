@@ -34,8 +34,6 @@ export default class RpcRouter extends Router {
       throw Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
-    console.log(`⚡️ Method ${rpc.methodName} called by ${this.requestHandler.publicIdentifier.substr(4, 8)}`)
-
     const result = jsonRpcSerializeAsResponse(
       {
         result: await new controller.type()[controller.callback](
@@ -46,8 +44,6 @@ export default class RpcRouter extends Router {
       },
       rpc.id as number
     );
-
-    console.log(`✅️ Method ${rpc.methodName} returned by ${this.requestHandler.publicIdentifier.substr(4, 8)}`)
 
     this.requestHandler.outgoing.emit(rpc.methodName, result);
 
