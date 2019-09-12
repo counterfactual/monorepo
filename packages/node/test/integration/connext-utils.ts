@@ -1,5 +1,5 @@
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
-import { AppInstanceJson } from "@counterfactual/types";
+import { Address, AppInstanceJson } from "@counterfactual/types";
 import { One, Zero } from "ethers/constants";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
@@ -15,6 +15,26 @@ import {
   uninstallApp,
   uninstallVirtualApp
 } from "./utils";
+
+type UnidirectionalLinkedTransferAppAction = {
+  amount: BigNumber;
+  assetId: Address;
+  paymentId: string;
+  preImage: string;
+};
+
+type UnidirectionalLinkedTransferAppState = {
+  linkedHash: string;
+  stage: number; // POST_FUND = 0;
+  finalized: boolean;
+  turnNum: BigNumber;
+  transfers: CoinTransfer[];
+};
+
+type CoinTransfer = {
+  to: Address;
+  amount: BigNumber;
+};
 
 /**
  * This file contains any utils functions that are useful when testing
@@ -66,8 +86,8 @@ export async function makeSimpleTransfer(
 export async function installLink(
   funder: Node,
   redeemer: Node,
-  state: any, // FIXME: types
-  action: any // FIXME: types
+  state: UnidirectionalLinkedTransferAppState,
+  action: UnidirectionalLinkedTransferAppAction
 ): Promise<string> {
   const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
     .UnidirectionalLinkedTransferApp;
@@ -86,9 +106,15 @@ export async function installLink(
 }
 
 function assertLinkRedemption(app: AppInstanceJson, amount: BigNumber): void {
-  expect((app.latestState as any).finalized).toEqual(true);
-  expect((app.latestState as any).transfers[1][1]).toBeEq(amount);
-  expect((app.latestState as any).transfers[0][1]).toBeEq(Zero);
+  expect(
+    (app.latestState as UnidirectionalLinkedTransferAppState).finalized
+  ).toEqual(true);
+  expect(
+    (app.latestState as UnidirectionalLinkedTransferAppState).transfers[1][1]
+  ).toBeEq(amount);
+  expect(
+    (app.latestState as UnidirectionalLinkedTransferAppState).transfers[0][1]
+  ).toBeEq(Zero);
 }
 
 /**
@@ -99,7 +125,7 @@ export async function redeemLink(
   redeemer: Node,
   funder: Node,
   appId: string,
-  action: any
+  action: UnidirectionalLinkedTransferAppAction
 ): Promise<string> {
   // take action to finalize state and claim funds from intermediary
   await takeAppAction(redeemer, appId, action);
@@ -133,8 +159,10 @@ export async function installAndRedeemLink(
     addr: string
   ): boolean => {
     return (
-      (app.latestState as any).transfers[0].to === addr ||
-      (app.latestState as any).transfers[1].to === addr
+      (app.latestState as UnidirectionalLinkedTransferAppState).transfers[0]
+        .to === addr ||
+      (app.latestState as UnidirectionalLinkedTransferAppState).transfers[1]
+        .to === addr
     );
   };
 
@@ -142,7 +170,7 @@ export async function installAndRedeemLink(
     return apps.find(app => {
       hasAddressInTransfers(app, funder.freeBalanceAddress) &&
         app.appInterface.addr === linkDef &&
-        (app.latestState as any).linkedHash === state.linkedHash;
+        (app.latestState as UnidirectionalLinkedTransferAppState).linkedHash === state.linkedHash;
     });
   };
 
