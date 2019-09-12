@@ -2,10 +2,8 @@ import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
-import { InstallVirtualMessage, NODE_EVENTS } from "../../../types";
-import { getCreate2MultisigAddress, prettyPrintObject } from "../../../utils";
+import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
-import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 
 import { installVirtual } from "./operation";
 
