@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 NODE_ENV=test
 METAMASK_REPOSITORY="prototypal/metamask-extension"
 METAMASK_BRANCH="develop"
@@ -91,16 +91,22 @@ echo "Initializing logs..."
   touch $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile/greenboard-local-storage.json
 echo "> OK"
 
+echo "============================================================================="
+
 # Run the Hub and the Wallet UI.
 cd $COUNTERFACTUAL_PATH/
-yarn run:wallet:e2e & wait %1; WALLET_E2E_EXIT_CODE=$?
+echo "Running the Hub/Wallet stack..."
+yarn run:wallet:e2e &
+wait %1
+WALLET_E2E_EXIT_CODE=$?
 cd $COUNTERFACTUAL_PATH/packages/greenboard
+echo "> OK"
 
 echo "============================================================================="
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
-  while ! sh -c "nc localhost 9001 < /dev/null";
+  while ! bash -c "nc localhost 9001 < /dev/null";
   do
     if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
     then
@@ -114,7 +120,7 @@ echo "OK"
 echo "============================================================================="
 
 echo -n "Waiting for the Wallet UI to spin up..."
-  while ! sh -c "nc localhost 3334 < /dev/null";
+  while ! bash -c "nc localhost 3334 < /dev/null";
   do
     if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
     then
