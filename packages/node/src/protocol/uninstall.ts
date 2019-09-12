@@ -6,7 +6,6 @@ import {
   Context,
   ProtocolExecutionFlow,
   ProtocolMessage,
-  ProtocolParameters,
   UninstallParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
