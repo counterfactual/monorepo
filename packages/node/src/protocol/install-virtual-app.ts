@@ -37,7 +37,13 @@ export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>
 
 const protocol = Protocol.InstallVirtualApp;
 
-const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
+const {
+  OP_SIGN,
+  WRITE_COMMITMENT,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  PERSIST_STATE_CHANNEL
+} = Opcode;
 
 /**
  * This exchange is described at the following URL:
@@ -258,6 +264,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         responderSignatureOnVirtualAppSetStateCommitment
       ]),
       virtualAppInstance.identityHash
+    ];
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithIntermediary,
+        stateChannelWithResponding,
+        stateChannelWithInitiatingAndIntermediary
+      ]
     ];
 
     context.stateChannelsMap.set(
@@ -553,6 +568,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [IO_SEND, m8];
 
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelBetweenVirtualAppUsers,
+        stateChannelWithResponding,
+        stateChannelWithInitiating
+      ]
+    ];
+
     context.stateChannelsMap.set(
       stateChannelBetweenVirtualAppUsers.multisigAddress,
       stateChannelBetweenVirtualAppUsers
@@ -771,6 +795,15 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     } as ProtocolMessage;
 
     yield [IO_SEND, m7];
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithIntermediary,
+        stateChannelWithRespondingAndIntermediary,
+        stateChannelWithInitiating
+      ]
+    ];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
