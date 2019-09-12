@@ -2,7 +2,7 @@ import { Node } from "@counterfactual/types";
 
 import { Lock } from "./lock";
 
-export class MemoryLockService implements Node.ILockInterface {
+export class MemoryLockService implements Node.ILockService {
   public readonly locks: Map<string, Lock> = new Map<string, Lock>();
 
   async acquireLock(
