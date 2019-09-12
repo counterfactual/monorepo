@@ -1,7 +1,7 @@
 import Queue from "p-queue";
 import uuid from "uuid";
 
-import { Deferred } from "../deferred";
+import { Deferred } from "../../src/deferred";
 
 export class Lock {
   private currentLockHandle: Deferred<any> | null = new Deferred();
