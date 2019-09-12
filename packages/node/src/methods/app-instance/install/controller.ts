@@ -34,14 +34,6 @@ export default class InstallController extends NodeController {
   ): Promise<Node.InstallResult> {
     const { store, protocolRunner, publicIdentifier } = requestHandler;
 
-    const [
-      responderAddress
-    ] = await StateChannel.getPeersAddressFromAppInstanceID(
-      publicIdentifier,
-      store,
-      params.appInstanceId
-    );
-
     const appInstanceProposal = await install(store, protocolRunner, params);
 
     return {

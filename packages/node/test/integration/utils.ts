@@ -115,7 +115,11 @@ export async function getAppInstanceProposal(
     return proposal.identityHash === appInstanceId;
   });
 
-  if (candidates.length !== 1) {
+  if (candidates.length === 0) {
+    throw new Error("Could not find proposal");
+  }
+
+  if (candidates.length > 1) {
     throw new Error("Failed to match exactly one proposed app instance");
   }
 
@@ -473,12 +477,8 @@ export async function collateralizeChannel(
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
   const depositReq = constructDepositRpc(multisigAddress, amount, tokenAddress);
-  node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node1.rpcRouter.dispatch(depositReq);
-  if (!node2) {
-    return;
-  }
-  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  if (!node2) return;
   await node2.rpcRouter.dispatch(depositReq);
 }
 

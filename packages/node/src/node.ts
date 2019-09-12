@@ -16,6 +16,7 @@ import {
   EthereumNetworkName,
   getNetworkContextForNetworkName
 } from "./network-configuration";
+import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
@@ -59,6 +60,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
+    lockService?: NodeTypes.ILockService,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -67,7 +69,8 @@ export class Node {
       nodeConfig,
       provider,
       networkOrNetworkContext,
-      blocksNeededForConfirmation
+      blocksNeededForConfirmation,
+      lockService
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
@@ -79,7 +82,8 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: EthereumNetworkName | NetworkContext,
-    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT,
+    private readonly lockService?: NodeTypes.ILockService
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
@@ -111,7 +115,8 @@ export class Node {
       this.provider,
       new AutoNonceWallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
-      this.blocksNeededForConfirmation!
+      this.blocksNeededForConfirmation!,
+      new ProcessQueue(this.lockService)
     );
     this.registerMessagingConnection();
     this.rpcRouter = createRpcRouter(this.requestHandler);

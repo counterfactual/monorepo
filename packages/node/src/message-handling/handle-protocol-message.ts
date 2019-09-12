@@ -43,19 +43,11 @@ export async function handleReceivedProtocolMessage(
 
   if (seq === UNASSIGNED_SEQ_NO) return;
 
-  const queueNames = await getQueueNamesListByProtocolName(
-    protocol,
-    params!,
-    requestHandler
-  );
+  const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
-  const postProtocolStateChannelsMap = await requestHandler.processQueue.addTask(
-    queueNames,
-    async () =>
-      protocolRunner.runProtocolWithMessage(
-        data,
-        await store.getStateChannelsMap()
-      )
+  const postProtocolStateChannelsMap = await protocolRunner.runProtocolWithMessage(
+    data,
+    preProtocolStateChannelsMap
   );
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(

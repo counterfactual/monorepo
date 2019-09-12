@@ -26,7 +26,7 @@ export class MemoryLockService implements Node.ILockService {
       await lock.releaseLock(unlockKey);
     }
 
-    if (rejectReason) throw new Error(rejectReason);
+    if (rejectReason) throw rejectReason;
 
     return retval;
   }
