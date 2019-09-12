@@ -1,19 +1,15 @@
-import { NetworkContext } from "@counterfactual/types";
-
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  SetupParams
-} from "../machine/types";
+import { Context, ProtocolMessage, SetupParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+
+const protocol = Protocol.Setup;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -22,129 +18,105 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { responderXpub, multisigAddress } = context.message
-      .params as SetupParams;
-    const responderAddress = xkeyKthAddress(responderXpub, 0);
-    const setupCommitment = proposeStateTransition(
-      context.message.params!,
-      context
-    );
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const { message, network } = context;
+
+    const { processID, params } = message;
 
     const {
-      customData: { signature: theirSig }
+      multisigAddress,
+      responderXpub,
+      initiatorXpub
+    } = params as SetupParams;
+
+    const stateChannel = StateChannel.setupChannel(
+      network.IdentityApp,
+      multisigAddress,
+      [initiatorXpub, responderXpub]
+    );
+
+    const setupCommitment = new SetupCommitment(
+      network,
+      stateChannel.multisigAddress,
+      stateChannel.multisigOwners,
+      stateChannel.freeBalance.identity
+    );
+
+    const initiatorSignature = yield [OP_SIGN, setupCommitment];
+
+    const {
+      customData: { signature: responderSignature }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
-        protocol: Protocol.Setup,
-        processID: context.message.processID,
-        params: context.message.params,
+        protocol,
+        processID,
+        params,
+        seq: 1,
         toXpub: responderXpub,
         customData: {
-          signature: mySig
-        },
-        seq: 1
+          signature: initiatorSignature
+        }
       } as ProtocolMessage
     ];
-    assertIsValidSignature(responderAddress, setupCommitment, theirSig);
 
-    const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
+    assertIsValidSignature(
+      xkeyKthAddress(responderXpub, 0),
+      setupCommitment,
+      responderSignature
+    );
 
-    yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Setup,
-      finalCommitment,
-      multisigAddress
-    ];
+    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
   },
 
   1: async function*(context: Context) {
-    const { initiatorXpub, multisigAddress } = context.message
-      .params as SetupParams;
-    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
+    const { message, network } = context;
 
-    const setupCommitment = proposeStateTransition(
-      context.message.params!,
-      context
+    const {
+      processID,
+      params,
+      customData: { signature: initiatorSignature }
+    } = message;
+
+    const {
+      multisigAddress,
+      initiatorXpub,
+      responderXpub
+    } = params as SetupParams;
+
+    const stateChannel = StateChannel.setupChannel(
+      network.IdentityApp,
+      multisigAddress,
+      [initiatorXpub, responderXpub]
     );
 
-    const theirSig = context.message.customData.signature!;
-    assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
+    const setupCommitment = new SetupCommitment(
+      network,
+      stateChannel.multisigAddress,
+      stateChannel.multisigOwners,
+      stateChannel.freeBalance.identity
+    );
 
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    assertIsValidSignature(
+      xkeyKthAddress(initiatorXpub, 0),
+      setupCommitment,
+      initiatorSignature
+    );
 
-    const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
+    const responderSignature = yield [OP_SIGN, setupCommitment];
+
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Setup,
-      finalCommitment,
-      multisigAddress
-    ];
-
-    yield [
-      Opcode.IO_SEND,
+      IO_SEND,
       {
-        protocol: Protocol.Setup,
-        processID: context.message.processID,
+        protocol,
+        processID,
         toXpub: initiatorXpub,
+        seq: UNASSIGNED_SEQ_NO,
         customData: {
-          signature: mySig
-        },
-        seq: UNASSIGNED_SEQ_NO
+          signature: responderSignature
+        }
       } as ProtocolMessage
     ];
+
+    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
   }
 };
-
-function proposeStateTransition(
-  params: ProtocolParameters,
-  context: Context
-): SetupCommitment {
-  const {
-    multisigAddress,
-    initiatorXpub,
-    responderXpub
-  } = params as SetupParams;
-
-  if (context.stateChannelsMap.has(multisigAddress)) {
-    throw Error(`Found an already-setup channel at ${multisigAddress}`);
-  }
-
-  const newStateChannel = StateChannel.setupChannel(
-    context.network.IdentityApp,
-    multisigAddress,
-    [initiatorXpub, responderXpub]
-  );
-
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-
-  const setupCommitment = constructSetupCommitment(
-    context.network,
-    newStateChannel
-  );
-
-  return setupCommitment;
-}
-
-export function constructSetupCommitment(
-  network: NetworkContext,
-  stateChannel: StateChannel
-) {
-  const freeBalance = stateChannel.freeBalance;
-
-  return new SetupCommitment(
-    network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    freeBalance.identity
-  );
-}
