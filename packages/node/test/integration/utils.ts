@@ -23,7 +23,9 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  Rpc
+  Rpc,
+  UninstallMessage,
+  UninstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 
@@ -871,4 +873,47 @@ export function getAppContext(
         `Proposing the specified app is not supported: ${appDefinition}`
       );
   }
+}
+
+export async function uninstallVirtualApp(
+  node: Node,
+  counterparty: Node,
+  intermediaryPubId: string,
+  appId: string
+): Promise<string> {
+  const rpc = constructUninstallVirtualRpc(appId, intermediaryPubId);
+  return new Promise(async resolve => {
+    counterparty.once(
+      NODE_EVENTS.UNINSTALL_VIRTUAL,
+      (msg: UninstallVirtualMessage) => {
+        resolve(msg.data.appInstanceId);
+      }
+    );
+    await node.rpcRouter.dispatch(rpc);
+  });
+}
+
+export async function takeAppAction(node: Node, appId: string, action: any) {
+  const res = await node.rpcRouter.dispatch(
+    constructTakeActionRpc(appId, action)
+  );
+  return res.result.result;
+}
+
+export async function uninstallApp(
+  node: Node,
+  counterparty: Node,
+  appId: string
+): Promise<string> {
+  return new Promise(async resolve => {
+    counterparty.once(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
+      resolve(msg.data.appInstanceId);
+    });
+    await node.rpcRouter.dispatch(constructUninstallRpc(appId));
+  });
+}
+
+export async function getApps(node: Node): Promise<AppInstanceJson[]> {
+  return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
+    .appInstances;
 }
