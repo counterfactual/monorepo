@@ -146,7 +146,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [
-      IO_SEND,
+      IO_SEND_AND_WAIT,
       {
         processID,
         protocol: Install,
@@ -276,6 +276,18 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
     ];
+
+    const m4 = {
+      processID,
+      protocol: Install,
+      toXpub: initiatorXpub,
+      customData: {
+        dataPersisted: true
+      },
+      seq: UNASSIGNED_SEQ_NO
+    } as ProtocolMessage;
+
+    yield [IO_SEND, m4];
   }
 };
 
