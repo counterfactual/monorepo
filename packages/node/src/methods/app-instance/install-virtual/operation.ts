@@ -1,7 +1,6 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
-import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
