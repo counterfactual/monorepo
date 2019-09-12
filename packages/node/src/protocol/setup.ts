@@ -1,5 +1,3 @@
-import { NetworkContext } from "@counterfactual/types";
-
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
