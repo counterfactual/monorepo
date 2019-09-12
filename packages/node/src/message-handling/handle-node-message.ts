@@ -85,17 +85,17 @@ export async function handleReceivedProposeVirtualMessage(
     networkContext.MinimumViableMultisig
   );
 
-  await requestHandler.processQueue.addTask([multisigAddress], async () => {
-    const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-      multisigAddress,
-      proposedByIdentifier,
-      proposedToIdentifier,
-      intermediaryIdentifier,
-      store,
-      networkContext
-    );
+  const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+    multisigAddress,
+    proposedByIdentifier,
+    proposedToIdentifier,
+    intermediaryIdentifier,
+    store,
+    networkContext
+  );
 
-    const proposal = new AppInstanceProposal(
+  await store.addVirtualAppInstanceProposal(
+    new AppInstanceProposal(
       {
         ...params,
         proposedByIdentifier,
@@ -105,9 +105,8 @@ export async function handleReceivedProposeVirtualMessage(
         responderDepositTokenAddress: initiatorDepositTokenAddress!
       },
       stateChannel
-    );
-    await store.addVirtualAppInstanceProposal(proposal);
+    )
+  );
 
-    await store.saveStateChannel(stateChannel.bumpProposedApps());
-  });
+  await store.saveStateChannel(stateChannel.bumpProposedApps());
 }
