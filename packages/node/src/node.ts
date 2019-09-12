@@ -9,7 +9,6 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import { ILockInterface } from "./lock/types";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
@@ -17,12 +16,12 @@ import {
   EthereumNetworkName,
   getNetworkContextForNetworkName
 } from "./network-configuration";
+import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
-import ProcessQueue from "./process-queue";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
@@ -61,7 +60,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
-    lockService?: ILockInterface,
+    lockService?: NodeTypes.ILockInterface,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -84,7 +83,7 @@ export class Node {
     private readonly provider: BaseProvider,
     networkContext: EthereumNetworkName | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT,
-    private readonly lockService?: ILockInterface
+    private readonly lockService?: NodeTypes.ILockInterface
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
