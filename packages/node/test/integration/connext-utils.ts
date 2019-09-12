@@ -170,7 +170,8 @@ export async function installAndRedeemLink(
     return apps.find(app => {
       hasAddressInTransfers(app, funder.freeBalanceAddress) &&
         app.appInterface.addr === linkDef &&
-        (app.latestState as UnidirectionalLinkedTransferAppState).linkedHash === state.linkedHash;
+        (app.latestState as UnidirectionalLinkedTransferAppState).linkedHash ===
+          state.linkedHash;
     });
   };
 
