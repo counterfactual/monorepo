@@ -6,13 +6,14 @@ WORKING_DIRECTORY="/home/circleci"
 COUNTERFACTUAL_PATH="/home/circleci/project"
 YARN_OP_FLAGS="--ignore-engines"
 YARN_BUILD_FLAGS="$YARN_OP_FLAGS --build-from-source"
-alias yarn_install_command="yarn $YARN_BUILD_FLAGS"
-alias yarn_ci_command="yarn $YARN_OP_FLAGS --frozen-lockfile"
-alias yarn_build_command="yarn $YARN_OP_FLAGS build"
-alias yarn_dist_command="yarn $YARN_OP_FLAGS dist"
-alias yarn_rm_command="yarn $YARN_OP_FLAGS remove"
-alias yarn_add_command="yarn $YARN_BUILD_FLAGS add -D"
-alias yann_add_global_command="yarn global add $YARN_BUILD_FLAGS"
+
+yarn_install_command="yarn $YARN_BUILD_FLAGS"
+yarn_ci_command="yarn $YARN_OP_FLAGS --frozen-lockfile"
+yarn_build_command="yarn $YARN_OP_FLAGS build"
+yarn_dist_command="yarn $YARN_OP_FLAGS dist"
+yarn_rm_command="yarn $YARN_OP_FLAGS remove"
+yarn_add_command="yarn $YARN_BUILD_FLAGS add -D"
+yann_add_global_command="yarn global add $YARN_BUILD_FLAGS"
 
 # Enable core dumps.
 ulimit -c unlimited
@@ -49,9 +50,9 @@ echo "> OK"
 echo "============================================================================="
 
 echo "Building MetaMask..."
-  yarn_ci_command
-  yarn_add_command @babel/core
-  yarn_dist_command
+  $yarn_ci_command
+  $yarn_add_command @babel/core
+  $yarn_dist_command
 echo "> OK"
 
 echo "============================================================================="
@@ -67,9 +68,9 @@ echo "==========================================================================
 # Install dependencies for Greenboard.
 echo "Installing Greenboard dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/greenboard
-  yarn_install_command
+  $yarn_install_command
   cp -rl node_modules/* ../../node_modules/
-  yann_add_global_command serve
+  $yann_add_global_command serve
 echo "> OK"
 
 echo "============================================================================="
@@ -77,7 +78,7 @@ echo "==========================================================================
 # Install dependencies for the Hub.
 echo "Installing Hub dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/simple-hub-server
-  yarn_install_command
+  $yarn_install_command
   cp -rl node_modules/* ../../node_modules/
 echo "> OK"
 
