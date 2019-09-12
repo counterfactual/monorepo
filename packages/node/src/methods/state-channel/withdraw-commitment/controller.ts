@@ -1,10 +1,10 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import { WithdrawController } from "../..";
 import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
+import WithdrawController from "../withdraw/controller";
 import { runWithdrawProtocol } from "../withdraw/operation";
 
 // Note: This can't extend `WithdrawController` because the `methodName` static
