@@ -16,7 +16,13 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Uninstall;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
+const {
+  OP_SIGN,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  PERSIST_STATE_CHANNEL,
+  WRITE_COMMITMENT
+} = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -117,6 +123,8 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ]);
 
     yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
       IO_SEND,

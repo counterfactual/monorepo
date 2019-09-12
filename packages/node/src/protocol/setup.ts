@@ -9,7 +9,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Setup;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -103,6 +103,8 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const responderSignature = yield [OP_SIGN, setupCommitment];
+
+    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
 
     yield [
       IO_SEND,
