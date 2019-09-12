@@ -19,7 +19,7 @@ ulimit -c unlimited
 
 # Clone MetaMask.
 echo -n "Cloning MetaMask..."
-  git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/${METAMASK_REPOSITORY} $WORKING_DIRECTORY/metamask &>/dev/null
+  git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/$METAMASK_REPOSITORY $WORKING_DIRECTORY/metamask &>/dev/null
 echo "OK"
 
 echo -n "Injecting CF into MetaMask..."
@@ -82,7 +82,7 @@ cd $COUNTERFACTUAL_PATH/packages/greenboard
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
-  while ! sh -c "nc -n localhost 9001 < /dev/null";
+  while ! sh -c "nc localhost 9001 < /dev/null";
   do
     if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
     then
@@ -94,7 +94,7 @@ echo -n "Waiting for the Hub to spin up..."
 echo "OK"
 
 echo -n "Waiting for the Wallet UI to spin up..."
-  while ! sh -c "nc -n localhost 3334 < /dev/null";
+  while ! sh -c "nc localhost 3334 < /dev/null";
   do
     if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
     then
