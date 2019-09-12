@@ -35,9 +35,21 @@ export default class UninstallVirtualController extends NodeController {
       appInstanceId
     );
 
+    const multisigAddressBetweenHubAndResponding = getCreate2MultisigAddress(
+      [
+        stateChannelWithResponding.userNeuteredExtendedKeys.filter(
+          x => x !== publicIdentifier
+        )[0],
+        intermediaryIdentifier
+      ],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
     return [
       stateChannelWithResponding.multisigAddress,
       multisigAddressForStateChannelWithIntermediary,
+      multisigAddressBetweenHubAndResponding,
       appInstanceId
     ];
   }
