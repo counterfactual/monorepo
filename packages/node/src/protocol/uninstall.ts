@@ -30,7 +30,7 @@ const {
  * specs.counterfactual.com/06-uninstall-protocol#messages
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+  0 /* Initiating */: async function*(context: Context) {
     const { message, provider, stateChannelsMap, network } = context;
     const { params, processID } = message;
     const { responderXpub, appIdentityHash } = params as UninstallParams;
@@ -80,13 +80,15 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
 
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
     context.stateChannelsMap.set(
       postProtocolStateChannel.multisigAddress,
       postProtocolStateChannel
     );
   },
 
-  1: async function*(context: Context) {
+  1 /* Responding */: async function*(context: Context) {
     const { message, provider, stateChannelsMap, network } = context;
     const { params, processID } = message;
     const { initiatorXpub, appIdentityHash } = params as UninstallParams;

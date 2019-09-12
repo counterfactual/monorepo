@@ -17,7 +17,7 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
  *
  */
 export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+  0 /* Intiating */: async function*(context: Context) {
     const { stateChannelsMap, message, network } = context;
 
     const { processID, params } = message;
@@ -76,13 +76,15 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       responderSignature
     );
 
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
     context.stateChannelsMap.set(
       postProtocolStateChannel.multisigAddress,
       postProtocolStateChannel
     );
   },
 
-  1: async function*(context: Context) {
+  1 /* Responding */: async function*(context: Context) {
     const { stateChannelsMap, message, network } = context;
 
     const {
