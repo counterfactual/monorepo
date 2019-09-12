@@ -22,7 +22,7 @@ export async function runWithdrawProtocol(
 
   const stateChannel = await store.getStateChannel(multisigAddress);
 
-  const stateChannelsMap = await protocolRunner.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Withdraw,
     new Map([[stateChannel.multisigAddress, stateChannel]]),
     {
@@ -34,6 +34,4 @@ export async function runWithdrawProtocol(
       multisigAddress: stateChannel.multisigAddress
     }
   );
-
-  await store.saveStateChannel(stateChannelsMap.get(multisigAddress)!);
 }
