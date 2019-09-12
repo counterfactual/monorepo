@@ -14,7 +14,7 @@ class QueueWithLockingServiceConnection extends Queue {
 
   async add(task: Task<any>) {
     return super.add(() =>
-      this.lockingService.acquireLock(this.queueName, task, 30_000, task["__name__"])
+      this.lockingService.acquireLock(this.queueName, task, 30_000)
     );
   }
 }
@@ -27,8 +27,7 @@ export default class ProcessQueue {
 
   constructor(private readonly lockingService?: Node.ILockService) {}
 
-  addTask(queueKeys: string[], task: Task<any>, name: string = "") {
-    task["__name__"] = name;
+  addTask(queueKeys: string[], task: Task<any>) {
     return addToManyQueues(
       queueKeys.map(k => this.getOrCreateQueue(k, name)),
       task

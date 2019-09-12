@@ -29,8 +29,6 @@ export default class UninstallController extends NodeController {
       throw Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
-    console.log([sc.multisigAddress, appInstanceId])
-
     return [sc.multisigAddress, appInstanceId];
   }
 

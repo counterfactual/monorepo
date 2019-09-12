@@ -10,7 +10,7 @@ import { Deferred } from "../deferred";
  * @param {Task<any>} task - any function which returns a promise-like
  * @returns
  */
-export async function addToManyQueues(queues: Queue[], task: Task<any>, ) {
+export async function addToManyQueues(queues: Queue[], task: Task<any>) {
   if (queues.length === 0) return await task();
 
   let promise: PromiseLike<any>;

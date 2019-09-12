@@ -22,8 +22,7 @@ export abstract class NodeController extends Controller {
 
     const ret = await requestHandler.processQueue.addTask(
       queueNames,
-      createExecutionPromise,
-      this.constructor.name
+      createExecutionPromise
     );
 
     await this.afterExecution(requestHandler, params);

@@ -8,8 +8,7 @@ export class MemoryLockService implements Node.ILockService {
   async acquireLock(
     lockName: string,
     callback: (...args: any[]) => any,
-    timeout: number,
-    name: string = ""
+    timeout: number
   ): Promise<any> {
     const lock = this.getOrCreateLock(lockName);
 
