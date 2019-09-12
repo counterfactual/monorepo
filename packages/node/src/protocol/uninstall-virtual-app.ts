@@ -27,7 +27,8 @@ function xkeyTo0thAddress(xpub: string) {
 const {
   OP_SIGN,
   IO_SEND_AND_WAIT,
-  IO_SEND
+  IO_SEND,
+  PERSIST_STATE_CHANNEL
   // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
 } = Opcode;
 
