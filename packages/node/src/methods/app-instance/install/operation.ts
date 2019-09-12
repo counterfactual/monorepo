@@ -20,7 +20,7 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  const stateChannelsMap = await protocolRunner.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Install,
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -47,10 +47,6 @@ export async function install(
       responderDepositTokenAddress: proposal.responderDepositTokenAddress,
       disableLimit: false
     }
-  );
-
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
   );
 
   await store.saveRealizedProposedAppInstance(proposal);

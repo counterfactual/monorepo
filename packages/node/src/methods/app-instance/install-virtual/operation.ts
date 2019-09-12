@@ -36,14 +36,12 @@ export async function installVirtual(
     timeout
   } = proposal;
 
-  let updatedStateChannelsMap: Map<string, StateChannel>;
-
   if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
     throw Error("Cannot install virtual app with different token addresses");
   }
 
   try {
-    updatedStateChannelsMap = await protocolRunner.initiateProtocol(
+    await protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       await store.getStateChannelsMap(),
       {
@@ -66,10 +64,6 @@ export async function installVirtual(
       `Node Error: ${VIRTUAL_APP_INSTALLATION_FAIL}\nStack Trace: ${e.stack}`
     );
   }
-
-  updatedStateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
-  );
 
   await store.saveRealizedProposedAppInstance(proposal);
 
