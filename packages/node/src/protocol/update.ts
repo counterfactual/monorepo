@@ -1,19 +1,14 @@
-import { NetworkContext } from "@counterfactual/types";
-
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  UpdateParams
-} from "../machine/types";
+import { Context, ProtocolMessage, UpdateParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+
+const protocol = Protocol.Update;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -23,131 +18,135 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  */
 export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
   0: async function*(context: Context) {
-    const { responderXpub } = context.message.params!;
+    const { stateChannelsMap, message, network } = context;
 
-    const [
-      appIdentityHash,
-      setStateCommitment,
-      appSeqNo
-    ] = proposeStateTransition(context.message.params!, context);
-
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
+    const { processID, params } = message;
 
     const {
-      customData: { signature: theirSig }
+      appIdentityHash,
+      multisigAddress,
+      responderXpub,
+      newState
+    } = params as UpdateParams;
+
+    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
+
+    const postProtocolStateChannel = preProtocolStateChannel.setState(
+      appIdentityHash,
+      newState
+    );
+
+    const appInstance = postProtocolStateChannel.getAppInstance(
+      appIdentityHash
+    );
+
+    const setStateCommitment = new SetStateCommitment(
+      network,
+      appInstance.identity,
+      appInstance.hashOfLatestState,
+      appInstance.versionNumber,
+      appInstance.timeout
+    );
+
+    const initiatorSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
+
+    const {
+      customData: { signature: responderSignature }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
-        protocol: Protocol.Update,
-        processID: context.message.processID,
-        params: context.message.params,
+        protocol,
+        processID,
+        params,
+        seq: 1,
         toXpub: responderXpub,
         customData: {
-          signature: mySig
-        },
-        seq: 1
+          signature: initiatorSignature
+        }
       } as ProtocolMessage
     ];
 
     assertIsValidSignature(
-      xkeyKthAddress(responderXpub, appSeqNo),
+      xkeyKthAddress(responderXpub, appInstance.appSeqNo),
       setStateCommitment,
-      theirSig
+      responderSignature
     );
 
-    const finalCommitment = setStateCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
-    yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update,
-      finalCommitment,
-      appIdentityHash
-    ];
+    context.stateChannelsMap.set(
+      postProtocolStateChannel.multisigAddress,
+      postProtocolStateChannel
+    );
   },
 
   1: async function*(context: Context) {
-    const [
+    const { stateChannelsMap, message, network } = context;
+
+    const {
+      processID,
+      params,
+      customData: { signature: initiatorSignature }
+    } = message;
+
+    const {
       appIdentityHash,
-      setStateCommitment,
-      appSeqNo
-    ] = proposeStateTransition(context.message.params!, context);
+      multisigAddress,
+      initiatorXpub,
+      newState
+    } = params as UpdateParams;
 
-    const { initiatorXpub } = context.message.params!;
+    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
 
-    const theirSig = context.message.customData.signature;
-
-    assertIsValidSignature(
-      xkeyKthAddress(initiatorXpub, appSeqNo),
-      setStateCommitment,
-      theirSig
+    const postProtocolStateChannel = preProtocolStateChannel.setState(
+      appIdentityHash,
+      newState
     );
 
-    const mySig = yield [Opcode.OP_SIGN, setStateCommitment, appSeqNo];
-
-    const finalCommitment = setStateCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
-    yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update,
-      finalCommitment,
+    const appInstance = postProtocolStateChannel.getAppInstance(
       appIdentityHash
+    );
+
+    const setStateCommitment = new SetStateCommitment(
+      network,
+      appInstance.identity,
+      appInstance.hashOfLatestState,
+      appInstance.versionNumber,
+      appInstance.timeout
+    );
+
+    assertIsValidSignature(
+      xkeyKthAddress(initiatorXpub, appInstance.appSeqNo),
+      setStateCommitment,
+      initiatorSignature
+    );
+
+    const responderSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
     ];
 
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
     yield [
-      Opcode.IO_SEND,
+      IO_SEND,
       {
-        protocol: Protocol.Update,
-        processID: context.message.processID,
+        protocol,
+        processID,
         toXpub: initiatorXpub,
+        seq: UNASSIGNED_SEQ_NO,
         customData: {
-          signature: mySig
-        },
-        seq: UNASSIGNED_SEQ_NO
+          signature: responderSignature
+        }
       } as ProtocolMessage
     ];
+
+    context.stateChannelsMap.set(
+      postProtocolStateChannel.multisigAddress,
+      postProtocolStateChannel
+    );
   }
 };
-
-function proposeStateTransition(
-  params: ProtocolParameters,
-  context: Context
-): [string, SetStateCommitment, number] {
-  const { appIdentityHash, newState, multisigAddress } = params as UpdateParams;
-  const newStateChannel = context.stateChannelsMap
-    .get(multisigAddress)!
-    .setState(appIdentityHash, newState);
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-  const setStateCommitment = constructUpdateOp(
-    context.network,
-    newStateChannel,
-    appIdentityHash
-  );
-  const appSeqNo = context.stateChannelsMap
-    .get(multisigAddress)!
-    .getAppInstance(appIdentityHash).appSeqNo;
-
-  return [appIdentityHash, setStateCommitment, appSeqNo];
-}
-
-function constructUpdateOp(
-  network: NetworkContext,
-  stateChannel: StateChannel,
-  appIdentityHash: string
-) {
-  const app = stateChannel.getAppInstance(appIdentityHash);
-
-  return new SetStateCommitment(
-    network,
-    app.identity,
-    app.hashOfLatestState,
-    app.versionNumber,
-    app.timeout
-  );
-}
