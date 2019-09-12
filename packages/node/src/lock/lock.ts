@@ -4,13 +4,12 @@ import uuid from "uuid";
 import { Deferred } from "../deferred";
 
 export class Lock {
-  private currentLockHandle: Deferred<any> = new Deferred();
+  private currentLockHandle: Deferred<any> | null = new Deferred();
   private unlockKey: string = "";
   private readonly requestsForLock: Queue;
 
   constructor(public readonly lockName: string) {
     this.requestsForLock = new Queue({ concurrency: 1 });
-    this.currentLockHandle.resolve();
   }
 
   async acquireLock(timeout: number): Promise<string> {
@@ -26,7 +25,12 @@ export class Lock {
 
   async releaseLock(unlockKey: string) {
     this.verifyLockKey(unlockKey);
-    this.currentLockHandle.resolve();
+    if (this.currentLockHandle) this.currentLockHandle.resolve();
+    this.currentLockHandle = null;
+  }
+
+  public isAcquired() {
+    return this.currentLockHandle !== null;
   }
 
   private acquireLockInternal(
