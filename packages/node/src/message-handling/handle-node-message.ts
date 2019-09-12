@@ -111,4 +111,3 @@ export async function handleReceivedProposeVirtualMessage(
     await store.saveStateChannel(stateChannel.bumpProposedApps());
   });
 }
-
