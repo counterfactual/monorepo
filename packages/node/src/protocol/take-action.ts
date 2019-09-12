@@ -4,6 +4,7 @@ import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 
+import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.TakeAction;
@@ -138,7 +139,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         protocol,
         processID,
         toXpub: initiatorXpub,
-        seq: -1,
+        seq: UNASSIGNED_SEQ_NO,
         customData: {
           signature: responderSignature
         }
