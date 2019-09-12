@@ -42,14 +42,6 @@ export default class InstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    console.log(
-      [
-        multisigAddressWithHub,
-        multisigAddressWithResponding,
-        multisigAddressBetweenHubAndResponding
-      ]
-    )
-
     return [
       multisigAddressWithHub,
       multisigAddressWithResponding,

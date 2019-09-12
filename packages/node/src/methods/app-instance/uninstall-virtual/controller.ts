@@ -46,13 +46,6 @@ export default class UninstallVirtualController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    console.log([
-      stateChannelWithResponding.multisigAddress,
-      multisigAddressForStateChannelWithIntermediary,
-      multisigAddressBetweenHubAndResponding,
-      appInstanceId
-    ])
-
     return [
       stateChannelWithResponding.multisigAddress,
       multisigAddressForStateChannelWithIntermediary,
