@@ -1,5 +1,9 @@
 #!/bin/sh
 NODE_ENV=test
+METAMASK_REPOSITORY="prototypal/metamask-extension"
+METAMASK_BRANCH="develop"
+WORKING_DIRECTORY="/home/circleci"
+COUNTERFACTUAL_PATH="/home/circleci/project"
 YARN_OP_FLAGS="--ignore-engines"
 YARN_BUILD_FLAGS="$YARN_OP_FLAGS --build-from-source"
 alias yarn_install_command="yarn $YARN_BUILD_FLAGS"

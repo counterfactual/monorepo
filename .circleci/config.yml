@@ -108,11 +108,6 @@ jobs:
   run-greenboard:
     docker:
       - image: counterfactual/circleci-environment:greenboard-test
-        environment:
-          METAMASK_REPOSITORY: prototypal/metamask-extension
-          METAMASK_BRANCH: develop
-          WORKING_DIRECTORY: /home/circleci
-          COUNTERFACTUAL_PATH: /home/circleci/project
 
     steps:
       - <<: *restore_code

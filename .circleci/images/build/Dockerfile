@@ -25,4 +25,4 @@ ENV TEST_BROWSER_FLAG_DEBUG=#
 ENV TEST_BROWSER_FLAG_DISABLE_GPU=#
 
 # Install browser, driver and X virtual framebuffer
-RUN apt-get install -y chromium-browser chromium-chromedriver xvfb
+RUN apt-get install -y chromium-browser chromium-chromedriver xvfb nc
