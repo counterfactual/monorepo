@@ -29,14 +29,13 @@ export default class ProcessQueue {
 
   addTask(queueKeys: string[], task: Task<any>) {
     return addToManyQueues(
-      queueKeys.map(k => this.getOrCreateQueue(k, name)),
+      queueKeys.map(this.getOrCreateQueue.bind(this)),
       task
     );
   }
 
   private getOrCreateQueue(
-    queueKey: string,
-    name: string
+    queueKey: string
   ): QueueWithLockingServiceConnection | Queue {
     if (!this.queues.has(queueKey)) {
       this.queues.set(
@@ -45,7 +44,6 @@ export default class ProcessQueue {
           ? new QueueWithLockingServiceConnection(
               queueKey,
               this.lockingService,
-              name,
               {
                 concurrency: 1
               }
