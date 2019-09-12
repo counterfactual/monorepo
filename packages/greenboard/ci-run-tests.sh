@@ -17,17 +17,23 @@ alias yann_add_global_command="yarn global add $YARN_BUILD_FLAGS"
 # Enable core dumps.
 ulimit -c unlimited
 
-# Clone MetaMask.
-echo -n "Cloning MetaMask..."
-  git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/$METAMASK_REPOSITORY $WORKING_DIRECTORY/metamask &>/dev/null
-echo "OK"
+echo "============================================================================="
 
-echo -n "Injecting CF into MetaMask..."
+# Clone MetaMask.
+echo "Cloning MetaMask..."
+  git clone --depth 1 --single-branch --branch $METAMASK_BRANCH https://github.com/$METAMASK_REPOSITORY $WORKING_DIRECTORY/metamask
+echo "> OK"
+
+echo "============================================================================="
+
+echo "Injecting CF into MetaMask..."
   # Inject CF IIFE dependencies into MetaMask.
   cp $COUNTERFACTUAL_PATH/packages/cf.js/dist/index-iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/cf.js.iife.js
   cp $COUNTERFACTUAL_PATH/packages/node/dist/index.iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/node.iife.js
   cp $COUNTERFACTUAL_PATH/packages/firebase-client/dist/index.iife.js $WORKING_DIRECTORY/metamask/app/vendor/counterfactual/node/firebase-client.iife.js
-echo "OK"
+echo "> OK"
+
+echo "============================================================================="
 
 cd $WORKING_DIRECTORY/metamask
 
@@ -35,50 +41,62 @@ cd $WORKING_DIRECTORY/metamask
 # isn't compatible with Alpine Linux, and we don't need it in this case.
 # We also manually add @babel/core because on a subdependency level, it was
 # getting installed and it's necessary for transpilation.
-echo -n "Removing non-essential dependencies..."
+echo "Removing non-essential dependencies..."
   mv package.json package.json.original
   sed -r '/\@sentry\/cli|\@storybook|eslint|chromedriver|geckodriver|selenium-webdriver|jsdom|"karma|"mocha|tape|testem|qunitjs|gh-pages|"ganache-cli/d' package.json.original > package.json
-echo "OK"
+echo "> OK"
 
-echo -n "Building MetaMask..."
-  yarn_ci_command #&>/dev/null
-  yarn_add_command @babel/core #&>/dev/null
-  yarn_dist_command #&>/dev/null
-echo "OK"
+echo "============================================================================="
+
+echo "Building MetaMask..."
+  yarn_ci_command
+  yarn_add_command @babel/core
+  yarn_dist_command
+echo "> OK"
+
+echo "============================================================================="
 
 # Move MM distributable to Greenboard.
-echo -n "Cleaning up..."
+echo "Cleaning up..."
   mv $WORKING_DIRECTORY/metamask/dist/chrome $COUNTERFACTUAL_PATH/packages/greenboard/extension
   rm -rf $WORKING_DIRECTORY/metamask;
-echo "OK"
+echo "> OK"
+
+echo "============================================================================="
 
 # Install dependencies for Greenboard.
-echo -n "Installing Greenboard dependencies..."
+echo "Installing Greenboard dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/greenboard
-  yarn_install_command #&>/dev/null
+  yarn_install_command
   cp -rl node_modules/* ../../node_modules/
-  yann_add_global_command serve #&>/dev/null
-echo "OK"
+  yann_add_global_command serve
+echo "> OK"
+
+echo "============================================================================="
 
 # Install dependencies for the Hub.
-echo -n "Installing Hub dependencies..."
+echo "Installing Hub dependencies..."
   cd $COUNTERFACTUAL_PATH/packages/simple-hub-server
-  yarn_install_command &>/dev/null
+  yarn_install_command
   cp -rl node_modules/* ../../node_modules/
-echo "OK"
+echo "> OK"
+
+echo "============================================================================="
 
 # Initialize logs.
-echo -n "Initializing logs..."
+echo "Initializing logs..."
   mkdir -p $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile
   touch /tmp/hub-wallet.log
   touch $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile/chrome_debug.log
   touch $COUNTERFACTUAL_PATH/packages/greenboard/chrome-profile/greenboard-local-storage.json
-echo "OK"
+echo "> OK"
 
 # Run the Hub and the Wallet UI.
 cd $COUNTERFACTUAL_PATH/
 yarn run:wallet:e2e & wait %1; WALLET_E2E_EXIT_CODE=$?
 cd $COUNTERFACTUAL_PATH/packages/greenboard
+
+echo "============================================================================="
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
@@ -93,6 +111,8 @@ echo -n "Waiting for the Hub to spin up..."
   done
 echo "OK"
 
+echo "============================================================================="
+
 echo -n "Waiting for the Wallet UI to spin up..."
   while ! sh -c "nc localhost 3334 < /dev/null";
   do
@@ -105,6 +125,8 @@ echo -n "Waiting for the Wallet UI to spin up..."
   done
 echo "OK"
 
+echo "============================================================================="
+
 if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ]; then
   echo "Cannot run tests, Hub/Wallet UI initialization failed"
   mkdir -p /tmp/core_dumps
@@ -113,6 +135,8 @@ else
   echo "Running tests now!"
   xvfb-run yarn start
 fi
+
+echo "============================================================================="
 
 echo "Hub & Wallet UI logs ==========================================="
 cat /tmp/hub-wallet.log
