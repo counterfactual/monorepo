@@ -239,7 +239,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield <[Opcode, ProtocolMessage]>[
-      IO_SEND,
+      IO_SEND_AND_WAIT,
       {
         protocol: Withdraw,
         processID: context.message.processID,
@@ -504,6 +504,19 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
+
+    yield [
+      IO_SEND,
+      {
+        processID,
+        protocol: Withdraw,
+        toXpub: initiatorXpub,
+        customData: {
+          dataPersisted: true
+        },
+        seq: UNASSIGNED_SEQ_NO
+      } as ProtocolMessage
+    ];
   }
 };
 
