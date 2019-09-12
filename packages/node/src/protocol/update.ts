@@ -48,10 +48,14 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
       appInstance.timeout
     );
 
-    const mySig = yield [OP_SIGN, setStateCommitment, appInstance.appSeqNo];
+    const initiatorSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
 
     const {
-      customData: { signature }
+      customData: { signature: responderSignature }
     } = yield [
       IO_SEND_AND_WAIT,
       {
@@ -61,7 +65,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1,
         toXpub: responderXpub,
         customData: {
-          signature: mySig
+          signature: initiatorSignature
         }
       } as ProtocolMessage
     ];
@@ -69,7 +73,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(responderXpub, appInstance.appSeqNo),
       setStateCommitment,
-      signature
+      responderSignature
     );
 
     context.stateChannelsMap.set(
@@ -84,7 +88,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     const {
       processID,
       params,
-      customData: { signature }
+      customData: { signature: initiatorSignature }
     } = message;
 
     const {
@@ -116,10 +120,14 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appInstance.appSeqNo),
       setStateCommitment,
-      signature
+      initiatorSignature
     );
 
-    const mySig = yield [OP_SIGN, setStateCommitment, appInstance.appSeqNo];
+    const responderSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
 
     yield [
       IO_SEND,
@@ -129,7 +137,7 @@ export const UPDATE_PROTOCOL: ProtocolExecutionFlow = {
         toXpub: initiatorXpub,
         seq: UNASSIGNED_SEQ_NO,
         customData: {
-          signature: mySig
+          signature: responderSignature
         }
       } as ProtocolMessage
     ];
