@@ -81,13 +81,7 @@ export default class ProposeInstallVirtualController extends NodeController {
       }
     };
 
-    const nextNodeAddress = getNextNodeAddress(
-      publicIdentifier,
-      params.intermediaryIdentifier,
-      params.proposedToIdentifier
-    );
-
-    await messagingService.send(nextNodeAddress, proposalMsg);
+    await messagingService.send(params.proposedToIdentifier, proposalMsg);
 
     return {
       appInstanceId

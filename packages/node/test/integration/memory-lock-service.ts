@@ -8,7 +8,8 @@ export class MemoryLockService implements Node.ILockService {
   async acquireLock(
     lockName: string,
     callback: (...args: any[]) => any,
-    timeout: number
+    timeout: number,
+    name: string = ""
   ): Promise<any> {
     const lock = this.getOrCreateLock(lockName);
 
@@ -26,7 +27,7 @@ export class MemoryLockService implements Node.ILockService {
       await lock.releaseLock(unlockKey);
     }
 
-    if (rejectReason) throw new Error(rejectReason);
+    if (rejectReason) throw rejectReason;
 
     return retval;
   }

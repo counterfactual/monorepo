@@ -4,7 +4,12 @@ import { parseEther } from "ethers/utils";
 
 import { Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { InstallMessage, NODE_EVENTS, ProposeMessage } from "../../src/types";
+import {
+  InstallMessage,
+  NODE_EVENTS,
+  NodeMessageWrappedProtocolMessage,
+  ProposeMessage
+} from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -24,7 +29,7 @@ jest.setTimeout(15000);
 
 // TODO: this test isnt working bc of the concurrency issues that are being investigated now.
 // reenable this test when it works
-describe.skip("Concurrently uninstalling virtual and regular applications without issue", () => {
+describe("Concurrently uninstalling virtual and regular applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
   let nodeA: Node;
@@ -75,24 +80,6 @@ describe.skip("Concurrently uninstalling virtual and regular applications withou
           return "unknown";
       }
     };
-    nodeA.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
-      console.log(
-        `Node A got protocol message event from ${decodeNode(msg.from)}`
-      );
-    });
-    nodeB.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
-      console.log(
-        `Node B got protocol message event from ${decodeNode(msg.from)}`
-      );
-    });
-    nodeC.on(NODE_EVENTS.PROTOCOL_MESSAGE_EVENT, (msg: ProposeMessage) => {
-      console.log(
-        `Node C got protocol message event from ${decodeNode(msg.from)}`
-      );
-    });
-    console.log(`Node A: ${nodeA.publicIdentifier}`);
-    console.log(`Node B: ${nodeB.publicIdentifier}`);
-    console.log(`Node C: ${nodeC.publicIdentifier}`);
 
     const appId = await new Promise(resolve => {
       nodeA.on(NODE_EVENTS.INSTALL, (msg: InstallMessage) => {
@@ -127,6 +114,7 @@ describe.skip("Concurrently uninstalling virtual and regular applications withou
         done();
       }
     });
+
     nodeA.on(NODE_EVENTS.UNINSTALL, () => {
       totalAppsUninstalled += 1;
       if (totalAppsUninstalled === 2) {
@@ -134,10 +122,13 @@ describe.skip("Concurrently uninstalling virtual and regular applications withou
       }
     });
 
+    console.log('==========')
+
     // uninstall both simultaneously
     nodeA.rpcRouter.dispatch(
       constructUninstallVirtualRpc(virtualId, nodeB.publicIdentifier)
     );
+
     nodeB.rpcRouter.dispatch(constructUninstallRpc(appId as string));
   });
 });

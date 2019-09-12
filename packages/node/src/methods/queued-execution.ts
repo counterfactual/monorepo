@@ -10,7 +10,7 @@ import { Deferred } from "../deferred";
  * @param {Task<any>} task - any function which returns a promise-like
  * @returns
  */
-export async function addToManyQueues(queues: Queue[], task: Task<any>) {
+export async function addToManyQueues(queues: Queue[], task: Task<any>, ) {
   if (queues.length === 0) return await task();
 
   let promise: PromiseLike<any>;
@@ -36,8 +36,8 @@ export async function addToManyQueues(queues: Queue[], task: Task<any>) {
    * create a promise that says "every queue has finished up until
    * the time that addToManyQueues was called".
    */
-  const deferreds = Array(queues.length).fill(new Deferred());
-  const waitForEveryQueueToFinish = Promise.all(deferreds);
+  const deferreds = [...Array(queues.length)].map(() => new Deferred());
+  const waitForEveryQueueToFinish = Promise.all(deferreds.map(d => d.promise));
 
   await Promise.all(
     queues.map((q, i) =>
