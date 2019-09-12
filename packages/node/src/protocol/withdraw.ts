@@ -239,7 +239,7 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield <[Opcode, ProtocolMessage]>[
-      IO_SEND,
+      IO_SEND_AND_WAIT,
       {
         protocol: Withdraw,
         processID: context.message.processID,
@@ -499,6 +499,19 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
+    ];
+
+    yield [
+      IO_SEND,
+      {
+        processID,
+        protocol: Withdraw,
+        toXpub: initiatorXpub,
+        customData: {
+          dataPersisted: true
+        },
+        seq: UNASSIGNED_SEQ_NO
+      } as ProtocolMessage
     ];
   }
 };
