@@ -28,7 +28,10 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<string[]> {
-    return [params.appInstanceId];
+    const multisigAddress = await requestHandler.store.getMultisigAddressFromAppInstance(
+      params.appInstanceId
+    );
+    return [multisigAddress, params.appInstanceId];
   }
 
   protected async beforeExecution(
