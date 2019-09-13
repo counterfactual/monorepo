@@ -6,7 +6,7 @@ COUNTERFACTUAL_PATH="/home/circleci/project"
 echo -n "Waiting for the Hub to spin up..."
   while ! bash -c "echo > /dev/tcp/localhost/9001";
   do
-    if [ $WALLET_E2E_EXIT_CODE -ne 0 ];
+    if [ "$WALLET_E2E_EXIT_CODE" -ne "0" ];
     then
       break
     fi
@@ -20,7 +20,7 @@ echo "==========================================================================
 echo -n "Waiting for the Wallet UI to spin up..."
   while ! bash -c "echo > /dev/tcp/localhost/3334";
   do
-    if [ $WALLET_E2E_EXIT_CODE -ne 0 ];
+    if [ "$WALLET_E2E_EXIT_CODE" -ne "0" ];
     then
       break
     fi
@@ -31,13 +31,13 @@ echo "OK"
 
 echo "============================================================================="
 
-if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ]; then
+if [ "$WALLET_E2E_EXIT_CODE" -ne "0" ]; then
   echo "Cannot run tests, Hub/Wallet UI initialization failed"
   mkdir -p /tmp/core_dumps
   cp /home/circleci/project/packages/simple-hub-server/core* /tmp/core_dumps
 else
   echo "Running tests now!"
-  xvfb-run yarn start
+  TEST_BROWSER_FLAG_DEBUG="#" TEST_BROWSER_FLAG_DISABLE_GPU="#" xvfb-run yarn start
 fi
 
 echo "============================================================================="
