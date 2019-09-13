@@ -398,6 +398,7 @@ export class StateChannel {
     >(this.singleAssetTwoPartyIntermediaryAgreements.entries());
 
     if (!singleAssetTwoPartyIntermediaryAgreements.delete(targetIdentityHash)) {
+      console.trace(`hi, ts ${Date.now()}`);
       throw Error(
         `cannot find agreement with target hash ${targetIdentityHash}`
       );
