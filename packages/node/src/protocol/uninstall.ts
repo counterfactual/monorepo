@@ -31,7 +31,6 @@ const {
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    console.log(`beginning uninstall protocol, ts ${Date.now()}`);
     const { message, provider, stateChannelsMap, network } = context;
     const { params, processID } = message;
     const { responderXpub, appIdentityHash } = params as UninstallParams;

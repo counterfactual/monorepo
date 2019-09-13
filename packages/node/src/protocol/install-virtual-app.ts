@@ -52,7 +52,6 @@ const {
  */
 export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    console.log(`beginning install virtual protocol, ts ${Date.now()}`);
     const {
       message: { params, processID },
       stateChannelsMap,

@@ -18,7 +18,6 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    console.log(`beginning take action protocol, ts ${Date.now()}`);
     const { stateChannelsMap, provider, message, network } = context;
 
     const { processID, params } = message;
@@ -85,7 +84,6 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.multisigAddress,
       postProtocolStateChannel
     );
-    console.log(`ending take action protocol, ts ${Date.now()}`);
   },
 
   1 /* Responding */: async function*(context: Context) {
