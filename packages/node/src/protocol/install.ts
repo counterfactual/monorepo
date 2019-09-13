@@ -47,6 +47,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
    */
 
   0 /* Initiating */: async function*(context: Context) {
+    console.log(`beginning install protocol, ts ${Date.now()}`);
     const {
       stateChannelsMap,
       message: { params, processID },
