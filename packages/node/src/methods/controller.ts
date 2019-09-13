@@ -12,10 +12,7 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult> {
     await this.beforeExecution(requestHandler, params);
 
-    const queueNames = await this.getRequiredLockNames(
-      requestHandler,
-      params
-    );
+    const queueNames = await this.getRequiredLockNames(requestHandler, params);
 
     const createExecutionPromise = () =>
       this.executeMethodImplementation(requestHandler, params);
