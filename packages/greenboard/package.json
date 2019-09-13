@@ -30,6 +30,8 @@
   },
   "scripts": {
     "start": "jest --runInBand",
+    "ci:build-environment": "./ci-build-environment.sh",
+    "ci:prepare-environment": "./ci-prepare-environment.sh",
     "start:ci": "./ci-run-tests.sh"
   },
   "jest": {

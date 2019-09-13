@@ -15,7 +15,6 @@
     "test": "lerna run --stream --concurrency 1 test",
     "test:e2e:setup": "./e2e-prepare.sh",
     "test:e2e": "./e2e-run.sh",
-    "test:e2e:ci": "cd packages/greenboard && yarn start:ci",
     "test:ci": "lerna run --ignore @counterfactual/greenboard --stream --concurrency 1 test",
     "lint": "lerna run lint --parallel --no-bail",
     "lint:fix": "lerna run lint:fix --parallel --no-bail",

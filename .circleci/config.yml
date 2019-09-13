@@ -130,8 +130,23 @@ jobs:
           at: /home/circleci/project
 
       - run:
-          name: Build Greenboard workspace and run tests
-          command: yarn --ignore-engines test:e2e:ci
+          name: Build Greenboard workspace
+          command: |
+            cd /home/circleci/project/packages/greenboard
+            yarn ci:build-environment
+
+      - run:
+          name: Prepare Greenboard environment
+          background: true
+          command: |
+            cd /home/circleci/project/packages/greenboard
+            yarn ci:prepare-environment
+
+      - run:
+          name: Run E2E tests
+          command: |
+            cd /home/circleci/project/packages/greenboard
+            yarn start:ci
 
       - store_artifacts:
           path: /tmp/core_dumps
