@@ -1,6 +1,8 @@
 #!/bin/bash
 NODE_ENV="test"
 COUNTERFACTUAL_PATH="/home/circleci/project"
+CHROME_DRIVER_PATH="/usr/bin/chromedriver"
+CHROME_BINARY_PATH="/usr/bin/chromium-browser"
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
