@@ -165,9 +165,8 @@ describe("Can update and install multiple apps simultaneously", () => {
 
     // while links are redeeming, try to send receiver a
     // direct transfer
-    await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    // for (const i of Array(2)) {
-    //   await makeSimpleTransfer(nodeA, nodeB, nodeC);
-    // }
+    for (const i of Array(2)) {
+      await makeSimpleTransfer(nodeA, nodeB, nodeC);
+    }
   });
 });
