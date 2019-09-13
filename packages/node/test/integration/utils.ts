@@ -903,6 +903,21 @@ export async function uninstallVirtualApp(
   appId: string
 ): Promise<string> {
   const rpc = constructUninstallVirtualRpc(appId, intermediaryPubId);
+  // NOTE: when you wait for the app to be unfetchable
+  // before returning as in the commented out code below, 
+  // the issues are not reproduced in the connext-issue.spec, 
+  // even with several different parameter configurations
+
+  // await node.rpcRouter.dispatch(rpc);
+  // const hasApp = async (node: Node, appId: string) => {
+  //   const app = (await getApps(node)).filter(app => app.identityHash === appId);
+  //   return app.length !== 0;
+  // };
+  // while (hasApp(node, appId) || hasApp(counterparty, appId)) {
+  //   await new Promise(res => setTimeout(res, 100));
+  // }
+  // return appId;
+
   return new Promise(async resolve => {
     counterparty.once(
       NODE_EVENTS.UNINSTALL_VIRTUAL,
