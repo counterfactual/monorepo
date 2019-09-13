@@ -4,9 +4,9 @@ COUNTERFACTUAL_PATH="/home/circleci/project"
 
 # Run the tests through Xvfb.
 echo -n "Waiting for the Hub to spin up..."
-  while ! bash -c "nc localhost 9001 < /dev/null";
+  while ! bash -c "echo > /dev/tcp/localhost/9001";
   do
-    if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
+    if [ $WALLET_E2E_EXIT_CODE -ne 0 ];
     then
       break
     fi
@@ -18,9 +18,9 @@ echo "OK"
 echo "============================================================================="
 
 echo -n "Waiting for the Wallet UI to spin up..."
-  while ! bash -c "nc localhost 3334 < /dev/null";
+  while ! bash -c "echo > /dev/tcp/localhost/3334";
   do
-    if [ "$WALLET_E2E_EXIT_CODE" -ne 0 ];
+    if [ $WALLET_E2E_EXIT_CODE -ne 0 ];
     then
       break
     fi

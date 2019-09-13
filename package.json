@@ -20,7 +20,7 @@
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
     "run:server": "lerna run start --parallel --scope=**/simple-hub-server",
     "run:wallet": "lerna run start --parallel --scope=**/simple-hub-server --scope=**/wallet-ui",
-    "run:wallet:e2e": "lerna run start:e2e --parallel --scope=**/simple-hub-server --scope=**/wallet-ui > /tmp/hub-wallet.log",
+    "run:wallet:e2e": "lerna run start:e2e --parallel --scope=**/simple-hub-server --scope=**/wallet-ui",
     "publish": "lerna publish --yes from-package patch",
     "postinstall": "patch-package"
   },
