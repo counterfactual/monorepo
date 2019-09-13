@@ -20,7 +20,7 @@ export default class WithdrawController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
-  public static async getShardKeysForQueueing(
+  public static async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
   ): Promise<string[]> {

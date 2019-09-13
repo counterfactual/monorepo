@@ -42,7 +42,7 @@ export default class CreateChannelController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(): Promise<string[]> {
+  protected async getRequiredLockNames(): Promise<string[]> {
     return [Node.RpcMethodName.CREATE_CHANNEL];
   }
 

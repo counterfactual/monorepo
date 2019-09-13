@@ -16,7 +16,7 @@ export default class UninstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<string[]> {

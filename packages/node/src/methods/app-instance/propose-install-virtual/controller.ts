@@ -22,7 +22,7 @@ export default class ProposeInstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallVirtualParams
   ): Promise<string[]> {

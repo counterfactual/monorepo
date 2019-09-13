@@ -26,7 +26,7 @@ export default class DepositController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<string[]> {
