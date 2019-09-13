@@ -16,6 +16,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently installing virtual applications with same intermediary", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -56,12 +58,7 @@ describe("Concurrently installing virtual applications with same intermediary", 
     });
 
     for (const i of Array(2)) {
-      installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     }
   });
 
@@ -74,12 +71,7 @@ describe("Concurrently installing virtual applications with same intermediary", 
     });
 
     for (const i of Array(2)) {
-      await installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      await installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     }
   });
 });

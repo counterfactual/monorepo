@@ -48,6 +48,13 @@ interface AppContext {
   outcomeType: OutcomeType;
 }
 
+const {
+  TicTacToeApp,
+  SimpleTransferApp,
+  UnidirectionalLinkedTransferApp,
+  UnidirectionalTransferApp
+} = global["networkContext"] as NetworkContextForTestSuite;
+
 /**
  * Even though this function returns a transaction hash, the calling Node
  * will receive an event (CREATE_CHANNEL) that should be subscribed to to
@@ -58,18 +65,19 @@ export async function getMultisigCreationTransactionHash(
   node: Node,
   xpubs: string[]
 ): Promise<string> {
-  const req = jsonRpcDeserialize({
-    jsonrpc: "2.0",
+  const {
+    result: {
+      result: { transactionHash }
+    }
+  } = await node.rpcRouter.dispatch({
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.CREATE_CHANNEL,
-    params: {
+    methodName: NodeTypes.RpcMethodName.CREATE_CHANNEL,
+    parameters: {
       owners: xpubs
     }
   });
-  const response = await node.rpcRouter.dispatch(req);
-  const result = response.result
-    .result as NodeTypes.CreateChannelTransactionResult;
-  return result.transactionHash;
+
+  return transactionHash;
 }
 
 /**
@@ -79,32 +87,36 @@ export async function getMultisigCreationTransactionHash(
  * @returns list of multisig addresses
  */
 export async function getChannelAddresses(node: Node): Promise<Set<string>> {
-  const req = jsonRpcDeserialize({
-    jsonrpc: "2.0",
+  const {
+    result: {
+      result: { multisigAddresses }
+    }
+  } = await node.rpcRouter.dispatch({
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.GET_CHANNEL_ADDRESSES,
-    params: {}
+    methodName: NodeTypes.RpcMethodName.GET_CHANNEL_ADDRESSES,
+    parameters: {}
   });
-  const response = await node.rpcRouter.dispatch(req);
-  const result = response.result.result as NodeTypes.GetChannelAddressesResult;
-  return new Set(result.multisigAddresses);
+
+  return new Set(multisigAddresses);
 }
 
 export async function getAppInstance(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceJson> {
-  const req = jsonRpcDeserialize({
-    jsonrpc: "2.0",
+  const {
+    result: {
+      result: { appInstance }
+    }
+  } = await node.rpcRouter.dispatch({
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.GET_APP_INSTANCE_DETAILS,
-    params: {
+    methodName: NodeTypes.RpcMethodName.GET_APP_INSTANCE_DETAILS,
+    parameters: {
       appInstanceId
     }
   });
-  const response = await node.rpcRouter.dispatch(req);
-  return (response.result.result as NodeTypes.GetAppInstanceDetailsResult)
-    .appInstance;
+
+  return appInstance;
 }
 
 export async function getAppInstanceProposal(
@@ -131,34 +143,35 @@ export async function getFreeBalanceState(
   multisigAddress: string,
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<NodeTypes.GetFreeBalanceStateResult> {
-  const req = jsonRpcDeserialize({
+  const {
+    result: { result }
+  } = await node.rpcRouter.dispatch({
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
-    params: {
+    methodName: NodeTypes.RpcMethodName.GET_FREE_BALANCE_STATE,
+    parameters: {
       multisigAddress,
       tokenAddress
-    },
-    jsonrpc: "2.0"
+    }
   });
-  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
-  return response.result.result as NodeTypes.GetFreeBalanceStateResult;
+
+  return result;
 }
 
 export async function getTokenIndexedFreeBalanceStates(
   node: Node,
   multisigAddress: string
 ): Promise<NodeTypes.GetTokenIndexedFreeBalanceStatesResult> {
-  const req = jsonRpcDeserialize({
+  const {
+    result: { result }
+  } = await node.rpcRouter.dispatch({
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES,
-    params: {
+    methodName: NodeTypes.RpcMethodName.GET_TOKEN_INDEXED_FREE_BALANCE_STATES,
+    parameters: {
       multisigAddress
-    },
-    jsonrpc: "2.0"
+    }
   });
-  const response = (await node.rpcRouter.dispatch(req)) as JsonRpcResponse;
-  return response.result
-    .result as NodeTypes.GetTokenIndexedFreeBalanceStatesResult;
+
+  return result as NodeTypes.GetTokenIndexedFreeBalanceStatesResult;
 }
 
 export async function getInstalledAppInstances(
@@ -844,7 +857,7 @@ export function getAppContext(
   };
 
   switch (appDefinition) {
-    case (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp:
+    case TicTacToeApp:
       return {
         appDefinition,
         abiEncodings: tttAbiEncodings,
@@ -852,20 +865,18 @@ export function getAppContext(
         outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME
       };
 
-    case (global["networkContext"] as NetworkContextForTestSuite)
-      .UnidirectionalTransferApp:
+    case UnidirectionalTransferApp:
       checkForAddresses();
       return {
         appDefinition,
-        initialState: initialState
-          ? initialState
-          : initialTransferState(senderAddress!, receiverAddress!),
+        initialState:
+          initialState ||
+          initialTransferState(senderAddress!, receiverAddress!),
         abiEncodings: transferAbiEncodings,
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       };
 
-    case (global["networkContext"] as NetworkContextForTestSuite)
-      .UnidirectionalLinkedTransferApp:
+    case UnidirectionalLinkedTransferApp:
       checkForAddresses();
       // TODO: need a better way to return the action info that generated
       // the linked hash as well
@@ -877,8 +888,7 @@ export function getAppContext(
         outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER
       };
 
-    case (global["networkContext"] as NetworkContextForTestSuite)
-      .SimpleTransferApp:
+    case SimpleTransferApp:
       checkForAddresses();
       return {
         appDefinition,

@@ -16,6 +16,8 @@ import {
   makeVirtualProposeCall
 } from "./utils";
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -84,7 +86,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           nodeA,
           nodeC,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          TicTacToeApp
         );
 
         proposalParams = result.params;

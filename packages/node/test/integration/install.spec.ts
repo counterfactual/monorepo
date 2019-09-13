@@ -26,6 +26,8 @@ import {
 
 expect.extend({ toBeLt });
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
   let nodeA: Node;
@@ -90,7 +92,7 @@ describe("Node method follows spec - install", () => {
         await makeAndSendProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -162,7 +164,7 @@ describe("Node method follows spec - install", () => {
         await makeAndSendProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           undefined,
           One,
           erc20TokenAddress,
@@ -173,7 +175,7 @@ describe("Node method follows spec - install", () => {
 
       it("sends proposal with null initial state", async () => {
         const appContext = getAppContext(
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          TicTacToeApp
         );
         const appInstanceProposalReq = constructAppProposalRpc(
           nodeB.publicIdentifier,

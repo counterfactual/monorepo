@@ -14,6 +14,8 @@ import {
 
 jest.setTimeout(10000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - uninstall virtual", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -47,7 +49,7 @@ describe("Node method follows spec - uninstall virtual", () => {
           nodeA,
           nodeB,
           nodeC,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           initialState
         );
 
