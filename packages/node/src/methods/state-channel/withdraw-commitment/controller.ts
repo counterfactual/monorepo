@@ -13,11 +13,11 @@ export default class WithdrawCommitmentController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW_COMMITMENT)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.WithdrawCommitmentParams
   ): Promise<string[]> {
-    return WithdrawController.getShardKeysForQueueing(requestHandler, params);
+    return WithdrawController.getRequiredLockNames(requestHandler, params);
   }
 
   protected async executeMethodImplementation(

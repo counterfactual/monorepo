@@ -13,7 +13,7 @@ export default class InstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ) {

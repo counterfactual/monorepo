@@ -12,7 +12,7 @@ export abstract class NodeController extends Controller {
   ): Promise<Node.MethodResult> {
     await this.beforeExecution(requestHandler, params);
 
-    const queueNames = await this.getShardKeysForQueueing(
+    const queueNames = await this.getRequiredLockNames(
       requestHandler,
       params
     );
@@ -49,7 +49,7 @@ export abstract class NodeController extends Controller {
     params: Node.MethodParams
   ): Promise<void> {}
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     // @ts-ignore
     requestHandler: RequestHandler,
     // @ts-ignore

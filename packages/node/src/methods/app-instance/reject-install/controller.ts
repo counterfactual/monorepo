@@ -7,7 +7,7 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
   ): Promise<string[]> {

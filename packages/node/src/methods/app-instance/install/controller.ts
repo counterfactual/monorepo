@@ -16,7 +16,7 @@ export default class InstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<string[]> {

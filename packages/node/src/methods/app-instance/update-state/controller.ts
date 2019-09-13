@@ -21,7 +21,7 @@ export default class UpdateStateController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
