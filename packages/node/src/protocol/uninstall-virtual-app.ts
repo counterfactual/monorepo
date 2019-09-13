@@ -57,6 +57,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       network
     } = context;
 
+    console.log(`beginning uninstall virtual protocol, ts ${Date.now()}`);
     const {
       intermediaryXpub,
       responderXpub
@@ -182,6 +183,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigAddress,
       stateChannelWithResponding
     );
+    console.log(`ending uninstall virtual protocol, ts ${Date.now()}`);
   },
 
   1 /* Intermediary */: async function*(context: Context) {
