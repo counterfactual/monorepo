@@ -8304,10 +8304,10 @@ ethjs-util@0.1.6, ethjs-util@^0.1.3, ethjs-util@^0.1.6:
     is-hex-prefixed "1.0.0"
     strip-hex-prefix "1.0.0"
 
-ethlint@1.2.4:
-  version "1.2.4"
-  resolved "https://registry.npmjs.org/ethlint/-/ethlint-1.2.4.tgz#c264ae20d22529f3b0199979a17d76b6c00e474e"
-  integrity sha512-T0STudObqyISj6QbRo+an240GgWHyt3G1cHnk4jbVdEiesLSMyTybv4Eo7U8mT4OpIQHFsC4YEWw6iKMjeHzqQ==
+ethlint@1.2.5:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/ethlint/-/ethlint-1.2.5.tgz#375b77d1e5971e7c574037e07ff7ddad8e17858f"
+  integrity sha512-x2nKK98zmd72SFWL3Ul1S6scWYf5QqG221N6/mFNMO661g7ASvTRINGIWVvHzsvflW6y4tvgMSjnTN5RCTuZug==
   dependencies:
     ajv "^5.2.2"
     chokidar "^1.6.0"
