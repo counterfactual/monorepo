@@ -42,7 +42,7 @@
     "eth-gas-reporter": "0.2.11",
     "ethereum-waffle": "2.1.0",
     "ethers": "4.0.37",
-    "ethlint": "1.2.4",
+    "ethlint": "1.2.5",
     "ganache-cli": "6.7.0",
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",

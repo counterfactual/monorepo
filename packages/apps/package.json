@@ -32,7 +32,7 @@
     "chai": "4.2.0",
     "ethereum-waffle": "2.1.0",
     "ethers": "4.0.37",
-    "ethlint": "1.2.4",
+    "ethlint": "1.2.5",
     "mocha": "6.2.0",
     "solc": "0.5.11",
     "truffle": "5.0.35",
