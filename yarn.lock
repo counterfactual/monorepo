@@ -9208,10 +9208,10 @@ functions-have-names@^1.1.1:
   resolved "https://registry.npmjs.org/functions-have-names/-/functions-have-names-1.1.1.tgz#79d35927f07b8e7103d819fed475b64ccf7225ea"
   integrity sha512-U0kNHUoxwPNPWOJaMG7Z00d4a/qZVrFtzWJRaK8V9goaVOCXBSQSJpt3MYGNtkScKEBKovxLjnNdC9MlXwo5Pw==
 
-ganache-cli@6.6.0:
-  version "6.6.0"
-  resolved "https://registry.npmjs.org/ganache-cli/-/ganache-cli-6.6.0.tgz#84fed23ec428a6155114a5701cba55401364e149"
-  integrity sha512-6egwnHYLaROx9z1NjmyX/wAqhkqg+CleRh5cegiUn+2za17kZnmeYiSfjMfmo0hUf/d8LsvwZ9xuBhRjoXr51Q==
+ganache-cli@6.7.0:
+  version "6.7.0"
+  resolved "https://registry.yarnpkg.com/ganache-cli/-/ganache-cli-6.7.0.tgz#b59845578221bdf686cf124d007c5ee62e85a62f"
+  integrity sha512-9CZsClo9hl5MxGL7hkk14mie89Q94P0idh92jcV7LmppTYTCG7SHatuwcfqN7emFHArMt3fneN4QbH2do2N6Ow==
   dependencies:
     ethereumjs-util "6.1.0"
     source-map-support "0.5.12"

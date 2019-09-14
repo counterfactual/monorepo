@@ -36,7 +36,7 @@
     "dotenv-extended": "2.4.0",
     "dotenv-safe": "8.1.0",
     "ethereum-waffle": "2.1.0",
-    "ganache-cli": "6.6.0",
+    "ganache-cli": "6.7.0",
     "ganache-core": "2.7.0",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
