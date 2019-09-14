@@ -24,6 +24,6 @@
     "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
     "@counterfactual/types": "0.0.38",
     "ethers": "4.0.37",
-    "ganache-core": "2.7.0"
+    "ganache-core": "2.8.0"
   }
 }
