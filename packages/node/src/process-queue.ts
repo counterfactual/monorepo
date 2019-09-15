@@ -28,10 +28,10 @@ export default class ProcessQueue {
   constructor(private readonly lockingService?: Node.ILockService) {}
 
   addTask(queueKeys: string[], task: Task<any>) {
-    return addToManyQueues(
-      queueKeys.map(this.getOrCreateQueue.bind(this)),
-      task
-    );
+    let p;
+    const f = () => { if (!p) p = task(); return p; }
+    queueKeys.forEach(qk => this.lockingService!.acquireLock(qk, f, 30_000)) 
+    return f();
   }
 
   private getOrCreateQueue(
