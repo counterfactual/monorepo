@@ -29,26 +29,24 @@ export async function handleReceivedProposalMessage(
     networkContext.MinimumViableMultisig
   );
 
-  await requestHandler.processQueue.addTask([multisigAddress], async () => {
-    const stateChannel = await store.getStateChannel(multisigAddress);
+  const stateChannel = await store.getStateChannel(multisigAddress);
 
-    await store.addAppInstanceProposal(
-      stateChannel,
-      new AppInstanceProposal(
-        {
-          ...params,
-          proposedByIdentifier,
-          initiatorDeposit: params.responderDeposit,
-          initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
-          responderDeposit: params.initiatorDeposit!,
-          responderDepositTokenAddress: params.initiatorDepositTokenAddress!
-        },
-        stateChannel
-      )
-    );
+  await store.addAppInstanceProposal(
+    stateChannel,
+    new AppInstanceProposal(
+      {
+        ...params,
+        proposedByIdentifier,
+        initiatorDeposit: params.responderDeposit,
+        initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
+        responderDeposit: params.initiatorDeposit!,
+        responderDepositTokenAddress: params.initiatorDepositTokenAddress!
+      },
+      stateChannel
+    )
+  );
 
-    await store.saveStateChannel(stateChannel.bumpProposedApps());
-  });
+  await store.saveStateChannel(stateChannel.bumpProposedApps());
 }
 
 export async function handleRejectProposalMessage(
@@ -66,12 +64,7 @@ export async function handleReceivedProposeVirtualMessage(
   requestHandler: RequestHandler,
   receivedProposeMessage: ProposeVirtualMessage
 ) {
-  const {
-    publicIdentifier,
-    store,
-    messagingService,
-    networkContext
-  } = requestHandler;
+  const { store, networkContext } = requestHandler;
 
   const {
     data: { params, proposedByIdentifier }
@@ -86,52 +79,34 @@ export async function handleReceivedProposeVirtualMessage(
     initiatorDepositTokenAddress
   } = params;
 
-  if (publicIdentifier === intermediaryIdentifier) {
-    // TODO: Remove this and add a handler in protocolMessageEventController
-    await messagingService.send(
-      getNextNodeAddress(
-        publicIdentifier,
-        intermediaryIdentifier,
-        proposedToIdentifier
-      ),
+  const multisigAddress = getCreate2MultisigAddress(
+    [proposedByIdentifier, proposedToIdentifier],
+    networkContext.ProxyFactory,
+    networkContext.MinimumViableMultisig
+  );
+
+  const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
+    multisigAddress,
+    proposedByIdentifier,
+    proposedToIdentifier,
+    intermediaryIdentifier,
+    store,
+    networkContext
+  );
+
+  await store.addVirtualAppInstanceProposal(
+    new AppInstanceProposal(
       {
-        from: publicIdentifier,
-        type: NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-        data: receivedProposeMessage.data
-      } as ProposeVirtualMessage
-    );
-  } else {
-    const multisigAddress = getCreate2MultisigAddress(
-      [proposedByIdentifier, proposedToIdentifier],
-      networkContext.ProxyFactory,
-      networkContext.MinimumViableMultisig
-    );
-
-    await requestHandler.processQueue.addTask([multisigAddress], async () => {
-      const stateChannel = await getOrCreateStateChannelBetweenVirtualAppParticipants(
-        multisigAddress,
+        ...params,
         proposedByIdentifier,
-        proposedToIdentifier,
-        intermediaryIdentifier,
-        store,
-        networkContext
-      );
+        initiatorDeposit: responderDeposit,
+        initiatorDepositTokenAddress: responderDepositTokenAddress!,
+        responderDeposit: initiatorDeposit,
+        responderDepositTokenAddress: initiatorDepositTokenAddress!
+      },
+      stateChannel
+    )
+  );
 
-      await store.addVirtualAppInstanceProposal(
-        new AppInstanceProposal(
-          {
-            ...params,
-            proposedByIdentifier,
-            initiatorDeposit: responderDeposit,
-            initiatorDepositTokenAddress: responderDepositTokenAddress!,
-            responderDeposit: initiatorDeposit,
-            responderDepositTokenAddress: initiatorDepositTokenAddress!
-          },
-          stateChannel
-        )
-      );
-
-      await store.saveStateChannel(stateChannel.bumpProposedApps());
-    });
-  }
+  await store.saveStateChannel(stateChannel.bumpProposedApps());
 }

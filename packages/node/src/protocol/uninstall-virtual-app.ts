@@ -27,7 +27,8 @@ function xkeyTo0thAddress(xpub: string) {
 const {
   OP_SIGN,
   IO_SEND_AND_WAIT,
-  IO_SEND
+  IO_SEND,
+  PERSIST_STATE_CHANNEL
   // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
 } = Opcode;
 
@@ -144,19 +145,28 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m6 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
+    const m8 = (yield [IO_SEND_AND_WAIT, m5]) as ProtocolMessage;
 
     const {
       customData: {
         signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
       }
-    } = m6;
+    } = m8;
 
     assertIsValidSignature(
       intermediaryAddress,
       aliceIngridAppDisactivationCommitment,
       intermediarySignatureOnAliceIngridAppDisactivationCommitment
     );
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithIntermediary,
+        stateChannelWithAllThreeParties,
+        stateChannelWithResponding
+      ]
+    ];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,
@@ -291,19 +301,6 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       aliceIngridAppDisactivationCommitment
     ];
 
-    yield [
-      IO_SEND,
-      {
-        processID,
-        protocol: Protocol.UninstallVirtualApp,
-        seq: UNASSIGNED_SEQ_NO,
-        toXpub: initiatorXpub,
-        customData: {
-          signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
-        }
-      } as ProtocolMessage
-    ];
-
     const ingridBobAppDisactivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithResponding.freeBalance.identity,
@@ -317,7 +314,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ingridBobAppDisactivationCommitment
     ];
 
-    const m7 = {
+    const m6 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
@@ -327,13 +324,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m8 = (yield [IO_SEND_AND_WAIT, m7]) as ProtocolMessage;
+    const m7 = (yield [IO_SEND_AND_WAIT, m6]) as ProtocolMessage;
 
     const {
       customData: {
         signature: respondingSignatureOnIngridBobAppDisactivationCommitment
       }
-    } = m8;
+    } = m7;
 
     assertIsValidSignature(
       responderAddress,
@@ -355,6 +352,27 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       stateChannelWithResponding.multisigAddress,
       stateChannelWithResponding
     );
+
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithResponding
+      ]
+    ];
+
+    const m8 = {
+      processID,
+      protocol: Protocol.UninstallVirtualApp,
+      seq: UNASSIGNED_SEQ_NO,
+      toXpub: initiatorXpub,
+      customData: {
+        signature: intermediarySignatureOnAliceIngridAppDisactivationCommitment
+      }
+    } as ProtocolMessage;
+
+    yield [IO_SEND, m8];
   },
 
   2 /* Responding */: async function*(context: Context) {
@@ -427,13 +445,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    const m7 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
+    const m6 = (yield [IO_SEND_AND_WAIT, m3]) as ProtocolMessage;
 
     const {
       customData: {
         signature: intermediarySignatureOnIngridBobAppDisactivationCommitment
       }
-    } = m7;
+    } = m6;
 
     const ingridBobAppDisactivationCommitment = new SetStateCommitment(
       network,
@@ -454,7 +472,16 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ingridBobAppDisactivationCommitment
     ];
 
-    const m8 = {
+    yield [
+      PERSIST_STATE_CHANNEL,
+      [
+        stateChannelWithInitiating,
+        stateChannelWithAllThreeParties,
+        stateChannelWithIntermediary
+      ]
+    ];
+
+    const m7 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
       seq: UNASSIGNED_SEQ_NO,
@@ -464,7 +491,7 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       }
     } as ProtocolMessage;
 
-    yield [IO_SEND, m8];
+    yield [IO_SEND, m7];
 
     context.stateChannelsMap.set(
       stateChannelWithIntermediary.multisigAddress,

@@ -20,6 +20,8 @@ import {
   B_EXTENDED_PRIVATE_KEY
 } from "../test-constants.jest";
 
+import MemoryLockService from "./memory-lock-service";
+
 export interface NodeContext {
   node: Node;
   store: NodeTypes.IStoreService;
@@ -84,6 +86,8 @@ export async function setup(
     extendedPrvKeyB = extendedPrivateKeys.B_EXTENDED_PRV_KEY;
   }
 
+  const lockService = new MemoryLockService();
+
   const storeServiceA = storeServiceFactory.createStoreService!(
     `${process.env.FIREBASE_STORE_SERVER_KEY!}_${generateUUID()}`
   );
@@ -96,7 +100,8 @@ export async function setup(
     storeServiceA,
     nodeConfig,
     provider,
-    global["networkContext"]
+    global["networkContext"],
+    lockService
   );
 
   setupContext["A"] = {
@@ -115,7 +120,8 @@ export async function setup(
     storeServiceB,
     nodeConfig,
     provider,
-    global["networkContext"]
+    global["networkContext"],
+    lockService
   );
   setupContext["B"] = {
     node: nodeB,
@@ -132,7 +138,8 @@ export async function setup(
       storeServiceC,
       nodeConfig,
       provider,
-      global["networkContext"]
+      global["networkContext"],
+      lockService
     );
     setupContext["C"] = {
       node: nodeC,

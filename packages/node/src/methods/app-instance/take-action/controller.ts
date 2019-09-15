@@ -23,12 +23,15 @@ export default class TakeActionController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<string[]> {
-    return [params.appInstanceId];
+    const multisigAddress = await requestHandler.store.getMultisigAddressFromAppInstance(
+      params.appInstanceId
+    );
+    return [multisigAddress, params.appInstanceId];
   }
 
   protected async beforeExecution(
@@ -134,12 +137,6 @@ async function runTakeActionProtocol(
     }
     throw Error(prettyPrintObject(e));
   }
-
-  const updatedStateChannel = stateChannelsMap.get(
-    stateChannel.multisigAddress
-  )!;
-
-  await store.saveStateChannel(updatedStateChannel);
 
   return {};
 }

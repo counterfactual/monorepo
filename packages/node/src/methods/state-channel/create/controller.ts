@@ -42,7 +42,7 @@ export default class CreateChannelController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.CREATE_CHANNEL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(): Promise<string[]> {
+  protected async getRequiredLockNames(): Promise<string[]> {
     return [Node.RpcMethodName.CREATE_CHANNEL];
   }
 
@@ -106,7 +106,6 @@ export default class CreateChannelController extends NodeController {
       initiatorXpub: publicIdentifier
     })).get(multisigAddress)!;
 
-    await store.saveStateChannel(channel);
     await store.saveFreeBalance(channel);
 
     const msg: CreateChannelMessage = {

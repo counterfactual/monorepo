@@ -4,10 +4,11 @@ import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 
+import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.TakeAction;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -16,7 +17,7 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
  *
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
+  0 /* Initiating */: async function*(context: Context) {
     const { stateChannelsMap, provider, message, network } = context;
 
     const { processID, params } = message;
@@ -49,10 +50,14 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       appInstance.timeout
     );
 
-    const mySig = yield [OP_SIGN, setStateCommitment, appInstance.appSeqNo];
+    const initiatorSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
 
     const {
-      customData: { signature }
+      customData: { signature: responderSignature }
     } = yield [
       IO_SEND_AND_WAIT,
       {
@@ -62,7 +67,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         seq: 1,
         toXpub: responderXpub,
         customData: {
-          signature: mySig
+          signature: initiatorSignature
         }
       } as ProtocolMessage
     ];
@@ -70,8 +75,10 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(responderXpub, appInstance.appSeqNo),
       setStateCommitment,
-      signature
+      responderSignature
     );
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     context.stateChannelsMap.set(
       postProtocolStateChannel.multisigAddress,
@@ -79,13 +86,13 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     );
   },
 
-  1: async function*(context: Context) {
+  1 /* Responding */: async function*(context: Context) {
     const { stateChannelsMap, provider, message, network } = context;
 
     const {
       processID,
       params,
-      customData: { signature }
+      customData: { signature: initiatorSignature }
     } = message;
 
     const {
@@ -119,10 +126,16 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
     assertIsValidSignature(
       xkeyKthAddress(initiatorXpub, appInstance.appSeqNo),
       setStateCommitment,
-      signature
+      initiatorSignature
     );
 
-    const mySig = yield [OP_SIGN, setStateCommitment, appInstance.appSeqNo];
+    const responderSignature = yield [
+      OP_SIGN,
+      setStateCommitment,
+      appInstance.appSeqNo
+    ];
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
       IO_SEND,
@@ -130,9 +143,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         protocol,
         processID,
         toXpub: initiatorXpub,
-        seq: -1,
+        seq: UNASSIGNED_SEQ_NO,
         customData: {
-          signature: mySig
+          signature: responderSignature
         }
       } as ProtocolMessage
     ];

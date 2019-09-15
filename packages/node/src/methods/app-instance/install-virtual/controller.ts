@@ -13,7 +13,7 @@ export default class InstallVirtualController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ) {
@@ -28,15 +28,25 @@ export default class InstallVirtualController extends NodeController {
 
     const proposal = await store.getAppInstanceProposal(appInstanceId);
 
-    const { proposedToIdentifier } = proposal;
+    const { proposedByIdentifier } = proposal;
 
     const multisigAddressWithResponding = getCreate2MultisigAddress(
-      [publicIdentifier, proposedToIdentifier],
+      [publicIdentifier, proposedByIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
 
-    return [multisigAddressWithHub, multisigAddressWithResponding];
+    const multisigAddressBetweenHubAndResponding = getCreate2MultisigAddress(
+      [intermediaryIdentifier, proposedByIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    return [
+      multisigAddressWithHub,
+      multisigAddressWithResponding,
+      multisigAddressBetweenHubAndResponding
+    ];
   }
 
   protected async beforeExecution(

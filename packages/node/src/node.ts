@@ -10,11 +10,13 @@ import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
+import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   EthereumNetworkName,
   getNetworkContextForNetworkName
 } from "./network-configuration";
+import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
@@ -58,6 +60,7 @@ export class Node {
     nodeConfig: NodeConfig,
     provider: BaseProvider,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
+    lockService?: NodeTypes.ILockService,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const node = new Node(
@@ -66,7 +69,8 @@ export class Node {
       nodeConfig,
       provider,
       networkOrNetworkContext,
-      blocksNeededForConfirmation
+      blocksNeededForConfirmation,
+      lockService
     );
 
     return await node.asynchronouslySetupUsingRemoteServices();
@@ -78,7 +82,8 @@ export class Node {
     private readonly nodeConfig: NodeConfig,
     private readonly provider: BaseProvider,
     networkContext: EthereumNetworkName | NetworkContext,
-    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT
+    readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT,
+    private readonly lockService?: NodeTypes.ILockService
   ) {
     this.incoming = new EventEmitter();
     this.outgoing = new EventEmitter();
@@ -110,7 +115,8 @@ export class Node {
       this.provider,
       new AutoNonceWallet(this.signer.privateKey, this.provider),
       `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
-      this.blocksNeededForConfirmation!
+      this.blocksNeededForConfirmation!,
+      new ProcessQueue(this.lockService)
     );
     this.registerMessagingConnection();
     this.rpcRouter = createRpcRouter(this.requestHandler);
@@ -175,7 +181,6 @@ export class Node {
       Opcode.IO_SEND_AND_WAIT,
       async (args: [ProtocolMessage]) => {
         const [data] = args;
-        const fromXpub = this.publicIdentifier;
         const to = data.toXpub;
 
         const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
@@ -186,7 +191,7 @@ export class Node {
 
         await this.messagingService.send(to, {
           data,
-          from: fromXpub,
+          from: this.publicIdentifier,
           type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
         } as NodeMessageWrappedProtocolMessage);
 
@@ -220,6 +225,18 @@ export class Node {
         await store.setCommitment([protocol, ...key], commitment);
       }
     });
+
+    protocolRunner.register(
+      Opcode.PERSIST_STATE_CHANNEL,
+      async (args: [StateChannel[]]) => {
+        const { store } = this.requestHandler;
+        const [stateChannels] = args;
+
+        for (const stateChannel of stateChannels) {
+          await store.saveStateChannel(stateChannel);
+        }
+      }
+    );
 
     return protocolRunner;
   }

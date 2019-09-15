@@ -1,19 +1,15 @@
-import { NetworkContext } from "@counterfactual/types";
-
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import {
-  Context,
-  ProtocolMessage,
-  ProtocolParameters,
-  SetupParams
-} from "../machine/types";
+import { Context, ProtocolMessage, SetupParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+
+const protocol = Protocol.Setup;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -21,130 +17,110 @@ import { assertIsValidSignature } from "./utils/signature-validator";
  * specs.counterfactual.com/04-setup-protocol
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
-  0: async function*(context: Context) {
-    const { responderXpub, multisigAddress } = context.message
-      .params as SetupParams;
-    const responderAddress = xkeyKthAddress(responderXpub, 0);
-    const setupCommitment = proposeStateTransition(
-      context.message.params!,
-      context
-    );
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+  0 /* Initiating */: async function*(context: Context) {
+    const { message, network } = context;
+
+    const { processID, params } = message;
 
     const {
-      customData: { signature: theirSig }
-    } = yield [
-      Opcode.IO_SEND_AND_WAIT,
-      {
-        protocol: Protocol.Setup,
-        processID: context.message.processID,
-        params: context.message.params,
-        toXpub: responderXpub,
-        customData: {
-          signature: mySig
-        },
-        seq: 1
-      } as ProtocolMessage
-    ];
-    assertIsValidSignature(responderAddress, setupCommitment, theirSig);
+      multisigAddress,
+      responderXpub,
+      initiatorXpub
+    } = params as SetupParams;
 
-    const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
-
-    yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Setup,
-      finalCommitment,
-      multisigAddress
-    ];
-  },
-
-  1: async function*(context: Context) {
-    const { initiatorXpub, multisigAddress } = context.message
-      .params as SetupParams;
-    const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
-
-    const setupCommitment = proposeStateTransition(
-      context.message.params!,
-      context
+    const stateChannel = StateChannel.setupChannel(
+      network.IdentityApp,
+      multisigAddress,
+      [initiatorXpub, responderXpub]
     );
 
-    const theirSig = context.message.customData.signature!;
-    assertIsValidSignature(initiatorAddress, setupCommitment, theirSig);
+    const setupCommitment = new SetupCommitment(
+      network,
+      stateChannel.multisigAddress,
+      stateChannel.multisigOwners,
+      stateChannel.freeBalance.identity
+    );
 
-    const mySig = yield [Opcode.OP_SIGN, setupCommitment];
+    const initiatorSignature = yield [OP_SIGN, setupCommitment];
 
-    const finalCommitment = setupCommitment.getSignedTransaction([
-      mySig,
-      theirSig
-    ]);
-    yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Setup,
-      finalCommitment,
-      multisigAddress
-    ];
-
-    yield [
-      Opcode.IO_SEND,
+    const {
+      customData: { signature: responderSignature }
+    } = yield [
+      IO_SEND_AND_WAIT,
       {
-        protocol: Protocol.Setup,
-        processID: context.message.processID,
-        toXpub: initiatorXpub,
+        protocol,
+        processID,
+        params,
+        seq: 1,
+        toXpub: responderXpub,
         customData: {
-          signature: mySig
-        },
-        seq: UNASSIGNED_SEQ_NO
+          signature: initiatorSignature
+        }
       } as ProtocolMessage
     ];
+
+    assertIsValidSignature(
+      xkeyKthAddress(responderXpub, 0),
+      setupCommitment,
+      responderSignature
+    );
+
+    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
+
+    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
+  },
+
+  1 /* Responding */: async function*(context: Context) {
+    const { message, network } = context;
+
+    const {
+      processID,
+      params,
+      customData: { signature: initiatorSignature }
+    } = message;
+
+    const {
+      multisigAddress,
+      initiatorXpub,
+      responderXpub
+    } = params as SetupParams;
+
+    const stateChannel = StateChannel.setupChannel(
+      network.IdentityApp,
+      multisigAddress,
+      [initiatorXpub, responderXpub]
+    );
+
+    const setupCommitment = new SetupCommitment(
+      network,
+      stateChannel.multisigAddress,
+      stateChannel.multisigOwners,
+      stateChannel.freeBalance.identity
+    );
+
+    assertIsValidSignature(
+      xkeyKthAddress(initiatorXpub, 0),
+      setupCommitment,
+      initiatorSignature
+    );
+
+    const responderSignature = yield [OP_SIGN, setupCommitment];
+
+    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
+
+    yield [
+      IO_SEND,
+      {
+        protocol,
+        processID,
+        toXpub: initiatorXpub,
+        seq: UNASSIGNED_SEQ_NO,
+        customData: {
+          signature: responderSignature
+        }
+      } as ProtocolMessage
+    ];
+
+    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
   }
 };
-
-function proposeStateTransition(
-  params: ProtocolParameters,
-  context: Context
-): SetupCommitment {
-  const {
-    multisigAddress,
-    initiatorXpub,
-    responderXpub
-  } = params as SetupParams;
-
-  if (context.stateChannelsMap.has(multisigAddress)) {
-    throw Error(`Found an already-setup channel at ${multisigAddress}`);
-  }
-
-  const newStateChannel = StateChannel.setupChannel(
-    context.network.IdentityApp,
-    multisigAddress,
-    [initiatorXpub, responderXpub]
-  );
-
-  context.stateChannelsMap.set(
-    newStateChannel.multisigAddress,
-    newStateChannel
-  );
-
-  const setupCommitment = constructSetupCommitment(
-    context.network,
-    newStateChannel
-  );
-
-  return setupCommitment;
-}
-
-export function constructSetupCommitment(
-  network: NetworkContext,
-  stateChannel: StateChannel
-) {
-  const freeBalance = stateChannel.freeBalance;
-
-  return new SetupCommitment(
-    network,
-    stateChannel.multisigAddress,
-    stateChannel.multisigOwners,
-    freeBalance.identity
-  );
-}

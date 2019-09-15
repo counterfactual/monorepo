@@ -23,7 +23,10 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  Rpc
+  ProposeVirtualMessage,
+  Rpc,
+  UninstallMessage,
+  UninstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 
@@ -112,7 +115,11 @@ export async function getAppInstanceProposal(
     return proposal.identityHash === appInstanceId;
   });
 
-  if (candidates.length !== 1) {
+  if (candidates.length === 0) {
+    throw new Error("Could not find proposal");
+  }
+
+  if (candidates.length > 1) {
     throw new Error("Failed to match exactly one proposed app instance");
   }
 
@@ -470,12 +477,8 @@ export async function collateralizeChannel(
   tokenAddress: string = CONVENTION_FOR_ETH_TOKEN_ADDRESS
 ): Promise<void> {
   const depositReq = constructDepositRpc(multisigAddress, amount, tokenAddress);
-  node1.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   await node1.rpcRouter.dispatch(depositReq);
-  if (!node2) {
-    return;
-  }
-  node2.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
+  if (!node2) return;
   await node2.rpcRouter.dispatch(depositReq);
 }
 
@@ -568,10 +571,30 @@ export async function installVirtualApp(
   initiatorDeposit?: BigNumber,
   responderDeposit?: BigNumber
 ): Promise<string> {
-  const {
-    appInstanceId,
-    params: { intermediaryIdentifier }
-  } = await makeVirtualProposal(
+  nodeC.on(
+    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    async ({
+      data: {
+        appInstanceId: eventAppInstanceId,
+        params: { intermediaryIdentifier: eventIntermediaryIdentifier }
+      }
+    }: ProposeVirtualMessage) => {
+      const {
+        appInstanceId,
+        params: { intermediaryIdentifier }
+      } = await proposal;
+      if (
+        eventAppInstanceId === appInstanceId &&
+        eventIntermediaryIdentifier === intermediaryIdentifier
+      ) {
+        nodeC.rpcRouter.dispatch(
+          constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
+        );
+      }
+    }
+  );
+
+  const proposal = makeVirtualProposal(
     nodeA,
     nodeC,
     nodeB,
@@ -582,18 +605,18 @@ export async function installVirtualApp(
     responderDeposit
   );
 
-  nodeC.once(
-    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-    async () =>
-      await nodeC.rpcRouter.dispatch(
-        constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
-      )
-  );
-
   return new Promise((resolve: (appInstanceId: string) => void) =>
-    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, (msg: InstallVirtualMessage) => {
-      resolve(appInstanceId);
-    })
+    nodeA.once(
+      NODE_EVENTS.INSTALL_VIRTUAL,
+      async ({
+        data: {
+          params: { appInstanceId: eventAppInstanceId }
+        }
+      }: InstallVirtualMessage) => {
+        const { appInstanceId } = await proposal;
+        if (eventAppInstanceId === appInstanceId) resolve(appInstanceId);
+      }
+    )
   );
 }
 
@@ -871,4 +894,47 @@ export function getAppContext(
         `Proposing the specified app is not supported: ${appDefinition}`
       );
   }
+}
+
+export async function uninstallVirtualApp(
+  node: Node,
+  counterparty: Node,
+  intermediaryPubId: string,
+  appId: string
+): Promise<string> {
+  const rpc = constructUninstallVirtualRpc(appId, intermediaryPubId);
+  return new Promise(async resolve => {
+    counterparty.once(
+      NODE_EVENTS.UNINSTALL_VIRTUAL,
+      (msg: UninstallVirtualMessage) => {
+        resolve(msg.data.appInstanceId);
+      }
+    );
+    await node.rpcRouter.dispatch(rpc);
+  });
+}
+
+export async function takeAppAction(node: Node, appId: string, action: any) {
+  const res = await node.rpcRouter.dispatch(
+    constructTakeActionRpc(appId, action)
+  );
+  return res.result.result;
+}
+
+export async function uninstallApp(
+  node: Node,
+  counterparty: Node,
+  appId: string
+): Promise<string> {
+  return new Promise(async resolve => {
+    counterparty.once(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
+      resolve(msg.data.appInstanceId);
+    });
+    await node.rpcRouter.dispatch(constructUninstallRpc(appId));
+  });
+}
+
+export async function getApps(node: Node): Promise<AppInstanceJson[]> {
+  return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
+    .appInstances;
 }

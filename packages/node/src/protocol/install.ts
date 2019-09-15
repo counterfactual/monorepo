@@ -20,6 +20,15 @@ import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
+const {
+  OP_SIGN,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  WRITE_COMMITMENT,
+  PERSIST_STATE_CHANNEL
+} = Opcode;
+const { Update, Install } = Protocol;
+
 /**
  * @description This exchange is described at the following URL:
  *
@@ -61,7 +70,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnConditionalTransaction = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       conditionalTransactionData
     ];
 
@@ -71,11 +80,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         signature2: counterpartySignatureOnFreeBalanceStateUpdate
       }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
         params,
-        protocol: Protocol.Install,
+        protocol: Install,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnConditionalTransaction
@@ -103,8 +112,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Install,
+      WRITE_COMMITMENT,
+      Install,
       signedConditionalTransaction,
       newAppInstance.identityHash
     ];
@@ -124,7 +133,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceUpdateData
     ];
 
@@ -136,17 +145,19 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update,
+      WRITE_COMMITMENT,
+      Update,
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
     yield [
-      Opcode.IO_SEND,
+      IO_SEND_AND_WAIT,
       {
         processID,
-        protocol: Protocol.Install,
+        protocol: Install,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnFreeBalanceStateUpdate
@@ -202,7 +213,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnConditionalTransaction = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       conditionalTransactionData
     ];
 
@@ -219,8 +230,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Install,
+      WRITE_COMMITMENT,
+      Install,
       signedConditionalTransaction,
       newAppInstance.identityHash
     ];
@@ -234,17 +245,17 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     const mySignatureOnFreeBalanceStateUpdate = yield [
-      Opcode.OP_SIGN,
+      OP_SIGN,
       freeBalanceUpdateData
     ];
 
     const {
       customData: { signature: counterpartySignatureOnFreeBalanceStateUpdate }
     } = yield [
-      Opcode.IO_SEND_AND_WAIT,
+      IO_SEND_AND_WAIT,
       {
         processID,
-        protocol: Protocol.Install,
+        protocol: Install,
         toXpub: initiatorXpub,
         customData: {
           signature: mySignatureOnConditionalTransaction,
@@ -268,11 +279,25 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     );
 
     yield [
-      Opcode.WRITE_COMMITMENT,
-      Protocol.Update,
+      WRITE_COMMITMENT,
+      Update,
       signedFreeBalanceStateUpdate,
       postProtocolStateChannel.freeBalance.identityHash
     ];
+
+    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+
+    const m4 = {
+      processID,
+      protocol: Install,
+      toXpub: initiatorXpub,
+      customData: {
+        dataPersisted: true
+      },
+      seq: UNASSIGNED_SEQ_NO
+    } as ProtocolMessage;
+
+    yield [IO_SEND, m4];
   }
 };
 

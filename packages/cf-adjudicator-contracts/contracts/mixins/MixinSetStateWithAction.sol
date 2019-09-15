@@ -85,7 +85,9 @@ contract MixinSetStateWithAction is
       challenge.finalizesAt = uint248(block.number);
       challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
     } else {
-      challenge.finalizesAt = uint248(block.number + req.timeout);
+      uint248 finalizesAt = uint248(block.number + req.timeout);
+      require(finalizesAt >= req.timeout, "uint248 addition overflow");
+      challenge.finalizesAt = finalizesAt;
       challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     }
 

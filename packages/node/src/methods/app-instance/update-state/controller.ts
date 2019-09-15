@@ -21,7 +21,7 @@ export default class UpdateStateController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.UPDATE_STATE)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
@@ -102,8 +102,4 @@ async function runUpdateStateProtocol(
       multisigAddress: stateChannel.multisigAddress
     }
   );
-
-  const sc = stateChannelsMap.get(stateChannel.multisigAddress) as StateChannel;
-
-  await store.saveStateChannel(sc);
 }

@@ -16,7 +16,7 @@ export default class InstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.INSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async getShardKeysForQueueing(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<string[]> {
@@ -33,14 +33,6 @@ export default class InstallController extends NodeController {
     params: Node.InstallParams
   ): Promise<Node.InstallResult> {
     const { store, protocolRunner, publicIdentifier } = requestHandler;
-
-    const [
-      responderAddress
-    ] = await StateChannel.getPeersAddressFromAppInstanceID(
-      publicIdentifier,
-      store,
-      params.appInstanceId
-    );
 
     const appInstanceProposal = await install(store, protocolRunner, params);
 
