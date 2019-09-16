@@ -367,13 +367,23 @@ export class Node {
       console.error(`Received message with unknown event type: ${msg.type}`);
     }
 
+    console.log("MSG=====");
+    console.log(msg)
+    // @ts-ignore
+    console.log(msg.data.result)
+
     const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
+    const isFinishedMessage = (msg: NodeTypes.NodeMessage) =>
+      msg.type.endsWith("FinishedEvent");
+
     const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
       this.ioSendDeferrals.has(msg.data.processID);
+
+    console.log("EXPECTING RESPONSE: " + isExpectingResponse(msg as NodeMessageWrappedProtocolMessage));
     if (
-      isProtocolMessage(msg) &&
+      (isProtocolMessage(msg) || isFinishedMessage(msg)) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);

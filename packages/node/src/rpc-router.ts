@@ -1,4 +1,3 @@
-import { Node } from "@counterfactual/types";
 import {
   Controller,
   JsonRpcResponse,
@@ -8,6 +7,7 @@ import {
 } from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
+import { Node } from "@counterfactual/types";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
