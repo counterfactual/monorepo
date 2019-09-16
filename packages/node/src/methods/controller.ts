@@ -22,9 +22,7 @@ export abstract class NodeController extends Controller {
       createExecutionPromise
     );
 
-    await this.afterExecution(requestHandler, params);
-
-    return ret;
+    return this.afterExecution(requestHandler, params, ret);
   }
 
   protected abstract executeMethodImplementation(
@@ -43,8 +41,10 @@ export abstract class NodeController extends Controller {
     // @ts-ignore
     requestHandler: RequestHandler,
     // @ts-ignore
-    params: Node.MethodParams
-  ): Promise<void> {}
+    params: Node.MethodParams,
+    // @ts-ignore
+    result: any
+  ): Promise<any> {}
 
   protected async getRequiredLockNames(
     // @ts-ignore

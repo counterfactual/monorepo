@@ -7,7 +7,7 @@ import {
 } from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
-import { NODE_EVENTS } from "./types";
+import { Node } from "@counterfactual/types";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
@@ -51,6 +51,15 @@ export default class RpcRouter extends Router {
       result
     );
 
+    if(rpc.methodName === "chan_create") {
+      this.requestHandler.messagingService.send(result.result.respondingXpub, { 
+        from: this.requestHandler.publicIdentifier, 
+        type: this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
+        //@ts-ignore
+        data: result
+      }
+    }
+
     return result;
   }
 
@@ -83,22 +92,22 @@ export default class RpcRouter extends Router {
       : 0;
   }
 
-  mapRPCMethodNameToFinishedEventName(methodName: string): string {
+  mapRPCMethodNameToFinishedEventName(methodName: string): Node.EventName {
     switch (methodName) {
       case "chan_create":
-        return "setupFinishedEvent";
+        return Node.EventName.SETUP_FINISHED;
       case "chan_deposit":
-        return "depositFinishedEvent";
+        return Node.EventName.DEPOSIT_FINISHED;
       case "chan_install":
-        return "installFinishedEvent";
+        return Node.EventName.INSTALL_FINISHED;
       case "chan_uninstall":
-        return "uninstallFinishedEvent";
+        return Node.EventName.UNINSTALL_FINISHED;
       case "chan_installVirtual":
-        return "installVirtualFinishedEvent";
+        return Node.EventName.INSTALL_VIRTUAL_FINISHED;
       case "chan_uninstallVirtual":
-        return "uninstallVirtualFinishedEvent";
+        return Node.EventName.UNINSTALL_VIRTUAL_FINISHED;
       case "chan_withdraw":
-        return "withdrawFinishedEvent";
+        return Node.EventName.WITHDRAWAL_FINISHED;
       default:
         throw Error("Type Error: methodName must be of type RPCMethodName");
     }

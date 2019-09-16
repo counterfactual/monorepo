@@ -82,7 +82,22 @@ export default class CreateChannelController extends NodeController {
       );
     }
 
-    return { transactionHash: tx.hash! };
+    return {
+      transactionHash: tx.hash!
+    };
+  }
+
+  protected async afterExecution(
+    requestHandler: RequestHandler,
+    params: Node.CreateChannelParams,
+    result: any
+  ) {
+    return {
+      ...result,
+      respondingXpub: params.owners.filter(
+        owner => owner !== requestHandler.publicIdentifier
+      )[0]
+    };
   }
 
   private async handleDeployedMultisigOnChain(
