@@ -1,6 +1,9 @@
-import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
-import { ProtocolMessage } from "../../src/machine";
-import { FinMessage } from "../../src/machine/types";
+import {
+  CreateChannelMessage,
+  Node,
+  NODE_EVENTS,
+  NodeMessageWrappedFinMessage
+} from "../../src";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -88,18 +91,13 @@ describe("Node can create multisig, other owners get notified", () => {
         nodeB.publicIdentifier
       ];
 
-      let nodeAProcessID: string;
-      let nodeBProcessID: string;
-
-      nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
-        nodeAProcessID = msg.processID;
-      });
-
-      nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
-        nodeBProcessID = msg.processID;
-        expect(nodeBProcessID).toEqual(nodeAProcessID);
-        done();
-      });
+      nodeB.on(
+        NODE_EVENTS.SETUP_FINISHED,
+        async (msg: NodeMessageWrappedFinMessage) => {
+          expect(msg.data.processID).toBeDefined();
+          done();
+        }
+      );
 
       await getMultisigCreationTransactionHash(
         nodeA,
