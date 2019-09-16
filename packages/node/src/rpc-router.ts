@@ -7,6 +7,7 @@ import {
 } from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
+import { NODE_EVENTS } from "./types";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
@@ -45,7 +46,10 @@ export default class RpcRouter extends Router {
       rpc.id as number
     );
 
-    this.requestHandler.outgoing.emit(rpc.methodName, result);
+    this.requestHandler.outgoing.emit(
+      this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
+      result
+    );
 
     return result;
   }
@@ -77,5 +81,26 @@ export default class RpcRouter extends Router {
     return typeof this.requestHandler.outgoing.listenerCount === "function"
       ? this.requestHandler.outgoing.listenerCount(event)
       : 0;
+  }
+
+  mapRPCMethodNameToFinishedEventName(methodName: string): string {
+    switch (methodName) {
+      case "chan_create":
+        return "setupFinishedEvent";
+      case "chan_deposit":
+        return "depositFinishedEvent";
+      case "chan_install":
+        return "installFinishedEvent";
+      case "chan_uninstall":
+        return "uninstallFinishedEvent";
+      case "chan_installVirtual":
+        return "installVirtualFinishedEvent";
+      case "chan_uninstallVirtual":
+        return "uninstallVirtualFinishedEvent";
+      case "chan_withdraw":
+        return "withdrawFinishedEvent";
+      default:
+        throw Error("Type Error: methodName must be of type RPCMethodName");
+    }
   }
 }
