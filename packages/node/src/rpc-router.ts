@@ -1,3 +1,4 @@
+import { Node } from "@counterfactual/types";
 import {
   Controller,
   JsonRpcResponse,
@@ -7,7 +8,6 @@ import {
 } from "rpc-server";
 
 import { RequestHandler } from "./request-handler";
-import { Node } from "@counterfactual/types";
 
 type AsyncCallback = (...args: any) => Promise<any>;
 
@@ -46,22 +46,7 @@ export default class RpcRouter extends Router {
       rpc.id as number
     );
 
-    this.requestHandler.outgoing.emit(
-      this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
-      result
-    );
-
-    if (rpc.methodName === "chan_create") {
-      await this.requestHandler.messagingService.send(
-        result.result.result.respondingXpub,
-        {
-          from: this.requestHandler.publicIdentifier,
-          type: this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
-          // @ts-ignore
-          data: result
-        }
-      );
-    }
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
 
     return result;
   }
@@ -96,7 +81,9 @@ export default class RpcRouter extends Router {
   }
 
   mapRPCMethodNameToFinishedEventName(methodName: string): Node.EventName {
-    console.log(methodName);
+    console.log(
+      `Mapping RPC method name to finished event name: ${methodName}`
+    );
     switch (methodName) {
       case "chan_create":
         return Node.EventName.SETUP_FINISHED;

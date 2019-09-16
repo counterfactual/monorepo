@@ -5,6 +5,11 @@ enum Opcode {
   WRITE_COMMITMENT,
 
   /**
+   * Middleware hook to wait for a response from a ProtocolMessage
+   */
+  IO_WAIT,
+
+  /**
    * Requests a signature on the hash of previously generated EthereumCommitments.
    */
   OP_SIGN,
@@ -15,6 +20,12 @@ enum Opcode {
   IO_SEND,
 
   /**
+   * Middleware hook to send from the initiating party downstream to other
+   * parties to indicate the finish of the protocol.
+   */
+  IO_SEND_FIN,
+
+  /**
    * Middleware hook to both send and wait for a response from a ProtocolMessage
    */
   IO_SEND_AND_WAIT,
@@ -23,12 +34,7 @@ enum Opcode {
    * Middleware hook to write the state channel to store. Used to lock channel
    * betweeen protocols.
    */
-  PERSIST_STATE_CHANNEL,
-
-  /**
-   * Middleware hook to wait for a response from a ProtocolMessage
-   */
-  IO_WAIT
+  PERSIST_STATE_CHANNEL
 }
 
 enum Protocol {
