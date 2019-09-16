@@ -1,5 +1,0 @@
-App.loadBundle('/**:bundle-id:**/', ['exports', './chunk-346f9d40.js'], function (exports, __chunk_1) {
-    var h = window.App.h;
-    var AccountTunnel = __chunk_1.createProviderConsumer({}, function (subscribe, child) { return (h("context-consumer", { subscribe: subscribe, renderer: child })); });
-    exports.AccountTunnel = AccountTunnel;
-});
