@@ -1,4 +1,5 @@
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
+import { ProtocolMessage } from "../../src/machine";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -6,7 +7,6 @@ import {
   getChannelAddresses,
   getMultisigCreationTransactionHash
 } from "./utils";
-import { ProtocolMessage } from "../../src/machine";
 
 describe("Node can create multisig, other owners get notified", () => {
   let nodeA: Node;

@@ -1,3 +1,5 @@
+import { Node } from "@counterfactual/types";
+
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
@@ -7,7 +9,6 @@ import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
-import { Node } from "@counterfactual/types";
 
 const protocol = Protocol.Setup;
 const {
