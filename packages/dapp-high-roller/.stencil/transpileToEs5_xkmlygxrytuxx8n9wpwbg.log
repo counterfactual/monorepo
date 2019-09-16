@@ -1,0 +1,16 @@
+function getProp(propertyName, context) {
+    var state = context.history.location
+        ? context.history.location.state || {}
+        : {};
+    var query = context.history.location
+        ? context.history.location.query || {}
+        : {};
+    return state[propertyName] || query[propertyName] || context[propertyName];
+}
+function computeCommitHash(appSalt, chosenNumber) {
+    return ethers.utils.solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
+}
+function generateSalt() {
+    return ethers.utils.bigNumberify(ethers.utils.randomBytes(32)).toHexString();
+}
+export { getProp as a, generateSalt as b, computeCommitHash as c };

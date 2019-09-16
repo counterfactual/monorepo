@@ -1,0 +1,236 @@
+import * as tslib_1 from "../polyfills/tslib.js";
+
+import { h } from "../app.core.js";
+
+import "./chunk-deed3e85.js";
+
+import { a as AccountTunnel } from "./chunk-dfef6d51.js";
+
+import { a as AppRegistryTunnel } from "./chunk-868ccbc3.js";
+
+import { a as CounterfactualNode } from "./chunk-515d15f9.js";
+
+import { a as PlaygroundAPIClient } from "./chunk-adf5a5b1.js";
+
+var DappContainer = /** @class */ function() {
+  function DappContainer() {
+    var e = this;
+    this.match = {}, this.history = {}, this.url = "", this.apps = [], this.user = {}, 
+    this.ethMultisigBalance = window.ethers.constants.Zero, this.getBalances = function() {
+      return tslib_1.__awaiter(e, void 0, void 0, function() {
+        return tslib_1.__generator(this, function(e) {
+          return [ 2 /*return*/ , void 0 ];
+        });
+      });
+    }, this.frameWindow = null, this.port = null, this.eventEmitter = new EventEmitter(), 
+    this.messageQueue = [], this.iframe = {}, this.node = CounterfactualNode.getInstance(), 
+    this.$onMessage = function() {};
+  }
+  return DappContainer.prototype.render = function() {
+    return h("node-listener", {
+      history: this.history
+    }, h("layout-header", null));
+  }, DappContainer.prototype.getDapp = function() {
+    var e = this.match.params.dappName;
+    return this.apps.find(function(t) {
+      return t.slug === e;
+    });
+  }, DappContainer.prototype.getDappUrl = function() {
+    var e = this.getDapp(), t = new URLSearchParams(window.location.search).get("dappState") || "";
+    return e ? "" + e.url + t : "";
+  }, DappContainer.prototype.componentDidLoad = function() {
+    this.url = this.getDappUrl(), this.node.on("proposeInstallVirtual", this.postOrQueueMessage.bind(this)), 
+    this.node.on("installVirtualEvent", this.postOrQueueMessage.bind(this)), this.node.on("getAppInstanceDetails", this.postOrQueueMessage.bind(this)), 
+    this.node.on("getState", this.postOrQueueMessage.bind(this)), this.node.on("takeAction", this.postOrQueueMessage.bind(this)), 
+    this.node.on("updateStateEvent", this.postOrQueueMessage.bind(this)), this.node.on("uninstallEvent", this.postOrQueueMessage.bind(this)), 
+    this.node.on("protocolMessageEvent", this.getBalances.bind(this));
+    var e = this.element.shadowRoot, t = document.createElement("iframe");
+    t.src = this.url, e.appendChild(t), this.frameWindow = t.contentWindow, this.$onMessage = this.configureMessageChannel.bind(this), 
+    window.addEventListener("message", this.$onMessage), window.addEventListener("message", this.handlePlaygroundMessage.bind(this)), 
+    this.iframe = t;
+  }, DappContainer.prototype.componentDidUnload = function() {
+    this.frameWindow && (this.frameWindow = null), this.eventEmitter.off("message"), 
+    this.port && (this.port.close(), this.port = null), this.iframe.remove();
+  }, DappContainer.prototype.handlePlaygroundMessage = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t, n, s, a;
+      return tslib_1.__generator(this, function(r) {
+        switch (r.label) {
+         case 0:
+          return this.frameWindow && "string" == typeof e.data ? "playground:request:user" !== e.data ? [ 3 /*break*/ , 2 ] : [ 4 /*yield*/ , this.sendResponseForRequestUser(this.frameWindow) ] : [ 2 /*return*/ ];
+
+         case 1:
+          r.sent(), r.label = 2;
+
+         case 2:
+          return "playground:request:matchmake" !== e.data ? [ 3 /*break*/ , 4 ] : [ 4 /*yield*/ , this.sendResponseForMatchmakeRequest(this.frameWindow) ];
+
+         case 3:
+          r.sent(), r.label = 4;
+
+         case 4:
+          return "playground:request:appInstance" !== e.data ? [ 3 /*break*/ , 6 ] : [ 4 /*yield*/ , this.sendResponseForAppInstance(this.frameWindow) ];
+
+         case 5:
+          r.sent(), r.label = 6;
+
+         case 6:
+          return "playground:request:getBalances" !== e.data ? [ 3 /*break*/ , 8 ] : [ 4 /*yield*/ , this.sendResponseForGetBalances(this.frameWindow) ];
+
+         case 7:
+          r.sent(), r.label = 8;
+
+         case 8:
+          return e.data.startsWith("playground:send:dappRoute") && (t = e.data.split("|"), 
+          n = t[1], (s = new URLSearchParams(window.location.search)).set("dappState", n), 
+          a = window.location.pathname + "?" + s.toString(), history.pushState(null, "", a)), 
+          [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, Object.defineProperty(DappContainer.prototype, "token", {
+    get: function() {
+      return window.localStorage.getItem("playground:user:token");
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(DappContainer.prototype, "matchmakeWith", {
+    get: function() {
+      return window.localStorage.getItem("playground:matchmakeWith");
+    },
+    enumerable: !0,
+    configurable: !0
+  }), DappContainer.prototype.sendResponseForRequestUser = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      return tslib_1.__generator(this, function(t) {
+        return e.postMessage("playground:response:user|" + JSON.stringify({
+          user: Object.assign({}, this.user, {
+            token: this.token
+          }),
+          balance: this.ethMultisigBalance ? window.ethers.utils.formatEther(this.ethMultisigBalance) : "0"
+        }), "*"), [ 2 /*return*/ ];
+      });
+    });
+  }, DappContainer.prototype.getBotName = function() {
+    return {
+      "high-roller": "HighRollerBot",
+      "tic-tac-toe": "TicTacToeBot"
+    }[this.getDapp().slug];
+  }, DappContainer.prototype.sendResponseForMatchmakeRequest = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t, n;
+      return tslib_1.__generator(this, function(s) {
+        switch (s.label) {
+         case 0:
+          return [ 4 /*yield*/ , PlaygroundAPIClient.matchmake(this.token, this.matchmakeWith || this.getBotName()) ];
+
+         case 1:
+          return t = s.sent(), n = JSON.stringify(t), window.localStorage.setItem("playground:lastMatchmake", n), 
+          e.postMessage("playground:response:matchmake|" + n, "*"), [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, DappContainer.prototype.postOrQueueMessage = function(e) {
+    this.port ? this.port.postMessage(e) : this.queueMessage(e);
+  }, DappContainer.prototype.configureMessageChannel = function(e) {
+    if (this.frameWindow) {
+      if ("cf-node-provider:init" === e.data) {
+        var t = this.configureMessagePorts().port2;
+        this.frameWindow.postMessage("cf-node-provider:port", "*", [ t ]);
+      }
+      "cf-node-provider:ready" === e.data && (this.flushMessageQueue(), window.removeEventListener("message", this.$onMessage));
+    }
+  }, DappContainer.prototype.configureMessagePorts = function() {
+    var e = new MessageChannel();
+    return this.port = e.port1, this.port.addEventListener("message", this.relayMessage.bind(this)), 
+    this.port.start(), e;
+  }, DappContainer.prototype.relayMessage = function(e) {
+    this.node.rpcRouter.dispatch(Object.assign({}, e.data));
+  }, DappContainer.prototype.queueMessage = function(e) {
+    this.messageQueue.push(e);
+  }, DappContainer.prototype.flushMessageQueue = function() {
+    if (this.port) for (var e; e = this.messageQueue.shift(); ) this.port.postMessage(e);
+  }, DappContainer.prototype.sendResponseForAppInstance = function(e) {
+    var t = window.localStorage.getItem("playground:installingDapp");
+    if (e && t) {
+      var n = JSON.parse(t).installedApp;
+      e.postMessage("playground:response:appInstance|" + (n ? JSON.stringify(n) : ""), "*"), 
+      n && console.log("Playground sent appInstance", JSON.stringify(n)), window.localStorage.removeItem("playground:installingDapp");
+    }
+  }, DappContainer.prototype.sendResponseForGetBalances = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t;
+      return tslib_1.__generator(this, function(n) {
+        switch (n.label) {
+         case 0:
+          return [ 4 /*yield*/ , this.getBalances() ];
+
+         case 1:
+          return t = n.sent(), e.postMessage("playground:response:getBalances|" + JSON.stringify(t), "*"), 
+          [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, Object.defineProperty(DappContainer, "is", {
+    get: function() {
+      return "dapp-container";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(DappContainer, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(DappContainer, "properties", {
+    get: function() {
+      return {
+        apps: {
+          type: "Any",
+          attr: "apps"
+        },
+        element: {
+          elementRef: !0
+        },
+        ethMultisigBalance: {
+          type: "Any",
+          attr: "eth-multisig-balance"
+        },
+        getBalances: {
+          type: "Any",
+          attr: "get-balances"
+        },
+        history: {
+          type: "Any",
+          attr: "history"
+        },
+        match: {
+          type: "Any",
+          attr: "match"
+        },
+        url: {
+          type: String,
+          attr: "url",
+          mutable: !0
+        },
+        user: {
+          type: "Any",
+          attr: "user"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(DappContainer, "style", {
+    get: function() {
+      return "/**style-placeholder:dapp-container:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), DappContainer;
+}();
+
+AppRegistryTunnel.injectProps(DappContainer, [ "apps" ]), AccountTunnel.injectProps(DappContainer, [ "ethMultisigBalance", "getBalances", "user" ]);
+
+export { DappContainer };

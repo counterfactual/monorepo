@@ -1,0 +1,2257 @@
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import './chunk-deed3e85.js';
+import { a as AccountTunnel } from './chunk-dfef6d51.js';
+import { a as AppRegistryTunnel } from './chunk-868ccbc3.js';
+import { a as CounterfactualNode, b as Node$1 } from './chunk-515d15f9.js';
+import { a as WalletTunnel } from './chunk-a343ce23.js';
+import { a as PlaygroundAPIClient } from './chunk-adf5a5b1.js';
+import { a as matchPath, b as matchesAreEqual, c as storageAvailable, d as canUseDOM, e as supportsHistory, f as supportsPopStateOnHashChange, g as getConfirmation, h as stripTrailingSlash, i as addLeadingSlash, j as hasBasename, k as stripBasename, l as createLocation, m as createKey, n as createPath, o as addEventListener, p as removeEventListener, q as isExtraneousPopstateEvent, r as supportsGoWithoutReloadUsingHash, s as stripLeadingSlash, t as locationsAreEqual } from './chunk-8b806219.js';
+import { a as ActiveRouter } from './chunk-9cf92136.js';
+var AppHome = /** @class */ (function () {
+    function AppHome() {
+        this.history = {};
+        this.apps = [];
+        this.canUseApps = false;
+        this.user = {};
+        this.web3Detected = false;
+        this.hasDetectedNetwork = false;
+        this.networkPermitted = false;
+        this.enoughCounterpartyBalance = true;
+        this.enoughLocalBalance = true;
+        this.ethPendingDepositTxHash = "";
+        this.hasLocalStorage = false;
+        this.hasCorruptStateChannelState = false;
+        this.runningApps = [];
+    }
+    AppHome.prototype.appClickedHandler = function (e) {
+        this.history.push(e.detail.dappContainerUrl, e.detail);
+    };
+    AppHome.prototype.componentWillLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                this.runningApps = [Object.assign({}, this.apps[0], { notifications: 11 })];
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppHome.prototype.checkLocalStorage = function () {
+        if (this.hasLocalStorage) {
+            return;
+        }
+        var texts = {
+            brave: {
+                title: "Please, lower your Shields!",
+                instruction: (h("span", null, "Please, turn off the ", h("i", null, "Shields Up"), " feature for this site to continue."))
+            },
+            chrome: {
+                title: "Please, allow site data!",
+                instruction: (h("span", null, "Please, unblock ", h("i", null, "Cookies"), " in your settings, under", " ", h("i", null, "Privacy \u2192 Content settings"), "."))
+            },
+            edge: {
+                title: "Please, unblock us!",
+                instruction: (h("span", null, "Please, uncheck the ", h("i", null, "Block all cookies"), " option in your settings, under ", h("i", null, "Advanced Settings \u2192 Cookies"), "."))
+            },
+            firefox: {
+                title: "Please, enable DOM Storage!",
+                instruction: (h("span", null, "Please, set the ", h("code", null, "dom.storage.enabled"), " key to", " ", h("code", null, "true"), " in your ", h("code", null, "about:config"), " screen."))
+            },
+            safari: {
+                title: "Please, unblock us!",
+                instruction: (h("span", null, "Please, uncheck the ", h("i", null, "Always block"), " option in your settings, under ", h("i", null, "Preferences \u2192 Privacy \u2192 Cookies and website data"), "."))
+            },
+            default: {
+                title: "Please, allow us to store data",
+                instruction: (h("span", null, "The Playground demo uses Local Storage to work properly. Please, configure your browser to grant us access."))
+            }
+        };
+        var text = {};
+        if (navigator.userAgent.indexOf("brave") >= 0) {
+            text = texts.brave;
+        }
+        else if (navigator.userAgent.indexOf("Chrome") >= 0 &&
+            navigator.vendor.indexOf("Google") >= 0) {
+            text = texts.chrome;
+        }
+        else if (navigator.userAgent.indexOf("Edge") >= 0) {
+            text = texts.edge;
+        }
+        else if (navigator.userAgent.indexOf("Safari") >= 0) {
+            text = texts.safari;
+        }
+        else if (navigator.userAgent.indexOf("Firefox") >= 0) {
+            text = texts.firefox;
+        }
+        else {
+            text = texts.default;
+        }
+        return (h("div", { class: "error-message" }, h("h1", null, text.title), h("h2", null, "The Playground Demo uses Local Storage to work properly.", " ", text.instruction), h("p", null, h("strong", null, "What do we store?"), " Basic information the demo needs to work, such as a mnemonic key to generate the address for your local Node instance, and the data the Node itself stores about the activity in the state channels you are part of.")));
+    };
+    AppHome.prototype.checkDetectedNetwork = function () {
+        if (this.hasDetectedNetwork) {
+            return;
+        }
+        return h("widget-spinner", { type: "dots" });
+    };
+    AppHome.prototype.getSuggestedWallet = function () {
+        return screen.width < 600 ? (h("span", null, h("a", { href: "https://wallet.coinbase.com/" }, "Coinbase Wallet"), ",", h("a", { href: "https://www.cipherbrowser.com/" }, " Cipher"), ", or", h("a", { href: "https://dev.status.im/" }, " Status"))) : (h("a", { href: "https://metamask.io/" }, "Metamask"));
+    };
+    AppHome.prototype.checkWeb3Detected = function () {
+        if (this.web3Detected) {
+            return;
+        }
+        return (h("div", { class: "error-message" }, h("h2", null, "Welcome to the Playground demo :) This demo requires a Web3-compatible wallet such as ", this.getSuggestedWallet(), ". Please enable or download one to continue!")));
+    };
+    AppHome.prototype.checkNetworkPermitted = function () {
+        if (this.networkPermitted) {
+            return;
+        }
+        return (h("div", { class: "error-message" }, h("h1", null, "Please Switch to Kovan"), h("h2", null, "The Playground demo is currently only deployed on the Kovan test network. Please switch to continue.")));
+    };
+    AppHome.prototype.checkCorruptState = function () {
+        if (!this.hasCorruptStateChannelState) {
+            return;
+        }
+        return (h("div", { class: "error-message" }, h("h1", null, "\u2620\uFE0F Corrupt Wallet State"), h("h2", null, "Unfortunately, your state channel state has become corrupted or lost. Please ", h("a", { onClick: this.deleteAccount }, "click here"), " to start over.")));
+    };
+    AppHome.prototype.showApps = function () {
+        var _this = this;
+        return (h("div", { class: "container" }, h("apps-list", { apps: this.apps, onAppClicked: function (e) { return _this.appClickedHandler(e); }, name: "Available Apps" }), this.welcomeText()));
+    };
+    AppHome.prototype.checkUserNotLoggedIn = function () {
+        if (this.user.id) {
+            return;
+        }
+        return this.welcomeText();
+    };
+    AppHome.prototype.welcomeText = function () {
+        return (h("div", { class: "welcome-message", style: { display: this.user.id ? "contents" : "flex" } }, !this.user.id ? h("h1", null, "Welcome! \uD83D\uDC4B") : undefined, !this.user.id ? (h("h2", null, "This a demonstration of", " ", h("a", { href: "https://counterfactual.com/statechannels" }, "generalized state channels"), " ", "on Ethereum.")) : (undefined), h("div", { class: "flex-container" }, h("div", { class: "flex-item" }, h("h3", null, "What's going on here?"), h("p", null, "You are now a Node in a hub-and-spoke state channels network demo called the Counterfactual Playground, running on Kovan. This webpage is your state channels wallet. Our team runs the hub. Users that connect to our hub can use an unlimited number of off-chain applications with ", h("b", null, "zero fees"), " and", " ", h("b", null, "zero block confirmation times"), ". Want to try? Register or login to start.")), h("div", { class: "flex-item" }, h("h3", null, "How does it work?"), h("p", null, "This demo is built using", " ", h("a", { href: "https://counterfactual.com" }, "Counterfactual"), ". We've written all about the internal architecture in", " ", h("a", { href: "https://medium.com/statechannels/development-update-3-counterfactual-playground-release-f428be4b8950" }, "this blog post"), ". To learn more, check out our", " ", h("a", { href: "https://github.com/counterfactual" }, "GitHub"), " page and follow us on", " ", h("a", { href: "https://twitter.com/statechannels" }, "Twitter")))), h("div", { class: "flex-container" }, h("div", { class: "flex-item" }, h("h3", null, "What is Counterfactual?"), h("p", null, "Counterfactual is an open-source project comprised of several components:", h("ul", null, h("li", null, "\u2022 A library for off-chain applications"), h("li", null, "\u2022 An intuitive generalized state channels protocol"), h("li", null, "\u2022 A set of Ethereum smart contracts")), " ", "It enables developers to build trustless distributed applications with minimal overhead. Watch", " ", h("a", { href: "https://youtu.be/tfKtLNlPL2w?t=72", target: "_blank" }, "our recent talk"), " ", "at EthCC for more.")), h("div", { class: "flex-item" }, h("h3", null, "How is this secure?"), h("p", null, "Counterfactual uses state channels, a Layer 2 scalability technique. For a complete overview, read", " ", h("a", { href: "https://medium.com/l4-media/making-sense-of-ethereums-layer-2-scaling-solutions-state-channels-plasma-and-truebit-22cb40dcc2f4", target: "_blank" }, "Making Sense of Layer 2"), " ", "or watch the associated", " ", h("a", { href: "https://www.youtube.com/watch?v=RghzB4C9aSg", target: "_blank" }, "talk from Devcon IV"), ".")))));
+    };
+    AppHome.prototype.checkInsufficientBalance = function () {
+        if (!this.user || !this.user.multisigAddress) {
+            return;
+        }
+        if (!this.enoughLocalBalance) {
+            return (h("div", { class: "error-message" }, h("h1", null, "Insufficient funds"), h("h2", null, "Your balance needs to be of at least 0.01 ETH.", h("br", null), h("br", null), h("stencil-route-link", { url: "/exchange" }, "Click here"), " ", "to deposit more funds.")));
+        }
+        if (!this.enoughCounterpartyBalance) {
+            return (h("div", { class: "error-message" }, h("h1", null, "The Playground Node has insufficient funds"), h("h2", null, "Eventually we'll take care of this automatically, but in the meantime, you'll need to deposit some ETH.", h("br", null), h("br", null), h("stencil-route-link", { url: "/exchange" }, "Click here"), " ", "to deposit more funds.")));
+        }
+    };
+    AppHome.prototype.render = function () {
+        var content = this.checkLocalStorage() ||
+            this.checkDetectedNetwork() ||
+            this.checkWeb3Detected() ||
+            this.checkNetworkPermitted() ||
+            this.checkUserNotLoggedIn() ||
+            this.checkInsufficientBalance() ||
+            this.checkCorruptState() ||
+            this.showApps();
+        return this.hasLocalStorage ? (h("node-listener", { history: this.history }, h("layout-header", null), h("section", { class: "section fill" }, content), h("a", { id: "discordbutton", href: "https://discord.gg/7SMbDz", target: "_blank" }))) : (h("div", null, h("layout-header", null), h("section", { class: "section fill" }, content)));
+    };
+    Object.defineProperty(AppHome, "is", {
+        get: function () { return "app-home"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppHome, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppHome, "properties", {
+        get: function () {
+            return {
+                "apps": {
+                    "type": "Any",
+                    "attr": "apps"
+                },
+                "canUseApps": {
+                    "type": Boolean,
+                    "attr": "can-use-apps"
+                },
+                "deleteAccount": {
+                    "type": "Any",
+                    "attr": "delete-account"
+                },
+                "element": {
+                    "elementRef": true
+                },
+                "enoughCounterpartyBalance": {
+                    "type": Boolean,
+                    "attr": "enough-counterparty-balance"
+                },
+                "enoughLocalBalance": {
+                    "type": Boolean,
+                    "attr": "enough-local-balance"
+                },
+                "ethPendingDepositAmountWei": {
+                    "type": "Any",
+                    "attr": "eth-pending-deposit-amount-wei"
+                },
+                "ethPendingDepositTxHash": {
+                    "type": String,
+                    "attr": "eth-pending-deposit-tx-hash"
+                },
+                "hasCorruptStateChannelState": {
+                    "type": Boolean,
+                    "attr": "has-corrupt-state-channel-state"
+                },
+                "hasDetectedNetwork": {
+                    "type": Boolean,
+                    "attr": "has-detected-network"
+                },
+                "hasLocalStorage": {
+                    "type": Boolean,
+                    "attr": "has-local-storage"
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "networkPermitted": {
+                    "type": Boolean,
+                    "attr": "network-permitted"
+                },
+                "runningApps": {
+                    "state": true
+                },
+                "user": {
+                    "type": "Any",
+                    "attr": "user"
+                },
+                "web3Detected": {
+                    "type": Boolean,
+                    "attr": "web-3-detected"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppHome, "style", {
+        get: function () { return "/**style-placeholder:app-home:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return AppHome;
+}());
+AppRegistryTunnel.injectProps(AppHome, ["apps", "canUseApps"]);
+WalletTunnel.injectProps(AppHome, [
+    "web3Detected",
+    "networkPermitted",
+    "hasDetectedNetwork"
+]);
+AccountTunnel.injectProps(AppHome, [
+    "user",
+    "hasCorruptStateChannelState",
+    "enoughCounterpartyBalance",
+    "enoughLocalBalance",
+    "ethPendingDepositAmountWei",
+    "ethPendingDepositTxHash",
+    "deleteAccount"
+]);
+var FirebaseService = /** @class */ (function () {
+    function FirebaseService() {
+    }
+    FirebaseService.create = function (configuration) {
+        if (FirebaseService.app) {
+            return FirebaseService.app;
+        }
+        FirebaseService.app = window["firebase"].initializeApp(configuration);
+    };
+    FirebaseService.createMessagingService = function (messagingServiceKey) {
+        return new FirebaseMessagingService(FirebaseService.app.database(), messagingServiceKey);
+    };
+    FirebaseService.createStoreService = function (storeServiceKey) {
+        return new FirebaseStoreService(FirebaseService.app.database(), storeServiceKey);
+    };
+    return FirebaseService;
+}());
+var FirebaseMessagingService = /** @class */ (function () {
+    function FirebaseMessagingService(firebase, messagingServerKey) {
+        this.firebase = firebase;
+        this.messagingServerKey = messagingServerKey;
+    }
+    FirebaseMessagingService.prototype.send = function (to, msg) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.firebase
+                            .ref(this.messagingServerKey + "/" + to + "/" + msg.from)
+                            .set(JSON.parse(JSON.stringify(msg)))];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    FirebaseMessagingService.prototype.onReceive = function (address, callback) {
+        var _this = this;
+        if (!this.firebase.app) {
+            console.error("Cannot register a connection with an uninitialized firebase handle");
+            return;
+        }
+        var childAddedHandler = function (snapshot) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+            var msg;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!snapshot) {
+                            console.error("Node with address " + address + " received a \"null\" snapshot");
+                            return [2 /*return*/];
+                        }
+                        msg = snapshot.val();
+                        if (msg === null) {
+                            return [2 /*return*/];
+                        }
+                        if (msg.from !== snapshot.key) {
+                            console.error("Incorrect message received", msg);
+                        }
+                        return [4 /*yield*/, this.firebase
+                                .ref(this.messagingServerKey + "/" + address + "/" + msg.from)
+                                .remove()];
+                    case 1:
+                        _b.sent();
+                        try {
+                            console.log("Received message from", address, msg, "Handling via", callback);
+                            callback(msg);
+                        }
+                        catch (error) {
+                            console.error("Encountered an error while handling message callback", error);
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        }); };
+        this.firebase.ref(this.messagingServerKey + "/" + address).remove();
+        this.firebase
+            .ref(this.messagingServerKey + "/" + address)
+            .on("child_added", childAddedHandler);
+    };
+    return FirebaseMessagingService;
+}());
+var FirebaseStoreService = /** @class */ (function () {
+    function FirebaseStoreService(firebase, storeServiceKey) {
+        this.firebase = firebase;
+        this.storeServiceKey = storeServiceKey;
+    }
+    FirebaseStoreService.prototype.get = function (key) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var result;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.firebase
+                            .ref(this.storeServiceKey)
+                            .child(key)
+                            .once("value", function (snapshot) {
+                            if (snapshot === null) {
+                                console.debug("Failed to retrieve value at " + key + ": received a \"null\" snapshot");
+                                return;
+                            }
+                            result = snapshot.val();
+                        })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/, result];
+                }
+            });
+        });
+    };
+    FirebaseStoreService.prototype.set = function (pairs) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var updates, _i, pairs_1, pair;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        updates = {};
+                        for (_i = 0, pairs_1 = pairs; _i < pairs_1.length; _i++) {
+                            pair = pairs_1[_i];
+                            updates[pair.key] = JSON.parse(JSON.stringify(pair.value));
+                        }
+                        return [4 /*yield*/, this.firebase.ref(this.storeServiceKey).update(updates)];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    return FirebaseStoreService;
+}());
+var TIER = "production";
+var FIREBASE_API_KEY = "";
+var FIREBASE_AUTH_DOMAIN = "";
+var FIREBASE_DATABASE_URL = "";
+var FIREBASE_MESSAGING_SENDER_ID = "";
+var FIREBASE_PROJECT_ID = "";
+var FIREBASE_STORAGE_BUCKET = "";
+var NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN = {
+    "42": "kovan"
+};
+var HEARTBEAT_INTERVAL = 30 * 1000;
+var AppRoot = /** @class */ (function () {
+    function AppRoot() {
+        this.loading = true;
+        this.accountState = {
+            enoughCounterpartyBalance: true,
+            enoughLocalBalance: true
+        };
+        this.walletState = {};
+        this.appRegistryState = {
+            apps: [],
+            canUseApps: false,
+            schemaVersion: "",
+            maintenanceMode: false
+        };
+        this.hasLocalStorage = false;
+        this.modal = h("div", null);
+        this.redirect = h("div", null);
+    }
+    AppRoot.prototype.componentWillLoad = function () {
+        try {
+            localStorage.setItem("playground:localStorage", "true");
+            localStorage.removeItem("playground:localStorage");
+            this.hasLocalStorage = true;
+        }
+        catch (_a) {
+            this.hasLocalStorage = false;
+        }
+        this.setup();
+    };
+    AppRoot.prototype.updateAccount = function (newProps) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                this.accountState = Object.assign({}, this.accountState, newProps);
+                this.bindProviderEvents();
+                this.setSentryUser(this.accountState);
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.setSentryUser = function (accountState) {
+        window["Sentry"].configureScope(function (scope) {
+            scope.setUser({
+                email: accountState.user.email,
+                username: accountState.user.username,
+                id: accountState.user.id
+            });
+            scope.setExtra("ethAddress", accountState.user.ethAddress);
+            scope.setExtra("multisigAddress", accountState.user.multisigAddress);
+            scope.setExtra("nodeAddress", accountState.user.nodeAddress);
+        });
+    };
+    AppRoot.prototype.updateWalletConnection = function (newProps) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                this.walletState = Object.assign({}, this.walletState, newProps);
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.updateAppRegistry = function (newProps) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                this.appRegistryState = Object.assign({}, this.appRegistryState, newProps);
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.updateMultisigBalance = function (ethBalance) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                if (ethBalance.eq(window["ethers"].constants.Zero) &&
+                    this.accountState.ethPendingDepositAmountWei) {
+                    return [2 /*return*/];
+                }
+                this.updateAccount({
+                    ethMultisigBalance: ethBalance,
+                    ethPendingDepositAmountWei: undefined
+                });
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.updateWalletBalance = function (ethWeb3WalletBalance) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.updateWalletConnection({ ethWeb3WalletBalance: ethWeb3WalletBalance })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.setup = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        this.loadEnv();
+                        this.loadSentry();
+                        if (!(typeof window["web3"] !== "undefined")) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all([
+                                this.heartbeat(),
+                                this.createNodeProvider(),
+                                this.loadApps()
+                            ])];
+                    case 1:
+                        _b.sent();
+                        _b.label = 2;
+                    case 2:
+                        this.loading = false;
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.redirectToDeposit = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                this.modal = {};
+                this.redirect = h("stencil-router-redirect", { url: "/deposit" });
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.createNodeProvider = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var configuration, messagingService, storeService;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!this.hasLocalStorage) {
+                            return [2 /*return*/];
+                        }
+                        {
+                            configuration = {
+                                apiKey: FIREBASE_API_KEY,
+                                authDomain: FIREBASE_AUTH_DOMAIN,
+                                databaseURL: FIREBASE_DATABASE_URL,
+                                projectId: FIREBASE_PROJECT_ID,
+                                storageBucket: FIREBASE_STORAGE_BUCKET,
+                                messagingSenderId: FIREBASE_MESSAGING_SENDER_ID
+                            };
+                        }
+                        FirebaseService.create(configuration);
+                        messagingService = FirebaseService.createMessagingService("messaging");
+                        storeService = {
+                            get: function (desiredKey) {
+                                return tslib_1.__awaiter(this, void 0, void 0, function () {
+                                    var entries, allKeys, _i, allKeys_1, key, val, _b, _c, key, leafKey, value;
+                                    return tslib_1.__generator(this, function (_d) {
+                                        entries = {};
+                                        allKeys = Object.keys(window.localStorage);
+                                        for (_i = 0, allKeys_1 = allKeys; _i < allKeys_1.length; _i++) {
+                                            key = allKeys_1[_i];
+                                            if (key.includes(desiredKey)) {
+                                                val = JSON.parse(window.localStorage.getItem(key));
+                                                if (key === desiredKey)
+                                                    return [2 /*return*/, val];
+                                                entries[key] = val;
+                                            }
+                                        }
+                                        for (_b = 0, _c = Object.keys(entries); _b < _c.length; _b++) {
+                                            key = _c[_b];
+                                            leafKey = key.split("/")[key.split("/").length - 1];
+                                            value = entries[key];
+                                            delete entries[key];
+                                            entries[leafKey] = value;
+                                        }
+                                        return [2 /*return*/, Object.keys(entries).length > 0 ? entries : undefined];
+                                    });
+                                });
+                            },
+                            set: function (pairs) {
+                                return tslib_1.__awaiter(this, void 0, void 0, function () {
+                                    return tslib_1.__generator(this, function (_b) {
+                                        pairs.forEach(function (_b) {
+                                            var key = _b.key, value = _b.value;
+                                            window.localStorage.setItem(key, JSON.stringify(value));
+                                        });
+                                        return [2 /*return*/];
+                                    });
+                                });
+                            }
+                        };
+                        return [4 /*yield*/, CounterfactualNode.create({
+                                messagingService: messagingService,
+                                storeService: storeService,
+                                nodeConfig: {
+                                    STORE_KEY_PREFIX: "store"
+                                },
+                                network: "kovan"
+                            })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.loadEnv = function () {
+        {
+            window["globalConfig"] = {
+                TIER: TIER
+            };
+        }
+    };
+    AppRoot.prototype.loadSentry = function () {
+        {
+            window["Sentry"].init({
+                dsn: "https://6037586d37124e518f4718d9dd46b18b@sentry.io/1383439",
+                release: "playground@" + Date.now(),
+                environment: TIER
+            });
+        }
+    };
+    AppRoot.prototype.loadApps = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var apps;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, PlaygroundAPIClient.getApps()];
+                    case 1:
+                        apps = _b.sent();
+                        return [4 /*yield*/, this.updateAppRegistry({ apps: apps })];
+                    case 2:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.heartbeat = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _this = this;
+            return tslib_1.__generator(this, function (_b) {
+                setInterval(function () { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_b) {
+                    return [2 /*return*/, this.doHeartbeat()];
+                }); }); }, HEARTBEAT_INTERVAL);
+                this.doHeartbeat();
+                return [2 /*return*/];
+            });
+        });
+    };
+    AppRoot.prototype.doHeartbeat = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var heartbeat;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, PlaygroundAPIClient.getHeartbeat()];
+                    case 1:
+                        heartbeat = _b.sent();
+                        this.updateAppRegistry(Object.assign({}, heartbeat));
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.bindProviderEvents = function () {
+        var _b = this.accountState.user, multisigAddress = _b.multisigAddress, ethAddress = _b.ethAddress;
+        var provider = this.walletState.provider;
+        if (!provider || !multisigAddress || !ethAddress) {
+            return;
+        }
+        if (ethAddress) {
+            provider.removeAllListeners(ethAddress);
+            provider.on(ethAddress, this.updateWalletBalance.bind(this));
+        }
+        if (multisigAddress) {
+            provider.removeAllListeners(multisigAddress);
+            provider.on(multisigAddress, this.updateMultisigBalance.bind(this));
+        }
+    };
+    AppRoot.prototype.buildSignatureMessageForLogin = function (address) {
+        return ["PLAYGROUND ACCOUNT LOGIN", "Ethereum address: " + address].join("\n");
+    };
+    AppRoot.prototype.login = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var user, signer, signature, loggedUser;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        user = this.accountState.user;
+                        signer = this.walletState.signer;
+                        return [4 /*yield*/, signer.signMessage(this.buildSignatureMessageForLogin(user.ethAddress))];
+                    case 1:
+                        signature = _b.sent();
+                        return [4 /*yield*/, PlaygroundAPIClient.login({
+                                ethAddress: user.ethAddress
+                            }, signature)];
+                    case 2:
+                        loggedUser = _b.sent();
+                        window.localStorage.setItem("playground:user:token", loggedUser.token);
+                        return [4 /*yield*/, this.updateAccount({ user: loggedUser })];
+                    case 3:
+                        _b.sent();
+                        return [4 /*yield*/, this.getBalances()];
+                    case 4:
+                        _b.sent();
+                        return [2 /*return*/, loggedUser];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.deleteAccount = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var token, user;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        token = window.localStorage.getItem("playground:user:token");
+                        if (!token) {
+                            console.error("Couldn't delete account; no token was provided");
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, PlaygroundAPIClient.getUser(token)];
+                    case 1:
+                        user = _b.sent();
+                        _b.label = 2;
+                    case 2:
+                        _b.trys.push([2, , 4, 5]);
+                        return [4 /*yield*/, PlaygroundAPIClient.deleteAccount(user)];
+                    case 3:
+                        _b.sent();
+                        this.updateAccount({ hasCorruptStateChannelState: false });
+                        return [3 /*break*/, 5];
+                    case 4:
+                        this.logout();
+                        return [2 /*return*/];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.getBalances = function (_b) {
+        var _c = (_b === void 0 ? {} : _b).poll, poll = _c === void 0 ? false : _c;
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var MINIMUM_EXPECTED_FREE_BALANCE, _d, multisigAddress, ethAddress, nodeAddress, provider, cfProvider, freeBalance, e_1, getAddress, myFreeBalanceAddress, counterpartyFreeBalanceAddress, myBalance, counterpartyBalance, vals, _e, enoughCounterpartyBalance, enoughLocalBalance, canUseApps;
+            var _this = this;
+            return tslib_1.__generator(this, function (_f) {
+                switch (_f.label) {
+                    case 0:
+                        MINIMUM_EXPECTED_FREE_BALANCE = window["ethers"].utils.parseEther("0.01");
+                        _d = this.accountState.user, multisigAddress = _d.multisigAddress, ethAddress = _d.ethAddress, nodeAddress = _d.nodeAddress;
+                        provider = this.walletState.provider;
+                        cfProvider = CounterfactualNode.getCfProvider();
+                        if (!multisigAddress || !ethAddress) {
+                            return [2 /*return*/, {
+                                    ethFreeBalanceWei: window["ethers"].constants.Zero,
+                                    ethMultisigBalance: window["ethers"].constants.Zero
+                                }];
+                        }
+                        _f.label = 1;
+                    case 1:
+                        _f.trys.push([1, 3, , 6]);
+                        return [4 /*yield*/, cfProvider.getFreeBalanceState(multisigAddress)];
+                    case 2:
+                        freeBalance = _f.sent();
+                        return [3 /*break*/, 6];
+                    case 3:
+                        e_1 = _f.sent();
+                        if (!e_1.toString().includes("Call to getFreeBalanceState failed")) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.updateAccount({ hasCorruptStateChannelState: true })];
+                    case 4:
+                        _f.sent();
+                        return [2 /*return*/, {
+                                ethFreeBalanceWei: window["ethers"].constants.Zero,
+                                ethMultisigBalance: window["ethers"].constants.Zero
+                            }];
+                    case 5: throw e_1;
+                    case 6:
+                        getAddress = function (xkey, k) { return window["ethers"].utils.computeAddress(window["ethers"].utils.HDNode.fromExtendedKey(xkey).derivePath(String(k)).publicKey); };
+                        myFreeBalanceAddress = getAddress(nodeAddress, 0);
+                        counterpartyFreeBalanceAddress = Object.keys(freeBalance).filter(function (addr) { return addr !== myFreeBalanceAddress; })[0];
+                        myBalance = freeBalance[myFreeBalanceAddress];
+                        counterpartyBalance = freeBalance[counterpartyFreeBalanceAddress];
+                        _e = {
+                            ethFreeBalanceWei: myBalance
+                        };
+                        return [4 /*yield*/, provider.getBalance(multisigAddress)];
+                    case 7:
+                        vals = (_e.ethMultisigBalance = (_f.sent()),
+                            _e.ethCounterpartyFreeBalanceWei = counterpartyBalance,
+                            _e);
+                        enoughCounterpartyBalance = counterpartyBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+                        enoughLocalBalance = myBalance.gte(MINIMUM_EXPECTED_FREE_BALANCE);
+                        canUseApps = enoughCounterpartyBalance && enoughLocalBalance;
+                        return [4 /*yield*/, this.updateAppRegistry({
+                                canUseApps: canUseApps
+                            })];
+                    case 8:
+                        _f.sent();
+                        return [4 /*yield*/, this.updateAccount(Object.assign({}, vals, { enoughCounterpartyBalance: enoughCounterpartyBalance,
+                                enoughLocalBalance: enoughLocalBalance }))];
+                    case 9:
+                        _f.sent();
+                        if (poll) {
+                            if (canUseApps) {
+                                clearTimeout(this.balancePolling);
+                            }
+                            else {
+                                this.balancePolling = setTimeout(function () { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_b) {
+                                    return [2 /*return*/, this.getBalances({ poll: poll })];
+                                }); }); }, 1000);
+                            }
+                        }
+                        return [2 /*return*/, vals];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.resetPendingDepositState = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.updateAccount({
+                            ethPendingDepositAmountWei: undefined,
+                            ethPendingDepositTxHash: undefined
+                        })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.resetPendingWithdrawalState = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.updateAccount({
+                            ethPendingWithdrawalAmountWei: undefined,
+                            ethPendingWithdrawalTxHash: undefined
+                        })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.deposit = function (valueInWei) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var token, multisigAddress, provider, ret, amount, e_2;
+            var _this = this;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        token = localStorage.getItem("playground:user:token");
+                        return [4 /*yield*/, PlaygroundAPIClient.getUser(token)];
+                    case 1:
+                        multisigAddress = (_b.sent()).multisigAddress;
+                        provider = CounterfactualNode.getCfProvider();
+                        provider.once(Node$1.EventName.DEPOSIT_STARTED, function (args) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                            return tslib_1.__generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0:
+                                        console.log("Playground#deposit: DEPOSIT_STARTED");
+                                        return [4 /*yield*/, this.updateAccount({
+                                                ethPendingDepositTxHash: args.txHash,
+                                                ethPendingDepositAmountWei: valueInWei
+                                            })];
+                                    case 1:
+                                        _b.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        provider.once(Node$1.EventName.DEPOSIT_CONFIRMED, function (args) { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                            return tslib_1.__generator(this, function (_b) {
+                                switch (_b.label) {
+                                    case 0: return [4 /*yield*/, this.getBalances()];
+                                    case 1:
+                                        _b.sent();
+                                        return [4 /*yield*/, this.resetPendingDepositState()];
+                                    case 2:
+                                        _b.sent();
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); });
+                        _b.label = 2;
+                    case 2:
+                        _b.trys.push([2, 4, , 5]);
+                        amount = window["ethers"].utils.bigNumberify(valueInWei);
+                        return [4 /*yield*/, provider.deposit(multisigAddress, amount)];
+                    case 3:
+                        ret = _b.sent();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        e_2 = _b.sent();
+                        console.error(e_2);
+                        return [3 /*break*/, 5];
+                    case 5: return [2 /*return*/, ret];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.withdraw = function (valueInWei) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var multisigAddress, provider, ret, amount, e_3;
+            var _this = this;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        multisigAddress = this.accountState.user.multisigAddress;
+                        provider = CounterfactualNode.getCfProvider();
+                        provider.once(Node$1.EventName.WITHDRAWAL_STARTED, function (args) {
+                            _this.updateAccount({
+                                ethPendingWithdrawalTxHash: args.txHash,
+                                ethPendingWithdrawalAmountWei: valueInWei
+                            });
+                        });
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        amount = window["ethers"].utils.bigNumberify(valueInWei);
+                        return [4 /*yield*/, provider.withdraw(multisigAddress, amount, this.accountState.user.ethAddress)];
+                    case 2:
+                        ret = _b.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_3 = _b.sent();
+                        console.error(e_3);
+                        return [3 /*break*/, 4];
+                    case 4: return [4 /*yield*/, this.getBalances()];
+                    case 5:
+                        _b.sent();
+                        return [4 /*yield*/, this.resetPendingWithdrawalState()];
+                    case 6:
+                        _b.sent();
+                        return [2 /*return*/, ret];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.waitForMultisig = function () {
+        var provider = CounterfactualNode.getCfProvider();
+        provider.once(Node$1.EventName.CREATE_CHANNEL, this.setMultisigAddress.bind(this));
+    };
+    AppRoot.prototype.setMultisigAddress = function (createChannelMsg) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var user;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        user = this.accountState.user;
+                        user.multisigAddress = createChannelMsg.data.multisigAddress;
+                        return [4 /*yield*/, this.updateAccount({ user: user })];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.autoLogin = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var token, user, loggedUser, _a_1;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        token = window.localStorage.getItem("playground:user:token");
+                        if (!token) {
+                            return [2 /*return*/];
+                        }
+                        user = this.accountState.user;
+                        if (!(!user || !user.username)) return [3 /*break*/, 4];
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, , 4]);
+                        return [4 /*yield*/, PlaygroundAPIClient.getUser(token)];
+                    case 2:
+                        loggedUser = _b.sent();
+                        this.updateAccount({ user: loggedUser });
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _a_1 = _b.sent();
+                        this.logout();
+                        return [2 /*return*/];
+                    case 4:
+                        if (!!this.accountState.user.multisigAddress) return [3 /*break*/, 5];
+                        this.waitForMultisig();
+                        return [3 /*break*/, 7];
+                    case 5: return [4 /*yield*/, this.getBalances()];
+                    case 6:
+                        _b.sent();
+                        _b.label = 7;
+                    case 7: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppRoot.prototype.logout = function () {
+        window.localStorage.removeItem("playground:user:token");
+        this.updateAccount({ user: {} });
+    };
+    AppRoot.prototype.getEtherscanAddressURL = function (address) {
+        return "https://" + NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network] + ".etherscan.io/address/" + address;
+    };
+    AppRoot.prototype.getEtherscanTxURL = function (tx) {
+        return "https://" + NETWORK_NAME_URL_PREFIX_ON_ETHERSCAN[this.walletState.network] + ".etherscan.io/tx/" + tx;
+    };
+    AppRoot.prototype.upgrade = function () {
+        var keysToPreserve = ["MNEMONIC", "playground:matchmakeWith"];
+        var preservedKeys = keysToPreserve
+            .map(function (key) {
+            var _b;
+            return (_b = {}, _b[key] = localStorage.getItem(key), _b);
+        })
+            .reduce(function (obj, keyContainer) { return (Object.assign({}, obj, keyContainer)); }, {});
+        window.localStorage.clear();
+        keysToPreserve.forEach(function (key) {
+            window.localStorage.setItem(key, preservedKeys[key]);
+        });
+        window.localStorage.setItem("playground:schemaVersion", this.appRegistryState.schemaVersion);
+        window.location.reload();
+    };
+    AppRoot.prototype.render = function () {
+        this.accountState = Object.assign({}, this.accountState, { updateAccount: this.updateAccount.bind(this), waitForMultisig: this.waitForMultisig.bind(this), login: this.login.bind(this), logout: this.logout.bind(this), deleteAccount: this.deleteAccount.bind(this), getBalances: this.getBalances.bind(this), autoLogin: this.autoLogin.bind(this), deposit: this.deposit.bind(this), withdraw: this.withdraw.bind(this) });
+        this.walletState.updateWalletConnection = this.updateWalletConnection.bind(this);
+        this.walletState.getEtherscanAddressURL = this.getEtherscanAddressURL.bind(this);
+        this.walletState.getEtherscanTxURL = this.getEtherscanTxURL.bind(this);
+        this.appRegistryState.updateAppRegistry = this.updateAppRegistry.bind(this);
+        if (this.appRegistryState.maintenanceMode) {
+            return (h("widget-dialog", { visible: true, dialogTitle: "Under maintenance", content: h("p", null, "Sorry! We're currently working on a few things behind the scenes to keep the demo functional. Please come back later. In the meantime, follow us on Twitter", h("a", { href: "https://twitter.com/statechannels", target: "_blank" }, " ", "@statechannels", " "), "to learn more and keep up to date on the project.") }));
+        }
+        if (this.loading) {
+            return h("widget-spinner", { type: "dots" });
+        }
+        var localSchemaVersion = window.localStorage.getItem("playground:schemaVersion");
+        if (localSchemaVersion &&
+            localSchemaVersion !== this.appRegistryState.schemaVersion) {
+            return (h("widget-dialog", { visible: true, dialogTitle: "A new version of the Playground is available!", content: "Click OK to update your experience.", primaryButtonText: "OK", onPrimaryButtonClicked: this.upgrade.bind(this) }));
+        }
+        return (h(WalletTunnel.Provider, { state: this.walletState }, h(AccountTunnel.Provider, { state: this.accountState }, h(AppRegistryTunnel.Provider, { state: this.appRegistryState }, h("div", { class: "app-root wrapper" }, h("main", { class: "wrapper__content" }, this.hasLocalStorage ? (h("stencil-router", null, h("stencil-route-switch", { scrollTopOffset: 0 }, h("stencil-route", { url: "/", component: "app-home", exact: true, componentProps: {
+                hasLocalStorage: this.hasLocalStorage
+            } }), h("stencil-route", { url: "/dapp/:dappName", component: "dapp-container" }), h("stencil-route", { url: "/account", component: "account-edit" }), h("stencil-route", { url: "/exchange", component: "account-exchange" }), h("stencil-route", { url: "/register", component: "account-register" }), h("stencil-route", { url: "/deposit", component: "account-deposit" })))) : (h("app-home", { hasLocalStorage: this.hasLocalStorage }))), h("webthree-connector", { accountState: this.accountState, walletState: this.walletState }), this.modal || {}, this.redirect || {})))));
+    };
+    Object.defineProperty(AppRoot, "is", {
+        get: function () { return "app-root"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppRoot, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppRoot, "properties", {
+        get: function () {
+            return {
+                "accountState": {
+                    "state": true
+                },
+                "appRegistryState": {
+                    "state": true
+                },
+                "balancePolling": {
+                    "state": true
+                },
+                "hasLocalStorage": {
+                    "state": true
+                },
+                "loading": {
+                    "state": true
+                },
+                "modal": {
+                    "state": true
+                },
+                "redirect": {
+                    "state": true
+                },
+                "walletState": {
+                    "state": true
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppRoot, "style", {
+        get: function () { return "/**style-placeholder:app-root:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return AppRoot;
+}());
+var KOVAN_NETWORK_ID = "42";
+var permittedNetworkIds = [KOVAN_NETWORK_ID];
+var Web3Connector = /** @class */ (function () {
+    function Web3Connector() {
+        this.accountState = {};
+        this.walletState = {};
+    }
+    Web3Connector.prototype.getProvider = function () {
+        return new window["ethers"].providers.Web3Provider(window["web3"].currentProvider);
+    };
+    Web3Connector.prototype.getCurrentAddress = function () {
+        return window["web3"].eth.accounts[0];
+    };
+    Web3Connector.prototype.getCurrentNetwork = function () {
+        return window["web3"].version.network;
+    };
+    Web3Connector.prototype.getETHBalance = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var provider;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        provider = this.getProvider();
+                        if (!(provider && this.isUnlocked())) return [3 /*break*/, 2];
+                        return [4 /*yield*/, provider.getSigner().getBalance()];
+                    case 1: return [2 /*return*/, _b.sent()];
+                    case 2: return [2 /*return*/, window["ethers"].constants.Zero];
+                }
+            });
+        });
+    };
+    Web3Connector.prototype.isWeb3Detected = function () {
+        return window["web3"] !== undefined;
+    };
+    Web3Connector.prototype.isMetamask = function () {
+        return (window["web3"].isMetamask || window["web3"].currentProvider.isMetamask);
+    };
+    Web3Connector.prototype.isUnlocked = function () {
+        return window["web3"].eth.accounts[0] !== undefined;
+    };
+    Web3Connector.prototype.isOnPermittedNetwork = function () {
+        return permittedNetworkIds.includes(this.getCurrentNetwork());
+    };
+    Web3Connector.prototype.getCurrentWalletState = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var walletState;
+            return tslib_1.__generator(this, function (_b) {
+                walletState = {
+                    network: "",
+                    connected: false,
+                    metamaskUnlocked: false,
+                    web3Detected: this.walletState.web3Detected,
+                    web3Enabled: this.walletState.web3Enabled,
+                    networkPermitted: false,
+                    hasDetectedNetwork: true
+                };
+                walletState.metamaskUnlocked = this.isUnlocked();
+                walletState.networkPermitted = this.isOnPermittedNetwork();
+                walletState.network = this.getCurrentNetwork();
+                return [2 /*return*/, walletState];
+            });
+        });
+    };
+    Web3Connector.prototype.componentDidLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _b, _c, _d, _e, _f, interval;
+            var _this = this;
+            return tslib_1.__generator(this, function (_g) {
+                switch (_g.label) {
+                    case 0:
+                        if (!this.isWeb3Detected()) {
+                            return [2 /*return*/, this.walletState.updateWalletConnection({
+                                    web3Detected: false,
+                                    hasDetectedNetwork: true
+                                })];
+                        }
+                        this.accountState.updateAccount({
+                            user: Object.assign({}, this.accountState.user, { ethAddress: this.getCurrentAddress() })
+                        });
+                        _c = (_b = this.walletState).updateWalletConnection;
+                        _e = (_d = Object).assign;
+                        _f = [{}];
+                        return [4 /*yield*/, this.getCurrentWalletState()];
+                    case 1:
+                        _c.apply(_b, [_e.apply(_d, _f.concat([(_g.sent()), { provider: this.getProvider(), signer: this.getProvider().getSigner(), web3Enabled: true, web3Detected: true }]))]);
+                        interval = window.setInterval(function () { return tslib_1.__awaiter(_this, void 0, void 0, function () {
+                            var ethAddress, newAddress, _b, _c, _d, _e, _f;
+                            return tslib_1.__generator(this, function (_g) {
+                                switch (_g.label) {
+                                    case 0:
+                                        ethAddress = this.accountState.user.ethAddress;
+                                        newAddress = this.getCurrentAddress();
+                                        return [4 /*yield*/, this.accountState.updateAccount({
+                                                user: Object.assign({}, this.accountState.user, { ethAddress: newAddress })
+                                            })];
+                                    case 1:
+                                        _g.sent();
+                                        _c = (_b = this.walletState).updateWalletConnection;
+                                        _d = {};
+                                        return [4 /*yield*/, this.getETHBalance()];
+                                    case 2: return [4 /*yield*/, _c.apply(_b, [(_d.ethWeb3WalletBalance = _g.sent(),
+                                                _d)])];
+                                    case 3:
+                                        _g.sent();
+                                        if (!(newAddress !== ethAddress)) return [3 /*break*/, 5];
+                                        _f = (_e = this.walletState).updateWalletConnection;
+                                        return [4 /*yield*/, this.getCurrentWalletState()];
+                                    case 4:
+                                        _f.apply(_e, [_g.sent()]);
+                                        ethAddress = newAddress;
+                                        if (ethAddress !== undefined && newAddress === undefined) {
+                                            clearInterval(interval);
+                                        }
+                                        _g.label = 5;
+                                    case 5: return [2 /*return*/];
+                                }
+                            });
+                        }); }, 1000);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Object.defineProperty(Web3Connector, "is", {
+        get: function () { return "webthree-connector"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Web3Connector, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Web3Connector, "properties", {
+        get: function () {
+            return {
+                "accountState": {
+                    "type": "Any",
+                    "attr": "account-state"
+                },
+                "walletState": {
+                    "type": "Any",
+                    "attr": "wallet-state"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Web3Connector;
+}());
+var __awaiter = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var Route = /** @class */ (function () {
+    function Route() {
+        this.group = null;
+        this.match = null;
+        this.componentProps = {};
+        this.exact = false;
+        this.scrollOnNextRender = false;
+        this.previousMatch = null;
+    }
+    Route.prototype.computeMatch = function (newLocation) {
+        var isGrouped = this.group != null || (this.el.parentElement != null && this.el.parentElement.tagName.toLowerCase() === "stencil-route-switch");
+        if (!newLocation || isGrouped) {
+            return;
+        }
+        this.previousMatch = this.match;
+        return this.match = matchPath(newLocation.pathname, {
+            path: this.url,
+            exact: this.exact,
+            strict: true
+        });
+    };
+    Route.prototype.loadCompleted = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var routeViewOptions;
+            return tslib_1.__generator(this, function (_b) {
+                routeViewOptions = {};
+                if (this.history && this.history.location.hash) {
+                    routeViewOptions = {
+                        scrollToId: this.history.location.hash.substr(1)
+                    };
+                }
+                else if (this.scrollTopOffset) {
+                    routeViewOptions = {
+                        scrollTopOffset: this.scrollTopOffset
+                    };
+                }
+                if (typeof this.componentUpdated === "function") {
+                    this.componentUpdated(routeViewOptions);
+                }
+                else if (this.match && !matchesAreEqual(this.match, this.previousMatch) && this.routeViewsUpdated) {
+                    this.routeViewsUpdated(routeViewOptions);
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    Route.prototype.componentDidUpdate = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.loadCompleted()];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Route.prototype.componentDidLoad = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0: return [4 /*yield*/, this.loadCompleted()];
+                    case 1:
+                        _b.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    Route.prototype.render = function () {
+        if (!this.match || !this.history) {
+            return null;
+        }
+        var childProps = Object.assign({}, this.componentProps, { history: this.history, match: this.match });
+        if (this.routeRender) {
+            return this.routeRender(Object.assign({}, childProps, { component: this.component }));
+        }
+        if (this.component) {
+            var ChildComponent = this.component;
+            return (h(ChildComponent, Object.assign({}, childProps)));
+        }
+    };
+    Object.defineProperty(Route, "is", {
+        get: function () { return "stencil-route"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Route, "properties", {
+        get: function () {
+            return {
+                "component": {
+                    "type": String,
+                    "attr": "component"
+                },
+                "componentProps": {
+                    "type": "Any",
+                    "attr": "component-props"
+                },
+                "componentUpdated": {
+                    "type": "Any",
+                    "attr": "component-updated"
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "exact": {
+                    "type": Boolean,
+                    "attr": "exact"
+                },
+                "group": {
+                    "type": String,
+                    "attr": "group",
+                    "reflectToAttr": true
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "historyType": {
+                    "type": String,
+                    "attr": "history-type"
+                },
+                "location": {
+                    "type": "Any",
+                    "attr": "location",
+                    "watchCallbacks": ["computeMatch"]
+                },
+                "match": {
+                    "type": "Any",
+                    "attr": "match",
+                    "mutable": true
+                },
+                "routeRender": {
+                    "type": "Any",
+                    "attr": "route-render"
+                },
+                "routeViewsUpdated": {
+                    "type": "Any",
+                    "attr": "route-views-updated"
+                },
+                "scrollTopOffset": {
+                    "type": Number,
+                    "attr": "scroll-top-offset"
+                },
+                "url": {
+                    "type": String,
+                    "attr": "url"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Route, "style", {
+        get: function () { return "/**style-placeholder:stencil-route:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return Route;
+}());
+ActiveRouter.injectProps(Route, [
+    "location",
+    "history",
+    "historyType",
+    "routeViewsUpdated"
+]);
+function uuidv4() {
+    return ([1e7].toString() + -1e3.toString() + -4e3.toString() + -8e3.toString() + -1e11.toString()).replace(/[018]/g, function (c) {
+        var random = window.crypto.getRandomValues(new Uint8Array(1));
+        return (c ^ random[0] & 15 >> c / 4).toString(16);
+    });
+}
+var __awaiter$1 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function getUniqueId() {
+    if (window.crypto) {
+        return uuidv4();
+    }
+    return ((Math.random() * 100000000000000000).toString().match(/.{4}/g) || []).join("-");
+}
+function getMatch(pathname, url, exact) {
+    return matchPath(pathname, {
+        path: url,
+        exact: exact,
+        strict: true
+    });
+}
+function isHTMLStencilRouteElement(element) {
+    return element.tagName.toLowerCase() === "stencil-route";
+}
+var RouteSwitch = /** @class */ (function () {
+    function RouteSwitch() {
+        this.group = getUniqueId();
+        this.subscribers = [];
+    }
+    RouteSwitch.prototype.componentWillLoad = function () {
+        if (this.location != null) {
+            this.regenerateSubscribers(this.location);
+        }
+    };
+    RouteSwitch.prototype.regenerateSubscribers = function (newLocation) {
+        return __awaiter$1(this, void 0, void 0, function () {
+            var newActiveIndex, activeChild;
+            var _this = this;
+            return tslib_1.__generator(this, function (_b) {
+                if (newLocation == null) {
+                    return [2 /*return*/];
+                }
+                newActiveIndex = -1;
+                this.subscribers = Array.prototype.slice.call(this.el.children)
+                    .filter(isHTMLStencilRouteElement)
+                    .map(function (childElement, index) {
+                    var match = getMatch(newLocation.pathname, childElement.url, childElement.exact);
+                    if (match && newActiveIndex === -1) {
+                        newActiveIndex = index;
+                    }
+                    return {
+                        el: childElement,
+                        match: match
+                    };
+                });
+                if (newActiveIndex === -1) {
+                    return [2 /*return*/];
+                }
+                if (this.activeIndex === newActiveIndex) {
+                    this.subscribers[newActiveIndex].el.match = this.subscribers[newActiveIndex].match;
+                    return [2 /*return*/];
+                }
+                this.activeIndex = newActiveIndex;
+                activeChild = this.subscribers[this.activeIndex];
+                if (this.scrollTopOffset) {
+                    activeChild.el.scrollTopOffset = this.scrollTopOffset;
+                }
+                activeChild.el.group = this.group;
+                activeChild.el.match = activeChild.match;
+                activeChild.el.componentUpdated = function (routeViewUpdatedOptions) {
+                    _this.queue.write(function () {
+                        _this.subscribers.forEach(function (child, index) {
+                            child.el.componentUpdated = undefined;
+                            if (index === _this.activeIndex) {
+                                return child.el.style.display = "";
+                            }
+                            if (_this.scrollTopOffset) {
+                                child.el.scrollTopOffset = _this.scrollTopOffset;
+                            }
+                            child.el.group = _this.group;
+                            child.el.match = null;
+                            child.el.style.display = "none";
+                        });
+                    });
+                    if (_this.routeViewsUpdated) {
+                        _this.routeViewsUpdated(Object.assign({ scrollTopOffset: _this.scrollTopOffset }, routeViewUpdatedOptions));
+                    }
+                };
+                return [2 /*return*/];
+            });
+        });
+    };
+    RouteSwitch.prototype.render = function () {
+        return (h("slot", null));
+    };
+    Object.defineProperty(RouteSwitch, "is", {
+        get: function () { return "stencil-route-switch"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(RouteSwitch, "properties", {
+        get: function () {
+            return {
+                "el": {
+                    "elementRef": true
+                },
+                "group": {
+                    "type": String,
+                    "attr": "group",
+                    "reflectToAttr": true
+                },
+                "location": {
+                    "type": "Any",
+                    "attr": "location",
+                    "watchCallbacks": ["regenerateSubscribers"]
+                },
+                "queue": {
+                    "context": "queue"
+                },
+                "routeViewsUpdated": {
+                    "type": "Any",
+                    "attr": "route-views-updated"
+                },
+                "scrollTopOffset": {
+                    "type": Number,
+                    "attr": "scroll-top-offset"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return RouteSwitch;
+}());
+ActiveRouter.injectProps(RouteSwitch, [
+    "location",
+    "routeViewsUpdated"
+]);
+function invariant(value) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    if (!value) {
+        console.error.apply(console, args);
+    }
+}
+function warning(value) {
+    var args = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        args[_i - 1] = arguments[_i];
+    }
+    if (!value) {
+        console.warn.apply(console, args);
+    }
+}
+var createTransitionManager = function () {
+    var prompt;
+    var setPrompt = function (nextPrompt) {
+        warning(prompt == null, 'A history supports only one prompt at a time');
+        prompt = nextPrompt;
+        return function () {
+            if (prompt === nextPrompt) {
+                prompt = null;
+            }
+        };
+    };
+    var confirmTransitionTo = function (location, action, getUserConfirmation, callback) {
+        if (prompt != null) {
+            var result = typeof prompt === 'function' ? prompt(location, action) : prompt;
+            if (typeof result === 'string') {
+                if (typeof getUserConfirmation === 'function') {
+                    getUserConfirmation(result, callback);
+                }
+                else {
+                    warning(false, 'A history needs a getUserConfirmation function in order to use a prompt message');
+                    callback(true);
+                }
+            }
+            else {
+                callback(result !== false);
+            }
+        }
+        else {
+            callback(true);
+        }
+    };
+    var listeners = [];
+    var appendListener = function (fn) {
+        var isActive = true;
+        var listener = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            if (isActive) {
+                fn.apply(void 0, args);
+            }
+        };
+        listeners.push(listener);
+        return function () {
+            isActive = false;
+            listeners = listeners.filter(function (item) { return item !== listener; });
+        };
+    };
+    var notifyListeners = function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        listeners.forEach(function (listener) { return listener.apply(void 0, args); });
+    };
+    return {
+        setPrompt: setPrompt,
+        confirmTransitionTo: confirmTransitionTo,
+        appendListener: appendListener,
+        notifyListeners: notifyListeners
+    };
+};
+var createScrollHistory = function (applicationScrollKey) {
+    if (applicationScrollKey === void 0) { applicationScrollKey = 'scrollPositions'; }
+    var scrollPositions = new Map();
+    if (storageAvailable('sessionStorage')) {
+        var scrollData = window.sessionStorage.getItem(applicationScrollKey);
+        scrollPositions = scrollData ?
+            new Map(JSON.parse(scrollData)) :
+            scrollPositions;
+    }
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+    function set(key, value) {
+        scrollPositions.set(key, value);
+        if (storageAvailable('sessionStorage')) {
+            var arrayData_1 = [];
+            scrollPositions.forEach(function (value, key) {
+                arrayData_1.push([key, value]);
+            });
+            window.sessionStorage.setItem('scrollPositions', JSON.stringify(arrayData_1));
+        }
+    }
+    function get(key) {
+        return scrollPositions.get(key);
+    }
+    function has(key) {
+        return scrollPositions.has(key);
+    }
+    function capture(key) {
+        set(key, [window.scrollX, window.scrollY]);
+    }
+    return {
+        set: set,
+        get: get,
+        has: has,
+        capture: capture
+    };
+};
+var PopStateEvent = 'popstate';
+var HashChangeEvent = 'hashchange';
+var getHistoryState = function () {
+    try {
+        return window.history.state || {};
+    }
+    catch (e) {
+        return {};
+    }
+};
+var createBrowserHistory = function (props) {
+    if (props === void 0) { props = {}; }
+    invariant(canUseDOM, 'Browser history needs a DOM');
+    var globalHistory = window.history;
+    var canUseHistory = supportsHistory();
+    var needsHashChangeListener = !supportsPopStateOnHashChange();
+    var scrollHistory = createScrollHistory();
+    var forceRefresh = (props.forceRefresh != null) ? props.forceRefresh : false;
+    var getUserConfirmation = (props.getUserConfirmation != null) ? props.getUserConfirmation : getConfirmation;
+    var keyLength = (props.keyLength != null) ? props.keyLength : 6;
+    var basename = props.basename ? stripTrailingSlash(addLeadingSlash(props.basename)) : '';
+    var getDOMLocation = function (historyState) {
+        historyState = historyState || {};
+        var key = historyState.key, state = historyState.state;
+        var _b = window.location, pathname = _b.pathname, search = _b.search, hash = _b.hash;
+        var path = pathname + search + hash;
+        warning((!basename || hasBasename(path, basename)), 'You are attempting to use a basename on a page whose URL path does not begin ' +
+            'with the basename. Expected path "' + path + '" to begin with "' + basename + '".');
+        if (basename) {
+            path = stripBasename(path, basename);
+        }
+        return createLocation(path, state, key || createKey(keyLength));
+    };
+    var transitionManager = createTransitionManager();
+    var setState = function (nextState) {
+        scrollHistory.capture(history.location.key);
+        Object.assign(history, nextState);
+        history.location.scrollPosition = scrollHistory.get(history.location.key);
+        history.length = globalHistory.length;
+        transitionManager.notifyListeners(history.location, history.action);
+    };
+    var handlePopState = function (event) {
+        if (isExtraneousPopstateEvent(event)) {
+            return;
+        }
+        handlePop(getDOMLocation(event.state));
+    };
+    var handleHashChange = function () {
+        handlePop(getDOMLocation(getHistoryState()));
+    };
+    var forceNextPop = false;
+    var handlePop = function (location) {
+        if (forceNextPop) {
+            forceNextPop = false;
+            setState();
+        }
+        else {
+            var action_1 = 'POP';
+            transitionManager.confirmTransitionTo(location, action_1, getUserConfirmation, function (ok) {
+                if (ok) {
+                    setState({ action: action_1, location: location });
+                }
+                else {
+                    revertPop(location);
+                }
+            });
+        }
+    };
+    var revertPop = function (fromLocation) {
+        var toLocation = history.location;
+        var toIndex = allKeys.indexOf(toLocation.key);
+        if (toIndex === -1) {
+            toIndex = 0;
+        }
+        var fromIndex = allKeys.indexOf(fromLocation.key);
+        if (fromIndex === -1) {
+            fromIndex = 0;
+        }
+        var delta = toIndex - fromIndex;
+        if (delta) {
+            forceNextPop = true;
+            go(delta);
+        }
+    };
+    var initialLocation = getDOMLocation(getHistoryState());
+    var allKeys = [initialLocation.key];
+    var createHref = function (location) {
+        return basename + createPath(location);
+    };
+    var push = function (path, state) {
+        warning(!(typeof path === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to push when the 1st ' +
+            'argument is a location-like object that already has state; it is ignored');
+        var action = 'PUSH';
+        var location = createLocation(path, state, createKey(keyLength), history.location);
+        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+            if (!ok) {
+                return;
+            }
+            var href = createHref(location);
+            var key = location.key, state = location.state;
+            if (canUseHistory) {
+                globalHistory.pushState({ key: key, state: state }, undefined, href);
+                if (forceRefresh) {
+                    window.location.href = href;
+                }
+                else {
+                    var prevIndex = allKeys.indexOf(history.location.key);
+                    var nextKeys = allKeys.slice(0, prevIndex === -1 ? 0 : prevIndex + 1);
+                    nextKeys.push(location.key);
+                    allKeys = nextKeys;
+                    setState({ action: action, location: location });
+                }
+            }
+            else {
+                warning(state === undefined, 'Browser history cannot push state in browsers that do not support HTML5 history');
+                window.location.href = href;
+            }
+        });
+    };
+    var replace = function (path, state) {
+        warning(!(typeof path === 'object' && path.state !== undefined && state !== undefined), 'You should avoid providing a 2nd state argument to replace when the 1st ' +
+            'argument is a location-like object that already has state; it is ignored');
+        var action = 'REPLACE';
+        var location = createLocation(path, state, createKey(keyLength), history.location);
+        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+            if (!ok) {
+                return;
+            }
+            var href = createHref(location);
+            var key = location.key, state = location.state;
+            if (canUseHistory) {
+                globalHistory.replaceState({ key: key, state: state }, undefined, href);
+                if (forceRefresh) {
+                    window.location.replace(href);
+                }
+                else {
+                    var prevIndex = allKeys.indexOf(history.location.key);
+                    if (prevIndex !== -1) {
+                        allKeys[prevIndex] = location.key;
+                    }
+                    setState({ action: action, location: location });
+                }
+            }
+            else {
+                warning(state === undefined, 'Browser history cannot replace state in browsers that do not support HTML5 history');
+                window.location.replace(href);
+            }
+        });
+    };
+    var go = function (n) {
+        globalHistory.go(n);
+    };
+    var goBack = function () { return go(-1); };
+    var goForward = function () { return go(1); };
+    var listenerCount = 0;
+    var checkDOMListeners = function (delta) {
+        listenerCount += delta;
+        if (listenerCount === 1) {
+            addEventListener(window, PopStateEvent, handlePopState);
+            if (needsHashChangeListener) {
+                addEventListener(window, HashChangeEvent, handleHashChange);
+            }
+        }
+        else if (listenerCount === 0) {
+            removeEventListener(window, PopStateEvent, handlePopState);
+            if (needsHashChangeListener) {
+                removeEventListener(window, HashChangeEvent, handleHashChange);
+            }
+        }
+    };
+    var isBlocked = false;
+    var block = function (prompt) {
+        if (prompt === void 0) { prompt = ''; }
+        var unblock = transitionManager.setPrompt(prompt);
+        if (!isBlocked) {
+            checkDOMListeners(1);
+            isBlocked = true;
+        }
+        return function () {
+            if (isBlocked) {
+                isBlocked = false;
+                checkDOMListeners(-1);
+            }
+            return unblock();
+        };
+    };
+    var listen = function (listener) {
+        var unlisten = transitionManager.appendListener(listener);
+        checkDOMListeners(1);
+        return function () {
+            checkDOMListeners(-1);
+            unlisten();
+        };
+    };
+    var history = {
+        length: globalHistory.length,
+        action: 'POP',
+        location: initialLocation,
+        createHref: createHref,
+        push: push,
+        replace: replace,
+        go: go,
+        goBack: goBack,
+        goForward: goForward,
+        block: block,
+        listen: listen
+    };
+    return history;
+};
+var HashChangeEvent$1 = 'hashchange';
+var HashPathCoders = {
+    hashbang: {
+        encodePath: function (path) { return path.charAt(0) === '!' ? path : '!/' + stripLeadingSlash(path); },
+        decodePath: function (path) { return path.charAt(0) === '!' ? path.substr(1) : path; }
+    },
+    noslash: {
+        encodePath: stripLeadingSlash,
+        decodePath: addLeadingSlash
+    },
+    slash: {
+        encodePath: addLeadingSlash,
+        decodePath: addLeadingSlash
+    }
+};
+var getHashPath = function () {
+    var href = window.location.href;
+    var hashIndex = href.indexOf('#');
+    return hashIndex === -1 ? '' : href.substring(hashIndex + 1);
+};
+var pushHashPath = function (path) { return (window.location.hash = path); };
+var replaceHashPath = function (path) {
+    var hashIndex = window.location.href.indexOf('#');
+    window.location.replace(window.location.href.slice(0, hashIndex >= 0 ? hashIndex : 0) + '#' + path);
+};
+var createHashHistory = function (props) {
+    if (props === void 0) { props = {}; }
+    invariant(canUseDOM, 'Hash history needs a DOM');
+    var globalHistory = window.history;
+    var canGoWithoutReload = supportsGoWithoutReloadUsingHash();
+    var keyLength = (props.keyLength != null) ? props.keyLength : 6;
+    var _b = props.getUserConfirmation, getUserConfirmation = _b === void 0 ? getConfirmation : _b, _c = props.hashType, hashType = _c === void 0 ? 'slash' : _c;
+    var basename = props.basename ? stripTrailingSlash(addLeadingSlash(props.basename)) : '';
+    var _d = HashPathCoders[hashType], encodePath = _d.encodePath, decodePath = _d.decodePath;
+    var getDOMLocation = function () {
+        var path = decodePath(getHashPath());
+        warning((!basename || hasBasename(path, basename)), 'You are attempting to use a basename on a page whose URL path does not begin ' +
+            'with the basename. Expected path "' + path + '" to begin with "' + basename + '".');
+        if (basename) {
+            path = stripBasename(path, basename);
+        }
+        return createLocation(path, undefined, createKey(keyLength));
+    };
+    var transitionManager = createTransitionManager();
+    var setState = function (nextState) {
+        Object.assign(history, nextState);
+        history.length = globalHistory.length;
+        transitionManager.notifyListeners(history.location, history.action);
+    };
+    var forceNextPop = false;
+    var ignorePath = null;
+    var handleHashChange = function () {
+        var path = getHashPath();
+        var encodedPath = encodePath(path);
+        if (path !== encodedPath) {
+            replaceHashPath(encodedPath);
+        }
+        else {
+            var location = getDOMLocation();
+            var prevLocation = history.location;
+            if (!forceNextPop && locationsAreEqual(prevLocation, location)) {
+                return;
+            }
+            if (ignorePath === createPath(location)) {
+                return;
+            }
+            ignorePath = null;
+            handlePop(location);
+        }
+    };
+    var handlePop = function (location) {
+        if (forceNextPop) {
+            forceNextPop = false;
+            setState();
+        }
+        else {
+            var action_2 = 'POP';
+            transitionManager.confirmTransitionTo(location, action_2, getUserConfirmation, function (ok) {
+                if (ok) {
+                    setState({ action: action_2, location: location });
+                }
+                else {
+                    revertPop(location);
+                }
+            });
+        }
+    };
+    var revertPop = function (fromLocation) {
+        var toLocation = history.location;
+        var toIndex = allPaths.lastIndexOf(createPath(toLocation));
+        if (toIndex === -1) {
+            toIndex = 0;
+        }
+        var fromIndex = allPaths.lastIndexOf(createPath(fromLocation));
+        if (fromIndex === -1) {
+            fromIndex = 0;
+        }
+        var delta = toIndex - fromIndex;
+        if (delta) {
+            forceNextPop = true;
+            go(delta);
+        }
+    };
+    var path = getHashPath();
+    var encodedPath = encodePath(path);
+    if (path !== encodedPath) {
+        replaceHashPath(encodedPath);
+    }
+    var initialLocation = getDOMLocation();
+    var allPaths = [createPath(initialLocation)];
+    var createHref = function (location) { return ('#' + encodePath(basename + createPath(location))); };
+    var push = function (path, state) {
+        warning(state === undefined, 'Hash history cannot push state; it is ignored');
+        var action = 'PUSH';
+        var location = createLocation(path, undefined, createKey(keyLength), history.location);
+        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+            if (!ok) {
+                return;
+            }
+            var path = createPath(location);
+            var encodedPath = encodePath(basename + path);
+            var hashChanged = getHashPath() !== encodedPath;
+            if (hashChanged) {
+                ignorePath = path;
+                pushHashPath(encodedPath);
+                var prevIndex = allPaths.lastIndexOf(createPath(history.location));
+                var nextPaths = allPaths.slice(0, prevIndex === -1 ? 0 : prevIndex + 1);
+                nextPaths.push(path);
+                allPaths = nextPaths;
+                setState({ action: action, location: location });
+            }
+            else {
+                warning(false, 'Hash history cannot PUSH the same path; a new entry will not be added to the history stack');
+                setState();
+            }
+        });
+    };
+    var replace = function (path, state) {
+        warning(state === undefined, 'Hash history cannot replace state; it is ignored');
+        var action = 'REPLACE';
+        var location = createLocation(path, undefined, createKey(keyLength), history.location);
+        transitionManager.confirmTransitionTo(location, action, getUserConfirmation, function (ok) {
+            if (!ok) {
+                return;
+            }
+            var path = createPath(location);
+            var encodedPath = encodePath(basename + path);
+            var hashChanged = getHashPath() !== encodedPath;
+            if (hashChanged) {
+                ignorePath = path;
+                replaceHashPath(encodedPath);
+            }
+            var prevIndex = allPaths.indexOf(createPath(history.location));
+            if (prevIndex !== -1) {
+                allPaths[prevIndex] = path;
+            }
+            setState({ action: action, location: location });
+        });
+    };
+    var go = function (n) {
+        warning(canGoWithoutReload, 'Hash history go(n) causes a full page reload in this browser');
+        globalHistory.go(n);
+    };
+    var goBack = function () { return go(-1); };
+    var goForward = function () { return go(1); };
+    var listenerCount = 0;
+    var checkDOMListeners = function (delta) {
+        listenerCount += delta;
+        if (listenerCount === 1) {
+            addEventListener(window, HashChangeEvent$1, handleHashChange);
+        }
+        else if (listenerCount === 0) {
+            removeEventListener(window, HashChangeEvent$1, handleHashChange);
+        }
+    };
+    var isBlocked = false;
+    var block = function (prompt) {
+        if (prompt === void 0) { prompt = ''; }
+        var unblock = transitionManager.setPrompt(prompt);
+        if (!isBlocked) {
+            checkDOMListeners(1);
+            isBlocked = true;
+        }
+        return function () {
+            if (isBlocked) {
+                isBlocked = false;
+                checkDOMListeners(-1);
+            }
+            return unblock();
+        };
+    };
+    var listen = function (listener) {
+        var unlisten = transitionManager.appendListener(listener);
+        checkDOMListeners(1);
+        return function () {
+            checkDOMListeners(-1);
+            unlisten();
+        };
+    };
+    var history = {
+        length: globalHistory.length,
+        action: 'POP',
+        location: initialLocation,
+        createHref: createHref,
+        push: push,
+        replace: replace,
+        go: go,
+        goBack: goBack,
+        goForward: goForward,
+        block: block,
+        listen: listen
+    };
+    return history;
+};
+var __awaiter$2 = (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) {
+            try {
+                step(generator.next(value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function rejected(value) {
+            try {
+                step(generator["throw"](value));
+            }
+            catch (e) {
+                reject(e);
+            }
+        }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+function getLocation(location, root) {
+    var pathname = location.pathname.indexOf(root) == 0 ?
+        "/" + location.pathname.slice(root.length) :
+        location.pathname;
+    return Object.assign({}, location, { pathname: pathname });
+}
+var HISTORIES = {
+    "browser": createBrowserHistory,
+    "hash": createHashHistory
+};
+var Router = /** @class */ (function () {
+    function Router() {
+        var _this = this;
+        this.root = "/";
+        this.historyType = "browser";
+        this.titleSuffix = "";
+        this.routeViewsUpdated = function (options) {
+            if (options === void 0) { options = {}; }
+            if (options.scrollToId && _this.historyType === "browser") {
+                var element = document.getElementById(options.scrollToId);
+                if (element) {
+                    return element.scrollIntoView();
+                }
+            }
+            _this.scrollTo(options.scrollTopOffset || _this.scrollTopOffset);
+        };
+    }
+    Router.prototype.componentWillLoad = function () {
+        var _this = this;
+        this.history = HISTORIES[this.historyType]();
+        this.history.listen(function (location) { return __awaiter$2(_this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                location = getLocation(location, this.root);
+                this.location = location;
+                return [2 /*return*/];
+            });
+        }); });
+        this.location = getLocation(this.history.location, this.root);
+    };
+    Router.prototype.scrollTo = function (scrollToLocation) {
+        var _this = this;
+        if (scrollToLocation == null || this.isServer || !this.history) {
+            return;
+        }
+        if (this.history.action === "POP" && Array.isArray(this.history.location.scrollPosition)) {
+            return this.queue.write(function () {
+                if (_this.history && _this.history.location && Array.isArray(_this.history.location.scrollPosition)) {
+                    window.scrollTo(_this.history.location.scrollPosition[0], _this.history.location.scrollPosition[1]);
+                }
+            });
+        }
+        return this.queue.write(function () {
+            window.scrollTo(0, scrollToLocation);
+        });
+    };
+    Router.prototype.render = function () {
+        if (!this.location || !this.history) {
+            return;
+        }
+        var state = {
+            historyType: this.historyType,
+            location: this.location,
+            titleSuffix: this.titleSuffix,
+            root: this.root,
+            history: this.history,
+            routeViewsUpdated: this.routeViewsUpdated
+        };
+        return (h(ActiveRouter.Provider, { state: state }, h("slot", null)));
+    };
+    Object.defineProperty(Router, "is", {
+        get: function () { return "stencil-router"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Router, "properties", {
+        get: function () {
+            return {
+                "history": {
+                    "state": true
+                },
+                "historyType": {
+                    "type": String,
+                    "attr": "history-type"
+                },
+                "isServer": {
+                    "context": "isServer"
+                },
+                "location": {
+                    "state": true
+                },
+                "queue": {
+                    "context": "queue"
+                },
+                "root": {
+                    "type": String,
+                    "attr": "root"
+                },
+                "scrollTopOffset": {
+                    "type": Number,
+                    "attr": "scroll-top-offset"
+                },
+                "titleSuffix": {
+                    "type": String,
+                    "attr": "title-suffix"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return Router;
+}());
+export { AppHome, AppRoot, Web3Connector as WebthreeConnector, Route as StencilRoute, RouteSwitch as StencilRouteSwitch, Router as StencilRouter };

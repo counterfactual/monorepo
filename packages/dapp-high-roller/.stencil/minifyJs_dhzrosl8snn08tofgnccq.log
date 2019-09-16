@@ -1,0 +1,1 @@
+const e=window.App.h;import{a as o}from"./chunk-deed3e85.js";import{a}from"./chunk-a0cc8100.js";var t=o({myRoll:[0,0],opponentRoll:[0,0],myScore:0,opponentScore:0,gameState:a.Play,updateUIState:()=>{},highRoller:async()=>({myRoll:[0,0],opponentRoll:[0,0]}),generateRandomRoll:()=>[0,0],highRollerState:{}},(o,a)=>e("context-consumer",{subscribe:o,renderer:a}));export{t as a};

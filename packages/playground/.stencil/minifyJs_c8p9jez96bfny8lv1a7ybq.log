@@ -1,0 +1,12 @@
+import { h } from "../app.core.js";
+
+import { a as createProviderConsumer } from "./chunk-deed3e85.js";
+
+var WalletTunnel = createProviderConsumer({}, function(e, r) {
+  return h("context-consumer", {
+    subscribe: e,
+    renderer: r
+  });
+});
+
+export { WalletTunnel as a };

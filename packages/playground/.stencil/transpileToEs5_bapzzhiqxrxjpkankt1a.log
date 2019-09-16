@@ -1,0 +1,176 @@
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __generator = (this && this.__generator) || function (thisArg, body) {
+    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;
+    return g = { next: verb(0), "throw": verb(1), "return": verb(2) }, typeof Symbol === "function" && (g[Symbol.iterator] = function() { return this; }), g;
+    function verb(n) { return function (v) { return step([n, v]); }; }
+    function step(op) {
+        if (f) throw new TypeError("Generator is already executing.");
+        while (_) try {
+            if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
+            if (y = 0, t) op = [op[0] & 2, t.value];
+            switch (op[0]) {
+                case 0: case 1: t = op; break;
+                case 4: _.label++; return { value: op[1], done: false };
+                case 5: _.label++; y = op[1]; op = [0]; continue;
+                case 7: op = _.ops.pop(); _.trys.pop(); continue;
+                default:
+                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }
+                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }
+                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }
+                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }
+                    if (t[2]) _.ops.pop();
+                    _.trys.pop(); continue;
+            }
+            op = body.call(thisArg, _);
+        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }
+        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };
+    }
+};
+App.loadBundle('/**:bundle-id:**/', ['exports', './chunk-346f9d40.js', './chunk-faed910a.js', './chunk-00addb69.js', './chunk-f52e57f9.js', './chunk-cc018d56.js'], function (exports, __chunk_1, __chunk_2, __chunk_3, __chunk_4, __chunk_5) {
+    var h = window.App.h;
+    var AccountDeposit = /** @class */ (function () {
+        function AccountDeposit() {
+            this.ethWeb3WalletBalance = 0;
+            this.user = {};
+            this.updateAccount = function (e) { };
+            this.history = {};
+            this.signer = {};
+            this.deposit = function () { };
+            this.canUseApps = false;
+            this.error = "";
+            this.stage = "ready";
+        }
+        AccountDeposit.prototype.componentDidUpdate = function () {
+            if (!this.user || !this.user.id) {
+                this.history.push("/");
+                return;
+            }
+        };
+        AccountDeposit.prototype.onDepositFinished = function () {
+            this.stage = "finished";
+        };
+        Object.defineProperty(AccountDeposit.prototype, "node", {
+            get: function () {
+                return __chunk_4.CounterfactualNode.getInstance();
+            },
+            enumerable: true,
+            configurable: true
+        });
+        AccountDeposit.prototype.formSubmitionHandler = function (e) {
+            return __awaiter(this, void 0, void 0, function () {
+                var error_1;
+                return __generator(this, function (_a) {
+                    switch (_a.label) {
+                        case 0:
+                            this.amountDeposited = window["ethers"].utils.parseEther(e.target.value);
+                            _a.label = 1;
+                        case 1:
+                            _a.trys.push([1, 3, , 4]);
+                            this.stage = "depositing";
+                            return [4 /*yield*/, this.deposit(this.amountDeposited)];
+                        case 2:
+                            _a.sent();
+                            return [3 /*break*/, 4];
+                        case 3:
+                            error_1 = _a.sent();
+                            this.error = error_1.message;
+                            this.stage = "ready";
+                            return [3 /*break*/, 4];
+                        case 4: return [2 /*return*/];
+                    }
+                });
+            });
+        };
+        AccountDeposit.prototype.render = function () {
+            if (this.stage === "finished") {
+                return h("stencil-router-redirect", { url: "/" });
+            }
+            if (!this.ethWeb3WalletBalance) {
+                return h("widget-spinner", { type: "dots" });
+            }
+            var buttonTexts = {
+                ready: "Deposit",
+                depositing: "Making deposit..."
+            };
+            var isFormBusy = this.stage === "depositing";
+            return (h("widget-screen", { exitable: false }, h("div", { slot: "header" }, "Fund your account"), h("p", { class: "details" }, "In order to use the Playground Dapps, you need to deposit funds into your account. Please enter how much ETH you want to deposit:"), h("account-eth-form", { onSubmit: this.formSubmitionHandler.bind(this), autofocus: true, provideFaucetLink: true, button: buttonTexts[this.stage], available: window["ethers"].utils.bigNumberify(this.ethWeb3WalletBalance), min: 0.1, max: 1, error: this.error, loading: isFormBusy, disabled: isFormBusy })));
+        };
+        Object.defineProperty(AccountDeposit, "is", {
+            get: function () { return "account-deposit"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountDeposit, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountDeposit, "properties", {
+            get: function () {
+                return {
+                    "amountDeposited": {
+                        "state": true
+                    },
+                    "canUseApps": {
+                        "type": "Any",
+                        "attr": "can-use-apps",
+                        "watchCallbacks": ["onDepositFinished"]
+                    },
+                    "deposit": {
+                        "type": "Any",
+                        "attr": "deposit"
+                    },
+                    "el": {
+                        "elementRef": true
+                    },
+                    "error": {
+                        "state": true
+                    },
+                    "ethWeb3WalletBalance": {
+                        "type": Number,
+                        "attr": "eth-web-3-wallet-balance"
+                    },
+                    "history": {
+                        "type": "Any",
+                        "attr": "history"
+                    },
+                    "signer": {
+                        "type": "Any",
+                        "attr": "signer"
+                    },
+                    "stage": {
+                        "state": true
+                    },
+                    "updateAccount": {
+                        "type": "Any",
+                        "attr": "update-account"
+                    },
+                    "user": {
+                        "type": "Any",
+                        "attr": "user"
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountDeposit, "style", {
+            get: function () { return "/**style-placeholder:account-deposit:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return AccountDeposit;
+    }());
+    __chunk_2.AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user", "deposit"]);
+    __chunk_3.AppRegistryTunnel.injectProps(AccountDeposit, ["canUseApps"]);
+    __chunk_5.WalletTunnel.injectProps(AccountDeposit, ["signer", "ethWeb3WalletBalance"]);
+    exports.AccountDeposit = AccountDeposit;
+    Object.defineProperty(exports, '__esModule', { value: true });
+});

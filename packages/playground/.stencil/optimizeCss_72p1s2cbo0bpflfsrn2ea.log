@@ -1,0 +1,1 @@
+@import url("https://rsms.me/inter/inter.css");html{font-family:Inter,sans-serif}@supports (font-variation-settings:normal){html{font-family:Inter var,sans-serif}}html{font-size:15px;-webkit-box-sizing:border-box;box-sizing:border-box;-webkit-font-smoothing:antialiased;color:#252525}body{margin:0;padding:0}body,html{height:100%}

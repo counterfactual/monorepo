@@ -1,0 +1,144 @@
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import './chunk-deed3e85.js';
+import { a as AccountTunnel } from './chunk-dfef6d51.js';
+import { a as AppRegistryTunnel } from './chunk-868ccbc3.js';
+import { a as CounterfactualNode } from './chunk-515d15f9.js';
+import { a as WalletTunnel } from './chunk-a343ce23.js';
+var AccountDeposit = /** @class */ (function () {
+    function AccountDeposit() {
+        this.ethWeb3WalletBalance = 0;
+        this.user = {};
+        this.updateAccount = function (e) { };
+        this.history = {};
+        this.signer = {};
+        this.deposit = function () { };
+        this.canUseApps = false;
+        this.error = "";
+        this.stage = "ready";
+    }
+    AccountDeposit.prototype.componentDidUpdate = function () {
+        if (!this.user || !this.user.id) {
+            this.history.push("/");
+            return;
+        }
+    };
+    AccountDeposit.prototype.onDepositFinished = function () {
+        this.stage = "finished";
+    };
+    Object.defineProperty(AccountDeposit.prototype, "node", {
+        get: function () {
+            return CounterfactualNode.getInstance();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    AccountDeposit.prototype.formSubmitionHandler = function (e) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var error_1;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.amountDeposited = window["ethers"].utils.parseEther(e.target.value);
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        this.stage = "depositing";
+                        return [4 /*yield*/, this.deposit(this.amountDeposited)];
+                    case 2:
+                        _a.sent();
+                        return [3 /*break*/, 4];
+                    case 3:
+                        error_1 = _a.sent();
+                        this.error = error_1.message;
+                        this.stage = "ready";
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AccountDeposit.prototype.render = function () {
+        if (this.stage === "finished") {
+            return h("stencil-router-redirect", { url: "/" });
+        }
+        if (!this.ethWeb3WalletBalance) {
+            return h("widget-spinner", { type: "dots" });
+        }
+        var buttonTexts = {
+            ready: "Deposit",
+            depositing: "Making deposit..."
+        };
+        var isFormBusy = this.stage === "depositing";
+        return (h("widget-screen", { exitable: false }, h("div", { slot: "header" }, "Fund your account"), h("p", { class: "details" }, "In order to use the Playground Dapps, you need to deposit funds into your account. Please enter how much ETH you want to deposit:"), h("account-eth-form", { onSubmit: this.formSubmitionHandler.bind(this), autofocus: true, provideFaucetLink: true, button: buttonTexts[this.stage], available: window["ethers"].utils.bigNumberify(this.ethWeb3WalletBalance), min: 0.1, max: 1, error: this.error, loading: isFormBusy, disabled: isFormBusy })));
+    };
+    Object.defineProperty(AccountDeposit, "is", {
+        get: function () { return "account-deposit"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AccountDeposit, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AccountDeposit, "properties", {
+        get: function () {
+            return {
+                "amountDeposited": {
+                    "state": true
+                },
+                "canUseApps": {
+                    "type": "Any",
+                    "attr": "can-use-apps",
+                    "watchCallbacks": ["onDepositFinished"]
+                },
+                "deposit": {
+                    "type": "Any",
+                    "attr": "deposit"
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "error": {
+                    "state": true
+                },
+                "ethWeb3WalletBalance": {
+                    "type": Number,
+                    "attr": "eth-web-3-wallet-balance"
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "signer": {
+                    "type": "Any",
+                    "attr": "signer"
+                },
+                "stage": {
+                    "state": true
+                },
+                "updateAccount": {
+                    "type": "Any",
+                    "attr": "update-account"
+                },
+                "user": {
+                    "type": "Any",
+                    "attr": "user"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AccountDeposit, "style", {
+        get: function () { return "/**style-placeholder:account-deposit:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return AccountDeposit;
+}());
+AccountTunnel.injectProps(AccountDeposit, ["updateAccount", "user", "deposit"]);
+AppRegistryTunnel.injectProps(AccountDeposit, ["canUseApps"]);
+WalletTunnel.injectProps(AccountDeposit, ["signer", "ethWeb3WalletBalance"]);
+export { AccountDeposit };

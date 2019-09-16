@@ -1,0 +1,288 @@
+import { h } from "../app.core.js";
+
+import "./chunk-deed3e85.js";
+
+import { a as AccountTunnel } from "./chunk-dfef6d51.js";
+
+import { a as matchPath, u as isModifiedEvent } from "./chunk-8b806219.js";
+
+import { a as ActiveRouter } from "./chunk-9cf92136.js";
+
+var HeaderAccountInfo = /** @class */ function() {
+  function HeaderAccountInfo() {
+    this.src = "", this.header = "", this.content = "", this.spinner = !1, this.tooltip = "";
+  }
+  return HeaderAccountInfo.prototype.render = function() {
+    return h("widget-tooltip", {
+      message: this.tooltip
+    }, h("div", {
+      class: "info"
+    }, h("img", {
+      class: "info-img",
+      src: this.src
+    }), h("div", {
+      class: "info-text"
+    }, h("div", {
+      class: "header"
+    }, this.header), h("div", {
+      class: "content"
+    }, this.content, h("widget-spinner", {
+      visible: this.spinner
+    })))));
+  }, Object.defineProperty(HeaderAccountInfo, "is", {
+    get: function() {
+      return "header-account-info";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderAccountInfo, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderAccountInfo, "properties", {
+    get: function() {
+      return {
+        content: {
+          type: String,
+          attr: "content"
+        },
+        header: {
+          type: String,
+          attr: "header"
+        },
+        spinner: {
+          type: Boolean,
+          attr: "spinner"
+        },
+        src: {
+          type: String,
+          attr: "src"
+        },
+        tooltip: {
+          type: String,
+          attr: "tooltip"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderAccountInfo, "style", {
+    get: function() {
+      return "/**style-placeholder:header-account-info:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), HeaderAccountInfo;
+}(), HeaderBalance = /** @class */ function() {
+  function HeaderBalance() {
+    this.ethFreeBalanceWei = 0, this.user = {};
+  }
+  return Object.defineProperty(HeaderBalance.prototype, "ethBalance", {
+    get: function() {
+      return this.ethFreeBalanceWei ? window.ethers.utils.formatEther(this.ethFreeBalanceWei) + " ETH" : "0.00 ETH";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderBalance.prototype, "hasethPendingDepositAmountWei", {
+    get: function() {
+      return !isNaN(this.ethPendingDepositAmountWei);
+    },
+    enumerable: !0,
+    configurable: !0
+  }), HeaderBalance.prototype.render = function() {
+    if (this.user.id) {
+      var e = "";
+      return this.hasethPendingDepositAmountWei && (e = "We're waiting for the network to confirm your latest deposit."), 
+      this.user.multisigAddress || (e = "We're configuring your state channel with the Playground. This can take 15-90 seconds, depending on network speed."), 
+      h("stencil-route-link", {
+        url: "/exchange"
+      }, h("header-account-info", {
+        src: "/assets/icon/crypto.svg",
+        header: "Balance",
+        content: this.ethBalance,
+        spinner: this.hasethPendingDepositAmountWei || !this.user.multisigAddress,
+        tooltip: e
+      }));
+    }
+  }, Object.defineProperty(HeaderBalance, "is", {
+    get: function() {
+      return "header-balance";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderBalance, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderBalance, "properties", {
+    get: function() {
+      return {
+        el: {
+          elementRef: !0
+        },
+        ethFreeBalanceWei: {
+          type: Number,
+          attr: "eth-free-balance-wei"
+        },
+        ethPendingDepositAmountWei: {
+          type: Number,
+          attr: "eth-pending-deposit-amount-wei"
+        },
+        user: {
+          type: "Any",
+          attr: "user",
+          mutable: !0
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(HeaderBalance, "style", {
+    get: function() {
+      return "/**style-placeholder:header-balance:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), HeaderBalance;
+}();
+
+function getUrl(e, t) {
+  return "/" == e.charAt(0) && "/" == t.charAt(t.length - 1) ? t.slice(0, t.length - 1) + e : t + e;
+}
+
+AccountTunnel.injectProps(HeaderBalance, [ "ethFreeBalanceWei", "user", "ethPendingDepositAmountWei" ]);
+
+var RouteLink = /** @class */ function() {
+  function RouteLink() {
+    this.unsubscribe = function() {}, this.activeClass = "link-active", this.exact = !1, 
+    this.strict = !0, this.custom = "a", this.match = null;
+  }
+  return RouteLink.prototype.componentWillLoad = function() {
+    this.computeMatch();
+  }, RouteLink.prototype.computeMatch = function() {
+    this.location && (this.match = matchPath(this.location.pathname, {
+      path: this.urlMatch || this.url,
+      exact: this.exact,
+      strict: this.strict
+    }));
+  }, RouteLink.prototype.handleClick = function(e) {
+    if (!isModifiedEvent(e) && this.history && this.url && this.root) return e.preventDefault(), 
+    this.history.push(getUrl(this.url, this.root));
+  }, RouteLink.prototype.render = function() {
+    var e, t = {
+      class: (e = {}, e[this.activeClass] = null !== this.match, e),
+      onClick: this.handleClick.bind(this)
+    };
+    return this.anchorClass && (t.class[this.anchorClass] = !0), "a" === this.custom && (t = Object.assign({}, t, {
+      href: this.url,
+      title: this.anchorTitle,
+      role: this.anchorRole,
+      tabindex: this.anchorTabIndex,
+      "aria-haspopup": this.ariaHaspopup,
+      id: this.anchorId,
+      "aria-posinset": this.ariaPosinset,
+      "aria-setsize": this.ariaSetsize,
+      "aria-label": this.ariaLabel
+    })), h(this.custom, Object.assign({}, t), h("slot", null));
+  }, Object.defineProperty(RouteLink, "is", {
+    get: function() {
+      return "stencil-route-link";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(RouteLink, "properties", {
+    get: function() {
+      return {
+        activeClass: {
+          type: String,
+          attr: "active-class"
+        },
+        anchorClass: {
+          type: String,
+          attr: "anchor-class"
+        },
+        anchorId: {
+          type: String,
+          attr: "anchor-id"
+        },
+        anchorRole: {
+          type: String,
+          attr: "anchor-role"
+        },
+        anchorTabIndex: {
+          type: String,
+          attr: "anchor-tab-index"
+        },
+        anchorTitle: {
+          type: String,
+          attr: "anchor-title"
+        },
+        ariaHaspopup: {
+          type: String,
+          attr: "aria-haspopup"
+        },
+        ariaLabel: {
+          type: String,
+          attr: "aria-label"
+        },
+        ariaPosinset: {
+          type: String,
+          attr: "aria-posinset"
+        },
+        ariaSetsize: {
+          type: Number,
+          attr: "aria-setsize"
+        },
+        custom: {
+          type: String,
+          attr: "custom"
+        },
+        el: {
+          elementRef: !0
+        },
+        exact: {
+          type: Boolean,
+          attr: "exact"
+        },
+        history: {
+          type: "Any",
+          attr: "history"
+        },
+        location: {
+          type: "Any",
+          attr: "location",
+          watchCallbacks: [ "computeMatch" ]
+        },
+        match: {
+          state: !0
+        },
+        root: {
+          type: String,
+          attr: "root"
+        },
+        strict: {
+          type: Boolean,
+          attr: "strict"
+        },
+        url: {
+          type: String,
+          attr: "url"
+        },
+        urlMatch: {
+          type: String,
+          attr: "url-match"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), RouteLink;
+}();
+
+ActiveRouter.injectProps(RouteLink, [ "history", "location", "root" ]);
+
+export { HeaderAccountInfo, HeaderBalance, RouteLink as StencilRouteLink };

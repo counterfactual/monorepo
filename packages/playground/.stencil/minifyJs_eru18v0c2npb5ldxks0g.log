@@ -1,0 +1,125 @@
+const t = window.App.h;
+
+import "./chunk-deed3e85.js";
+
+import { a as e } from "./chunk-dfef6d51.js";
+
+import { a as s } from "./chunk-868ccbc3.js";
+
+import { a as i } from "./chunk-515d15f9.js";
+
+import { a } from "./chunk-a343ce23.js";
+
+class r {
+  constructor() {
+    this.ethWeb3WalletBalance = 0, this.user = {}, this.updateAccount = (t => {}), this.history = {}, 
+    this.signer = {}, this.deposit = (() => {}), this.canUseApps = !1, this.error = "", 
+    this.stage = "ready";
+  }
+  componentDidUpdate() {
+    this.user && this.user.id || this.history.push("/");
+  }
+  onDepositFinished() {
+    this.stage = "finished";
+  }
+  get node() {
+    return i.getInstance();
+  }
+  async formSubmitionHandler(t) {
+    this.amountDeposited = window.ethers.utils.parseEther(t.target.value);
+    try {
+      this.stage = "depositing", await this.deposit(this.amountDeposited);
+    } catch (t) {
+      this.error = t.message, this.stage = "ready";
+    }
+  }
+  render() {
+    if ("finished" === this.stage) return t("stencil-router-redirect", {
+      url: "/"
+    });
+    if (!this.ethWeb3WalletBalance) return t("widget-spinner", {
+      type: "dots"
+    });
+    const e = "depositing" === this.stage;
+    return t("widget-screen", {
+      exitable: !1
+    }, t("div", {
+      slot: "header"
+    }, "Fund your account"), t("p", {
+      class: "details"
+    }, "In order to use the Playground Dapps, you need to deposit funds into your account. Please enter how much ETH you want to deposit:"), t("account-eth-form", {
+      onSubmit: this.formSubmitionHandler.bind(this),
+      autofocus: !0,
+      provideFaucetLink: !0,
+      button: {
+        ready: "Deposit",
+        depositing: "Making deposit..."
+      }[this.stage],
+      available: window.ethers.utils.bigNumberify(this.ethWeb3WalletBalance),
+      min: .1,
+      max: 1,
+      error: this.error,
+      loading: e,
+      disabled: e
+    }));
+  }
+  static get is() {
+    return "account-deposit";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      amountDeposited: {
+        state: !0
+      },
+      canUseApps: {
+        type: "Any",
+        attr: "can-use-apps",
+        watchCallbacks: [ "onDepositFinished" ]
+      },
+      deposit: {
+        type: "Any",
+        attr: "deposit"
+      },
+      el: {
+        elementRef: !0
+      },
+      error: {
+        state: !0
+      },
+      ethWeb3WalletBalance: {
+        type: Number,
+        attr: "eth-web-3-wallet-balance"
+      },
+      history: {
+        type: "Any",
+        attr: "history"
+      },
+      signer: {
+        type: "Any",
+        attr: "signer"
+      },
+      stage: {
+        state: !0
+      },
+      updateAccount: {
+        type: "Any",
+        attr: "update-account"
+      },
+      user: {
+        type: "Any",
+        attr: "user"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:account-deposit:**/";
+  }
+}
+
+e.injectProps(r, [ "updateAccount", "user", "deposit" ]), s.injectProps(r, [ "canUseApps" ]), 
+a.injectProps(r, [ "signer", "ethWeb3WalletBalance" ]);
+
+export { r as AccountDeposit };

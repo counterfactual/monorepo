@@ -1,0 +1,100 @@
+const t = window.App.h;
+
+import "./chunk-deed3e85.js";
+
+import { a as e } from "./chunk-dfef6d51.js";
+
+import { a as s } from "./chunk-adf5a5b1.js";
+
+class a {
+  constructor() {
+    this.user = {}, this.updateAccount = (t => {}), this.history = {}, this.logout = (() => {}), 
+    this.userLoaded = !1, this.changeset = {
+      username: "",
+      email: "",
+      ethAddress: "",
+      nodeAddress: "",
+      id: ""
+    };
+  }
+  updateChangeset() {
+    this.userLoaded || (this.changeset.id = this.user.id, this.changeset.ethAddress = this.user.ethAddress, 
+    this.changeset.email = this.user.email, this.changeset.username = this.user.username, 
+    this.changeset.nodeAddress = this.user.nodeAddress, this.userLoaded = !0);
+  }
+  change(t, e) {
+    this.changeset[t] = e.target.value;
+  }
+  async formSubmissionHandler() {
+    const t = await s.updateAccount(this.changeset);
+    this.updateAccount({
+      user: t
+    }), window.localStorage.setItem("playground:user:token", t.token), this.history.push("/");
+  }
+  logoutClickedHandler() {
+    this.logout(), this.history.push("/");
+  }
+  render() {
+    return t("widget-screen", null, t("div", {
+      slot: "header"
+    }, "Account Settings"), t("form-container", {
+      onFormSubmitted: t => this.formSubmissionHandler()
+    }, t("form-input", {
+      label: "Username",
+      disabled: !0,
+      value: this.changeset.username
+    }), t("form-input", {
+      label: "Email",
+      value: this.changeset.email,
+      onChange: t => this.change("email", t)
+    }), t("div", {
+      class: "smallprint"
+    }, t("b", null, "Your account is linked to your Ethereum address: "), this.changeset.ethAddress), t("form-button", {
+      class: "button",
+      onButtonPressed: t => this.formSubmissionHandler()
+    }, "Save changes"), t("form-button", {
+      class: "button button--secondary",
+      onButtonPressed: t => this.logoutClickedHandler()
+    }, "Log out")));
+  }
+  static get is() {
+    return "account-edit";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      el: {
+        elementRef: !0
+      },
+      history: {
+        type: "Any",
+        attr: "history"
+      },
+      logout: {
+        type: "Any",
+        attr: "logout"
+      },
+      updateAccount: {
+        type: "Any",
+        attr: "update-account"
+      },
+      user: {
+        type: "Any",
+        attr: "user",
+        watchCallbacks: [ "updateChangeset" ]
+      },
+      userLoaded: {
+        state: !0
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:account-edit:**/";
+  }
+}
+
+e.injectProps(a, [ "updateAccount", "user", "logout" ]);
+
+export { a as AccountEdit };

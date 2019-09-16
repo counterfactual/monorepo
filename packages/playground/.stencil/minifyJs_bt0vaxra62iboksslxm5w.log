@@ -1,0 +1,15 @@
+App.loadBundle("/**:bundle-id:**/", [ "exports", "./chunk-346f9d40.js" ], function(e, o) {
+  window;
+  var t = o.createProviderConsumer({
+    historyType: "browser",
+    location: {
+      pathname: "",
+      query: {},
+      key: ""
+    },
+    titleSuffix: "",
+    root: "/",
+    routeViewsUpdated: function() {}
+  });
+  e.ActiveRouter = t;
+});

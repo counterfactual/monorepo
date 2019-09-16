@@ -1,0 +1,13 @@
+import { a as createProviderConsumer } from './chunk-deed3e85.js';
+var ActiveRouter = createProviderConsumer({
+    historyType: 'browser',
+    location: {
+        pathname: '',
+        query: {},
+        key: ''
+    },
+    titleSuffix: '',
+    root: '/',
+    routeViewsUpdated: function () { }
+});
+export { ActiveRouter as a };

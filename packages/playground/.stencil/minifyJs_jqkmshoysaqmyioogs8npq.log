@@ -1,0 +1,10 @@
+const e = window.App.h;
+
+import { a as r } from "./chunk-deed3e85.js";
+
+var o = r({}, (r, o) => e("context-consumer", {
+  subscribe: r,
+  renderer: o
+}));
+
+export { o as a };

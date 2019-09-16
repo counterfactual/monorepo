@@ -1,0 +1,225 @@
+var __awaiter = this && this.__awaiter || function(e, t, n, r) {
+  return new (n || (n = Promise))(function(o, u) {
+    function fulfilled(e) {
+      try {
+        step(r.next(e));
+      } catch (e) {
+        u(e);
+      }
+    }
+    function rejected(e) {
+      try {
+        step(r.throw(e));
+      } catch (e) {
+        u(e);
+      }
+    }
+    function step(e) {
+      e.done ? o(e.value) : new n(function(t) {
+        t(e.value);
+      }).then(fulfilled, rejected);
+    }
+    step((r = r.apply(e, t || [])).next());
+  });
+}, __generator = this && this.__generator || function(e, t) {
+  var n, r, o, u, i = {
+    label: 0,
+    sent: function() {
+      if (1 & o[0]) throw o[1];
+      return o[1];
+    },
+    trys: [],
+    ops: []
+  };
+  return u = {
+    next: verb(0),
+    throw: verb(1),
+    return: verb(2)
+  }, "function" == typeof Symbol && (u[Symbol.iterator] = function() {
+    return this;
+  }), u;
+  function verb(u) {
+    return function(s) {
+      return function(u) {
+        if (n) throw new TypeError("Generator is already executing.");
+        for (;i; ) try {
+          if (n = 1, r && (o = 2 & u[0] ? r.return : u[0] ? r.throw || ((o = r.return) && o.call(r), 
+          0) : r.next) && !(o = o.call(r, u[1])).done) return o;
+          switch (r = 0, o && (u = [ 2 & u[0], o.value ]), u[0]) {
+           case 0:
+           case 1:
+            o = u;
+            break;
+
+           case 4:
+            return i.label++, {
+              value: u[1],
+              done: !1
+            };
+
+           case 5:
+            i.label++, r = u[1], u = [ 0 ];
+            continue;
+
+           case 7:
+            u = i.ops.pop(), i.trys.pop();
+            continue;
+
+           default:
+            if (!(o = (o = i.trys).length > 0 && o[o.length - 1]) && (6 === u[0] || 2 === u[0])) {
+              i = 0;
+              continue;
+            }
+            if (3 === u[0] && (!o || u[1] > o[0] && u[1] < o[3])) {
+              i.label = u[1];
+              break;
+            }
+            if (6 === u[0] && i.label < o[1]) {
+              i.label = o[1], o = u;
+              break;
+            }
+            if (o && i.label < o[2]) {
+              i.label = o[2], i.ops.push(u);
+              break;
+            }
+            o[2] && i.ops.pop(), i.trys.pop();
+            continue;
+          }
+          u = t.call(e, i);
+        } catch (e) {
+          u = [ 6, e ], r = 0;
+        } finally {
+          n = o = 0;
+        }
+        if (5 & u[0]) throw u[1];
+        return {
+          value: u[0] ? u[1] : void 0,
+          done: !0
+        };
+      }([ u, s ]);
+    };
+  }
+};
+
+App.loadBundle("/**:bundle-id:**/", [ "exports", "./chunk-346f9d40.js", "./chunk-faed910a.js", "./chunk-84817f4c.js" ], function(e, t, n, r) {
+  var o = window.App.h, u = /** @class */ function() {
+    function AccountEdit() {
+      this.user = {}, this.updateAccount = function(e) {}, this.history = {}, this.logout = function() {}, 
+      this.userLoaded = !1, this.changeset = {
+        username: "",
+        email: "",
+        ethAddress: "",
+        nodeAddress: "",
+        id: ""
+      };
+    }
+    return AccountEdit.prototype.updateChangeset = function() {
+      this.userLoaded || (this.changeset.id = this.user.id, this.changeset.ethAddress = this.user.ethAddress, 
+      this.changeset.email = this.user.email, this.changeset.username = this.user.username, 
+      this.changeset.nodeAddress = this.user.nodeAddress, this.userLoaded = !0);
+    }, AccountEdit.prototype.change = function(e, t) {
+      this.changeset[e] = t.target.value;
+    }, AccountEdit.prototype.formSubmissionHandler = function() {
+      return __awaiter(this, void 0, void 0, function() {
+        var e;
+        return __generator(this, function(t) {
+          switch (t.label) {
+           case 0:
+            return [ 4 /*yield*/ , r.PlaygroundAPIClient.updateAccount(this.changeset) ];
+
+           case 1:
+            return e = t.sent(), this.updateAccount({
+              user: e
+            }), window.localStorage.setItem("playground:user:token", e.token), this.history.push("/"), 
+            [ 2 /*return*/ ];
+          }
+        });
+      });
+    }, AccountEdit.prototype.logoutClickedHandler = function() {
+      this.logout(), this.history.push("/");
+    }, AccountEdit.prototype.render = function() {
+      var e = this;
+      return o("widget-screen", null, o("div", {
+        slot: "header"
+      }, "Account Settings"), o("form-container", {
+        onFormSubmitted: function(t) {
+          return e.formSubmissionHandler();
+        }
+      }, o("form-input", {
+        label: "Username",
+        disabled: !0,
+        value: this.changeset.username
+      }), o("form-input", {
+        label: "Email",
+        value: this.changeset.email,
+        onChange: function(t) {
+          return e.change("email", t);
+        }
+      }), o("div", {
+        class: "smallprint"
+      }, o("b", null, "Your account is linked to your Ethereum address: "), this.changeset.ethAddress), o("form-button", {
+        class: "button",
+        onButtonPressed: function(t) {
+          return e.formSubmissionHandler();
+        }
+      }, "Save changes"), o("form-button", {
+        class: "button button--secondary",
+        onButtonPressed: function(t) {
+          return e.logoutClickedHandler();
+        }
+      }, "Log out")));
+    }, Object.defineProperty(AccountEdit, "is", {
+      get: function() {
+        return "account-edit";
+      },
+      enumerable: !0,
+      configurable: !0
+    }), Object.defineProperty(AccountEdit, "encapsulation", {
+      get: function() {
+        return "shadow";
+      },
+      enumerable: !0,
+      configurable: !0
+    }), Object.defineProperty(AccountEdit, "properties", {
+      get: function() {
+        return {
+          el: {
+            elementRef: !0
+          },
+          history: {
+            type: "Any",
+            attr: "history"
+          },
+          logout: {
+            type: "Any",
+            attr: "logout"
+          },
+          updateAccount: {
+            type: "Any",
+            attr: "update-account"
+          },
+          user: {
+            type: "Any",
+            attr: "user",
+            watchCallbacks: [ "updateChangeset" ]
+          },
+          userLoaded: {
+            state: !0
+          }
+        };
+      },
+      enumerable: !0,
+      configurable: !0
+    }), Object.defineProperty(AccountEdit, "style", {
+      get: function() {
+        return "/**style-placeholder:account-edit:**/";
+      },
+      enumerable: !0,
+      configurable: !0
+    }), AccountEdit;
+  }();
+  n.AccountTunnel.injectProps(u, [ "updateAccount", "user", "logout" ]), e.AccountEdit = u, 
+  Object.defineProperty(e, "__esModule", {
+    value: !0
+  });
+});

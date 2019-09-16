@@ -1,0 +1,116 @@
+import * as tslib_1 from "../polyfills/tslib.js";
+
+var OutcomeType, TwoPartyFixedOutcome, Node$1;
+
+!function(t) {
+  t[t.TWO_PARTY_FIXED_OUTCOME = 0] = "TWO_PARTY_FIXED_OUTCOME", t[t.COIN_TRANSFER = 1] = "COIN_TRANSFER";
+}(OutcomeType || (OutcomeType = {})), function(t) {
+  t[t.SEND_TO_ADDR_ONE = 0] = "SEND_TO_ADDR_ONE", t[t.SEND_TO_ADDR_TWO = 1] = "SEND_TO_ADDR_TWO", 
+  t[t.SPLIT_AND_SEND_TO_BOTH_ADDRS = 2] = "SPLIT_AND_SEND_TO_BOTH_ADDRS";
+}(TwoPartyFixedOutcome || (TwoPartyFixedOutcome = {})), function(t) {
+  (t.ErrorType || (t.ErrorType = {})).ERROR = "error", function(t) {
+    t.ACCEPT_STATE = "acceptState", t.CREATE_CHANNEL = "createChannel", t.DEPOSIT = "deposit", 
+    t.GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails", t.GET_APP_INSTANCES = "getAppInstances", 
+    t.GET_CHANNEL_ADDRESSES = "getChannelAddresses", t.GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress", 
+    t.GET_FREE_BALANCE_STATE = "getFreeBalanceState", t.GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance", 
+    t.GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances", t.GET_STATE = "getState", 
+    t.GET_STATE_CHANNEL = "getStateChannel", t.INSTALL = "install", t.INSTALL_VIRTUAL = "installVirtual", 
+    t.PROPOSE_INSTALL = "proposeInstall", t.PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual", 
+    t.PROPOSE_STATE = "proposeState", t.REJECT_INSTALL = "rejectInstall", t.REJECT_STATE = "rejectState", 
+    t.UPDATE_STATE = "updateState", t.TAKE_ACTION = "takeAction", t.UNINSTALL = "uninstall", 
+    t.UNINSTALL_VIRTUAL = "uninstallVirtual", t.WITHDRAW = "withdraw";
+  }(t.MethodName || (t.MethodName = {})), function(t) {
+    t.CREATE_CHANNEL = "chan_create", t.DEPOSIT = "chan_deposit", t.GET_APP_INSTANCE_DETAILS = "chan_getAppInstance", 
+    t.GET_APP_INSTANCES = "chan_getAppInstances", t.GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress", 
+    t.GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState", t.GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances", 
+    t.GET_STATE = "chan_getState", t.INSTALL = "chan_install", t.INSTALL_VIRTUAL = "chan_installVirtual", 
+    t.PROPOSE_INSTALL = "chan_proposeInstall", t.PROPOSE_INSTALL_VIRTUAL = "chan_proposeInstallVirtual", 
+    t.PROPOSE_STATE = "chan_proposeState", t.REJECT_INSTALL = "chan_rejectInstall", 
+    t.REJECT_STATE = "chan_rejectState", t.UPDATE_STATE = "chan_updateState", t.TAKE_ACTION = "chan_takeAction", 
+    t.UNINSTALL = "chan_uninstall", t.UNINSTALL_VIRTUAL = "chan_uninstallVirtual", t.WITHDRAW = "chan_withdraw";
+  }(t.RpcMethodName || (t.RpcMethodName = {})), function(t) {
+    t.COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed", t.CREATE_CHANNEL = "createChannelEvent", 
+    t.DEPOSIT_CONFIRMED = "depositConfirmedEvent", t.DEPOSIT_FAILED = "depositFailed", 
+    t.DEPOSIT_STARTED = "depositStartedEvent", t.INSTALL = "installEvent", t.INSTALL_VIRTUAL = "installVirtualEvent", 
+    t.PROPOSE_STATE = "proposeStateEvent", t.REJECT_INSTALL = "rejectInstallEvent", 
+    t.REJECT_STATE = "rejectStateEvent", t.UNINSTALL = "uninstallEvent", t.UNINSTALL_VIRTUAL = "uninstallVirtualEvent", 
+    t.UPDATE_STATE = "updateStateEvent", t.WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent", 
+    t.WITHDRAWAL_FAILED = "withdrawalFailed", t.WITHDRAWAL_STARTED = "withdrawalStartedEvent", 
+    t.PROPOSE_INSTALL = "proposeInstallEvent", t.PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent", 
+    t.PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent", t.WITHDRAW_EVENT = "withdrawEvent", 
+    t.REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent";
+  }(t.EventName || (t.EventName = {}));
+}(Node$1 || (Node$1 = {}));
+
+var CounterfactualNode = /** @class */ function() {
+  function CounterfactualNode() {}
+  return CounterfactualNode.getInstance = function() {
+    return CounterfactualNode.node;
+  }, CounterfactualNode.getCfProvider = function() {
+    return CounterfactualNode.cfProvider;
+  }, CounterfactualNode.create = function(t) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e;
+      return tslib_1.__generator(this, function(o) {
+        switch (o.label) {
+         case 0:
+          return CounterfactualNode.node ? [ 2 /*return*/ , CounterfactualNode.node ] : (e = CounterfactualNode, 
+          [ 4 /*yield*/ , Node.create(t.messagingService, t.storeService, t.nodeConfig, new window.ethers.providers.Web3Provider(window.web3.currentProvider), t.network) ]);
+
+         case 1:
+          return e.node = o.sent(), [ 4 /*yield*/ , this.setupNodeProvider() ];
+
+         case 2:
+          return o.sent(), [ 2 /*return*/ , CounterfactualNode.getInstance() ];
+        }
+      });
+    });
+  }, CounterfactualNode.setupNodeProvider = function() {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t = this;
+      return tslib_1.__generator(this, function(e) {
+        switch (e.label) {
+         case 0:
+          return this.node.on(Node$1.MethodName.PROPOSE_INSTALL_VIRTUAL, this.postToPort.bind(this)), 
+          this.node.on(Node$1.MethodName.INSTALL_VIRTUAL, this.postToPort.bind(this)), this.node.on(Node$1.MethodName.REJECT_INSTALL, this.postToPort.bind(this)), 
+          this.node.on(Node$1.MethodName.DEPOSIT, this.postToPort.bind(this)), this.node.on(Node$1.MethodName.WITHDRAW, this.postToPort.bind(this)), 
+          this.node.on(Node$1.MethodName.GET_FREE_BALANCE_STATE, this.postToPort.bind(this)), 
+          this.node.on(Node$1.EventName.CREATE_CHANNEL, this.postToPort.bind(this)), this.node.on(Node$1.RpcMethodName.PROPOSE_INSTALL_VIRTUAL, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.INSTALL_VIRTUAL, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.REJECT_INSTALL, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.DEPOSIT, this.postToJsonRpcPort.bind(this)), this.node.on(Node$1.EventName.DEPOSIT_CONFIRMED, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.WITHDRAW, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.GET_FREE_BALANCE_STATE, this.postToJsonRpcPort.bind(this)), 
+          this.node.on(Node$1.RpcMethodName.CREATE_CHANNEL, this.postToJsonRpcPort.bind(this)), 
+          window.addEventListener("message", function(e) {
+            if ("cf-node-provider:init" === e.data) {
+              var o = t.configureMessagePorts().port2;
+              window.postMessage("cf-node-provider:port", "*", [ o ]);
+            }
+          }), this.nodeProvider = new cfWallet.NodeProvider(), [ 4 /*yield*/ , this.nodeProvider.connect() ];
+
+         case 1:
+          return e.sent(), this.cfProvider = this.createCfProvider(), [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, CounterfactualNode.configureMessagePorts = function() {
+    var t = this, e = new MessageChannel();
+    return this.port = e.port1, this.port.addEventListener("message", function(e) {
+      var o = e.data;
+      o.methodName && o.parameters ? t.relayJsonRpcMessage(o) : t.relayMessage(e);
+    }), this.port.start(), e;
+  }, CounterfactualNode.relayMessage = function(t) {
+    this.node.emit(t.data.methodName, t.data);
+  }, CounterfactualNode.relayJsonRpcMessage = function(t) {
+    this.node.rpcRouter.dispatch(t);
+  }, CounterfactualNode.postToPort = function(t) {
+    this.port.postMessage(t);
+  }, CounterfactualNode.postToJsonRpcPort = function(t) {
+    this.port.postMessage(t);
+  }, CounterfactualNode.createCfProvider = function() {
+    return new cfWallet.Provider(this.nodeProvider);
+  }, CounterfactualNode;
+}();
+
+export { CounterfactualNode as a, Node$1 as b };

@@ -1,0 +1,106 @@
+const t = window.App.h;
+
+import "./chunk-deed3e85.js";
+
+import { a as e } from "./chunk-a343ce23.js";
+
+const s = {
+  1: "Mainnet",
+  3: "Ropsten",
+  42: "Kovan",
+  4: "Rinkeby"
+};
+
+class n {
+  constructor() {
+    this.network = "", this.metamaskUnlocked = !1, this.hasDetectedNetwork = !1;
+  }
+  render() {
+    if (this.hasDetectedNetwork) return this.network ? this.metamaskUnlocked ? t("div", {
+      class: "connection"
+    }, t("span", {
+      class: "dot connected"
+    }), t("span", {
+      class: "status"
+    }, `Connected to ${s[this.network]}`)) : t("div", {
+      class: "connection"
+    }, t("span", {
+      class: "dot locked"
+    }), t("span", {
+      class: "status"
+    }, "Wallet locked")) : t("div", {
+      class: "connection"
+    }, t("widget-tooltip", {
+      message: this.metamaskUnlocked ? "Must be connected to Ropsten" : void 0
+    }, t("span", {
+      class: "dot"
+    }), t("span", {
+      class: "status"
+    }, "No connection")));
+  }
+  static get is() {
+    return "widget-connection";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      el: {
+        elementRef: !0
+      },
+      hasDetectedNetwork: {
+        type: Boolean,
+        attr: "has-detected-network"
+      },
+      metamaskUnlocked: {
+        type: Boolean,
+        attr: "metamask-unlocked"
+      },
+      network: {
+        type: String,
+        attr: "network"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:widget-connection:**/";
+  }
+}
+
+e.injectProps(n, [ "network", "metamaskUnlocked", "hasDetectedNetwork" ]);
+
+class o {
+  constructor() {
+    this.caption = "";
+  }
+  render() {
+    return t("h1", {
+      class: `logo ${this.caption ? "logo--icon-only" : ""}`
+    }, t("stencil-route-link", {
+      url: "/"
+    }, t("img", {
+      src: "/assets/icon/logo.svg",
+      alt: "Counterfactual"
+    }), this.caption ? this.caption : t("span", null, "Playground")));
+  }
+  static get is() {
+    return "widget-logo";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      caption: {
+        type: String,
+        attr: "caption"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:widget-logo:**/";
+  }
+}
+
+export { n as WidgetConnection, o as WidgetLogo };

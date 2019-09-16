@@ -1,0 +1,17 @@
+import { h } from "../app.core.js";
+
+import { a as createProviderConsumer } from "./chunk-deed3e85.js";
+
+var AppRegistryTunnel = createProviderConsumer({
+  apps: [],
+  canUseApps: !1,
+  maintenanceMode: !1,
+  schemaVersion: "0"
+}, function(e, r) {
+  return h("context-consumer", {
+    subscribe: e,
+    renderer: r
+  });
+});
+
+export { AppRegistryTunnel as a };

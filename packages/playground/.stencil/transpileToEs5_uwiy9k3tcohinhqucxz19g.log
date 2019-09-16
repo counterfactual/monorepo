@@ -1,0 +1,468 @@
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import './chunk-deed3e85.js';
+import { a as AccountTunnel } from './chunk-dfef6d51.js';
+import { a as AppRegistryTunnel } from './chunk-868ccbc3.js';
+import { a as CounterfactualNode } from './chunk-515d15f9.js';
+import { a as WalletTunnel } from './chunk-a343ce23.js';
+import { a as PlaygroundAPIClient } from './chunk-adf5a5b1.js';
+var DialogInsufficientFunds = /** @class */ (function () {
+    function DialogInsufficientFunds() {
+        this.onDeposit = function () { };
+        this.onReject = function () { };
+    }
+    DialogInsufficientFunds.prototype.render = function () {
+        var _this = this;
+        return (h("widget-dialog", { visible: true, dialogTitle: "Insufficient funds", content: h("label", null, "You need at least", " ", window["ethers"].utils.formatEther(this.message.minimumEthBalance), " ", "ETH to ETH in your Playground account to install this game."), primaryButtonText: "Deposit", onPrimaryButtonClicked: function () { return _this.onDeposit(); }, secondaryButtonText: "Reject", onSecondaryButtonClicked: function () { return _this.onReject(); } }));
+    };
+    Object.defineProperty(DialogInsufficientFunds, "is", {
+        get: function () { return "dialog-insufficient-funds"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogInsufficientFunds, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogInsufficientFunds, "properties", {
+        get: function () {
+            return {
+                "message": {
+                    "type": "Any",
+                    "attr": "message"
+                },
+                "onDeposit": {
+                    "type": "Any",
+                    "attr": "on-deposit"
+                },
+                "onReject": {
+                    "type": "Any",
+                    "attr": "on-reject"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DialogInsufficientFunds;
+}());
+var KOVAN_NETWORK_ID = "42";
+var DialogProposeInstall = /** @class */ (function () {
+    function DialogProposeInstall() {
+        this.el = {};
+        this.onAccept = function () { };
+        this.onReject = function () { };
+        this.apps = [];
+        this.user = {};
+    }
+    DialogProposeInstall.prototype.componentWillLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _a;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!this.message.data) return [3 /*break*/, 2];
+                        _a = this;
+                        return [4 /*yield*/, PlaygroundAPIClient.getUserByNodeAddress(this.message.data.proposedByIdentifier)];
+                    case 1:
+                        _a.user = _b.sent();
+                        _b.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    DialogProposeInstall.prototype.render = function () {
+        var _this = this;
+        var app = this.apps.find(function (app) {
+            return (app.id[KOVAN_NETWORK_ID] === _this.message.data.params.appDefinition);
+        });
+        if (!app) {
+            throw Error("You've received an installation proposal from a different Ethereum network");
+        }
+        return (h("widget-dialog", { visible: true, dialogTitle: "You've been invited to play!", content: h("label", null, "You'll need to deposit", h("br", null), h("strong", null, window["ethers"].utils.formatEther(this.message.data.params.initiatorDeposit), " ", "ETH"), " ", "to play ", h("strong", null, app.name), " with", " ", h("strong", null, this.user.username), "."), primaryButtonText: "Accept", onPrimaryButtonClicked: function () { return _this.onAccept(_this.message); }, secondaryButtonText: "Reject", onSecondaryButtonClicked: function () { return _this.onReject(); } }));
+    };
+    Object.defineProperty(DialogProposeInstall, "is", {
+        get: function () { return "dialog-propose-install"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogProposeInstall, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogProposeInstall, "properties", {
+        get: function () {
+            return {
+                "apps": {
+                    "type": "Any",
+                    "attr": "apps"
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "message": {
+                    "type": "Any",
+                    "attr": "message"
+                },
+                "onAccept": {
+                    "type": "Any",
+                    "attr": "on-accept"
+                },
+                "onReject": {
+                    "type": "Any",
+                    "attr": "on-reject"
+                },
+                "user": {
+                    "state": true
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DialogProposeInstall;
+}());
+AppRegistryTunnel.injectProps(DialogProposeInstall, ["apps"]);
+var DialogRejectInstall = /** @class */ (function () {
+    function DialogRejectInstall() {
+        this.onOKClicked = function () { };
+        this.onReject = function () { };
+        this.username = "";
+    }
+    DialogRejectInstall.prototype.componentWillLoad = function () {
+        var lastMatchmake = JSON.parse(window.localStorage.getItem("playground:lastMatchmake") ||
+            '{"attributes":{"username":"Your opponent"}}');
+        this.username = lastMatchmake.data.attributes.username;
+    };
+    DialogRejectInstall.prototype.render = function () {
+        var _this = this;
+        return (h("widget-dialog", { visible: true, dialogTitle: "Sorry :(", content: h("label", null, h("strong", null, this.username), " has declined your invitation to play."), primaryButtonText: "OK", onPrimaryButtonClicked: function () { return _this.onOKClicked(); } }));
+    };
+    Object.defineProperty(DialogRejectInstall, "is", {
+        get: function () { return "dialog-reject-install"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogRejectInstall, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(DialogRejectInstall, "properties", {
+        get: function () {
+            return {
+                "message": {
+                    "type": "Any",
+                    "attr": "message"
+                },
+                "onOKClicked": {
+                    "type": "Any",
+                    "attr": "on-o-k-clicked"
+                },
+                "onReject": {
+                    "type": "Any",
+                    "attr": "on-reject"
+                },
+                "username": {
+                    "state": true
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return DialogRejectInstall;
+}());
+var HeaderDrawer = /** @class */ (function () {
+    function HeaderDrawer() {
+        this.closeDrawer = {};
+        this.opened = false;
+    }
+    HeaderDrawer.prototype.menuClicked = function (event) {
+        event.preventDefault();
+        this.closeDrawer.emit();
+    };
+    HeaderDrawer.prototype.render = function () {
+        var _this = this;
+        return (h("div", { class: this.opened ? "drawer-container opened" : "drawer-container" }, h("a", { onClick: function (e) { return _this.menuClicked(e); }, class: "drawer-screen" }), h("menu", { class: "drawer" }, h("header-content", null))));
+    };
+    Object.defineProperty(HeaderDrawer, "is", {
+        get: function () { return "header-drawer"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderDrawer, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderDrawer, "properties", {
+        get: function () {
+            return {
+                "opened": {
+                    "type": Boolean,
+                    "attr": "opened"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderDrawer, "events", {
+        get: function () {
+            return [{
+                    "name": "closeDrawer",
+                    "method": "closeDrawer",
+                    "bubbles": true,
+                    "cancelable": true,
+                    "composed": true
+                }];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderDrawer, "style", {
+        get: function () { return "/**style-placeholder:header-drawer:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return HeaderDrawer;
+}());
+var LayoutHeader = /** @class */ (function () {
+    function LayoutHeader() {
+        this.drawerOpened = false;
+    }
+    LayoutHeader.prototype.closeDrawerHandler = function (e) {
+        this.drawerOpened = false;
+    };
+    LayoutHeader.prototype.openDrawerHandler = function (e) {
+        this.drawerOpened = true;
+    };
+    LayoutHeader.prototype.render = function () {
+        var _this = this;
+        return [
+            h("header-drawer", { opened: this.drawerOpened, onCloseDrawer: function (e) { return _this.closeDrawerHandler(e); } }),
+            h("header", { class: "header" }, h("div", { class: "hide-on-desktop" }, h("div", { class: "mobile-content" }, h("a", { class: "drawer-toggle", onClick: function (e) { return _this.openDrawerHandler(e); } }, h("img", { src: "/assets/icon/menu-btn.svg", alt: "Menu" })), h("div", { class: "logo-container" }, h("stencil-route-link", { url: "/" }, h("img", { src: "/assets/icon/logo.svg", alt: "Counterfactual", class: "logo" }))), h("div", { class: "account-container" }, h("header-balance", null)))), h("div", { class: "hide-on-mobile desktop-wrapper" }, h("header-content", null)))
+        ];
+    };
+    Object.defineProperty(LayoutHeader, "is", {
+        get: function () { return "layout-header"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutHeader, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutHeader, "properties", {
+        get: function () {
+            return {
+                "drawerOpened": {
+                    "state": true
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(LayoutHeader, "style", {
+        get: function () { return "/**style-placeholder:layout-header:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return LayoutHeader;
+}());
+var KOVAN_NETWORK_ID$1 = "42";
+var NodeListener = /** @class */ (function () {
+    function NodeListener() {
+        this.el = {};
+        this.apps = [];
+        this.web3Detected = false;
+        this.history = {};
+        this.provider = {};
+        this.ethMultisigBalance = window["ethers"].constants.Zero;
+        this.nodeMessageResolver = {
+            proposeInstallVirtualEvent: this.onProposeInstallVirtual.bind(this),
+            rejectInstallEvent: this.onRejectInstall.bind(this),
+            rejectInstallVirtualEvent: this.onRejectInstall.bind(this)
+        };
+    }
+    Object.defineProperty(NodeListener.prototype, "cfProvider", {
+        get: function () {
+            return CounterfactualNode.getCfProvider();
+        },
+        enumerable: true,
+        configurable: true
+    });
+    NodeListener.prototype.componentWillLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (this.web3Detected) {
+                    this.bindNodeEvents();
+                }
+                return [2 /*return*/];
+            });
+        });
+    };
+    NodeListener.prototype.bindNodeEvents = function () {
+        var _this = this;
+        Object.keys(this.nodeMessageResolver).forEach(function (eventName) {
+            _this.cfProvider.off(eventName);
+            _this.cfProvider.on(eventName, _this.nodeMessageResolver[eventName].bind(_this));
+        });
+    };
+    NodeListener.prototype.onProposeInstallVirtual = function (data) {
+        this.currentMessage = data;
+        this.showModal();
+    };
+    NodeListener.prototype.onRejectInstall = function (data) {
+        this.currentMessage = data;
+        this.showModal();
+    };
+    NodeListener.prototype.acceptProposeInstall = function (message) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var proposeInstallParams, currentEthBalance, minimumEthBalance, _a, appInstanceId, intermediaries, intermediaryIdentifier, installedApp_1, app, error_1;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        _b.trys.push([0, 2, , 3]);
+                        proposeInstallParams = message.data
+                            .params;
+                        currentEthBalance = this.ethMultisigBalance;
+                        minimumEthBalance = window["ethers"].utils.bigNumberify(proposeInstallParams.initiatorDeposit);
+                        if (currentEthBalance.lt(minimumEthBalance)) {
+                            this.currentModalType = "error";
+                            this.currentErrorType = "INSUFFICIENT_FUNDS";
+                            this.currentMessage = { minimumEthBalance: minimumEthBalance };
+                            return [2 /*return*/];
+                        }
+                        _a = this.currentMessage.data, appInstanceId = _a.appInstanceId, intermediaries = _a.intermediaries;
+                        intermediaryIdentifier = intermediaries[0];
+                        return [4 /*yield*/, this.cfProvider.installVirtual(appInstanceId, intermediaryIdentifier)];
+                    case 1:
+                        installedApp_1 = _b.sent();
+                        app = this.apps.find(function (app) {
+                            return (app.id[KOVAN_NETWORK_ID$1] === installedApp_1.appInstance.appDefinition);
+                        });
+                        if (!app) {
+                            throw Error("You've received an installation proposal from a different Ethereum network");
+                        }
+                        window.localStorage.setItem("playground:installingDapp", JSON.stringify({
+                            installedApp: installedApp_1,
+                            name: app.name,
+                            dappContainerUrl: "/dapp/" + app.slug,
+                            dappUrl: app.url
+                        }));
+                        this.history.push("/dapp/" + app.slug);
+                        this.hideModal();
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _b.sent();
+                        this.currentModalType = "error";
+                        this.currentErrorType = error_1.message;
+                        console.error(error_1);
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    NodeListener.prototype.rejectProposeInstall = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.cfProvider.rejectInstall(this.currentMessage.data.appInstanceId)];
+                    case 1:
+                        _a.sent();
+                        this.hideModal();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    NodeListener.prototype.showModal = function () {
+        this.currentModalType = this.currentMessage.type;
+    };
+    NodeListener.prototype.hideModal = function () {
+        this.currentModalType = "none";
+    };
+    NodeListener.prototype.render = function () {
+        var _this = this;
+        var modal = {};
+        if (this.currentModalType === "proposeInstallVirtualEvent") {
+            modal = (h("dialog-propose-install", { message: this.currentMessage, onAccept: this.acceptProposeInstall.bind(this), onReject: this.rejectProposeInstall.bind(this) }));
+        }
+        if (this.currentModalType === "rejectInstallVirtualEvent" ||
+            this.currentModalType === "rejectInstallEvent") {
+            modal = (h("dialog-reject-install", { message: this.currentMessage, onOKClicked: this.hideModal.bind(this) }));
+        }
+        if (this.currentModalType === "error") {
+            if (this.currentErrorType === "INSUFFICIENT_FUNDS") {
+                modal = (h("dialog-insufficient-funds", { message: this.currentMessage, onDeposit: this.hideModal.bind(this), onReject: this.rejectProposeInstall.bind(this) }));
+            }
+            else {
+                modal = (h("widget-dialog", { dialogTitle: "Something went wrong", content: this.currentErrorType + ". See the console for more info.", primaryButtonText: "OK", onPrimaryButtonClicked: function () { return _this.hideModal(); } }));
+            }
+        }
+        return [h("slot", null), modal];
+    };
+    Object.defineProperty(NodeListener, "is", {
+        get: function () { return "node-listener"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NodeListener, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(NodeListener, "properties", {
+        get: function () {
+            return {
+                "apps": {
+                    "type": "Any",
+                    "attr": "apps"
+                },
+                "currentErrorType": {
+                    "state": true
+                },
+                "currentMessage": {
+                    "state": true
+                },
+                "currentModalType": {
+                    "state": true
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "ethMultisigBalance": {
+                    "type": "Any",
+                    "attr": "eth-multisig-balance"
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "provider": {
+                    "type": "Any",
+                    "attr": "provider"
+                },
+                "web3Detected": {
+                    "type": Boolean,
+                    "attr": "web-3-detected"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    return NodeListener;
+}());
+AppRegistryTunnel.injectProps(NodeListener, ["apps"]);
+AccountTunnel.injectProps(NodeListener, ["ethMultisigBalance"]);
+WalletTunnel.injectProps(NodeListener, ["web3Detected", "provider"]);
+export { DialogInsufficientFunds, DialogProposeInstall, DialogRejectInstall, HeaderDrawer, LayoutHeader, NodeListener };

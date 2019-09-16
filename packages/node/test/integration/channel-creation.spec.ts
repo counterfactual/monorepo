@@ -6,6 +6,7 @@ import {
   getChannelAddresses,
   getMultisigCreationTransactionHash
 } from "./utils";
+import { ProtocolMessage } from "../../src/machine";
 
 describe("Node can create multisig, other owners get notified", () => {
   let nodeA: Node;
@@ -78,6 +79,31 @@ describe("Node can create multisig, other owners get notified", () => {
 
       expect(txHash1).toBeDefined();
       expect(txHash2).toBeDefined();
+    });
+
+    it("Node B hears a SETUP_FINISHED message after Node A creates channel", async done => {
+      const ownersABPublicIdentifiers = [
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier
+      ];
+
+      let nodeAProcessID: string;
+      let nodeBProcessID: string;
+
+      nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: ProtocolMessage) => {
+        nodeAProcessID = msg.processID;
+      });
+
+      nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: ProtocolMessage) => {
+        nodeBProcessID = msg.processID;
+        expect(nodeBProcessID).toEqual(nodeAProcessID);
+        done();
+      });
+
+      await getMultisigCreationTransactionHash(
+        nodeA,
+        ownersABPublicIdentifiers
+      );
     });
   });
 });

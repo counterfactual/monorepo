@@ -1,0 +1,370 @@
+App.loadBundle('/**:bundle-id:**/', ['exports', './chunk-346f9d40.js', './chunk-008b1f1a.js'], function (exports, __chunk_1, __chunk_8) {
+    var h = window.App.h;
+    var AccountEthForm = /** @class */ (function () {
+        function AccountEthForm() {
+            this.submit = {};
+            this.header = "";
+            this.button = "";
+            this.disabled = false;
+            this.provideFaucetLink = false;
+            this.min = 0.01;
+            this.max = 1;
+            this.available = 0;
+            this.value = "";
+            this.error = "";
+            this.loading = false;
+            this.autofocus = false;
+        }
+        AccountEthForm.prototype.update = function (event) {
+            this.error = "";
+            this.value = event.target.value;
+        };
+        AccountEthForm.prototype.openFaucet = function () {
+            window.open("https://faucet.kovan.network/", "_blank");
+        };
+        AccountEthForm.prototype.handleSubmit = function (event) {
+            event.preventDefault();
+            var value = Number(this.value);
+            if (!value || value < this.min || value > this.max) {
+                this.error = "Enter an amount larger than " + this.min + " and smaller than " + this.max + ".";
+                return;
+            }
+            this.submit.emit(event);
+        };
+        AccountEthForm.prototype.render = function () {
+            var _this = this;
+            var formattedEth;
+            try {
+                formattedEth = parseFloat(window["ethers"].utils.formatEther(this.available)).toFixed(4);
+            }
+            catch (_a) {
+                formattedEth = "0";
+            }
+            return (h("div", null, h("form-container", null, h("form-input", { type: "number", unit: "ETH", value: this.value, error: this.error, disabled: this.disabled, min: this.min, max: Math.min(parseInt(formattedEth, 10), this.max), step: 0.001, onChange: function (e) { return _this.update(e); }, autofocus: this.autofocus }, h("div", { class: "balance-label", slot: "label" }, h("div", null, "Available Balance"), h("div", null, formattedEth, " ETH"))), h("form-button", { class: "button", spinner: this.loading, disabled: this.disabled, onButtonPressed: this.handleSubmit.bind(this) }, this.button), this.provideFaucetLink ? (h("form-button", { class: "button button--secondary", onButtonPressed: this.openFaucet.bind(this) }, "Get Free ETH (test faucet)")) : (undefined))));
+        };
+        Object.defineProperty(AccountEthForm, "is", {
+            get: function () { return "account-eth-form"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountEthForm, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountEthForm, "properties", {
+            get: function () {
+                return {
+                    "autofocus": {
+                        "type": Boolean,
+                        "attr": "autofocus"
+                    },
+                    "available": {
+                        "type": Number,
+                        "attr": "available"
+                    },
+                    "button": {
+                        "type": String,
+                        "attr": "button"
+                    },
+                    "disabled": {
+                        "type": Boolean,
+                        "attr": "disabled"
+                    },
+                    "error": {
+                        "type": String,
+                        "attr": "error",
+                        "mutable": true
+                    },
+                    "header": {
+                        "type": String,
+                        "attr": "header"
+                    },
+                    "loading": {
+                        "type": Boolean,
+                        "attr": "loading"
+                    },
+                    "max": {
+                        "type": Number,
+                        "attr": "max"
+                    },
+                    "min": {
+                        "type": Number,
+                        "attr": "min"
+                    },
+                    "provideFaucetLink": {
+                        "type": Boolean,
+                        "attr": "provide-faucet-link"
+                    },
+                    "value": {
+                        "type": "Any",
+                        "attr": "value",
+                        "mutable": true
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountEthForm, "events", {
+            get: function () {
+                return [{
+                        "name": "submit",
+                        "method": "submit",
+                        "bubbles": true,
+                        "cancelable": true,
+                        "composed": true
+                    }];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(AccountEthForm, "style", {
+            get: function () { return "/**style-placeholder:account-eth-form:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return AccountEthForm;
+    }());
+    var WidgetCard = /** @class */ (function () {
+        function WidgetCard() {
+        }
+        WidgetCard.prototype.render = function () {
+            return (h("div", { class: "card" }, h("slot", null)));
+        };
+        Object.defineProperty(WidgetCard, "is", {
+            get: function () { return "widget-card"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetCard, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetCard, "style", {
+            get: function () { return "/**style-placeholder:widget-card:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return WidgetCard;
+    }());
+    var WidgetDialog = /** @class */ (function () {
+        function WidgetDialog() {
+            this.el = {};
+            this.visible = false;
+            this.dialogTitle = "";
+            this.icon = "";
+            this.content = {};
+            this.contentClass = "";
+            this.dialogClass = "";
+            this.primaryButtonText = "";
+            this.secondaryButtonText = "";
+            this.primaryButtonClicked = {};
+            this.secondaryButtonClicked = {};
+        }
+        WidgetDialog.prototype.primaryButtonClickedHandler = function () {
+            this.primaryButtonClicked.emit();
+        };
+        WidgetDialog.prototype.secondaryButtonClickedHandler = function () {
+            this.secondaryButtonClicked.emit();
+        };
+        WidgetDialog.prototype.render = function () {
+            var _this = this;
+            return (h("div", { class: this.visible ? "dialog-wrapper dialog--open" : "dialog-wrapper" }, h("dialog", { open: this.visible, class: this.dialogClass }, h("header", null, h("widget-logo", { caption: this.dialogTitle })), h("main", { class: this.contentClass }, this.icon ? h("img", { src: this.icon }) : {}, this.content), h("footer", null, this.secondaryButtonText ? (h("button", { class: "btn--secondary", onClick: function () { return _this.secondaryButtonClickedHandler(); } }, this.secondaryButtonText)) : ({}), this.primaryButtonText ? (h("button", { onClick: function () { return _this.primaryButtonClickedHandler(); } }, this.primaryButtonText)) : ({})))));
+        };
+        Object.defineProperty(WidgetDialog, "is", {
+            get: function () { return "widget-dialog"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetDialog, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetDialog, "properties", {
+            get: function () {
+                return {
+                    "content": {
+                        "type": "Any",
+                        "attr": "content"
+                    },
+                    "contentClass": {
+                        "type": String,
+                        "attr": "content-class"
+                    },
+                    "dialogClass": {
+                        "type": String,
+                        "attr": "dialog-class"
+                    },
+                    "dialogTitle": {
+                        "type": String,
+                        "attr": "dialog-title"
+                    },
+                    "el": {
+                        "elementRef": true
+                    },
+                    "icon": {
+                        "type": String,
+                        "attr": "icon"
+                    },
+                    "primaryButtonText": {
+                        "type": String,
+                        "attr": "primary-button-text"
+                    },
+                    "secondaryButtonText": {
+                        "type": String,
+                        "attr": "secondary-button-text"
+                    },
+                    "visible": {
+                        "type": Boolean,
+                        "attr": "visible",
+                        "mutable": true
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetDialog, "events", {
+            get: function () {
+                return [{
+                        "name": "primaryButtonClicked",
+                        "method": "primaryButtonClicked",
+                        "bubbles": true,
+                        "cancelable": true,
+                        "composed": true
+                    }, {
+                        "name": "secondaryButtonClicked",
+                        "method": "secondaryButtonClicked",
+                        "bubbles": true,
+                        "cancelable": true,
+                        "composed": true
+                    }];
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetDialog, "style", {
+            get: function () { return "/**style-placeholder:widget-dialog:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return WidgetDialog;
+    }());
+    var WidgetHeader = /** @class */ (function () {
+        function WidgetHeader() {
+        }
+        WidgetHeader.prototype.render = function () {
+            return (h("h2", { class: "header" }, h("slot", null)));
+        };
+        Object.defineProperty(WidgetHeader, "is", {
+            get: function () { return "widget-header"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetHeader, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetHeader, "style", {
+            get: function () { return "/**style-placeholder:widget-header:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return WidgetHeader;
+    }());
+    var WidgetScreen = /** @class */ (function () {
+        function WidgetScreen() {
+            this.exitable = true;
+        }
+        WidgetScreen.prototype.render = function () {
+            return (h("div", { class: "widget-screen" }, h("div", { class: "constraint" }, h("div", { class: "pre" }, h("widget-connection", null), this.exitable ? (h("stencil-route-link", { url: "/" }, h("button", { class: "close" }, h("img", { src: "/assets/icon/close.svg" })))) : null), h("widget-card", null, h("div", { class: "logo" }, h("widget-logo", null)), h("widget-header", null, h("slot", { name: "header" })), h("slot", null)), h("div", { class: "post" }, h("slot", { name: "post" })))));
+        };
+        Object.defineProperty(WidgetScreen, "is", {
+            get: function () { return "widget-screen"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetScreen, "encapsulation", {
+            get: function () { return "shadow"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetScreen, "properties", {
+            get: function () {
+                return {
+                    "exitable": {
+                        "type": Boolean,
+                        "attr": "exitable"
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetScreen, "style", {
+            get: function () { return "/**style-placeholder:widget-screen:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return WidgetScreen;
+    }());
+    function getUrl(url, root) {
+        if (url.charAt(0) == "/" && root.charAt(root.length - 1) == "/") {
+            return root.slice(0, root.length - 1) + url;
+        }
+        return root + url;
+    }
+    var Redirect = /** @class */ (function () {
+        function Redirect() {
+        }
+        Redirect.prototype.componentWillLoad = function () {
+            if (this.history && this.root && this.url) {
+                return this.history.replace(getUrl(this.url, this.root));
+            }
+        };
+        Object.defineProperty(Redirect, "is", {
+            get: function () { return "stencil-router-redirect"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(Redirect, "properties", {
+            get: function () {
+                return {
+                    "el": {
+                        "elementRef": true
+                    },
+                    "history": {
+                        "type": "Any",
+                        "attr": "history"
+                    },
+                    "root": {
+                        "type": String,
+                        "attr": "root"
+                    },
+                    "url": {
+                        "type": String,
+                        "attr": "url"
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        return Redirect;
+    }());
+    __chunk_8.ActiveRouter.injectProps(Redirect, [
+        "history",
+        "root"
+    ]);
+    exports.AccountEthForm = AccountEthForm;
+    exports.WidgetCard = WidgetCard;
+    exports.WidgetDialog = WidgetDialog;
+    exports.WidgetHeader = WidgetHeader;
+    exports.WidgetScreen = WidgetScreen;
+    exports.StencilRouterRedirect = Redirect;
+    Object.defineProperty(exports, '__esModule', { value: true });
+});

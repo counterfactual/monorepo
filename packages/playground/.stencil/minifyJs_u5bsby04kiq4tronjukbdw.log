@@ -1,0 +1,338 @@
+import * as tslib_1 from "../polyfills/tslib.js";
+
+import { h } from "../app.core.js";
+
+import "./chunk-deed3e85.js";
+
+import { a as AccountTunnel } from "./chunk-dfef6d51.js";
+
+import { a as CounterfactualNode } from "./chunk-515d15f9.js";
+
+import { a as WalletTunnel } from "./chunk-a343ce23.js";
+
+import { a as PlaygroundAPIClient } from "./chunk-adf5a5b1.js";
+
+function buildRegistrationSignaturePayload(e) {
+  return [ "PLAYGROUND ACCOUNT REGISTRATION", "Username: " + e.username, "E-mail: " + e.email, "Ethereum address: " + e.ethAddress, "Node address: " + e.nodeAddress ].join("\n");
+}
+
+function buildLoginSignaturePayload(e) {
+  return [ "PLAYGROUND ACCOUNT LOGIN", "Ethereum address: " + e ].join("\n");
+}
+
+var AccountRegister = /** @class */ function() {
+  function AccountRegister() {
+    var e = this;
+    this.connected = !1, this.user = {}, this.updateAccount = function(e) {}, this.signer = {}, 
+    this.history = {}, this.metamaskUnlocked = !1, this.waitForMultisig = function() {
+      return tslib_1.__awaiter(e, void 0, void 0, function() {
+        return tslib_1.__generator(this, function(e) {
+          return [ 2 /*return*/ ];
+        });
+      });
+    }, this.changeset = {
+      username: "",
+      email: "",
+      ethAddress: this.user.ethAddress,
+      nodeAddress: CounterfactualNode.getInstance().publicIdentifier
+    }, this.errors = {
+      username: "",
+      email: "",
+      ethAddress: "",
+      nodeAddress: ""
+    }, this.stage = "ready";
+  }
+  return AccountRegister.prototype.componentDidUpdate = function() {
+    this.metamaskUnlocked || this.history.push("/");
+  }, AccountRegister.prototype.login = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t, r;
+      return tslib_1.__generator(this, function(s) {
+        switch (s.label) {
+         case 0:
+          return e.preventDefault(), [ 4 /*yield*/ , this.signer.signMessage(buildLoginSignaturePayload(this.user.ethAddress)) ];
+
+         case 1:
+          return t = s.sent(), [ 4 /*yield*/ , PlaygroundAPIClient.login({
+            ethAddress: this.user.ethAddress
+          }, t) ];
+
+         case 2:
+          return r = s.sent(), window.localStorage.setItem("playground:user:token", r.token), 
+          this.updateAccount({
+            user: r
+          }), this.history.push("/"), [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, AccountRegister.prototype.change = function(e, t) {
+    this.changeset[e] = t.target.value;
+  }, AccountRegister.prototype.formSubmissionHandler = function() {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e, t, r;
+      return tslib_1.__generator(this, function(s) {
+        switch (s.label) {
+         case 0:
+          this.clearErrorMessage(), e = buildRegistrationSignaturePayload(this.changeset), 
+          this.stage = "awaitingForWallet", s.label = 1;
+
+         case 1:
+          return s.trys.push([ 1, 4, , 5 ]), [ 4 /*yield*/ , this.signer.signMessage(e) ];
+
+         case 2:
+          return t = s.sent(), [ 4 /*yield*/ , this.register(t) ];
+
+         case 3:
+          return s.sent(), [ 3 /*break*/ , 5 ];
+
+         case 4:
+          return r = s.sent(), this.handleMetamaskErrors(r), this.stage = "ready", [ 3 /*break*/ , 5 ];
+
+         case 5:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, AccountRegister.prototype.handleMetamaskErrors = function(e) {
+    e.message.match(/User denied message signature/) && this.setErrorMessage("user_denied_signature");
+  }, AccountRegister.prototype.onUserUpdated = function() {
+    this.user.multisigAddress && "deployingMultisig" === this.stage && (this.stage = "finished");
+  }, AccountRegister.prototype.register = function(e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t, r;
+      return tslib_1.__generator(this, function(s) {
+        switch (s.label) {
+         case 0:
+          return s.trys.push([ 0, 2, , 3 ]), this.stage = "creatingAccount", [ 4 /*yield*/ , PlaygroundAPIClient.createAccount(this.changeset, e) ];
+
+         case 1:
+          return t = s.sent(), this.updateAccount({
+            user: t
+          }), window.localStorage.setItem("playground:user:token", t.token), ga("set", "userId", t.id), 
+          this.stage = "deployingMultisig", this.waitForMultisig(), [ 3 /*break*/ , 3 ];
+
+         case 2:
+          return r = s.sent(), this.setErrorMessage(r.code), this.stage = "ready", [ 3 /*break*/ , 3 ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, AccountRegister.prototype.clearErrorMessage = function() {
+    this.errors = {
+      username: "",
+      email: "",
+      ethAddress: "",
+      nodeAddress: ""
+    };
+  }, AccountRegister.prototype.setErrorMessage = function(e) {
+    var t = {};
+    switch (this.clearErrorMessage(), e) {
+     case "username_required":
+      t = {
+        username: "This field is required"
+      };
+      break;
+
+     case "username_already_exists":
+      t = {
+        username: "This username is not available, try another one."
+      };
+      break;
+
+     case "email_required":
+      t = {
+        email: "This field is required"
+      };
+      break;
+
+     case "signature_required":
+      t = {
+        ethAddress: "You must sign the operation with Metamask in order to continue"
+      };
+      break;
+
+     case "invalid_signature":
+      t = {
+        ethAddress: "Something went wrong with your signature. Please try again."
+      };
+      break;
+
+     case "address_already_registered":
+      t = {
+        ethAddress: "Cannot use same ethereum address twice."
+      };
+      break;
+
+     case "user_save_failed":
+      t = {
+        ethAddress: "Something went wrong while saving your data. Please try again later."
+      };
+      break;
+
+     case "user_denied_signature":
+      t = {
+        ethAddress: "You must approve the message signature at Metamask in order to proceed."
+      };
+    }
+    this.errors = Object.assign({}, this.errors, t);
+  }, AccountRegister.prototype.render = function() {
+    var e = this;
+    if ("finished" === this.stage) return h("stencil-router-redirect", {
+      url: "/deposit"
+    });
+    this.user.ethAddress && (this.changeset.ethAddress = this.user.ethAddress);
+    var t = "ready" !== this.stage, r = h("div", {
+      slot: "post"
+    }, "Already have an account?", " ", h("a", {
+      href: "#",
+      onClick: function(t) {
+        return tslib_1.__awaiter(e, void 0, void 0, function() {
+          return tslib_1.__generator(this, function(e) {
+            switch (e.label) {
+             case 0:
+              return [ 4 /*yield*/ , this.login(t) ];
+
+             case 1:
+              return [ 2 /*return*/ , e.sent() ];
+            }
+          });
+        });
+      }
+    }, "Login here"));
+    return "deployingMultisig" === this.stage && (r = h("div", {
+      slot: "post"
+    }, h("b", null, "This can take around 15-90 seconds."), h("br", null), "Please be patient! :)")), 
+    h("widget-screen", {
+      exitable: !t
+    }, h("div", {
+      slot: "header"
+    }, "Create a Playground Account"), h("form-container", {
+      onFormSubmitted: function(t) {
+        return tslib_1.__awaiter(e, void 0, void 0, function() {
+          return tslib_1.__generator(this, function(e) {
+            switch (e.label) {
+             case 0:
+              return [ 4 /*yield*/ , this.formSubmissionHandler() ];
+
+             case 1:
+              return [ 2 /*return*/ , e.sent() ];
+            }
+          });
+        });
+      }
+    }, h("form-input", {
+      disabled: t,
+      label: "Username",
+      value: this.changeset.username,
+      error: this.errors.username,
+      autofocus: !0,
+      onChange: function(t) {
+        return e.change("username", t);
+      }
+    }), h("form-input", {
+      disabled: t,
+      label: "Email (optional)",
+      value: this.changeset.email,
+      error: this.errors.email,
+      onChange: function(t) {
+        return e.change("email", t);
+      }
+    }), h("div", {
+      class: "smallprint"
+    }, h("b", null, "Account will be linked to your Ethereum address: "), this.changeset.ethAddress), h("div", {
+      class: "error"
+    }, this.errors.ethAddress), h("form-button", {
+      class: "button",
+      disabled: t,
+      spinner: t,
+      onButtonPressed: function(t) {
+        return tslib_1.__awaiter(e, void 0, void 0, function() {
+          return tslib_1.__generator(this, function(e) {
+            switch (e.label) {
+             case 0:
+              return [ 4 /*yield*/ , this.formSubmissionHandler() ];
+
+             case 1:
+              return [ 2 /*return*/ , e.sent() ];
+            }
+          });
+        });
+      }
+    }, {
+      ready: "Register",
+      awaitingForWallet: "Check Wallet...",
+      creatingAccount: "Creating your account...",
+      deployingMultisig: "Deploying contract..."
+    }[this.stage])), r);
+  }, Object.defineProperty(AccountRegister, "is", {
+    get: function() {
+      return "account-register";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountRegister, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountRegister, "properties", {
+    get: function() {
+      return {
+        connected: {
+          type: Boolean,
+          attr: "connected"
+        },
+        el: {
+          elementRef: !0
+        },
+        errors: {
+          state: !0
+        },
+        history: {
+          type: "Any",
+          attr: "history"
+        },
+        metamaskUnlocked: {
+          type: Boolean,
+          attr: "metamask-unlocked"
+        },
+        signer: {
+          type: "Any",
+          attr: "signer"
+        },
+        stage: {
+          state: !0
+        },
+        updateAccount: {
+          type: "Any",
+          attr: "update-account"
+        },
+        user: {
+          type: "Any",
+          attr: "user",
+          watchCallbacks: [ "onUserUpdated" ]
+        },
+        waitForMultisig: {
+          type: "Any",
+          attr: "wait-for-multisig"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountRegister, "style", {
+    get: function() {
+      return "/**style-placeholder:account-register:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), AccountRegister;
+}();
+
+AccountTunnel.injectProps(AccountRegister, [ "updateAccount", "user", "waitForMultisig" ]), 
+WalletTunnel.injectProps(AccountRegister, [ "connected", "signer", "metamaskUnlocked" ]);
+
+export { AccountRegister };

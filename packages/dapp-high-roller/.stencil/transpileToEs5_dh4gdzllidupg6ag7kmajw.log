@@ -1,0 +1,36 @@
+import { h } from '../app.core.js';
+import { a as createProviderConsumer } from './chunk-deed3e85.js';
+var CounterfactualTunnel = createProviderConsumer({
+    appFactory: {},
+    cfProvider: {},
+    appInstance: {},
+    updateAppInstance: function () { },
+    account: {}
+}, function (subscribe, child) { return (h("context-consumer", { subscribe: subscribe, renderer: child })); });
+var HighRollerStage;
+(function (HighRollerStage) {
+    HighRollerStage[HighRollerStage["WAITING_FOR_P1_COMMITMENT"] = 0] = "WAITING_FOR_P1_COMMITMENT";
+    HighRollerStage[HighRollerStage["P1_COMMITTED_TO_HASH"] = 1] = "P1_COMMITTED_TO_HASH";
+    HighRollerStage[HighRollerStage["P2_COMMITTED_TO_NUM"] = 2] = "P2_COMMITTED_TO_NUM";
+    HighRollerStage[HighRollerStage["P1_REVEALED_NUM"] = 3] = "P1_REVEALED_NUM";
+    HighRollerStage[HighRollerStage["P1_TRIED_TO_SUBMIT_ZERO"] = 4] = "P1_TRIED_TO_SUBMIT_ZERO";
+})(HighRollerStage || (HighRollerStage = {}));
+var HighRollerActionType;
+(function (HighRollerActionType) {
+    HighRollerActionType[HighRollerActionType["COMMIT_TO_HASH"] = 0] = "COMMIT_TO_HASH";
+    HighRollerActionType[HighRollerActionType["COMMIT_TO_NUM"] = 1] = "COMMIT_TO_NUM";
+    HighRollerActionType[HighRollerActionType["REVEAL_NUM"] = 2] = "REVEAL_NUM";
+})(HighRollerActionType || (HighRollerActionType = {}));
+var GameState;
+(function (GameState) {
+    GameState[GameState["Play"] = 0] = "Play";
+    GameState[GameState["Lost"] = 1] = "Lost";
+    GameState[GameState["Won"] = 2] = "Won";
+    GameState[GameState["Tie"] = 3] = "Tie";
+})(GameState || (GameState = {}));
+var PlayerType;
+(function (PlayerType) {
+    PlayerType["Black"] = "black";
+    PlayerType["White"] = "white";
+})(PlayerType || (PlayerType = {}));
+export { GameState as a, HighRollerStage as b, HighRollerActionType as c, PlayerType as d, CounterfactualTunnel as e };

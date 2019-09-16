@@ -1,0 +1,21 @@
+App.loadBundle('/**:bundle-id:**/', ['exports'], function (exports) {
+    var h = window.App.h;
+    function getProp(propertyName, context) {
+        var state = context.history.location
+            ? context.history.location.state || {}
+            : {};
+        var query = context.history.location
+            ? context.history.location.query || {}
+            : {};
+        return state[propertyName] || query[propertyName] || context[propertyName];
+    }
+    function computeCommitHash(appSalt, chosenNumber) {
+        return ethers.utils.solidityKeccak256(["bytes32", "uint256"], [appSalt, chosenNumber]);
+    }
+    function generateSalt() {
+        return ethers.utils.bigNumberify(ethers.utils.randomBytes(32)).toHexString();
+    }
+    exports.getProp = getProp;
+    exports.generateSalt = generateSalt;
+    exports.computeCommitHash = computeCommitHash;
+});

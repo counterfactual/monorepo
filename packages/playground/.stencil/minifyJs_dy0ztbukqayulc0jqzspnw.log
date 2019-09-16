@@ -1,0 +1,347 @@
+import * as tslib_1 from "../polyfills/tslib.js";
+
+var BASE_URL = "http://localhost:9000", API_TIMEOUT = 3e4;
+
+function timeout(t) {
+  void 0 === t && (t = API_TIMEOUT);
+  var e = setTimeout(function() {
+    throw new Error("Request timed out");
+  }, t);
+  return {
+    cancel: function() {
+      clearTimeout(e);
+    }
+  };
+}
+
+function request(t, e, r, n, s) {
+  return void 0 === s && (s = "Signature"), tslib_1.__awaiter(this, void 0, void 0, function() {
+    return tslib_1.__generator(this, function(i) {
+      switch (i.label) {
+       case 0:
+        return [ 4 /*yield*/ , fetch(BASE_URL + "/api/" + e, Object.assign({
+          method: t
+        }, [ "POST", "PUT" ].includes(t) ? {
+          body: JSON.stringify({
+            data: r
+          })
+        } : {}, {
+          headers: Object.assign({
+            "Content-Type": "application/json; charset=utf-8"
+          }, n ? {
+            Authorization: s + " " + n
+          } : {})
+        })) ];
+
+       case 1:
+        return [ 2 /*return*/ , i.sent() ];
+      }
+    });
+  });
+}
+
+function put(t, e, r) {
+  return tslib_1.__awaiter(this, void 0, void 0, function() {
+    var n, s, i;
+    return tslib_1.__generator(this, function(a) {
+      switch (a.label) {
+       case 0:
+        return n = timeout(), [ 4 /*yield*/ , request("PUT", t + "/" + e.id, e, r) ];
+
+       case 1:
+        return s = a.sent(), n.cancel(), [ 4 /*yield*/ , s.json() ];
+
+       case 2:
+        if ((i = a.sent()).errors) throw i.errors[0];
+        return [ 2 /*return*/ , i ];
+      }
+    });
+  });
+}
+
+function post(t, e, r, n) {
+  return void 0 === n && (n = "Signature"), tslib_1.__awaiter(this, void 0, void 0, function() {
+    var s, i, a;
+    return tslib_1.__generator(this, function(u) {
+      switch (u.label) {
+       case 0:
+        return s = timeout(), [ 4 /*yield*/ , request("POST", t, e, r, n) ];
+
+       case 1:
+        return i = u.sent(), s.cancel(), [ 4 /*yield*/ , i.json() ];
+
+       case 2:
+        if ((a = u.sent()).errors) throw a.errors[0];
+        return [ 2 /*return*/ , a ];
+      }
+    });
+  });
+}
+
+function remove(t, e, r, n) {
+  return void 0 === n && (n = "Signature"), tslib_1.__awaiter(this, void 0, void 0, function() {
+    var s, i, a;
+    return tslib_1.__generator(this, function(u) {
+      switch (u.label) {
+       case 0:
+        return s = timeout(), [ 4 /*yield*/ , fetch(BASE_URL + "/api/" + t + "/" + e.attributes.id, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            Authorization: n + " " + r
+          }
+        }) ];
+
+       case 1:
+        return i = u.sent(), s.cancel(), [ 4 /*yield*/ , i.json() ];
+
+       case 2:
+        if ((a = u.sent()).errors) throw a.errors[0];
+        return [ 2 /*return*/ , a ];
+      }
+    });
+  });
+}
+
+function get(t, e) {
+  return tslib_1.__awaiter(this, void 0, void 0, function() {
+    var r, n, s;
+    return tslib_1.__generator(this, function(i) {
+      switch (i.label) {
+       case 0:
+        return r = timeout(), [ 4 /*yield*/ , request("GET", t, {}, e, "Bearer") ];
+
+       case 1:
+        return n = i.sent(), r.cancel(), [ 4 /*yield*/ , n.json() ];
+
+       case 2:
+        if ((s = i.sent()).errors) throw s.errors[0];
+        return [ 2 /*return*/ , s ];
+      }
+    });
+  });
+}
+
+function fromAPIResource(t) {
+  return Object.assign({
+    id: t.id
+  }, t.attributes);
+}
+
+function toAPIResource(t) {
+  return Object.assign({}, t.id ? {
+    id: t.id
+  } : {}, {
+    attributes: Object.assign({}, Object.keys(t).map(function(e) {
+      var r;
+      return (r = {})[e] = t[e], r;
+    }).reduce(function(t, e) {
+      return Object.assign({}, t, e);
+    }, {}))
+  });
+}
+
+var PlaygroundAPIClient = /** @class */ function() {
+  function PlaygroundAPIClient() {}
+  return PlaygroundAPIClient.getHeartbeat = function() {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      return tslib_1.__generator(this, function(t) {
+        switch (t.label) {
+         case 0:
+          return t.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , get("heartbeats") ];
+
+         case 1:
+          return [ 2 /*return*/ , t.sent().data[0].attributes ];
+
+         case 2:
+          return t.sent(), [ 2 /*return*/ , {
+            schemaVersion: "",
+            maintenanceMode: !0
+          } ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.createAccount = function(t, e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var r, n, s, i;
+      return tslib_1.__generator(this, function(a) {
+        switch (a.label) {
+         case 0:
+          return a.trys.push([ 0, 3, , 4 ]), [ 4 /*yield*/ , post("users", toAPIResource(t), e) ];
+
+         case 1:
+          return r = a.sent(), n = r.data, [ 4 /*yield*/ , post("multisig-deploys", {
+            type: "multisigDeploy",
+            attributes: {
+              ethAddress: t.ethAddress
+            }
+          }) ];
+
+         case 2:
+          return s = a.sent(), n.attributes.transactionHash = s.data.id, [ 2 /*return*/ , fromAPIResource(n) ];
+
+         case 3:
+          return i = a.sent(), [ 2 /*return*/ , Promise.reject(i) ];
+
+         case 4:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.updateAccount = function(t) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e;
+      return tslib_1.__generator(this, function(r) {
+        switch (r.label) {
+         case 0:
+          return r.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , put("users", toAPIResource(t), window.localStorage.getItem("playground:user:token")) ];
+
+         case 1:
+          return [ 2 /*return*/ , fromAPIResource(r.sent().data) ];
+
+         case 2:
+          return e = r.sent(), [ 2 /*return*/ , Promise.reject(e) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.deleteAccount = function(t) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e;
+      return tslib_1.__generator(this, function(r) {
+        switch (r.label) {
+         case 0:
+          return r.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , remove("users", toAPIResource(t), window.localStorage.getItem("playground:user:token")) ];
+
+         case 1:
+          return r.sent(), [ 3 /*break*/ , 3 ];
+
+         case 2:
+          return e = r.sent(), [ 2 /*return*/ , Promise.reject(e) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.login = function(t, e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var r;
+      return tslib_1.__generator(this, function(n) {
+        switch (n.label) {
+         case 0:
+          return n.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , post("session-requests", {
+            type: "session",
+            id: "",
+            attributes: {
+              ethAddress: t.ethAddress
+            }
+          }, e) ];
+
+         case 1:
+          return [ 2 /*return*/ , fromAPIResource(n.sent().data) ];
+
+         case 2:
+          return r = n.sent(), [ 2 /*return*/ , Promise.reject(r) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.getUser = function(t) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e;
+      return tslib_1.__generator(this, function(r) {
+        switch (r.label) {
+         case 0:
+          if (!t) throw new Error("getUser(): token is required");
+          r.label = 1;
+
+         case 1:
+          return r.trys.push([ 1, 3, , 4 ]), [ 4 /*yield*/ , get("users/me", t) ];
+
+         case 2:
+          return [ 2 /*return*/ , fromAPIResource(r.sent().data[0]) ];
+
+         case 3:
+          return e = r.sent(), [ 2 /*return*/ , Promise.reject(e) ];
+
+         case 4:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.getUserByNodeAddress = function(t) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var e;
+      return tslib_1.__generator(this, function(r) {
+        switch (r.label) {
+         case 0:
+          return r.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , get("users?filter[node_address]=" + t) ];
+
+         case 1:
+          return [ 2 /*return*/ , fromAPIResource(r.sent().data[0]) ];
+
+         case 2:
+          return e = r.sent(), [ 2 /*return*/ , Promise.reject(e) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.getApps = function() {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var t;
+      return tslib_1.__generator(this, function(e) {
+        switch (e.label) {
+         case 0:
+          return e.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , get("apps") ];
+
+         case 1:
+          return [ 2 /*return*/ , e.sent().data.map(function(t) {
+            return fromAPIResource(t);
+          }) ];
+
+         case 2:
+          return t = e.sent(), [ 2 /*return*/ , Promise.reject(t) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient.matchmake = function(t, e) {
+    return tslib_1.__awaiter(this, void 0, void 0, function() {
+      var r;
+      return tslib_1.__generator(this, function(n) {
+        switch (n.label) {
+         case 0:
+          return n.trys.push([ 0, 2, , 3 ]), [ 4 /*yield*/ , post("matchmaking-requests", {
+            type: "matchmakingRequest",
+            attributes: e ? {
+              matchmakeWith: e
+            } : {}
+          }, t, "Bearer") ];
+
+         case 1:
+          return [ 2 /*return*/ , n.sent() ];
+
+         case 2:
+          return r = n.sent(), [ 2 /*return*/ , Promise.reject(r) ];
+
+         case 3:
+          return [ 2 /*return*/ ];
+        }
+      });
+    });
+  }, PlaygroundAPIClient;
+}();
+
+export { PlaygroundAPIClient as a };

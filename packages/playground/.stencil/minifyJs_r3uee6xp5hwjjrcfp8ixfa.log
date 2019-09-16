@@ -1,0 +1,255 @@
+const t = window.App.h;
+
+import "./chunk-deed3e85.js";
+
+import { a as e } from "./chunk-dfef6d51.js";
+
+import { a as i, u as s } from "./chunk-8b806219.js";
+
+import { a } from "./chunk-9cf92136.js";
+
+class r {
+  constructor() {
+    this.src = "", this.header = "", this.content = "", this.spinner = !1, this.tooltip = "";
+  }
+  render() {
+    return t("widget-tooltip", {
+      message: this.tooltip
+    }, t("div", {
+      class: "info"
+    }, t("img", {
+      class: "info-img",
+      src: this.src
+    }), t("div", {
+      class: "info-text"
+    }, t("div", {
+      class: "header"
+    }, this.header), t("div", {
+      class: "content"
+    }, this.content, t("widget-spinner", {
+      visible: this.spinner
+    })))));
+  }
+  static get is() {
+    return "header-account-info";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      content: {
+        type: String,
+        attr: "content"
+      },
+      header: {
+        type: String,
+        attr: "header"
+      },
+      spinner: {
+        type: Boolean,
+        attr: "spinner"
+      },
+      src: {
+        type: String,
+        attr: "src"
+      },
+      tooltip: {
+        type: String,
+        attr: "tooltip"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:header-account-info:**/";
+  }
+}
+
+class n {
+  constructor() {
+    this.ethFreeBalanceWei = 0, this.user = {};
+  }
+  get ethBalance() {
+    return this.ethFreeBalanceWei ? `${window.ethers.utils.formatEther(this.ethFreeBalanceWei)} ETH` : "0.00 ETH";
+  }
+  get hasethPendingDepositAmountWei() {
+    return !isNaN(this.ethPendingDepositAmountWei);
+  }
+  render() {
+    if (!this.user.id) return;
+    let e = "";
+    return this.hasethPendingDepositAmountWei && (e = "We're waiting for the network to confirm your latest deposit."), 
+    this.user.multisigAddress || (e = "We're configuring your state channel with the Playground. This can take 15-90 seconds, depending on network speed."), 
+    t("stencil-route-link", {
+      url: "/exchange"
+    }, t("header-account-info", {
+      src: "/assets/icon/crypto.svg",
+      header: "Balance",
+      content: this.ethBalance,
+      spinner: this.hasethPendingDepositAmountWei || !this.user.multisigAddress,
+      tooltip: e
+    }));
+  }
+  static get is() {
+    return "header-balance";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      el: {
+        elementRef: !0
+      },
+      ethFreeBalanceWei: {
+        type: Number,
+        attr: "eth-free-balance-wei"
+      },
+      ethPendingDepositAmountWei: {
+        type: Number,
+        attr: "eth-pending-deposit-amount-wei"
+      },
+      user: {
+        type: "Any",
+        attr: "user",
+        mutable: !0
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:header-balance:**/";
+  }
+}
+
+e.injectProps(n, [ "ethFreeBalanceWei", "user", "ethPendingDepositAmountWei" ]);
+
+class o {
+  constructor() {
+    this.unsubscribe = (() => {}), this.activeClass = "link-active", this.exact = !1, 
+    this.strict = !0, this.custom = "a", this.match = null;
+  }
+  componentWillLoad() {
+    this.computeMatch();
+  }
+  computeMatch() {
+    this.location && (this.match = i(this.location.pathname, {
+      path: this.urlMatch || this.url,
+      exact: this.exact,
+      strict: this.strict
+    }));
+  }
+  handleClick(t) {
+    var e, i;
+    if (!s(t) && this.history && this.url && this.root) return t.preventDefault(), this.history.push((i = this.root, 
+    "/" == (e = this.url).charAt(0) && "/" == i.charAt(i.length - 1) ? i.slice(0, i.length - 1) + e : i + e));
+  }
+  render() {
+    let e = {
+      class: {
+        [this.activeClass]: null !== this.match
+      },
+      onClick: this.handleClick.bind(this)
+    };
+    return this.anchorClass && (e.class[this.anchorClass] = !0), "a" === this.custom && (e = Object.assign({}, e, {
+      href: this.url,
+      title: this.anchorTitle,
+      role: this.anchorRole,
+      tabindex: this.anchorTabIndex,
+      "aria-haspopup": this.ariaHaspopup,
+      id: this.anchorId,
+      "aria-posinset": this.ariaPosinset,
+      "aria-setsize": this.ariaSetsize,
+      "aria-label": this.ariaLabel
+    })), t(this.custom, Object.assign({}, e), t("slot", null));
+  }
+  static get is() {
+    return "stencil-route-link";
+  }
+  static get properties() {
+    return {
+      activeClass: {
+        type: String,
+        attr: "active-class"
+      },
+      anchorClass: {
+        type: String,
+        attr: "anchor-class"
+      },
+      anchorId: {
+        type: String,
+        attr: "anchor-id"
+      },
+      anchorRole: {
+        type: String,
+        attr: "anchor-role"
+      },
+      anchorTabIndex: {
+        type: String,
+        attr: "anchor-tab-index"
+      },
+      anchorTitle: {
+        type: String,
+        attr: "anchor-title"
+      },
+      ariaHaspopup: {
+        type: String,
+        attr: "aria-haspopup"
+      },
+      ariaLabel: {
+        type: String,
+        attr: "aria-label"
+      },
+      ariaPosinset: {
+        type: String,
+        attr: "aria-posinset"
+      },
+      ariaSetsize: {
+        type: Number,
+        attr: "aria-setsize"
+      },
+      custom: {
+        type: String,
+        attr: "custom"
+      },
+      el: {
+        elementRef: !0
+      },
+      exact: {
+        type: Boolean,
+        attr: "exact"
+      },
+      history: {
+        type: "Any",
+        attr: "history"
+      },
+      location: {
+        type: "Any",
+        attr: "location",
+        watchCallbacks: [ "computeMatch" ]
+      },
+      match: {
+        state: !0
+      },
+      root: {
+        type: String,
+        attr: "root"
+      },
+      strict: {
+        type: Boolean,
+        attr: "strict"
+      },
+      url: {
+        type: String,
+        attr: "url"
+      },
+      urlMatch: {
+        type: String,
+        attr: "url-match"
+      }
+    };
+  }
+}
+
+a.injectProps(o, [ "history", "location", "root" ]);
+
+export { r as HeaderAccountInfo, n as HeaderBalance, o as StencilRouteLink };

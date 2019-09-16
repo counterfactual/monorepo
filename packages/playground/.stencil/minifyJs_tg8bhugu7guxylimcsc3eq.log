@@ -1,0 +1,216 @@
+var __awaiter = this && this.__awaiter || function(e, t, n, o) {
+  return new (n || (n = Promise))(function(a, r) {
+    function fulfilled(e) {
+      try {
+        step(o.next(e));
+      } catch (e) {
+        r(e);
+      }
+    }
+    function rejected(e) {
+      try {
+        step(o.throw(e));
+      } catch (e) {
+        r(e);
+      }
+    }
+    function step(e) {
+      e.done ? a(e.value) : new n(function(t) {
+        t(e.value);
+      }).then(fulfilled, rejected);
+    }
+    step((o = o.apply(e, t || [])).next());
+  });
+}, __generator = this && this.__generator || function(e, t) {
+  var n, o, a, r, s = {
+    label: 0,
+    sent: function() {
+      if (1 & a[0]) throw a[1];
+      return a[1];
+    },
+    trys: [],
+    ops: []
+  };
+  return r = {
+    next: verb(0),
+    throw: verb(1),
+    return: verb(2)
+  }, "function" == typeof Symbol && (r[Symbol.iterator] = function() {
+    return this;
+  }), r;
+  function verb(r) {
+    return function(i) {
+      return function(r) {
+        if (n) throw new TypeError("Generator is already executing.");
+        for (;s; ) try {
+          if (n = 1, o && (a = 2 & r[0] ? o.return : r[0] ? o.throw || ((a = o.return) && a.call(o), 
+          0) : o.next) && !(a = a.call(o, r[1])).done) return a;
+          switch (o = 0, a && (r = [ 2 & r[0], a.value ]), r[0]) {
+           case 0:
+           case 1:
+            a = r;
+            break;
+
+           case 4:
+            return s.label++, {
+              value: r[1],
+              done: !1
+            };
+
+           case 5:
+            s.label++, o = r[1], r = [ 0 ];
+            continue;
+
+           case 7:
+            r = s.ops.pop(), s.trys.pop();
+            continue;
+
+           default:
+            if (!(a = (a = s.trys).length > 0 && a[a.length - 1]) && (6 === r[0] || 2 === r[0])) {
+              s = 0;
+              continue;
+            }
+            if (3 === r[0] && (!a || r[1] > a[0] && r[1] < a[3])) {
+              s.label = r[1];
+              break;
+            }
+            if (6 === r[0] && s.label < a[1]) {
+              s.label = a[1], a = r;
+              break;
+            }
+            if (a && s.label < a[2]) {
+              s.label = a[2], s.ops.push(r);
+              break;
+            }
+            a[2] && s.ops.pop(), s.trys.pop();
+            continue;
+          }
+          r = t.call(e, s);
+        } catch (e) {
+          r = [ 6, e ], o = 0;
+        } finally {
+          n = a = 0;
+        }
+        if (5 & r[0]) throw r[1];
+        return {
+          value: r[0] ? r[1] : void 0,
+          done: !0
+        };
+      }([ r, i ]);
+    };
+  }
+};
+
+App.loadBundle("/**:bundle-id:**/", [ "exports" ], function(e) {
+  var t, n;
+  window, function(e) {
+    e[e.TWO_PARTY_FIXED_OUTCOME = 0] = "TWO_PARTY_FIXED_OUTCOME", e[e.COIN_TRANSFER = 1] = "COIN_TRANSFER";
+  }(t || (t = {})), function(e) {
+    e[e.SEND_TO_ADDR_ONE = 0] = "SEND_TO_ADDR_ONE", e[e.SEND_TO_ADDR_TWO = 1] = "SEND_TO_ADDR_TWO", 
+    e[e.SPLIT_AND_SEND_TO_BOTH_ADDRS = 2] = "SPLIT_AND_SEND_TO_BOTH_ADDRS";
+  }(n || (n = {})), function(e) {
+    (e.ErrorType || (e.ErrorType = {})).ERROR = "error", function(e) {
+      e.ACCEPT_STATE = "acceptState", e.CREATE_CHANNEL = "createChannel", e.DEPOSIT = "deposit", 
+      e.GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails", e.GET_APP_INSTANCES = "getAppInstances", 
+      e.GET_CHANNEL_ADDRESSES = "getChannelAddresses", e.GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress", 
+      e.GET_FREE_BALANCE_STATE = "getFreeBalanceState", e.GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance", 
+      e.GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances", e.GET_STATE = "getState", 
+      e.GET_STATE_CHANNEL = "getStateChannel", e.INSTALL = "install", e.INSTALL_VIRTUAL = "installVirtual", 
+      e.PROPOSE_INSTALL = "proposeInstall", e.PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual", 
+      e.PROPOSE_STATE = "proposeState", e.REJECT_INSTALL = "rejectInstall", e.REJECT_STATE = "rejectState", 
+      e.UPDATE_STATE = "updateState", e.TAKE_ACTION = "takeAction", e.UNINSTALL = "uninstall", 
+      e.UNINSTALL_VIRTUAL = "uninstallVirtual", e.WITHDRAW = "withdraw";
+    }(e.MethodName || (e.MethodName = {})), function(e) {
+      e.CREATE_CHANNEL = "chan_create", e.DEPOSIT = "chan_deposit", e.GET_APP_INSTANCE_DETAILS = "chan_getAppInstance", 
+      e.GET_APP_INSTANCES = "chan_getAppInstances", e.GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress", 
+      e.GET_FREE_BALANCE_STATE = "chan_getFreeBalanceState", e.GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances", 
+      e.GET_STATE = "chan_getState", e.INSTALL = "chan_install", e.INSTALL_VIRTUAL = "chan_installVirtual", 
+      e.PROPOSE_INSTALL = "chan_proposeInstall", e.PROPOSE_INSTALL_VIRTUAL = "chan_proposeInstallVirtual", 
+      e.PROPOSE_STATE = "chan_proposeState", e.REJECT_INSTALL = "chan_rejectInstall", 
+      e.REJECT_STATE = "chan_rejectState", e.UPDATE_STATE = "chan_updateState", e.TAKE_ACTION = "chan_takeAction", 
+      e.UNINSTALL = "chan_uninstall", e.UNINSTALL_VIRTUAL = "chan_uninstallVirtual", e.WITHDRAW = "chan_withdraw";
+    }(e.RpcMethodName || (e.RpcMethodName = {})), function(e) {
+      e.COUNTER_DEPOSIT_CONFIRMED = "counterDepositConfirmed", e.CREATE_CHANNEL = "createChannelEvent", 
+      e.DEPOSIT_CONFIRMED = "depositConfirmedEvent", e.DEPOSIT_FAILED = "depositFailed", 
+      e.DEPOSIT_STARTED = "depositStartedEvent", e.INSTALL = "installEvent", e.INSTALL_VIRTUAL = "installVirtualEvent", 
+      e.PROPOSE_STATE = "proposeStateEvent", e.REJECT_INSTALL = "rejectInstallEvent", 
+      e.REJECT_STATE = "rejectStateEvent", e.UNINSTALL = "uninstallEvent", e.UNINSTALL_VIRTUAL = "uninstallVirtualEvent", 
+      e.UPDATE_STATE = "updateStateEvent", e.WITHDRAWAL_CONFIRMED = "withdrawalConfirmedEvent", 
+      e.WITHDRAWAL_FAILED = "withdrawalFailed", e.WITHDRAWAL_STARTED = "withdrawalStartedEvent", 
+      e.PROPOSE_INSTALL = "proposeInstallEvent", e.PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent", 
+      e.PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent", e.WITHDRAW_EVENT = "withdrawEvent", 
+      e.REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent";
+    }(e.EventName || (e.EventName = {}));
+  }(e.Node || (e.Node = {}));
+  var o = /** @class */ function() {
+    function CounterfactualNode() {}
+    return CounterfactualNode.getInstance = function() {
+      return CounterfactualNode.node;
+    }, CounterfactualNode.getCfProvider = function() {
+      return CounterfactualNode.cfProvider;
+    }, CounterfactualNode.create = function(e) {
+      return __awaiter(this, void 0, void 0, function() {
+        var t;
+        return __generator(this, function(n) {
+          switch (n.label) {
+           case 0:
+            return CounterfactualNode.node ? [ 2 /*return*/ , CounterfactualNode.node ] : (t = CounterfactualNode, 
+            [ 4 /*yield*/ , Node.create(e.messagingService, e.storeService, e.nodeConfig, new window.ethers.providers.Web3Provider(window.web3.currentProvider), e.network) ]);
+
+           case 1:
+            return t.node = n.sent(), [ 4 /*yield*/ , this.setupNodeProvider() ];
+
+           case 2:
+            return n.sent(), [ 2 /*return*/ , CounterfactualNode.getInstance() ];
+          }
+        });
+      });
+    }, CounterfactualNode.setupNodeProvider = function() {
+      return __awaiter(this, void 0, void 0, function() {
+        var t = this;
+        return __generator(this, function(n) {
+          switch (n.label) {
+           case 0:
+            return this.node.on(e.Node.MethodName.PROPOSE_INSTALL_VIRTUAL, this.postToPort.bind(this)), 
+            this.node.on(e.Node.MethodName.INSTALL_VIRTUAL, this.postToPort.bind(this)), this.node.on(e.Node.MethodName.REJECT_INSTALL, this.postToPort.bind(this)), 
+            this.node.on(e.Node.MethodName.DEPOSIT, this.postToPort.bind(this)), this.node.on(e.Node.MethodName.WITHDRAW, this.postToPort.bind(this)), 
+            this.node.on(e.Node.MethodName.GET_FREE_BALANCE_STATE, this.postToPort.bind(this)), 
+            this.node.on(e.Node.EventName.CREATE_CHANNEL, this.postToPort.bind(this)), this.node.on(e.Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.INSTALL_VIRTUAL, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.REJECT_INSTALL, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.DEPOSIT, this.postToJsonRpcPort.bind(this)), this.node.on(e.Node.EventName.DEPOSIT_CONFIRMED, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.WITHDRAW, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.GET_FREE_BALANCE_STATE, this.postToJsonRpcPort.bind(this)), 
+            this.node.on(e.Node.RpcMethodName.CREATE_CHANNEL, this.postToJsonRpcPort.bind(this)), 
+            window.addEventListener("message", function(e) {
+              if ("cf-node-provider:init" === e.data) {
+                var n = t.configureMessagePorts().port2;
+                window.postMessage("cf-node-provider:port", "*", [ n ]);
+              }
+            }), this.nodeProvider = new cfWallet.NodeProvider(), [ 4 /*yield*/ , this.nodeProvider.connect() ];
+
+           case 1:
+            return n.sent(), this.cfProvider = this.createCfProvider(), [ 2 /*return*/ ];
+          }
+        });
+      });
+    }, CounterfactualNode.configureMessagePorts = function() {
+      var e = this, t = new MessageChannel();
+      return this.port = t.port1, this.port.addEventListener("message", function(t) {
+        var n = t.data;
+        n.methodName && n.parameters ? e.relayJsonRpcMessage(n) : e.relayMessage(t);
+      }), this.port.start(), t;
+    }, CounterfactualNode.relayMessage = function(e) {
+      this.node.emit(e.data.methodName, e.data);
+    }, CounterfactualNode.relayJsonRpcMessage = function(e) {
+      this.node.rpcRouter.dispatch(e);
+    }, CounterfactualNode.postToPort = function(e) {
+      this.port.postMessage(e);
+    }, CounterfactualNode.postToJsonRpcPort = function(e) {
+      this.port.postMessage(e);
+    }, CounterfactualNode.createCfProvider = function() {
+      return new cfWallet.Provider(this.nodeProvider);
+    }, CounterfactualNode;
+  }();
+  e.CounterfactualNode = o;
+});

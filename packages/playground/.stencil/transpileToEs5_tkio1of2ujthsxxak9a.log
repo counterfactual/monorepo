@@ -1,0 +1,305 @@
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import './chunk-deed3e85.js';
+import { a as AccountTunnel } from './chunk-dfef6d51.js';
+import { a as WalletTunnel } from './chunk-a343ce23.js';
+var HeaderAccount = /** @class */ (function () {
+    function HeaderAccount() {
+        var _this = this;
+        this.network = "";
+        this.error = {
+            primary: "",
+            secondary: ""
+        };
+        this.web3Detected = false;
+        this.hasDetectedNetwork = false;
+        this.metamaskUnlocked = false;
+        this.networkPermitted = false;
+        this.user = {};
+        this.authenticated = false;
+        this.updateAccount = function (e) { };
+        this.login = function () { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_b) {
+            return [2 /*return*/, ({})];
+        }); }); };
+        this.autoLogin = function () { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_b) {
+            return [2 /*return*/];
+        }); }); };
+        this.hasCorruptStateChannelState = false;
+        this.authenticationChanged = {};
+        this.waitMultisigInterval = 0;
+        this.metamaskConfirmationUIOpen = false;
+    }
+    HeaderAccount.prototype.authenticationChangedHandler = function () {
+        this.authenticationChanged.emit({ authenticated: this.authenticated });
+    };
+    HeaderAccount.prototype.userChangedHandler = function () {
+        this.authenticated = !!(this.user && this.user.id);
+    };
+    HeaderAccount.prototype.onLoginClicked = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _b, error_1;
+            return tslib_1.__generator(this, function (_c) {
+                switch (_c.label) {
+                    case 0:
+                        this.removeError();
+                        this.metamaskConfirmationUIOpen = true;
+                        _c.label = 1;
+                    case 1:
+                        _c.trys.push([1, 3, 4, 5]);
+                        _b = this;
+                        return [4 /*yield*/, this.login()];
+                    case 2:
+                        _b.user = _c.sent();
+                        return [3 /*break*/, 5];
+                    case 3:
+                        error_1 = _c.sent();
+                        this.displayLoginError();
+                        return [3 /*break*/, 5];
+                    case 4:
+                        this.metamaskConfirmationUIOpen = false;
+                        return [7 /*endfinally*/];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    HeaderAccount.prototype.onConnectMetamask = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var _a_1;
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        this.metamaskConfirmationUIOpen = true;
+                        _b.label = 1;
+                    case 1:
+                        _b.trys.push([1, 3, 4, 5]);
+                        return [4 /*yield*/, window["ethereum"].enable()];
+                    case 2:
+                        _b.sent();
+                        return [3 /*break*/, 5];
+                    case 3:
+                        _a_1 = _b.sent();
+                        console.error("Was not able to call `window.ethereum.enable()`");
+                        window.alert("Your browser does not support enabling your wallet programatically. Please unlock your Web3 wallet and try again.");
+                        return [3 /*break*/, 5];
+                    case 4:
+                        this.metamaskConfirmationUIOpen = false;
+                        return [7 /*endfinally*/];
+                    case 5: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    HeaderAccount.prototype.componentWillLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (HeaderAccount.busy) {
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this.autoLogin()];
+                    case 1:
+                        _b.sent();
+                        HeaderAccount.busy = true;
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    HeaderAccount.prototype.componentDidUnload = function () {
+        HeaderAccount.busy = false;
+    };
+    HeaderAccount.prototype.displayLoginError = function () {
+        this.updateAccount({
+            error: {
+                primary: "Login Failed",
+                secondary: "You may not have a Playground account yet. Try registering."
+            }
+        });
+        setTimeout(this.removeError.bind(this), 5000);
+    };
+    HeaderAccount.prototype.removeError = function () {
+        this.updateAccount({
+            error: null
+        });
+    };
+    HeaderAccount.prototype.render = function () {
+        if (!this.hasDetectedNetwork) {
+            return;
+        }
+        if (!this.web3Detected) {
+            return (h("div", { class: "account-container" }, h("widget-error-message", null), h("div", { class: "message-container" }, "No Ethereum Connection")));
+        }
+        if (!this.networkPermitted) {
+            return (h("div", { class: "account-container" }, h("widget-error-message", null), h("div", { class: "message-container" }, "Wrong Network")));
+        }
+        if (!this.metamaskUnlocked) {
+            return (h("div", { class: "account-container" }, h("widget-error-message", null), h("div", { class: "btn-container" }, h("button", { disabled: this.metamaskConfirmationUIOpen, onClick: this.onConnectMetamask.bind(this), class: "btn btn--connect-to-wallet" }, h("svg", { class: "icon wallet", "enable-background": "new 0 0 50 50", viewBox: "0 0 50 50" }, h("rect", { fill: "none", height: "50", width: "50" }), h("path", { d: "  M40,14c0,0-25.397,0-30,0c-3.076,0-5,3-5,5v21.384C5,42.934,7.066,45,9.616,45h30.768C42.933,45,45,42.934,45,40.384V18.846  C45,16.299,42.549,14,40,14z", fill: "none", stroke: "#000000", "stroke-linecap": "round", "stroke-linejoin": "round", "stroke-miterlimit": "10", "stroke-width": "2" }), h("path", { d: "M37,11V7.658  c0-3.331-0.719-4.292-4.852-3.202c-3.036,0.801-20.801,5.726-20.801,5.726c-5.471,2.062-6.306,3.817-6.306,7.816L5,20.453", fill: "none", stroke: "#000000", "stroke-linejoin": "round", "stroke-miterlimit": "10", "stroke-width": "2" }), h("path", { d: "M38.502,32C37.121,32,36,30.882,36,29.501S37.121,27,38.502,27C39.879,27,41,28.12,41,29.501S39.879,32,38.502,32z" })), this.metamaskConfirmationUIOpen
+                ? "Check Wallet..."
+                : "Connect to Wallet"))));
+        }
+        if (this.hasCorruptStateChannelState) {
+            return (h("div", { class: "account-container" }, h("widget-error-message", null), h("div", { class: "message-container" }, "Corrupt State")));
+        }
+        if (!this.authenticated) {
+            return (h("div", { class: "account-container" }, h("div", { class: "btn-container" }, this.error ? (h("button", { onClick: this.onLoginClicked.bind(this), class: "btn btn-error" }, h("widget-tooltip", { message: this.error.secondary }, h("div", { class: "widget-error-message" }, h("img", { class: "icon", src: "/assets/icon/error.svg" }), this.error.primary)))) : (h("button", { onClick: this.onLoginClicked.bind(this), class: "btn", disabled: this.metamaskConfirmationUIOpen }, h("svg", { class: "icon login", viewBox: "0 0 32 32" }, h("g", null, h("path", { d: "M27,3V29a1,1,0,0,1-1,1H6a1,1,0,0,1-1-1V27H7v1H25V4H7V7H5V3A1,1,0,0,1,6,2H26A1,1,0,0,1,27,3ZM12.29,20.29l1.42,1.42,5-5a1,1,0,0,0,0-1.42l-5-5-1.42,1.42L15.59,15H5v2H15.59Z", id: "login_account_enter_door" }))), this.metamaskConfirmationUIOpen ? "Check Wallet..." : "Login")), h("stencil-route-link", { url: "/register" }, h("button", { class: "btn btn-alternate" }, h("svg", { class: "icon register", viewBox: "0 0 48 48" }, h("g", null, h("path", { d: "M24,26c6.6,0,12-5.4,12-12S30.6,2,24,2c-6.6,0-12,5.4-12,12S17.4,26,24,26z M24,4c5.5,0,10,4.5,10,10s-4.5,10-10,10   c-5.5,0-10-4.5-10-10S18.5,4,24,4z" }), h("path", { d: "M33,28H15C7.8,28,2,33.8,2,41v5h2v-5c0-6.1,4.9-11,11-11h18V28z" }), h("polygon", { points: "46,38 40,38 40,32 38,32 38,38 32,38 32,40 38,40 38,46 40,46 40,40 46,40  " }))), "Register")))));
+        }
+        return (h("div", { class: "account-container" }, h("div", { class: "info-container" }, h("header-balance", null), h("stencil-route-link", { url: "/account" }, h("header-account-info", { src: "/assets/icon/account.svg", header: "Account", content: this.user.username })))));
+    };
+    Object.defineProperty(HeaderAccount, "is", {
+        get: function () { return "header-account"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderAccount, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderAccount, "properties", {
+        get: function () {
+            return {
+                "authenticated": {
+                    "type": Boolean,
+                    "attr": "authenticated",
+                    "mutable": true,
+                    "watchCallbacks": ["authenticationChangedHandler"]
+                },
+                "autoLogin": {
+                    "type": "Any",
+                    "attr": "auto-login"
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "error": {
+                    "type": "Any",
+                    "attr": "error"
+                },
+                "hasCorruptStateChannelState": {
+                    "type": Boolean,
+                    "attr": "has-corrupt-state-channel-state"
+                },
+                "hasDetectedNetwork": {
+                    "type": Boolean,
+                    "attr": "has-detected-network"
+                },
+                "login": {
+                    "type": "Any",
+                    "attr": "login"
+                },
+                "metamaskConfirmationUIOpen": {
+                    "state": true
+                },
+                "metamaskUnlocked": {
+                    "type": Boolean,
+                    "attr": "metamask-unlocked"
+                },
+                "network": {
+                    "type": String,
+                    "attr": "network"
+                },
+                "networkPermitted": {
+                    "type": Boolean,
+                    "attr": "network-permitted"
+                },
+                "updateAccount": {
+                    "type": "Any",
+                    "attr": "update-account"
+                },
+                "user": {
+                    "type": "Any",
+                    "attr": "user",
+                    "mutable": true,
+                    "watchCallbacks": ["userChangedHandler"]
+                },
+                "waitMultisigInterval": {
+                    "state": true
+                },
+                "web3Detected": {
+                    "type": Boolean,
+                    "attr": "web-3-detected"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderAccount, "events", {
+        get: function () {
+            return [{
+                    "name": "authenticationChanged",
+                    "method": "authenticationChanged",
+                    "bubbles": true,
+                    "cancelable": true,
+                    "composed": true
+                }];
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(HeaderAccount, "style", {
+        get: function () { return "/**style-placeholder:header-account:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return HeaderAccount;
+}());
+HeaderAccount.busy = false;
+AccountTunnel.injectProps(HeaderAccount, [
+    "user",
+    "error",
+    "updateAccount",
+    "login",
+    "autoLogin",
+    "hasCorruptStateChannelState"
+]);
+WalletTunnel.injectProps(HeaderAccount, [
+    "network",
+    "web3Detected",
+    "networkPermitted",
+    "metamaskUnlocked",
+    "hasDetectedNetwork"
+]);
+var WidgetErrorMessage = /** @class */ (function () {
+    function WidgetErrorMessage() {
+        this.error = {};
+    }
+    WidgetErrorMessage.prototype.render = function () {
+        return this.error ? (h("widget-tooltip", { message: this.error.secondary }, h("div", { class: "widget-error-message" }, this.error.primary))) : (undefined);
+    };
+    Object.defineProperty(WidgetErrorMessage, "is", {
+        get: function () { return "widget-error-message"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetErrorMessage, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetErrorMessage, "properties", {
+        get: function () {
+            return {
+                "el": {
+                    "elementRef": true
+                },
+                "error": {
+                    "type": "Any",
+                    "attr": "error"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetErrorMessage, "style", {
+        get: function () { return "/**style-placeholder:widget-error-message:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return WidgetErrorMessage;
+}());
+AccountTunnel.injectProps(WidgetErrorMessage, ["error"]);
+export { HeaderAccount, WidgetErrorMessage };

@@ -1,0 +1,2013 @@
+function getScopeId(n, e) {
+  return "sc-" + n._$tagNameMeta$_ + (e && e !== u ? "-" + e : "");
+}
+
+function getElementScopeId(n, e) {
+  return n + (e ? "-h" : "-s");
+}
+
+function initStyleTemplate(n, e, t, r, o) {
+  if (r) {
+    // we got a style mode for this component, let's create an id for this style
+    var i = e._$tagNameMeta$_ + (o || u);
+    e[i] || (
+    // ie11's template polyfill doesn't fully do the trick and there's still issues
+    // so instead of trying to clone templates with styles in them, we'll just
+    // keep a map of the style text as a string to create <style> elements for es5 builds
+    e[i] = r);
+  }
+}
+
+function h$1(n, e) {
+  for (var t, r, o = null, i = !1, u = !1, c = arguments.length; c-- > 2; ) k.push(arguments[c]);
+  for (;k.length > 0; ) {
+    var f = k.pop();
+    if (f && void 0 !== f.pop) for (c = f.length; c--; ) k.push(f[c]); else "boolean" == typeof f && (f = null), 
+    (u = "function" != typeof n) && (null == f ? f = "" : "number" == typeof f ? f = String(f) : "string" != typeof f && (u = !1)), 
+    u && i ? o[o.length - 1].vtext += f : null === o ? o = [ u ? {
+      vtext: f
+    } : f ] : o.push(u ? {
+      vtext: f
+    } : f), i = u;
+  }
+  if (null != e) {
+    if (
+    // normalize class / classname attributes
+    e.className && (e.class = e.className), "object" == typeof e.class) {
+      for (c in e.class) e.class[c] && k.push(c);
+      e.class = k.join(" "), k.length = 0;
+    }
+    null != e.key && (t = e.key), null != e.name && (r = e.name);
+  }
+  return "function" == typeof n ? n(e, o || [], C) : {
+    vtag: n,
+    vchildren: o,
+    vtext: void 0,
+    vattrs: e,
+    vkey: t,
+    vname: r,
+    _$elm$_: void 0,
+    _$ishost$_: !1
+  };
+}
+
+function findRegex(n, e, t) {
+  n.lastIndex = 0;
+  var r = e.substring(t).match(n);
+  if (r) {
+    var o = t + r.index;
+    return {
+      start: o,
+      end: o + r[0].length
+    };
+  }
+  return null;
+}
+
+function compileVar(n, e, t) {
+  var r = function parseVar(n, e) {
+    var t = findRegex(Q, n, e);
+    if (!t) return null;
+    var r = function findVarEndIndex(n, e) {
+      for (var t = 0, r = e; r < n.length; r++) {
+        var o = n[r];
+        if ("(" === o) t++; else if (")" === o && --t <= 0) return r + 1;
+      }
+      return r;
+    }(n, t.start), o = n.substring(t.end, r - 1).split(","), i = o[0], u = o.slice(1);
+    return {
+      start: t.start,
+      end: r,
+      _$propName$_: i.trim(),
+      fallback: u.length > 0 ? u.join(",").trim() : void 0
+    };
+  }(n, t);
+  if (!r) return e.push(n.substring(t, n.length)), n.length;
+  var o = r._$propName$_, i = null != r.fallback ? compileTemplate(r.fallback) : void 0;
+  return e.push(n.substring(t, r.start), function(n) {
+    return function resolveVar(n, e, t) {
+      return n[e] ? n[e] : t ? executeTemplate(t, n) : "";
+    }(n, o, i);
+  }), r.end;
+}
+
+function executeTemplate(n, e) {
+  for (var t = "", r = 0; r < n.length; r++) {
+    var o = n[r];
+    t += "string" == typeof o ? o : o(e);
+  }
+  return t;
+}
+
+function findEndValue(n, e) {
+  for (var t = !1, r = !1, o = e; o < n.length; o++) {
+    var i = n[o];
+    if (t) r && '"' === i && (t = !1), r || "'" !== i || (t = !1); else if ('"' === i) t = !0, 
+    r = !0; else if ("'" === i) t = !0, r = !1; else {
+      if (";" === i) return o + 1;
+      if ("}" === i) return o;
+    }
+  }
+  return o;
+}
+
+function compileTemplate(n) {
+  var e = 0;
+  n = function removeCustomAssigns(n) {
+    for (var e = "", t = 0; ;) {
+      var r = findRegex(z, n, t), o = r ? r.start : n.length;
+      if (e += n.substring(t, o), !r) break;
+      t = findEndValue(n, o);
+    }
+    return e;
+  }(n = n.replace(Y, "")).replace(Z, "");
+  for (var t = []; e < n.length; ) e = compileVar(n, t, e);
+  return t;
+}
+
+function resolveValues(n) {
+  var e = {};
+  n.forEach(function(n) {
+    n._$declarations$_.forEach(function(n) {
+      e[n._$prop$_] = n.value;
+    });
+  });
+  for (var t = {}, r = Object.entries(e), o = function() {
+    var n = !1;
+    if (r.forEach(function(e) {
+      var r = e[0], o = executeTemplate(e[1], t);
+      o !== t[r] && (t[r] = o, n = !0);
+    }), !n) return "break";
+  }, i = 0; i < 10 && "break" !== o(); i++) ;
+  return t;
+}
+
+function getSelectors(n, e) {
+  if (void 0 === e && (e = 0), !n.rules) return [];
+  var t = [];
+  return n.rules.filter(function(n) {
+    return n.type === V.STYLE_RULE;
+  }).forEach(function(n) {
+    var r = function getDeclarations(n) {
+      for (var e, t = []; e = X.exec(n.trim()); ) {
+        var r = normalizeValue(e[2]), o = r.value, i = r._$important$_;
+        t.push({
+          _$prop$_: e[1].trim(),
+          value: compileTemplate(o),
+          _$important$_: i
+        });
+      }
+      return t;
+    }(n.cssText);
+    r.length > 0 && n.parsedSelector.split(",").forEach(function(n) {
+      n = n.trim(), t.push({
+        selector: n,
+        _$declarations$_: r,
+        _$specificity$_: 1,
+        _$nu$_: e
+      });
+    }), e++;
+  }), t;
+}
+
+function normalizeValue(n) {
+  var e = (n = n.replace(/\s+/gim, " ").trim()).endsWith(K);
+  return e && (n = n.substr(0, n.length - K.length).trim()), {
+    value: n,
+    _$important$_: e
+  };
+}
+
+function getSelectorsForScopes(n) {
+  var e = [];
+  return n.forEach(function(n) {
+    e.push.apply(e, n._$selectors$_);
+  }), e;
+}
+
+function parseCSS(n) {
+  var e = 
+  // given a string of css, return a simple rule tree
+  /**
+ * @param {string} text
+ * @return {StyleNode}
+ */
+  function parse(n) {
+    // add selectors/cssText to node tree
+    /**
+ * @param {StyleNode} node
+ * @param {string} text
+ * @return {StyleNode}
+ */
+    return function parseCss(n, e) {
+      var t = e.substring(n.start, n.end - 1);
+      if (n.parsedCssText = n.cssText = t.trim(), n.parent) {
+        var r = n.previous ? n.previous.end : n.parent.start;
+        // TODO(sorvell): ad hoc; make selector include only after last ;
+        // helps with mixin syntax
+        t = (t = (t = 
+        /**
+ * conversion of sort unicode escapes with spaces like `\33 ` (and longer) into
+ * expanded form that doesn't require trailing space `\000033`
+ * @param {string} s
+ * @return {string}
+ */
+        function _expandUnicodeEscapes(n) {
+          return n.replace(/\\([0-9a-f]{1,6})\s/gi, function() {
+            for (var n = arguments[1], e = 6 - n.length; e--; ) n = "0" + n;
+            return "\\" + n;
+          });
+        }
+        /** @enum {number} */ (t = e.substring(r, n.start - 1))).replace(G._$multipleSpaces$_, " ")).substring(t.lastIndexOf(";") + 1);
+        var o = n.parsedSelector = n.selector = t.trim();
+        n.atRule = 0 === o.indexOf(_), 
+        // note, support a subset of rule types...
+        n.atRule ? 0 === o.indexOf(F) ? n.type = V.MEDIA_RULE : o.match(G._$keyframesRule$_) && (n.type = V.KEYFRAMES_RULE, 
+        n.keyframesName = n.selector.split(G._$multipleSpaces$_).pop()) : 0 === o.indexOf(H) ? n.type = V._$MIXIN_RULE$_ : n.type = V.STYLE_RULE;
+      }
+      var i = n.rules;
+      if (i) for (var u = 0, c = i.length, f = void 0; u < c && (f = i[u]); u++) parseCss(f, e);
+      return n;
+    }(
+    // super simple {...} lexer that returns a node tree
+    /**
+ * @param {string} text
+ * @return {StyleNode}
+ */
+    function lex(n) {
+      var e = new P();
+      e.start = 0, e.end = n.length;
+      for (var t = e, r = 0, o = n.length; r < o; r++) if (n[r] === D) {
+        t.rules || (t.rules = []);
+        var i = t, u = i.rules[i.rules.length - 1] || null;
+        (t = new P()).start = r + 1, t.parent = i, t.previous = u, i.rules.push(t);
+      } else n[r] === U && (t.end = r + 1, t = t.parent || e);
+      return e;
+    }(n = 
+    // remove stuff we don't care about that may hinder parsing
+    /**
+ * @param {string} cssText
+ * @return {string}
+ */
+    function clean(n) {
+      return n.replace(G._$comments$_, "").replace(G.port, "");
+    }(n)), n);
+  }(n), t = compileTemplate(n);
+  return {
+    _$original$_: n,
+    _$template$_: t,
+    _$selectors$_: getSelectors(e),
+    _$isDynamic$_: t.length > 1
+  };
+}
+
+function addGlobalStyle(n, e) {
+  var t = parseCSS(e.innerHTML);
+  t._$styleEl$_ = e, n.push(t);
+}
+
+function replaceScope(n, e, t) {
+  return function replaceAll(n, e, t) {
+    return n.replace(new RegExp(e, "g"), t);
+  }(n, "\\." + e, "." + t);
+}
+
+function addGlobalLink(n, e, t) {
+  var r = t.href;
+  return fetch(r).then(function(n) {
+    return n.text();
+  }).then(function(o) {
+    if (function hasCssVariables(n) {
+      return n.indexOf("var(") > -1 || J.test(n);
+    }
+    // This regexp find all url() usages with relative urls
+    (o) && t.parentNode) {
+      (function hasRelativeUrls(n) {
+        return nn.lastIndex = 0, nn.test(n);
+      })(o) && (o = function fixRelativeUrls(n, e) {
+        // get the basepath from the original import url
+        var t = e.replace(/[^\/]*$/, "");
+        // replace the relative url, with the new relative url
+                return n.replace(nn, function(n, e) {
+          // rhe new relative path is the base path + uri
+          // TODO: normalize relative URL
+          var r = t + e;
+          return n.replace(e, r);
+        });
+      }(o, r));
+      var i = n.createElement("style");
+      i.innerHTML = o, addGlobalStyle(e, i), t.parentNode.insertBefore(i, t), t.remove();
+    }
+  }).catch(function(n) {
+    console.error(n);
+  });
+}
+
+// This regexp tries to determine when a variable is declared, for example:
+//
+// .my-el { --highlight-color: green; }
+//
+// but we don't want to trigger when a classname uses "--" or a pseudo-class is
+// used. We assume that the only characters that can preceed a variable
+// declaration are "{", from an opening block, ";" from a preceeding rule, or a
+// space. This prevents the regexp from matching a word in a selector, since
+// they would need to start with a "." or "#". (We assume element names don't
+// start with "--").
+var e, t = this && this._$__awaiter$_ || function(n, e, t, r) {
+  return new (t || (t = Promise))(function(o, i) {
+    function fulfilled(n) {
+      try {
+        step(r.next(n));
+      } catch (n) {
+        i(n);
+      }
+    }
+    function rejected(n) {
+      try {
+        step(r.throw(n));
+      } catch (n) {
+        i(n);
+      }
+    }
+    function step(n) {
+      n.done ? o(n.value) : new t(function(e) {
+        e(n.value);
+      }).then(fulfilled, rejected);
+    }
+    step((r = r.apply(n, e || [])).next());
+  });
+}, o = this && this._$__generator$_ || function(n, e) {
+  function verb(i) {
+    return function(c) {
+      return function step(i) {
+        if (t) throw new TypeError("Generator is already executing.");
+        for (;u; ) try {
+          if (t = 1, r && (o = 2 & i[0] ? r.return : i[0] ? r.throw || ((o = r.return) && o.call(r), 
+          0) : r.next) && !(o = o.call(r, i[1])).done) return o;
+          switch (r = 0, o && (i = [ 2 & i[0], o.value ]), i[0]) {
+           case 0:
+           case 1:
+            o = i;
+            break;
+
+           case 4:
+            return u.label++, {
+              value: i[1],
+              done: !1
+            };
+
+           case 5:
+            u.label++, r = i[1], i = [ 0 ];
+            continue;
+
+           case 7:
+            i = u._$ops$_.pop(), u._$trys$_.pop();
+            continue;
+
+           default:
+            if (!(o = (o = u._$trys$_).length > 0 && o[o.length - 1]) && (6 === i[0] || 2 === i[0])) {
+              u = 0;
+              continue;
+            }
+            if (3 === i[0] && (!o || i[1] > o[0] && i[1] < o[3])) {
+              u.label = i[1];
+              break;
+            }
+            if (6 === i[0] && u.label < o[1]) {
+              u.label = o[1], o = i;
+              break;
+            }
+            if (o && u.label < o[2]) {
+              u.label = o[2], u._$ops$_.push(i);
+              break;
+            }
+            o[2] && u._$ops$_.pop(), u._$trys$_.pop();
+            continue;
+          }
+          i = e.call(n, u);
+        } catch (n) {
+          i = [ 6, n ], r = 0;
+        } finally {
+          t = o = 0;
+        }
+        if (5 & i[0]) throw i[1];
+        return {
+          value: i[0] ? i[1] : void 0,
+          done: !0
+        };
+      }([ i, c ]);
+    };
+  }
+  var t, r, o, i, u = {
+    label: 0,
+    _$sent$_: function() {
+      if (1 & o[0]) throw o[1];
+      return o[1];
+    },
+    _$trys$_: [],
+    _$ops$_: []
+  };
+  return i = {
+    next: verb(0),
+    throw: verb(1),
+    return: verb(2)
+  }, "function" == typeof Symbol && (i[Symbol.iterator] = function() {
+    return this;
+  }), i;
+}, i = this, u = "$", f = {}, a = {
+  enter: 13,
+  escape: 27,
+  space: 32,
+  tab: 9,
+  left: 37,
+  up: 38,
+  right: 39,
+  down: 40
+}, l = function(n) {
+  return null != n;
+}, s = function(n) {
+  return n.toLowerCase();
+}, p = function(n, e, t, r, o, i) {
+  if ("class" !== t || i) if ("style" === t) {
+    for (var u in r) o && null != o[u] || (/-/.test(u) ? e.style.removeProperty(u) : e.style[u] = "");
+    for (var u in o) r && o[u] === r[u] || (/-/.test(u) ? e.style.setProperty(u, o[u]) : e.style[u] = o[u]);
+  } else if ("o" !== t[0] || "n" !== t[1] || !/[A-Z]/.test(t[2]) || t in e) if ("list" !== t && "type" !== t && !i && (t in e || -1 !== [ "object", "function" ].indexOf(typeof o) && null !== o)) {
+    // Properties
+    // - list and type are attributes that get applied as values on the element
+    // - all svgs get values as attributes not props
+    // - check if elm contains name or if the value is array, object, or function
+    var c = n._$getComponentMeta$_(e);
+    c && c._$membersMeta$_ && c._$membersMeta$_[t] ? 
+    // we know for a fact that this element is a known component
+    // and this component has this member name as a property,
+    // let's set the known @Prop on this element
+    // set it directly as property on the element
+    m(e, t, o) : "ref" !== t && (
+    // this member name is a property on this element, but it's not a component
+    // this is a native property like "value" or something
+    // also we can ignore the "ref" member name at this point
+    m(e, t, null == o ? "" : o), null != o && !1 !== o || n._$domApi$_._$$removeAttribute$_(e, t));
+  } else null != o && "key" !== t ? 
+  // Element Attributes
+  function(n, e, t, r, o) {
+    void 0 === r && (r = "boolean" == typeof t), o = e !== (e = e.replace(/^xlink\:?/, "")), 
+    null == t || r && (!t || "false" === t) ? o ? n.removeAttributeNS("http://www.w3.org/1999/xlink", s(e)) : n.removeAttribute(e) : "function" != typeof t && (t = r ? "" : t.toString(), 
+    o ? n.setAttributeNS("http://www.w3.org/1999/xlink", s(e), t) : n.setAttribute(e, t));
+  }(e, t, o) : (i || n._$domApi$_._$$hasAttribute$_(e, t) && (null == o || !1 === o)) && 
+  // remove svg attribute
+  n._$domApi$_._$$removeAttribute$_(e, t); else 
+  // Event Handlers
+  // so if the member name starts with "on" and the 3rd characters is
+  // a capital letter, and it's not already a member on the element,
+  // then we're assuming it's an event listener
+  // standard event
+  // the JSX attribute could have been "onMouseOver" and the
+  // member name "onmouseover" is on the element's prototype
+  // so let's add the listener "mouseover", which is all lowercased
+  t = s(t) in e ? s(t.substring(2)) : s(t[2]) + t.substring(3), o ? o !== r && 
+  // add listener
+  n._$domApi$_._$$addEventListener$_(e, t, o, 0) : 
+  // remove listener
+  n._$domApi$_._$$removeEventListener$_(e, t, 0); else if (r !== o) {
+    var f = v(r), a = v(o), l = f.filter(function(n) {
+      return !a.includes(n);
+    }), p = v(e.className).filter(function(n) {
+      return !l.includes(n);
+    }), d = a.filter(function(n) {
+      return !f.includes(n) && !p.includes(n);
+    });
+    p.push.apply(p, d), e.className = p.join(" ");
+  }
+}, v = function(n) {
+  return null == n || "" === n ? [] : n.trim().split(/\s+/);
+}, m = function(n, e, t) {
+  try {
+    n[e] = t;
+  } catch (n) {}
+}, y = function(n, e, t, r, o) {
+  // if the element passed in is a shadow root, which is a document fragment
+  // then we want to be adding attrs/props to the shadow root's "host" element
+  // if it's not a shadow root, then we add attrs/props to the same element
+  var i = 11 /* DocumentFragment */ === t._$elm$_.nodeType && t._$elm$_.host ? t._$elm$_.host : t._$elm$_, u = e && e.vattrs || f, c = t.vattrs || f;
+  // remove attributes no longer present on the vnode by setting them to undefined
+  for (o in u) c && null != c[o] || null == u[o] || p(n, i, o, u[o], void 0, r, t._$ishost$_);
+  // add new & update changed attributes
+  for (o in c) o in u && c[o] === ("value" === o || "checked" === o ? i[o] : u[o]) || p(n, i, o, u[o], c[o], r, t._$ishost$_);
+}, b = !1, g = function(n, e) {
+  n && (n.vattrs && n.vattrs.ref && n.vattrs.ref(e ? null : n._$elm$_), n.vchildren && n.vchildren.forEach(function(n) {
+    g(n, e);
+  }));
+}, S = function(n, e) {
+  var t = 0, r = !1, o = function() {
+    return e.performance.now();
+  }, i = !1 !== n.asyncQueue, u = Promise.resolve(), c = [], f = [], a = [], l = [], s = function(e) {
+    return function(t) {
+      // queue dom reads
+      e.push(t), r || (r = !0, n.raf(d));
+    };
+  }, p = function(n) {
+    for (var e = 0; e < n.length; e++) try {
+      n[e](o());
+    } catch (n) {
+      console.error(n);
+    }
+    n.length = 0;
+  }, v = function(n, e) {
+    for (var t, r = 0; r < n.length && (t = o()) < e; ) try {
+      n[r++](t);
+    } catch (n) {
+      console.error(n);
+    }
+    r === n.length ? n.length = 0 : 0 !== r && n.splice(0, r);
+  }, d = function() {
+    t++, 
+    // always force a bunch of medium callbacks to run, but still have
+    // a throttle on how many can run in a certain time
+    // DOM READS!!!
+    p(f);
+    var e = i ? o() + 7 * Math.ceil(t * (1 / 22)) : Infinity;
+    // DOM WRITES!!!
+        v(a, e), v(l, e), a.length > 0 && (l.push.apply(l, a), a.length = 0), (r = f.length + a.length + l.length > 0) ? 
+    // still more to do yet, but we've run out of time
+    // let's let this thing cool off and try again in the next tick
+    n.raf(d) : t = 0;
+  };
+  return n.raf || (n.raf = e.requestAnimationFrame.bind(e)), {
+    tick: function(n) {
+      // queue high priority work to happen in next tick
+      // uses Promise.resolve() for next tick
+      c.push(n), 1 === c.length && u.then(function() {
+        return p(c);
+      });
+    },
+    read: s(f),
+    write: s(a)
+  };
+}, k = [], C = {
+  forEach: function(n, e) {
+    return n.forEach(e);
+  },
+  map: function(n, e) {
+    return n.map(e);
+  }
+}, M = function(n) {
+  return {
+    _$eventName$_: n[0],
+    _$eventMethodName$_: n[1],
+    _$eventDisabled$_: !!n[2],
+    _$eventPassive$_: !!n[3],
+    _$eventCapture$_: !!n[4]
+  };
+}, E = function(n, e) {
+  // ensure this value is of the correct prop type
+  // we're testing both formats of the "propType" value because
+  // we could have either gotten the data from the attribute changed callback,
+  // which wouldn't have Constructor data yet, and because this method is reused
+  // within proxy where we don't have meta data, but only constructor data
+  return l(e) && "object" != typeof e && "function" != typeof e ? n === Boolean || 4 /* Boolean */ === n ? "false" !== e && ("" === e || !!e) : n === Number || 8 /* Number */ === n ? parseFloat(e) : n === String || 2 /* String */ === n ? e.toString() : e : e;
+  // not sure exactly what type we want
+  // so no need to change to a different type
+}, $ = function(n, e, t) {
+  // we're actively processing this component
+  n._$processingCmp$_.add(e), 
+  // only run patch if it isn't queued already
+  n._$isQueuedForUpdate$_.has(e) || (n._$isQueuedForUpdate$_.set(e, !0), 
+  // run the patch in the next tick
+  // vdom diff and patch the host element for differences
+  n._$isAppLoaded$_ ? 
+  // app has already loaded
+  // let's queue this work in the dom write phase
+  n.queue.write(function() {
+    return j(n, e, t);
+  }) : 
+  // app hasn't finished loading yet
+  // so let's use next tick to do everything
+  // as fast as possible
+  n.queue.tick(function() {
+    return j(n, e, t);
+  }));
+}, j = function(n, e, r, u, c, f) {
+  return t(i, void 0, void 0, function() {
+    var t, i;
+    return o(this, function(o) {
+      switch (o.label) {
+       case 0:
+        if (
+        // no longer queued for update
+        n._$isQueuedForUpdate$_.delete(e), n._$isDisconnectedMap$_.has(e)) return [ 3 /*break*/ , 12 ];
+        if (c = n._$instanceMap$_.get(e)) return [ 3 /*break*/ , 6 ];
+        if ((f = n._$ancestorHostElementMap$_.get(e)) && !f["s-rn"]) 
+        // this is the intial load
+        // this element has an ancestor host element
+        // but the ancestor host element has NOT rendered yet
+        // so let's just cool our jets and wait for the ancestor to render
+        return (f["s-rc"] = f["s-rc"] || []).push(function() {
+          // this will get fired off when the ancestor host element
+          // finally gets around to rendering its lazy self
+          j(n, e, r);
+        }), [ 2 /*return*/ ];
+        // haven't created a component instance for this host element yet!
+        // create the instance from the user's component class
+        // https://www.youtube.com/watch?v=olLxrojmvMg
+                if (!(c = O(n, e, n._$hostSnapshotMap$_.get(e), r))) return [ 3 /*break*/ , 5 ];
+        o.label = 1;
+
+       case 1:
+        return o._$trys$_.push([ 1, 4, , 5 ]), c.componentWillLoad ? [ 4 /*yield*/ , c.componentWillLoad() ] : [ 3 /*break*/ , 3 ];
+
+       case 2:
+        o._$sent$_(), o.label = 3;
+
+       case 3:
+        return [ 3 /*break*/ , 5 ];
+
+       case 4:
+        return t = o._$sent$_(), n._$onError$_(t, 3 /* WillLoadError */ , e), [ 3 /*break*/ , 5 ];
+
+       case 5:
+       case 6:
+        return [ 3 /*break*/ , 11 ];
+
+       case 7:
+        return o._$trys$_.push([ 7, 10, , 11 ]), c.componentWillUpdate ? [ 4 /*yield*/ , c.componentWillUpdate() ] : [ 3 /*break*/ , 9 ];
+
+       case 8:
+        o._$sent$_(), o.label = 9;
+
+       case 9:
+        return [ 3 /*break*/ , 11 ];
+
+       case 10:
+        return i = o._$sent$_(), n._$onError$_(i, 5 /* WillUpdateError */ , e), [ 3 /*break*/ , 11 ];
+
+       case 11:
+        // if this component has a render function, let's fire
+        // it off and generate a vnode for this
+        (function(n, e, t, r) {
+          try {
+            // if this component has a render function, let's fire
+            // it off and generate the child vnodes for this host element
+            // note that we do not create the host element cuz it already exists
+            var o = e._$componentConstructor$_.host, i = e._$componentConstructor$_.encapsulation, u = "shadow" === i && n._$domApi$_._$$supportsShadowDom$_, c = t;
+            if (
+            // this component SHOULD use native slot/shadow dom
+            // this browser DOES support native shadow dom
+            // and this is the first render
+            // let's create that shadow root
+            // test if this component should be shadow dom
+            // and if so does the browser supports it
+            u && (c = t.shadowRoot), !t["s-rn"]) {
+              // attach the styles this component needs, if any
+              // this fn figures out if the styles should go in a
+              // shadow root or if they should be global
+              n._$attachStyles$_(n, n._$domApi$_, e, t);
+              var f = t["s-sc"];
+              f && (n._$domApi$_._$$addClass$_(t, getElementScopeId(f, !0)), "scoped" === i && n._$domApi$_._$$addClass$_(t, getElementScopeId(f)));
+            }
+            if (r.render || r.hostData || o) {
+              // tell the platform we're actively rendering
+              // if a value is changed within a render() then
+              // this tells the platform not to queue the change
+              n._$activeRender$_ = !0;
+              var a = r.render && r.render();
+              // tell the platform we're done rendering
+              // now any changes will again queue
+              n._$activeRender$_ = !1;
+              // looks like we've got child nodes to render into this host element
+              // or we need to update the css class/attrs on the host element
+              var l = h$1(null, void 0, a), s = n._$vnodeMap$_.get(t) || {};
+              // if we haven't already created a vnode, then we give the renderer the actual element
+              // if this is a re-render, then give the renderer the last vnode we already created
+                            s._$elm$_ = c, 
+              // each patch always gets a new vnode
+              // the host element itself isn't patched because it already exists
+              // kick off the actual render and any DOM updates
+              n._$vnodeMap$_.set(t, n.render(t, s, l, u, i));
+            }
+            // update styles!
+                        n._$customStyle$_ && n._$customStyle$_.updateHost(t), 
+            // it's official, this element has rendered
+            t["s-rn"] = !0, t["s-rc"] && (
+            // ok, so turns out there are some child host elements
+            // waiting on this parent element to load
+            // let's fire off all update callbacks waiting
+            t["s-rc"].forEach(function(n) {
+              return n();
+            }), t["s-rc"] = null);
+          } catch (e) {
+            n._$activeRender$_ = !1, n._$onError$_(e, 8 /* RenderError */ , t, !0);
+          }
+        })(n, n._$getComponentMeta$_(e), e, c), e["s-init"](), o.label = 12;
+
+       case 12:
+        return [ 2 /*return*/ ];
+      }
+    });
+  });
+}, T = function(n, e, t, r, o, i, u) {
+  (
+  // get the internal values object, which should always come from the host element instance
+  // create the _values object if it doesn't already exist
+  u = n._$valuesMap$_.get(e)) || n._$valuesMap$_.set(e, u = {});
+  var c = u[t];
+  // check our new property value against our internal value
+    if (r !== c && (
+  // gadzooks! the property's value has changed!!
+  // set our new value!
+  // https://youtu.be/dFtLONl4cNc?t=22
+  u[t] = r, i = n._$instanceMap$_.get(e))) {
+    var f = u[B + t];
+    if (f) 
+    // this instance is watching for when this property changed
+    for (var a = 0; a < f.length; a++) try {
+      // fire off each of the watch methods that are watching this property
+      i[f[a]].call(i, r, c, t);
+    } catch (n) {
+      console.error(n);
+    }
+    !n._$activeRender$_ && e["s-rn"] && 
+    // looks like this value actually changed, so we've got work to do!
+    // but only if we've already rendered, otherwise just chill out
+    // queue that we need to do an update, but don't worry about queuing
+    // up millions cuz this function ensures it only runs once
+    $(n, e, o);
+  }
+}, L = function(n, e, t) {
+  // minification shortcut
+  Object.defineProperty(n, e, {
+    configurable: !0,
+    value: t
+  });
+}, R = function(n, e, t, r) {
+  // minification shortcut
+  Object.defineProperty(n, e, {
+    configurable: !0,
+    get: t,
+    set: r
+  });
+}, B = "wc-", O = function(n, e, t, r, o, i) {
+  try {
+    o = new (
+    // using the user's component class, let's create a new instance
+    i = n._$getComponentMeta$_(e)._$componentConstructor$_)(), 
+    // ok cool, we've got an host element now, and a actual instance
+    // and there were no errors creating the instance
+    // let's upgrade the data on the host element
+    // and let the getters/setters do their jobs
+    function(n, e, t, r, o, i) {
+      // at this point we've got a specific node of a host element, and created a component class instance
+      // and we've already created getters/setters on both the host element and component class prototypes
+      // let's upgrade any data that might have been set on the host element already
+      // and let's have the getters/setters kick in and do their jobs
+      // let's automatically add a reference to the host element on the instance
+      n._$hostElementMap$_.set(r, t), 
+      // create the values object if it doesn't already exist
+      // this will hold all of the internal getter/setter values
+      n._$valuesMap$_.has(t) || n._$valuesMap$_.set(t, {}), 
+      // get the properties from the constructor
+      // and add default "mode" and "color" properties
+      Object.entries(Object.assign({
+        color: {
+          type: String
+        }
+      }, e.properties, {
+        mode: {
+          type: String
+        }
+      })).forEach(function(e) {
+        var u = e[0], c = e[1];
+        // define each of the members and initialize what their role is
+                (function(n, e, t, r, o, i, u, c, f) {
+          if (e.type || e.state) {
+            var a = n._$valuesMap$_.get(t);
+            e.state || (!e.attr || void 0 !== a[o] && "" !== a[o] || 
+            // check the prop value from the host element attribute
+            (c = i && i._$$attributes$_) && l(f = c[e.attr]) && (
+            // looks like we've got an attribute value
+            // let's set it to our internal values
+            a[o] = E(e.type, f)), 
+            // client-side
+            // within the browser, the element's prototype
+            // already has its getter/setter set, but on the
+            // server the prototype is shared causing issues
+            // so instead the server's elm has the getter/setter
+            // directly on the actual element instance, not its prototype
+            // so on the browser we can use "hasOwnProperty"
+            t.hasOwnProperty(o) && (
+            // @Prop or @Prop({mutable:true})
+            // property values on the host element should override
+            // any default values on the component instance
+            void 0 === a[o] && (a[o] = E(e.type, t[o])), 
+            // for the client only, let's delete its "own" property
+            // this way our already assigned getter/setter on the prototype kicks in
+            // the very special case is to NOT do this for "mode"
+            "mode" !== o && delete t[o])), r.hasOwnProperty(o) && void 0 === a[o] && (
+            // @Prop() or @Prop({mutable:true}) or @State()
+            // we haven't yet got a value from the above checks so let's
+            // read any "own" property instance values already set
+            // to our internal value as the source of getter data
+            // we're about to define a property and it'll overwrite this "own" property
+            a[o] = r[o]), e.watchCallbacks && (a[B + o] = e.watchCallbacks.slice()), 
+            // add getter/setter to the component instance
+            // these will be pointed to the internal data set from the above checks
+            R(r, o, function getComponentProp(e) {
+              // component instance prop/state getter
+              // get the property value directly from our internal values
+              return (e = n._$valuesMap$_.get(n._$hostElementMap$_.get(this))) && e[o];
+            }, function setComponentProp(t, r) {
+              // component instance prop/state setter (cannot be arrow fn)
+              (r = n._$hostElementMap$_.get(this)) && (e.state || e.mutable) && T(n, r, o, t, u);
+            });
+          } else if (e.elementRef) 
+          // @Element()
+          // add a getter to the element reference using
+          // the member name the component meta provided
+          L(r, o, t); else if (e.context) {
+            // @Prop({ context: 'config' })
+            var s = n._$getContextItem$_(e.context);
+            void 0 !== s && L(r, o, s.getContext && s.getContext(t) || s);
+          }
+        })(n, c, t, r, u, o, i);
+      });
+    }(n, i, e, o, t, r), 
+    // add each of the event emitters which wire up instance methods
+    // to fire off dom events from the host element
+    function initEventEmitters(n, e, t) {
+      if (e) {
+        var r = n._$hostElementMap$_.get(t);
+        e.forEach(function(e) {
+          t[e.method] = {
+            emit: function(t) {
+              return n._$emitEvent$_(r, e.name, {
+                bubbles: e.bubbles,
+                composed: e.composed,
+                cancelable: e.cancelable,
+                detail: t
+              });
+            }
+          };
+        });
+      }
+    }(n, i.events, o);
+  } catch (t) {
+    // something done went wrong trying to create a component instance
+    // create a dumby instance so other stuff can load
+    // but chances are the app isn't fully working cuz this component has issues
+    o = {}, n._$onError$_(t, 7 /* InitInstanceError */ , e, !0);
+  }
+  return n._$instanceMap$_.set(e, o), o;
+}, A = function(n, e) {
+  // Note: in IE11 <svg> does not have the "children" property
+  for (var t = 0; t < e.childNodes.length; t++) {
+    var r = e.childNodes[t];
+    if (1 /* ElementNode */ === r.nodeType) {
+      if (n._$getComponentMeta$_(r) && !n._$hasConnectedMap$_.has(r)) 
+      // this is a defined componnent
+      // but it hasn't connected yet
+      return !1;
+      if (!A(n, r)) 
+      // one of the defined child components hasn't connected yet
+      return !1;
+    }
+  }
+  // everything has connected, we're good
+    return !0;
+}, W = function(n, e, t, r, o, i) {
+  if (
+  // we're no longer processing this component
+  n._$processingCmp$_.delete(e), 
+  // load events fire from bottom to top
+  // the deepest elements load first then bubbles up
+  (o = n._$ancestorHostElementMap$_.get(e)) && (
+  // ok so this element already has a known ancestor host element
+  // let's make sure we remove this element from its ancestor's
+  // known list of child elements which are actively loading
+  (r = o["s-ld"]) && ((t = r.indexOf(e)) > -1 && 
+  // yup, this element is in the list of child elements to wait on
+  // remove it so we can work to get the length down to 0
+  r.splice(t, 1), 
+  // the ancestor's initLoad method will do the actual checks
+  // to see if the ancestor is actually loaded or not
+  // then let's call the ancestor's initLoad method if there's no length
+  // (which actually ends up as this method again but for the ancestor)
+  r.length || o["s-init"] && o["s-init"]()), n._$ancestorHostElementMap$_.delete(e)), 
+  n._$onAppReadyCallbacks$_.length && !n._$processingCmp$_.size) 
+  // we've got some promises waiting on the entire app to be done processing
+  // so it should have an empty queue and no longer rendering
+  for (;i = n._$onAppReadyCallbacks$_.shift(); ) i();
+}, I = function(n, e, t, r, o) {
+  if (
+  // let's wire up our functions to the host element's prototype
+  // we can also inject our platform into each one that needs that api
+  // note: these cannot be arrow functions cuz "this" is important here hombre
+  t.connectedCallback = function() {
+    // coolsville, our host element has just hit the DOM
+    (function(n, e, t) {
+      // this element just connected, which may be re-connecting
+      // ensure we remove it from our map of disconnected
+      n._$isDisconnectedMap$_.delete(t), n._$hasConnectedMap$_.has(t) || (n._$hasConnectedComponent$_ = !0, 
+      n._$processingCmp$_.add(t), 
+      // first time we've connected
+      n._$hasConnectedMap$_.set(t, !0), 
+      // register this component as an actively
+      // loading child to its parent component
+      function(n, e, t) {
+        for (
+        // find the first ancestor host element (if there is one) and register
+        // this element as one of the actively loading child elements for its ancestor
+        t = e; t = n._$domApi$_._$$parentElement$_(t); ) 
+        // climb up the ancestors looking for the first registered component
+        if (n._$isDefinedComponent$_(t)) {
+          // we found this elements the first ancestor host element
+          // if the ancestor already loaded then do nothing, it's too late
+          n._$isCmpReady$_.has(e) || (
+          // keep a reference to this element's ancestor host element
+          // elm._ancestorHostElement = ancestorHostElement;
+          n._$ancestorHostElementMap$_.set(e, t), 
+          // ensure there is an array to contain a reference to each of the child elements
+          // and set this element as one of the ancestor's child elements it should wait on
+          (t["s-ld"] = t["s-ld"] || []).push(e));
+          break;
+        }
+      }(n, t), 
+      // add to the queue to load the bundle
+      // it's important to have an async tick in here so we can
+      // ensure the "mode" attribute has been added to the element
+      // place in high priority since it's not much work and we need
+      // to know as fast as possible, but still an async tick in between
+      n.queue.tick(function() {
+        // start loading this component mode's bundle
+        // if it's already loaded then the callback will be synchronous
+        n._$hostSnapshotMap$_.set(t, function(n, e, t, r, o) {
+          if (
+          // the host element has connected to the dom
+          // and we've waited a tick to make sure all frameworks
+          // have finished adding attributes and child nodes to the host
+          // before we go all out and hydrate this beast
+          // let's first take a snapshot of its original layout before render
+          t.mode || (
+          // looks like mode wasn't set as a property directly yet
+          // first check if there's an attribute
+          // next check the app's global
+          t.mode = n._$$getMode$_(t)), 
+          // if the slot polyfill is required we'll need to put some nodes
+          // in here to act as original content anchors as we move nodes around
+          // host element has been connected to the DOM
+          t["s-cr"] || n._$$getAttribute$_(t, "ssrv") || n._$$supportsShadowDom$_ && 1 /* ShadowDom */ === e._$encapsulationMeta$_ || (
+          // only required when we're NOT using native shadow dom (slot)
+          // or this browser doesn't support native shadow dom
+          // and this host element was NOT created with SSR
+          // let's pick out the inner content for slot projection
+          // create a node to represent where the original
+          // content was first placed, which is useful later on
+          t["s-cr"] = n._$$createTextNode$_(""), t["s-cr"]["s-cn"] = !0, n._$$insertBefore$_(t, t["s-cr"], n._$$childNodes$_(t)[0])), 
+          !n._$$supportsShadowDom$_ && 1 /* ShadowDom */ === e._$encapsulationMeta$_) 
+          // this component should use shadow dom
+          // but this browser doesn't support it
+          // so let's polyfill a few things for the user
+          try {
+            !window.HTMLElement || "shadowRoot" in window.HTMLElement.prototype || (t.shadowRoot = t);
+          } catch (n) {}
+          return 1 /* ShadowDom */ === e._$encapsulationMeta$_ && n._$$supportsShadowDom$_ && !t.shadowRoot && 
+          // this component is using shadow dom
+          // and this browser supports shadow dom
+          // add the read-only property "shadowRoot" to the host element
+          n._$$attachShadow$_(t, {
+            mode: "open"
+          }), 
+          // create a host snapshot object we'll
+          // use to store all host data about to be read later
+          r = {
+            _$$attributes$_: {}
+          }, 
+          // loop through and gather up all the original attributes on the host
+          // this is useful later when we're creating the component instance
+          e._$membersMeta$_ && Object.keys(e._$membersMeta$_).forEach(function(i) {
+            (o = e._$membersMeta$_[i]._$attribName$_) && (r._$$attributes$_[o] = n._$$getAttribute$_(t, o));
+          }), r;
+        }(n._$domApi$_, e, t)), n._$requestBundle$_(e, t);
+      }));
+    })(n, e, this);
+  }, t.disconnectedCallback = function() {
+    // the element has left the builing
+    (function(n, e) {
+      // only disconnect if we're not temporarily disconnected
+      // tmpDisconnected will happen when slot nodes are being relocated
+      if (!n._$tmpDisconnected$_ && function(n, e) {
+        for (;e; ) {
+          if (!n._$$parentNode$_(e)) return 9 /* DocumentNode */ !== n._$$nodeType$_(e);
+          e = n._$$parentNode$_(e);
+        }
+      }(n._$domApi$_, e)) {
+        // ok, let's officially destroy this thing
+        // set this to true so that any of our pending async stuff
+        // doesn't continue since we already decided to destroy this node
+        // elm._hasDestroyed = true;
+        n._$isDisconnectedMap$_.set(e, !0), 
+        // double check that we've informed the ancestor host elements
+        // that they're good to go and loaded (cuz this one is on its way out)
+        W(n, e), 
+        // since we're disconnecting, call all of the JSX ref's with null
+        g(n._$vnodeMap$_.get(e), !0);
+        // call instance componentDidUnload
+        // if we've created an instance for this
+        var t = n._$instanceMap$_.get(e);
+        t && t.componentDidUnload && 
+        // call the user's componentDidUnload if there is one
+        t.componentDidUnload(), 
+        // detatch any event listeners that may have been added
+        // because we're not passing an exact event name it'll
+        // remove all of this element's event, which is good
+        n._$domApi$_._$$removeEventListener$_(e), n._$hasListenersMap$_.delete(e), 
+        // clear CSS var-shim tracking
+        n._$customStyle$_ && n._$customStyle$_.removeHost(e), 
+        // clear any references to other elements
+        // more than likely we've already deleted these references
+        // but let's double check there pal
+        [ n._$ancestorHostElementMap$_, n._$onReadyCallbacksMap$_, n._$hostSnapshotMap$_ ].forEach(function(n) {
+          return n.delete(e);
+        });
+      }
+    })(n, this);
+  }, t["s-init"] = function() {
+    (function(n, e, t, r, o, i, u) {
+      if (A(n, e) && (o = n._$instanceMap$_.get(e)) && !n._$isDisconnectedMap$_.has(e) && (!e["s-ld"] || !e["s-ld"].length)) {
+        // cool, so at this point this element isn't already being destroyed
+        // and it does not have any child elements that are still loading
+        // all of this element's children have loaded (if any)
+        n._$isCmpReady$_.set(e, !0), (u = n._$isCmpLoaded$_.has(e)) || (
+        // remember that this component has loaded
+        // isCmpLoaded map is useful to know if we should fire
+        // the lifecycle componentDidLoad() or componentDidUpdate()
+        n._$isCmpLoaded$_.set(e, !0), 
+        // ensure we remove any child references cuz it doesn't matter at this point
+        e["s-ld"] = void 0, 
+        // add the css class that this element has officially hydrated
+        n._$domApi$_._$$addClass$_(e, t));
+        try {
+          // fire off the ref if it exists
+          g(n._$vnodeMap$_.get(e)), 
+          // fire off the user's elm.componentOnReady() callbacks that were
+          // put directly on the element (well before anything was ready)
+          (i = n._$onReadyCallbacksMap$_.get(e)) && (i.forEach(function(n) {
+            return n(e);
+          }), n._$onReadyCallbacksMap$_.delete(e)), !u && o.componentDidLoad ? o.componentDidLoad() : u && o.componentDidUpdate && o.componentDidUpdate();
+        } catch (t) {
+          n._$onError$_(t, 4 /* DidLoadError */ , e);
+        }
+        // ( •_•)
+        // ( •_•)>⌐■-■
+        // (⌐■_■)
+        // load events fire from bottom to top
+        // the deepest elements load first then bubbles up
+        W(n, e);
+      }
+      // all is good, this component has been told it's time to finish loading
+      // it's possible that we've already decided to destroy this element
+      // check if this element has any actively loading child elements
+        })(n, this, r);
+  }, t.forceUpdate = function() {
+    $(n, this, o);
+  }, e._$membersMeta$_) {
+    var i = Object.entries(e._$membersMeta$_), u = {};
+    i.forEach(function(n) {
+      var e = n[0], t = n[1]._$attribName$_;
+      t && (u[t] = e);
+    }), u = Object.assign({}, u), t.attributeChangedCallback = function(n, e, t) {
+      // the browser has just informed us that an attribute
+      // on the host element has changed
+      (function attributeChangedCallback(n, e, t, r) {
+        // look up to see if we have a property wired up to this attribute name
+        var o = n[s(t)];
+        o && (
+        // there is not need to cast the value since, it's already casted when
+        // the prop is setted
+        e[o] = (null !== r || "boolean" != typeof e[o]) && r);
+      })(u, this, n, t);
+    }, 
+    // add getters/setters to the host element members
+    // these would come from the @Prop and @Method decorators that
+    // should create the public API to this component
+    function(n, e, t, r) {
+      i.forEach(function(e) {
+        var o = e[0], i = e[1];
+        // add getters/setters
+                3 /* PropMutable */ & i._$memberType$_ && 
+        // @Prop() or @Prop({ mutable: true })
+        R(t, o, function getHostElementProp() {
+          // host element getter (cannot be arrow fn)
+          // yup, ugly, srynotsry
+          return (n._$valuesMap$_.get(this) || {})[o];
+        }, function setHostElementProp(e) {
+          // host element setter (cannot be arrow fn)
+          T(n, this, o, E(i._$propType$_, e), r);
+        });
+      });
+    }(n, 0, t, o);
+  }
+}, N = function(n, e, t, r) {
+  return function() {
+    var o = arguments;
+    return q(n, e, t).then(function(n) {
+      return n[r].apply(n, o);
+    });
+  };
+}, q = function(n, e, t, r, o) {
+  return r = e[t], (o = n._$$doc$_.body) ? (r || (r = o.querySelector(t)), r || (r = e[t] = n._$$createElement$_(t), 
+  n._$$appendChild$_(o, r)), r.componentOnReady()) : Promise.resolve();
+}, P = function P() {
+  this.start = 0, this.end = 0, this.previous = null, this.parent = null, this.rules = null, 
+  this.parsedCssText = "", this.cssText = "", this.atRule = !1, this.type = 0, this.keyframesName = "", 
+  this.selector = "", this.parsedSelector = "";
+}, V = {
+  STYLE_RULE: 1,
+  KEYFRAMES_RULE: 7,
+  MEDIA_RULE: 4,
+  _$MIXIN_RULE$_: 1e3
+}, D = "{", U = "}", G = {
+  _$comments$_: /\/\*[^*]*\*+([^\/*][^*]*\*+)*\//gim,
+  port: /@import[^;]*;/gim,
+  _$customProp$_: /(?:^[^;\-\s}]+)?--[^;{}]*?:[^{};]*?(?:[;\n]|$)/gim,
+  _$mixinProp$_: /(?:^[^;\-\s}]+)?--[^;{}]*?:[^{};]*?{[^}]*?}(?:[;\n]|$)?/gim,
+  _$mixinApply$_: /@apply\s*\(?[^);]*\)?\s*(?:[;\n]|$)?/gim,
+  _$varApply$_: /[^;:]*?:[^;]*?var\([^;]*\)(?:[;\n]|$)?/gim,
+  _$keyframesRule$_: /^@[^\s]*keyframes/,
+  _$multipleSpaces$_: /\s+/g
+}, H = "--", F = "@media", _ = "@", Q = /\bvar\(/, z = /\B--[\w-]+\s*:/, Y = /\/\*[^*]*\*+([^\/*][^*]*\*+)*\//gim, Z = /^[\t ]+\n/gm, K = "!important", X = /(?:^|[;\s{]\s*)(--[\w-]*?)\s*:\s*(?:((?:'(?:\\'|.)*?'|"(?:\\"|.)*?"|\([^)]*?\)|[^};{])+)|\{([^}]*)\}(?:(?=[;\s}])|$))/gm, J = /[\s;{]--[-a-zA-Z0-9]+\s*:/m, nn = /url[\s]*\([\s]*['"]?(?![http|\/])([^\'\"\)]*)[\s]*['"]?\)[\s]*/gim, en = /** @class */ function() {
+  function CustomStyle(n, e) {
+    this._$win$_ = n, this._$doc$_ = e, this.count = 0, this._$hostStyleMap$_ = new WeakMap(), 
+    this._$hostScopeMap$_ = new WeakMap(), this._$globalScopes$_ = [], this._$scopesMap$_ = new Map();
+  }
+  return CustomStyle.prototype.initShim = function() {
+    var n = this;
+    return new Promise(function(e) {
+      n._$win$_.requestAnimationFrame(function() {
+        (function loadDocument(n, e) {
+          return function loadDocumentLinks(n, e) {
+            for (var t = [], r = n.querySelectorAll('link[rel="stylesheet"][href]'), o = 0; o < r.length; o++) t.push(addGlobalLink(n, e, r[o]));
+            return Promise.all(t);
+          }(n, e).then(function() {
+            (function loadDocumentStyles(n, e) {
+              for (var t = n.querySelectorAll("style"), r = 0; r < t.length; r++) addGlobalStyle(e, t[r]);
+            })(n, e);
+          });
+        })(n._$doc$_, n._$globalScopes$_).then(function() {
+          return e();
+        });
+      });
+    });
+  }, CustomStyle.prototype._$addLink$_ = function(n) {
+    var e = this;
+    return addGlobalLink(this._$doc$_, this._$globalScopes$_, n).then(function() {
+      e.updateGlobal();
+    });
+  }, CustomStyle.prototype._$addGlobalStyle$_ = function(n) {
+    addGlobalStyle(this._$globalScopes$_, n), this.updateGlobal();
+  }, CustomStyle.prototype.createHostStyle = function(n, e, t) {
+    if (this._$hostScopeMap$_.has(n)) return null;
+    var r = n["s-sc"], o = this._$registerHostTemplate$_(t, e, r), i = o._$isDynamic$_ && o._$cssScopeId$_;
+    if (!i && o._$styleEl$_) return null;
+    var u = this._$doc$_.createElement("style");
+    if (i) {
+      var c = o._$cssScopeId$_ + "-" + this.count;
+      n["s-sc"] = c, this._$hostStyleMap$_.set(n, u), this._$hostScopeMap$_.set(n, function reScope(n, e) {
+        var t = n._$template$_.map(function(t) {
+          return "string" == typeof t ? replaceScope(t, n._$cssScopeId$_, e) : t;
+        }), r = n._$selectors$_.map(function(t) {
+          return Object.assign({}, t, {
+            selector: replaceScope(t.selector, n._$cssScopeId$_, e)
+          });
+        });
+        return Object.assign({}, n, {
+          _$template$_: t,
+          _$selectors$_: r,
+          _$cssScopeId$_: e
+        });
+      }(o, c)), this.count++;
+    } else o._$styleEl$_ = u, o._$isDynamic$_ || (u.innerHTML = executeTemplate(o._$template$_, {})), 
+    this._$globalScopes$_.push(o), this.updateGlobal(), this._$hostScopeMap$_.set(n, o);
+    return u;
+  }, CustomStyle.prototype.removeHost = function(n) {
+    var e = this._$hostStyleMap$_.get(n);
+    e && e.remove(), this._$hostStyleMap$_.delete(n), this._$hostScopeMap$_.delete(n);
+  }, CustomStyle.prototype.updateHost = function(n) {
+    var e = this._$hostScopeMap$_.get(n);
+    if (e && e._$isDynamic$_ && e._$cssScopeId$_) {
+      var t = this._$hostStyleMap$_.get(n);
+      if (t) {
+        var r = resolveValues(function getActiveSelectors(n, e, t) {
+          // sort selectors by specifity
+          return function sortSelectors(n) {
+            return n.sort(function(n, e) {
+              return n._$specificity$_ === e._$specificity$_ ? n._$nu$_ - e._$nu$_ : n._$specificity$_ - e._$specificity$_;
+            }), n;
+          }(getSelectorsForScopes(t.concat(function getScopesForElement(n, e) {
+            for (var t = []; e; ) {
+              var r = n.get(e);
+              r && t.push(r), e = e.parentElement;
+            }
+            return t;
+          }(e, n))).filter(function(e) {
+            return function matches(n, e) {
+              return n.matches(e);
+            }(n, e.selector);
+          }));
+        }(n, this._$hostScopeMap$_, this._$globalScopes$_));
+        t.innerHTML = executeTemplate(e._$template$_, r);
+      }
+    }
+  }, CustomStyle.prototype.updateGlobal = function() {
+    (function updateGlobalScopes(n) {
+      var e = resolveValues(getSelectorsForScopes(n));
+      n.forEach(function(n) {
+        n._$isDynamic$_ && (n._$styleEl$_.innerHTML = executeTemplate(n._$template$_, e));
+      });
+    })(this._$globalScopes$_);
+  }, CustomStyle.prototype._$registerHostTemplate$_ = function(n, e, t) {
+    var r = this._$scopesMap$_.get(e);
+    return r || ((r = parseCSS(n))._$cssScopeId$_ = t, this._$scopesMap$_.set(e, r)), 
+    r;
+  }, CustomStyle;
+}();
+
+!function supportsCssVars(n) {
+  return !!(n.CSS && n.CSS.supports && n.CSS.supports("color", "var(--c)"));
+}(window) && (e = new en(w, d)), function createPlatformMainLegacy(n, e, t, r, o, i, c, f) {
+  function defineComponent(n, e) {
+    if (!t.customElements.get(n._$tagNameMeta$_)) {
+      // keep a map of all the defined components
+      C[n._$tagNameMeta$_] = !0, 
+      // initialize the members on the host element prototype
+      // keep a ref to the metadata with the tag as the key
+      I(x, v[n._$tagNameMeta$_] = n, e.prototype, i, p);
+      // add which attributes should be observed
+      var r = [];
+      // at this point the membersMeta only includes attributes which should
+      // be observed, it does not include all props yet, so it's safe to
+      // loop through all of the props (attrs) and observed them
+            for (var o in n._$membersMeta$_) n._$membersMeta$_[o]._$attribName$_ && r.push(
+      // add this attribute to our array of attributes we need to observe
+      n._$membersMeta$_[o]._$attribName$_);
+      // set the array of all the attributes to keep an eye on
+      // https://www.youtube.com/watch?v=RBs21CFBALI
+            e.observedAttributes = r, 
+      // define the custom element
+      t.customElements.define(n._$tagNameMeta$_, e);
+    }
+  }
+  function getLoadedBundle(n) {
+    return null == n ? null : m.get(n.replace(/^\.\//, ""));
+  }
+  function isLoadedBundle(n) {
+    return "exports" === n || "require" === n || !!getLoadedBundle(n);
+  }
+  function execBundleCallback(n, e, t) {
+    var r = {};
+    try {
+      t.apply(null, e.map(function(n) {
+        return "exports" === n ? r : "require" === n ? userRequire : getLoadedBundle(n);
+      }));
+    } catch (n) {
+      console.error(n);
+    }
+    // If name is undefined then this callback was fired by component callback
+        void 0 !== n && (m.set(n, r), 
+    // If name contains chunk then this callback was associated with a dependent bundle loading
+    // let's add a reference to the constructors on each components metadata
+    // each key in moduleImports is a PascalCased tag name
+    n && !n.endsWith(".js") && Object.keys(r).forEach(function(n) {
+      for (var e = n.replace(/-/g, "").toLowerCase(), t = Object.keys(v), o = 0; o < t.length; o++) if (t[o].replace(/-/g, "").toLowerCase() === e) {
+        var i = v[t[o]];
+        i && (
+        // get the component constructor from the module
+        i._$componentConstructor$_ = r[n], initStyleTemplate(0, i, i._$encapsulationMeta$_, i._$componentConstructor$_.style, i._$componentConstructor$_.styleMode));
+        break;
+      }
+    }));
+  }
+  function userRequire(n, e) {
+    loadBundle(void 0, n, e);
+  }
+  /**
+     * Check to see if any items in the bundle queue can be executed
+     */  function checkQueue() {
+    for (var n = d.length - 1; n >= 0; n--) {
+      var e = d[n], t = e[0], r = e[1], o = e[2];
+      r.every(isLoadedBundle) && !isLoadedBundle(t) && (d.splice(n, 1), execBundleCallback(t, r, o));
+    }
+  }
+  /**
+     * This function is called anytime a JS file is loaded
+     */  function loadBundle(n, e, t) {
+    if (Array.isArray(e)) {
+      // 2nd arg is an array of dependency bundle ids
+      // 3rd arg is the importer fn
+      var r = e.filter(function(n) {
+        return !isLoadedBundle(n);
+      });
+      r.forEach(function(n) {
+        requestUrl(o + n.replace(".js", ".es5.js"));
+      }), d.push([ n, e, t ]), 
+      // If any dependents are not yet met then queue the bundle execution
+      0 === r.length && checkQueue();
+    } else "function" == typeof e && 
+    // 2nd arg is the importer fn, and there is no dependency list
+    checkQueue();
+  }
+  function requestComponentBundle(n) {
+    // create the url we'll be requesting
+    // always use the es5/jsonp callback module
+    var e = !k._$$supportsShadowDom$_;
+    requestUrl(o + n + (e ? ".sc" : "") + ".es5.entry.js");
+  }
+  // Use JSONP to load in bundles
+    function requestUrl(n) {
+    function onScriptComplete() {
+      clearTimeout(e), t.onerror = t.onload = null, k._$$remove$_(t), 
+      // remove from our list of active requests
+      h.delete(n);
+    }
+    var e, t;
+    h.has(n) || (
+    // we're not already actively requesting this url
+    // let's kick off the bundle request and
+    // remember that we're now actively requesting this url
+    h.add(n), (
+    // create a sript element to add to the document.head
+    t = k._$$createElement$_("script")).charset = "utf-8", t.async = !0, t.src = n, 
+    // create a fallback timeout if something goes wrong
+    e = setTimeout(onScriptComplete, 12e4), 
+    // add script completed listener to this script element
+    t.onerror = t.onload = onScriptComplete, 
+    // inject a script tag in the head
+    // kick off the actual request
+    k._$$appendChild$_(k._$$doc$_.head, t));
+  }
+  var p = t.performance, v = {
+    html: {}
+  }, d = [], m = new Map(), h = new Set(), g = {}, w = t[n] = t[n] || {}, k = function(n, e, t) {
+    // using the $ prefix so that closure is
+    // cool with property renaming each of these
+    var r = new WeakMap(), o = {
+      _$$doc$_: t,
+      _$$supportsShadowDom$_: !!t.documentElement.attachShadow,
+      _$$supportsEventOptions$_: !1,
+      _$$nodeType$_: function(n) {
+        return n.nodeType;
+      },
+      _$$createElement$_: function(n) {
+        return t.createElement(n);
+      },
+      _$$createElementNS$_: function(n, e) {
+        return t.createElementNS(n, e);
+      },
+      _$$createTextNode$_: function(n) {
+        return t.createTextNode(n);
+      },
+      _$$createComment$_: function(n) {
+        return t.createComment(n);
+      },
+      _$$insertBefore$_: function(n, e, t) {
+        return n.insertBefore(e, t);
+      },
+      // https://developer.mozilla.org/en-US/docs/Web/API/ChildNode/remove
+      // and it's polyfilled in es5 builds
+      _$$remove$_: function(n) {
+        return n.remove();
+      },
+      _$$appendChild$_: function(n, e) {
+        return n.appendChild(e);
+      },
+      _$$addClass$_: function(n, e) {
+        if (n.classList) n.classList.add(e); else if ("svg" === n.nodeName.toLowerCase()) {
+          // https://caniuse.com/#search=classList
+          // IE11 really does not do <svg> properly :-/
+          var t = n.getAttribute("class") || "";
+          t.split(" ").includes(e) || (t += " " + e), n.setAttribute("class", t.trim());
+        }
+      },
+      _$$childNodes$_: function(n) {
+        return n.childNodes;
+      },
+      _$$parentNode$_: function(n) {
+        return n.parentNode;
+      },
+      _$$nextSibling$_: function(n) {
+        return n.nextSibling;
+      },
+      _$$previousSibling$_: function(n) {
+        return n.previousSibling;
+      },
+      _$$tagName$_: function(n) {
+        return s(n.nodeName);
+      },
+      _$$getTextContent$_: function(n) {
+        return n.textContent;
+      },
+      _$$setTextContent$_: function(n, e) {
+        return n.textContent = e;
+      },
+      _$$getAttribute$_: function(n, e) {
+        return n.getAttribute(e);
+      },
+      _$$setAttribute$_: function(n, e, t) {
+        return n.setAttribute(e, t);
+      },
+      _$$removeAttribute$_: function(n, e) {
+        return n.removeAttribute(e);
+      },
+      _$$hasAttribute$_: function(n, e) {
+        return n.hasAttribute(e);
+      },
+      _$$getMode$_: function(e) {
+        return e.getAttribute("mode") || (n.Context || {}).mode;
+      },
+      _$$elementRef$_: function(n, r) {
+        return "child" === r ? n.firstElementChild : "parent" === r ? o._$$parentElement$_(n) : "body" === r ? t.body : "document" === r ? t : "window" === r ? e : n;
+      },
+      _$$addEventListener$_: function(e, t, i, u, c, f, l, s, p, v) {
+        // remember the original name before we possibly change it
+        var d = e, m = i, h = r.get(e);
+        v = t + u, h && h[v] && 
+        // removed any existing listeners for this event for the assigner element
+        // this element already has this listener, so let's unregister it now
+        h[v](), "string" == typeof l ? 
+        // attachTo is a string, and is probably something like
+        // "parent", "window", or "document"
+        // and the eventName would be like "mouseover" or "mousemove"
+        d = o._$$elementRef$_(e, l) : "object" == typeof l ? 
+        // we were passed in an actual element to attach to
+        d = l : (
+        // depending on the event name, we could actually be attaching
+        // this element to something like the document or window
+        p = t.split(":")).length > 1 && (
+        // document:mousemove
+        // parent:touchend
+        // body:keyup.enter
+        d = o._$$elementRef$_(e, p[0]), t = p[1]), d && ((
+        // test to see if we're looking for an exact keycode
+        p = t.split(".")).length > 1 && (
+        // looks like this listener is also looking for a keycode
+        // keyup.enter
+        t = p[0], m = function(n) {
+          // wrap the user's event listener with our own check to test
+          // if this keyboard event has the keycode they're looking for
+          n.keyCode === a[p[1]] && i(n);
+        }), 
+        // create the actual event listener options to use
+        // this browser may not support event options
+        s = o._$$supportsEventOptions$_ ? {
+          capture: !!c,
+          passive: !!f
+        } : !!c, 
+        // ok, good to go, let's add the actual listener to the dom element
+        n.ael(d, t, m, s), h || 
+        // we don't already have a collection, let's create it
+        r.set(e, h = {}), 
+        // add the unregister listener to this element's collection
+        h[v] = function() {
+          // looks like it's time to say goodbye
+          d && n.rel(d, t, m, s), h[v] = null;
+        });
+      },
+      _$$removeEventListener$_: function(n, e, t, o) {
+        // get the unregister listener functions for this element
+        (o = r.get(n)) && (
+        // this element has unregister listeners
+        e ? 
+        // passed in one specific event name to remove
+        o[e + t] && o[e + t]() : 
+        // remove all event listeners
+        Object.keys(o).forEach(function(n) {
+          o[n] && o[n]();
+        }));
+      },
+      _$$dispatchEvent$_: function(n, t, r, o) {
+        // create and return the custom event, allows for cancel checks
+        return o = new e.CustomEvent(t, r), n && n.dispatchEvent(o), o;
+      },
+      _$$parentElement$_: function(n, e) {
+        // if the parent node is a document fragment (shadow root)
+        // then use the "host" property on it
+        // otherwise use the parent node
+        return (e = o._$$parentNode$_(n)) && 11 /* DocumentFragment */ === o._$$nodeType$_(e) ? e.host : e;
+      },
+      _$$setAttributeNS$_: function(n, e, t, r) {
+        return n.setAttributeNS(e, t, r);
+      },
+      _$$attachShadow$_: function(n, e) {
+        return n.attachShadow(e);
+      }
+    };
+    "function" != typeof e.CustomEvent && (
+    // CustomEvent polyfill
+    e.CustomEvent = function(n, e, r) {
+      return e = e || {}, (r = t.createEvent("CustomEvent")).initCustomEvent(n, e.bubbles, e.cancelable, e.detail), 
+      r;
+    }, e.CustomEvent.prototype = e.Event.prototype), n.ael || (n.ael = function(n, e, t, r) {
+      return n.addEventListener(e, t, r);
+    }, n.rel = function(n, e, t, r) {
+      return n.removeEventListener(e, t, r);
+    });
+    // test if this browser supports event options or not
+    try {
+      e.addEventListener("e", null, Object.defineProperty({}, "passive", {
+        get: function() {
+          return o._$$supportsEventOptions$_ = !0;
+        }
+      }));
+    } catch (n) {}
+    return o;
+  }(w, t, r);
+  // set App Context
+  e.isServer = e.isPrerender = !(e.isClient = !0), e.window = t, e.location = t.location, 
+  e.document = r, e.resourcesUrl = e.publicPath = o, e.emit = function(n, t, r) {
+    return k._$$dispatchEvent$_(n, e.eventNameFn ? e.eventNameFn(t) : t, r);
+  }, 
+  // add the h() fn to the app's global namespace
+  w.h = h$1, w.Context = e;
+  // keep a global set of tags we've already defined
+  var C = t["s-defined"] = t["s-defined"] || {}, E = 0, x = {
+    _$domApi$_: k,
+    _$defineComponent$_: defineComponent,
+    _$emitEvent$_: e.emit,
+    _$customStyle$_: f,
+    _$getComponentMeta$_: function(n) {
+      return v[k._$$tagName$_(n)];
+    },
+    _$getContextItem$_: function(n) {
+      return e[n];
+    },
+    isClient: !0,
+    _$isDefinedComponent$_: function(n) {
+      return !(!C[k._$$tagName$_(n)] && !x._$getComponentMeta$_(n));
+    },
+    _$onError$_: function(n, e, t) {
+      return console.error(n, e, t && t.tagName);
+    },
+    _$nextId$_: function() {
+      return n + E++;
+    },
+    _$propConnect$_: function(n) {
+      return function(n, e, t) {
+        return {
+          create: N(n, e, t, "create"),
+          componentOnReady: N(n, e, t, "componentOnReady")
+        };
+      }(k, g, n);
+    },
+    queue: e.queue = S(w, t),
+    _$requestBundle$_: 
+    // This is executed by the component's connected callback.
+    function requestBundle(n, e) {
+      var t = "string" == typeof n._$bundleIds$_ ? n._$bundleIds$_ : n._$bundleIds$_[e.mode];
+      getLoadedBundle(t) ? 
+      // sweet, we've already loaded this bundle
+      $(x, e, p) : (
+      // never seen this bundle before, let's start the request
+      // and add it to the callbacks to fire when it has loaded
+      d.push([ void 0, [ t ], function() {
+        $(x, e, p);
+      } ]), 
+      // when to request the bundle depends is we're using the css shim or not
+      f && T ? 
+      // add this to the loadBundleQueue to run when css is ready
+      T.push(function() {
+        return requestComponentBundle(t);
+      }) : 
+      // not using css shim, so no need to wait on css shim to finish
+      // figure out which bundle to request and kick it off
+      requestComponentBundle(t));
+    },
+    _$isAppLoaded$_: !1,
+    _$activeRender$_: !1,
+    _$tmpDisconnected$_: !1,
+    _$ancestorHostElementMap$_: new WeakMap(),
+    _$componentAppliedStyles$_: new WeakMap(),
+    _$hasConnectedMap$_: new WeakMap(),
+    _$hasListenersMap$_: new WeakMap(),
+    _$isCmpLoaded$_: new WeakMap(),
+    _$isCmpReady$_: new WeakMap(),
+    _$hostElementMap$_: new WeakMap(),
+    _$hostSnapshotMap$_: new WeakMap(),
+    _$instanceMap$_: new WeakMap(),
+    _$isDisconnectedMap$_: new WeakMap(),
+    _$isQueuedForUpdate$_: new WeakMap(),
+    _$onReadyCallbacksMap$_: new WeakMap(),
+    _$queuedEvents$_: new WeakMap(),
+    _$vnodeMap$_: new WeakMap(),
+    _$valuesMap$_: new WeakMap(),
+    _$processingCmp$_: new Set(),
+    _$onAppReadyCallbacks$_: []
+  };
+  // internal id increment for unique ids
+    // create a method that returns a promise
+  // which gets resolved when the app's queue is empty
+  // and app is idle, works for both initial load and updates
+  w.onReady = function() {
+    return new Promise(function(n) {
+      return x.queue.write(function() {
+        return x._$processingCmp$_.size ? x._$onAppReadyCallbacks$_.push(n) : n();
+      });
+    });
+  }, 
+  // create the renderer that will be used
+  x.render = function(n, e) {
+    // createRenderer() is only created once per app
+    // the patch() function which createRenderer() returned is the function
+    // which gets called numerous times by each component
+    // internal variables to be reused per patch() call
+    var t, r, o, i, u, c, f, a = function(o, p, v, d, m, h, g, w, S) {
+      if (w = p.vchildren[v], t || (
+      // remember for later we need to check to relocate nodes
+      i = !0, "slot" === w.vtag && (r && 
+      // scoped css needs to add its scoped id to the parent element
+      e._$$addClass$_(d, r + "-s"), w.vchildren ? 
+      // slot element has fallback content
+      // still create an element that "mocks" the slot element
+      w._$isSlotFallback$_ = !0 : 
+      // slot element does not have fallback content
+      // create an html comment we'll use to always reference
+      // where actual slot content should sit next to
+      w._$isSlotReference$_ = !0)), l(w.vtext)) 
+      // create text node
+      w._$elm$_ = e._$$createTextNode$_(w.vtext); else if (w._$isSlotReference$_) 
+      // create a slot reference html text node
+      w._$elm$_ = e._$$createTextNode$_(""); else {
+        if (
+        // create element
+        h = w._$elm$_ = b || "svg" === w.vtag ? e._$$createElementNS$_("http://www.w3.org/2000/svg", w.vtag) : e._$$createElement$_(w._$isSlotFallback$_ ? "slot-fb" : w.vtag), 
+        n._$isDefinedComponent$_(h) && n._$isCmpReady$_.delete(f), b = "svg" === w.vtag || "foreignObject" !== w.vtag && b, 
+        // add css classes, attrs, props, listeners, etc.
+        y(n, null, w, b), l(r) && h["s-si"] !== r && 
+        // if there is a scopeId and this is the initial render
+        // then let's add the scopeId as an attribute
+        e._$$addClass$_(h, h["s-si"] = r), w.vchildren) for (m = 0; m < w.vchildren.length; ++m) 
+        // create the node
+        // return node could have been null
+        (g = a(o, w, m, h)) && 
+        // append our new node
+        e._$$appendChild$_(h, g);
+        "svg" === w.vtag && (
+        // Only reset the SVG context when we're exiting SVG element
+        b = !1);
+      }
+      return w._$elm$_["s-hn"] = c, (w._$isSlotFallback$_ || w._$isSlotReference$_) && (
+      // remember the content reference comment
+      w._$elm$_["s-sr"] = !0, 
+      // remember the content reference comment
+      w._$elm$_["s-cr"] = u, 
+      // remember the slot name, or empty string for default slot
+      w._$elm$_["s-sn"] = w.vname || "", (
+      // check if we've got an old vnode for this slot
+      S = o && o.vchildren && o.vchildren[v]) && S.vtag === w.vtag && o._$elm$_ && 
+      // we've got an old slot vnode and the wrapper is being replaced
+      // so let's move the old slot content back to it's original location
+      s(o._$elm$_)), w._$elm$_;
+    }, s = function(t, r, o, u) {
+      n._$tmpDisconnected$_ = !0;
+      var f = e._$$childNodes$_(t);
+      for (o = f.length - 1; o >= 0; o--) (u = f[o])["s-hn"] !== c && u["s-ol"] && (
+      // this child node in the old element is from another component
+      // remove this node from the old slot's parent
+      e._$$remove$_(u), 
+      // and relocate it back to it's original location
+      e._$$insertBefore$_(h(u), u, m(u)), 
+      // remove the old original location comment entirely
+      // later on the patch function will know what to do
+      // and move this to the correct spot in need be
+      e._$$remove$_(u["s-ol"]), u["s-ol"] = null, i = !0), r && s(u, r);
+      n._$tmpDisconnected$_ = !1;
+    }, p = function(n, t, r, o, i, u, f, s) {
+      var p = n["s-cr"];
+      for ((f = p && e._$$parentNode$_(p) || n).shadowRoot && e._$$tagName$_(f) === c && (f = f.shadowRoot); i <= u; ++i) o[i] && (s = l(o[i].vtext) ? e._$$createTextNode$_(o[i].vtext) : a(null, r, i, n)) && (o[i]._$elm$_ = s, 
+      e._$$insertBefore$_(f, s, m(t)));
+    }, v = function(n, t, r, i) {
+      for (;t <= r; ++t) l(n[t]) && (i = n[t]._$elm$_, 
+      // we're removing this element
+      // so it's possible we need to show slot fallback content now
+      o = !0, i["s-ol"] ? 
+      // remove the original location comment
+      e._$$remove$_(i["s-ol"]) : 
+      // it's possible that child nodes of the node
+      // that's being removed are slot nodes
+      s(i, !0), 
+      // remove the vnode's element from the dom
+      e._$$remove$_(i));
+    }, d = function(n, e) {
+      // compare if two vnode to see if they're "technically" the same
+      // need to have the same element tag, and same key to be the same
+      return n.vtag === e.vtag && n.vkey === e.vkey && ("slot" !== n.vtag || n.vname === e.vname);
+    }, m = function(n) {
+      return n && n["s-ol"] ? n["s-ol"] : n;
+    }, h = function(n) {
+      return e._$$parentNode$_(n["s-ol"] ? n["s-ol"] : n);
+    }, g = function(t, r, o) {
+      var i = r._$elm$_ = t._$elm$_, u = t.vchildren, c = r.vchildren;
+      // test if we're rendering an svg element, or still rendering nodes inside of one
+      // only add this to the when the compiler sees we're using an svg somewhere
+      b = r._$elm$_ && l(e._$$parentElement$_(r._$elm$_)) && void 0 !== r._$elm$_.ownerSVGElement, 
+      b = "svg" === r.vtag || "foreignObject" !== r.vtag && b, l(r.vtext) ? (o = i["s-cr"]) ? 
+      // this element has slotted content
+      e._$$setTextContent$_(e._$$parentNode$_(o), r.vtext) : t.vtext !== r.vtext && 
+      // update the text content for the text only vnode
+      // and also only if the text is different than before
+      e._$$setTextContent$_(i, r.vtext) : (
+      // element node
+      "slot" !== r.vtag && 
+      // either this is the first render of an element OR it's an update
+      // AND we already know it's possible it could have changed
+      // this updates the element's css classes, attrs, props, listeners, etc.
+      y(n, t, r, b), l(u) && l(c) ? 
+      // looks like there's child vnodes for both the old and new vnodes
+      function(n, t, r, o, i, u, c, f) {
+        for (var y = 0, b = 0, w = t.length - 1, S = t[0], k = t[w], C = o.length - 1, M = o[0], E = o[C]; y <= w && b <= C; ) if (null == S) 
+        // Vnode might have been moved left
+        S = t[++y]; else if (null == k) k = t[--w]; else if (null == M) M = o[++b]; else if (null == E) E = o[--C]; else if (d(S, M)) g(S, M), 
+        S = t[++y], M = o[++b]; else if (d(k, E)) g(k, E), k = t[--w], E = o[--C]; else if (d(S, E)) 
+        // Vnode moved right
+        "slot" !== S.vtag && "slot" !== E.vtag || s(e._$$parentNode$_(S._$elm$_)), g(S, E), 
+        e._$$insertBefore$_(n, S._$elm$_, e._$$nextSibling$_(k._$elm$_)), S = t[++y], E = o[--C]; else if (d(k, M)) 
+        // Vnode moved left
+        "slot" !== S.vtag && "slot" !== E.vtag || s(e._$$parentNode$_(k._$elm$_)), g(k, M), 
+        e._$$insertBefore$_(n, k._$elm$_, S._$elm$_), k = t[--w], M = o[++b]; else {
+          for (
+          // createKeyToOldIdx
+          i = null, u = y; u <= w; ++u) if (t[u] && l(t[u].vkey) && t[u].vkey === M.vkey) {
+            i = u;
+            break;
+          }
+          l(i) ? ((f = t[i]).vtag !== M.vtag ? c = a(t && t[b], r, i, n) : (g(f, M), t[i] = void 0, 
+          c = f._$elm$_), M = o[++b]) : (
+          // new element
+          c = a(t && t[b], r, b, n), M = o[++b]), c && e._$$insertBefore$_(h(S._$elm$_), c, m(S._$elm$_));
+        }
+        y > w ? p(n, null == o[C + 1] ? null : o[C + 1]._$elm$_, r, o, b, C) : b > C && v(t, y, w);
+      }(i, u, r, c) : l(c) ? (
+      // no old child vnodes, but there are new child vnodes to add
+      l(t.vtext) && 
+      // the old vnode was text, so be sure to clear it out
+      e._$$setTextContent$_(i, ""), 
+      // add the new vnode children
+      p(i, null, r, c, 0, c.length - 1)) : l(u) && 
+      // no new child vnodes, but there are old child vnodes to remove
+      v(u, 0, u.length - 1)), 
+      // reset svgMode when svg node is fully patched
+      b && "svg" === r.vtag && (b = !1);
+    }, w = function(n, t, r, o, i, u, c, f) {
+      for (o = 0, i = (r = e._$$childNodes$_(n)).length; o < i; o++) if (t = r[o], 1 /* ElementNode */ === e._$$nodeType$_(t)) {
+        if (t["s-sr"]) for (
+        // this is a slot fallback node
+        // get the slot name for this slot reference node
+        c = t["s-sn"], 
+        // by default always show a fallback slot node
+        // then hide it if there are other slots in the light dom
+        t.hidden = !1, u = 0; u < i; u++) if (r[u]["s-hn"] !== t["s-hn"]) if (
+        // this sibling node is from a different component
+        f = e._$$nodeType$_(r[u]), "" !== c) {
+          // this is a named fallback slot node
+          if (1 /* ElementNode */ === f && c === e._$$getAttribute$_(r[u], "slot")) {
+            t.hidden = !0;
+            break;
+          }
+        } else 
+        // this is a default fallback slot node
+        // any element or text node (with content)
+        // should hide the default fallback slot node
+        if (1 /* ElementNode */ === f || 3 /* TextNode */ === f && "" !== e._$$getTextContent$_(r[u]).trim()) {
+          t.hidden = !0;
+          break;
+        }
+        // keep drilling down
+                w(t);
+      }
+    }, S = [], k = function(n, t, r, i, u, c, f, a, l, s) {
+      for (u = 0, c = (t = e._$$childNodes$_(n)).length; u < c; u++) {
+        if ((r = t[u])["s-sr"] && (i = r["s-cr"])) for (
+        // first got the content reference comment node
+        // then we got it's parent, which is where all the host content is in now
+        a = e._$$childNodes$_(e._$$parentNode$_(i)), l = r["s-sn"], f = a.length - 1; f >= 0; f--) (i = a[f])["s-cn"] || i["s-nr"] || i["s-hn"] === r["s-hn"] || ((3 /* TextNode */ === (
+        // let's do some relocating to its new home
+        // but never relocate a content reference node
+        // that is suppose to always represent the original content location
+        s = e._$$nodeType$_(i)) || 8 /* CommentNode */ === s) && "" === l || 1 /* ElementNode */ === s && null === e._$$getAttribute$_(i, "slot") && "" === l || 1 /* ElementNode */ === s && e._$$getAttribute$_(i, "slot") === l) && (
+        // it's possible we've already decided to relocate this node
+        S.some(function(n) {
+          return n._$nodeToRelocate$_ === i;
+        }) || (
+        // made some changes to slots
+        // let's make sure we also double check
+        // fallbacks are correctly hidden or shown
+        o = !0, i["s-sn"] = l, 
+        // add to our list of nodes to relocate
+        S.push({
+          _$slotRefNode$_: r,
+          _$nodeToRelocate$_: i
+        })));
+        1 /* ElementNode */ === e._$$nodeType$_(r) && k(r);
+      }
+    };
+    return function(a, l, s, p, v, d, m, h, y, b, C, M) {
+      if (
+      // patchVNode() is synchronous
+      // so it is safe to set these variables and internally
+      // the same patch() call will reference the same data
+      f = a, c = e._$$tagName$_(f), u = f["s-cr"], t = p, 
+      // get the scopeId
+      r = f["s-sc"], 
+      // always reset
+      i = o = !1, 
+      // synchronous patch
+      g(l, s), i) {
+        for (k(s._$elm$_), m = 0; m < S.length; m++) (h = S[m])._$nodeToRelocate$_["s-ol"] || (
+        // add a reference node marking this node's original location
+        // keep a reference to this node for later lookups
+        (y = e._$$createTextNode$_(""))["s-nr"] = h._$nodeToRelocate$_, e._$$insertBefore$_(e._$$parentNode$_(h._$nodeToRelocate$_), h._$nodeToRelocate$_["s-ol"] = y, h._$nodeToRelocate$_));
+        // while we're moving nodes around existing nodes, temporarily disable
+        // the disconnectCallback from working
+                for (n._$tmpDisconnected$_ = !0, m = 0; m < S.length; m++) {
+          for (h = S[m], 
+          // by default we're just going to insert it directly
+          // after the slot reference node
+          C = e._$$parentNode$_(h._$slotRefNode$_), M = e._$$nextSibling$_(h._$slotRefNode$_), 
+          y = h._$nodeToRelocate$_["s-ol"]; y = e._$$previousSibling$_(y); ) if ((b = y["s-nr"]) && b && b["s-sn"] === h._$nodeToRelocate$_["s-sn"] && C === e._$$parentNode$_(b) && (b = e._$$nextSibling$_(b)) && b && !b["s-nr"]) {
+            M = b;
+            break;
+          }
+          (!M && C !== e._$$parentNode$_(h._$nodeToRelocate$_) || e._$$nextSibling$_(h._$nodeToRelocate$_) !== M) && h._$nodeToRelocate$_ !== M && (
+          // remove the node from the dom
+          e._$$remove$_(h._$nodeToRelocate$_), 
+          // add it back to the dom but in its new home
+          e._$$insertBefore$_(C, h._$nodeToRelocate$_, M));
+        }
+        // done moving nodes around
+        // allow the disconnect callback to work again
+                n._$tmpDisconnected$_ = !1;
+      }
+      // return our new vnode
+      return o && w(s._$elm$_), 
+      // always reset
+      S.length = 0, s;
+    };
+  }(x, k);
+  // setup the root element which is the mighty <html> tag
+  // the <html> has the final say of when the app has loaded
+  var j = k._$$doc$_.documentElement;
+  j["s-ld"] = [], j["s-rn"] = !0, 
+  // this will fire when all components have finished loaded
+  j["s-init"] = function() {
+    x._$isCmpReady$_.set(j, w.loaded = x._$isAppLoaded$_ = !0), k._$$dispatchEvent$_(t, "appload", {
+      detail: {
+        namespace: n
+      }
+    });
+  }, w.loadBundle = loadBundle;
+  var T = [];
+  f && f.initShim().then(function() {
+    // loaded all the css, let's run all the request bundle callbacks
+    for (;T.length; ) T.shift()();
+    // set to null to we know we're loaded
+        T = null;
+  }), x._$attachStyles$_ = function(n, e, t, r) {
+    (function(n, e, t, r) {
+      // first see if we've got a style for a specific mode
+      // either this host element should use scoped css
+      // or it wants to use shadow dom but the browser doesn't support it
+      // create a scope id which is useful for scoped css
+      // and add the scope attribute to the host
+      // create the style id w/ the host element's mode
+      var o = t._$tagNameMeta$_ + u, i = t[o];
+      if ((2 /* ScopedCss */ === t._$encapsulationMeta$_ || 1 /* ShadowDom */ === t._$encapsulationMeta$_ && !n._$domApi$_._$$supportsShadowDom$_) && (r["s-sc"] = i ? getScopeId(t, r.mode) : getScopeId(t)), 
+      i) {
+        // cool, we found a style template element for this component
+        var c = e._$$doc$_.head;
+        // if this browser supports shadow dom, then let's climb up
+        // the dom and see if we're within a shadow dom
+                if (e._$$supportsShadowDom$_) if (1 /* ShadowDom */ === t._$encapsulationMeta$_) 
+        // we already know we're in a shadow dom
+        // so shadow root is the container for these styles
+        c = r.shadowRoot; else {
+          // climb up the dom and see if we're in a shadow dom
+          var f = r.getRootNode();
+          f.host && (c = f);
+        }
+        // if this container element already has these styles
+        // then there's no need to apply them again
+        // create an object to keep track if we'ready applied this component style
+                var a = n._$componentAppliedStyles$_.get(c);
+        // check if we haven't applied these styles to this container yet
+        if (a || n._$componentAppliedStyles$_.set(c, a = {}), !a[o]) {
+          var l = void 0;
+          if (
+          // es5 builds are not using <template> because of ie11 issues
+          // instead the "template" is just the style text as a string
+          // create a new style element and add as innerHTML
+          n._$customStyle$_ ? l = n._$customStyle$_.createHostStyle(r, o, i) : ((l = e._$$createElement$_("style")).innerHTML = i, 
+          // remember we don't need to do this again for this element
+          a[o] = !0), l) {
+            var s = c.querySelectorAll("[data-styles]");
+            e._$$insertBefore$_(c, l, s.length && s[s.length - 1].nextSibling || c.firstChild);
+          }
+        }
+      }
+    })(n, e, t, r);
+  }, c.map(function(n) {
+    var e = function(n, e, t) {
+      // tag name will always be lower case
+      // parse member meta
+      // this data only includes props that are attributes that need to be observed
+      // it does not include all of the props yet
+      var r = n[0], o = n[1], i = n[3], u = n[4], c = n[5], f = {
+        // every component defaults to always have
+        // the mode and color properties
+        // but only color should observe any attribute changes
+        color: {
+          _$attribName$_: "color"
+        }
+      };
+      if (i) for (e = 0; e < i.length; e++) f[(t = i[e])[0]] = {
+        _$memberType$_: t[1],
+        _$reflectToAttrib$_: !!t[2],
+        _$attribName$_: "string" == typeof t[3] ? t[3] : t[3] ? t[0] : 0,
+        _$propType$_: t[4]
+      };
+      return {
+        _$tagNameMeta$_: r,
+        // map of the bundle ids
+        // can contain modes, and array of esm and es5 bundle ids
+        _$bundleIds$_: o,
+        _$membersMeta$_: Object.assign({}, f),
+        // encapsulation
+        _$encapsulationMeta$_: u,
+        // parse listener meta
+        _$listenersMeta$_: c ? c.map(M) : void 0
+      };
+    }(n);
+    return v[e._$tagNameMeta$_] = e;
+  }).forEach(function(n) {
+    // es5 way of extending HTMLElement
+    function HostElement(n) {
+      return HTMLElement.call(this, n);
+    }
+    HostElement.prototype = Object.create(HTMLElement.prototype, {
+      constructor: {
+        value: HostElement,
+        configurable: !0
+      }
+    }), defineComponent(n, HostElement);
+  }), x._$hasConnectedComponent$_ || 
+  // we just defined call the custom elements but no
+  // connectedCallbacks happened, so no components in the dom :(
+  j["s-init"](), 
+  // create the componentOnReady fn
+  function(n, e, t, r, o, i) {
+    if (
+    // add componentOnReady() to the App object
+    // this also is used to know that the App's core is ready
+    e.componentOnReady = function(e, t) {
+      if (!e.nodeName.includes("-")) return t(null), !1;
+      var r = n._$getComponentMeta$_(e);
+      if (r) if (n._$isCmpReady$_.has(e)) 
+      // element has already loaded, pass the resolve the element component
+      // so we know that the resolve knows it this element is an app component
+      t(e); else {
+        // element hasn't loaded yet or it has an update in progress
+        // add this resolve specifically to this elements on ready queue
+        var o = n._$onReadyCallbacksMap$_.get(e) || [];
+        o.push(t), n._$onReadyCallbacksMap$_.set(e, o);
+      }
+      // return a boolean if this app recognized this element or not
+            return !!r;
+    }, o) {
+      // we've got some componentOnReadys in the queue before the app was ready
+      for (i = o.length - 1; i >= 0; i--) 
+      // go through each element and see if this app recongizes it
+      e.componentOnReady(o[i][0], o[i][1]) && 
+      // turns out this element belongs to this app
+      // remove the resolve from the queue so in the end
+      // all that's left in the queue are elements not apart of any apps
+      o.splice(i, 1);
+      for (i = 0; i < r.length; i++) if (!t[r[i]].componentOnReady) 
+      // there is at least 1 apps that isn't ready yet
+      // so let's stop here cuz there's still app cores loading
+      return;
+      // if we got to this point then that means all of the apps are ready
+      // and they would have removed any of their elements from queuedComponentOnReadys
+      // so let's do the cleanup of the  remaining queuedComponentOnReadys
+            for (i = 0; i < o.length; i++) 
+      // resolve any queued componentsOnReadys that are left over
+      // since these elements were not apart of any apps
+      // call the resolve fn, but pass null so it's know this wasn't a known app component
+      o[i][1](null);
+      o.length = 0;
+    }
+  }(x, w, t, t["s-apps"], t["s-cr"]), 
+  // notify that the app has initialized and the core script is ready
+  // but note that the components have not fully loaded yet
+  w.initialized = !0;
+}
+/*
+Extremely simple css parser. Intended to be not more than what we need
+and definitely not necessarily correct =).
+*/
+/** @unrestricted */ (n, x, w, d, r, h, c, e);

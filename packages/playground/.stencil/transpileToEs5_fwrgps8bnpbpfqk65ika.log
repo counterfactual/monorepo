@@ -1,0 +1,5 @@
+App.loadBundle('/**:bundle-id:**/', ['exports', './chunk-346f9d40.js'], function (exports, __chunk_1) {
+    var h = window.App.h;
+    var AppRegistryTunnel = __chunk_1.createProviderConsumer({ apps: [], canUseApps: false, maintenanceMode: false, schemaVersion: "0" }, function (subscribe, child) { return (h("context-consumer", { subscribe: subscribe, renderer: child })); });
+    exports.AppRegistryTunnel = AppRegistryTunnel;
+});

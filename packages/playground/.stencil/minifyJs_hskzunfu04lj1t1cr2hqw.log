@@ -1,0 +1,190 @@
+import { h } from "../app.core.js";
+
+import "./chunk-deed3e85.js";
+
+import { a as AccountTunnel } from "./chunk-dfef6d51.js";
+
+import { a as AppRegistryTunnel } from "./chunk-868ccbc3.js";
+
+var AppsList = /** @class */ function() {
+  function AppsList() {
+    this.el = {}, this.appClicked = {}, this.apps = [], this.name = "", this.user = {};
+  }
+  return AppsList.prototype.appClickedHandler = function(e) {
+    this.appClicked.emit(e.detail);
+  }, AppsList.prototype.render = function() {
+    var e = this;
+    return h("div", {
+      class: "apps"
+    }, h("h2", {
+      class: "title"
+    }, this.name), h("ul", {
+      class: "list"
+    }, this.apps.map(function(t) {
+      return h("apps-list-item", {
+        onAppClicked: function(t) {
+          return e.appClickedHandler(t);
+        },
+        icon: t.icon,
+        name: t.name,
+        notifications: t.notifications,
+        url: t.url
+      });
+    })));
+  }, Object.defineProperty(AppsList, "is", {
+    get: function() {
+      return "apps-list";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsList, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsList, "properties", {
+    get: function() {
+      return {
+        apps: {
+          type: "Any",
+          attr: "apps"
+        },
+        el: {
+          elementRef: !0
+        },
+        name: {
+          type: String,
+          attr: "name"
+        },
+        user: {
+          type: "Any",
+          attr: "user"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsList, "events", {
+    get: function() {
+      return [ {
+        name: "appClicked",
+        method: "appClicked",
+        bubbles: !0,
+        cancelable: !0,
+        composed: !0
+      } ];
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsList, "style", {
+    get: function() {
+      return "/**style-placeholder:apps-list:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), AppsList;
+}();
+
+AccountTunnel.injectProps(AppsList, [ "user" ]);
+
+var AppsListItem = /** @class */ function() {
+  function AppsListItem() {
+    this.el = {}, this.appClicked = {}, this.icon = "", this.name = "", this.notifications = null, 
+    this.url = "", this.canUseApps = !1;
+  }
+  return AppsListItem.prototype.getAppSlug = function() {
+    return this.name.toLowerCase().replace(/ /g, "-");
+  }, AppsListItem.prototype.appClickedHandler = function(e) {
+    e.preventDefault(), this.appClicked.emit(e);
+  }, AppsListItem.prototype.openApp = function(e) {
+    e.preventDefault(), this.canUseApps && this.appClicked.emit({
+      name: this.name,
+      dappContainerUrl: "/dapp/" + this.getAppSlug(),
+      dappUrl: this.url
+    });
+  }, AppsListItem.prototype.render = function() {
+    var e = this;
+    return h("li", {
+      class: "item"
+    }, h("a", {
+      href: this.canUseApps ? "/dapp/" + this.getAppSlug() : "#",
+      onClick: function(t) {
+        return e.openApp(t);
+      }
+    }, h("div", {
+      class: "icon"
+    }, this.notifications ? h("div", {
+      class: "notification"
+    }, this.notifications) : null, h("img", {
+      src: this.url + "/" + this.icon,
+      alt: this.name
+    })), h("span", {
+      class: "name"
+    }, this.name)));
+  }, Object.defineProperty(AppsListItem, "is", {
+    get: function() {
+      return "apps-list-item";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsListItem, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsListItem, "properties", {
+    get: function() {
+      return {
+        canUseApps: {
+          type: Boolean,
+          attr: "can-use-apps"
+        },
+        el: {
+          elementRef: !0
+        },
+        icon: {
+          type: String,
+          attr: "icon"
+        },
+        name: {
+          type: String,
+          attr: "name"
+        },
+        notifications: {
+          type: Number,
+          attr: "notifications"
+        },
+        url: {
+          type: String,
+          attr: "url"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsListItem, "events", {
+    get: function() {
+      return [ {
+        name: "appClicked",
+        method: "appClicked",
+        bubbles: !0,
+        cancelable: !0,
+        composed: !0
+      } ];
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AppsListItem, "style", {
+    get: function() {
+      return "/**style-placeholder:apps-list-item:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), AppsListItem;
+}();
+
+AppRegistryTunnel.injectProps(AppsListItem, [ "canUseApps" ]);
+
+export { AppsList, AppsListItem };

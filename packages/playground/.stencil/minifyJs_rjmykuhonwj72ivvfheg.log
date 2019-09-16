@@ -1,0 +1,399 @@
+import { h } from "../app.core.js";
+
+import "./chunk-deed3e85.js";
+
+import { a as ActiveRouter } from "./chunk-9cf92136.js";
+
+var AccountEthForm = /** @class */ function() {
+  function AccountEthForm() {
+    this.submit = {}, this.header = "", this.button = "", this.disabled = !1, this.provideFaucetLink = !1, 
+    this.min = .01, this.max = 1, this.available = 0, this.value = "", this.error = "", 
+    this.loading = !1, this.autofocus = !1;
+  }
+  return AccountEthForm.prototype.update = function(e) {
+    this.error = "", this.value = e.target.value;
+  }, AccountEthForm.prototype.openFaucet = function() {
+    window.open("https://faucet.kovan.network/", "_blank");
+  }, AccountEthForm.prototype.handleSubmit = function(e) {
+    e.preventDefault();
+    var t = Number(this.value);
+    !t || t < this.min || t > this.max ? this.error = "Enter an amount larger than " + this.min + " and smaller than " + this.max + "." : this.submit.emit(e);
+  }, AccountEthForm.prototype.render = function() {
+    var e, t = this;
+    try {
+      e = parseFloat(window.ethers.utils.formatEther(this.available)).toFixed(4);
+    } catch (t) {
+      e = "0";
+    }
+    return h("div", null, h("form-container", null, h("form-input", {
+      type: "number",
+      unit: "ETH",
+      value: this.value,
+      error: this.error,
+      disabled: this.disabled,
+      min: this.min,
+      max: Math.min(parseInt(e, 10), this.max),
+      step: .001,
+      onChange: function(e) {
+        return t.update(e);
+      },
+      autofocus: this.autofocus
+    }, h("div", {
+      class: "balance-label",
+      slot: "label"
+    }, h("div", null, "Available Balance"), h("div", null, e, " ETH"))), h("form-button", {
+      class: "button",
+      spinner: this.loading,
+      disabled: this.disabled,
+      onButtonPressed: this.handleSubmit.bind(this)
+    }, this.button), this.provideFaucetLink ? h("form-button", {
+      class: "button button--secondary",
+      onButtonPressed: this.openFaucet.bind(this)
+    }, "Get Free ETH (test faucet)") : void 0));
+  }, Object.defineProperty(AccountEthForm, "is", {
+    get: function() {
+      return "account-eth-form";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountEthForm, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountEthForm, "properties", {
+    get: function() {
+      return {
+        autofocus: {
+          type: Boolean,
+          attr: "autofocus"
+        },
+        available: {
+          type: Number,
+          attr: "available"
+        },
+        button: {
+          type: String,
+          attr: "button"
+        },
+        disabled: {
+          type: Boolean,
+          attr: "disabled"
+        },
+        error: {
+          type: String,
+          attr: "error",
+          mutable: !0
+        },
+        header: {
+          type: String,
+          attr: "header"
+        },
+        loading: {
+          type: Boolean,
+          attr: "loading"
+        },
+        max: {
+          type: Number,
+          attr: "max"
+        },
+        min: {
+          type: Number,
+          attr: "min"
+        },
+        provideFaucetLink: {
+          type: Boolean,
+          attr: "provide-faucet-link"
+        },
+        value: {
+          type: "Any",
+          attr: "value",
+          mutable: !0
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountEthForm, "events", {
+    get: function() {
+      return [ {
+        name: "submit",
+        method: "submit",
+        bubbles: !0,
+        cancelable: !0,
+        composed: !0
+      } ];
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(AccountEthForm, "style", {
+    get: function() {
+      return "/**style-placeholder:account-eth-form:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), AccountEthForm;
+}(), WidgetCard = /** @class */ function() {
+  function WidgetCard() {}
+  return WidgetCard.prototype.render = function() {
+    return h("div", {
+      class: "card"
+    }, h("slot", null));
+  }, Object.defineProperty(WidgetCard, "is", {
+    get: function() {
+      return "widget-card";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetCard, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetCard, "style", {
+    get: function() {
+      return "/**style-placeholder:widget-card:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), WidgetCard;
+}(), WidgetDialog = /** @class */ function() {
+  function WidgetDialog() {
+    this.el = {}, this.visible = !1, this.dialogTitle = "", this.icon = "", this.content = {}, 
+    this.contentClass = "", this.dialogClass = "", this.primaryButtonText = "", this.secondaryButtonText = "", 
+    this.primaryButtonClicked = {}, this.secondaryButtonClicked = {};
+  }
+  return WidgetDialog.prototype.primaryButtonClickedHandler = function() {
+    this.primaryButtonClicked.emit();
+  }, WidgetDialog.prototype.secondaryButtonClickedHandler = function() {
+    this.secondaryButtonClicked.emit();
+  }, WidgetDialog.prototype.render = function() {
+    var e = this;
+    return h("div", {
+      class: this.visible ? "dialog-wrapper dialog--open" : "dialog-wrapper"
+    }, h("dialog", {
+      open: this.visible,
+      class: this.dialogClass
+    }, h("header", null, h("widget-logo", {
+      caption: this.dialogTitle
+    })), h("main", {
+      class: this.contentClass
+    }, this.icon ? h("img", {
+      src: this.icon
+    }) : {}, this.content), h("footer", null, this.secondaryButtonText ? h("button", {
+      class: "btn--secondary",
+      onClick: function() {
+        return e.secondaryButtonClickedHandler();
+      }
+    }, this.secondaryButtonText) : {}, this.primaryButtonText ? h("button", {
+      onClick: function() {
+        return e.primaryButtonClickedHandler();
+      }
+    }, this.primaryButtonText) : {})));
+  }, Object.defineProperty(WidgetDialog, "is", {
+    get: function() {
+      return "widget-dialog";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetDialog, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetDialog, "properties", {
+    get: function() {
+      return {
+        content: {
+          type: "Any",
+          attr: "content"
+        },
+        contentClass: {
+          type: String,
+          attr: "content-class"
+        },
+        dialogClass: {
+          type: String,
+          attr: "dialog-class"
+        },
+        dialogTitle: {
+          type: String,
+          attr: "dialog-title"
+        },
+        el: {
+          elementRef: !0
+        },
+        icon: {
+          type: String,
+          attr: "icon"
+        },
+        primaryButtonText: {
+          type: String,
+          attr: "primary-button-text"
+        },
+        secondaryButtonText: {
+          type: String,
+          attr: "secondary-button-text"
+        },
+        visible: {
+          type: Boolean,
+          attr: "visible",
+          mutable: !0
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetDialog, "events", {
+    get: function() {
+      return [ {
+        name: "primaryButtonClicked",
+        method: "primaryButtonClicked",
+        bubbles: !0,
+        cancelable: !0,
+        composed: !0
+      }, {
+        name: "secondaryButtonClicked",
+        method: "secondaryButtonClicked",
+        bubbles: !0,
+        cancelable: !0,
+        composed: !0
+      } ];
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetDialog, "style", {
+    get: function() {
+      return "/**style-placeholder:widget-dialog:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), WidgetDialog;
+}(), WidgetHeader = /** @class */ function() {
+  function WidgetHeader() {}
+  return WidgetHeader.prototype.render = function() {
+    return h("h2", {
+      class: "header"
+    }, h("slot", null));
+  }, Object.defineProperty(WidgetHeader, "is", {
+    get: function() {
+      return "widget-header";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetHeader, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetHeader, "style", {
+    get: function() {
+      return "/**style-placeholder:widget-header:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), WidgetHeader;
+}(), WidgetScreen = /** @class */ function() {
+  function WidgetScreen() {
+    this.exitable = !0;
+  }
+  return WidgetScreen.prototype.render = function() {
+    return h("div", {
+      class: "widget-screen"
+    }, h("div", {
+      class: "constraint"
+    }, h("div", {
+      class: "pre"
+    }, h("widget-connection", null), this.exitable ? h("stencil-route-link", {
+      url: "/"
+    }, h("button", {
+      class: "close"
+    }, h("img", {
+      src: "/assets/icon/close.svg"
+    }))) : null), h("widget-card", null, h("div", {
+      class: "logo"
+    }, h("widget-logo", null)), h("widget-header", null, h("slot", {
+      name: "header"
+    })), h("slot", null)), h("div", {
+      class: "post"
+    }, h("slot", {
+      name: "post"
+    }))));
+  }, Object.defineProperty(WidgetScreen, "is", {
+    get: function() {
+      return "widget-screen";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetScreen, "encapsulation", {
+    get: function() {
+      return "shadow";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetScreen, "properties", {
+    get: function() {
+      return {
+        exitable: {
+          type: Boolean,
+          attr: "exitable"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(WidgetScreen, "style", {
+    get: function() {
+      return "/**style-placeholder:widget-screen:**/";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), WidgetScreen;
+}();
+
+function getUrl(e, t) {
+  return "/" == e.charAt(0) && "/" == t.charAt(t.length - 1) ? t.slice(0, t.length - 1) + e : t + e;
+}
+
+var Redirect = /** @class */ function() {
+  function Redirect() {}
+  return Redirect.prototype.componentWillLoad = function() {
+    if (this.history && this.root && this.url) return this.history.replace(getUrl(this.url, this.root));
+  }, Object.defineProperty(Redirect, "is", {
+    get: function() {
+      return "stencil-router-redirect";
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Object.defineProperty(Redirect, "properties", {
+    get: function() {
+      return {
+        el: {
+          elementRef: !0
+        },
+        history: {
+          type: "Any",
+          attr: "history"
+        },
+        root: {
+          type: String,
+          attr: "root"
+        },
+        url: {
+          type: String,
+          attr: "url"
+        }
+      };
+    },
+    enumerable: !0,
+    configurable: !0
+  }), Redirect;
+}();
+
+ActiveRouter.injectProps(Redirect, [ "history", "root" ]);
+
+export { AccountEthForm, WidgetCard, WidgetDialog, WidgetHeader, WidgetScreen, Redirect as StencilRouterRedirect };

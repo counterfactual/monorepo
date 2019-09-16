@@ -1,0 +1,109 @@
+import { h } from '../app.core.js';
+import './chunk-deed3e85.js';
+import { a as WalletTunnel } from './chunk-a343ce23.js';
+var NETWORK_NAMES = {
+    "1": "Mainnet",
+    "3": "Ropsten",
+    "42": "Kovan",
+    "4": "Rinkeby"
+};
+var WidgetConnection = /** @class */ (function () {
+    function WidgetConnection() {
+        this.network = "";
+        this.metamaskUnlocked = false;
+        this.hasDetectedNetwork = false;
+    }
+    WidgetConnection.prototype.render = function () {
+        if (!this.hasDetectedNetwork) {
+            return;
+        }
+        if (!this.network) {
+            return (h("div", { class: "connection" }, h("widget-tooltip", { message: this.metamaskUnlocked ? "Must be connected to Ropsten" : undefined }, h("span", { class: "dot" }), h("span", { class: "status" }, "No connection"))));
+        }
+        if (!this.metamaskUnlocked) {
+            return (h("div", { class: "connection" }, h("span", { class: "dot locked" }), h("span", { class: "status" }, "Wallet locked")));
+        }
+        return (h("div", { class: "connection" }, h("span", { class: "dot connected" }), h("span", { class: "status" }, "Connected to " + NETWORK_NAMES[this.network])));
+    };
+    Object.defineProperty(WidgetConnection, "is", {
+        get: function () { return "widget-connection"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetConnection, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetConnection, "properties", {
+        get: function () {
+            return {
+                "el": {
+                    "elementRef": true
+                },
+                "hasDetectedNetwork": {
+                    "type": Boolean,
+                    "attr": "has-detected-network"
+                },
+                "metamaskUnlocked": {
+                    "type": Boolean,
+                    "attr": "metamask-unlocked"
+                },
+                "network": {
+                    "type": String,
+                    "attr": "network"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetConnection, "style", {
+        get: function () { return "/**style-placeholder:widget-connection:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return WidgetConnection;
+}());
+WalletTunnel.injectProps(WidgetConnection, [
+    "network",
+    "metamaskUnlocked",
+    "hasDetectedNetwork"
+]);
+var WidgetLogo = /** @class */ (function () {
+    function WidgetLogo() {
+        this.caption = "";
+    }
+    WidgetLogo.prototype.render = function () {
+        return (h("h1", { class: "logo " + (this.caption ? "logo--icon-only" : "") }, h("stencil-route-link", { url: "/" }, h("img", { src: "/assets/icon/logo.svg", alt: "Counterfactual" }), !this.caption ? h("span", null, "Playground") : this.caption)));
+    };
+    Object.defineProperty(WidgetLogo, "is", {
+        get: function () { return "widget-logo"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetLogo, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetLogo, "properties", {
+        get: function () {
+            return {
+                "caption": {
+                    "type": String,
+                    "attr": "caption"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetLogo, "style", {
+        get: function () { return "/**style-placeholder:widget-logo:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return WidgetLogo;
+}());
+export { WidgetConnection, WidgetLogo };

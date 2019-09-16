@@ -1,0 +1,50 @@
+const t = window.App.h;
+
+class e {
+  constructor() {
+    this.visible = !1, this.type = "circle", this.color = "black", this.content = {};
+  }
+  render() {
+    return "circle" === this.type ? t("div", {
+      class: `spinner spinner--circle ${this.visible ? "" : "spinner--hidden"} spinner--color-${this.color}`
+    }) : "dots" === this.type ? t("div", {
+      class: `spinner spinner--loading ${this.visible ? "" : "spinner--hidden"}`
+    }, t("div", {
+      class: "spinner-loading"
+    }, t("div", {
+      class: "bounce1"
+    }), t("div", {
+      class: "bounce2"
+    }), t("div", {
+      class: "bounce3"
+    })), this.content) : void 0;
+  }
+  static get is() {
+    return "widget-spinner";
+  }
+  static get properties() {
+    return {
+      color: {
+        type: String,
+        attr: "color"
+      },
+      content: {
+        type: "Any",
+        attr: "content"
+      },
+      type: {
+        type: String,
+        attr: "type"
+      },
+      visible: {
+        type: Boolean,
+        attr: "visible"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:widget-spinner:**/";
+  }
+}
+
+export { e as WidgetSpinner };

@@ -1,0 +1,428 @@
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import { a as getProp } from './chunk-960e9c51.js';
+import './chunk-deed3e85.js';
+import { b as HighRollerStage, e as CounterfactualTunnel } from './chunk-a0cc8100.js';
+var HashZero = ethers.constants.HashZero;
+var AppWager = /** @class */ (function () {
+    function AppWager() {
+        this.el = {};
+        this.history = {};
+        this.appFactory = {};
+        this.betAmount = "0.01";
+        this.myName = "";
+        this.opponent = { attributes: {} };
+        this.intermediary = "";
+        this.isError = false;
+        this.isWaiting = false;
+        this.standalone = false;
+        this.updateAppInstance = function () { };
+        this.updateOpponent = function () { };
+    }
+    AppWager.prototype.componentWillLoad = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        this.myName = this.account.user.username;
+                        return [4 /*yield*/, this.matchmake()];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    AppWager.prototype.handlePlay = function (e) {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var initialState, currentEthBalance, bet, e_1;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        e.preventDefault();
+                        _a.label = 1;
+                    case 1:
+                        _a.trys.push([1, 3, , 4]);
+                        initialState = {
+                            stage: HighRollerStage.WAITING_FOR_P1_COMMITMENT,
+                            salt: HashZero,
+                            commitHash: HashZero,
+                            playerFirstNumber: 0,
+                            playerSecondNumber: 0,
+                            versionNumber: 0
+                        };
+                        currentEthBalance = ethers.utils.parseEther(this.account.balance);
+                        bet = ethers.utils.parseEther(this.betAmount);
+                        if (currentEthBalance.lt(bet)) {
+                            this.error = "Insufficient funds: You need at least " + this.betAmount + " ETH to play.";
+                            return [2 /*return*/];
+                        }
+                        if (bet.gt(ethers.utils.parseEther("0.01")) ||
+                            bet.lt(ethers.utils.parseEther("0"))) {
+                            this.error = "Please, place a bet between 0 and 0.01 ETH.";
+                            return [2 /*return*/];
+                        }
+                        return [4 /*yield*/, this.appFactory.proposeInstallVirtual({
+                                initialState: initialState,
+                                proposedToIdentifier: this.opponent.attributes.nodeAddress,
+                                responderDeposit: ethers.utils.parseEther(this.betAmount),
+                                initiatorDeposit: ethers.utils.parseEther(this.betAmount),
+                                timeout: 172800,
+                                intermediaries: [this.intermediary]
+                            })];
+                    case 2:
+                        _a.sent();
+                        this.isWaiting = true;
+                        return [3 /*break*/, 4];
+                    case 3:
+                        e_1 = _a.sent();
+                        debugger;
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppWager.prototype.matchmake = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            var result, error_1;
+            return tslib_1.__generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        _a.trys.push([0, 2, , 3]);
+                        return [4 /*yield*/, this.fetchMatchmake()];
+                    case 1:
+                        result = _a.sent();
+                        this.opponent = {
+                            attributes: {
+                                username: result.data.attributes.username,
+                                nodeAddress: result.data.attributes.nodeAddress,
+                                ethAddress: result.data.attributes.ethAddress
+                            }
+                        };
+                        this.intermediary = result.data.attributes.intermediary;
+                        this.error = null;
+                        this.updateOpponent(this.opponent);
+                        return [3 /*break*/, 3];
+                    case 2:
+                        error_1 = _a.sent();
+                        this.error = error_1;
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AppWager.prototype.onErrorSet = function () {
+        this.isError = !!this.error;
+    };
+    AppWager.prototype.handleChange = function (e, prop) {
+        this[prop] = e.target.value;
+    };
+    AppWager.prototype.fetchMatchmake = function () {
+        return tslib_1.__awaiter(this, void 0, void 0, function () {
+            return tslib_1.__generator(this, function (_a) {
+                if (this.standalone) {
+                    return [2 /*return*/, {
+                            data: {
+                                type: "matchmaking",
+                                id: "2b83cb14-c7aa-5208-8da8-369aeb1a3f24",
+                                attributes: {
+                                    intermediary: this.account.multisigAddress
+                                },
+                                relationships: {
+                                    users: {
+                                        data: {
+                                            type: "users",
+                                            id: this.account.user.id
+                                        }
+                                    },
+                                    matchedUser: {
+                                        data: {
+                                            type: "matchedUsers",
+                                            id: "3d54b508-b355-4323-8738-4cdf7290a2fd"
+                                        }
+                                    }
+                                }
+                            },
+                            included: [
+                                {
+                                    type: "users",
+                                    id: this.account.user.id,
+                                    attributes: {
+                                        username: this.account.user.username,
+                                        ethAddress: this.account.user.ethAddress
+                                    }
+                                },
+                                {
+                                    type: "matchedUsers",
+                                    id: "3d54b508-b355-4323-8738-4cdf7290a2fd",
+                                    attributes: {
+                                        username: "MyOpponent",
+                                        ethAddress: "0x12345"
+                                    }
+                                }
+                            ]
+                        }];
+                }
+                return [2 /*return*/, new Promise(function (resolve) {
+                        var onMatchmakeResponse = function (event) {
+                            if (!event.data.toString().startsWith("playground:response:matchmake")) {
+                                return;
+                            }
+                            window.removeEventListener("message", onMatchmakeResponse);
+                            var _a = event.data.split("|"), data = _a[1];
+                            resolve(JSON.parse(data));
+                        };
+                        window.addEventListener("message", onMatchmakeResponse);
+                        window.parent.postMessage("playground:request:matchmake", "*");
+                    })];
+            });
+        });
+    };
+    AppWager.prototype.render = function () {
+        var _this = this;
+        if (this.isWaiting) {
+            return (h("app-waiting", { myName: this.myName, betAmount: this.betAmount, opponentName: this.opponent.attributes.username, isProposing: true }));
+        }
+        return (h("div", { class: "wrapper" }, h("div", { class: "wager" }, h("div", { class: "message" }, h("img", { class: "message__icon", src: "/assets/images/logo.svg", alt: "High Roller" }), h("h1", { class: "message__title" }, "Welcome!"), h("p", { class: "message__body" }, "Ready to play?")), h("form", { class: "form", onSubmit: function (e) { return _this.handlePlay(e); } }, h("label", { htmlFor: "myName" }, "Your Name"), h("input", { class: "form__input", id: "myName", type: "text", placeholder: "Your name", value: this.myName, onInput: function (e) { return _this.handleChange(e, "myName"); }, readOnly: true }), h("label", { htmlFor: "betAmount" }, "Bet Amount ( ETH )"), h("input", { class: "form__input", id: "betAmount", type: "number", placeholder: "0.01", value: this.betAmount, onInput: function (e) { return _this.handleChange(e, "betAmount"); }, min: 0, max: 0.01, step: 0.00000001 }), this.isError ? (h("label", { class: "message__error" }, this.error instanceof Error
+            ? this.error.message + ": " + this.error.stack
+            : this.error)) : ({}), h("button", { class: "form__button" }, h("div", null, "Play!"))))));
+    };
+    Object.defineProperty(AppWager, "is", {
+        get: function () { return "app-wager"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWager, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWager, "properties", {
+        get: function () {
+            return {
+                "account": {
+                    "type": "Any",
+                    "attr": "account"
+                },
+                "appFactory": {
+                    "type": "Any",
+                    "attr": "app-factory"
+                },
+                "betAmount": {
+                    "state": true
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "error": {
+                    "state": true,
+                    "watchCallbacks": ["onErrorSet"]
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "intermediary": {
+                    "state": true
+                },
+                "isError": {
+                    "state": true
+                },
+                "isWaiting": {
+                    "state": true
+                },
+                "myName": {
+                    "state": true
+                },
+                "opponent": {
+                    "state": true
+                },
+                "standalone": {
+                    "type": Boolean,
+                    "attr": "standalone"
+                },
+                "updateAppInstance": {
+                    "type": "Any",
+                    "attr": "update-app-instance"
+                },
+                "updateOpponent": {
+                    "type": "Any",
+                    "attr": "update-opponent"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWager, "style", {
+        get: function () { return "/**style-placeholder:app-wager:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return AppWager;
+}());
+CounterfactualTunnel.injectProps(AppWager, [
+    "appFactory",
+    "updateAppInstance",
+    "account",
+    "opponent",
+    "standalone"
+]);
+var AppWaiting = /** @class */ (function () {
+    function AppWaiting() {
+        this.el = {};
+        this.history = {};
+        this.myName = "";
+        this.betAmount = "";
+        this.opponentName = "";
+        this.isProposing = false;
+        this.seconds = 60;
+        this.isCountdownStarted = false;
+    }
+    AppWaiting.prototype.componentWillLoad = function () {
+        this.betAmount = getProp("betAmount", this);
+        this.isProposing = getProp("isProposing", this);
+    };
+    AppWaiting.prototype.componentDidLoad = function () {
+        this.setupWaiting();
+    };
+    AppWaiting.prototype.countDown = function () {
+        var _this = this;
+        if (this.seconds === 1) {
+            return;
+        }
+        setTimeout(function () {
+            _this.seconds = _this.seconds - 1;
+            _this.countDown();
+        }, 1000);
+    };
+    AppWaiting.prototype.goToGame = function (opponentName, appInstanceId) {
+        console.log("GO TO GAME: " + opponentName);
+        this.history.push({
+            pathname: "/game",
+            state: {
+                appInstanceId: appInstanceId,
+                opponentName: opponentName,
+                betAmount: this.betAmount,
+                myName: this.myName,
+                isProposing: this.isProposing
+            },
+            query: {},
+            key: ""
+        });
+    };
+    AppWaiting.prototype.startCountdown = function () {
+        if (this.isCountdownStarted) {
+            return;
+        }
+        this.isCountdownStarted = true;
+        this.countDown();
+    };
+    AppWaiting.prototype.setupWaiting = function (cfProvider, appInstance, account, opponent) {
+        if (this.isProposing) {
+            this.setupWaitingProposing();
+        }
+        else {
+            this.setupWaitingAccepting();
+        }
+    };
+    AppWaiting.prototype.setupWaitingProposing = function () {
+        if (this.isCountdownStarted) {
+            return;
+        }
+        this.startCountdown();
+    };
+    AppWaiting.prototype.setupWaitingAccepting = function () {
+        var _this = this;
+        this.cfProvider.once("updateState", function () {
+            _this.goToGame(_this.opponentName, _this.appInstance.id);
+        });
+        this.myName = this.account.user.username;
+        this.opponentName = this.opponent.attributes.username;
+    };
+    AppWaiting.prototype.render = function () {
+        return (h("div", { class: "wrapper" }, h("div", { class: "waiting" }, h("div", { class: "message" }, h("img", { class: "message__icon", src: "/assets/images/logo.svg", alt: "High Roller" }), h("h1", { class: "message__title" }, "Waiting Room"), h("p", { class: "message__body" }, this.isProposing
+            ? "Waiting for another player to join the game in"
+            : "Waiting on " + this.opponentName + "'s roll..."), this.isProposing ? h("p", { class: "countdown" }, this.seconds) : {}, h("p", null, "Player: ", this.myName, " ", h("br", null), "Opponent: ", this.opponentName, " ", h("br", null), "Bet Amount: ", this.betAmount, " ETH")))));
+    };
+    Object.defineProperty(AppWaiting, "is", {
+        get: function () { return "app-waiting"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWaiting, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWaiting, "properties", {
+        get: function () {
+            return {
+                "account": {
+                    "type": "Any",
+                    "attr": "account"
+                },
+                "appInstance": {
+                    "type": "Any",
+                    "attr": "app-instance"
+                },
+                "betAmount": {
+                    "type": String,
+                    "attr": "bet-amount",
+                    "mutable": true
+                },
+                "cfProvider": {
+                    "type": "Any",
+                    "attr": "cf-provider"
+                },
+                "el": {
+                    "elementRef": true
+                },
+                "history": {
+                    "type": "Any",
+                    "attr": "history"
+                },
+                "isCountdownStarted": {
+                    "state": true
+                },
+                "isProposing": {
+                    "type": Boolean,
+                    "attr": "is-proposing",
+                    "mutable": true
+                },
+                "myName": {
+                    "type": String,
+                    "attr": "my-name",
+                    "mutable": true
+                },
+                "opponent": {
+                    "type": "Any",
+                    "attr": "opponent"
+                },
+                "opponentName": {
+                    "type": String,
+                    "attr": "opponent-name",
+                    "mutable": true
+                },
+                "seconds": {
+                    "state": true
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(AppWaiting, "style", {
+        get: function () { return "/**style-placeholder:app-waiting:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return AppWaiting;
+}());
+CounterfactualTunnel.injectProps(AppWaiting, [
+    "cfProvider",
+    "appInstance",
+    "account",
+    "opponent"
+]);
+export { AppWager, AppWaiting };

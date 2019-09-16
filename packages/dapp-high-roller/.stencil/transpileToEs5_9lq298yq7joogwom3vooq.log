@@ -1,0 +1,19 @@
+var _this = this;
+import * as tslib_1 from "tslib";
+import { h } from '../app.core.js';
+import { a as createProviderConsumer } from './chunk-deed3e85.js';
+import { a as GameState } from './chunk-a0cc8100.js';
+var HighRollerUITunnel = createProviderConsumer({
+    myRoll: [0, 0],
+    opponentRoll: [0, 0],
+    myScore: 0,
+    opponentScore: 0,
+    gameState: GameState.Play,
+    updateUIState: function () { },
+    highRoller: function () { return tslib_1.__awaiter(_this, void 0, void 0, function () { return tslib_1.__generator(this, function (_a) {
+        return [2 /*return*/, ({ myRoll: [0, 0], opponentRoll: [0, 0] })];
+    }); }); },
+    generateRandomRoll: function () { return [0, 0]; },
+    highRollerState: {}
+}, function (subscribe, child) { return (h("context-consumer", { subscribe: subscribe, renderer: child })); });
+export { HighRollerUITunnel as a };

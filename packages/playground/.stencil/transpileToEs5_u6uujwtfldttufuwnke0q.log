@@ -1,0 +1,57 @@
+App.loadBundle('/**:bundle-id:**/', ['exports'], function (exports) {
+    var h = window.App.h;
+    var WidgetSpinner = /** @class */ (function () {
+        function WidgetSpinner() {
+            this.visible = false;
+            this.type = "circle";
+            this.color = "black";
+            this.content = {};
+        }
+        WidgetSpinner.prototype.render = function () {
+            if (this.type === "circle") {
+                return (h("div", { class: "spinner spinner--circle " + (!this.visible ? "spinner--hidden" : "") + " spinner--color-" + this.color }));
+            }
+            if (this.type === "dots") {
+                return (h("div", { class: "spinner spinner--loading " + (!this.visible ? "spinner--hidden" : "") }, h("div", { class: "spinner-loading" }, h("div", { class: "bounce1" }), h("div", { class: "bounce2" }), h("div", { class: "bounce3" })), this.content));
+            }
+            return;
+        };
+        Object.defineProperty(WidgetSpinner, "is", {
+            get: function () { return "widget-spinner"; },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetSpinner, "properties", {
+            get: function () {
+                return {
+                    "color": {
+                        "type": String,
+                        "attr": "color"
+                    },
+                    "content": {
+                        "type": "Any",
+                        "attr": "content"
+                    },
+                    "type": {
+                        "type": String,
+                        "attr": "type"
+                    },
+                    "visible": {
+                        "type": Boolean,
+                        "attr": "visible"
+                    }
+                };
+            },
+            enumerable: true,
+            configurable: true
+        });
+        Object.defineProperty(WidgetSpinner, "style", {
+            get: function () { return "/**style-placeholder:widget-spinner:**/"; },
+            enumerable: true,
+            configurable: true
+        });
+        return WidgetSpinner;
+    }());
+    exports.WidgetSpinner = WidgetSpinner;
+    Object.defineProperty(exports, '__esModule', { value: true });
+});

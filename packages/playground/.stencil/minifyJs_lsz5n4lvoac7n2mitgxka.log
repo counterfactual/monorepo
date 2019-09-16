@@ -1,0 +1,33 @@
+const t = window.App.h;
+
+class e {
+  constructor() {
+    this.message = "";
+  }
+  render() {
+    return t("div", {
+      class: "widget-tooltip"
+    }, t("slot", null), this.message ? t("div", {
+      class: "widget-tooltip-message"
+    }, this.message) : void 0);
+  }
+  static get is() {
+    return "widget-tooltip";
+  }
+  static get encapsulation() {
+    return "shadow";
+  }
+  static get properties() {
+    return {
+      message: {
+        type: String,
+        attr: "message"
+      }
+    };
+  }
+  static get style() {
+    return "/**style-placeholder:widget-tooltip:**/";
+  }
+}
+
+export { e as WidgetTooltip };

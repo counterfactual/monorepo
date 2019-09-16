@@ -1,0 +1,38 @@
+import { h } from '../app.core.js';
+var WidgetTooltip = /** @class */ (function () {
+    function WidgetTooltip() {
+        this.message = "";
+    }
+    WidgetTooltip.prototype.render = function () {
+        return (h("div", { class: "widget-tooltip" }, h("slot", null), this.message ? (h("div", { class: "widget-tooltip-message" }, this.message)) : (undefined)));
+    };
+    Object.defineProperty(WidgetTooltip, "is", {
+        get: function () { return "widget-tooltip"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetTooltip, "encapsulation", {
+        get: function () { return "shadow"; },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetTooltip, "properties", {
+        get: function () {
+            return {
+                "message": {
+                    "type": String,
+                    "attr": "message"
+                }
+            };
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(WidgetTooltip, "style", {
+        get: function () { return "/**style-placeholder:widget-tooltip:**/"; },
+        enumerable: true,
+        configurable: true
+    });
+    return WidgetTooltip;
+}());
+export { WidgetTooltip };
