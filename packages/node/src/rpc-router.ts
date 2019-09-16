@@ -51,13 +51,16 @@ export default class RpcRouter extends Router {
       result
     );
 
-    if(rpc.methodName === "chan_create") {
-      this.requestHandler.messagingService.send(result.result.respondingXpub, { 
-        from: this.requestHandler.publicIdentifier, 
-        type: this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
-        //@ts-ignore
-        data: result
-      }
+    if (rpc.methodName === "chan_create") {
+      await this.requestHandler.messagingService.send(
+        result.result.respondingXpub,
+        {
+          from: this.requestHandler.publicIdentifier,
+          type: this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
+          // @ts-ignore
+          data: result
+        }
+      );
     }
 
     return result;
