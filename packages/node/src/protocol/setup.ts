@@ -7,9 +7,16 @@ import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
+import { Node } from "@counterfactual/types";
 
 const protocol = Protocol.Setup;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
+const {
+  OP_SIGN,
+  IO_SEND,
+  IO_SEND_AND_WAIT,
+  PERSIST_STATE_CHANNEL,
+  IO_WAIT
+} = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -119,6 +126,14 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
           signature: responderSignature
         }
       } as ProtocolMessage
+    ];
+
+    yield [
+      IO_WAIT,
+      {
+        processID,
+        eventName: Node.EventName.SETUP_FINISHED
+      }
     ];
 
     context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);

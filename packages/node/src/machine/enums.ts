@@ -23,7 +23,12 @@ enum Opcode {
    * Middleware hook to write the state channel to store. Used to lock channel
    * betweeen protocols.
    */
-  PERSIST_STATE_CHANNEL
+  PERSIST_STATE_CHANNEL,
+
+  /**
+   * Middleware hook to wait for a response from a ProtocolMessage
+   */
+  IO_WAIT
 }
 
 enum Protocol {

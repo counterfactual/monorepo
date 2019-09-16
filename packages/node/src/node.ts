@@ -238,6 +238,38 @@ export class Node {
       }
     );
 
+    protocolRunner.register(Opcode.IO_WAIT, async (args: [ProtocolMessage]) => {
+      const [data] = args;
+      const to = data.toXpub;
+
+      const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
+
+      this.ioSendDeferrals.set(data.processID, deferral);
+
+      const counterpartyResponse = deferral.promise;
+
+      const msg = await Promise.race([counterpartyResponse, timeout(60000)]);
+
+      if (!msg || !("data" in (msg as NodeMessageWrappedProtocolMessage))) {
+        throw Error(
+          `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.protocol}`
+        );
+      }
+      // Removes the deferral from the list of pending defferals after
+      // its promise has been resolved and the necessary callback (above)
+      // has been called. Note that, as is, only one defferal can be open
+      // per counterparty at the moment.
+      this.ioSendDeferrals.delete(data.processID);
+
+      this.requestHandler.outgoing.emit(
+        // @ts-ignore
+        args.eventName,
+        msg
+      );
+
+      return msg as NodeMessageWrappedProtocolMessage;
+    });
+
     return protocolRunner;
   }
 
