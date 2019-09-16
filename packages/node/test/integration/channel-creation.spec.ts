@@ -21,7 +21,7 @@ describe("Node can create multisig, other owners get notified", () => {
   });
 
   describe("Queued channel creation", () => {
-    it.skip("Node A can create multiple back-to-back channels with Node B and Node C", async done => {
+    it("Node A can create multiple back-to-back channels with Node B and Node C", async done => {
       const ownersABPublicIdentifiers = [
         nodeA.publicIdentifier,
         nodeB.publicIdentifier
