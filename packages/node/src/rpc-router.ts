@@ -53,7 +53,7 @@ export default class RpcRouter extends Router {
 
     if (rpc.methodName === "chan_create") {
       await this.requestHandler.messagingService.send(
-        result.result.respondingXpub,
+        result.result.result.respondingXpub,
         {
           from: this.requestHandler.publicIdentifier,
           type: this.mapRPCMethodNameToFinishedEventName(rpc.methodName),
@@ -96,6 +96,7 @@ export default class RpcRouter extends Router {
   }
 
   mapRPCMethodNameToFinishedEventName(methodName: string): Node.EventName {
+    console.log(methodName);
     switch (methodName) {
       case "chan_create":
         return Node.EventName.SETUP_FINISHED;
@@ -112,7 +113,7 @@ export default class RpcRouter extends Router {
       case "chan_withdraw":
         return Node.EventName.WITHDRAWAL_FINISHED;
       default:
-        throw Error("Type Error: methodName must be of type RPCMethodName");
+        return methodName as any;
     }
   }
 }
