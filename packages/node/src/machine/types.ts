@@ -1,6 +1,7 @@
 import {
   AppInterface,
   NetworkContext,
+  Node,
   OutcomeType,
   SolidityValueType
 } from "@counterfactual/types";
@@ -41,6 +42,12 @@ export type ProtocolMessage = {
   virtual app instance
   */
   customData: { [key: string]: any };
+};
+
+export type FinMessage = {
+  toXpub: string;
+  processID: string;
+  eventName: Node.EventName;
 };
 
 export type SetupParams = {

@@ -1,4 +1,5 @@
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
+import { FinMessage } from "../../src/machine/types";
 
 import { setup, SetupContext } from "./setup";
 import {
@@ -12,7 +13,7 @@ describe("Node can create multisig, other owners get notified", () => {
   let nodeB: Node;
   let nodeC: Node;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     const context: SetupContext = await setup(global, true, true);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
@@ -78,6 +79,33 @@ describe("Node can create multisig, other owners get notified", () => {
 
       expect(txHash1).toBeDefined();
       expect(txHash2).toBeDefined();
+    });
+
+    it("Node B hears a SETUP_FINISHED message after Node A creates channel", async done => {
+      const ownersABPublicIdentifiers = [
+        nodeA.publicIdentifier,
+        nodeB.publicIdentifier
+      ];
+
+      let nodeAProcessID: string;
+      let nodeBProcessID: string;
+
+      nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeAProcessID = msg.processID;
+      });
+
+      nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeBProcessID = msg.processID;
+        expect(nodeBProcessID).toEqual(nodeAProcessID);
+        done();
+      });
+
+      await getMultisigCreationTransactionHash(
+        nodeA,
+        ownersABPublicIdentifiers
+      );
     });
   });
 });

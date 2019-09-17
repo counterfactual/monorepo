@@ -2,12 +2,17 @@ import { Node } from "@counterfactual/types";
 import { TransactionReceipt } from "ethers/providers";
 
 import { ProtocolMessage } from "./machine";
+import { FinMessage } from "./machine/types";
 
 export type NodeEvents = Node.EventName;
 export const NODE_EVENTS = Node.EventName;
 
 export interface NodeMessageWrappedProtocolMessage extends Node.NodeMessage {
   data: ProtocolMessage;
+}
+
+export interface NodeMessageWrappedFinMessage extends Node.NodeMessage {
+  data: FinMessage;
 }
 
 export interface ProposeMessage extends Node.NodeMessage {
