@@ -163,7 +163,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       IO_WAIT,
       {
         processID,
-        eventName: Node.EventName.SETUP_FINISHED
+        eventName: Node.EventName.UNINSTALL_FINISHED
       }
     ];
   }
