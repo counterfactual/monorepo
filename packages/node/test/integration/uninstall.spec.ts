@@ -174,16 +174,23 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       let nodeAProcessID;
       let nodeBProcessID;
 
+      const verifyId = () => {
+        if (nodeAProcessID && nodeBProcessID) {
+          expect(nodeBProcessID).toEqual(nodeAProcessID);
+          done();
+        }
+      };
+
       nodeA.on(NODE_EVENTS.UNINSTALL_FINISHED, async (msg: FinMessage) => {
         expect(msg.processID).toBeDefined();
         nodeAProcessID = msg.processID;
+        verifyId();
       });
 
       nodeB.on(NODE_EVENTS.UNINSTALL_FINISHED, async (msg: FinMessage) => {
         expect(msg.processID).toBeDefined();
         nodeBProcessID = msg.processID;
-        expect(nodeBProcessID).toEqual(nodeAProcessID);
-        done();
+        verifyId();
       });
 
       await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
