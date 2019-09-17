@@ -8,7 +8,6 @@ import {
   getChannelAddresses,
   getMultisigCreationTransactionHash
 } from "./utils";
-import { sleep, prettyPrintObject } from "../../src/utils";
 
 describe("Node can create multisig, other owners get notified", () => {
   let nodeA: Node;
