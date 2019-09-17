@@ -175,13 +175,13 @@ export class Node {
       const fromXpub = this.publicIdentifier;
       const to = data.toXpub;
 
-      this.requestHandler.outgoing.emit(data.eventName, data);
-
       await this.messagingService.send(to, {
         data,
         from: fromXpub,
         type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
       } as NodeMessageWrappedFinMessage);
+
+      this.requestHandler.outgoing.emit(data.eventName, data);
     });
 
     protocolRunner.register(Opcode.IO_SEND, async (args: [ProtocolMessage]) => {
@@ -277,7 +277,7 @@ export class Node {
 
       if (!msg || !("data" in (msg as NodeMessageWrappedFinMessage))) {
         throw Error(
-          `IO_SEND_AND_WAIT timed out after 30s waiting for counterparty reply in ${data.eventName}`
+          `IO_WAIT timed out after 30s waiting for counterparty reply in ${data.eventName}`
         );
       }
       // Removes the deferral from the list of pending defferals after
