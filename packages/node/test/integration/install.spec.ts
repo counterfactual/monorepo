@@ -22,10 +22,9 @@ import {
   makeInstallCall,
   transferERC20Tokens
 } from "./utils";
+import { sleep } from "../../src/utils";
 
 expect.extend({ toBeLt });
-
-jest.setTimeout(10000);
 
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
@@ -194,12 +193,12 @@ describe("Node method follows spec - install", () => {
         nodeA.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
           expect(msg.processID).toBeDefined();
           expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
+          done();
         });
 
         nodeB.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
           expect(msg.processID).toBeDefined();
           expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
-          done();
         });
 
         await installApp(

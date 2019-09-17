@@ -162,7 +162,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
-      IO_SEND_AND_WAIT,
+      IO_SEND,
       {
         processID,
         protocol: Install,
@@ -175,14 +175,11 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [
-      IO_SEND_FIN,
+      IO_WAIT,
       {
         processID,
-        protocol: Install,
-        toXpub: responderXpub,
-        seq: UNASSIGNED_SEQ_NO,
         eventName: Node.EventName.INSTALL_FINISHED
-      } as FinMessage
+      }
     ];
   },
 
@@ -306,24 +303,13 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
-    const m4 = {
-      processID,
-      protocol: Install,
-      toXpub: initiatorXpub,
-      customData: {
-        dataPersisted: true
-      },
-      seq: UNASSIGNED_SEQ_NO
-    } as ProtocolMessage;
-
-    yield [IO_SEND, m4];
-
     yield [
-      IO_WAIT,
+      IO_SEND_FIN,
       {
         processID,
+        toXpub: initiatorXpub,
         eventName: Node.EventName.INSTALL_FINISHED
-      }
+      } as FinMessage
     ];
   }
 };
