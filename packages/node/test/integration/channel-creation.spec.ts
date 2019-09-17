@@ -91,13 +91,20 @@ describe("Node can create multisig, other owners get notified", () => {
         nodeB.publicIdentifier
       ];
 
-      nodeB.on(
-        NODE_EVENTS.SETUP_FINISHED,
-        async (msg: NodeMessageWrappedFinMessage) => {
-          expect(msg.data.processID).toBeDefined();
-          done();
-        }
-      );
+      let nodeAProcessID: string;
+      let nodeBProcessID: string;
+
+      nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeAProcessID = msg.processID;
+      });
+
+      nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeBProcessID = msg.processID;
+        expect(nodeBProcessID).toEqual(nodeAProcessID);
+        done();
+      });
 
       await getMultisigCreationTransactionHash(
         nodeA,

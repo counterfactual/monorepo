@@ -39,18 +39,6 @@ export async function handleReceivedProtocolMessage(
 
   const { data } = bigNumberifyJson(msg) as NodeMessageWrappedProtocolMessage;
 
-  const isFinMessage = (data: any) => {
-    return data.eventName && data.eventName.endsWith("FinishedEvent");
-  };
-
-  if (isFinMessage(data)) {
-    await emitOutgoingNodeMessage(router, {
-      ...msg,
-      type: (data as any).eventName
-    });
-    return;
-  }
-
   const { protocol, seq, params } = data;
 
   if (seq === UNASSIGNED_SEQ_NO) return;

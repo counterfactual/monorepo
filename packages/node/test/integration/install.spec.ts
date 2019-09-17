@@ -5,11 +5,8 @@ import { BigNumber } from "ethers/utils";
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
-import {
-  NODE_EVENTS,
-  NodeMessageWrappedFinMessage,
-  ProposeMessage
-} from "../../src/types";
+import { FinMessage } from "../../src/machine/types";
+import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -27,6 +24,8 @@ import {
 } from "./utils";
 
 expect.extend({ toBeLt });
+
+jest.setTimeout(10000);
 
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
@@ -191,15 +190,17 @@ describe("Node method follows spec - install", () => {
         ).rejects.toThrowError(NULL_INITIAL_STATE_FOR_PROPOSAL);
       });
 
-      it("should receive an install finished message", async done => {
-        nodeA.once(
-          NODE_EVENTS.INSTALL_FINISHED,
-          (msg: NodeMessageWrappedFinMessage) => {
-            expect(msg.data.processID).toBeDefined();
-            expect(msg.data.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
-            done();
-          }
-        );
+      it("should receive an INSTALL_FINISHED message", async done => {
+        nodeA.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
+          expect(msg.processID).toBeDefined();
+          expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
+        });
+
+        nodeB.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
+          expect(msg.processID).toBeDefined();
+          expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
+          done();
+        });
 
         await installApp(
           nodeA,
