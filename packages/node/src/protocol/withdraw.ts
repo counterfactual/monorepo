@@ -1,6 +1,7 @@
 import {
   coinBalanceRefundStateEncoding,
   NetworkContext,
+  Node,
   OutcomeType,
   singleAssetTwoPartyCoinTransferInterpreterParamsEncoding
 } from "@counterfactual/types";
@@ -16,7 +17,12 @@ import {
 } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
+import {
+  Context,
+  FinMessage,
+  ProtocolMessage,
+  WithdrawParams
+} from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -24,7 +30,9 @@ import { assertIsValidSignature } from "./utils/signature-validator";
 
 const {
   IO_SEND,
+  IO_SEND_FIN,
   IO_SEND_AND_WAIT,
+  IO_WAIT,
   OP_SIGN,
   PERSIST_STATE_CHANNEL,
   WRITE_COMMITMENT
@@ -238,11 +246,11 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       uninstallRefundAppCommitment
     ];
 
-    yield <[Opcode, ProtocolMessage]>[
+    yield [
       IO_SEND_AND_WAIT,
       {
+        processID,
         protocol: Withdraw,
-        processID: context.message.processID,
         toXpub: responderXpub,
         customData: {
           signature: mySignatureOnUninstallCommitment
@@ -278,6 +286,15 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
+
+    yield [
+      IO_SEND_FIN,
+      {
+        processID,
+        toXpub: responderXpub,
+        eventName: Node.EventName.WITHDRAWAL_FINISHED
+      } as FinMessage
+    ];
   },
 
   /**
@@ -516,6 +533,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
+    ];
+
+    yield [
+      IO_WAIT,
+      {
+        processID,
+        eventName: Node.EventName.WITHDRAWAL_FINISHED
+      } as FinMessage
     ];
   }
 };

@@ -1,5 +1,6 @@
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
+import { Node as NodeTypes } from "@counterfactual/types";
 import { randomBytes } from "crypto";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
@@ -18,6 +19,8 @@ import {
   deposit,
   transferERC20Tokens
 } from "./utils";
+import { FinMessage } from "../../src/machine/types";
+import { doesNotReject } from "assert";
 
 expect.extend({ toBeEq, toBeLt });
 
@@ -40,6 +43,8 @@ describe("Node method follows spec - withdraw", () => {
   });
 
   it("has the right balance for both parties after withdrawal", async () => {
+    expect.assertions(13);
+
     const startingMultisigBalance = await provider.getBalance(multisigAddress);
 
     await deposit(nodeA, multisigAddress, One);
@@ -53,6 +58,25 @@ describe("Node method follows spec - withdraw", () => {
     const recipient = getAddress(hexlify(randomBytes(20)));
 
     expect(await provider.getBalance(recipient)).toBeEq(Zero);
+
+    let nodeAProcessID;
+    let nodeBProcessID;
+    nodeA.once(
+      NodeTypes.EventName.WITHDRAWAL_FINISHED,
+      async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeAProcessID = msg.processID;
+      }
+    );
+
+    nodeB.once(
+      NodeTypes.EventName.WITHDRAWAL_FINISHED,
+      async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
+        nodeBProcessID = msg.processID;
+        expect(nodeAProcessID).toEqual(nodeBProcessID);
+      }
+    );
 
     const withdrawReq = constructWithdrawRpc(
       multisigAddress,
