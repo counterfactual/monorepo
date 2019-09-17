@@ -8,6 +8,7 @@ import {
   getChannelAddresses,
   getMultisigCreationTransactionHash
 } from "./utils";
+import { sleep, prettyPrintObject } from "../../src/utils";
 
 describe("Node can create multisig, other owners get notified", () => {
   let nodeA: Node;
@@ -92,10 +93,12 @@ describe("Node can create multisig, other owners get notified", () => {
       let nodeBProcessID: string;
 
       nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
         nodeAProcessID = msg.processID;
       });
 
       nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
+        expect(msg.processID).toBeDefined();
         nodeBProcessID = msg.processID;
         expect(nodeBProcessID).toEqual(nodeAProcessID);
         done();

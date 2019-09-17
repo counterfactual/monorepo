@@ -174,6 +174,9 @@ export class Node {
       const [data] = args;
       const fromXpub = this.publicIdentifier;
       const to = data.toXpub;
+
+      this.requestHandler.outgoing.emit(data.eventName, data);
+
       await this.messagingService.send(to, {
         data,
         from: fromXpub,
@@ -283,7 +286,7 @@ export class Node {
       // per counterparty at the moment.
       this.ioSendDeferrals.delete(data.processID);
 
-      this.requestHandler.outgoing.emit(data.eventName, msg);
+      this.requestHandler.outgoing.emit(data.eventName, msg.data);
 
       return msg as NodeMessageWrappedFinMessage;
     });
