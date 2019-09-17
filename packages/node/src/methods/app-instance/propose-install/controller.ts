@@ -30,6 +30,12 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<string[]> {
+    const { initialState } = params;
+
+    if (!initialState) {
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+    }
+
     const { publicIdentifier, networkContext } = requestHandler;
     const { proposedToIdentifier } = params;
 
@@ -47,12 +53,6 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { initialState } = params;
-
-    if (!initialState) {
-      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
-    }
-
     const {
       proposedToIdentifier,
       initiatorDeposit,

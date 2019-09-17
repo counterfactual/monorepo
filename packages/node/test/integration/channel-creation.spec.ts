@@ -1,5 +1,4 @@
 import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
-import { ProtocolMessage } from "../../src/machine";
 import { FinMessage } from "../../src/machine/types";
 
 import { setup, SetupContext } from "./setup";
