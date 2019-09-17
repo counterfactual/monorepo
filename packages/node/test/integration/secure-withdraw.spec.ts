@@ -1,6 +1,7 @@
 import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { Node as NodeTypes } from "@counterfactual/types";
+import { doesNotReject } from "assert";
 import { randomBytes } from "crypto";
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
@@ -9,6 +10,7 @@ import { getAddress, hexlify } from "ethers/utils";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { FinMessage } from "../../src/machine/types";
 import { toBeEq, toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -19,8 +21,6 @@ import {
   deposit,
   transferERC20Tokens
 } from "./utils";
-import { FinMessage } from "../../src/machine/types";
-import { doesNotReject } from "assert";
 
 expect.extend({ toBeEq, toBeLt });
 
