@@ -196,7 +196,7 @@ describe("Node method follows spec - install", () => {
           NODE_EVENTS.INSTALL_FINISHED,
           (msg: NodeMessageWrappedFinMessage) => {
             expect(msg.data.processID).toBeDefined();
-            expect(msg.data.eventName).toEqual(NODE_EVENTS.INSTALL);
+            expect(msg.data.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
             done();
           }
         );
