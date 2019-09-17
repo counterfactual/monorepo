@@ -1,9 +1,11 @@
+import { Node } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
+  FinMessage,
   ProtocolExecutionFlow,
   ProtocolMessage,
   UninstallParams
@@ -20,6 +22,8 @@ const {
   OP_SIGN,
   IO_SEND,
   IO_SEND_AND_WAIT,
+  IO_SEND_FIN,
+  IO_WAIT,
   PERSIST_STATE_CHANNEL,
   WRITE_COMMITMENT
 } = Opcode;
@@ -86,6 +90,15 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.multisigAddress,
       postProtocolStateChannel
     );
+
+    yield [
+      IO_SEND_FIN,
+      {
+        processID,
+        toXpub: responderXpub,
+        eventName: Node.EventName.UNINSTALL_FINISHED
+      } as FinMessage
+    ];
   },
 
   1 /* Responding */: async function*(context: Context) {
@@ -145,6 +158,14 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.multisigAddress,
       postProtocolStateChannel
     );
+
+    yield [
+      IO_WAIT,
+      {
+        processID,
+        eventName: Node.EventName.SETUP_FINISHED
+      }
+    ];
   }
 };
 
