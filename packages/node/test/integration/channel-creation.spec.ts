@@ -90,16 +90,23 @@ describe("Node can create multisig, other owners get notified", () => {
       let nodeAProcessID: string;
       let nodeBProcessID: string;
 
+      const verifyId = () => {
+        if (nodeAProcessID && nodeBProcessID) {
+          expect(nodeBProcessID).toEqual(nodeAProcessID);
+          done();
+        }
+      };
+
       nodeA.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
         expect(msg.processID).toBeDefined();
         nodeAProcessID = msg.processID;
+        verifyId();
       });
 
       nodeB.on(NODE_EVENTS.SETUP_FINISHED, async (msg: FinMessage) => {
         expect(msg.processID).toBeDefined();
         nodeBProcessID = msg.processID;
-        expect(nodeBProcessID).toEqual(nodeAProcessID);
-        done();
+        verifyId();
       });
 
       await getMultisigCreationTransactionHash(
