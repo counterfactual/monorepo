@@ -7,6 +7,7 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
 import { FinMessage } from "../../src/machine/types";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
+import { sleep } from "../../src/utils";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -22,7 +23,6 @@ import {
   makeInstallCall,
   transferERC20Tokens
 } from "./utils";
-import { sleep } from "../../src/utils";
 
 expect.extend({ toBeLt });
 

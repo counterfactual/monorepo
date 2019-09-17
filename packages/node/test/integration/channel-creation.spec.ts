@@ -1,9 +1,5 @@
-import {
-  CreateChannelMessage,
-  Node,
-  NODE_EVENTS,
-  NodeMessageWrappedFinMessage
-} from "../../src";
+import { CreateChannelMessage, Node, NODE_EVENTS } from "../../src";
+import { FinMessage } from "../../src/machine/types";
 
 import { setup, SetupContext } from "./setup";
 import {
