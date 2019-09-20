@@ -56,13 +56,11 @@ contract MixinRespondToChallenge is
       "Action must have been signed by correct turn taker"
     );
 
-    require(
-      applyAction(
-        appIdentity.appDefinition,
-        appState,
-        action
-      ),
-      "Response was not a valid transition"
+    // This should throw an error if reverts
+    applyAction(
+      appIdentity.appDefinition,
+      appState,
+      action
     );
 
     delete appChallenges[identityHash];
