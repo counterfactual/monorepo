@@ -155,12 +155,7 @@ export async function uninstallBalanceRefundApp(
   requestHandler: RequestHandler,
   params: Node.DepositParams
 ) {
-  const {
-    publicIdentifier,
-    store,
-    engine,
-    networkContext
-  } = requestHandler;
+  const { publicIdentifier, store, engine, networkContext } = requestHandler;
 
   const { multisigAddress } = params;
 

@@ -93,12 +93,7 @@ export default class CreateChannelController extends NodeController {
     params: Node.CreateChannelParams
   ) {
     const { owners } = params;
-    const {
-      publicIdentifier,
-      engine,
-      store,
-      outgoing
-    } = requestHandler;
+    const { publicIdentifier, engine, store, outgoing } = requestHandler;
 
     const [responderXpub] = owners.filter(x => x !== publicIdentifier);
 

@@ -70,12 +70,7 @@ export default class UninstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
   ): Promise<Node.UninstallVirtualResult> {
-    const {
-      store,
-      engine,
-      publicIdentifier,
-      provider
-    } = requestHandler;
+    const { store, engine, publicIdentifier, provider } = requestHandler;
 
     const { appInstanceId, intermediaryIdentifier } = params;
 

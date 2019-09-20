@@ -1,6 +1,6 @@
 import { BaseProvider } from "ethers/providers";
 
-import { Protocol, Engine } from "../../../machine";
+import { Engine, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallVirtualAppInstanceFromChannel(
@@ -18,18 +18,14 @@ export async function uninstallVirtualAppInstanceFromChannel(
 
   const currentChannels = await store.getStateChannelsMap();
 
-  await engine.initiateProtocol(
-    Protocol.UninstallVirtualApp,
-    currentChannels,
-    {
-      initiatorXpub,
-      responderXpub,
-      intermediaryXpub,
-      targetOutcome: await appInstance.computeOutcome(
-        appInstance.state,
-        provider
-      ),
-      targetAppIdentityHash: appInstance.identityHash
-    }
-  );
+  await engine.initiateProtocol(Protocol.UninstallVirtualApp, currentChannels, {
+    initiatorXpub,
+    responderXpub,
+    intermediaryXpub,
+    targetOutcome: await appInstance.computeOutcome(
+      appInstance.state,
+      provider
+    ),
+    targetAppIdentityHash: appInstance.identityHash
+  });
 }

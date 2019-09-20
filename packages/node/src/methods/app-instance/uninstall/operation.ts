@@ -1,4 +1,4 @@
-import { Protocol, Engine } from "../../../machine";
+import { Engine, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallAppInstanceFromChannel(

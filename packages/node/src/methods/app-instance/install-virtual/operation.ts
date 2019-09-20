@@ -1,6 +1,6 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { Protocol, Engine } from "../../../machine";
+import { Engine, Protocol } from "../../../machine";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
