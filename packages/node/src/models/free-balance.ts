@@ -7,7 +7,7 @@ import {
   getFreeBalanceAppInterface,
   merge
 } from "../ethereum/utils/free-balance-app";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../engine/xkeys";
 import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";

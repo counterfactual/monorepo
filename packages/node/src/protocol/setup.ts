@@ -1,15 +1,15 @@
 import { Node } from "@counterfactual/types";
 
 import { SetupCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
-import { Opcode, Protocol } from "../machine/enums";
+import { ProtocolExecutionFlow } from "../engine";
+import { Opcode, Protocol } from "../engine/enums";
 import {
   Context,
   FinMessage,
   ProtocolMessage,
   SetupParams
-} from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
+} from "../engine/types";
+import { xkeyKthAddress } from "../engine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";

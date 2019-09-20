@@ -14,9 +14,9 @@ import {
   WithdrawERC20Commitment,
   WithdrawETHCommitment
 } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
-import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
+import { ProtocolExecutionFlow } from "../engine";
+import { Opcode, Protocol } from "../engine/enums";
+import { Context, ProtocolMessage, WithdrawParams } from "../engine/types";
 import { AppInstance, StateChannel } from "../models";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";

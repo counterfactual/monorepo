@@ -9,7 +9,7 @@ import { Interface, keccak256 } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
-import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
+import { xkeysToSortedKthSigningKeys } from "../../../src/engine";
 import { StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
 import { getCreate2MultisigAddress } from "../../../src/utils";

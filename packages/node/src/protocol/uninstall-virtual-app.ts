@@ -4,15 +4,15 @@ import { BigNumber } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
-import { Opcode, Protocol } from "../machine/enums";
+import { ProtocolExecutionFlow } from "../engine";
+import { Opcode, Protocol } from "../engine/enums";
 import {
   Context,
   ProtocolMessage,
   ProtocolParameters,
   UninstallVirtualAppParams
-} from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
+} from "../engine/types";
+import { xkeyKthAddress } from "../engine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 

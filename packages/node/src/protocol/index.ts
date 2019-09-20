@@ -1,5 +1,5 @@
-import { Protocol } from "../machine/enums";
-import { ProtocolExecutionFlow } from "../machine/types";
+import { Protocol } from "../engine/enums";
+import { ProtocolExecutionFlow } from "../engine/types";
 
 import { INSTALL_PROTOCOL } from "./install";
 import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";

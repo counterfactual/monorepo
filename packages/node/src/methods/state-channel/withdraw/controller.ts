@@ -3,7 +3,7 @@ import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { xkeyKthAddress } from "../../../machine";
+import { xkeyKthAddress } from "../../../engine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import { prettyPrintObject } from "../../../utils";

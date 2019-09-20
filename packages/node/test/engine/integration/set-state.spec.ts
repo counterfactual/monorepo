@@ -5,7 +5,7 @@ import { AddressZero, WeiPerEther } from "ethers/constants";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../src/constants";
 import { SetStateCommitment } from "../../../src/ethereum";
-import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
+import { xkeysToSortedKthSigningKeys } from "../../../src/engine";
 import { StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
 

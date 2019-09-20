@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeyKthAddress } from "../../../machine";
+import { xkeyKthAddress } from "../../../engine";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 import WithdrawController from "../withdraw/controller";

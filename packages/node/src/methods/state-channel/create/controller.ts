@@ -8,8 +8,8 @@ import { Interface } from "ethers/utils";
 import log from "loglevel";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeysToSortedKthAddresses } from "../../../machine";
-import { sortAddresses } from "../../../machine/xkeys";
+import { xkeysToSortedKthAddresses } from "../../../engine";
+import { sortAddresses } from "../../../engine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { CreateChannelMessage, NODE_EVENTS } from "../../../types";
 import {

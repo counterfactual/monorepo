@@ -15,7 +15,7 @@ import {
   ConditionalTransaction,
   SetStateCommitment
 } from "../../../src/ethereum";
-import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
+import { xkeysToSortedKthSigningKeys } from "../../../src/engine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
 import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";

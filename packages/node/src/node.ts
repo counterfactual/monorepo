@@ -9,8 +9,8 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import { Engine, Opcode, Protocol, ProtocolMessage } from "./machine";
-import { FinMessage } from "./machine/types";
+import { Engine, Opcode, Protocol, ProtocolMessage } from "./engine";
+import { FinMessage } from "./engine/types";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {

@@ -4,11 +4,11 @@ import { BigNumber } from "ethers/utils";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { xkeyKthAddress } from "../../src/machine";
-import { FinMessage } from "../../src/machine/types";
+import { xkeyKthAddress } from "../../src/engine";
+import { FinMessage } from "../../src/engine/types";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { sleep } from "../../src/utils";
-import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
+import { toBeLt } from "../engine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {

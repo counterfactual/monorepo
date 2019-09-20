@@ -4,7 +4,7 @@ The Node contains a TypeScript implementation of the [Counterfactual protocol](h
 
 The main areas of interest with this implementation are:
 
-- `src/machine/instruction-executor.ts`: This is the entry point for running a protocol.
+- `src/engine/instruction-executor.ts`: This is the entry point for running a protocol.
 - `src/protocol` is where all the protocols are implemented
 - `src/ethereum` is where the structure of the commitments is placed. It's under this folder as these commitments adhere to the Ethereum network's interface for transactions.
 

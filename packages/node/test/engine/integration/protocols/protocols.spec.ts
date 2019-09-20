@@ -5,7 +5,7 @@ import { BaseProvider } from "ethers/providers";
 import { bigNumberify } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
-import { Protocol } from "../../../../src/machine";
+import { Protocol } from "../../../../src/engine";
 import { toBeEq } from "../bignumber-jest-matcher";
 import { connectToGanache } from "../connect-ganache";
 

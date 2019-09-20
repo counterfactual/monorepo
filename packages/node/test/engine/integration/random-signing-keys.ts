@@ -1,7 +1,7 @@
 import { HDNode, hexlify, randomBytes, SigningKey } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
-import { computeRandomExtendedPrvKey } from "../../../src/machine/xkeys";
+import { computeRandomExtendedPrvKey } from "../../../src/engine/xkeys";
 
 export function getSortedRandomSigningKeys(length: number) {
   // tslint:disable-next-line:prefer-array-literal

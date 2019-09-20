@@ -2,7 +2,7 @@ import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import { jsonRpcMethod } from "rpc-server";
 
-import { Engine, Protocol } from "../../../machine";
+import { Engine, Protocol } from "../../../engine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";

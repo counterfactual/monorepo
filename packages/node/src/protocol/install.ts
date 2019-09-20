@@ -11,14 +11,14 @@ import { BigNumber } from "ethers/utils";
 
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
-import { ProtocolExecutionFlow } from "../machine";
-import { Opcode, Protocol } from "../machine/enums";
+import { ProtocolExecutionFlow } from "../engine";
+import { Opcode, Protocol } from "../engine/enums";
 import {
   Context,
   FinMessage,
   InstallParams,
   ProtocolMessage
-} from "../machine/types";
+} from "../engine/types";
 import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 import { TokenIndexedCoinTransferMap } from "../models/free-balance";

@@ -2,15 +2,15 @@ import { Node } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
-import { Opcode, Protocol } from "../machine/enums";
+import { Opcode, Protocol } from "../engine/enums";
 import {
   Context,
   FinMessage,
   ProtocolExecutionFlow,
   ProtocolMessage,
   UninstallParams
-} from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
+} from "../engine/types";
+import { xkeyKthAddress } from "../engine/xkeys";
 import { StateChannel } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";

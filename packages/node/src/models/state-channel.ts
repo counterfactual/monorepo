@@ -5,7 +5,7 @@ import {
   flip,
   flipTokenIndexedBalances
 } from "../ethereum/utils/free-balance-app";
-import { xkeyKthAddress } from "../machine/xkeys";
+import { xkeyKthAddress } from "../engine/xkeys";
 import { Store } from "../store";
 import { prettyPrintObject } from "../utils";
 

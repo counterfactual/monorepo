@@ -1,8 +1,8 @@
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow } from "../machine";
-import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolMessage, UpdateParams } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
+import { ProtocolExecutionFlow } from "../engine";
+import { Opcode, Protocol } from "../engine/enums";
+import { Context, ProtocolMessage, UpdateParams } from "../engine/types";
+import { xkeyKthAddress } from "../engine/xkeys";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";

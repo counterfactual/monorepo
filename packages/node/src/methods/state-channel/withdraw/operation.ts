@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { Protocol } from "../../../machine";
+import { Protocol } from "../../../engine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 

@@ -13,7 +13,7 @@ import {
 } from "ethers/utils";
 
 import { JSON_STRINGIFY_SPACE } from "./constants";
-import { xkeysToSortedKthAddresses } from "./machine/xkeys";
+import { xkeysToSortedKthAddresses } from "./engine/xkeys";
 
 export function getFirstElementInListNotEqualTo(test: string, list: string[]) {
   return list.filter(x => x !== test)[0];

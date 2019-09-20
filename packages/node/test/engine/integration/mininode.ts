@@ -4,7 +4,7 @@ import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 
 import { EthereumCommitment } from "../../../src/ethereum/types";
-import { Engine, Opcode } from "../../../src/machine";
+import { Engine, Opcode } from "../../../src/engine";
 import { StateChannel } from "../../../src/models";
 
 import { getRandomHDNodes } from "./random-signing-keys";

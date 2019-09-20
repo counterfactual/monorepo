@@ -5,7 +5,7 @@ import EventEmitter from "eventemitter3";
 import log from "loglevel";
 
 import { eventNameToImplementation, methodNameToImplementation } from "./api";
-import { Engine } from "./machine";
+import { Engine } from "./engine";
 import ProcessQueue from "./process-queue";
 import RpcRouter from "./rpc-router";
 import { Store } from "./store";

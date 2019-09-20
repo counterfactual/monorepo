@@ -2,7 +2,7 @@ import { WeiPerEther, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
-import { xkeyKthAddress } from "../../../../../src/machine";
+import { xkeyKthAddress } from "../../../../../src/engine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
 import { FreeBalanceClass } from "../../../../../src/models/free-balance";
 import { createAppInstanceForTest } from "../../../../unit/utils";

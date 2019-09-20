@@ -1,6 +1,6 @@
 import { BaseProvider } from "ethers/providers";
 
-import { Engine, Protocol } from "../../../machine";
+import { Engine, Protocol } from "../../../engine";
 import { Store } from "../../../store";
 
 export async function uninstallVirtualAppInstanceFromChannel(

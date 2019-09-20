@@ -1,15 +1,19 @@
-import { Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../../src/constants";
-import { xkeyKthAddress } from "../../../../../src/machine";
+import { xkeyKthAddress } from "../../../../../src/engine";
 import { AppInstance, StateChannel } from "../../../../../src/models";
-import { FreeBalanceClass } from "../../../../../src/models/free-balance";
 import { createAppInstanceForTest } from "../../../../unit/utils";
 import { getRandomExtendedPubKeys } from "../../../integration/random-signing-keys";
 import { generateRandomNetworkContext } from "../../../mocks";
 
-describe("StateChannel::uninstallApp", () => {
+const APP_STATE = {
+  foo: AddressZero,
+  bar: 42
+};
+
+describe("StateChannel::setState", () => {
   const networkContext = generateRandomNetworkContext();
 
   let sc1: StateChannel;
@@ -35,12 +39,7 @@ describe("StateChannel::uninstallApp", () => {
       }
     });
 
-    sc2 = sc1.uninstallApp(testApp.identityHash, {
-      [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
-        [xkeyKthAddress(xpubs[0], 0)]: Zero,
-        [xkeyKthAddress(xpubs[1], 0)]: Zero
-      }
-    });
+    sc2 = sc1.setState(testApp.identityHash, APP_STATE);
   });
 
   it("should not alter any of the base properties", () => {
@@ -48,31 +47,27 @@ describe("StateChannel::uninstallApp", () => {
     expect(sc2.userNeuteredExtendedKeys).toBe(sc1.userNeuteredExtendedKeys);
   });
 
-  it("should not have changed the sequence number", () => {
+  it("should not have bumped the sequence number", () => {
     expect(sc2.numProposedApps).toBe(sc1.numProposedApps);
   });
 
-  it("should have decreased the active apps number", () => {
-    expect(sc2.numActiveApps).toBe(sc1.numActiveApps - 1);
-  });
-
-  it("should have deleted the app being uninstalled", () => {
-    expect(sc2.isAppInstanceInstalled(testApp.identityHash)).toBe(false);
-  });
-
-  describe("the updated ETH Free Balance", () => {
-    let fb: FreeBalanceClass;
+  describe("the updated app", () => {
+    let app: AppInstance;
 
     beforeAll(() => {
-      fb = sc2.getFreeBalanceClass();
+      app = sc2.getAppInstance(testApp.identityHash)!;
     });
 
-    it("should have updated balances for Alice and Bob", () => {
-      for (const amount of Object.values(
-        fb.withTokenAddress(CONVENTION_FOR_ETH_TOKEN_ADDRESS) || {}
-      )) {
-        expect(amount).toEqual(Zero);
-      }
+    it("should have the new state", () => {
+      expect(app.state).toEqual(APP_STATE);
+    });
+
+    it("should have bumped the versionNumber", () => {
+      expect(app.versionNumber).toBe(testApp.versionNumber + 1);
+    });
+
+    it("should have used the default timeout", () => {
+      expect(app.timeout).toBe(app.timeout);
     });
   });
 });

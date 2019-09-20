@@ -18,14 +18,14 @@ import { BaseProvider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
-import { Opcode, Protocol } from "../machine/enums";
+import { Opcode, Protocol } from "../engine/enums";
 import {
   Context,
   InstallVirtualAppParams,
   ProtocolExecutionFlow,
   ProtocolMessage
-} from "../machine/types";
-import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
+} from "../engine/types";
+import { sortAddresses, xkeyKthAddress } from "../engine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 

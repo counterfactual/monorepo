@@ -25,7 +25,7 @@ import {
   SetStateCommitment,
   SetupCommitment
 } from "../../../src/ethereum";
-import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
+import { xkeysToSortedKthSigningKeys } from "../../../src/engine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
 import { transferERC20Tokens } from "../../integration/utils";
