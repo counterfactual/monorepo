@@ -48,7 +48,7 @@ export default class UninstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallParams
   ): Promise<Node.UninstallResult> {
-    const { store, protocolRunner, publicIdentifier } = requestHandler;
+    const { store, engine, publicIdentifier } = requestHandler;
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
@@ -68,7 +68,7 @@ export default class UninstallController extends NodeController {
 
     await uninstallAppInstanceFromChannel(
       store,
-      protocolRunner,
+      engine,
       publicIdentifier,
       to,
       appInstanceId

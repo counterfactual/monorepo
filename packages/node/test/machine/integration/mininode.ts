@@ -4,7 +4,7 @@ import { SigningKey } from "ethers/utils";
 import { HDNode } from "ethers/utils/hdnode";
 
 import { EthereumCommitment } from "../../../src/ethereum/types";
-import { Opcode, ProtocolRunner } from "../../../src/machine";
+import { Opcode, Engine } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
 
 import { getRandomHDNodes } from "./random-signing-keys";
@@ -29,7 +29,7 @@ const makeSigner = (hdNode: HDNode) => {
 
 export class MiniNode {
   private readonly hdNode: HDNode;
-  public readonly protocolRunner: ProtocolRunner;
+  public readonly engine: Engine;
   public scm: Map<string, StateChannel>;
   public readonly xpub: string;
 
@@ -40,18 +40,15 @@ export class MiniNode {
     [this.hdNode] = getRandomHDNodes(1);
     this.xpub = this.hdNode.neuter().extendedKey;
     this.scm = new Map<string, StateChannel>();
-    this.protocolRunner = new ProtocolRunner(networkContext, provider);
-    this.protocolRunner.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
-    this.protocolRunner.register(Opcode.WRITE_COMMITMENT, () => {});
-    this.protocolRunner.register(Opcode.PERSIST_STATE_CHANNEL, () => {});
-    this.protocolRunner.register(Opcode.IO_SEND_FIN, () => {});
-    this.protocolRunner.register(Opcode.IO_WAIT, () => {});
+    this.engine = new Engine(networkContext, provider);
+    this.engine.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
+    this.engine.register(Opcode.WRITE_COMMITMENT, () => {});
+    this.engine.register(Opcode.PERSIST_STATE_CHANNEL, () => {});
+    this.engine.register(Opcode.IO_SEND_FIN, () => {});
+    this.engine.register(Opcode.IO_WAIT, () => {});
   }
 
   public async dispatchMessage(message: any) {
-    this.scm = await this.protocolRunner.runProtocolWithMessage(
-      message,
-      this.scm
-    );
+    this.scm = await this.engine.runProtocolWithMessage(message, this.scm);
   }
 }

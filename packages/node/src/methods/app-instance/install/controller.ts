@@ -32,9 +32,9 @@ export default class InstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallParams
   ): Promise<Node.InstallResult> {
-    const { store, protocolRunner, publicIdentifier } = requestHandler;
+    const { store, engine, publicIdentifier } = requestHandler;
 
-    const appInstanceProposal = await install(store, protocolRunner, params);
+    const appInstanceProposal = await install(store, engine, params);
 
     return {
       appInstance: (await store.getAppInstance(

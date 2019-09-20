@@ -68,7 +68,11 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
   );
 }
 
-export class ProtocolRunner {
+/**
+ * The class wrapping the implementations of the various protocols as specified
+ * at: https://specs.counterfactual.com/en/latest/peer-protocol.html
+ */
+export class Engine {
   public middlewares: MiddlewareContainer;
 
   constructor(

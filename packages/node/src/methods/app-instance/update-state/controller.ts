@@ -2,7 +2,7 @@ import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
 import { jsonRpcMethod } from "rpc-server";
 
-import { Protocol, ProtocolRunner } from "../../../machine";
+import { Protocol, Engine } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
@@ -56,7 +56,7 @@ export default class UpdateStateController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UpdateStateParams
   ): Promise<Node.UpdateStateResult> {
-    const { store, publicIdentifier, protocolRunner } = requestHandler;
+    const { store, publicIdentifier, engine } = requestHandler;
     const { appInstanceId, newState } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
@@ -69,7 +69,7 @@ export default class UpdateStateController extends NodeController {
     await runUpdateStateProtocol(
       appInstanceId,
       store,
-      protocolRunner,
+      engine,
       publicIdentifier,
       responderXpub,
       newState
@@ -82,14 +82,14 @@ export default class UpdateStateController extends NodeController {
 async function runUpdateStateProtocol(
   appIdentityHash: string,
   store: Store,
-  protocolRunner: ProtocolRunner,
+  engine: Engine,
   initiatorXpub: string,
   responderXpub: string,
   newState: SolidityValueType
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  const stateChannelsMap = await protocolRunner.initiateProtocol(
+  const stateChannelsMap = await engine.initiateProtocol(
     Protocol.Update,
     new Map<string, StateChannel>([
       [stateChannel.multisigAddress, stateChannel]

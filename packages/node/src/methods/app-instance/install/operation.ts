@@ -1,13 +1,13 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { Protocol, ProtocolRunner } from "../../../machine";
+import { Protocol, Engine } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
 export async function install(
   store: Store,
-  protocolRunner: ProtocolRunner,
+  engine: Engine,
   params: Node.InstallParams
 ): Promise<AppInstanceProposal> {
   const { appInstanceId } = params;
@@ -20,7 +20,7 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  await protocolRunner.initiateProtocol(
+  await engine.initiateProtocol(
     Protocol.Install,
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or

@@ -9,7 +9,7 @@ import { Memoize } from "typescript-memoize";
 import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
-import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
+import { Opcode, Protocol, ProtocolMessage, Engine } from "./machine";
 import { FinMessage } from "./machine/types";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
@@ -40,7 +40,7 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly protocolRunner: ProtocolRunner;
+  private readonly engine: Engine;
   private readonly networkContext: NetworkContext;
 
   private readonly ioSendDeferrals = new Map<
@@ -98,7 +98,7 @@ export class Node {
         ? getNetworkContextForNetworkName(networkContext)
         : networkContext;
 
-    this.protocolRunner = this.buildProtocolRunner();
+    this.engine = this.buildEngine();
 
     log.info(
       `Waiting for ${this.blocksNeededForConfirmation} block confirmations`
@@ -115,7 +115,7 @@ export class Node {
       this.outgoing,
       this.storeService,
       this.messagingService,
-      this.protocolRunner,
+      this.engine,
       this.networkContext,
       this.provider,
       new AutoNonceWallet(this.signer.privateKey, this.provider),
@@ -146,16 +146,13 @@ export class Node {
   }
 
   /**
-   * Instantiates a new _ProtocolRunner_ object and attaches middleware
+   * Instantiates a new _Engine_ object and attaches middleware
    * for the OP_SIGN, IO_SEND, and IO_SEND_AND_WAIT opcodes.
    */
-  private buildProtocolRunner(): ProtocolRunner {
-    const protocolRunner = new ProtocolRunner(
-      this.networkContext,
-      this.provider
-    );
+  private buildEngine(): Engine {
+    const engine = new Engine(this.networkContext, this.provider);
 
-    protocolRunner.register(Opcode.OP_SIGN, async (args: any[]) => {
+    engine.register(Opcode.OP_SIGN, async (args: any[]) => {
       if (args.length !== 1 && args.length !== 2) {
         throw Error("OP_SIGN middleware received wrong number of arguments.");
       }
@@ -170,7 +167,7 @@ export class Node {
       return signingKey.signDigest(commitment.hashToSign());
     });
 
-    protocolRunner.register(Opcode.IO_SEND_FIN, async (args: [FinMessage]) => {
+    engine.register(Opcode.IO_SEND_FIN, async (args: [FinMessage]) => {
       const [data] = args;
       const fromXpub = this.publicIdentifier;
       const to = data.toXpub;
@@ -184,7 +181,7 @@ export class Node {
       this.requestHandler.outgoing.emit(data.eventName, data);
     });
 
-    protocolRunner.register(Opcode.IO_SEND, async (args: [ProtocolMessage]) => {
+    engine.register(Opcode.IO_SEND, async (args: [ProtocolMessage]) => {
       const [data] = args;
       const fromXpub = this.publicIdentifier;
       const to = data.toXpub;
@@ -196,7 +193,7 @@ export class Node {
       } as NodeMessageWrappedProtocolMessage);
     });
 
-    protocolRunner.register(
+    engine.register(
       Opcode.IO_SEND_AND_WAIT,
       async (args: [ProtocolMessage]) => {
         const [data] = args;
@@ -234,7 +231,7 @@ export class Node {
       }
     );
 
-    protocolRunner.register(Opcode.WRITE_COMMITMENT, async (args: any[]) => {
+    engine.register(Opcode.WRITE_COMMITMENT, async (args: any[]) => {
       const { store } = this.requestHandler;
 
       const [protocol, commitment, ...key] = args;
@@ -247,7 +244,7 @@ export class Node {
       }
     });
 
-    protocolRunner.register(
+    engine.register(
       Opcode.PERSIST_STATE_CHANNEL,
       async (args: [StateChannel[]]) => {
         const { store } = this.requestHandler;
@@ -259,7 +256,7 @@ export class Node {
       }
     );
 
-    protocolRunner.register(Opcode.IO_WAIT, async (args: [FinMessage]) => {
+    engine.register(Opcode.IO_WAIT, async (args: [FinMessage]) => {
       const [data] = args;
 
       const deferral = new Deferred<
@@ -291,7 +288,7 @@ export class Node {
       return msg as NodeMessageWrappedFinMessage;
     });
 
-    return protocolRunner;
+    return engine;
   }
 
   /**

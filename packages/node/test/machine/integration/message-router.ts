@@ -24,11 +24,11 @@ export class MessageRouter {
     for (const node of nodes) {
       this.nodesMap.set(node.xpub, node);
 
-      node.protocolRunner.register(Opcode.IO_SEND, (args: [any]) => {
+      node.engine.register(Opcode.IO_SEND, (args: [any]) => {
         const [message] = args;
         this.appendToPendingPromisesIfNotNull(this.routeMessage(message));
       });
-      node.protocolRunner.register(
+      node.engine.register(
         Opcode.IO_SEND_AND_WAIT,
         async (args: [any]) => {
           const [message] = args;

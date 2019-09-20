@@ -1,6 +1,6 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { Protocol, ProtocolRunner } from "../../../machine";
+import { Protocol, Engine } from "../../../machine";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -9,7 +9,7 @@ import {
 
 export async function installVirtual(
   store: Store,
-  protocolRunner: ProtocolRunner,
+  engine: Engine,
   params: Node.InstallParams
 ): Promise<AppInstanceProposal> {
   const { appInstanceId } = params;
@@ -40,7 +40,7 @@ export async function installVirtual(
   }
 
   try {
-    await protocolRunner.initiateProtocol(
+    await engine.initiateProtocol(
       Protocol.InstallVirtualApp,
       await store.getStateChannelsMap(),
       {

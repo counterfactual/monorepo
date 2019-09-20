@@ -38,7 +38,7 @@ describe("Three mininodes", () => {
 
     await tr.setup();
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
+    await tr.mininodeA.engine.initiateProtocol(
       Protocol.InstallVirtualApp,
       tr.mininodeA.scm,
       {
@@ -68,7 +68,7 @@ describe("Three mininodes", () => {
 
     expect(virtualAppInstance.isVirtualApp);
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
+    await tr.mininodeA.engine.initiateProtocol(
       Protocol.Update,
       tr.mininodeA.scm,
       {
@@ -82,7 +82,7 @@ describe("Three mininodes", () => {
       }
     );
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
+    await tr.mininodeA.engine.initiateProtocol(
       Protocol.TakeAction,
       tr.mininodeA.scm,
       {
@@ -97,7 +97,7 @@ describe("Three mininodes", () => {
       }
     );
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
+    await tr.mininodeA.engine.initiateProtocol(
       Protocol.UninstallVirtualApp,
       tr.mininodeA.scm,
       {

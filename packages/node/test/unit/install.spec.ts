@@ -14,11 +14,7 @@ import {
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import {
-  Protocol,
-  ProtocolRunner,
-  xkeysToSortedKthAddresses
-} from "../../src/machine";
+import { Protocol, Engine, xkeysToSortedKthAddresses } from "../../src/machine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
@@ -37,7 +33,7 @@ const NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES = EXPECTED_CONTRACT_NAMES_IN_NETWORK
 
 describe("Can handle correct & incorrect installs", () => {
   let store: Store;
-  let protocolRunner: ProtocolRunner;
+  let engine: Engine;
 
   beforeAll(() => {
     store = new Store(
@@ -45,7 +41,7 @@ describe("Can handle correct & incorrect installs", () => {
       "install.spec.ts-test-store",
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES
     );
-    protocolRunner = new ProtocolRunner(
+    engine = new Engine(
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
       {} as BaseProvider
     );
@@ -53,19 +49,19 @@ describe("Can handle correct & incorrect installs", () => {
 
   it("fails to install with undefined appInstanceId", async () => {
     await expect(
-      install(store, protocolRunner, { appInstanceId: undefined! })
+      install(store, engine, { appInstanceId: undefined! })
     ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install with empty string appInstanceId", async () => {
     await expect(
-      install(store, protocolRunner, { appInstanceId: "" })
+      install(store, engine, { appInstanceId: "" })
     ).rejects.toThrowError(NO_APP_INSTANCE_ID_TO_INSTALL);
   });
 
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
-      install(store, protocolRunner, { appInstanceId: HashZero })
+      install(store, engine, { appInstanceId: HashZero })
     ).rejects.toThrowError(
       NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
     );
@@ -88,13 +84,13 @@ describe("Can handle correct & incorrect installs", () => {
     );
 
     await expect(
-      install(instance(mockedStore), protocolRunner, { appInstanceId })
+      install(instance(mockedStore), engine, { appInstanceId })
     ).rejects.toThrowError(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("succeeds to install a proposed AppInstance", async () => {
-    const mockedProtocolRunner = mock(ProtocolRunner);
-    const protocolRunner = instance(mockedProtocolRunner);
+    const mockedEngine = mock(Engine);
+    const engine = instance(mockedEngine);
 
     const mockedStore = mock(Store);
     const store = instance(mockedStore);
@@ -137,17 +133,13 @@ describe("Can handle correct & incorrect installs", () => {
     // and just returns a basic <string, StateChannel> map with the
     // expected multisigAddress in it.
     when(
-      mockedProtocolRunner.initiateProtocol(
-        Protocol.Install,
-        anything(),
-        anything()
-      )
+      mockedEngine.initiateProtocol(Protocol.Install, anything(), anything())
     ).thenResolve(new Map([[multisigAddress, stateChannel]]));
 
     // The AppInstanceProposal that's returned is the one that was installed, which
     // is the same one as the one that was proposed
     await expect(
-      install(store, protocolRunner, {
+      install(store, engine, {
         appInstanceId
       })
     ).resolves.toEqual(appInstanceProposal);

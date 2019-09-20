@@ -1,10 +1,10 @@
 graph LR
   subgraph Node
-    ProtocolRunner
+    Engine
     MessagingService
     RpcRouter --> RequestHandler
     RequestHandler --> RpcRouter
     RequestHandler --> StoreService
     RequestHandler --> MessagingService
-    RequestHandler --> ProtocolRunner
+    RequestHandler --> Engine
 end

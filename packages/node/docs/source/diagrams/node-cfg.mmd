@@ -53,7 +53,7 @@ graph LR
     onReceivedMessage-->eventExecute
   end
 
-  subgraph ProtocolRunner
+  subgraph Engine
     initiateProtocol
     runProtocolWithMessage
     protocolMessageEventController-->runProtocolWithMessage

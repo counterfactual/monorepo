@@ -9,7 +9,7 @@ export async function runWithdrawProtocol(
   requestHandler: RequestHandler,
   params: Node.WithdrawParams
 ) {
-  const { publicIdentifier, protocolRunner, store } = requestHandler;
+  const { publicIdentifier, engine, store } = requestHandler;
   const { multisigAddress, amount } = params;
 
   const tokenAddress = params.tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
@@ -22,7 +22,7 @@ export async function runWithdrawProtocol(
 
   const stateChannel = await store.getStateChannel(multisigAddress);
 
-  await protocolRunner.initiateProtocol(
+  await engine.initiateProtocol(
     Protocol.Withdraw,
     new Map([[stateChannel.multisigAddress, stateChannel]]),
     {

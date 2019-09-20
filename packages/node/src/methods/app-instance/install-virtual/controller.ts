@@ -89,13 +89,13 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ): Promise<Node.InstallVirtualResult> {
-    const { store, protocolRunner } = requestHandler;
+    const { store, engine } = requestHandler;
 
     const { appInstanceId } = params;
 
     await store.getAppInstanceProposal(appInstanceId);
 
-    await installVirtual(store, protocolRunner, params);
+    await installVirtual(store, engine, params);
 
     return {
       appInstance: (await store.getAppInstance(appInstanceId)).toJson()
