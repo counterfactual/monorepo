@@ -10,7 +10,6 @@ import { createRpcRouter } from "./api";
 import AutoNonceWallet from "./auto-nonce-wallet";
 import { Deferred } from "./deferred";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
-import { FinMessage } from "./machine/types";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
@@ -21,11 +20,7 @@ import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
 import { getHDNode } from "./signer";
-import {
-  NODE_EVENTS,
-  NodeMessageWrappedFinMessage,
-  NodeMessageWrappedProtocolMessage
-} from "./types";
+import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
 export interface NodeConfig {
@@ -45,7 +40,7 @@ export class Node {
 
   private readonly ioSendDeferrals = new Map<
     string,
-    Deferred<NodeMessageWrappedProtocolMessage | NodeMessageWrappedFinMessage>
+    Deferred<NodeMessageWrappedProtocolMessage>
   >();
 
   /**
@@ -170,20 +165,6 @@ export class Node {
       return signingKey.signDigest(commitment.hashToSign());
     });
 
-    protocolRunner.register(Opcode.IO_SEND_FIN, async (args: [FinMessage]) => {
-      const [data] = args;
-      const fromXpub = this.publicIdentifier;
-      const to = data.toXpub;
-
-      await this.messagingService.send(to, {
-        data,
-        from: fromXpub,
-        type: NODE_EVENTS.PROTOCOL_MESSAGE_EVENT
-      } as NodeMessageWrappedFinMessage);
-
-      this.requestHandler.outgoing.emit(data.eventName, data);
-    });
-
     protocolRunner.register(Opcode.IO_SEND, async (args: [ProtocolMessage]) => {
       const [data] = args;
       const fromXpub = this.publicIdentifier;
@@ -202,9 +183,7 @@ export class Node {
         const [data] = args;
         const to = data.toXpub;
 
-        const deferral = new Deferred<
-          NodeMessageWrappedProtocolMessage | NodeMessageWrappedFinMessage
-        >();
+        const deferral = new Deferred<NodeMessageWrappedProtocolMessage>();
 
         this.ioSendDeferrals.set(data.processID, deferral);
 
@@ -258,38 +237,6 @@ export class Node {
         }
       }
     );
-
-    protocolRunner.register(Opcode.IO_WAIT, async (args: [FinMessage]) => {
-      const [data] = args;
-
-      const deferral = new Deferred<
-        NodeMessageWrappedFinMessage | NodeMessageWrappedProtocolMessage
-      >();
-
-      this.ioSendDeferrals.set(data.processID, deferral);
-
-      const counterpartyResponse = deferral.promise;
-
-      const msg = (await Promise.race([
-        counterpartyResponse,
-        timeout(60000)
-      ])) as NodeMessageWrappedFinMessage;
-
-      if (!msg || !("data" in (msg as NodeMessageWrappedFinMessage))) {
-        throw Error(
-          `IO_WAIT timed out after 30s waiting for counterparty reply in ${data.eventName}`
-        );
-      }
-      // Removes the deferral from the list of pending defferals after
-      // its promise has been resolved and the necessary callback (above)
-      // has been called. Note that, as is, only one defferal can be open
-      // per counterparty at the moment.
-      this.ioSendDeferrals.delete(data.processID);
-
-      this.requestHandler.outgoing.emit(data.eventName, msg.data);
-
-      return msg as NodeMessageWrappedFinMessage;
-    });
 
     return protocolRunner;
   }
@@ -391,15 +338,10 @@ export class Node {
     const isProtocolMessage = (msg: NodeTypes.NodeMessage) =>
       msg.type === NODE_EVENTS.PROTOCOL_MESSAGE_EVENT;
 
-    const isFinishedMessage = (msg: NodeTypes.NodeMessage) =>
-      msg.type.endsWith("FinishedEvent");
-
-    const isExpectingResponse = (
-      msg: NodeMessageWrappedProtocolMessage | NodeMessageWrappedFinMessage
-    ) => this.ioSendDeferrals.has(msg.data.processID);
-
+    const isExpectingResponse = (msg: NodeMessageWrappedProtocolMessage) =>
+      this.ioSendDeferrals.has(msg.data.processID);
     if (
-      (isProtocolMessage(msg) || isFinishedMessage(msg)) &&
+      isProtocolMessage(msg) &&
       isExpectingResponse(msg as NodeMessageWrappedProtocolMessage)
     ) {
       await this.handleIoSendDeferral(msg as NodeMessageWrappedProtocolMessage);

@@ -3,7 +3,6 @@ import { One, Two, Zero } from "ethers/constants";
 
 import { Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { FinMessage } from "../../src/machine/types";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
 import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
 
@@ -157,43 +156,6 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       expect(balancesSeenByA[nodeB.freeBalanceAddress]).toBeEq(depositAmount);
 
       expect(await getInstalledAppInstances(nodeA)).toEqual([]);
-    });
-
-    it("Node B hears a UNINSTALL_FINISHED message after Node A uninstalls app", async done => {
-      [appInstanceId] = await installApp(
-        nodeA,
-        nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-        initialState,
-        depositAmount,
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-        depositAmount,
-        CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      );
-
-      let nodeAProcessID;
-      let nodeBProcessID;
-
-      const verifyId = () => {
-        if (nodeAProcessID && nodeBProcessID) {
-          expect(nodeBProcessID).toEqual(nodeAProcessID);
-          done();
-        }
-      };
-
-      nodeA.on(NODE_EVENTS.UNINSTALL_FINISHED, async (msg: FinMessage) => {
-        expect(msg.processID).toBeDefined();
-        nodeAProcessID = msg.processID;
-        verifyId();
-      });
-
-      nodeB.on(NODE_EVENTS.UNINSTALL_FINISHED, async (msg: FinMessage) => {
-        expect(msg.processID).toBeDefined();
-        nodeBProcessID = msg.processID;
-        verifyId();
-      });
-
-      await nodeA.rpcRouter.dispatch(constructUninstallRpc(appInstanceId));
     });
   });
 });
