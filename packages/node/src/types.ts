@@ -17,14 +17,6 @@ export interface ProposeMessage extends Node.NodeMessage {
   };
 }
 
-export interface ProposeVirtualMessage extends Node.NodeMessage {
-  data: {
-    params: Node.ProposeInstallVirtualParams;
-    appInstanceId: string;
-    proposedByIdentifier: string;
-  };
-}
-
 export interface InstallMessage extends Node.NodeMessage {
   data: {
     params: Node.InstallParams;
