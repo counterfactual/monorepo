@@ -26,7 +26,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.6",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
     "@types/chai": "4.2.2",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
