@@ -184,6 +184,10 @@ export class StateChannel {
     );
   }
 
+  public get hasFreeBalance(): boolean {
+    return !!this.freeBalanceAppInstance;
+  }
+
   public getMultisigOwnerAddrOf(xpub: string): string {
     const [alice, bob] = this.multisigOwners;
 

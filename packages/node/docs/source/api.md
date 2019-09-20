@@ -64,38 +64,6 @@ Errors: (TODO)
 
 - Not enough funds
 
-### Method: `proposeInstallVirtual`
-
-Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
-
-Params:
-
-- `proposedToIdentifier: string`
-  - Public identifier of the peer responding to the installation request of the app
-- `appDefinition: string`
-  - On-chain address of App Definition contract
-- `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
-  - ABI encodings used for states and actions of this app
-- `initiatorDeposit: BigNumber`
-  - Amount of the asset deposited by this user
-- `responderDeposit: BigNumber`
-  - Amount of the asset deposited by the counterparty
-- `timeout: BigNumber`
-  - Number of blocks until a submitted state for this app is considered finalized
-- `initialState:`[`AppState`](#data-type-appstate)
-  - Initial state of app instance
-- `intermediaryIdentifier: string`
-  - Node identifier of hub to route the virtual app installation through
-
-Result:
-
-- `appInstanceId: string`
-  - Generated appInstanceId
-
-Errors: (TODO)
-
-- Not enough funds
-
 ### Method: `rejectInstall`
 
 Reject an app instance installation.

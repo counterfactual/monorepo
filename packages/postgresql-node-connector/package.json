@@ -17,7 +17,7 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "dependencies": {
-    "@counterfactual/types": "0.0.39",
+    "@counterfactual/types": "0.0.42",
     "pg": "7.12.1",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.2.18"
