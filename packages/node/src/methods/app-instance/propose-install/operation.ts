@@ -26,7 +26,11 @@ export async function createProposedAppInstance(
     networkContext.MinimumViableMultisig
   );
 
-  const stateChannel = await store.getStateChannel(multisigAddress);
+  const stateChannel = await store.getOrCreateStateChannelBetweenVirtualAppParticipants(
+    multisigAddress,
+    myIdentifier,
+    proposedToIdentifier
+  );
 
   const appInstanceProposal = new AppInstanceProposal(
     {

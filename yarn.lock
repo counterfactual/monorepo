@@ -9262,6 +9262,39 @@ ganache-core@2.6.1:
     ethereumjs-wallet "0.6.3"
     web3 "1.0.0-beta.35"
 
+ganache-core@2.7.0:
+  version "2.7.0"
+  resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.7.0.tgz#9897c7ad6ebe934e92f88e62fcf3c6cc1f1a807f"
+  integrity sha512-oZBNb2pZlD/uMxHDYJp4SBfavwblcGyqNPiZBgilp2n1fO/rnZwEAcpKE+1Uq1sO27YxuKJosm3Jvr9NarOWGA==
+  dependencies:
+    abstract-leveldown "3.0.0"
+    async "2.6.2"
+    bip39 "2.5.0"
+    cachedown "1.0.0"
+    clone "2.1.2"
+    debug "3.2.6"
+    encoding-down "5.0.4"
+    eth-sig-util "2.2.0"
+    ethereumjs-abi "0.6.7"
+    ethereumjs-account "3.0.0"
+    ethereumjs-block "2.2.0"
+    ethereumjs-tx "1.3.7"
+    ethereumjs-util "6.1.0"
+    ethereumjs-vm "3.0.0"
+    heap "0.2.6"
+    level-sublevel "6.6.4"
+    levelup "3.1.1"
+    lodash "4.17.14"
+    merkle-patricia-tree "2.3.2"
+    seedrandom "3.0.1"
+    source-map-support "0.5.12"
+    tmp "0.1.0"
+    web3-provider-engine "14.2.0"
+    websocket "1.0.29"
+  optionalDependencies:
+    ethereumjs-wallet "0.6.3"
+    web3 "1.2.1"
+
 ganache-core@2.8.0:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/ganache-core/-/ganache-core-2.8.0.tgz#eeadc7f7fc3a0c20d99f8f62021fb80b5a05490c"

@@ -23,7 +23,6 @@ import {
   Node,
   NODE_EVENTS,
   ProposeMessage,
-  ProposeVirtualMessage,
   Rpc,
   UninstallMessage,
   UninstallVirtualMessage
@@ -573,20 +572,12 @@ export async function installVirtualApp(
 ): Promise<string> {
   nodeC.on(
     NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-    async ({
-      data: {
-        appInstanceId: eventAppInstanceId,
-        params: { intermediaryIdentifier: eventIntermediaryIdentifier }
-      }
-    }: ProposeVirtualMessage) => {
+    async ({ data: { appInstanceId: eventAppInstanceId } }: ProposeMessage) => {
       const {
         appInstanceId,
         params: { intermediaryIdentifier }
       } = await proposal;
-      if (
-        eventAppInstanceId === appInstanceId &&
-        eventIntermediaryIdentifier === intermediaryIdentifier
-      ) {
+      if (eventAppInstanceId === appInstanceId) {
         nodeC.rpcRouter.dispatch(
           constructInstallVirtualRpc(appInstanceId, intermediaryIdentifier)
         );

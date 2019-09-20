@@ -21,7 +21,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { getCreate2MultisigAddress } from "./utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -174,28 +174,6 @@ export class Store {
     ]);
   }
 
-  public async addVirtualAppInstanceProposal(
-    proposedAppInstance: AppInstanceProposal
-  ) {
-    await this.storeService.set([
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
-        value: proposedAppInstance.toJson()
-      },
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
-        value: getCreate2MultisigAddress(
-          [
-            proposedAppInstance.proposedToIdentifier,
-            proposedAppInstance.proposedByIdentifier
-          ],
-          this.networkContext.ProxyFactory,
-          this.networkContext.MinimumViableMultisig
-        )
-      }
-    ]);
-  }
-
   public async removeAppInstanceProposal(appInstanceId: string) {
     await this.storeService.set(
       [
@@ -313,5 +291,32 @@ export class Store {
   public async getAppInstance(appInstanceId: string): Promise<AppInstance> {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     return channel.getAppInstance(appInstanceId);
+  }
+
+  public async getOrCreateStateChannelBetweenVirtualAppParticipants(
+    multisigAddress: string,
+    initiatorXpub: string,
+    responderXpub: string
+  ): Promise<StateChannel> {
+    try {
+      return await this.getStateChannel(multisigAddress);
+    } catch (e) {
+      if (
+        e
+          .toString()
+          .includes(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress))
+      ) {
+        const stateChannel = StateChannel.createEmptyChannel(multisigAddress, [
+          initiatorXpub,
+          responderXpub
+        ]);
+
+        await this.saveStateChannel(stateChannel);
+
+        return stateChannel;
+      }
+
+      throw Error(prettyPrintObject(e));
+    }
   }
 }
