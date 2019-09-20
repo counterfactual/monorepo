@@ -3,9 +3,7 @@ import { solidityKeccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
-  DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE,
   DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
-  DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE,
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
@@ -17,11 +15,10 @@ import {
 import {
   AppInstance,
   AppInstanceProposal,
-  AppInstanceProposalJSON,
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { getCreate2MultisigAddress, prettyPrintObject } from "./utils";
+import { prettyPrintObject } from "./utils";
 
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
@@ -85,9 +82,16 @@ export class Store {
   public async getMultisigAddressFromAppInstance(
     appInstanceId: string
   ): Promise<string> {
-    return this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`
-    );
+    for (const sc of (await this.getStateChannelsMap()).values()) {
+      if (
+        sc.proposedAppInstances.has(appInstanceId) ||
+        sc.appInstances.has(appInstanceId) ||
+        (sc.hasFreeBalance && sc.freeBalance.identityHash === appInstanceId)
+      ) {
+        return sc.multisigAddress;
+      }
+    }
+    return ""; // FIXME
   }
 
   /**
@@ -127,88 +131,12 @@ export class Store {
   }
 
   /**
-   * The app's installation is confirmed iff the store write operation
-   * succeeds as the write operation's confirmation provides the desired
-   * atomicity of moving an app instance from being proposed to installed.
-   *
-   * @param appInstance
-   * @param proposedAppInstance
-   */
-  public async saveRealizedProposedAppInstance(
-    proposedAppInstance: AppInstanceProposal
-  ) {
-    await this.storeService.set(
-      [
-        {
-          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
-          value: null
-        },
-        {
-          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
-          value: proposedAppInstance
-        }
-      ],
-      true
-    );
-  }
-
-  /**
-   * Adds the given proposed appInstance to a channel's collection of proposed
-   * app instances.
-   * @param stateChannel
-   * @param proposedAppInstance
-   */
-  public async addAppInstanceProposal(
-    stateChannel: StateChannel,
-    proposedAppInstance: AppInstanceProposal
-  ) {
-    await this.storeService.set([
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${proposedAppInstance.identityHash}`,
-        value: proposedAppInstance.toJson()
-      },
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${proposedAppInstance.identityHash}`,
-        value: stateChannel.multisigAddress
-      }
-    ]);
-  }
-
-  public async removeAppInstanceProposal(appInstanceId: string) {
-    await this.storeService.set(
-      [
-        {
-          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`,
-          value: null
-        },
-        {
-          path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${appInstanceId}`,
-          value: null
-        }
-      ],
-      true
-    );
-  }
-
-  /**
    * Returns a list of proposed `AppInstanceProposals`s.
    */
   public async getProposedAppInstances(): Promise<AppInstanceProposal[]> {
-    const proposedAppInstancesJson = (await this.storeService.get(
-      [
-        this.storeKeyPrefix,
-        DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE
-      ].join("/")
-    )) as { [appInstanceId: string]: AppInstanceProposalJSON };
-
-    if (!proposedAppInstancesJson) {
-      return [];
-    }
-
-    return Array.from(Object.values(proposedAppInstancesJson)).map(
-      proposedAppInstanceJson => {
-        return AppInstanceProposal.fromJson(proposedAppInstanceJson);
-      }
+    return [...(await this.getStateChannelsMap()).values()].reduce(
+      (lst, sc) => [...lst, ...sc.proposedAppInstances.values()],
+      [] as AppInstanceProposal[]
     );
   }
 
@@ -218,17 +146,25 @@ export class Store {
   public async getAppInstanceProposal(
     appInstanceId: string
   ): Promise<AppInstanceProposal> {
-    const appInstanceProposal = await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE}/${appInstanceId}`
+    const multisigAddress = await this.getMultisigAddressFromAppInstance(
+      appInstanceId
     );
 
-    if (!appInstanceProposal) {
+    if (!multisigAddress) {
       throw new Error(
         NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
       );
     }
 
-    return AppInstanceProposal.fromJson(appInstanceProposal);
+    const stateChannel = await this.getStateChannel(multisigAddress);
+
+    if (!stateChannel.proposedAppInstances.has(appInstanceId)) {
+      throw new Error(
+        NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+      );
+    }
+
+    return stateChannel.proposedAppInstances.get(appInstanceId)!;
   }
 
   /**

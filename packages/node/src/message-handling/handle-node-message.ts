@@ -26,22 +26,19 @@ export async function handleReceivedProposalMessage(
     proposedByIdentifier
   );
 
-  await store.addAppInstanceProposal(
-    stateChannel,
-    new AppInstanceProposal(
-      {
-        ...params,
-        proposedByIdentifier,
-        initiatorDeposit: params.responderDeposit,
-        initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
-        responderDeposit: params.initiatorDeposit!,
-        responderDepositTokenAddress: params.initiatorDepositTokenAddress!
-      },
-      stateChannel
-    )
+  const proposal = new AppInstanceProposal(
+    {
+      ...params,
+      proposedByIdentifier,
+      initiatorDeposit: params.responderDeposit,
+      initiatorDepositTokenAddress: params.responderDepositTokenAddress!,
+      responderDeposit: params.initiatorDeposit!,
+      responderDepositTokenAddress: params.initiatorDepositTokenAddress!
+    },
+    stateChannel
   );
 
-  await store.saveStateChannel(stateChannel.bumpProposedApps());
+  await store.saveStateChannel(stateChannel.addProposal(proposal));
 }
 
 export async function handleRejectProposalMessage(
@@ -52,5 +49,8 @@ export async function handleRejectProposalMessage(
   const {
     data: { appInstanceId }
   } = receivedRejectProposalMessage;
-  await store.removeAppInstanceProposal(appInstanceId);
+
+  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+  await store.saveStateChannel(stateChannel.removeProposal(appInstanceId));
 }

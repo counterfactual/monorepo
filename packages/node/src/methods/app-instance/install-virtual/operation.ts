@@ -64,7 +64,11 @@ export async function installVirtual(
     );
   }
 
-  await store.saveRealizedProposedAppInstance(proposal);
+  await store.saveStateChannel(
+    (await store.getChannelFromAppInstanceID(appInstanceId)).removeProposal(
+      appInstanceId
+    )
+  );
 
   return proposal;
 }

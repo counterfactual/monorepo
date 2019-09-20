@@ -79,7 +79,11 @@ export async function handleReceivedProtocolMessage(
         }
       }
       if (proposal) {
-        await store.saveRealizedProposedAppInstance(proposal);
+        await store.saveStateChannel(
+          (await store.getChannelFromAppInstanceID(
+            appInstanceId
+          )).removeProposal(appInstanceId)
+        );
       }
     }
   }
