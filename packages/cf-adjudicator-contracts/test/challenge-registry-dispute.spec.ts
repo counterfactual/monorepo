@@ -129,8 +129,7 @@ describe("ChallengeRegistry Challenge", () => {
         appInstance.appIdentity,
         encodeState(state),
         encodeAction(action),
-        actionSig,
-        false
+        actionSig
       );
   });
 
