@@ -4,12 +4,10 @@ import { Middleware } from "./types";
 export class MiddlewareContainer {
   public readonly middlewares: { [I in Opcode]: Middleware[] } = {
     [Opcode.IO_SEND]: [],
-    [Opcode.IO_SEND_FIN]: [],
     [Opcode.IO_SEND_AND_WAIT]: [],
     [Opcode.OP_SIGN]: [],
     [Opcode.WRITE_COMMITMENT]: [],
-    [Opcode.PERSIST_STATE_CHANNEL]: [],
-    [Opcode.IO_WAIT]: []
+    [Opcode.PERSIST_STATE_CHANNEL]: []
   };
 
   public add(scope: Opcode, method: Middleware) {

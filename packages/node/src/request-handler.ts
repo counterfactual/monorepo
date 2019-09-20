@@ -111,16 +111,15 @@ export class RequestHandler {
     if (!controllerExecutionMethod && controllerCount === 0) {
       if (event === NODE_EVENTS.DEPOSIT_CONFIRMED) {
         log.info(
-          `No event handler for counter depositing into channel: ${prettyPrintObject(
-            msg
+          `No event handler for counter depositing into channel: ${JSON.stringify(
+            msg,
+            undefined,
+            4
           )}`
         );
       } else {
-        console.error(
-          `No event handler setup to handle incoming event ${event}`
-        );
+        throw Error(`Recent ${event} which has no event handler`);
       }
-      return;
     }
 
     if (controllerExecutionMethod) {

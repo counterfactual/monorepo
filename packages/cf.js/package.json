@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@counterfactual/node-provider": "0.2.2",
-    "@counterfactual/types": "0.0.40",
+    "@counterfactual/types": "0.0.39",
     "ethers": "4.0.36",
     "eventemitter3": "^4.0.0",
     "rpc-server": "0.0.1"

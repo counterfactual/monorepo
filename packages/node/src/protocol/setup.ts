@@ -1,14 +1,7 @@
-import { Node } from "@counterfactual/types";
-
 import { SetupCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import {
-  Context,
-  FinMessage,
-  ProtocolMessage,
-  SetupParams
-} from "../machine/types";
+import { Context, ProtocolMessage, SetupParams } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models/state-channel";
 
@@ -16,14 +9,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Setup;
-const {
-  OP_SIGN,
-  IO_SEND_FIN,
-  IO_SEND,
-  IO_SEND_AND_WAIT,
-  PERSIST_STATE_CHANNEL,
-  IO_WAIT
-} = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -82,15 +68,6 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     yield [PERSIST_STATE_CHANNEL, [stateChannel]];
 
     context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
-
-    yield [
-      IO_SEND_FIN,
-      {
-        processID,
-        toXpub: responderXpub,
-        eventName: Node.EventName.SETUP_FINISHED
-      } as FinMessage
-    ];
   },
 
   1 /* Responding */: async function*(context: Context) {
@@ -145,13 +122,5 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
     ];
 
     context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
-
-    yield [
-      IO_WAIT,
-      {
-        processID,
-        eventName: Node.EventName.SETUP_FINISHED
-      }
-    ];
   }
 };
