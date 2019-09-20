@@ -5,7 +5,7 @@ import { addToManyQueues } from "./methods/queued-execution";
 
 class QueueWithLockingServiceConnection extends Queue {
   constructor(
-    private readonly queueName,
+    private readonly lockName,
     private readonly lockingService: Node.ILockService,
     ...args: any[]
   ) {
@@ -14,7 +14,7 @@ class QueueWithLockingServiceConnection extends Queue {
 
   async add(task: Task<any>) {
     return super.add(() =>
-      this.lockingService.acquireLock(this.queueName, task, 30_000)
+      this.lockingService.acquireLock(this.lockName, task, 30_000)
     );
   }
 }
@@ -27,22 +27,22 @@ export default class ProcessQueue {
 
   constructor(private readonly lockingService?: Node.ILockService) {}
 
-  addTask(queueKeys: string[], task: Task<any>) {
+  addTask(lockNames: string[], task: Task<any>) {
     return addToManyQueues(
-      queueKeys.map(this.getOrCreateQueue.bind(this)),
+      lockNames.map(this.getOrCreateLockQueue.bind(this)),
       task
     );
   }
 
-  private getOrCreateQueue(
-    queueKey: string
+  private getOrCreateLockQueue(
+    lockName: string
   ): QueueWithLockingServiceConnection | Queue {
-    if (!this.queues.has(queueKey)) {
+    if (!this.queues.has(lockName)) {
       this.queues.set(
-        queueKey,
+        lockName,
         this.lockingService
           ? new QueueWithLockingServiceConnection(
-              queueKey,
+              lockName,
               this.lockingService,
               {
                 concurrency: 1
@@ -51,6 +51,6 @@ export default class ProcessQueue {
           : new Queue({ concurrency: 1 })
       );
     }
-    return this.queues.get(queueKey)!;
+    return this.queues.get(lockName)!;
   }
 }
