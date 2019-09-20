@@ -1,7 +1,6 @@
 import {
   MultiAssetMultiPartyCoinTransferInterpreterParams,
   NetworkContext,
-  Node,
   OutcomeType,
   SingleAssetTwoPartyCoinTransferInterpreterParams,
   TwoPartyFixedOutcomeInterpreterParams
@@ -13,12 +12,7 @@ import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import {
-  Context,
-  FinMessage,
-  InstallParams,
-  ProtocolMessage
-} from "../machine/types";
+import { Context, InstallParams, ProtocolMessage } from "../machine/types";
 import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 import { TokenIndexedCoinTransferMap } from "../models/free-balance";
@@ -30,8 +24,6 @@ const {
   OP_SIGN,
   IO_SEND,
   IO_SEND_AND_WAIT,
-  IO_SEND_FIN,
-  IO_WAIT,
   WRITE_COMMITMENT,
   PERSIST_STATE_CHANNEL
 } = Opcode;
@@ -162,7 +154,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
     yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     yield [
-      IO_SEND,
+      IO_SEND_AND_WAIT,
       {
         processID,
         protocol: Install,
@@ -172,14 +164,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         },
         seq: UNASSIGNED_SEQ_NO
       } as ProtocolMessage
-    ];
-
-    yield [
-      IO_WAIT,
-      {
-        processID,
-        eventName: Node.EventName.INSTALL_FINISHED
-      }
     ];
   },
 
@@ -303,14 +287,17 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
-    yield [
-      IO_SEND_FIN,
-      {
-        processID,
-        toXpub: initiatorXpub,
-        eventName: Node.EventName.INSTALL_FINISHED
-      } as FinMessage
-    ];
+    const m4 = {
+      processID,
+      protocol: Install,
+      toXpub: initiatorXpub,
+      customData: {
+        dataPersisted: true
+      },
+      seq: UNASSIGNED_SEQ_NO
+    } as ProtocolMessage;
+
+    yield [IO_SEND, m4];
   }
 };
 

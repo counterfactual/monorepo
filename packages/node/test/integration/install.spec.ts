@@ -5,9 +5,7 @@ import { BigNumber } from "ethers/utils";
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { xkeyKthAddress } from "../../src/machine";
-import { FinMessage } from "../../src/machine/types";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
-import { sleep } from "../../src/utils";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
@@ -18,7 +16,6 @@ import {
   getAppContext,
   getFreeBalanceState,
   getInstalledAppInstances,
-  installApp,
   makeAndSendProposeCall,
   makeInstallCall,
   transferERC20Tokens
@@ -187,25 +184,6 @@ describe("Node method follows spec - install", () => {
         await expect(
           nodeA.rpcRouter.dispatch(appInstanceProposalReq)
         ).rejects.toThrowError(NULL_INITIAL_STATE_FOR_PROPOSAL);
-      });
-
-      it("should receive an INSTALL_FINISHED message", async done => {
-        nodeA.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
-          expect(msg.processID).toBeDefined();
-          expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
-          done();
-        });
-
-        nodeB.once(NODE_EVENTS.INSTALL_FINISHED, (msg: FinMessage) => {
-          expect(msg.processID).toBeDefined();
-          expect(msg.eventName).toEqual(NODE_EVENTS.INSTALL_FINISHED);
-        });
-
-        await installApp(
-          nodeA,
-          nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-        );
       });
     }
   );
