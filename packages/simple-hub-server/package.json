@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.6",
-    "@counterfactual/node": "0.2.78",
-    "@counterfactual/types": "0.0.40",
+    "@counterfactual/node": "0.2.80",
+    "@counterfactual/types": "0.0.42",
     "@counterfactual/typescript-typings": "0.1.2",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",
@@ -71,8 +71,8 @@
     "jest-cli": "24.8.0",
     "sqlite3": "4.1.0",
     "ts-jest": "24.0.2",
-    "ts-node": "8.3.0",
-    "tslint": "5.19.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
     "typescript": "3.5.3"
   }
 }

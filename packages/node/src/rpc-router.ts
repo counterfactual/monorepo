@@ -1,4 +1,3 @@
-import { Node } from "@counterfactual/types";
 import {
   Controller,
   JsonRpcResponse,
@@ -78,29 +77,5 @@ export default class RpcRouter extends Router {
     return typeof this.requestHandler.outgoing.listenerCount === "function"
       ? this.requestHandler.outgoing.listenerCount(event)
       : 0;
-  }
-
-  mapRPCMethodNameToFinishedEventName(methodName: string): Node.EventName {
-    console.log(
-      `Mapping RPC method name to finished event name: ${methodName}`
-    );
-    switch (methodName) {
-      case "chan_create":
-        return Node.EventName.SETUP_FINISHED;
-      case "chan_deposit":
-        return Node.EventName.DEPOSIT_FINISHED;
-      case "chan_install":
-        return Node.EventName.INSTALL_FINISHED;
-      case "chan_uninstall":
-        return Node.EventName.UNINSTALL_FINISHED;
-      case "chan_installVirtual":
-        return Node.EventName.INSTALL_VIRTUAL_FINISHED;
-      case "chan_uninstallVirtual":
-        return Node.EventName.UNINSTALL_VIRTUAL_FINISHED;
-      case "chan_withdraw":
-        return Node.EventName.WITHDRAWAL_FINISHED;
-      default:
-        return methodName as any;
-    }
   }
 }

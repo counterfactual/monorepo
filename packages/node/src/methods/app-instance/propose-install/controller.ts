@@ -24,18 +24,13 @@ import { createProposedAppInstance } from "./operation";
  */
 export default class ProposeInstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL)
+  @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
   protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<string[]> {
-    const { initialState } = params;
-
-    if (!initialState) {
-      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
-    }
-
     const { publicIdentifier, networkContext } = requestHandler;
     const { proposedToIdentifier } = params;
 
@@ -53,6 +48,12 @@ export default class ProposeInstallController extends NodeController {
     params: Node.ProposeInstallParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
+    const { initialState } = params;
+
+    if (!initialState) {
+      throw Error(NULL_INITIAL_STATE_FOR_PROPOSAL);
+    }
+
     const {
       proposedToIdentifier,
       initiatorDeposit,
@@ -75,7 +76,11 @@ export default class ProposeInstallController extends NodeController {
     const responderDepositTokenAddress =
       responderDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const stateChannel = await store.getStateChannel(multisigAddress);
+    const stateChannel = await store.getOrCreateStateChannelBetweenVirtualAppParticipants(
+      multisigAddress,
+      myIdentifier,
+      proposedToIdentifier
+    );
 
     assertSufficientFundsWithinFreeBalance(
       stateChannel,
@@ -135,6 +140,8 @@ function assertSufficientFundsWithinFreeBalance(
   tokenAddress: string,
   depositAmount: BigNumber
 ) {
+  if (!channel.hasFreeBalance) return;
+
   const freeBalanceForToken = channel
     .getFreeBalanceClass()
     .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0));

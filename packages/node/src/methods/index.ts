@@ -5,7 +5,6 @@ import GetAppInstanceStateController from "./app-instance/get-state/controller";
 import GetTokenIndexedFreeBalancesController from "./app-instance/get-token-indexed-free-balances/controller";
 import InstallVirtualAppInstanceController from "./app-instance/install-virtual/controller";
 import InstallAppInstanceController from "./app-instance/install/controller";
-import ProposeInstallVirtualAppInstanceController from "./app-instance/propose-install-virtual/controller";
 import ProposeInstallAppInstanceController from "./app-instance/propose-install/controller";
 import RejectInstallController from "./app-instance/reject-install/controller";
 import TakeActionController from "./app-instance/take-action/controller";
@@ -38,7 +37,6 @@ export {
   InstallAppInstanceController,
   InstallVirtualAppInstanceController,
   ProposeInstallAppInstanceController,
-  ProposeInstallVirtualAppInstanceController,
   RejectInstallController,
   TakeActionController,
   UninstallController,

@@ -27,19 +27,19 @@
   },
   "devDependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.7",
-    "@types/chai": "4.2.1",
+    "@types/chai": "4.2.2",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.1.0",
-    "ethers": "4.0.36",
-    "ethlint": "1.2.4",
+    "ethers": "4.0.37",
+    "ethlint": "1.2.5",
     "mocha": "6.2.0",
     "solc": "0.5.11",
-    "truffle": "5.0.35",
+    "truffle": "5.0.36",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
-    "tslint": "5.19.0"
+    "tslint": "5.20.0"
   },
   "resolutions": {
     "ethereum-waffle/solc": "0.5.11"
