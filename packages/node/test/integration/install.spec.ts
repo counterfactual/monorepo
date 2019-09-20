@@ -174,9 +174,7 @@ describe("Node method follows spec - install", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appContext = getAppContext(
-          TicTacToeApp
-        );
+        const appContext = getAppContext(TicTacToeApp);
         const appInstanceProposalReq = constructAppProposalRpc(
           nodeB.publicIdentifier,
           appContext.appDefinition,
