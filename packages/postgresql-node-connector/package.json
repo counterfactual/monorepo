@@ -20,15 +20,15 @@
     "@counterfactual/types": "0.0.42",
     "pg": "7.12.1",
     "reflect-metadata": "0.1.13",
-    "typeorm": "0.2.18"
+    "typeorm": "0.2.19"
   },
   "devDependencies": {
     "@types/jest": "24.0.15",
-    "@types/node": "12.7.4",
+    "@types/node": "12.7.5",
     "@types/pg": "7.11.1",
     "dotenv-extended": "2.4.0",
     "jest": "24.8.0",
-    "tslint": "5.19.0",
+    "tslint": "5.20.0",
     "typescript": "3.5.3"
   }
 }

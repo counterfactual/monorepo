@@ -23,7 +23,7 @@
     "@counterfactual/cf-adjudicator-contracts": "0.0.6",
     "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
     "@counterfactual/types": "0.0.42",
-    "ethers": "4.0.36",
+    "ethers": "4.0.37",
     "ganache-core": "2.7.0"
   }
 }

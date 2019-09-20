@@ -22,15 +22,15 @@
   "devDependencies": {
     "@counterfactual/types": "0.0.42",
     "@types/jest": "24.0.15",
-    "@types/node": "12.7.4",
+    "@types/node": "12.7.5",
     "@types/web3": "1.0.19",
     "jest": "24.8.0",
-    "rollup": "1.21.0",
+    "rollup": "1.21.3",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-typescript2": "0.24.0",
+    "rollup-plugin-typescript2": "0.24.2",
     "ts-jest": "24.0.2",
-    "tslint": "5.19.0",
+    "tslint": "5.20.0",
     "typescript": "3.5.3"
   },
   "dependencies": {

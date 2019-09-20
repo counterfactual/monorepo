@@ -71,8 +71,8 @@
     "jest-cli": "24.8.0",
     "sqlite3": "4.1.0",
     "ts-jest": "24.0.2",
-    "ts-node": "8.3.0",
-    "tslint": "5.19.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
     "typescript": "3.5.3"
   }
 }
