@@ -46,7 +46,7 @@
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
     "solc": "0.5.11",
-    "truffle": "5.0.36",
+    "truffle": "5.0.37",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
