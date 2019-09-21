@@ -5,8 +5,8 @@
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "files": [
     "dist"

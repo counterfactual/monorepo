@@ -6,8 +6,8 @@
   "types": "dist/index.d.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "scripts": {
     "build": "tsc -b . && rollup -c",
