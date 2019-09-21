@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "files": [
     "dist"
