@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf-funding-protocol-contracts",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Smart contracts for the Counterfactual multisig funding protocol",
   "license": "MIT",
   "engines": {
