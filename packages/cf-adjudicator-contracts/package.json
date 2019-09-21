@@ -35,7 +35,7 @@
     "@counterfactual/types": "0.0.42",
     "@counterfactual/typescript-typings": "0.1.2",
     "@types/node": "12.7.5",
-    "@types/chai": "4.2.2",
+    "@types/chai": "4.2.3",
     "chai": "4.2.0",
     "dotenv": "8.1.0",
     "eth-gas-reporter": "0.2.11",
