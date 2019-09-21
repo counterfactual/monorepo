@@ -41,7 +41,7 @@
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
     "jest-dot-reporter": "1.0.10",
-    "rollup": "1.21.3",
+    "rollup": "1.21.4",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-json": "4.0.0",
