@@ -55,7 +55,7 @@
   },
   "dependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.7",
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.11",
     "@counterfactual/cf.js": "0.2.6",
     "@counterfactual/firebase-client": "0.0.6",
     "@counterfactual/types": "0.0.42",
