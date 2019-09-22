@@ -66,9 +66,7 @@ describe("Can handle correct & incorrect installs", () => {
   it("fails to install without the AppInstance being proposed first", async () => {
     await expect(
       install(store, protocolRunner, { appInstanceId: HashZero })
-    ).rejects.toThrowError(
-      NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(HashZero)
-    );
+    ).rejects.toThrowError(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   });
 
   it("fails to install without the AppInstanceId being in a channel", async () => {

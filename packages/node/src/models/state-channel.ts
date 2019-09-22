@@ -611,13 +611,7 @@ export class StateChannel {
     const multisigAddress = await store.getMultisigAddressFromAppInstance(
       appInstanceId
     );
-
-    if (!multisigAddress) {
-      throw Error(
-        `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
-      );
-    }
-
+   
     return StateChannel.getPeersAddressFromChannel(
       myIdentifier,
       store,

@@ -91,7 +91,8 @@ export class Store {
         return sc.multisigAddress;
       }
     }
-    return ""; // FIXME
+
+    throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
   }
 
   /**
@@ -173,15 +174,9 @@ export class Store {
   public async getChannelFromAppInstanceID(
     appInstanceId: string
   ): Promise<StateChannel> {
-    const multisigAddress = await this.getMultisigAddressFromAppInstance(
-      appInstanceId
+    return await this.getStateChannel(
+      await this.getMultisigAddressFromAppInstance(appInstanceId)
     );
-
-    if (!multisigAddress) {
-      throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
-    }
-
-    return await this.getStateChannel(multisigAddress);
   }
 
   public async getWithdrawalCommitment(
