@@ -44,9 +44,7 @@ export async function createProposedAppInstance(
     stateChannel
   );
 
-  await store.addAppInstanceProposal(stateChannel, appInstanceProposal);
-
-  await store.saveStateChannel(stateChannel.bumpProposedApps());
+  await store.saveStateChannel(stateChannel.addProposal(appInstanceProposal));
 
   return appInstanceProposal.identityHash;
 }
