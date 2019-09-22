@@ -611,7 +611,7 @@ export class StateChannel {
     const multisigAddress = await store.getMultisigAddressFromAppInstance(
       appInstanceId
     );
-   
+
     return StateChannel.getPeersAddressFromChannel(
       myIdentifier,
       store,
