@@ -17,6 +17,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently uninstalling virtual and installing virtual applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -53,25 +55,20 @@ describe("Concurrently uninstalling virtual and installing virtual applications 
       nodeA,
       nodeB,
       nodeC,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+      TicTacToeApp
     );
   });
 
   it("will uninstall virtual and install virtual successfully when called by the same node", async done => {
     let completedEvents = 0;
+
     const registerEvent = () => {
       completedEvents += 1;
-      if (completedEvents === 2) {
-        done();
-      }
+      if (completedEvents === 2) done();
     };
-    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, () => {
-      registerEvent();
-    });
 
-    nodeC.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
-      registerEvent();
-    });
+    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, registerEvent);
+    nodeC.once(NODE_EVENTS.UNINSTALL_VIRTUAL, registerEvent);
 
     nodeA.rpcRouter.dispatch(
       constructUninstallVirtualRpc(
@@ -79,29 +76,20 @@ describe("Concurrently uninstalling virtual and installing virtual applications 
         nodeB.publicIdentifier
       )
     );
-    installVirtualApp(
-      nodeA,
-      nodeB,
-      nodeC,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-    );
+
+    installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
   });
 
   it("will uninstall virtual and install virtual successfully when called by different nodes", async done => {
     let completedEvents = 0;
+
     const registerEvent = () => {
       completedEvents += 1;
-      if (completedEvents === 2) {
-        done();
-      }
+      if (completedEvents === 2) done();
     };
-    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, () => {
-      registerEvent();
-    });
 
-    nodeA.once(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
-      registerEvent();
-    });
+    nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, registerEvent);
+    nodeA.once(NODE_EVENTS.UNINSTALL_VIRTUAL, registerEvent);
 
     nodeC.rpcRouter.dispatch(
       constructUninstallVirtualRpc(
@@ -109,11 +97,7 @@ describe("Concurrently uninstalling virtual and installing virtual applications 
         nodeB.publicIdentifier
       )
     );
-    installVirtualApp(
-      nodeA,
-      nodeB,
-      nodeC,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-    );
+
+    installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
   });
 });

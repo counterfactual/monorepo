@@ -17,6 +17,8 @@ import {
   installApp
 } from "./utils";
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - takeAction", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -42,11 +44,7 @@ describe("Node method follows spec - takeAction", () => {
       it("can take action", async done => {
         await createChannel(nodeA, nodeB);
 
-        const [appInstanceId] = await installApp(
-          nodeA,
-          nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-        );
+        const [appInstanceId] = await installApp(nodeA, nodeB, TicTacToeApp);
 
         const expectedNewState = {
           board: [[One, Zero, Zero], [Zero, Zero, Zero], [Zero, Zero, Zero]],

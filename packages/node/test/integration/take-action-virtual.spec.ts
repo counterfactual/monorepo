@@ -18,9 +18,11 @@ import {
   installVirtualApp
 } from "./utils";
 
-describe("Node method follows spec - takeAction virtual", () => {
-  jest.setTimeout(15000);
+jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
+describe("Node method follows spec - takeAction virtual", () => {
   let nodeA: Node;
   let nodeB: Node;
   let nodeC: Node;
@@ -54,7 +56,7 @@ describe("Node method follows spec - takeAction virtual", () => {
           nodeA,
           nodeB,
           nodeC,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          TicTacToeApp
         );
 
         const expectedNewState = {

@@ -19,6 +19,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(7500);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
   let nodeA: Node;
@@ -59,7 +61,7 @@ describe("Node method follows spec - install", () => {
 
         const rpc = makeProposeCall(
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           /* initialState */ undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
