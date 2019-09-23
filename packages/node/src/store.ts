@@ -3,7 +3,6 @@ import { solidityKeccak256 } from "ethers/utils";
 
 import {
   DB_NAMESPACE_ALL_COMMITMENTS,
-  DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS,
   DB_NAMESPACE_CHANNEL,
   DB_NAMESPACE_WITHDRAWALS
 } from "./db-schema";
@@ -104,16 +103,6 @@ export class Store {
       {
         path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
         value: stateChannel.toJson()
-      }
-    ]);
-  }
-
-  public async saveFreeBalance(channel: StateChannel) {
-    const freeBalance = channel.freeBalance;
-    await this.storeService.set([
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS}/${freeBalance.identityHash}`,
-        value: channel.multisigAddress
       }
     ]);
   }
