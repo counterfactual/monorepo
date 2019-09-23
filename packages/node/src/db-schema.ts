@@ -35,12 +35,3 @@ export const DB_NAMESPACE_ALL_COMMITMENTS = "allCommitments";
  * Namespace for storing withdrawals
  */
 export const DB_NAMESPACE_WITHDRAWALS = "multisigAddressToWithdrawalCommitment";
-
-/**
- * Used in standardizing how to set/get app instances within a channel according
- * to their correct status.
- */
-export enum APP_INSTANCE_STATUS {
-  INSTALLED = "installed",
-  PROPOSED = "proposed"
-}
