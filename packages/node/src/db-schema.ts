@@ -24,12 +24,6 @@ export const DB_NAMESPACE_CHANNEL = "channel";
  *
 
 /**
- * Namespace providing a convenience lookup table from appInstanceId to multisig address.
- */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
-  "appInstanceIDToMultisigAddress";
-
-/**
  * Namespace providing a lookup table from appInstanceId to AppInstanceIdentityHash.
  */
 export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH =
