@@ -59,7 +59,10 @@ export class LocalGanacheServer {
     this.server = ganache.server({
       accounts,
       gasLimit: 17592186044415, // 0xfffffffffff
-      gasPrice: "0x01"
+      gasPrice: "0x01",
+      blockTime: process.env.GANACHE_BLOCK_TIME
+        ? parseInt(process.env.GANACHE_BLOCK_TIME!, 10)
+        : undefined
     });
 
     this.server.listen(parseInt(process.env.GANACHE_PORT!, 10));
