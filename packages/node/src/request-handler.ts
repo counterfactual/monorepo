@@ -37,7 +37,7 @@ export class RequestHandler {
     readonly blocksNeededForConfirmation: number,
     public readonly processQueue: ProcessQueue
   ) {
-    this.store = new Store(storeService, storeKeyPrefix, networkContext);
+    this.store = new Store(storeService, storeKeyPrefix);
   }
 
   injectRouter(router: RpcRouter) {
