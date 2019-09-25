@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/types",
-  "version": "0.0.42",
+  "version": "0.0.43",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
