@@ -149,7 +149,7 @@ export namespace Node {
   };
 
   export type CreateChannelTransactionResult = {
-    transactionHash: string;
+    multisigAddress: string;
   };
 
   export type CreateMultisigParams = {
