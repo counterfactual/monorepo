@@ -120,22 +120,11 @@ export class Provider {
     );
 
     const {
-      transactionHash
+      multisigAddress
     } = response.result as Node.CreateChannelTransactionResult;
 
-    return transactionHash;
-
-    // ALTERNATIVELY: return the actual multisig address??
-    //
-    // return new Promise((resolve) => {
-    //   this.once(
-    //     EventType.CREATE_CHANNEL,
-    //     (createChannelMsg: CounterfactualEvent) => {
-    //       const { multisigAddress } = createChannelMsg.data as Node.CreateChannelResult;
-    //       resolve(multisigAddress);
-    //     }
-    //   );
-    // });
+    // TODO: which consumers are affected by this change?
+    return multisigAddress;
   }
 
   /**
