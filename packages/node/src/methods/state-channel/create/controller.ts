@@ -91,4 +91,3 @@ export default class CreateChannelController extends NodeController {
     outgoing.emit(NODE_EVENTS.CREATE_CHANNEL, msg);
   }
 }
-

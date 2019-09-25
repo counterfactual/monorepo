@@ -7,12 +7,13 @@ import {
   Provider,
   TransactionResponse
 } from "ethers/providers";
-import log from "loglevel";
 import { Interface } from "ethers/utils";
+import log from "loglevel";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
+import { sortAddresses } from "../../../machine/xkeys";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
 import {
@@ -30,7 +31,6 @@ import {
 } from "../../errors";
 
 import { runWithdrawProtocol } from "./operation";
-import { sortAddresses } from "../../../machine/xkeys";
 
 // Estimate based on:
 // https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
