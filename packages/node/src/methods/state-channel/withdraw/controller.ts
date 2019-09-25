@@ -95,15 +95,20 @@ export default class WithdrawController extends NodeController {
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
 
     const channel = await store.getStateChannel(multisigAddress);
+
+    let txResponse: TransactionResponse;
     // Check if the multisig contract has already been deployed on-chain
     if ((await provider.getCode(multisigAddress)) === "0x") {
-      const tx = await this.sendMultisigDeployTx(
+      const txResponse = await this.sendMultisigDeployTx(
         wallet,
         channel.multisigOwners,
         networkContext
       );
 
-      // TODO: await tx
+      await provider.waitForTransaction(
+        txResponse.hash as string,
+        blocksNeededForConfirmation
+      );
     }
 
     await runWithdrawProtocol(requestHandler, params);
@@ -120,7 +125,6 @@ export default class WithdrawController extends NodeController {
       gasLimit: 300000
     };
 
-    let txResponse: TransactionResponse;
     try {
       if (provider instanceof JsonRpcProvider) {
         const signer = await provider.getSigner();
@@ -193,9 +197,6 @@ export default class WithdrawController extends NodeController {
             )}`
           );
         }
-
-        // TODO: how was checkForCorrectOwners working without this?
-        await provider.waitForTransaction(tx.hash);
 
         const ownersAreCorrectlySet = await checkForCorrectOwners(
           tx!,
