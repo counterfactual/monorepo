@@ -1,40 +1,20 @@
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
-import { NetworkContext, Node } from "@counterfactual/types";
-import { Contract, Signer } from "ethers";
-import {
-  JsonRpcProvider,
-  Provider,
-  TransactionResponse
-} from "ethers/providers";
-import { Interface } from "ethers/utils";
-import log from "loglevel";
+import { Node } from "@counterfactual/types";
+import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../../../machine";
-import { sortAddresses } from "../../../machine/xkeys";
+import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";
-import {
-  getCreate2MultisigAddress,
-  prettyPrintObject,
-  sleep
-} from "../../../utils";
+import { prettyPrintObject } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CANNOT_WITHDRAW,
-  CHANNEL_CREATION_FAILED,
   INSUFFICIENT_FUNDS_TO_WITHDRAW,
-  NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT,
   WITHDRAWAL_FAILED
 } from "../../errors";
 
 import { runWithdrawProtocol } from "./operation";
-
-// Estimate based on:
-// https://rinkeby.etherscan.io/tx/0xaac429aac389b6fccc7702c8ad5415248a5add8e8e01a09a42c4ed9733086bec
-const CREATE_PROXY_AND_SETUP_GAS = 500_000;
 
 export default class WithdrawController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
@@ -86,30 +66,12 @@ export default class WithdrawController extends NodeController {
       wallet,
       publicIdentifier,
       blocksNeededForConfirmation,
-      outgoing,
-      networkContext
+      outgoing
     } = requestHandler;
 
     const { multisigAddress, amount, recipient } = params;
 
     params.recipient = recipient || xkeyKthAddress(publicIdentifier, 0);
-
-    const channel = await store.getStateChannel(multisigAddress);
-
-    let txResponse: TransactionResponse;
-    // Check if the multisig contract has already been deployed on-chain
-    if ((await provider.getCode(multisigAddress)) === "0x") {
-      const txResponse = await this.sendMultisigDeployTx(
-        wallet,
-        channel.multisigOwners,
-        networkContext
-      );
-
-      await provider.waitForTransaction(
-        txResponse.hash as string,
-        blocksNeededForConfirmation
-      );
-    }
 
     await runWithdrawProtocol(requestHandler, params);
 
@@ -125,6 +87,7 @@ export default class WithdrawController extends NodeController {
       gasLimit: 300000
     };
 
+    let txResponse: TransactionResponse;
     try {
       if (provider instanceof JsonRpcProvider) {
         const signer = await provider.getSigner();
@@ -156,107 +119,4 @@ export default class WithdrawController extends NodeController {
       txHash: txResponse.hash!
     };
   }
-
-  private async sendMultisigDeployTx(
-    signer: Signer,
-    owners: string[],
-    networkContext: NetworkContext,
-    retryCount: number = 3
-  ): Promise<TransactionResponse> {
-    const proxyFactory = new Contract(
-      networkContext.ProxyFactory,
-      ProxyFactory.abi,
-      signer
-    );
-
-    const provider = await signer.provider;
-
-    if (!provider) {
-      throw Error("wallet must have a provider");
-    }
-
-    let error;
-    for (let tryCount = 1; tryCount < retryCount + 1; tryCount += 1) {
-      try {
-        const tx: TransactionResponse = await proxyFactory.functions.createProxyWithNonce(
-          networkContext.MinimumViableMultisig,
-          new Interface(MinimumViableMultisig.abi).functions.setup.encode([
-            xkeysToSortedKthAddresses(owners, 0)
-          ]),
-          0, // TODO: Increment nonce as needed
-          {
-            gasLimit: CREATE_PROXY_AND_SETUP_GAS,
-            gasPrice: provider.getGasPrice()
-          }
-        );
-
-        if (!tx.hash) {
-          throw Error(
-            `${NO_TRANSACTION_HASH_FOR_MULTISIG_DEPLOYMENT}: ${prettyPrintObject(
-              tx
-            )}`
-          );
-        }
-
-        const ownersAreCorrectlySet = await checkForCorrectOwners(
-          tx!,
-          provider,
-          owners,
-          networkContext
-        );
-
-        if (!ownersAreCorrectlySet) {
-          log.error(
-            `${CHANNEL_CREATION_FAILED}: Could not confirm, on the ${tryCount} try, that the deployed multisig contract has the expected owners`
-          );
-          // wait on a linear backoff interval before retrying
-          await sleep(1000 * tryCount);
-          continue;
-        }
-
-        if (tryCount > 0) {
-          log.debug(
-            `Deploying multisig failed on first try, but succeeded on try #${tryCount}`
-          );
-        }
-        return tx;
-      } catch (e) {
-        error = e;
-        log.error(`Multisig deployment attempt ${tryCount} failed: ${e}.\n
-                      Retrying ${retryCount - tryCount} more times`);
-      }
-    }
-
-    throw Error(`${CHANNEL_CREATION_FAILED}: ${prettyPrintObject(error)}`);
-  }
-}
-
-async function checkForCorrectOwners(
-  tx: TransactionResponse,
-  provider: Provider,
-  xpubs: string[],
-  networkContext: NetworkContext
-): Promise<boolean> {
-  const multisigAddress = getCreate2MultisigAddress(
-    xpubs,
-    networkContext.ProxyFactory,
-    networkContext.MinimumViableMultisig
-  );
-
-  await tx.wait();
-
-  const contract = new Contract(
-    multisigAddress,
-    MinimumViableMultisig.abi,
-    provider
-  );
-
-  const expectedOwners = xkeysToSortedKthAddresses(xpubs, 0);
-
-  const actualOwners = sortAddresses(await contract.functions.getOwners());
-
-  return (
-    expectedOwners[0] === actualOwners[0] &&
-    expectedOwners[1] === actualOwners[1]
-  );
 }
