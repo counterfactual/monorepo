@@ -123,8 +123,18 @@ export class Provider {
       multisigAddress
     } = response.result as Node.CreateChannelTransactionResult;
 
-    // TODO: which consumers are affected by this change?
-    return multisigAddress;
+    const deployResponse = await this.callRawNodeMethod(
+      Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+      {
+        multisigAddress
+      }
+    );
+
+    const {
+      transactionHash
+    } = deployResponse.result as Node.DeployStateDepositHolderResult;
+
+    return transactionHash;
   }
 
   /**
