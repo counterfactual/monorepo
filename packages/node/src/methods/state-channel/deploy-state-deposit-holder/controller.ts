@@ -47,7 +47,7 @@ export default class DeployStateDepositHolderController extends NodeController {
     if ((await provider.getCode(multisigAddress)) === "0x") {
       tx = await sendMultisigDeployTx(
         wallet,
-        channel.multisigOwners,
+        channel.userNeuteredExtendedKeys,
         networkContext,
         retryCount
       );
