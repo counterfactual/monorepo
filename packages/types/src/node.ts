@@ -352,7 +352,8 @@ export namespace Node {
     | TakeActionParams
     | UninstallParams
     | CreateChannelParams
-    | GetChannelAddressesParams;
+    | GetChannelAddressesParams
+    | DeployStateDepositHolderParams;
   export type MethodResult =
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
@@ -366,7 +367,8 @@ export namespace Node {
     | TakeActionResult
     | UninstallResult
     | CreateChannelResult
-    | GetChannelAddressesResult;
+    | GetChannelAddressesResult
+    | DeployStateDepositHolderResult;
 
   export type CreateMultisigEventData = {
     owners: string[];
