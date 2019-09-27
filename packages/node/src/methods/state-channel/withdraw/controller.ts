@@ -81,6 +81,10 @@ export default class WithdrawController extends NodeController {
       throw Error("No withdrawal commitment found");
     }
 
+    if ((await provider.getCode(multisigAddress)) === "0x") {
+      throw Error("Multisig has not been deployed");
+    }
+
     const tx = {
       ...commitment,
       gasPrice: await provider.getGasPrice(),

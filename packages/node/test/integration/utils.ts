@@ -213,6 +213,23 @@ export async function deposit(
   await node.rpcRouter.dispatch(depositReq);
 }
 
+export async function deployStateDepositHolder(
+  node: Node,
+  multisigAddress: string
+) {
+  const response = await node.rpcRouter.dispatch({
+    methodName: NodeTypes.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+    parameters: {
+      multisigAddress
+    } as NodeTypes.DeployStateDepositHolderParams
+  });
+
+  const result = response.result
+    .result as NodeTypes.DeployStateDepositHolderResult;
+
+  return result.transactionHash;
+}
+
 export function constructDepositRpc(
   multisigAddress: string,
   amount: BigNumber,

@@ -214,18 +214,33 @@ TODO
 
 ### Method: `createChannel`
 
-Creates a channel by deploying a multisignature wallet contract.
+Creates a channel and returns the determined address of the multisig (does not deploy).
 
 Params:
 
 - `owners: string[]`
   - the addresses who should be the owners of the multisig
+
+Result:
+
+- `CreateChannelTransactionResult`
+  - `multisigAddress: string`
+    - the address which will hold the state deposits
+
+### Method: `deployStateDepositHolder`
+
+Deploys a multisignature wallet contract for use by the channel participants. Required step before withdrawal.
+
+Params:
+
+- `multisigAddress: string`
+  - address of the multisignature wallet
 - `retryCount?: number`
   - the number of times to retry _deploying the multisig_ using an expontential backoff period between each successive retry, starting with 1 second. This defaults to 3 if no retry count is provided.
 
 Result:
 
-- `CreateChannelTransactionResult`
+- `DeployStateDepositHolderResult`
   - `transactionHash: string`
     - the hash of the multisig deployment transaction
       - This can be used to either register a listener for when the transaction has been mined or await the mining.
@@ -274,7 +289,7 @@ Result:
 
 ### Method: `withdraw`
 
-If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`
+If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`. `deployStateDepositHolder` must be called before this method can be used to withdraw funds.
 
 Params:
 
