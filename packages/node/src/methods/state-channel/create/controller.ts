@@ -40,9 +40,6 @@ export default class CreateChannelController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    // always will be HashZero since we are deploying on withdrawal
-    const tx = { hash: HashZero } as TransactionResponse;
-
     // Check if the database has stored the relevant data for this state channel
     if (!(await store.hasStateChannel(multisigAddress))) {
       await this.handleDeployedMultisigOnChain(
