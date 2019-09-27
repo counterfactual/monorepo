@@ -26,7 +26,7 @@ describe("Node method follows spec - deploy state desposit holder", () => {
   let multisigAddress: string;
 
   beforeEach(async () => {
-    const context: SetupContext = await setup(global);
+    const context: SetupContext = await setup(global, false, true);
     provider = new JsonRpcProvider(global["ganacheURL"]);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
