@@ -3051,10 +3051,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/selenium-webdriver@4.0.2":
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-4.0.2.tgz#620419110e545bf54237a91161a8356bc4c65db3"
-  integrity sha512-N8u76LXU6KmxdfKEhOvK/dNtWUg7aeXrQVRRhVqO1V4gYN7zL6SPPJC3GmauyxYnJtsG1BCegQK77pRwieLVhw==
+"@types/selenium-webdriver@4.0.3":
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/@types/selenium-webdriver/-/selenium-webdriver-4.0.3.tgz#388f12c464cc1fff5d4c84cb372f19b9ab9b5c81"
+  integrity sha512-aMKIG1IKwV9/gjhm9uICjvmy4s2SL/bF9fE2WEgLhfdrTLKSIsDMt9M2pTqhZlxllgQPa+EUddtkx4YFTSjadw==
 
 "@types/serve-static@*":
   version "1.13.3"
