@@ -61,7 +61,7 @@
     "@types/react-dom": "16.9.1",
     "@types/react-redux": "7.1.2",
     "@types/react-router-dom": "4.3.5",
-    "@types/web3": "1.0.19",
+    "@types/web3": "1.0.20",
     "enzyme": "3.10.0",
     "enzyme-adapter-react-16": "1.14.0",
     "jest-fetch-mock": "2.1.2",
