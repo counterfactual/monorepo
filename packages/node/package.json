@@ -20,8 +20,8 @@
     "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@babel/core": "7.6.0",
-    "@babel/plugin-proposal-object-rest-spread": "7.5.5",
+    "@babel/core": "7.6.2",
+    "@babel/plugin-proposal-object-rest-spread": "7.6.2",
     "@counterfactual/apps": "0.1.12",
     "@counterfactual/firebase-server": "0.0.4",
     "@counterfactual/local-ganache-server": "0.0.8",
