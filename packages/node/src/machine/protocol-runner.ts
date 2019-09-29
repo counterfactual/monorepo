@@ -18,7 +18,8 @@ import {
   UninstallParams,
   UninstallVirtualAppParams,
   UpdateParams,
-  WithdrawParams
+  WithdrawParams,
+  ProposeInstallParams
 } from "./types";
 
 /**
@@ -41,6 +42,8 @@ type ParamTypeOf<T extends Protocol> = T extends Protocol.Install
   ? TakeActionParams
   : T extends Protocol.Withdraw
   ? WithdrawParams
+  : T extends Protocol.Propose
+  ? ProposeInstallParams
   : never;
 // tslint:enable
 
@@ -58,7 +61,8 @@ function firstRecipientFromProtocolName(protocolName: Protocol) {
       Protocol.Uninstall,
       Protocol.TakeAction,
       Protocol.Install,
-      Protocol.Withdraw
+      Protocol.Withdraw,
+      Protocol.Propose
     ].indexOf(protocolName) !== -1
   ) {
     return "responderXpub";

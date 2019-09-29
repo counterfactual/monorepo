@@ -7,7 +7,7 @@ import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { setup, SetupContext } from "./setup";
 import {
   collateralizeChannel,
-  confirmProposedVirtualAppInstance,
+  confirmProposedAppInstance,
   createChannel,
   getInstalledAppInstances,
   getProposedAppInstances,
@@ -40,7 +40,6 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         await collateralizeChannel(multisigAddressAB, nodeA, nodeB);
         await collateralizeChannel(multisigAddressBC, nodeB, nodeC);
 
-        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
         nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, async () => {
           const [virtualAppNodeA] = await getInstalledAppInstances(nodeA);
 
@@ -53,36 +52,29 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
 
         nodeC.once(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-          async (msg: ProposeMessage) => {
-            const { appInstanceId } = msg.data;
-
-            const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
+          async ({ data: { params, appInstanceId } }: ProposeMessage) => {
             const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstance(proposalParams, proposedAppNodeA);
-            confirmProposedVirtualAppInstance(
-              proposalParams,
-              proposedAppNodeC,
-              true
-            );
+            confirmProposedAppInstance(params, proposedAppNodeC, true);
 
             expect(proposedAppNodeC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
             );
-            expect(proposedAppNodeA.identityHash).toEqual(
-              proposedAppNodeC.identityHash
-            );
+
             installTTTVirtual(nodeC, appInstanceId, nodeB.publicIdentifier);
           }
         );
 
-        const result = await makeVirtualProposal(
+        const { params } = await makeVirtualProposal(
           nodeA,
           nodeC,
           nodeB,
           TicTacToeApp
         );
-        proposalParams = result.params as NodeTypes.ProposeInstallVirtualParams;
+
+        const [proposedAppNodeA] = await getProposedAppInstances(nodeA);
+
+        confirmProposedAppInstance(params, proposedAppNodeA);
       });
     }
   );

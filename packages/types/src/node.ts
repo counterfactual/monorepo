@@ -135,7 +135,7 @@ export namespace Node {
     PROPOSE_INSTALL_VIRTUAL = "proposeInstallEvent",
     PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
     WITHDRAW_EVENT = "withdrawEvent",
-    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
+    REJECT_INSTALL_VIRTUAL = "rejectInstallEvent"
   }
 
   export type CreateChannelParams = {
