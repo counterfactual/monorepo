@@ -26,8 +26,7 @@ import { prettyPrintObject } from "./utils";
 export class Store {
   constructor(
     private readonly storeService: Node.IStoreService,
-    private readonly storeKeyPrefix: string,
-    private readonly networkContext: NetworkContext
+    private readonly storeKeyPrefix: string
   ) {}
 
   /**

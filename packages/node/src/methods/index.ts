@@ -14,6 +14,7 @@ import UpdateStateController from "./app-instance/update-state/controller";
 import GetProposedAppInstancesController from "./proposed-app-instance/get-all/controller";
 import GetProposedAppInstanceController from "./proposed-app-instance/get/controller";
 import CreateChannelController from "./state-channel/create/controller";
+import DeployStateDepositController from "./state-channel/deploy-state-deposit-holder/controller";
 import DepositController from "./state-channel/deposit/controller";
 import GetAllChannelAddressesController from "./state-channel/get-all/controller";
 import GetStateDepositHolderAddressController from "./state-channel/get-state-deposit-holder-address/controller";
@@ -23,6 +24,7 @@ import WithdrawController from "./state-channel/withdraw/controller";
 
 export {
   CreateChannelController,
+  DeployStateDepositController,
   DepositController,
   GetAllChannelAddressesController,
   GetStateDepositHolderAddressController,

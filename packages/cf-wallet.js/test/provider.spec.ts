@@ -193,8 +193,7 @@ describe("CF.js Provider", () => {
     it("can create a channel between two parties", async () => {
       expect.assertions(3);
 
-      const transactionHash =
-        "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
+      const multisigAddress = "0x6001600160016001600160016001600160016001";
 
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.CREATE_CHANNEL,
@@ -206,7 +205,7 @@ describe("CF.js Provider", () => {
             jsonrpc: "2.0",
             result: {
               result: {
-                transactionHash
+                multisigAddress
               },
               type: Node.RpcMethodName.CREATE_CHANNEL
             },
@@ -216,6 +215,41 @@ describe("CF.js Provider", () => {
       );
 
       const response = await provider.createChannel(TEST_OWNERS);
+      expect(response).toEqual(multisigAddress);
+    });
+
+    it("can deploy a multisig between two parties", async () => {
+      expect.assertions(3);
+
+      const transactionHash =
+        "0x58e5a0fc7fbc849eddc100d44e86276168a8c7baaa5604e44ba6f5eb8ba1b7eb";
+
+      const multisigAddress = "0x6001600160016001600160016001600160016001";
+
+      nodeProvider.onMethodRequest(
+        Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+        request => {
+          expect(request.methodName).toBe(
+            Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER
+          );
+          const {
+            multisigAddress: testMultisigAddress
+          } = request.parameters as Node.DeployStateDepositHolderParams;
+          expect(testMultisigAddress).toBe(multisigAddress);
+          nodeProvider.simulateMessageFromNode({
+            jsonrpc: "2.0",
+            result: {
+              result: {
+                transactionHash
+              },
+              type: Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER
+            },
+            id: request.id
+          });
+        }
+      );
+
+      const response = await provider.deployStateDepositHolder(multisigAddress);
       expect(response).toEqual(transactionHash);
     });
 
