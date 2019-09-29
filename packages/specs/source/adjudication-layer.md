@@ -97,7 +97,7 @@ After a challenge has been finalized, the `ChallengeRegistry` can now be used to
 
 ## Interpreters
 
-Interpreters read outcomes in order to produce an effect. The interpreter must be compatible with the outcome type of the application as defined in the[app definition](./app-definition.md).
+Interpreters read outcomes in order to produce an effect. The interpreter must be compatible with the outcome type of the application as defined in the [app definition](./app-definition.md).
 
 Two interpreters are currently defined, although more can be added independently by add
 
