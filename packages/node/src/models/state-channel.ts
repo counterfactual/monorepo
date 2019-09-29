@@ -144,6 +144,15 @@ export class StateChannel {
     );
   }
 
+  public mostRecentlyProposedAppInstance(): AppInstanceProposal {
+    if (this.proposedAppInstances.size === 0) {
+      throw Error("There are no proposed AppInstances in this StateChannel");
+    }
+    return [...this.proposedAppInstances.values()].reduce((prev, current) =>
+      current.appSeqNo > prev.appSeqNo ? current : prev
+    );
+  }
+
   public getAppInstanceOfKind(address: string) {
     const appInstances = Array.from(this.appInstances.values()).filter(
       (appInstance: AppInstance) => {

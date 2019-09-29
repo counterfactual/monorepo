@@ -390,7 +390,7 @@ export function constructVirtualProposalRpc(
  * @param proposalParams The parameters of the installation proposal.
  * @param appInstanceProposal The proposed app instance contained in the Node.
  */
-export async function confirmProposedAppInstance(
+export function confirmProposedAppInstance(
   methodParams: NodeTypes.MethodParams,
   appInstanceProposal: AppInstanceProposal,
   nonInitiatingNode: boolean = false
@@ -419,22 +419,6 @@ export async function confirmProposedAppInstance(
   expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
-}
-
-export function confirmProposedVirtualAppInstance(
-  methodParams: NodeTypes.MethodParams,
-  proposedAppInstance: AppInstanceProposal,
-  nonInitiatingNode: boolean = false
-) {
-  confirmProposedAppInstance(
-    methodParams,
-    proposedAppInstance,
-    nonInitiatingNode
-  );
-  const proposalParams = methodParams as NodeTypes.ProposeInstallVirtualParams;
-  expect(proposalParams.intermediaryIdentifier).toEqual(
-    proposedAppInstance.intermediaryIdentifier
-  );
 }
 
 export function constructGetStateRpc(appInstanceId: string): Rpc {

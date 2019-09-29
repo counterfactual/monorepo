@@ -49,6 +49,25 @@ export type SetupParams = {
   multisigAddress: string;
 };
 
+type AppABIEncodings = {
+  stateEncoding: string;
+  actionEncoding: string | undefined;
+};
+
+export type ProposeInstallParams = {
+  initiatorXpub: string;
+  responderXpub: string;
+  appDefinition: string;
+  abiEncodings: AppABIEncodings;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress?: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress?: string;
+  timeout: BigNumber;
+  initialState: SolidityValueType;
+  outcomeType: OutcomeType;
+};
+
 export type UpdateParams = {
   initiatorXpub: string;
   responderXpub: string;
@@ -136,6 +155,7 @@ export type UninstallVirtualAppParams = {
 
 export type ProtocolParameters =
   | SetupParams
+  | ProposeInstallParams
   | UpdateParams
   | InstallParams
   | UninstallParams
