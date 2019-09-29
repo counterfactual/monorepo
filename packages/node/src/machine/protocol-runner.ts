@@ -12,14 +12,14 @@ import {
   InstallParams,
   InstallVirtualAppParams,
   Middleware,
+  ProposeInstallParams,
   ProtocolMessage,
   SetupParams,
   TakeActionParams,
   UninstallParams,
   UninstallVirtualAppParams,
   UpdateParams,
-  WithdrawParams,
-  ProposeInstallParams
+  WithdrawParams
 } from "./types";
 
 /**
