@@ -21,13 +21,7 @@ export const DB_NAMESPACE_CHANNEL = "channel";
  * appInstanceId to refer to the `AppInstance`, the Node does a look up
  * for the AppInstanceIdentityHash to get/set any state for that `AppInstance` inside
  * the relevant channel.
- *
-
-/**
- * Namespace providing a convenience lookup table from appInstanceId to multisig address.
  */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
-  "appInstanceIDToMultisigAddress";
 
 export const DB_NAMESPACE_ALL_COMMITMENTS = "allCommitments";
 
