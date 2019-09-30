@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "@counterfactual/types": "0.0.43",
-    "@firebase/app-types": "0.4.3",
-    "@firebase/util": "0.2.27",
+    "@firebase/app-types": "0.4.4",
+    "@firebase/util": "0.2.28",
     "@types/firebase": "3.2.1",
-    "rollup": "1.21.3",
+    "rollup": "1.22.0",
     "typescript": "3.5.3"
   },
   "dependencies": {
