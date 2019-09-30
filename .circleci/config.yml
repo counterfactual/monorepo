@@ -39,7 +39,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.19.0 # because docker image uses 1.13.0
 
       - run: yarn run patch-package
 
@@ -55,7 +55,7 @@ jobs:
       - <<: *save_code
 
       - <<: *restore_dep
-      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.19.0 # because docker image uses 1.13.0
       - run:
           name: "yarn --frozen-lockfile"
           command: yarn --frozen-lockfile
@@ -88,7 +88,7 @@ jobs:
       - checkout
       - <<: *restore_dep
 
-      - run: sudo npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: sudo npm i -g yarn@1.19.0 # because docker image uses 1.13.0
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
@@ -109,7 +109,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.19.0 # because docker image uses 1.13.0
 
       - run: yarn lint
 
@@ -125,7 +125,7 @@ jobs:
 
       - run: apt-get install -y jq # using this to mutate package.json
 
-      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.19.0 # because docker image uses 1.13.0
 
       - run:
           name: Check root yarn.lock
@@ -141,7 +141,7 @@ jobs:
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.19.0 # because docker image uses 1.13.0
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
