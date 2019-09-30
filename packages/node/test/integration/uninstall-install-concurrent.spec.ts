@@ -20,6 +20,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(7500);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec when happening concurrently - install / uninstall", () => {
   let multisigAddress: string;
   let nodeA: Node;
@@ -44,7 +46,7 @@ describe("Node method follows spec when happening concurrently - install / unins
 
       installCall = makeProposeCall(
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         /* initialState */ undefined,
         One,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -70,28 +72,24 @@ describe("Node method follows spec when happening concurrently - install / unins
     it("install app with ETH then uninstall and install apps simultaneously from the same node", async done => {
       let completedActions = 0;
 
-      nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-        makeInstallCall(nodeB, msg.data.appInstanceId);
-      });
+      nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) =>
+        makeInstallCall(nodeB, msg.data.appInstanceId)
+      );
 
       nodeA.once(NODE_EVENTS.INSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       // if this is on nodeA, test fails
       nodeB.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       const installCall = makeProposeCall(
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         /* initialState */ undefined,
         One,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -106,28 +104,24 @@ describe("Node method follows spec when happening concurrently - install / unins
     it("install app with ETH then uninstall and install apps simultaneously from separate nodes", async done => {
       let completedActions = 0;
 
-      nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) => {
-        makeInstallCall(nodeB, msg.data.appInstanceId);
-      });
+      nodeB.once(NODE_EVENTS.PROPOSE_INSTALL, (msg: ProposeMessage) =>
+        makeInstallCall(nodeB, msg.data.appInstanceId)
+      );
 
       nodeA.once(NODE_EVENTS.INSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       // if this is on nodeB, test fails
       nodeA.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       const installCall = makeProposeCall(
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         /* initialState */ undefined,
         One,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,

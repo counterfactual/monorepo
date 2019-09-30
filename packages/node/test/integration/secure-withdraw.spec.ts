@@ -15,6 +15,7 @@ import {
   constructWithdrawCommitmentRpc,
   constructWithdrawRpc,
   createChannel,
+  deployStateDepositHolder,
   deposit,
   transferERC20Tokens
 } from "./utils";
@@ -35,6 +36,9 @@ describe("Node method follows spec - withdraw", () => {
 
     multisigAddress = await createChannel(nodeA, nodeB);
     expect(multisigAddress).toBeDefined();
+
+    const txHash = await deployStateDepositHolder(nodeA, multisigAddress);
+    expect(txHash).toBeDefined();
 
     nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   });

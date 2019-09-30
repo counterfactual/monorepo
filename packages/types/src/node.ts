@@ -88,6 +88,7 @@ export namespace Node {
   export enum RpcMethodName {
     CREATE_CHANNEL = "chan_create",
     DEPOSIT = "chan_deposit",
+    DEPLOY_STATE_DEPOSIT_HOLDER = "chan_deployStateDepositHolder",
     GET_CHANNEL_ADDRESSES = "chan_getChannelAddresses",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
@@ -131,15 +132,14 @@ export namespace Node {
     WITHDRAWAL_FAILED = "withdrawalFailed",
     WITHDRAWAL_STARTED = "withdrawalStartedEvent",
     PROPOSE_INSTALL = "proposeInstallEvent",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallEvent",
     PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
     WITHDRAW_EVENT = "withdrawEvent",
-    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
+    REJECT_INSTALL_VIRTUAL = "rejectInstallEvent"
   }
 
   export type CreateChannelParams = {
     owners: string[];
-    retryCount?: number;
   };
 
   export type CreateChannelResult = {
@@ -149,7 +149,7 @@ export namespace Node {
   };
 
   export type CreateChannelTransactionResult = {
-    transactionHash: string;
+    multisigAddress: string;
   };
 
   export type CreateMultisigParams = {
@@ -158,6 +158,15 @@ export namespace Node {
 
   export type CreateMultisigResult = {
     multisigAddress: string;
+  };
+
+  export type DeployStateDepositHolderParams = {
+    multisigAddress: string;
+    retryCount?: number;
+  };
+
+  export type DeployStateDepositHolderResult = {
+    transactionHash: string;
   };
 
   export type DepositParams = {
@@ -343,7 +352,8 @@ export namespace Node {
     | TakeActionParams
     | UninstallParams
     | CreateChannelParams
-    | GetChannelAddressesParams;
+    | GetChannelAddressesParams
+    | DeployStateDepositHolderParams;
   export type MethodResult =
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
@@ -357,7 +367,8 @@ export namespace Node {
     | TakeActionResult
     | UninstallResult
     | CreateChannelResult
-    | GetChannelAddressesResult;
+    | GetChannelAddressesResult
+    | DeployStateDepositHolderResult;
 
   export type CreateMultisigEventData = {
     owners: string[];

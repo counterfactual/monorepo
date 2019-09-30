@@ -4,8 +4,8 @@
     "packages/*"
   ],
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "scripts": {
     "build": "lerna run build --ignore @counterfactual/wallet-ui && lerna run build --scope=**/wallet-ui",
@@ -35,7 +35,7 @@
     "postinstall-postinstall": "2.0.0",
     "prettier": "1.18.2",
     "tslint": "5.20.0",
-    "tslint-config-airbnb": "5.11.1",
+    "tslint-config-airbnb": "5.11.2",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
     "typescript": "3.5.3"

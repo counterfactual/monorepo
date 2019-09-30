@@ -9,6 +9,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
 import { prettyPrintObject } from "../utils";
 
+import { AppInstanceProposal, AppInstanceProposalJSON } from ".";
 import { AppInstance } from "./app-instance";
 import {
   CoinTransferMap,
@@ -59,6 +60,7 @@ type SingleAssetTwoPartyIntermediaryAgreementJSON = {
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly userNeuteredExtendedKeys: string[];
+  readonly proposedAppInstances: [string, AppInstanceProposalJSON][];
   readonly appInstances: [string, AppInstanceJson][];
   readonly singleAssetTwoPartyIntermediaryAgreements: [
     string,
@@ -73,6 +75,10 @@ export class StateChannel {
   constructor(
     public readonly multisigAddress: string,
     public readonly userNeuteredExtendedKeys: string[],
+    readonly proposedAppInstances: ReadonlyMap<
+      string,
+      AppInstanceProposal
+    > = new Map<string, AppInstanceProposal>([]),
     readonly appInstances: ReadonlyMap<string, AppInstance> = new Map<
       string,
       AppInstance
@@ -138,6 +144,15 @@ export class StateChannel {
     );
   }
 
+  public mostRecentlyProposedAppInstance(): AppInstanceProposal {
+    if (this.proposedAppInstances.size === 0) {
+      throw Error("There are no proposed AppInstances in this StateChannel");
+    }
+    return [...this.proposedAppInstances.values()].reduce((prev, current) =>
+      current.appSeqNo > prev.appSeqNo ? current : prev
+    );
+  }
+
   public getAppInstanceOfKind(address: string) {
     const appInstances = Array.from(this.appInstances.values()).filter(
       (appInstance: AppInstance) => {
@@ -168,10 +183,8 @@ export class StateChannel {
     return this.getSigningKeysFor(this.monotonicNumProposedApps);
   }
 
-  public bumpProposedApps(): StateChannel {
-    return this.build({
-      monotonicNumProposedApps: this.monotonicNumProposedApps + 1
-    });
+  public get hasFreeBalance(): boolean {
+    return !!this.freeBalanceAppInstance;
   }
 
   public get freeBalance(): AppInstance {
@@ -220,6 +233,7 @@ export class StateChannel {
     multisigAddress?: string;
     userNeuteredExtendedKeys?: string[];
     appInstances?: ReadonlyMap<string, AppInstance>;
+    proposedAppInstances?: ReadonlyMap<string, AppInstanceProposal>;
     singleAssetTwoPartyIntermediaryAgreements?: ReadonlyMap<
       string,
       SingleAssetTwoPartyIntermediaryAgreement
@@ -231,6 +245,7 @@ export class StateChannel {
     return new StateChannel(
       args.multisigAddress || this.multisigAddress,
       args.userNeuteredExtendedKeys || this.userNeuteredExtendedKeys,
+      args.proposedAppInstances || this.proposedAppInstances,
       args.appInstances || this.appInstances,
       args.singleAssetTwoPartyIntermediaryAgreements ||
         this.singleAssetTwoPartyIntermediaryAgreements,
@@ -299,6 +314,7 @@ export class StateChannel {
     return new StateChannel(
       multisigAddress,
       userNeuteredExtendedKeys,
+      new Map<string, AppInstanceProposal>([]),
       new Map<string, AppInstance>([]),
       new Map<string, SingleAssetTwoPartyIntermediaryAgreement>(),
       createFreeBalance(
@@ -317,6 +333,7 @@ export class StateChannel {
     return new StateChannel(
       multisigAddress,
       userNeuteredExtendedKeys,
+      new Map<string, AppInstanceProposal>([]),
       new Map<string, AppInstance>(),
       new Map<string, SingleAssetTwoPartyIntermediaryAgreement>(),
       // Note that this FreeBalance is undefined because a channel technically
@@ -324,6 +341,31 @@ export class StateChannel {
       undefined,
       1
     );
+  }
+
+  public addProposal(proposal: AppInstanceProposal) {
+    const proposedAppInstances = new Map<string, AppInstanceProposal>(
+      this.proposedAppInstances.entries()
+    );
+
+    proposedAppInstances.set(proposal.identityHash, proposal);
+
+    return this.build({
+      proposedAppInstances,
+      monotonicNumProposedApps: this.monotonicNumProposedApps + 1
+    });
+  }
+
+  public removeProposal(appInstanceId: string) {
+    const proposedAppInstances = new Map<string, AppInstanceProposal>(
+      this.proposedAppInstances.entries()
+    );
+
+    proposedAppInstances.delete(appInstanceId);
+
+    return this.build({
+      proposedAppInstances
+    });
   }
 
   public addAppInstance(appInstance: AppInstance) {
@@ -488,6 +530,11 @@ export class StateChannel {
     return {
       multisigAddress: this.multisigAddress,
       userNeuteredExtendedKeys: this.userNeuteredExtendedKeys,
+      proposedAppInstances: [...this.proposedAppInstances.entries()].map(
+        (proposal): [string, AppInstanceProposalJSON] => {
+          return [proposal[0], proposal[1].toJson()];
+        }
+      ),
       appInstances: [...this.appInstances.entries()].map((appInstanceEntry): [
         string,
         AppInstanceJson
@@ -517,6 +564,14 @@ export class StateChannel {
     return new StateChannel(
       json.multisigAddress,
       json.userNeuteredExtendedKeys,
+      new Map(
+        [...Object.values(json.proposedAppInstances || [])].map((proposal): [
+          string,
+          AppInstanceProposal
+        ] => {
+          return [proposal[0], AppInstanceProposal.fromJson(proposal[1])];
+        })
+      ),
       new Map(
         [...Object.values(json.appInstances || [])].map((appInstanceEntry): [
           string,
@@ -565,12 +620,6 @@ export class StateChannel {
     const multisigAddress = await store.getMultisigAddressFromAppInstance(
       appInstanceId
     );
-
-    if (!multisigAddress) {
-      throw Error(
-        `No multisig address found. Queried for AppInstanceId: ${appInstanceId}`
-      );
-    }
 
     return StateChannel.getPeersAddressFromChannel(
       myIdentifier,

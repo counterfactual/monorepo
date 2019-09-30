@@ -3,6 +3,7 @@ import { ProtocolExecutionFlow } from "../machine/types";
 
 import { INSTALL_PROTOCOL } from "./install";
 import { INSTALL_VIRTUAL_APP_PROTOCOL } from "./install-virtual-app";
+import { PROPOSE_PROTOCOL } from "./propose";
 import { SETUP_PROTOCOL } from "./setup";
 import { TAKE_ACTION_PROTOCOL } from "./take-action";
 import { UNINSTALL_PROTOCOL } from "./uninstall";
@@ -13,6 +14,7 @@ import { WITHDRAW_PROTOCOL } from "./withdraw";
 const protocolsByName = {
   [Protocol.Install]: INSTALL_PROTOCOL,
   [Protocol.InstallVirtualApp]: INSTALL_VIRTUAL_APP_PROTOCOL,
+  [Protocol.Propose]: PROPOSE_PROTOCOL,
   [Protocol.Setup]: SETUP_PROTOCOL,
   [Protocol.TakeAction]: TAKE_ACTION_PROTOCOL,
   [Protocol.Uninstall]: UNINSTALL_PROTOCOL,
@@ -37,5 +39,6 @@ export {
   TAKE_ACTION_PROTOCOL,
   UNINSTALL_PROTOCOL,
   UPDATE_PROTOCOL,
+  PROPOSE_PROTOCOL,
   WITHDRAW_PROTOCOL
 };

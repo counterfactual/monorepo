@@ -250,7 +250,7 @@ export class NodeWrapper {
 
   public static async createStateChannelFor(
     nodeAddress: string
-  ): Promise<NodeTypes.CreateChannelTransactionResult> {
+  ): Promise<NodeTypes.DeployStateDepositHolderResult> {
     if (!NodeWrapper.node) {
       throw new Error(
         "Node hasn't been instantiated yet. Call NodeWrapper.createNode() first."
@@ -259,7 +259,7 @@ export class NodeWrapper {
 
     const { node } = NodeWrapper;
 
-    const { result } = await node.rpcRouter.dispatch(
+    let { result } = await node.rpcRouter.dispatch(
       jsonRpcDeserialize({
         id: Date.now(),
         method: NodeTypes.RpcMethodName.CREATE_CHANNEL,
@@ -270,7 +270,18 @@ export class NodeWrapper {
       })
     );
 
-    return result as NodeTypes.CreateChannelTransactionResult;
+    result = await node.rpcRouter.dispatch(
+      jsonRpcDeserialize({
+        id: Date.now(),
+        method: NodeTypes.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+        params: {
+          multisigAddress: result.multisigAddress
+        },
+        jsonrpc: "2.0"
+      })
+    );
+
+    return result as NodeTypes.DeployStateDepositHolderResult;
   }
 }
 

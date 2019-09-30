@@ -2,19 +2,21 @@ import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server
 import { Node as NodeTypes } from "@counterfactual/types";
 
 import { Node } from "../../src";
-import { NODE_EVENTS, ProposeVirtualMessage } from "../../src/types";
+import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import {
   SetupContext,
   setupWithMemoryMessagingAndPostgresStore
 } from "./setup";
 import {
-  confirmProposedVirtualAppInstance,
+  confirmProposedAppInstance,
   constructRejectInstallRpc,
   createChannel,
   getProposedAppInstances,
   makeVirtualProposeCall
 } from "./utils";
+
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeA: Node;
@@ -49,21 +51,15 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
 
         nodeC.on(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-          async (msg: ProposeVirtualMessage) => {
+          async (msg: ProposeMessage) => {
             const { appInstanceId } = msg.data;
 
             const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstance(
-              proposalParams,
-              proposedAppInstanceA
-            );
+            confirmProposedAppInstance(proposalParams, proposedAppInstanceA);
 
-            confirmProposedVirtualAppInstance(
-              proposalParams,
-              proposedAppInstanceC
-            );
+            confirmProposedAppInstance(proposalParams, proposedAppInstanceC);
 
             expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
@@ -84,7 +80,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           nodeA,
           nodeC,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          TicTacToeApp
         );
 
         proposalParams = result.params;

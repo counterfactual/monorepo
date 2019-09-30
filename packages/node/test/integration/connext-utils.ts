@@ -36,6 +36,10 @@ type CoinTransfer = {
   amount: BigNumber;
 };
 
+const { SimpleTransferApp, UnidirectionalLinkedTransferApp } = global[
+  "networkContext"
+] as NetworkContextForTestSuite;
+
 /**
  * This file contains any utils functions that are useful when testing
  * Connext specific applications and errors.
@@ -49,10 +53,6 @@ export async function makeSimpleTransfer(
   receiver: Node,
   amount: BigNumber = One
 ) {
-  // install a virtual transfer app
-  const transferDef = (global["networkContext"] as NetworkContextForTestSuite)
-    .SimpleTransferApp;
-
   // create transfer app with default transfer value of 1
   const initialState = initialSimpleTransferState(
     sender.freeBalanceAddress,
@@ -64,7 +64,7 @@ export async function makeSimpleTransfer(
     sender,
     intermediary,
     receiver,
-    transferDef,
+    SimpleTransferApp,
     initialState
   );
 
@@ -89,8 +89,7 @@ export async function installLink(
   state: UnidirectionalLinkedTransferAppState,
   action: UnidirectionalLinkedTransferAppAction
 ): Promise<string> {
-  const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
-    .UnidirectionalLinkedTransferApp;
+  const linkDef = UnidirectionalLinkedTransferApp;
 
   const res = await installApp(
     funder,
@@ -147,8 +146,7 @@ export async function installAndRedeemLink(
   redeemer: Node,
   stateAndAction: { action: any; state: any }
 ) {
-  const linkDef = (global["networkContext"] as NetworkContextForTestSuite)
-    .UnidirectionalLinkedTransferApp;
+  const linkDef = UnidirectionalLinkedTransferApp;
 
   const hubApps = await getApps(intermediary);
 

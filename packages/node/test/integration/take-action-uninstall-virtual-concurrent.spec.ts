@@ -20,6 +20,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently taking action on regular app and uninstallling virtual app without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -54,12 +56,10 @@ describe("Concurrently taking action on regular app and uninstallling virtual ap
     );
 
     // install a virtual app to uninstall
-    const appDef = (global["networkContext"] as NetworkContextForTestSuite)
-      .TicTacToeApp;
-    virtualId = await installVirtualApp(nodeA, nodeB, nodeC, appDef);
+    virtualId = await installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
 
     // install regular app to take action
-    [appId] = await installApp(nodeA, nodeB, appDef);
+    [appId] = await installApp(nodeA, nodeB, TicTacToeApp);
   });
 
   it("can handle concurrent uninstall virtual and take action by the same node", async done => {

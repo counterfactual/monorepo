@@ -3,8 +3,8 @@
   "version": "0.1.2",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "description": "Counterfactual Types",
   "scripts": {
@@ -19,7 +19,7 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@types/node": "12.7.5",
+    "@types/node": "12.7.8",
     "truffle-contract": "4.0.31"
   }
 }

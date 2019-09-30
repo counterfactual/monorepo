@@ -22,6 +22,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently installing virtual and regular applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -65,21 +67,17 @@ describe("Concurrently installing virtual and regular applications without issue
 
     nodeA.on(NODE_EVENTS.INSTALL, () => {
       completedInstalls += 1;
-      if (completedInstalls === 2) {
-        done();
-      }
+      if (completedInstalls === 2) done();
     });
 
     nodeA.on(NODE_EVENTS.INSTALL_VIRTUAL, () => {
       completedInstalls += 1;
-      if (completedInstalls === 2) {
-        done();
-      }
+      if (completedInstalls === 2) done();
     });
 
     const proposeRpc = makeProposeCall(
       nodeB,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+      TicTacToeApp,
       /* initialState */ undefined,
       One,
       CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -88,10 +86,8 @@ describe("Concurrently installing virtual and regular applications without issue
     );
 
     const makeVirtualProposalRpc = () => {
-      const appContext = getAppContext(
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-        /* initialState */ undefined
-      );
+      const appContext = getAppContext(TicTacToeApp);
+
       return constructVirtualProposalRpc(
         nodeC.publicIdentifier,
         nodeB.publicIdentifier,

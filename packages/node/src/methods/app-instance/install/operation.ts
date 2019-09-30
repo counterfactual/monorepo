@@ -49,7 +49,11 @@ export async function install(
     }
   );
 
-  await store.saveRealizedProposedAppInstance(proposal);
+  await store.saveStateChannel(
+    (await store.getChannelFromAppInstanceID(appInstanceId)).removeProposal(
+      appInstanceId
+    )
+  );
 
   return proposal;
 }
