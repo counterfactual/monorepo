@@ -1,13 +1,13 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.2.80",
+  "version": "0.2.82",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "scripts": {
     "build": "yarn build:ts && yarn build:rollup",
@@ -54,11 +54,11 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.6",
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.10",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.11",
     "@counterfactual/cf.js": "0.2.6",
     "@counterfactual/firebase-client": "0.0.6",
-    "@counterfactual/types": "0.0.42",
+    "@counterfactual/types": "0.0.43",
     "ethers": "4.0.37",
     "eventemitter3": "^4.0.0",
     "loglevel": "^1.6.1",

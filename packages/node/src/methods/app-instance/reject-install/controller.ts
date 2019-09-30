@@ -33,7 +33,9 @@ export default class RejectInstallController extends NodeController {
       return rejectInstallVirtualController(requestHandler, params);
     }
 
-    await store.removeAppInstanceProposal(appInstanceId);
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    await store.saveStateChannel(stateChannel.removeProposal(appInstanceId));
 
     const rejectProposalMsg: RejectProposalMessage = {
       from: publicIdentifier,

@@ -6,12 +6,14 @@ import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 
 import { setup, SetupContext } from "./setup";
 import {
-  confirmProposedVirtualAppInstance,
+  confirmProposedAppInstance,
   constructRejectInstallRpc,
   createChannel,
   getProposedAppInstances,
   makeVirtualProposeCall
 } from "./utils";
+
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
 
 describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeA: Node;
@@ -32,34 +34,21 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
       it("sends proposal with non-null initial state", async done => {
         await createChannel(nodeA, nodeB);
         await createChannel(nodeB, nodeC);
-        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
 
         nodeA.on(NODE_EVENTS.REJECT_INSTALL_VIRTUAL, async () => {
           expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
           done();
         });
 
-        nodeC.on(
+        nodeC.once(
           NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
-          async (msg: ProposeMessage) => {
-            const { appInstanceId } = msg.data;
-            const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
+          async ({ data: { params, appInstanceId } }: ProposeMessage) => {
             const [proposedAppInstanceC] = await getProposedAppInstances(nodeC);
 
-            confirmProposedVirtualAppInstance(
-              proposalParams,
-              proposedAppInstanceA
-            );
-            confirmProposedVirtualAppInstance(
-              proposalParams,
-              proposedAppInstanceC
-            );
+            confirmProposedAppInstance(params, proposedAppInstanceC);
 
             expect(proposedAppInstanceC.proposedByIdentifier).toEqual(
               nodeA.publicIdentifier
-            );
-            expect(proposedAppInstanceA.identityHash).toEqual(
-              proposedAppInstanceC.identityHash
             );
 
             const rejectReq = constructRejectInstallRpc(appInstanceId);
@@ -68,13 +57,16 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           }
         );
 
-        const result = await makeVirtualProposeCall(
+        const { params } = await makeVirtualProposeCall(
           nodeA,
           nodeC,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+          TicTacToeApp
         );
-        proposalParams = result.params;
+
+        const [proposedAppInstanceA] = await getProposedAppInstances(nodeA);
+
+        confirmProposedAppInstance(params, proposedAppInstanceA);
       });
     }
   );

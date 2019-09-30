@@ -25,6 +25,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(7500);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - uninstall", () => {
   let multisigAddress: string;
   let nodeA: Node;
@@ -57,19 +59,18 @@ describe("Node method follows spec - uninstall", () => {
         appIds.push(msg.data.params.appInstanceId);
       });
 
-      const proposeRpc = () =>
-        makeProposeCall(
-          nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          /* initialState */ undefined,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        );
+      const proposeRpc = makeProposeCall(
+        nodeB,
+        TicTacToeApp,
+        /* initialState */ undefined,
+        One,
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        One,
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      );
 
-      nodeA.rpcRouter.dispatch(proposeRpc());
-      nodeA.rpcRouter.dispatch(proposeRpc());
+      nodeA.rpcRouter.dispatch(proposeRpc);
+      nodeA.rpcRouter.dispatch(proposeRpc);
 
       while (appIds.length !== 2) {
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -82,9 +83,7 @@ describe("Node method follows spec - uninstall", () => {
       nodeB.on(NODE_EVENTS.UNINSTALL, (msg: UninstallMessage) => {
         expect(appIds.includes(msg.data.appInstanceId)).toBe(true);
         uninstalledApps += 1;
-        if (uninstalledApps === 2) {
-          done();
-        }
+        if (uninstalledApps === 2) done();
       });
     });
   });

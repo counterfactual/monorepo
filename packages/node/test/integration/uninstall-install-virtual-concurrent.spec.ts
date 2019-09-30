@@ -21,6 +21,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(7500);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec when happening concurrently - install virtual / uninstall", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -54,8 +56,7 @@ describe("Node method follows spec when happening concurrently - install virtual
         parseEther("2")
       );
 
-      const appDef = (global["networkContext"] as NetworkContextForTestSuite)
-        .TicTacToeApp;
+      const appDef = TicTacToeApp;
 
       // install regular app
       installedAppInstanceId = await new Promise(async resolve => {
@@ -86,25 +87,16 @@ describe("Node method follows spec when happening concurrently - install virtual
 
       nodeB.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       nodeA.rpcRouter.dispatch(constructUninstallRpc(installedAppInstanceId));
-      installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     });
 
     it("separate nodes make the uninstall and install virtual calls", async done => {
@@ -112,25 +104,16 @@ describe("Node method follows spec when happening concurrently - install virtual
 
       nodeA.once(NODE_EVENTS.UNINSTALL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       nodeA.once(NODE_EVENTS.INSTALL_VIRTUAL, () => {
         completedActions += 1;
-        if (completedActions === 2) {
-          done();
-        }
+        if (completedActions === 2) done();
       });
 
       nodeB.rpcRouter.dispatch(constructUninstallRpc(installedAppInstanceId));
-      installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     });
   });
 });

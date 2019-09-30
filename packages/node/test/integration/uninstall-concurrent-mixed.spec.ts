@@ -27,8 +27,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
-// TODO: this test isnt working bc of the concurrency issues that are being investigated now.
-// reenable this test when it works
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently uninstalling virtual and regular applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -89,7 +89,7 @@ describe("Concurrently uninstalling virtual and regular applications without iss
       nodeA.rpcRouter.dispatch(
         makeProposeCall(
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           /* initialState */ undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -104,22 +104,18 @@ describe("Concurrently uninstalling virtual and regular applications without iss
       nodeA,
       nodeB,
       nodeC,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+      TicTacToeApp
     );
 
     // set up uninstall handlers
     nodeC.on(NODE_EVENTS.UNINSTALL_VIRTUAL, () => {
       totalAppsUninstalled += 1;
-      if (totalAppsUninstalled === 2) {
-        done();
-      }
+      if (totalAppsUninstalled === 2) done();
     });
 
     nodeA.on(NODE_EVENTS.UNINSTALL, () => {
       totalAppsUninstalled += 1;
-      if (totalAppsUninstalled === 2) {
-        done();
-      }
+      if (totalAppsUninstalled === 2) done();
     });
 
     // uninstall both simultaneously

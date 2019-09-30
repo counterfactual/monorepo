@@ -1,11 +1,11 @@
 {
   "name": "@counterfactual/cf-funding-protocol-contracts",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Smart contracts for the Counterfactual multisig funding protocol",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "files": [
     "build",
@@ -32,8 +32,8 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.6",
-    "@counterfactual/types": "0.0.42",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
+    "@counterfactual/types": "0.0.43",
     "@counterfactual/typescript-typings": "0.1.2",
     "@types/node": "12.7.8",
     "@types/chai": "4.2.3",

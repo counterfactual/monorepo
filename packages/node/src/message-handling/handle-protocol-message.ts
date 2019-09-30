@@ -79,7 +79,11 @@ export async function handleReceivedProtocolMessage(
         }
       }
       if (proposal) {
-        await store.saveRealizedProposedAppInstance(proposal);
+        await store.saveStateChannel(
+          (await store.getChannelFromAppInstanceID(
+            appInstanceId
+          )).removeProposal(appInstanceId)
+        );
       }
     }
   }
@@ -103,6 +107,23 @@ function getOutgoingEventDataFromProtocol(
   const baseEvent = { from: publicIdentifier };
 
   switch (protocol) {
+    case Protocol.Propose:
+      return {
+        ...baseEvent,
+        type: NODE_EVENTS.PROPOSE_INSTALL,
+        data: {
+          params,
+          appInstanceId: stateChannelsMap
+            .get(
+              getCreate2MultisigAddress(
+                [params.initiatorXpub, params.responderXpub],
+                networkContext.ProxyFactory,
+                networkContext.MinimumViableMultisig
+              )
+            )!
+            .mostRecentlyProposedAppInstance().identityHash
+        }
+      };
     case Protocol.Install:
       return {
         ...baseEvent,
@@ -260,6 +281,7 @@ async function getQueueNamesListByProtocolName(
     case Protocol.Install:
     case Protocol.Setup:
     case Protocol.Withdraw:
+    case Protocol.Propose:
       const { multisigAddress } = params as
         | InstallParams
         | SetupParams

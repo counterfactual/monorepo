@@ -22,6 +22,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently taking action on virtual apps without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -63,12 +65,7 @@ describe("Concurrently taking action on virtual apps without issue", () => {
     });
 
     for (const i of Array(INSTALLED_APPS)) {
-      await installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      await installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     }
 
     while (appIds.length !== INSTALLED_APPS) {
@@ -76,11 +73,10 @@ describe("Concurrently taking action on virtual apps without issue", () => {
     }
 
     let appsTakenActionOn = 0;
-    nodeC.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
+
+    nodeC.on(NODE_EVENTS.UPDATE_STATE, () => {
       appsTakenActionOn += 1;
-      if (appsTakenActionOn === 2) {
-        done();
-      }
+      if (appsTakenActionOn === 2) done();
     });
 
     const takeActionReq = (appId: string) =>

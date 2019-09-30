@@ -6,8 +6,8 @@
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "main": "src/index.ts",
   "directories": {
@@ -39,8 +39,8 @@
   },
   "dependencies": {
     "@counterfactual/firebase-client": "0.0.6",
-    "@counterfactual/node": "0.2.80",
-    "@counterfactual/types": "0.0.42",
+    "@counterfactual/node": "0.2.82",
+    "@counterfactual/types": "0.0.43",
     "@counterfactual/typescript-typings": "0.1.2",
     "@ebryn/jsonapi-ts": "0.1.17",
     "@koa/cors": "^3.0.0",

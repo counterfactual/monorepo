@@ -5,6 +5,8 @@ import { INVALID_ACTION, Node } from "../../src";
 import { setup, SetupContext } from "./setup";
 import { constructTakeActionRpc, createChannel, installApp } from "./utils";
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - fails with improper action taken", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -27,11 +29,8 @@ describe("Node method follows spec - fails with improper action taken", () => {
         }
       };
       await createChannel(nodeA, nodeB);
-      const [appInstanceId] = await installApp(
-        nodeA,
-        nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+
+      const [appInstanceId] = await installApp(nodeA, nodeB, TicTacToeApp);
 
       const takeActionReq = constructTakeActionRpc(appInstanceId, validAction);
 

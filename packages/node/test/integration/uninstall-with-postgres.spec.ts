@@ -15,6 +15,8 @@ import {
   installApp
 } from "./utils";
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - uninstall", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -43,7 +45,7 @@ describe("Node method follows spec - uninstall", () => {
       const [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         initialState
       );
 

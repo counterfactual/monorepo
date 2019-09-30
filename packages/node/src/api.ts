@@ -1,7 +1,4 @@
-import {
-  handleReceivedProposalMessage,
-  handleRejectProposalMessage
-} from "./message-handling/handle-node-message";
+import { handleRejectProposalMessage } from "./message-handling/handle-node-message";
 import { handleReceivedProtocolMessage } from "./message-handling/handle-protocol-message";
 import {
   CreateChannelController,
@@ -95,13 +92,6 @@ export const createRpcRouter = (requestHandler: RequestHandler) =>
   new RpcRouter({ controllers, requestHandler });
 
 export const eventNameToImplementation = {
-  [NODE_EVENTS.PROPOSE_INSTALL]: handleReceivedProposalMessage,
-  [NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL]: (rh, p) => {
-    console.warn(
-      "WARNING: PROPOSE_INSTALL_VIRTUAL is deprecated. Replace usage with PROPOSE_INSTALL."
-    );
-    return handleReceivedProposalMessage(rh, p);
-  },
   [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: handleReceivedProtocolMessage,
   [NODE_EVENTS.REJECT_INSTALL]: handleRejectProposalMessage,
   [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: handleRejectProposalMessage

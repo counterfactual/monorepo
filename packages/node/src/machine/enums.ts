@@ -30,6 +30,7 @@ enum Protocol {
   Install = "install",
   InstallVirtualApp = "install-virtual-app",
   Setup = "setup",
+  Propose = "propose",
   TakeAction = "takeAction",
   Uninstall = "uninstall",
   UninstallVirtualApp = "uninstall-virtual-app",

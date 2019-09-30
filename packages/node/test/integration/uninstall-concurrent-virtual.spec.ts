@@ -21,6 +21,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(15000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Concurrently uninstalling virtual and regular applications without issue", () => {
   let multisigAddressAB: string;
   let multisigAddressBC: string;
@@ -63,12 +65,7 @@ describe("Concurrently uninstalling virtual and regular applications without iss
     });
 
     for (const i of Array(INSTALLED_APPS)) {
-      await installVirtualApp(
-        nodeA,
-        nodeB,
-        nodeC,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-      );
+      await installVirtualApp(nodeA, nodeB, nodeC, TicTacToeApp);
     }
 
     while (appIds.length !== INSTALLED_APPS) {
@@ -90,9 +87,7 @@ describe("Concurrently uninstalling virtual and regular applications without iss
         // NOTE: this expect fails
         // const apps = (await getInstalledAppInstances(nodeC)).length;
         // expect(INSTALLED_APPS - apps).toEqual(uninstalledApps);
-        if (uninstalledApps === 2) {
-          done();
-        }
+        if (uninstalledApps === 2) done();
       }
     );
   });

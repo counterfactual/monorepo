@@ -5,8 +5,8 @@
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.17.3",
-    "node": "10.15.3"
+    "yarn": "^1.17.3",
+    "node": "^10.15.3"
   },
   "files": [
     "build",
@@ -26,7 +26,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.6",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
     "@types/chai": "4.2.3",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",

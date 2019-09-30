@@ -109,7 +109,7 @@ export class Provider {
    * @async
    *
    * @param owners The channel's owning addresses
-   * @return transactionHash for the channel creation
+   * @return multisigAddress for the channel creation
    */
   async createChannel(owners: string[]): Promise<string> {
     const response = await this.callRawNodeMethod(
@@ -120,22 +120,31 @@ export class Provider {
     );
 
     const {
-      transactionHash
+      multisigAddress
     } = response.result as Node.CreateChannelTransactionResult;
 
-    return transactionHash;
+    return multisigAddress;
+  }
 
-    // ALTERNATIVELY: return the actual multisig address??
-    //
-    // return new Promise((resolve) => {
-    //   this.once(
-    //     EventType.CREATE_CHANNEL,
-    //     (createChannelMsg: CounterfactualEvent) => {
-    //       const { multisigAddress } = createChannelMsg.data as Node.CreateChannelResult;
-    //       resolve(multisigAddress);
-    //     }
-    //   );
-    // });
+  /**
+   * Deploys a multisignature wallet contract for the channel.
+   *
+   * @param multisigAddress address of the multisig to be deployed
+   * @return transactionHash of deployment transaction
+   */
+  async deployStateDepositHolder(multisigAddress: string): Promise<string> {
+    const deployResponse = await this.callRawNodeMethod(
+      Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+      {
+        multisigAddress
+      }
+    );
+
+    const {
+      transactionHash
+    } = deployResponse.result as Node.DeployStateDepositHolderResult;
+
+    return transactionHash;
   }
 
   /**

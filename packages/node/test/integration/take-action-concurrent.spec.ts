@@ -27,6 +27,8 @@ expect.extend({ toBeLt });
 
 jest.setTimeout(7500);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - toke action", () => {
   let multisigAddress: string;
   let nodeA: Node;
@@ -43,6 +45,7 @@ describe("Node method follows spec - toke action", () => {
 
     it("can take actions on two different apps concurrently", async done => {
       const appIds: string[] = [];
+
       await collateralizeChannel(
         multisigAddress,
         nodeA,
@@ -58,30 +61,28 @@ describe("Node method follows spec - toke action", () => {
         appIds.push(msg.data.params.appInstanceId);
       });
 
-      const proposeRpc = () =>
-        makeProposeCall(
-          nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          /* initialState */ undefined,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
-        );
+      const proposeRpc = makeProposeCall(
+        nodeB,
+        TicTacToeApp,
+        /* initialState */ undefined,
+        One,
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+        One,
+        CONVENTION_FOR_ETH_TOKEN_ADDRESS
+      );
 
-      nodeA.rpcRouter.dispatch(proposeRpc());
-      nodeA.rpcRouter.dispatch(proposeRpc());
+      nodeA.rpcRouter.dispatch(proposeRpc);
+      nodeA.rpcRouter.dispatch(proposeRpc);
 
       while (appIds.length !== 2) {
         await new Promise(resolve => setTimeout(resolve, 20));
       }
 
       let appsTakenActionOn = 0;
-      nodeB.on(NODE_EVENTS.UPDATE_STATE, async (msg: UpdateStateMessage) => {
+
+      nodeB.on(NODE_EVENTS.UPDATE_STATE, () => {
         appsTakenActionOn += 1;
-        if (appsTakenActionOn === 2) {
-          done();
-        }
+        if (appsTakenActionOn === 2) done();
       });
 
       nodeA.rpcRouter.dispatch(constructTakeActionRpc(appIds[0], validAction));

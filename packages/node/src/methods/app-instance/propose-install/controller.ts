@@ -3,18 +3,15 @@ import { BigNumber } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { xkeyKthAddress } from "../../../machine";
+import { Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
   NULL_INITIAL_STATE_FOR_PROPOSAL
 } from "../../errors";
-
-import { createProposedAppInstance } from "./operation";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
@@ -107,29 +104,32 @@ export default class ProposeInstallController extends NodeController {
     const {
       store,
       publicIdentifier,
-      messagingService,
-      networkContext
+      networkContext,
+      protocolRunner
     } = requestHandler;
 
     const { proposedToIdentifier } = params;
 
-    const appInstanceId = await createProposedAppInstance(
-      publicIdentifier,
-      store,
-      networkContext,
-      params
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
-    const proposalMsg: ProposeMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.PROPOSE_INSTALL,
-      data: { params, appInstanceId }
-    };
-
-    await messagingService.send(proposedToIdentifier, proposalMsg);
+    await protocolRunner.initiateProtocol(
+      Protocol.Propose,
+      await store.getStateChannelsMap(),
+      {
+        ...params,
+        initiatorXpub: publicIdentifier,
+        responderXpub: proposedToIdentifier
+      }
+    );
 
     return {
-      appInstanceId
+      appInstanceId: (await store.getStateChannel(
+        multisigAddress
+      )).mostRecentlyProposedAppInstance().identityHash
     };
   }
 }
