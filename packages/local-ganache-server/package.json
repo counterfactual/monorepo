@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@counterfactual/apps": "0.1.12",
-    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.8",
     "@counterfactual/cf-funding-protocol-contracts": "0.0.11",
     "@counterfactual/types": "0.0.43",
     "ethers": "4.0.37",
