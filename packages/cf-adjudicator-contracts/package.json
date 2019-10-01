@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf-adjudicator-contracts",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Smart contracts for an State Channel AppInstance Adjudicator",
   "license": "MIT",
   "engines": {
