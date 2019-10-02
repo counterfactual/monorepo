@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/types",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "description": "TypeScript typings for common Counterfactual types",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "engines": {
     "yarn": "^1.17.3",
-    "node": "^10.15.3"
+    "node": "^10 || ^12"
   },
   "scripts": {
     "build": "tsc -b . && rollup -c"

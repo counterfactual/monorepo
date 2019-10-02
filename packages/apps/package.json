@@ -1,12 +1,12 @@
 {
   "name": "@counterfactual/apps",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
     "yarn": "^1.17.3",
-    "node": "^10.15.3"
+    "node": "^10 || ^12"
   },
   "files": [
     "build",
@@ -26,7 +26,7 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.8",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.9",
     "@types/chai": "4.2.3",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
