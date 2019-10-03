@@ -29,7 +29,7 @@ export function timeout(ms: number) {
  * ProxyFactory contract with the bytecode of a Proxy contract pointing to
  * a `masterCopy` of a MinimumViableMultisig contract.
  *
- * See https://solidity.readthedocs.io/en/v0.5.11/assembly.html?highlight=create2
+ * See https://solidity.readthedocs.io/en/v0.5.12/assembly.html?highlight=create2
  * for information on how CREAT2 addresses are calculated.
  *
  * @export
