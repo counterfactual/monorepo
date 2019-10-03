@@ -6,7 +6,7 @@
   "types": "dist/src/index.d.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "^1.17.3",
+    "yarn": ">=1.17.3",
     "node": "^10 || ^12"
   },
   "scripts": {

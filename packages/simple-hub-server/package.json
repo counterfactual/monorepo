@@ -6,7 +6,7 @@
   "homepage": "https://github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "^1.17.3",
+    "yarn": ">=1.17.3",
     "node": "^10 || ^12"
   },
   "main": "src/index.ts",
