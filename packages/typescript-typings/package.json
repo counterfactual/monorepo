@@ -1,10 +1,10 @@
 {
   "name": "@counterfactual/typescript-typings",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "license": "MIT",
   "engines": {
-    "yarn": "^1.17.3",
-    "node": "^10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "description": "Counterfactual Types",
   "scripts": {
