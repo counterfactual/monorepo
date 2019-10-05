@@ -35,7 +35,7 @@
     "ethlint": "1.2.5",
     "mocha": "6.2.1",
     "solc": "0.5.12",
-    "truffle": "5.0.38",
+    "truffle": "5.0.39",
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
