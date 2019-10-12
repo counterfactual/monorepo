@@ -63,7 +63,7 @@
     "@types/react-router-dom": "5.1.0",
     "@types/web3": "1.0.20",
     "enzyme": "3.10.0",
-    "enzyme-adapter-react-16": "1.14.0",
+    "enzyme-adapter-react-16": "1.15.1",
     "jest-fetch-mock": "2.1.2",
     "react-scripts": "3.0.1",
     "typescript": "3.5.3"
