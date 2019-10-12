@@ -5,7 +5,7 @@
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.19.0",
+    "yarn": "1.19.1",
     "node": "^10.15.3"
   },
   "files": [

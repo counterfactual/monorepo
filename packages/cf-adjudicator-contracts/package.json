@@ -4,7 +4,7 @@
   "description": "Smart contracts for an State Channel AppInstance Adjudicator",
   "license": "MIT",
   "engines": {
-    "yarn": "1.19.0",
+    "yarn": "1.19.1",
     "node": "^10.15.3"
   },
   "files": [
