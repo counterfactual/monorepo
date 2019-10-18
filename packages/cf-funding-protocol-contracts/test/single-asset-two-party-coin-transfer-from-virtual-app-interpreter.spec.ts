@@ -1,5 +1,3 @@
-import DolphinCoin from "../expected-build-artifacts/DolphinCoin.json";
-import SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter from "../expected-build-artifacts/SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter.json";
 import * as waffle from "ethereum-waffle";
 import { Contract, Wallet } from "ethers";
 import { AddressZero, One, Zero } from "ethers/constants";
@@ -11,6 +9,9 @@ import {
   hexlify,
   randomBytes
 } from "ethers/utils";
+
+import DolphinCoin from "../expected-build-artifacts/DolphinCoin.json";
+import SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter from "../expected-build-artifacts/SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter.json";
 
 import { expect } from "./utils/index";
 
