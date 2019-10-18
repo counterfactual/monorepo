@@ -30,10 +30,10 @@ contract AppWithAction is CounterfactualApp {
    * after which time the 1st signer may finalize the outcome.
    */
   function getTurnTaker(
-    bytes calldata encodedState,
-    address[] calldata participants
+    bytes memory encodedState,
+    address[] memory participants
   )
-    external
+    public
     pure
     returns (address)
   {
@@ -41,8 +41,8 @@ contract AppWithAction is CounterfactualApp {
     return participants[state.counter > 0 ? 0 : 1];
   }
 
-  function computeOutcome(bytes calldata)
-    external
+  function computeOutcome(bytes memory)
+    public
     pure
     returns (bytes memory)
   {
@@ -50,10 +50,10 @@ contract AppWithAction is CounterfactualApp {
   }
 
   function applyAction(
-    bytes calldata encodedState,
-    bytes calldata encodedAction
+    bytes memory encodedState,
+    bytes memory encodedAction
   )
-    external
+    public
     pure
     returns (bytes memory ret)
   {
@@ -78,8 +78,8 @@ contract AppWithAction is CounterfactualApp {
     return abi.encode(state);
   }
 
-  function isStateTerminal(bytes calldata encodedState)
-    external
+  function isStateTerminal(bytes memory encodedState)
+    public
     pure
     returns (bool)
   {
