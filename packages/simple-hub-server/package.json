@@ -60,7 +60,7 @@
   "devDependencies": {
     "@counterfactual/firebase-server": "0.0.4",
     "@types/jest": "24.0.15",
-    "@types/jsonwebtoken": "8.3.4",
+    "@types/jsonwebtoken": "8.3.5",
     "@types/knex": "0.16.1",
     "@types/koa": "2.0.50",
     "@types/koa__cors": "2.2.3",
