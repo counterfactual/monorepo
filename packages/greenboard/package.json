@@ -47,7 +47,7 @@
   "devDependencies": {
     "@types/chromedriver": "2.38.0",
     "@types/jest": "^24.0.15",
-    "@types/selenium-webdriver": "4.0.3",
+    "@types/selenium-webdriver": "4.0.5",
     "chromedriver": "77.0.0",
     "jest": "^24.8.0",
     "selenium-webdriver": "4.0.0-alpha.5",
