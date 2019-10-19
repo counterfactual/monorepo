@@ -35,7 +35,7 @@
     "@counterfactual/cf-adjudicator-contracts": "0.0.7",
     "@counterfactual/types": "0.0.43",
     "@counterfactual/typescript-typings": "0.1.2",
-    "@types/node": "12.11.0",
+    "@types/node": "12.11.1",
     "@types/chai": "4.2.3",
     "chai": "4.2.0",
     "dotenv": "8.1.0",
