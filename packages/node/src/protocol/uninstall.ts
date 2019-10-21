@@ -1,6 +1,7 @@
 import { BaseProvider } from "ethers/providers";
 
 import { SetStateCommitment } from "../ethereum";
+import { xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -8,7 +9,6 @@ import {
   ProtocolMessage,
   UninstallParams
 } from "../machine/types";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";

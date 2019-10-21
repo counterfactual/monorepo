@@ -4,7 +4,6 @@ import { BigNumber } from "ethers/utils";
 
 import { Node, NULL_INITIAL_STATE_FOR_PROPOSAL } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { xkeyKthAddress } from "../../src/machine";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
 
@@ -14,7 +13,7 @@ import {
   constructAppProposalRpc,
   createChannel,
   getAppContext,
-  getFreeBalanceState,
+  getBalances,
   getInstalledAppInstances,
   makeAndSendProposeCall,
   makeInstallCall,
@@ -188,30 +187,3 @@ describe("Node method follows spec - install", () => {
     }
   );
 });
-
-async function getBalances(
-  nodeA: Node,
-  nodeB: Node,
-  multisigAddress: string,
-  tokenAddress: string
-) {
-  let tokenFreeBalanceState = await getFreeBalanceState(
-    nodeA,
-    multisigAddress,
-    tokenAddress
-  );
-
-  const tokenBalanceNodeA =
-    tokenFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
-
-  tokenFreeBalanceState = await getFreeBalanceState(
-    nodeB,
-    multisigAddress,
-    tokenAddress
-  );
-
-  const tokenBalanceNodeB =
-    tokenFreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
-
-  return [tokenBalanceNodeA, tokenBalanceNodeB];
-}

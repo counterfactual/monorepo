@@ -28,6 +28,7 @@ import {
   UninstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { xkeyKthAddress } from "../../src/machine";
 
 import { initialLinkedState, linkedAbiEncodings } from "./linked-transfer";
 import {
@@ -939,4 +940,31 @@ export async function uninstallApp(
 export async function getApps(node: Node): Promise<AppInstanceJson[]> {
   return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
     .appInstances;
+}
+
+export async function getBalances(
+  nodeA: Node,
+  nodeB: Node,
+  multisigAddress: string,
+  tokenAddress: string
+): Promise<[BigNumber, BigNumber]> {
+  let tokenFreeBalanceState = await getFreeBalanceState(
+    nodeA,
+    multisigAddress,
+    tokenAddress
+  );
+
+  const tokenBalanceNodeA =
+    tokenFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
+
+  tokenFreeBalanceState = await getFreeBalanceState(
+    nodeB,
+    multisigAddress,
+    tokenAddress
+  );
+
+  const tokenBalanceNodeB =
+    tokenFreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
+
+  return [tokenBalanceNodeA, tokenBalanceNodeB];
 }

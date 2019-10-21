@@ -1,7 +1,6 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
-import { HDNode } from "ethers/utils/hdnode";
 import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
@@ -16,10 +15,13 @@ import {
   EthereumNetworkName,
   getNetworkContextForNetworkName
 } from "./network-configuration";
+import {
+  getPrivateKeysGeneratorAndXPubOrThrow,
+  PrivateKeysGetter
+} from "./private-keys-generator";
 import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
-import { getHDNode } from "./signer";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
@@ -50,20 +52,33 @@ export class Node {
    * via `create` which immediately calls `asynchronouslySetupUsingRemoteServices`, these are
    * always non-null when the Node is being used.
    */
-  private signer!: HDNode;
+  private signer!: SigningKey;
   protected requestHandler!: RequestHandler;
   public rpcRouter!: RpcRouter;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
     storeService: NodeTypes.IStoreService,
+    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
-    networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     lockService?: NodeTypes.ILockService,
+    publicExtendedKey?: string,
+    privateKeyGenerator?: NodeTypes.IPrivateKeyGenerator,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
+    const [
+      privateKeysGenerator,
+      extendedPubKey
+    ] = await getPrivateKeysGeneratorAndXPubOrThrow(
+      storeService,
+      privateKeyGenerator,
+      publicExtendedKey
+    );
+
     const node = new Node(
+      extendedPubKey,
+      privateKeysGenerator,
       messagingService,
       storeService,
       nodeConfig,
@@ -77,6 +92,8 @@ export class Node {
   }
 
   private constructor(
+    private readonly publicExtendedKey: string,
+    private readonly privateKeyGetter: PrivateKeysGetter,
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
@@ -101,7 +118,10 @@ export class Node {
   }
 
   private async asynchronouslySetupUsingRemoteServices(): Promise<Node> {
-    this.signer = await getHDNode(this.storeService);
+    // TODO: is "0" a reasonable path to derive `signer` private key from?
+    this.signer = new SigningKey(
+      await this.privateKeyGetter.getPrivateKey("0")
+    );
     log.info(`Node signer address: ${this.signer.address}`);
     log.info(`Node public identifier: ${this.publicIdentifier}`);
     this.requestHandler = new RequestHandler(
@@ -127,7 +147,7 @@ export class Node {
 
   @Memoize()
   get publicIdentifier(): string {
-    return this.signer.neuter().extendedKey;
+    return this.publicExtendedKey;
   }
 
   @Memoize()
@@ -159,7 +179,7 @@ export class Node {
       const keyIndex = overrideKeyIndex || 0;
 
       const signingKey = new SigningKey(
-        this.signer.derivePath(`${keyIndex}`).privateKey
+        await this.privateKeyGetter.getPrivateKey(keyIndex)
       );
 
       return signingKey.signDigest(commitment.hashToSign());

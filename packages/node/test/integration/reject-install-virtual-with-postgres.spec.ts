@@ -26,7 +26,6 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   beforeAll(async () => {
     const context: SetupContext = await setupWithMemoryMessagingAndPostgresStore(
       global,
-      true,
       true
     );
     nodeA = context["A"].node;

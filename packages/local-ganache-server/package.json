@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/local-ganache-server",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
   "license": "MIT",
