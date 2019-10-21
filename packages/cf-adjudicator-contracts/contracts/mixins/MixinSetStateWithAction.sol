@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -25,7 +25,6 @@ contract MixinSetStateWithAction is
   struct SignedAction {
     bytes encodedAction;
     bytes signature;
-    bool checkForTerminal;
   }
 
   /// @notice Create a challenge regarding the latest signed state and immediately after,
@@ -77,20 +76,14 @@ contract MixinSetStateWithAction is
       action.encodedAction
     );
 
-    if (action.checkForTerminal) {
-      require(
-        LibAppCaller.isStateTerminal(appIdentity.appDefinition, newState),
-        "Attempted to claim non-terminal state was terminal in setStateWithAction"
-      );
-      challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
-    } else {
-      challenge.finalizesAt = block.number + req.timeout;
-      challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
-    }
 
+    uint248 finalizesAt = uint248(block.number + req.timeout);
+    require(finalizesAt >= req.timeout, "uint248 addition overflow");
+
+    challenge.finalizesAt = finalizesAt;
+    challenge.status = ChallengeStatus.FINALIZES_AFTER_DEADLINE;
     challenge.appStateHash = keccak256(newState);
-    challenge.versionNumber = req.versionNumber;
+    challenge.versionNumber = uint128(req.versionNumber);
     challenge.challengeCounter += 1;
     challenge.latestSubmitter = msg.sender;
   }

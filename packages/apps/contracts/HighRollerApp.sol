@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
 /* solium-disable-next-line */
@@ -185,9 +185,24 @@ contract HighRollerApp is CounterfactualApp {
   }
 
   function highRoller(bytes32 randomness)
-    public // NOTE: This is used in app-root.tsx for the clientside dapp
+    public
     pure
     returns(uint8 playerFirstTotal, uint8 playerSecondTotal)
+  {
+    (
+      uint8 playerFirstRollOne,
+      uint8 playerFirstRollTwo,
+      uint8 playerSecondRollOne,
+      uint8 playerSecondRollTwo
+    ) = getPlayerRolls(randomness);
+    playerFirstTotal = playerFirstRollOne + playerFirstRollTwo;
+    playerSecondTotal = playerSecondRollOne + playerSecondRollTwo;
+  }
+
+  function getPlayerRolls(bytes32 randomness)
+    public // NOTE: This is used in app-root.tsx for the clientside dapp
+    pure
+    returns(uint8 playerFirstRollOne, uint8 playerFirstRollTwo, uint8 playerSecondRollOne, uint8 playerSecondRollTwo)
   {
     (
       bytes8 hash1,
@@ -195,8 +210,10 @@ contract HighRollerApp is CounterfactualApp {
       bytes8 hash3,
       bytes8 hash4
     ) = cutBytes32(randomness);
-    playerFirstTotal = bytes8toDiceRoll(hash1) + bytes8toDiceRoll(hash2);
-    playerSecondTotal = bytes8toDiceRoll(hash3) + bytes8toDiceRoll(hash4);
+    playerFirstRollOne = bytes8toDiceRoll(hash1);
+    playerFirstRollTwo = bytes8toDiceRoll(hash2);
+    playerSecondRollOne = bytes8toDiceRoll(hash3);
+    playerSecondRollTwo = bytes8toDiceRoll(hash4);
   }
 
   function getWinningAmounts(uint256 num1, uint256 num2)

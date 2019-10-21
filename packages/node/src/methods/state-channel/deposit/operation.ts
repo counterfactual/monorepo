@@ -1,4 +1,4 @@
-import ERC20 from "@counterfactual/cf-funding-protocol-contracts/build/ERC20.json";
+import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ERC20.json";
 import {
   AppInterface,
   CoinBalanceRefundState,
@@ -38,7 +38,7 @@ export async function installBalanceRefundApp(
 ) {
   const {
     publicIdentifier,
-    instructionExecutor,
+    protocolRunner,
     networkContext,
     store,
     provider
@@ -77,6 +77,7 @@ export async function installBalanceRefundApp(
     appInterface: depositContext.appInterface,
     // this is the block-time equivalent of 7 days
     defaultTimeout: 1008,
+    appSeqNo: stateChannel.numProposedApps,
     outcomeType: OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     initiatorDepositTokenAddress: tokenAddress!, // params object is mutated in caller
     responderDepositTokenAddress: tokenAddress!,
@@ -86,13 +87,11 @@ export async function installBalanceRefundApp(
     disableLimit: true
   };
 
-  const updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Install,
     stateChannelsMap,
     installParams
   );
-
-  await store.saveStateChannel(updatedStateChannelsMap.get(multisigAddress)!);
 }
 
 export async function makeDeposit(
@@ -159,7 +158,7 @@ export async function uninstallBalanceRefundApp(
   const {
     publicIdentifier,
     store,
-    instructionExecutor,
+    protocolRunner,
     networkContext
   } = requestHandler;
 
@@ -177,7 +176,7 @@ export async function uninstallBalanceRefundApp(
 
   const refundApp = stateChannel.getAppInstanceOfKind(CoinBalanceRefundApp);
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  const stateChannelsMap = await protocolRunner.initiateProtocol(
     Protocol.Uninstall,
     // https://github.com/counterfactual/monorepo/issues/747
     new Map<string, StateChannel>([
@@ -189,10 +188,6 @@ export async function uninstallBalanceRefundApp(
       multisigAddress: stateChannel.multisigAddress,
       appIdentityHash: refundApp.identityHash
     }
-  );
-
-  await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
   );
 }
 

@@ -1,7 +1,6 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
-import { StateChannel } from "../../../models";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
@@ -10,10 +9,10 @@ import {
 
 export async function installVirtual(
   store: Store,
-  instructionExecutor: InstructionExecutor,
-  params: Node.InstallParams
+  protocolRunner: ProtocolRunner,
+  params: Node.InstallVirtualParams
 ): Promise<AppInstanceProposal> {
-  const { appInstanceId } = params;
+  const { appInstanceId, intermediaryIdentifier } = params;
 
   if (!appInstanceId || !appInstanceId.trim()) {
     throw Error(NO_APP_INSTANCE_ID_TO_INSTALL);
@@ -27,7 +26,6 @@ export async function installVirtual(
     initialState,
     initiatorDeposit,
     initiatorDepositTokenAddress,
-    intermediaries,
     outcomeType,
     proposedByIdentifier,
     proposedToIdentifier,
@@ -36,14 +34,12 @@ export async function installVirtual(
     timeout
   } = proposal;
 
-  let updatedStateChannelsMap: Map<string, StateChannel>;
-
   if (initiatorDepositTokenAddress !== responderDepositTokenAddress) {
     throw Error("Cannot install virtual app with different token addresses");
   }
 
   try {
-    updatedStateChannelsMap = await instructionExecutor.initiateProtocol(
+    await protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       await store.getStateChannelsMap(),
       {
@@ -51,9 +47,10 @@ export async function installVirtual(
         outcomeType,
         initiatorXpub: proposedToIdentifier,
         responderXpub: proposedByIdentifier,
-        intermediaryXpub: intermediaries![0],
+        intermediaryXpub: intermediaryIdentifier,
         defaultTimeout: timeout.toNumber(),
         appInterface: { addr: appDefinition, ...abiEncodings },
+        appSeqNo: proposal.appSeqNo,
         initiatorBalanceDecrement: initiatorDeposit,
         responderBalanceDecrement: responderDeposit,
         tokenAddress: initiatorDepositTokenAddress
@@ -66,11 +63,11 @@ export async function installVirtual(
     );
   }
 
-  updatedStateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
+  await store.saveStateChannel(
+    (await store.getChannelFromAppInstanceID(appInstanceId)).removeProposal(
+      appInstanceId
+    )
   );
-
-  await store.saveRealizedProposedAppInstance(proposal);
 
   return proposal;
 }

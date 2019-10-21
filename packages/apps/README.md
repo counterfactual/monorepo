@@ -1,3 +1,13 @@
+# Updating the Contracts
+
+When any of the contracts get updated, their corresponding _expected_ build artifacts need to be updated as well.
+
+To do make this update, run:
+
+```shell
+yarn build
+```
+
 # Migrations
 
 The `networks` folder contains the migration files for the different Ethereum networks the contracts have been migrated to. The ID of the respective networks are used as file names. The mapping of some of the major Ethereum network IDs to network names is:

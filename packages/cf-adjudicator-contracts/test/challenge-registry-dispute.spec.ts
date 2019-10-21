@@ -11,8 +11,8 @@ import {
   SigningKey
 } from "ethers/utils";
 
-import AppWithAction from "../build/AppWithAction.json";
-import ChallengeRegistry from "../build/ChallengeRegistry.json";
+import AppWithAction from "../expected-build-artifacts/AppWithAction.json";
+import ChallengeRegistry from "../expected-build-artifacts/ChallengeRegistry.json";
 
 import {
   AppIdentityTestClass,
@@ -129,8 +129,7 @@ describe("ChallengeRegistry Challenge", () => {
         appInstance.appIdentity,
         encodeState(state),
         encodeAction(action),
-        actionSig,
-        false
+        actionSig
       );
   });
 

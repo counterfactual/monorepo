@@ -43,7 +43,7 @@ export function createAppInstanceProposalForTest(appInstanceId: string) {
 export function createAppInstanceForTest(stateChannel?: StateChannel) {
   return new AppInstance(
     /* participants */ stateChannel
-      ? stateChannel.getSigningKeysFor(stateChannel.numInstalledApps)
+      ? stateChannel.getSigningKeysFor(stateChannel.numProposedApps)
       : [
           getAddress(hexlify(randomBytes(20))),
           getAddress(hexlify(randomBytes(20)))
@@ -56,7 +56,7 @@ export function createAppInstanceForTest(stateChannel?: StateChannel) {
     },
     /* isVirtualApp */ false,
     /* appSeqNo */ stateChannel
-      ? stateChannel.numInstalledApps
+      ? stateChannel.numProposedApps
       : Math.ceil(1000 * Math.random()),
     /* latestState */ { foo: AddressZero, bar: bigNumberify(0) },
     /* latestVersionNumber */ 0,

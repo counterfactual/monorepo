@@ -1,14 +1,16 @@
 import { Node, SolidityValueType } from "@counterfactual/types";
 import { INVALID_ARGUMENT } from "ethers/errors";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
-import { getCounterpartyAddress, prettyPrintObject } from "../../../utils";
+import {
+  getFirstElementInListNotEqualTo,
+  prettyPrintObject
+} from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   IMPROPERLY_FORMATTED_STRUCT,
@@ -18,23 +20,18 @@ import {
 } from "../../errors";
 
 export default class TakeActionController extends NodeController {
-  public static readonly methodName = Node.MethodName.TAKE_ACTION;
-
   @jsonRpcMethod(Node.RpcMethodName.TAKE_ACTION)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
+    // @ts-ignore
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
-  ): Promise<Queue[]> {
-    const { store } = requestHandler;
-    const { appInstanceId } = params;
-
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(appInstanceId)
-      )
-    ];
+  ): Promise<string[]> {
+    const multisigAddress = await requestHandler.store.getMultisigAddressFromAppInstance(
+      params.appInstanceId
+    );
+    return [multisigAddress, params.appInstanceId];
   }
 
   protected async beforeExecution(
@@ -64,12 +61,12 @@ export default class TakeActionController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.TakeActionParams
   ): Promise<Node.TakeActionResult> {
-    const { store, publicIdentifier, instructionExecutor } = requestHandler;
+    const { store, publicIdentifier, protocolRunner } = requestHandler;
     const { appInstanceId, action } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
 
-    const responderXpub = getCounterpartyAddress(
+    const responderXpub = getFirstElementInListNotEqualTo(
       publicIdentifier,
       sc.userNeuteredExtendedKeys
     );
@@ -77,7 +74,7 @@ export default class TakeActionController extends NodeController {
     await runTakeActionProtocol(
       appInstanceId,
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       responderXpub,
       action
@@ -110,7 +107,7 @@ export default class TakeActionController extends NodeController {
 async function runTakeActionProtocol(
   appIdentityHash: string,
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   initiatorXpub: string,
   responderXpub: string,
   action: SolidityValueType
@@ -120,7 +117,7 @@ async function runTakeActionProtocol(
   let stateChannelsMap: Map<string, StateChannel>;
 
   try {
-    stateChannelsMap = await instructionExecutor.initiateProtocol(
+    stateChannelsMap = await protocolRunner.initiateProtocol(
       Protocol.TakeAction,
       new Map<string, StateChannel>([
         [stateChannel.multisigAddress, stateChannel]
@@ -140,12 +137,6 @@ async function runTakeActionProtocol(
     }
     throw Error(prettyPrintObject(e));
   }
-
-  const updatedStateChannel = stateChannelsMap.get(
-    stateChannel.multisigAddress
-  )!;
-
-  await store.saveStateChannel(updatedStateChannel);
 
   return {};
 }

@@ -45,6 +45,16 @@ module.exports = {
         ),
       gas: process.env.DEFAULT_GAS
     },
+    mainnet: {
+      network_id: 1,
+      provider: () =>
+        new HDWalletProvider(
+          process.env.ETH_ACCOUNT_MNENOMIC,
+          `https://mainnet.infura.io/v3/${process.env.INFURA_API_KEY}`
+        ),
+      gas: process.env.DEFAULT_GAS,
+      gasPrice: 5000000000
+    }
   },
   solc: {
     optimizer: {

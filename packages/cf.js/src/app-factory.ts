@@ -112,8 +112,8 @@ export class AppFactory {
     timeout: BigNumberish;
     /** Initial state of app instance */
     initialState: SolidityValueType;
-    /** List of intermediary peers to route installation through */
-    intermediaries: string[];
+    /** Intermediary peer to route installation through */
+    intermediaryIdentifier: string;
   }): Promise<string> {
     const timeout = parseBigNumber(params.timeout, "timeout");
     const initiatorDeposit = parseBigNumber(
@@ -133,7 +133,7 @@ export class AppFactory {
         initiatorDeposit,
         proposedToIdentifier: params.proposedToIdentifier,
         initialState: params.initialState,
-        intermediaries: params.intermediaries,
+        intermediaryIdentifier: params.intermediaryIdentifier,
         appDefinition: this.appDefinition,
         abiEncodings: this.encodings,
         // FIXME: Hard-coded temporarily

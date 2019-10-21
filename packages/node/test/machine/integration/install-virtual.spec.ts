@@ -1,8 +1,8 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
-import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeApp.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
+import TwoPartyFixedOutcomeApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TwoPartyFixedOutcomeApp.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory, Wallet } from "ethers";
@@ -80,7 +80,7 @@ beforeAll(async () => {
 
   twoPartyFixedOutcomeAppDefinition = await new ContractFactory(
     TwoPartyFixedOutcomeApp.abi,
-    TwoPartyFixedOutcomeApp.bytecode,
+    TwoPartyFixedOutcomeApp.evm.bytecode,
     wallet
   ).deploy();
 
@@ -126,11 +126,12 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
     globalChannelNonce += 1;
 
     createProxy = async function() {
-      await proxyFactory.functions.createProxy(
+      await proxyFactory.functions.createProxyWithNonce(
         network.MinimumViableMultisig,
         new Interface(MinimumViableMultisig.abi).functions.setup.encode([
           multisigOwnerKeys.map(x => x.address)
         ]),
+        0,
         { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
       );
     };

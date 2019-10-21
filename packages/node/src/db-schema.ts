@@ -21,59 +21,11 @@ export const DB_NAMESPACE_CHANNEL = "channel";
  * appInstanceId to refer to the `AppInstance`, the Node does a look up
  * for the AppInstanceIdentityHash to get/set any state for that `AppInstance` inside
  * the relevant channel.
- *
-
-/**
- * Namespace providing a convenience lookup table from appInstanceId to multisig address.
  */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_MULTISIG_ADDRESS =
-  "appInstanceIDToMultisigAddress";
-
-/**
- * Namespace providing a lookup table from appInstanceId to AppInstanceIdentityHash.
- */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE_IDENTITY_HASH =
-  "appInstanceIDToAppInstanceIdentityHash";
-
-/**
- * Namespace providing a lookup table from AppInstanceIdentityHash to appInstanceId.
- */
-export const DB_NAMESPACE_APP_INSTANCE_IDENTITY_HASH_TO_APP_INSTANCE_ID =
-  "appInstanceIdentityHashTostring";
-
-/**
- * Namespace providing a lookup table from a appInstanceId to the AppInstance
- * that was proposed to be installed.
- */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_PROPOSED_APP_INSTANCE =
-  "appInstanceIdToProposedAppInstance";
 
 export const DB_NAMESPACE_ALL_COMMITMENTS = "allCommitments";
-
-/**
- * Namespace providing a lookup table from a appInstanceId to the AppInstance
- * that was installed.
- */
-export const DB_NAMESPACE_APP_INSTANCE_ID_TO_APP_INSTANCE =
-  "appInstanceIdToAppInstance";
-
-/**
- * Namespace providing a lookup table from an appIdentityHash and protocol to the
- * corresponding commitment transaction.
- */
-export const DB_NAMESPACE_APP_IDENTITY_HASH_TO_COMMITMENT =
-  "appIdentityHashToCommitment";
 
 /**
  * Namespace for storing withdrawals
  */
 export const DB_NAMESPACE_WITHDRAWALS = "multisigAddressToWithdrawalCommitment";
-
-/**
- * Used in standardizing how to set/get app instances within a channel according
- * to their correct status.
- */
-export enum APP_INSTANCE_STATUS {
-  INSTALLED = "installed",
-  PROPOSED = "proposed"
-}

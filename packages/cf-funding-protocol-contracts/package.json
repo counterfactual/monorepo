@@ -1,19 +1,21 @@
 {
   "name": "@counterfactual/cf-funding-protocol-contracts",
-  "version": "0.0.1",
+  "version": "0.0.12",
   "description": "Smart contracts for the Counterfactual multisig funding protocol",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
-    "node": "10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "files": [
     "build",
     "contracts",
-    "networks"
+    "networks",
+    "expected-build-artifacts"
   ],
   "scripts": {
-    "build": "waffle waffle.js",
+    "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
+    "ensure-build-artifacts-match-solidity-code": "waffle waffle.js && diff build expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -30,30 +32,30 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.1",
-    "@counterfactual/types": "0.0.34",
-    "@counterfactual/typescript-typings": "0.1.0",
-    "@types/chai": "4.2.0",
-    "@types/node": "12.7.1",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.9",
+    "@counterfactual/types": "0.0.44",
+    "@counterfactual/typescript-typings": "0.1.3",
+    "@types/node": "12.7.8",
+    "@types/chai": "4.2.3",
     "chai": "4.2.0",
-    "dotenv": "8.0.0",
-    "eth-gas-reporter": "0.2.10",
-    "ethereum-waffle": "2.0.15",
-    "ethers": "4.0.33",
-    "ethlint": "1.2.4",
-    "ganache-cli": "6.5.1",
+    "dotenv": "8.1.0",
+    "eth-gas-reporter": "0.2.11",
+    "ethereum-waffle": "2.1.0",
+    "ethers": "4.0.37",
+    "ethlint": "1.2.5",
+    "ganache-cli": "6.7.0",
     "openzeppelin-solidity": "2.3.0",
     "shx": "0.3.2",
-    "solc": "0.5.10",
-    "truffle": "5.0.31",
+    "solc": "0.5.11",
+    "truffle": "5.0.38",
     "truffle-deploy-registry": "0.5.1",
-    "truffle-hdwallet-provider": "1.0.16",
+    "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
-    "ts-node": "8.3.0",
-    "tslint": "5.18.0",
+    "ts-node": "8.4.1",
+    "tslint": "5.20.0",
     "zos-lib": "2.4.2"
   },
   "resolutions": {
-    "ethereum-waffle/solc": "0.5.10"
+    "ethereum-waffle/solc": "0.5.11"
   }
 }

@@ -1,11 +1,10 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
 import {
-  getCounterpartyAddress,
-  getCreate2MultisigAddress
+  getCreate2MultisigAddress,
+  getFirstElementInListNotEqualTo
 } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -16,15 +15,13 @@ import {
 import { uninstallVirtualAppInstanceFromChannel } from "./operation";
 
 export default class UninstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
     const { appInstanceId, intermediaryIdentifier } = params;
 
@@ -38,13 +35,22 @@ export default class UninstallVirtualController extends NodeController {
       appInstanceId
     );
 
+    const multisigAddressBetweenHubAndResponding = getCreate2MultisigAddress(
+      [
+        stateChannelWithResponding.userNeuteredExtendedKeys.filter(
+          x => x !== publicIdentifier
+        )[0],
+        intermediaryIdentifier
+      ],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
     return [
-      requestHandler.getShardedQueue(
-        stateChannelWithResponding.multisigAddress
-      ),
-      requestHandler.getShardedQueue(
-        multisigAddressForStateChannelWithIntermediary
-      )
+      stateChannelWithResponding.multisigAddress,
+      multisigAddressForStateChannelWithIntermediary,
+      multisigAddressBetweenHubAndResponding,
+      appInstanceId
     ];
   }
 
@@ -66,7 +72,7 @@ export default class UninstallVirtualController extends NodeController {
   ): Promise<Node.UninstallVirtualResult> {
     const {
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       provider
     } = requestHandler;
@@ -83,14 +89,14 @@ export default class UninstallVirtualController extends NodeController {
       throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
-    const to = getCounterpartyAddress(
+    const to = getFirstElementInListNotEqualTo(
       publicIdentifier,
       stateChannel.userNeuteredExtendedKeys
     );
 
     await uninstallVirtualAppInstanceFromChannel(
       store,
-      instructionExecutor,
+      protocolRunner,
       provider,
       publicIdentifier,
       to,

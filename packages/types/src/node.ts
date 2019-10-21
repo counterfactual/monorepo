@@ -9,11 +9,6 @@ import {
 } from "./data-types";
 import { SolidityValueType } from "./simple-types";
 
-export interface INodeProvider {
-  onMessage(callback: (message: Node.Message) => void);
-  sendMessage(message: Node.Message);
-}
-
 export interface IRpcNodeProvider {
   onMessage(callback: (message: JsonRpcResponse | JsonRpcNotification) => void);
   sendMessage(message: Rpc);
@@ -73,6 +68,17 @@ export namespace Node {
     (s: string): Promise<string>;
   }
 
+  /**
+   * Centralized locking service (i.e. redis)
+   */
+  export interface ILockService {
+    acquireLock(
+      lockName: string,
+      callback: (...args: any[]) => any,
+      timeout: number
+    ): Promise<any>;
+  }
+
   export enum ErrorType {
     ERROR = "error"
   }
@@ -80,36 +86,14 @@ export namespace Node {
   // SOURCE: https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#public-methods
   export enum MethodName {
     ACCEPT_STATE = "acceptState",
-    CREATE_CHANNEL = "createChannel",
-    DEPOSIT = "deposit",
-    GET_APP_INSTANCE_DETAILS = "getAppInstanceDetails",
-    GET_APP_INSTANCES = "getAppInstances",
-    GET_CHANNEL_ADDRESSES = "getChannelAddresses",
-    GET_STATE_DEPOSIT_HOLDER_ADDRESS = "getStateDepositHolderAddress",
-    GET_FREE_BALANCE_STATE = "getFreeBalanceState",
-    GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "getTokenIndexedFreeBalanceStates",
-    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance",
-    GET_PROPOSED_APP_INSTANCES = "getProposedAppInstances",
-    GET_STATE = "getState",
-    GET_STATE_CHANNEL = "getStateChannel",
-    INSTALL = "install",
-    INSTALL_VIRTUAL = "installVirtual",
-    PROPOSE_INSTALL = "proposeInstall",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtual",
-    PROPOSE_STATE = "proposeState",
-    REJECT_INSTALL = "rejectInstall",
-    REJECT_STATE = "rejectState",
-    UPDATE_STATE = "updateState",
-    TAKE_ACTION = "takeAction",
-    UNINSTALL = "uninstall",
-    UNINSTALL_VIRTUAL = "uninstallVirtual",
-    WITHDRAW = "withdraw",
-    WITHDRAW_COMMITMENT = "withdrawCommitment"
+    GET_PROPOSED_APP_INSTANCE = "getProposedAppInstance"
   }
 
   export enum RpcMethodName {
     CREATE_CHANNEL = "chan_create",
     DEPOSIT = "chan_deposit",
+    DEPLOY_STATE_DEPOSIT_HOLDER = "chan_deployStateDepositHolder",
+    GET_CHANNEL_ADDRESSES = "chan_getChannelAddresses",
     GET_APP_INSTANCE_DETAILS = "chan_getAppInstance",
     GET_APP_INSTANCES = "chan_getAppInstances",
     GET_STATE_DEPOSIT_HOLDER_ADDRESS = "chan_getStateDepositHolderAddress",
@@ -117,6 +101,7 @@ export namespace Node {
     GET_TOKEN_INDEXED_FREE_BALANCE_STATES = "chan_getTokenIndexedFreeBalanceStates",
     GET_PROPOSED_APP_INSTANCES = "chan_getProposedAppInstances",
     GET_STATE = "chan_getState",
+    GET_STATE_CHANNEL = "chan_getStateChannel",
     INSTALL = "chan_install",
     INSTALL_VIRTUAL = "chan_installVirtual",
     PROPOSE_INSTALL = "chan_proposeInstall",
@@ -151,10 +136,10 @@ export namespace Node {
     WITHDRAWAL_FAILED = "withdrawalFailed",
     WITHDRAWAL_STARTED = "withdrawalStartedEvent",
     PROPOSE_INSTALL = "proposeInstallEvent",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallVirtualEvent",
+    PROPOSE_INSTALL_VIRTUAL = "proposeInstallEvent",
     PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
     WITHDRAW_EVENT = "withdrawEvent",
-    REJECT_INSTALL_VIRTUAL = "rejectInstallVirtualEvent"
+    REJECT_INSTALL_VIRTUAL = "rejectInstallEvent"
   }
 
   export type CreateChannelParams = {
@@ -168,7 +153,7 @@ export namespace Node {
   };
 
   export type CreateChannelTransactionResult = {
-    transactionHash: string;
+    multisigAddress: string;
   };
 
   export type CreateMultisigParams = {
@@ -177,6 +162,15 @@ export namespace Node {
 
   export type CreateMultisigResult = {
     multisigAddress: string;
+  };
+
+  export type DeployStateDepositHolderParams = {
+    multisigAddress: string;
+    retryCount?: number;
+  };
+
+  export type DeployStateDepositHolderResult = {
+    transactionHash: string;
   };
 
   export type DepositParams = {
@@ -267,7 +261,7 @@ export namespace Node {
   };
 
   export type InstallVirtualParams = InstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type InstallVirtualResult = InstallResult;
@@ -286,7 +280,7 @@ export namespace Node {
   };
 
   export type ProposeInstallVirtualParams = ProposeInstallParams & {
-    intermediaries: string[];
+    intermediaryIdentifier: string;
   };
 
   export type ProposeInstallVirtualResult = ProposeInstallResult;
@@ -362,7 +356,8 @@ export namespace Node {
     | TakeActionParams
     | UninstallParams
     | CreateChannelParams
-    | GetChannelAddressesParams;
+    | GetChannelAddressesParams
+    | DeployStateDepositHolderParams;
   export type MethodResult =
     | GetAppInstancesResult
     | GetProposedAppInstancesResult
@@ -376,7 +371,8 @@ export namespace Node {
     | TakeActionResult
     | UninstallResult
     | CreateChannelResult
-    | GetChannelAddressesResult;
+    | GetChannelAddressesResult
+    | DeployStateDepositHolderResult;
 
   export type CreateMultisigEventData = {
     owners: string[];

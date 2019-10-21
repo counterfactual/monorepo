@@ -1,7 +1,7 @@
 {
   "name": "@counterfactual/greenboard",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "An automated end-to-end test suite for Counterfactual, built with Selenium.",
   "keywords": [
     "counterfactual",
@@ -47,12 +47,11 @@
   "devDependencies": {
     "@types/chromedriver": "2.38.0",
     "@types/jest": "^24.0.15",
-    "@types/selenium-webdriver": "4.0.1",
-    "chromedriver": "76.0.0",
+    "@types/selenium-webdriver": "4.0.3",
+    "chromedriver": "77.0.0",
     "jest": "^24.8.0",
-    "selenium-webdriver": "4.0.0-alpha.4",
+    "selenium-webdriver": "4.0.0-alpha.5",
     "ts-jest": "24.0.2",
     "typescript": "3.5.3"
-  },
-  "dependencies": {}
+  }
 }

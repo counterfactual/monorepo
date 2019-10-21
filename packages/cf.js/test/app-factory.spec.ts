@@ -2,7 +2,7 @@ import { Node, OutcomeType } from "@counterfactual/types";
 import { parseEther } from "ethers/utils";
 
 import { AppFactory } from "../src/app-factory";
-import { jsonRpcMethodNames, Provider } from "../src/provider";
+import { Provider } from "../src/provider";
 
 import { TEST_XPUBS, TestNodeProvider } from "./fixture";
 
@@ -37,9 +37,7 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.PROPOSE_INSTALL,
         request => {
-          expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL]
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.PROPOSE_INSTALL);
 
           const params = request.parameters as Node.ProposeInstallParams;
 
@@ -77,17 +75,17 @@ describe("CF.js AppFactory", () => {
       const expectedDeposit = parseEther("0.5");
       const expectedState = { val: "4000" };
       const expectedAppInstanceId = "TEST_ID";
-      const expectedIntermediaries = [TEST_XPUBS[1]];
+      const expectedHubIdentifier = TEST_XPUBS[1];
 
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
         request => {
           expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.PROPOSE_INSTALL_VIRTUAL]
+            Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL
           );
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
-          expect(params.intermediaries).toBe(expectedIntermediaries);
+          expect(params.intermediaryIdentifier).toBe(expectedHubIdentifier);
           expect(params.initiatorDeposit).toEqual(expectedDeposit);
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
@@ -107,7 +105,7 @@ describe("CF.js AppFactory", () => {
         initiatorDeposit: expectedDeposit,
         timeout: "100",
         initialState: expectedState,
-        intermediaries: expectedIntermediaries
+        intermediaryIdentifier: expectedHubIdentifier
       });
       expect(appInstanceId).toBe(expectedAppInstanceId);
     });

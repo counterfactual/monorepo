@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -8,20 +7,13 @@ import { NodeController } from "../../controller";
 import rejectInstallVirtualController from "../reject-install-virtual/controller";
 
 export default class RejectInstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.REJECT_INSTALL;
-
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.RejectInstallParams
-  ): Promise<Queue[]> {
-    const { store } = requestHandler;
+  ): Promise<string[]> {
     const { appInstanceId } = params;
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(appInstanceId)
-      )
-    ];
+    return [appInstanceId];
   }
 
   @jsonRpcMethod(Node.RpcMethodName.REJECT_INSTALL)
@@ -37,11 +29,13 @@ export default class RejectInstallController extends NodeController {
       appInstanceId
     );
 
-    if (appInstanceProposal.intermediaries) {
+    if (appInstanceProposal.intermediaryIdentifier) {
       return rejectInstallVirtualController(requestHandler, params);
     }
 
-    await store.removeAppInstanceProposal(appInstanceId);
+    const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+    await store.saveStateChannel(stateChannel.removeProposal(appInstanceId));
 
     const rejectProposalMsg: RejectProposalMessage = {
       from: publicIdentifier,

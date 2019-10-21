@@ -30,7 +30,7 @@ export interface Context {
 }
 
 export type ProtocolMessage = {
-  protocolExecutionID: string;
+  processID: string;
   protocol: Protocol;
   params?: ProtocolParameters;
   toXpub: string;
@@ -47,6 +47,25 @@ export type SetupParams = {
   initiatorXpub: string;
   responderXpub: string;
   multisigAddress: string;
+};
+
+type AppABIEncodings = {
+  stateEncoding: string;
+  actionEncoding: string | undefined;
+};
+
+export type ProposeInstallParams = {
+  initiatorXpub: string;
+  responderXpub: string;
+  appDefinition: string;
+  abiEncodings: AppABIEncodings;
+  initiatorDeposit: BigNumber;
+  initiatorDepositTokenAddress?: string;
+  responderDeposit: BigNumber;
+  responderDepositTokenAddress?: string;
+  timeout: BigNumber;
+  initialState: SolidityValueType;
+  outcomeType: OutcomeType;
 };
 
 export type UpdateParams = {
@@ -87,6 +106,8 @@ export type InstallParams = {
   appInterface: AppInterface;
   defaultTimeout: number;
 
+  appSeqNo: number;
+
   // Outcome Type returned by the app instance, as defined by `appInterface`
   outcomeType: OutcomeType;
 
@@ -118,6 +139,8 @@ export type InstallVirtualAppParams = {
   responderBalanceDecrement: BigNumber;
   tokenAddress: string;
 
+  appSeqNo: number;
+
   // outcomeType returned by the app instance, as defined by the app definition `appInterface`
   outcomeType: OutcomeType;
 };
@@ -132,6 +155,7 @@ export type UninstallVirtualAppParams = {
 
 export type ProtocolParameters =
   | SetupParams
+  | ProposeInstallParams
   | UpdateParams
   | InstallParams
   | UninstallParams

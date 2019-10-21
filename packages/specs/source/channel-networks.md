@@ -14,7 +14,7 @@ No - only fungible asset types are. We do not write an agreement that implements
 
 **Does `expiry` mean the app instance has an expiry time?**
 
-Yes - this is a limitation of our current design. It exists so that the intermediary's capital is not locked up forever. The other way to guarantee this, and the general strategy to remove the expiry-time restriction, is to give the intermediaries the ability to make an on-chain transaction to create a new direct channel, allowing them to recover their locked-up capital. However this is more complicated and is still in the "spec design" phase.
+Yes - this is a limitation of our current design. It exists so that the intermediary's capital is not locked up forever. The other way to guarantee this, and the general strategy to remove the expiry-time restriction, is to give the intermediary the ability to make an on-chain transaction to create a new direct channel, allowing them to recover their locked-up capital. However this is more complicated and is still in the "spec design" phase.
 
 **Can new app instances be installed without the intermediary's involvement?**
 

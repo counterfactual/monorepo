@@ -16,18 +16,6 @@ import {
 import { AppInstance } from "./app-instance";
 import { CounterfactualEvent, EventType } from "./types";
 
-export const jsonRpcMethodNames = {
-  [Node.MethodName.GET_STATE_DEPOSIT_HOLDER_ADDRESS]:
-    "chan_getStateDepositHolderAddress",
-  [Node.MethodName.GET_FREE_BALANCE_STATE]: "chan_getFreeBalanceState",
-  [Node.MethodName.INSTALL]: "chan_install",
-  [Node.MethodName.INSTALL_VIRTUAL]: "chan_installVirtual",
-  [Node.MethodName.REJECT_INSTALL]: "chan_rejectInstall",
-  [Node.MethodName.CREATE_CHANNEL]: "chan_create",
-  [Node.MethodName.DEPOSIT]: "chan_deposit",
-  [Node.MethodName.WITHDRAW]: "chan_withdraw"
-};
-
 /**
  * Milliseconds until a method request to the Node is considered timed out.
  */
@@ -75,7 +63,7 @@ export class Provider {
   }
 
   /**
-   * Install a virtual app instance given its ID and a list of intermediaries.
+   * Install a virtual app instance given its ID and a list of intermediaryIdentifier.
    *
    * @note
    * Installs virtual app instances i.e. routed through at least one intermediary channel.
@@ -84,18 +72,18 @@ export class Provider {
    * @async
    *
    * @param appInstanceId ID of the app instance to be installed, generated with [[AppFactory.proposeInstallVirtual]].
-   * @param intermediaries Array of addresses of intermediary peers to route installation through
+   * @param intermediaryIdentifier Xpub of intermediary peer to route installation through
    * @return Installed AppInstance
    */
   async installVirtual(
     appInstanceId: string,
-    intermediaries: string[]
+    intermediaryIdentifier: string
   ): Promise<AppInstance> {
     const response = await this.callRawNodeMethod(
       Node.RpcMethodName.INSTALL_VIRTUAL,
       {
         appInstanceId,
-        intermediaries
+        intermediaryIdentifier
       }
     );
     const { appInstance } = response.result as Node.InstallVirtualResult;
@@ -121,7 +109,7 @@ export class Provider {
    * @async
    *
    * @param owners The channel's owning addresses
-   * @return transactionHash for the channel creation
+   * @return multisigAddress for the channel creation
    */
   async createChannel(owners: string[]): Promise<string> {
     const response = await this.callRawNodeMethod(
@@ -132,22 +120,31 @@ export class Provider {
     );
 
     const {
-      transactionHash
+      multisigAddress
     } = response.result as Node.CreateChannelTransactionResult;
 
-    return transactionHash;
+    return multisigAddress;
+  }
 
-    // ALTERNATIVELY: return the actual multisig address??
-    //
-    // return new Promise((resolve) => {
-    //   this.once(
-    //     EventType.CREATE_CHANNEL,
-    //     (createChannelMsg: CounterfactualEvent) => {
-    //       const { multisigAddress } = createChannelMsg.data as Node.CreateChannelResult;
-    //       resolve(multisigAddress);
-    //     }
-    //   );
-    // });
+  /**
+   * Deploys a multisignature wallet contract for the channel.
+   *
+   * @param multisigAddress address of the multisig to be deployed
+   * @return transactionHash of deployment transaction
+   */
+  async deployStateDepositHolder(multisigAddress: string): Promise<string> {
+    const deployResponse = await this.callRawNodeMethod(
+      Node.RpcMethodName.DEPLOY_STATE_DEPOSIT_HOLDER,
+      {
+        multisigAddress
+      }
+    );
+
+    const {
+      transactionHash
+    } = deployResponse.result as Node.DeployStateDepositHolderResult;
+
+    return transactionHash;
   }
 
   /**
@@ -272,8 +269,6 @@ export class Provider {
       });
       // // @ts-ignore
       // request.params = request.parameters;
-      // // @ts-ignore
-      // request.type = jsonRpcMethodNames[methodName];
 
       if (!request.methodName) {
         return this.handleNodeError({

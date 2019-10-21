@@ -42,30 +42,30 @@ keccak256(
 
 **Type: `UpdateParams`**
 
-| Field           | Type                   | Description         |
-| --------------- | ---------------------- | ------------------- |
-| `appInstanceId` | `bytes32`              | Hashed App Identity |
-| `newState`      | `AppState / JSON-like` | New state to set to |
+|       Field       |   Type    |            Description            |
+| ----------------- | --------- | --------------------------------- |
+| `appIdentityHash` | `bytes32` | Identifies app instance to update |
+| `newState`        | `JSON`    | New state to set to               |
 
 ### The **`SetState`** Message
 
-| Field         | Description                             |
-| ------------- | --------------------------------------- |
-| `protocol`    | `"update"`                              |
-| `params`      | An `UpdateParams` object                |
+|     Field     |              Description               |
+| ------------- | -------------------------------------- |
+| `protocol`    | `"update"`                             |
+| `params`      | An `UpdateParams` object               |
 | `fromAddress` | The address of `initiator`             |
 | `toAddress`   | The address of `responder`             |
-| `seq`         | `1`                                     |
+| `seq`         | `1`                                    |
 | `signature`   | `initiator`'s signed commitment digest |
 
 ### The **`SetStateAck`** Message
 
-| Field         | Description                             |
-| ------------- | --------------------------------------- |
-| `protocol`    | `"update"`                              |
+|     Field     |              Description               |
+| ------------- | -------------------------------------- |
+| `protocol`    | `"update"`                             |
 | `fromAddress` | The address of `responder`             |
 | `toAddress`   | The address of `initiator`             |
-| `seq`         | `2`                                     |
+| `seq`         | `2`                                    |
 | `signature`   | `responder`'s signed commitment digest |
 
 ## Commitments

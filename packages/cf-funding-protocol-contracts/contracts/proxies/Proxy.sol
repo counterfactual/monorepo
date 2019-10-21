@@ -1,8 +1,9 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 
 
 /// @title Proxy - Generic proxy contract allows to execute all transactions applying the code of a master contract.
-/// @author Stefan George - <stefan@gnosis.pm>
+/// @author Stefan George - <stefan@gnosis.io>
+/// @author Richard Meissner - <richard@gnosis.io>
 contract Proxy {
 
   // masterCopy always needs to be first declared variable, to ensure that it is at the same location in the contracts to which calls are delegated.

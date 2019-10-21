@@ -2,27 +2,29 @@
 
 echo "(1/4) Running preflight checks and cleanups..."
 
-if [ -z "$NVM_DIR" ];
-then
-  echo "  > Error: Please install nvm."
-  exit
-else
-  echo "  > Found NVM"
-  . $NVM_DIR/nvm.sh
-  nvm use
-fi
-
 if [ -z "$NODE_EXTENDED_PRIVATE_KEY" ];
 then
   echo "  > Error: Please set the NODE_EXTENDED_PRIVATE_KEY environment variable."
   exit
 fi
 
+HUB_TEST_DB="packages/simple-hub-server/test/test-db.sqlite"
+
+# Try to use a system installation of sqlite3.
 if [ -z "$(which sqlite3)" ];
 then
-  echo "  > Warning: sqlite3 not found, be sure to clean up the Hub's DB manually."
+  # No sqlite3 client is installed.
+  if [ -f "$HUB_TEST_DB" ];
+  then
+    # Remove the DB file if it exists.
+    rm $HUB_TEST_DB
+  fi
+
+  # Use Node bindings to create the DB file.
+  node -e "const { Database } = require('sqlite3'); const db = new Database('$HUB_TEST_DB');"
 else
-  sqlite3 packages/simple-hub-server/test/test-db.sqlite "DELETE FROM users"
+  # sqlite3 is installed. Use it to remove the `users` table.
+  sqlite3 $HUB_TEST_DB "DROP TABLE IF EXISTS users"
   echo "  > Cleaned up test DB"
 fi
 
@@ -40,7 +42,7 @@ cd packages/greenboard
 yarn start
 
 echo "(4/4) Shutting down..."
-killall -9 -q node
-killall -9 -q chromedriver
+killall -9 node
+killall -9 chromedriver
 
 echo "Finished!"

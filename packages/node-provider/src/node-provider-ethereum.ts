@@ -1,11 +1,12 @@
 declare var ethereum: EthereumGlobal;
 
-import { INodeProvider, Node } from "@counterfactual/types";
+import { IRpcNodeProvider, Node } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
 import { EthereumGlobal } from "./types";
 
-export default class NodeProviderEthereum implements INodeProvider {
+export default class NodeProviderEthereum implements IRpcNodeProvider {
   private readonly eventEmitter: EventEmitter;
   private isConnected: boolean;
   private debugMode: string = "none";
@@ -79,7 +80,9 @@ export default class NodeProviderEthereum implements INodeProvider {
     this.debugEmitter(source, message, data);
   }
 
-  public onMessage(callback: (message: Node.Message) => void) {
+  public onMessage(
+    callback: (message: JsonRpcNotification | JsonRpcResponse) => void
+  ) {
     this.log(
       "onMessage",
       "Registered listener for eventEmitter#message",
@@ -89,7 +92,7 @@ export default class NodeProviderEthereum implements INodeProvider {
     this.eventEmitter.on("message", callback);
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message: Rpc) {
     if (!this.isConnected) {
       // We fail because we aren't connected.
       throw new Error(

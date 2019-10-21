@@ -1,7 +1,7 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import {
   MultiAssetMultiPartyCoinTransferInterpreterParams,
@@ -111,7 +111,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
 
       const uniqueAppSigningKeys = xkeysToSortedKthSigningKeys(
         xprvs,
-        stateChannel.numInstalledApps
+        stateChannel.numProposedApps
       );
 
       // todo(xuanji): don't reuse state
@@ -125,7 +125,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
           actionEncoding: undefined
         },
         false,
-        stateChannel.numInstalledApps,
+        stateChannel.numProposedApps,
         [
           // ETH token index
           [
@@ -320,11 +320,12 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
       done();
     });
 
-    await proxyFactory.functions.createProxy(
+    await proxyFactory.functions.createProxyWithNonce(
       network.MinimumViableMultisig,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
         multisigOwnerKeys.map(x => x.address)
       ]),
+      0,
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
 /* solium-disable-next-line */
@@ -106,6 +106,10 @@ contract ConditionalTransactionDelegateTarget {
     }
 
     require(appIsFunded, "Referenced AppInstance is not funded");
+
+    require(
+      challengeRegistry.isStateFinalized(appIdentityHash),
+      "Referenced AppInstance is not finalized");
 
     bytes memory outcome = challengeRegistry.getOutcome(appIdentityHash);
 

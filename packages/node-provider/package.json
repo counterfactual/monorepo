@@ -1,12 +1,12 @@
 {
   "name": "@counterfactual/node-provider",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "module": "dist/index.es.js",
   "engines": {
-    "yarn": "1.12.3",
-    "node": "10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "files": [
     "dist"
@@ -17,21 +17,20 @@
     "test": "tsc -b . && jest --runInBand --detectOpenHandles --bail --forceExit",
     "test-debug": "node --inspect-brk jest --runInBand",
     "lint:fix": "tslint -c tslint.json -p . --fix",
-    "lint": "tslint -c tslint.json -p .",
-    "postinstall": "patch-package"
+    "lint": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/types": "0.0.34",
+    "@counterfactual/types": "0.0.44",
     "@types/jest": "24.0.15",
-    "@types/node": "12.7.1",
-    "@types/web3": "1.0.19",
+    "@types/node": "12.7.8",
+    "@types/web3": "1.0.20",
     "jest": "24.8.0",
-    "rollup": "1.19.4",
-    "rollup-plugin-commonjs": "10.0.2",
+    "rollup": "1.22.0",
+    "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-typescript2": "0.22.1",
+    "rollup-plugin-typescript2": "0.24.3",
     "ts-jest": "24.0.2",
-    "tslint": "5.18.0",
+    "tslint": "5.20.0",
     "typescript": "3.5.3"
   },
   "dependencies": {

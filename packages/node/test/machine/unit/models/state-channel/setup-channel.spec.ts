@@ -28,7 +28,7 @@ describe("StateChannel::setupChannel", () => {
   });
 
   it("should have bumped the sequence number", () => {
-    expect(sc.numInstalledApps).toBe(1);
+    expect(sc.numProposedApps).toBe(1);
   });
 
   describe("the installed ETH Free Balance", () => {

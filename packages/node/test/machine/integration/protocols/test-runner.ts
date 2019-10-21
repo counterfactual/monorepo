@@ -1,4 +1,4 @@
-import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/build/IdentityApp.json";
+import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/IdentityApp.json";
 import { OutcomeType } from "@counterfactual/types";
 import { Contract, ContractFactory } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
@@ -43,7 +43,7 @@ export class TestRunner {
 
     this.identityApp = await new ContractFactory(
       IdentityApp.abi,
-      IdentityApp.bytecode,
+      IdentityApp.evm.bytecode,
       wallet
     ).deploy();
 
@@ -83,7 +83,7 @@ export class TestRunner {
   async setup() {
     this.mininodeA.scm.set(
       this.multisigAB,
-      (await this.mininodeA.ie.runSetupProtocol({
+      (await this.mininodeA.protocolRunner.runSetupProtocol({
         initiatorXpub: this.mininodeA.xpub,
         responderXpub: this.mininodeB.xpub,
         multisigAddress: this.multisigAB
@@ -94,7 +94,7 @@ export class TestRunner {
 
     this.mininodeB.scm.set(
       this.multisigBC,
-      (await this.mininodeB.ie.runSetupProtocol({
+      (await this.mininodeB.protocolRunner.runSetupProtocol({
         initiatorXpub: this.mininodeB.xpub,
         responderXpub: this.mininodeC.xpub,
         multisigAddress: this.multisigBC
@@ -182,7 +182,7 @@ export class TestRunner {
       ]
     }[outcomeType];
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
       this.mininodeA.scm,
       {
@@ -194,6 +194,7 @@ export class TestRunner {
         responderXpub: this.mininodeC.xpub,
         initiatorBalanceDecrement: One,
         responderBalanceDecrement: One,
+        appSeqNo: 1,
         appInterface: {
           stateEncoding,
           addr: this.identityApp.address,
@@ -244,7 +245,7 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Install,
       this.mininodeA.scm,
       {
@@ -261,6 +262,7 @@ export class TestRunner {
           addr: this.identityApp.address,
           actionEncoding: undefined
         },
+        appSeqNo: 1,
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddress,
         responderDepositTokenAddress: tokenAddress,
@@ -313,7 +315,7 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Install,
       this.mininodeA.scm,
       {
@@ -330,6 +332,7 @@ export class TestRunner {
           addr: this.identityApp.address,
           actionEncoding: undefined
         },
+        appSeqNo: 1,
         defaultTimeout: 40,
         initiatorDepositTokenAddress: tokenAddressA,
         responderDepositTokenAddress: tokenAddressB,
@@ -343,7 +346,7 @@ export class TestRunner {
       ...this.mininodeA.scm.get(this.multisigAC)!.appInstances.values()
     ];
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.UninstallVirtualApp,
       this.mininodeA.scm,
       {
@@ -372,7 +375,7 @@ export class TestRunner {
       );
     });
 
-    await this.mininodeA.ie.initiateProtocol(
+    await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.Uninstall,
       this.mininodeA.scm,
       {

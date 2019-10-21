@@ -18,6 +18,8 @@ import {
 
 expect.extend({ toBeEq });
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node A and B install apps of different outcome types, then uninstall them to test outcomes types and interpreters", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -45,7 +47,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       expect(balancesBefore[nodeA.freeBalanceAddress]).toBeEq(Zero);
       expect(balancesBefore[nodeB.freeBalanceAddress]).toBeEq(Zero);
 
-      await collateralizeChannel(nodeA, nodeB, multisigAddress, depositAmount);
+      await collateralizeChannel(multisigAddress, nodeA, nodeB, depositAmount);
 
       const balancesAfter = await getFreeBalanceState(nodeA, multisigAddress);
       expect(balancesAfter[nodeA.freeBalanceAddress]).toBeEq(depositAmount);
@@ -56,7 +58,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -92,7 +94,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -128,7 +130,7 @@ describe("Node A and B install apps of different outcome types, then uninstall t
       [appInstanceId] = await installApp(
         nodeA,
         nodeB,
-        (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+        TicTacToeApp,
         initialState,
         depositAmount,
         CONVENTION_FOR_ETH_TOKEN_ADDRESS,

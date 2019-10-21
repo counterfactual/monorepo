@@ -1,13 +1,13 @@
 {
   "name": "@counterfactual/cf.js",
-  "version": "0.2.4",
+  "version": "0.2.7",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
   "engines": {
-    "yarn": "1.12.3",
-    "node": "10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "files": [
     "dist"
@@ -24,18 +24,18 @@
   },
   "devDependencies": {
     "jest": "24.8.0",
-    "rollup": "1.19.4",
-    "rollup-plugin-commonjs": "10.0.2",
+    "rollup": "1.22.0",
+    "rollup-plugin-commonjs": "10.1.0",
     "rollup-plugin-node-resolve": "5.2.0",
-    "rollup-plugin-typescript2": "0.22.1",
-    "tslint": "5.18.0",
+    "rollup-plugin-typescript2": "0.24.3",
+    "tslint": "5.20.0",
     "typedoc": "0.15.0",
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/node-provider": "0.2.0",
-    "@counterfactual/types": "0.0.34",
-    "ethers": "4.0.33",
+    "@counterfactual/node-provider": "0.2.3",
+    "@counterfactual/types": "0.0.44",
+    "ethers": "4.0.37",
     "eventemitter3": "^4.0.0",
     "rpc-server": "0.0.1"
   }

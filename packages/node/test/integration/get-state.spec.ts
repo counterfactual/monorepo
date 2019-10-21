@@ -12,6 +12,8 @@ import {
   installApp
 } from "./utils";
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - getAppInstances", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -31,11 +33,13 @@ describe("Node method follows spec - getAppInstances", () => {
 
   it("returns the right state for an installed AppInstance", async () => {
     await createChannel(nodeA, nodeB);
+
     const [appInstanceId, params] = await installApp(
       nodeA,
       nodeB,
-      (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
+      TicTacToeApp
     );
+
     const state = await getState(nodeA, appInstanceId);
 
     const initialState = initialEmptyTTTState();

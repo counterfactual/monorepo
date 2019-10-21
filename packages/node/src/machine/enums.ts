@@ -17,13 +17,20 @@ enum Opcode {
   /**
    * Middleware hook to both send and wait for a response from a ProtocolMessage
    */
-  IO_SEND_AND_WAIT
+  IO_SEND_AND_WAIT,
+
+  /**
+   * Middleware hook to write the state channel to store. Used to lock channel
+   * betweeen protocols.
+   */
+  PERSIST_STATE_CHANNEL
 }
 
 enum Protocol {
   Install = "install",
   InstallVirtualApp = "install-virtual-app",
   Setup = "setup",
+  Propose = "propose",
   TakeAction = "takeAction",
   Uninstall = "uninstall",
   UninstallVirtualApp = "uninstall-virtual-app",

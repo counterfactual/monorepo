@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental "ABIEncoderV2";
 
 import "../libs/LibStateChannelApp.sol";
@@ -19,15 +19,12 @@ contract MixinRespondToChallenge is
   /// @param action The ABI encoded action the submitter wishes to take
   /// @param actionSignature A bytes string of a single signature by the address of the
   /// participant for which it is their turn to take the submitted `action`
-  /// @param claimFinal If set, the caller claims that the action progresses the state
-  /// to a terminal / finalized state
   /// @dev This function is only callable when the application has an open challenge
   function respondToChallenge(
     AppIdentity memory appIdentity,
     bytes memory appState,
     bytes memory action,
-    bytes memory actionSignature,
-    bool claimFinal
+    bytes memory actionSignature
   )
     public
   {
@@ -41,11 +38,6 @@ contract MixinRespondToChallenge is
         challenge.status == ChallengeStatus.FINALIZES_AFTER_DEADLINE
       ) && challenge.finalizesAt >= block.number,
       "respondToChallenge called on app not in FINALIZES_AFTER_DEADLINE state"
-    );
-
-    require(
-      keccak256(appState) == challenge.appStateHash,
-      "Invalid state submitted"
     );
 
     require(
@@ -64,24 +56,14 @@ contract MixinRespondToChallenge is
       "Action must have been signed by correct turn taker"
     );
 
-    bytes memory newAppState = applyAction(
+    // This should throw an error if reverts
+    applyAction(
       appIdentity.appDefinition,
       appState,
       action
     );
 
-    if (claimFinal) {
-      require(
-        isStateTerminal(appIdentity.appDefinition, newAppState),
-        "Attempted to claimFinal on a non-terminal state"
-      );
-      challenge.appStateHash = keccak256(newAppState);
-      challenge.latestSubmitter = msg.sender;
-      challenge.finalizesAt = block.number;
-      challenge.status = ChallengeStatus.EXPLICITLY_FINALIZED;
-    } else {
-      delete appChallenges[identityHash];
-    }
+    delete appChallenges[identityHash];
 
   }
 }

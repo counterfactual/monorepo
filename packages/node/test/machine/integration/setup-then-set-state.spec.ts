@@ -1,6 +1,6 @@
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
 import { NetworkContext } from "@counterfactual/types";
 import { Contract, Wallet } from "ethers";
 import { WeiPerEther, Zero } from "ethers/constants";
@@ -12,6 +12,7 @@ import { SetStateCommitment, SetupCommitment } from "../../../src/ethereum";
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine";
 import { StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
+import { getCreate2MultisigAddress } from "../../../src/utils";
 
 import { toBeEq } from "./bignumber-jest-matcher";
 import { connectToGanache } from "./connect-ganache";
@@ -66,6 +67,15 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
     );
 
     proxyFactory.once("ProxyCreation", async proxy => {
+      // TODO: Test this separately
+      expect(proxy).toBe(
+        getCreate2MultisigAddress(
+          xprvs,
+          network.ProxyFactory,
+          network.MinimumViableMultisig
+        )
+      );
+
       const stateChannel = StateChannel.setupChannel(
         network.IdentityApp,
         proxy,
@@ -141,11 +151,12 @@ describe("Scenario: Setup, set state on free balance, go on chain", () => {
       done();
     });
 
-    await proxyFactory.functions.createProxy(
+    await proxyFactory.functions.createProxyWithNonce(
       network.MinimumViableMultisig,
       new Interface(MinimumViableMultisig.abi).functions.setup.encode([
         multisigOwnerKeys.map(x => x.address)
       ]),
+      0,
       { gasLimit: CREATE_PROXY_AND_SETUP_GAS }
     );
   });

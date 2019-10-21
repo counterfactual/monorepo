@@ -49,7 +49,7 @@ describe("StateChannel::uninstallApp", () => {
   });
 
   it("should not have changed the sequence number", () => {
-    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps);
+    expect(sc2.numProposedApps).toBe(sc1.numProposedApps);
   });
 
   it("should have decreased the active apps number", () => {

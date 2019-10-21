@@ -60,7 +60,7 @@ export class LocalGanacheServer {
 
     this.server = ganache.server({
       accounts,
-      gasLimit: "0xfffffffffff",
+      gasLimit: 17592186044415, // 0xfffffffffff
       gasPrice: "0x01"
     });
 

@@ -1,21 +1,17 @@
 import { Node } from "@counterfactual/types";
 import { BigNumber } from "ethers/utils";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { xkeyKthAddress } from "../../../machine";
+import { Protocol, xkeyKthAddress } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import { NODE_EVENTS, ProposeMessage } from "../../../types";
 import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
   NULL_INITIAL_STATE_FOR_PROPOSAL
 } from "../../errors";
-
-import { createProposedAppInstance } from "./operation";
 
 /**
  * This creates an entry of a proposed AppInstance while sending the proposal
@@ -24,15 +20,14 @@ import { createProposedAppInstance } from "./operation";
  * @returns The AppInstanceId for the proposed AppInstance
  */
 export default class ProposeInstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.PROPOSE_INSTALL;
-
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL)
+  @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { publicIdentifier, networkContext } = requestHandler;
     const { proposedToIdentifier } = params;
 
@@ -42,7 +37,7 @@ export default class ProposeInstallController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    return [requestHandler.getShardedQueue(multisigAddress)];
+    return [multisigAddress];
   }
 
   protected async beforeExecution(
@@ -78,7 +73,11 @@ export default class ProposeInstallController extends NodeController {
     const responderDepositTokenAddress =
       responderDepositTokenAddressParam || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
 
-    const stateChannel = await store.getStateChannel(multisigAddress);
+    const stateChannel = await store.getOrCreateStateChannelBetweenVirtualAppParticipants(
+      multisigAddress,
+      myIdentifier,
+      proposedToIdentifier
+    );
 
     assertSufficientFundsWithinFreeBalance(
       stateChannel,
@@ -105,29 +104,32 @@ export default class ProposeInstallController extends NodeController {
     const {
       store,
       publicIdentifier,
-      messagingService,
-      networkContext
+      networkContext,
+      protocolRunner
     } = requestHandler;
 
     const { proposedToIdentifier } = params;
 
-    const appInstanceId = await createProposedAppInstance(
-      publicIdentifier,
-      store,
-      networkContext,
-      params
+    const multisigAddress = getCreate2MultisigAddress(
+      [publicIdentifier, proposedToIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
     );
 
-    const proposalMsg: ProposeMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.PROPOSE_INSTALL,
-      data: { params, appInstanceId }
-    };
-
-    await messagingService.send(proposedToIdentifier, proposalMsg);
+    await protocolRunner.initiateProtocol(
+      Protocol.Propose,
+      await store.getStateChannelsMap(),
+      {
+        ...params,
+        initiatorXpub: publicIdentifier,
+        responderXpub: proposedToIdentifier
+      }
+    );
 
     return {
-      appInstanceId
+      appInstanceId: (await store.getStateChannel(
+        multisigAddress
+      )).mostRecentlyProposedAppInstance().identityHash
     };
   }
 }
@@ -138,6 +140,8 @@ function assertSufficientFundsWithinFreeBalance(
   tokenAddress: string,
   depositAmount: BigNumber
 ) {
+  if (!channel.hasFreeBalance) return;
+
   const freeBalanceForToken = channel
     .getFreeBalanceClass()
     .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0));

@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { randomBytes } from "crypto";
 import { Contract, Wallet } from "ethers";
@@ -15,6 +15,7 @@ import {
   constructWithdrawCommitmentRpc,
   constructWithdrawRpc,
   createChannel,
+  deployStateDepositHolder,
   deposit,
   transferERC20Tokens
 } from "./utils";
@@ -35,6 +36,9 @@ describe("Node method follows spec - withdraw", () => {
 
     multisigAddress = await createChannel(nodeA, nodeB);
     expect(multisigAddress).toBeDefined();
+
+    const txHash = await deployStateDepositHolder(nodeA, multisigAddress);
+    expect(txHash).toBeDefined();
 
     nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, () => {});
   });

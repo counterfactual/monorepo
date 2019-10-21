@@ -54,10 +54,6 @@ describe("StateChannel::uninstallApp", () => {
     expect(sc2.userNeuteredExtendedKeys).toBe(sc1.userNeuteredExtendedKeys);
   });
 
-  it("should have bumped the sequence number", () => {
-    expect(sc2.numInstalledApps).toBe(sc1.numInstalledApps + 1);
-  });
-
   it("should have added something at the id of thew new app", () => {
     expect(sc2.getAppInstance(appIdentityHash)).not.toBe(undefined);
   });

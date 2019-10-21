@@ -1,19 +1,21 @@
 {
   "name": "@counterfactual/apps",
-  "version": "0.1.5",
+  "version": "0.1.13",
   "description": "Collection of various apps built on Counterfactual",
   "repository": "github.com/counterfactual/monorepo",
   "license": "MIT",
   "engines": {
-    "yarn": "1.12.3",
-    "node": "10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "files": [
     "build",
+    "expected-build-artifacts",
     "networks"
   ],
   "scripts": {
-    "build": "waffle waffle.js",
+    "build": "waffle waffle.js && cp build/*.json expected-build-artifacts",
+    "ensure-build-artifacts-match-solidity-code": "waffle waffle.js && diff build expected-build-artifacts",
     "migrate": "truffle migrate",
     "test": "ts-mocha test/*",
     "lint:fix": "yarn lint:ts:fix && yarn lint:sol:fix",
@@ -24,23 +26,22 @@
     "lint:ts": "tslint -c tslint.json -p ."
   },
   "devDependencies": {
-    "@counterfactual/cf-adjudicator-contracts": "0.0.1",
-    "@counterfactual/types": "0.0.34",
-    "@types/chai": "4.2.0",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.9",
+    "@types/chai": "4.2.3",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
-    "ethereum-waffle": "2.0.15",
-    "ethers": "4.0.33",
-    "ethlint": "1.2.4",
-    "mocha": "6.2.0",
-    "solc": "0.5.10",
-    "truffle": "5.0.31",
+    "ethereum-waffle": "2.1.0",
+    "ethers": "4.0.37",
+    "ethlint": "1.2.5",
+    "mocha": "6.2.1",
+    "solc": "0.5.11",
+    "truffle": "5.0.38",
     "truffle-deploy-registry": "0.5.1",
-    "truffle-hdwallet-provider": "1.0.16",
+    "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
-    "tslint": "5.18.0"
+    "tslint": "5.20.0"
   },
   "resolutions": {
-    "ethereum-waffle/solc": "0.5.10"
+    "ethereum-waffle/solc": "0.5.11"
   }
 }

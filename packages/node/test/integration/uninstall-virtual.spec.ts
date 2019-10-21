@@ -14,6 +14,8 @@ import {
 
 jest.setTimeout(10000);
 
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
+
 describe("Node method follows spec - uninstall virtual", () => {
   let nodeA: Node;
   let nodeB: Node;
@@ -40,14 +42,14 @@ describe("Node method follows spec - uninstall virtual", () => {
         const multisigAddressAB = await createChannel(nodeA, nodeB);
         const multisigAddressBC = await createChannel(nodeB, nodeC);
 
-        await collateralizeChannel(nodeA, nodeB, multisigAddressAB);
-        await collateralizeChannel(nodeB, nodeC, multisigAddressBC);
+        await collateralizeChannel(multisigAddressAB, nodeA, nodeB);
+        await collateralizeChannel(multisigAddressBC, nodeB, nodeC);
 
         const appInstanceId = await installVirtualApp(
           nodeA,
           nodeB,
           nodeC,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           initialState
         );
 

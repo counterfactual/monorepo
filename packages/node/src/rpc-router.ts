@@ -34,24 +34,20 @@ export default class RpcRouter extends Router {
       throw Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
-    try {
-      const result = jsonRpcSerializeAsResponse(
-        {
-          result: await new controller.type()[controller.callback](
-            this.requestHandler,
-            rpc.parameters
-          ),
-          type: rpc.methodName
-        },
-        rpc.id as number
-      );
+    const result = jsonRpcSerializeAsResponse(
+      {
+        result: await new controller.type()[controller.callback](
+          this.requestHandler,
+          rpc.parameters
+        ),
+        type: rpc.methodName
+      },
+      rpc.id as number
+    );
 
-      this.requestHandler.outgoing.emit(rpc.methodName, result);
+    this.requestHandler.outgoing.emit(rpc.methodName, result);
 
-      return result;
-    } catch (e) {
-      throw Error(e);
-    }
+    return result;
   }
 
   async subscribe(event: string, callback: AsyncCallback) {
@@ -78,6 +74,8 @@ export default class RpcRouter extends Router {
   }
 
   eventListenerCount(event: string): number {
-    return this.requestHandler.outgoing.listenerCount(event);
+    return typeof this.requestHandler.outgoing.listenerCount === "function"
+      ? this.requestHandler.outgoing.listenerCount(event)
+      : 0;
   }
 }

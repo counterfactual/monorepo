@@ -1,4 +1,4 @@
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
 import { NetworkContextForTestSuite } from "@counterfactual/local-ganache-server";
 import { Contract } from "ethers";
 import { One, Two, Zero } from "ethers/constants";
@@ -27,21 +27,40 @@ describe("Node method follows spec - deposit", () => {
   let nodeA: Node;
   let nodeB: Node;
   let provider: JsonRpcProvider;
+  let multisigAddress: string;
 
   beforeEach(async () => {
     const context: SetupContext = await setup(global);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     provider = new JsonRpcProvider(global["ganacheURL"]);
+
+    multisigAddress = await createChannel(nodeA, nodeB);
+    expect(multisigAddress).toBeDefined();
+    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
+    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
+  });
+
+  it("has the right balance before an ERC20 deposit has been made", async () => {
+    const erc20ContractAddress = (global[
+      "networkContext"
+    ] as NetworkContextForTestSuite).DolphinCoin;
+
+    const freeBalanceState = await getFreeBalanceState(
+      nodeA,
+      multisigAddress,
+      erc20ContractAddress
+    );
+
+    expect(Object.values(freeBalanceState)).toMatchObject([Zero, Zero]);
   });
 
   it("has the right balance for both parties after deposits", async done => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
     const depositReq = constructDepositRpc(multisigAddress, One);
 
     const preDepositBalance = await provider.getBalance(multisigAddress);
 
-    nodeB.on(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
+    nodeB.once(NODE_EVENTS.DEPOSIT_CONFIRMED, async () => {
       await nodeB.rpcRouter.dispatch(depositReq);
       expect(await provider.getBalance(multisigAddress)).toBeEq(
         preDepositBalance.add(2)
@@ -62,8 +81,6 @@ describe("Node method follows spec - deposit", () => {
   });
 
   it("updates balances correctly when depositing both ERC20 tokens and ETH", async () => {
-    const multisigAddress = await createChannel(nodeA, nodeB);
-
     const erc20ContractAddress = (global[
       "networkContext"
     ] as NetworkContextForTestSuite).DolphinCoin;
@@ -94,8 +111,6 @@ describe("Node method follows spec - deposit", () => {
       multisigAddress
     );
 
-    nodeA.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
-    nodeB.off(NODE_EVENTS.DEPOSIT_CONFIRMED);
     await nodeA.rpcRouter.dispatch(erc20DepositRequest);
     await nodeB.rpcRouter.dispatch(erc20DepositRequest);
 

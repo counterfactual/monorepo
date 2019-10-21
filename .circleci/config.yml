@@ -29,6 +29,24 @@ restore_dep: &restore_dep
     key: dependency-cache-{{ checksum "yarn.lock" }}
 
 jobs:
+  ensure-build-artifacts-match-solidity-code:
+    <<: *defaults
+    steps:
+      - <<: *restore_code
+      - checkout
+      - <<: *restore_dep
+
+      - attach_workspace:
+          at: /home/circleci/project
+
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+
+      - run: yarn run patch-package
+
+      - run: "cd packages/cf-funding-protocol-contracts && yarn run ensure-build-artifacts-match-solidity-code"
+      - run: "cd packages/cf-adjudicator-contracts && yarn run ensure-build-artifacts-match-solidity-code"
+      - run: "cd packages/apps && yarn run ensure-build-artifacts-match-solidity-code"
+
   build:
     <<: *defaults
     steps:
@@ -37,6 +55,7 @@ jobs:
       - <<: *save_code
 
       - <<: *restore_dep
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
       - run:
           name: "yarn --frozen-lockfile"
           command: yarn --frozen-lockfile
@@ -67,9 +86,9 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
-      - run: sudo npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+
+      - run: sudo npm i -g yarn@1.17.3 # because docker image uses 1.13.0
 
       - run: yarn --frozen-lockfile # symlink packages' node_modules
 
@@ -85,13 +104,12 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
           at: /home/circleci/project
 
-      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
 
       - run: yarn lint
 
@@ -99,9 +117,7 @@ jobs:
     <<: *defaults
     steps:
       - <<: *restore_code
-
       - checkout
-
       - <<: *restore_dep
 
       - attach_workspace:
@@ -109,7 +125,7 @@ jobs:
 
       - run: apt-get install -y jq # using this to mutate package.json
 
-      - run: npm i -g yarn@1.12.3 # because docker image uses 1.13.0
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
 
       - run:
           name: Check root yarn.lock
@@ -120,12 +136,14 @@ jobs:
     steps:
       - <<: *restore_code
       - checkout
-
       - <<: *restore_dep
-      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - attach_workspace:
           at: /home/circleci/project
+
+      - run: npm i -g yarn@1.17.3 # because docker image uses 1.13.0
+
+      - run: yarn --frozen-lockfile # symlink packages' node_modules
 
       - run:
           name: Add NPM_TOKEN auth
@@ -139,6 +157,10 @@ workflows:
   counterfactual:
     jobs:
       - build
+
+      - ensure-build-artifacts-match-solidity-code:
+          requires:
+            - build
 
       - run-tslint:
           requires:

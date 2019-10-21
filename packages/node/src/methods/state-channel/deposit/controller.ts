@@ -1,8 +1,7 @@
-import ERC20 from "@counterfactual/cf-funding-protocol-contracts/build/ERC20.json";
+import ERC20 from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ERC20.json";
 import { Node } from "@counterfactual/types";
 import { Contract } from "ethers";
 import { BigNumber } from "ethers/utils";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
@@ -24,16 +23,14 @@ import {
 } from "./operation";
 
 export default class DepositController extends NodeController {
-  public static readonly methodName = Node.MethodName.DEPOSIT;
-
   @jsonRpcMethod(Node.RpcMethodName.DEPOSIT)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.DepositParams
-  ): Promise<Queue[]> {
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
+  ): Promise<string[]> {
+    return [params.multisigAddress];
   }
 
   protected async beforeExecution(
@@ -81,7 +78,7 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { provider } = requestHandler;
+    const { outgoing, provider } = requestHandler;
     const { multisigAddress, tokenAddress } = params;
 
     params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
@@ -101,11 +98,14 @@ export default class DepositController extends NodeController {
       multisigAddress
     );
 
-    await messagingService.send(counterpartyAddress, {
+    const payload: DepositConfirmationMessage = {
       from: publicIdentifier,
       type: NODE_EVENTS.DEPOSIT_CONFIRMED,
       data: params
-    } as DepositConfirmationMessage);
+    };
+
+    await messagingService.send(counterpartyAddress, payload);
+    outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, payload);
 
     return {
       multisigBalance: await provider.getBalance(multisigAddress)

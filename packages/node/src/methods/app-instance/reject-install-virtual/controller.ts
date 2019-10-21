@@ -13,7 +13,9 @@ export default async function rejectInstallVirtualController(
 
   const proposal = await store.getAppInstanceProposal(appInstanceId);
 
-  await store.removeAppInstanceProposal(appInstanceId);
+  const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
+
+  await store.saveStateChannel(stateChannel.removeProposal(appInstanceId));
 
   const rejectInstallVirtualMsg: RejectInstallVirtualMessage = {
     from: publicIdentifier,

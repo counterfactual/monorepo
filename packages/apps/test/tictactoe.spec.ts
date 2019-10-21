@@ -4,7 +4,7 @@ import * as waffle from "ethereum-waffle";
 import { Contract } from "ethers";
 import { defaultAbiCoder } from "ethers/utils";
 
-import TicTacToeApp from "../build/TicTacToeApp.json";
+import TicTacToeApp from "../expected-build-artifacts/TicTacToeApp.json";
 
 chai.use(waffle.solidity);
 

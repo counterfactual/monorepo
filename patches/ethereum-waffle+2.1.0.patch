@@ -1,0 +1,13 @@
+diff --git a/node_modules/ethereum-waffle/dist/compiler/saveOutput.js b/node_modules/ethereum-waffle/dist/compiler/saveOutput.js
+index b7b8b6c..dd0f5e9 100644
+--- a/node_modules/ethereum-waffle/dist/compiler/saveOutput.js
++++ b/node_modules/ethereum-waffle/dist/compiler/saveOutput.js
+@@ -111,7 +111,7 @@ function saveOutputCombined(output, config, filesystem) {
+ }
+ exports.saveOutputCombined = saveOutputCombined;
+ function getContent(contractJson, config) {
+-    if (config.legacyOutput || !contractJson.interface) {
++    if (config.legacyOutput) {
+         contractJson.interface = contractJson.abi;
+         contractJson.bytecode = contractJson.evm.bytecode.object;
+     }

@@ -15,12 +15,14 @@ import {
   getAppContext,
   getBalances,
   getInstalledAppInstances,
+  makeAndSendProposeCall,
   makeInstallCall,
-  makeProposeCall,
   transferERC20Tokens
 } from "./utils";
 
 expect.extend({ toBeLt });
+
+const { TicTacToeApp } = global["networkContext"] as NetworkContextForTestSuite;
 
 describe("Node method follows spec - install", () => {
   let multisigAddress: string;
@@ -40,7 +42,7 @@ describe("Node method follows spec - install", () => {
       });
 
       it("install app with ETH", async done => {
-        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+        await collateralizeChannel(multisigAddress, nodeA, nodeB);
 
         let preInstallETHBalanceNodeA: BigNumber;
         let postInstallETHBalanceNodeA: BigNumber;
@@ -83,10 +85,10 @@ describe("Node method follows spec - install", () => {
           done();
         });
 
-        await makeProposeCall(
+        await makeAndSendProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           undefined,
           One,
           CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -104,9 +106,9 @@ describe("Node method follows spec - install", () => {
         ] as NetworkContextForTestSuite).DolphinCoin;
 
         await collateralizeChannel(
+          multisigAddress,
           nodeA,
           nodeB,
-          multisigAddress,
           One,
           erc20TokenAddress
         );
@@ -155,10 +157,10 @@ describe("Node method follows spec - install", () => {
           done();
         });
 
-        await makeProposeCall(
+        await makeAndSendProposeCall(
           nodeA,
           nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+          TicTacToeApp,
           undefined,
           One,
           erc20TokenAddress,
@@ -168,9 +170,7 @@ describe("Node method follows spec - install", () => {
       });
 
       it("sends proposal with null initial state", async () => {
-        const appContext = getAppContext(
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp
-        );
+        const appContext = getAppContext(TicTacToeApp);
         const appInstanceProposalReq = constructAppProposalRpc(
           nodeB.publicIdentifier,
           appContext.appDefinition,

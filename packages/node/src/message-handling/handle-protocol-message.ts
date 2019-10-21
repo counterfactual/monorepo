@@ -1,4 +1,4 @@
-import { SolidityValueType } from "@counterfactual/types";
+import { NetworkContext, SolidityValueType } from "@counterfactual/types";
 
 import {
   InstallParams,
@@ -12,7 +12,7 @@ import {
   WithdrawParams
 } from "../machine";
 import { ProtocolParameters } from "../machine/types";
-import { executeFunctionWithinQueues } from "../methods/queued-execution";
+import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
 import { StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
 import { RequestHandler } from "../request-handler";
@@ -22,7 +22,7 @@ import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
 
 /**
  * Forwards all received NodeMessages that are for the machine's internal
- * protocol execution directly to the instructionExecutor's message handler:
+ * protocol execution directly to the protocolRunner's message handler:
  * `runProtocolWithMessage`
  */
 export async function handleReceivedProtocolMessage(
@@ -31,9 +31,10 @@ export async function handleReceivedProtocolMessage(
 ) {
   const {
     publicIdentifier,
-    instructionExecutor,
+    protocolRunner,
     store,
-    router
+    router,
+    networkContext
   } = requestHandler;
 
   const { data } = bigNumberifyJson(msg) as NodeMessageWrappedProtocolMessage;
@@ -44,34 +45,48 @@ export async function handleReceivedProtocolMessage(
 
   const preProtocolStateChannelsMap = await store.getStateChannelsMap();
 
-  const queueNames = await getQueueNamesListByProtocolName(
-    protocol,
-    params!,
-    requestHandler
-  );
-
-  const postProtocolStateChannelsMap = await executeFunctionWithinQueues(
-    queueNames.map(requestHandler.getShardedQueue.bind(requestHandler)),
-    async () => {
-      const stateChannelsMap = await instructionExecutor.runProtocolWithMessage(
-        data,
-        preProtocolStateChannelsMap
-      );
-
-      for (const stateChannel of stateChannelsMap.values()) {
-        await store.saveStateChannel(stateChannel);
-      }
-
-      return stateChannelsMap;
-    }
+  const postProtocolStateChannelsMap = await protocolRunner.runProtocolWithMessage(
+    data,
+    preProtocolStateChannelsMap
   );
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(
     protocol,
     params!,
     publicIdentifier,
-    postProtocolStateChannelsMap
+    postProtocolStateChannelsMap,
+    networkContext
   );
+
+  if (
+    outgoingEventData &&
+    (protocol === Protocol.Install || protocol === Protocol.InstallVirtualApp)
+  ) {
+    const appInstanceId = outgoingEventData!.data["appInstanceId"];
+    if (appInstanceId) {
+      let proposal;
+      try {
+        proposal = await store.getAppInstanceProposal(appInstanceId);
+      } catch (e) {
+        if (
+          !e
+            .toString()
+            .includes(
+              NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID(appInstanceId)
+            )
+        ) {
+          throw e;
+        }
+      }
+      if (proposal) {
+        await store.saveStateChannel(
+          (await store.getChannelFromAppInstanceID(
+            appInstanceId
+          )).removeProposal(appInstanceId)
+        );
+      }
+    }
+  }
 
   if (outgoingEventData) {
     await emitOutgoingNodeMessage(router, outgoingEventData);
@@ -86,16 +101,49 @@ function getOutgoingEventDataFromProtocol(
   protocol: string,
   params: ProtocolParameters,
   publicIdentifier: string,
-  stateChannelsMap: Map<string, StateChannel>
+  stateChannelsMap: Map<string, StateChannel>,
+  networkContext: NetworkContext
 ) {
   const baseEvent = { from: publicIdentifier };
 
   switch (protocol) {
+    case Protocol.Propose:
+      return {
+        ...baseEvent,
+        type: NODE_EVENTS.PROPOSE_INSTALL,
+        data: {
+          params,
+          appInstanceId: stateChannelsMap
+            .get(
+              getCreate2MultisigAddress(
+                [params.initiatorXpub, params.responderXpub],
+                networkContext.ProxyFactory,
+                networkContext.MinimumViableMultisig
+              )
+            )!
+            .mostRecentlyProposedAppInstance().identityHash
+        }
+      };
     case Protocol.Install:
-      // TODO: Have to take an InstallParams object and somehow compute the
-      //       appInstanceIdentityHash from it and then emit an event with
-      //       that value inside of it.
-      return;
+      return {
+        ...baseEvent,
+        type: NODE_EVENTS.INSTALL,
+        data: {
+          // TODO: It is weird that `params` is in the event data, we should
+          // remove it, but after telling all consumers about this change
+          params: {
+            appInstanceId: stateChannelsMap
+              .get(
+                getCreate2MultisigAddress(
+                  [params.responderXpub, params.initiatorXpub],
+                  networkContext.ProxyFactory,
+                  networkContext.MinimumViableMultisig
+                )
+              )!
+              .mostRecentlyInstalledAppInstance().identityHash
+          }
+        }
+      };
     case Protocol.Uninstall:
       return {
         ...baseEvent,
@@ -133,9 +181,26 @@ function getOutgoingEventDataFromProtocol(
         )
       };
     case Protocol.InstallVirtualApp:
-      // TODO: Have to take an InstallParams object and somehow compute the
-      //       appInstanceIdentityHash from it and then emit an event with
-      //       that value inside of it.
+      const virtualChannel = getCreate2MultisigAddress(
+        [params.responderXpub, params.initiatorXpub],
+        networkContext.ProxyFactory,
+        networkContext.MinimumViableMultisig
+      );
+      if (stateChannelsMap.has(virtualChannel)) {
+        return {
+          ...baseEvent,
+          type: NODE_EVENTS.INSTALL_VIRTUAL,
+          data: {
+            // TODO: It is weird that `params` is in the event data, we should
+            // remove it, but after telling all consumers about this change
+            params: {
+              appInstanceId: stateChannelsMap
+                .get(virtualChannel)!
+                .mostRecentlyInstalledAppInstance().identityHash
+            }
+          }
+        };
+      }
       return;
     case Protocol.UninstallVirtualApp:
       return {
@@ -215,12 +280,11 @@ async function getQueueNamesListByProtocolName(
      */
     case Protocol.Install:
     case Protocol.Setup:
-    case Protocol.Uninstall:
     case Protocol.Withdraw:
+    case Protocol.Propose:
       const { multisigAddress } = params as
         | InstallParams
         | SetupParams
-        | UninstallParams
         | WithdrawParams;
 
       return [multisigAddress];
@@ -234,14 +298,23 @@ async function getQueueNamesListByProtocolName(
 
       return [appIdentityHash];
 
+    case Protocol.Uninstall:
+      const {
+        multisigAddress: addr,
+        appIdentityHash: appInstanceId
+      } = params as UninstallParams;
+
+      return [addr, appInstanceId];
+
     /**
      * Queue on the multisig addresses of both direct channels involved.
      */
     case Protocol.InstallVirtualApp:
-    case Protocol.UninstallVirtualApp:
-      const { initiatorXpub, intermediaryXpub, responderXpub } = params as
-        | UninstallVirtualAppParams
-        | InstallVirtualAppParams;
+      const {
+        initiatorXpub,
+        intermediaryXpub,
+        responderXpub
+      } = params as InstallVirtualAppParams;
 
       if (publicIdentifier === intermediaryXpub) {
         return [
@@ -254,6 +327,34 @@ async function getQueueNamesListByProtocolName(
         return [
           multisigAddressFor([responderXpub, intermediaryXpub]),
           multisigAddressFor([responderXpub, initiatorXpub])
+        ];
+      }
+
+    /**
+     * Queue on the multisig addresses of both direct channels involved,
+     * as well as on the app itself
+     */
+    case Protocol.UninstallVirtualApp:
+      const {
+        initiatorXpub: initiator,
+        intermediaryXpub: intermediary,
+        responderXpub: responder,
+        targetAppIdentityHash
+      } = params as UninstallVirtualAppParams;
+
+      if (publicIdentifier === intermediary) {
+        return [
+          multisigAddressFor([initiator, intermediary]),
+          multisigAddressFor([responder, intermediary]),
+          targetAppIdentityHash
+        ];
+      }
+
+      if (publicIdentifier === responder) {
+        return [
+          multisigAddressFor([responder, intermediary]),
+          multisigAddressFor([responder, initiator]),
+          targetAppIdentityHash
         ];
       }
 

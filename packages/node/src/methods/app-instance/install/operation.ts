@@ -1,13 +1,13 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
 import { Store } from "../../../store";
 import { NO_APP_INSTANCE_ID_TO_INSTALL } from "../../errors";
 
 export async function install(
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   params: Node.InstallParams
 ): Promise<AppInstanceProposal> {
   const { appInstanceId } = params;
@@ -20,7 +20,7 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.Install,
     new Map<string, StateChannel>([
       // TODO: (architectural decision) Should this use `getAllChannels` or
@@ -34,12 +34,13 @@ export async function install(
       initiatorBalanceDecrement: proposal.initiatorDeposit,
       responderBalanceDecrement: proposal.responderDeposit,
       multisigAddress: stateChannel.multisigAddress,
-      participants: stateChannel.getNextSigningKeys(),
+      participants: stateChannel.getSigningKeysFor(proposal.appSeqNo),
       initialState: proposal.initialState,
       appInterface: {
         ...proposal.abiEncodings,
         addr: proposal.appDefinition
       },
+      appSeqNo: proposal.appSeqNo,
       defaultTimeout: proposal.timeout.toNumber(),
       outcomeType: proposal.outcomeType,
       initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
@@ -49,10 +50,10 @@ export async function install(
   );
 
   await store.saveStateChannel(
-    stateChannelsMap.get(stateChannel.multisigAddress)!
+    (await store.getChannelFromAppInstanceID(appInstanceId)).removeProposal(
+      appInstanceId
+    )
   );
-
-  await store.saveRealizedProposedAppInstance(proposal);
 
   return proposal;
 }

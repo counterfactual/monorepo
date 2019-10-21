@@ -1,5 +1,4 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
@@ -11,39 +10,43 @@ import { NO_MULTISIG_FOR_APP_INSTANCE_ID } from "../../errors";
 import { installVirtual } from "./operation";
 
 export default class InstallVirtualController extends NodeController {
-  public static readonly methodName = Node.MethodName.INSTALL_VIRTUAL;
-
   @jsonRpcMethod(Node.RpcMethodName.INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
-  ): Promise<Queue[]> {
+  ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { appInstanceId, intermediaries } = params;
+    const { appInstanceId, intermediaryIdentifier } = params;
 
-    const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+    const multisigAddressWithHub = getCreate2MultisigAddress(
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
 
-    const queues = [requestHandler.getShardedQueue(multisigAddress)];
+    const proposal = await store.getAppInstanceProposal(appInstanceId);
 
-    try {
-      const metachannel = await store.getChannelFromAppInstanceID(
-        appInstanceId
-      );
-      queues.push(requestHandler.getShardedQueue(metachannel.multisigAddress));
-    } catch (e) {
-      // It is possible the metachannel has never been created
-      if (e !== NO_MULTISIG_FOR_APP_INSTANCE_ID) {
-        throw Error(prettyPrintObject(e));
-      }
-    }
+    const { proposedByIdentifier } = proposal;
 
-    return queues;
+    const multisigAddressWithResponding = getCreate2MultisigAddress(
+      [publicIdentifier, proposedByIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    const multisigAddressBetweenHubAndResponding = getCreate2MultisigAddress(
+      [intermediaryIdentifier, proposedByIdentifier],
+      networkContext.ProxyFactory,
+      networkContext.MinimumViableMultisig
+    );
+
+    return [
+      multisigAddressWithHub,
+      multisigAddressWithResponding,
+      multisigAddressBetweenHubAndResponding
+    ];
   }
 
   protected async beforeExecution(
@@ -51,22 +54,16 @@ export default class InstallVirtualController extends NodeController {
     params: Node.InstallVirtualParams
   ) {
     const { store, publicIdentifier, networkContext } = requestHandler;
-    const { intermediaries } = params;
+    const { intermediaryIdentifier } = params;
 
-    if (intermediaries.length === 0) {
+    if (!intermediaryIdentifier) {
       throw Error(
         "Cannot install virtual app: you did not provide an intermediary."
       );
     }
 
-    if (intermediaries.length > 1) {
-      throw Error(
-        "Cannot install virtual app: Node only support single-hop virtual apps at the moment."
-      );
-    }
-
     const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, intermediaries[0]],
+      [publicIdentifier, intermediaryIdentifier],
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -92,38 +89,13 @@ export default class InstallVirtualController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.InstallVirtualParams
   ): Promise<Node.InstallVirtualResult> {
-    const {
-      store,
-      instructionExecutor,
-      publicIdentifier,
-      messagingService
-    } = requestHandler;
+    const { store, protocolRunner } = requestHandler;
 
     const { appInstanceId } = params;
 
     await store.getAppInstanceProposal(appInstanceId);
 
-    const appInstanceProposal = await installVirtual(
-      store,
-      instructionExecutor,
-      params
-    );
-
-    const installVirtualApprovalMsg: InstallVirtualMessage = {
-      from: publicIdentifier,
-      type: NODE_EVENTS.INSTALL_VIRTUAL,
-      data: {
-        params: {
-          appInstanceId
-        }
-      }
-    };
-
-    // TODO: Remove this and add a handler in protocolMessageEventController
-    await messagingService.send(
-      appInstanceProposal.proposedByIdentifier,
-      installVirtualApprovalMsg
-    );
+    await installVirtual(store, protocolRunner, params);
 
     return {
       appInstance: (await store.getAppInstance(appInstanceId)).toJson()

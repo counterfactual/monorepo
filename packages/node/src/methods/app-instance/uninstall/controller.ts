@@ -1,9 +1,8 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
-import { getCounterpartyAddress } from "../../../utils";
+import { getFirstElementInListNotEqualTo } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   APP_ALREADY_UNINSTALLED,
@@ -14,28 +13,23 @@ import {
 import { uninstallAppInstanceFromChannel } from "./operation";
 
 export default class UninstallController extends NodeController {
-  public static readonly methodName = Node.MethodName.UNINSTALL;
-
   @jsonRpcMethod(Node.RpcMethodName.UNINSTALL)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.UninstallVirtualParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store } = requestHandler;
     const { appInstanceId } = params;
 
     const sc = await store.getChannelFromAppInstanceID(appInstanceId);
+
     if (sc.freeBalance.identityHash === appInstanceId) {
       throw Error(CANNOT_UNINSTALL_FREE_BALANCE(sc.multisigAddress));
     }
 
-    return [
-      requestHandler.getShardedQueue(
-        await store.getMultisigAddressFromAppInstance(sc.multisigAddress)
-      )
-    ];
+    return [sc.multisigAddress, appInstanceId];
   }
 
   protected async beforeExecution(
@@ -54,7 +48,7 @@ export default class UninstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.UninstallParams
   ): Promise<Node.UninstallResult> {
-    const { store, instructionExecutor, publicIdentifier } = requestHandler;
+    const { store, protocolRunner, publicIdentifier } = requestHandler;
     const { appInstanceId } = params;
 
     if (!appInstanceId) {
@@ -67,14 +61,14 @@ export default class UninstallController extends NodeController {
       throw Error(APP_ALREADY_UNINSTALLED(appInstanceId));
     }
 
-    const to = getCounterpartyAddress(
+    const to = getFirstElementInListNotEqualTo(
       publicIdentifier,
       stateChannel.userNeuteredExtendedKeys
     );
 
     await uninstallAppInstanceFromChannel(
       store,
-      instructionExecutor,
+      protocolRunner,
       publicIdentifier,
       to,
       appInstanceId

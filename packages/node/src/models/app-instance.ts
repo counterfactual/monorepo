@@ -1,4 +1,4 @@
-import CounterfactualApp from "@counterfactual/cf-adjudicator-contracts/build/CounterfactualApp.json";
+import CounterfactualApp from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/CounterfactualApp.json";
 import {
   AppIdentity,
   AppInstanceJson,

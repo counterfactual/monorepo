@@ -1,4 +1,4 @@
-pragma solidity 0.5.10;
+pragma solidity 0.5.11;
 pragma experimental ABIEncoderV2;
 
 import "openzeppelin-solidity/contracts/cryptography/ECDSA.sol";
@@ -58,6 +58,10 @@ contract MinimumViableMultisig {
     public
   {
     bytes32 transactionHash = getTransactionHash(to, value, data, operation);
+    require(
+      !isExecuted[transactionHash],
+      "Transacation has already been executed"
+    );
 
     address lastSigner = address(0);
     for (uint256 i = 0; i < _owners.length; i++) {

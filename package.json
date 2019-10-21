@@ -4,8 +4,8 @@
     "packages/*"
   ],
   "engines": {
-    "yarn": "1.12.3",
-    "node": "10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "scripts": {
     "build": "lerna run build --ignore @counterfactual/wallet-ui && lerna run build --scope=**/wallet-ui",
@@ -20,7 +20,7 @@
     "lint:fix": "lerna run lint:fix --parallel --no-bail",
     "run:server": "lerna run start --parallel --scope=**/simple-hub-server",
     "run:wallet": "lerna run start --parallel --scope=**/simple-hub-server --scope=**/wallet-ui",
-    "run:wallet:e2e": "lerna run start:e2e --parallel --scope=**/simple-hub-server --scope=**/wallet-ui > /dev/null",
+    "run:wallet:e2e": "lerna run start:e2e --parallel --scope=**/simple-hub-server --scope=**/wallet-ui > /tmp/hub.log",
     "publish": "lerna publish --yes from-package patch",
     "postinstall": "patch-package"
   },
@@ -31,11 +31,11 @@
   ],
   "devDependencies": {
     "lerna": "3.16.4",
-    "patch-package": "6.1.2",
+    "patch-package": "6.2.0",
     "postinstall-postinstall": "2.0.0",
     "prettier": "1.18.2",
-    "tslint": "5.18.0",
-    "tslint-config-airbnb": "5.11.1",
+    "tslint": "5.20.0",
+    "tslint-config-airbnb": "5.11.2",
     "tslint-config-prettier": "1.18.0",
     "tslint-plugin-prettier": "2.0.1",
     "typescript": "3.5.3"

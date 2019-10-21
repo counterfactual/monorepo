@@ -1,7 +1,8 @@
-import { INodeProvider, Node } from "@counterfactual/types";
+import { IRpcNodeProvider } from "@counterfactual/types";
 import EventEmitter from "eventemitter3";
+import { JsonRpcNotification, JsonRpcResponse, Rpc } from "rpc-server";
 
-export default class NodeProvider implements INodeProvider {
+export default class NodeProvider implements IRpcNodeProvider {
   /**
    * This boolean determines if the NodeProvider has received a MessagePort
    * via the `cf-node-provider:port` message.
@@ -83,7 +84,9 @@ export default class NodeProvider implements INodeProvider {
     this.debugEmitter(source, message, data);
   }
 
-  public onMessage(callback: (message: Node.Message) => void) {
+  public onMessage(
+    callback: (message: JsonRpcResponse | JsonRpcNotification) => void
+  ) {
     this.log(
       "onMessage",
       "Registered listener for eventEmitter#message",
@@ -93,7 +96,7 @@ export default class NodeProvider implements INodeProvider {
     this.eventEmitter.on("message", callback);
   }
 
-  public sendMessage(message: Node.Message) {
+  public sendMessage(message: Rpc) {
     if (!this.isConnected || !this.messagePort) {
       // We fail because we do not have a messagePort available.
       throw new Error(

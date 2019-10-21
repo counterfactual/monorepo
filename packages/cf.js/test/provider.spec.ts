@@ -3,11 +3,7 @@ import { Zero } from "ethers/constants";
 import { JsonRpcNotification, JsonRpcResponse } from "rpc-server";
 
 import { AppInstance } from "../src/app-instance";
-import {
-  jsonRpcMethodNames,
-  NODE_REQUEST_TIMEOUT,
-  Provider
-} from "../src/provider";
+import { NODE_REQUEST_TIMEOUT, Provider } from "../src/provider";
 import {
   ErrorEventData,
   EventType,
@@ -129,9 +125,7 @@ describe("CF.js Provider", () => {
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.GET_APP_INSTANCES,
         request => {
-          expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.GET_APP_INSTANCES]
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.GET_APP_INSTANCES);
 
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
@@ -156,9 +150,7 @@ describe("CF.js Provider", () => {
     it("can install an app instance", async () => {
       expect.assertions(4);
       nodeProvider.onMethodRequest(Node.RpcMethodName.INSTALL, request => {
-        expect(request.methodName).toBe(
-          jsonRpcMethodNames[Node.MethodName.INSTALL]
-        );
+        expect(request.methodName).toBe(Node.RpcMethodName.INSTALL);
         expect((request.parameters as Node.InstallParams).appInstanceId).toBe(
           TEST_APP_INSTANCE_INFO.identityHash
         );
@@ -186,28 +178,25 @@ describe("CF.js Provider", () => {
 
     it("can install an app instance virtually", async () => {
       expect.assertions(7);
-      const expectedIntermediaries = [
-        "0x6001600160016001600160016001600160016001"
-      ];
+      const expectedHubIdentifier =
+        "0x6001600160016001600160016001600160016001";
 
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.INSTALL_VIRTUAL,
         request => {
-          expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.INSTALL_VIRTUAL]
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.INSTALL_VIRTUAL);
           const params = request.parameters as Node.InstallVirtualParams;
           expect(params.appInstanceId).toBe(
             TEST_APP_INSTANCE_INFO.identityHash
           );
-          expect(params.intermediaries).toBe(expectedIntermediaries);
+          expect(params.intermediaryIdentifier).toBe(expectedHubIdentifier);
 
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
               result: {
                 appInstance: {
-                  intermediaries: expectedIntermediaries,
+                  intermediaryIdentifier: expectedHubIdentifier,
                   ...TEST_APP_INSTANCE_INFO
                 }
               },
@@ -219,7 +208,7 @@ describe("CF.js Provider", () => {
       );
       const appInstance = await provider.installVirtual(
         TEST_APP_INSTANCE_INFO.identityHash,
-        expectedIntermediaries
+        expectedHubIdentifier
       );
       expect(appInstance.identityHash).toBe(
         TEST_APP_INSTANCE_INFO.identityHash
@@ -228,16 +217,14 @@ describe("CF.js Provider", () => {
         TEST_APP_INSTANCE_INFO.appDefinition
       );
       expect(appInstance.isVirtual).toBeTruthy();
-      expect(appInstance.intermediaries).toBe(expectedIntermediaries);
+      expect(appInstance.intermediaryIdentifier).toBe(expectedHubIdentifier);
     });
 
     it("can reject installation proposals", async () => {
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.REJECT_INSTALL,
         request => {
-          expect(request.methodName).toBe(
-            jsonRpcMethodNames[Node.MethodName.REJECT_INSTALL]
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.REJECT_INSTALL);
           const {
             appInstanceId
           } = request.parameters as Node.RejectInstallParams;
@@ -267,7 +254,7 @@ describe("CF.js Provider", () => {
           result: {
             appInstanceId: "TEST"
           },
-          type: Node.MethodName.REJECT_INSTALL
+          type: Node.RpcMethodName.REJECT_INSTALL
         }
       });
       setTimeout(done, 100);
@@ -373,7 +360,7 @@ describe("CF.js Provider", () => {
       expect(nodeProvider.postedMessages).toHaveLength(1);
       const [detailsRequest] = nodeProvider.postedMessages;
       expect(detailsRequest.methodName).toBe(
-        jsonRpcMethodNames[Node.MethodName.GET_APP_INSTANCE_DETAILS]
+        Node.RpcMethodName.GET_APP_INSTANCE_DETAILS
       );
       expect(
         (detailsRequest.parameters as Node.GetAppInstanceDetailsParams)

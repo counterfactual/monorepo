@@ -1,0 +1,67 @@
+[
+  {
+    "contractName": "Migrations",
+    "address": "0x9b2B0859f68515F9618616294528a1480C7520A6",
+    "transactionHash": "0x244403e98cdad0e662e3f0c17821f6ced96c0bfe6045a03a0ea82f107c9fa47c"
+  },
+  {
+    "contractName": "ChallengeRegistry",
+    "address": "0xF208620B4348d258477bb4C878C06f495b779Ab7",
+    "transactionHash": "0x339a726e57a36ba0547461c5558d7af7fdc35b4c78992abef0d8411f98eb9da0"
+  },
+  {
+    "contractName": "CoinBalanceRefundApp",
+    "address": "0xabD28314845bec56A495ddDB50fBA42d2c26D563",
+    "transactionHash": "0xab56303be5e7345906191c49194c74be451714f793c5721f703b17a3a1830e2b"
+  },
+  {
+    "contractName": "ConditionalTransactionDelegateTarget",
+    "address": "0x431a102F9513123650Ea8825966447B553E31B6C",
+    "transactionHash": "0x1d451fdf5c616ab0db5aa81a1a89d67b4b067443488b94c5916afcddfc664c1e"
+  },
+  {
+    "contractName": "IdentityApp",
+    "address": "0x54C5EfAF61C488F67e4639c879E3aE7468052f4d",
+    "transactionHash": "0x402fd09a74732dcd27202df72f3c53d0c4ac9a155c112eefa11f0674e22d7385"
+  },
+  {
+    "contractName": "MinimumViableMultisig",
+    "address": "0x35a3C667e2274448e52F02C60e45d4662B6BCbC1",
+    "transactionHash": "0x614a17396f9c4b77cdf150327fd7ff8a5f1b4ab1d826b5c980bb872a086de976"
+  },
+  {
+    "contractName": "MultiAssetMultiPartyCoinTransferInterpreter",
+    "address": "0xfe9B48f62FF233Ac1E2158167Bf39828d81eda80",
+    "transactionHash": "0xca86df29180bc36e7859e5c0bc5a908f85a3722d0705fc082f5e84846cdc5d1a"
+  },
+  {
+    "contractName": "SingleAssetTwoPartyCoinTransferFromVirtualAppInterpreter",
+    "address": "0x1f8b5Cf4FdC6d1185DDc33bA4e36886f27ba1f23",
+    "transactionHash": "0xb28dcf15181a1ea97b21431a2e682de2c6bc4d375e96884317f0470b124ba071"
+  },
+  {
+    "contractName": "SingleAssetTwoPartyCoinTransferInterpreter",
+    "address": "0xD8E4934170E8bC36a2FaeCf29c2235ea41ec7295",
+    "transactionHash": "0x38a8f290e1af413f1c8096eca52c0a9ffa90034963b18f98b48bf311cc84bc6a"
+  },
+  {
+    "contractName": "TimeLockedPassThrough",
+    "address": "0x22605cA28350A2b776dfA01c20A5769cb50850f3",
+    "transactionHash": "0x71736d2da4ff14fc564fb4181c964003167873dc3d2d2952f1b68a922fe6098f"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeFromVirtualAppInterpreter",
+    "address": "0x0E4582522f45eF8E73c3b1C75a5cD3e69BA47188",
+    "transactionHash": "0x850dda270b9a779a03742752a1637a0c12072b861189a268b6a9032103fab2d9"
+  },
+  {
+    "contractName": "TwoPartyFixedOutcomeInterpreter",
+    "address": "0x78E3dBf3080569299c0e4Db8F11841Fa85daE682",
+    "transactionHash": "0x970bcd6a6c4d27df250602775d133fb4c1094e493db63624224c5af485070828"
+  },
+  {
+    "contractName": "ProxyFactory",
+    "address": "0x711C655e08aaA9081e0BDc431920507CCD96b7a0",
+    "transactionHash": "0x9520c12eed8d6ed9068e6a3f1353904e493463b5fecf22a4c9f565857526b821"
+  }
+]

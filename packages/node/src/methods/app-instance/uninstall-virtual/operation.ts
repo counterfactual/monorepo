@@ -1,11 +1,11 @@
 import { BaseProvider } from "ethers/providers";
 
-import { InstructionExecutor, Protocol } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../machine";
 import { Store } from "../../../store";
 
 export async function uninstallVirtualAppInstanceFromChannel(
   store: Store,
-  instructionExecutor: InstructionExecutor,
+  protocolRunner: ProtocolRunner,
   provider: BaseProvider,
   initiatorXpub: string,
   responderXpub: string,
@@ -18,7 +18,7 @@ export async function uninstallVirtualAppInstanceFromChannel(
 
   const currentChannels = await store.getStateChannelsMap();
 
-  const stateChannelsMap = await instructionExecutor.initiateProtocol(
+  await protocolRunner.initiateProtocol(
     Protocol.UninstallVirtualApp,
     currentChannels,
     {
@@ -31,9 +31,5 @@ export async function uninstallVirtualAppInstanceFromChannel(
       ),
       targetAppIdentityHash: appInstance.identityHash
     }
-  );
-
-  stateChannelsMap.forEach(
-    async stateChannel => await store.saveStateChannel(stateChannel)
   );
 }

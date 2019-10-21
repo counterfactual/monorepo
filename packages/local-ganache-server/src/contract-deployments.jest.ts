@@ -1,100 +1,124 @@
-import TicTacToeApp from "@counterfactual/apps/build/TicTacToeApp.json";
-import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/build/ChallengeRegistry.json";
-import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/build/CoinBalanceRefundApp.json";
-import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/build/ConditionalTransactionDelegateTarget.json";
-import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/build/DolphinCoin.json";
-import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/build/IdentityApp.json";
-import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/build/MinimumViableMultisig.json";
-import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/MultiAssetMultiPartyCoinTransferInterpreter.json";
-import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/build/ProxyFactory.json";
-import SingleAssetTwoPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/SingleAssetTwoPartyCoinTransferInterpreter.json";
-import TimeLockedPassThrough from "@counterfactual/cf-funding-protocol-contracts/build/TimeLockedPassThrough.json";
-import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
-import TwoPartyFixedOutcomeInterpreter from "@counterfactual/cf-funding-protocol-contracts/build/TwoPartyFixedOutcomeInterpreter.json";
+import SimpleTransferApp from "@counterfactual/apps/expected-build-artifacts/SimpleTransferApp.json";
+import TicTacToeApp from "@counterfactual/apps/expected-build-artifacts/TicTacToeApp.json";
+import UnidirectionalLinkedTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalLinkedTransferApp.json";
+import UnidirectionalTransferApp from "@counterfactual/apps/expected-build-artifacts/UnidirectionalTransferApp.json";
+import ChallengeRegistry from "@counterfactual/cf-adjudicator-contracts/expected-build-artifacts/ChallengeRegistry.json";
+import CoinBalanceRefundApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/CoinBalanceRefundApp.json";
+import ConditionalTransactionDelegateTarget from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ConditionalTransactionDelegateTarget.json";
+import DolphinCoin from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/DolphinCoin.json";
+import IdentityApp from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/IdentityApp.json";
+import MinimumViableMultisig from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MinimumViableMultisig.json";
+import MultiAssetMultiPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/MultiAssetMultiPartyCoinTransferInterpreter.json";
+import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/ProxyFactory.json";
+import SingleAssetTwoPartyCoinTransferInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/SingleAssetTwoPartyCoinTransferInterpreter.json";
+import TimeLockedPassThrough from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TimeLockedPassThrough.json";
+import TwoPartyFixedOutcomeFromVirtualAppInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TwoPartyFixedOutcomeFromVirtualAppInterpreter.json";
+import TwoPartyFixedOutcomeInterpreter from "@counterfactual/cf-funding-protocol-contracts/expected-build-artifacts/TwoPartyFixedOutcomeInterpreter.json";
 import { NetworkContext } from "@counterfactual/types";
 import { ContractFactory, Wallet } from "ethers";
 
 export type NetworkContextForTestSuite = NetworkContext & {
   TicTacToeApp: string;
   DolphinCoin: string;
+  UnidirectionalTransferApp: string;
+  UnidirectionalLinkedTransferApp: string;
+  SimpleTransferApp: string;
 };
 
 export async function deployTestArtifactsToChain(wallet: Wallet) {
   const coinBalanceRefundContract = await new ContractFactory(
     CoinBalanceRefundApp.abi,
-    CoinBalanceRefundApp.bytecode,
+    CoinBalanceRefundApp.evm.bytecode,
     wallet
   ).deploy();
 
   const dolphinCoin = await new ContractFactory(
     DolphinCoin.abi,
-    DolphinCoin.bytecode,
+    DolphinCoin.evm.bytecode,
     wallet
   ).deploy();
 
   const identityApp = await new ContractFactory(
     IdentityApp.abi,
-    IdentityApp.bytecode,
+    IdentityApp.evm.bytecode,
     wallet
   ).deploy();
 
   const mvmContract = await new ContractFactory(
     MinimumViableMultisig.abi,
-    MinimumViableMultisig.bytecode,
+    MinimumViableMultisig.evm.bytecode,
     wallet
   ).deploy();
 
   const proxyFactoryContract = await new ContractFactory(
     ProxyFactory.abi,
-    ProxyFactory.bytecode,
+    ProxyFactory.evm.bytecode,
     wallet
   ).deploy();
 
   const coinTransferETHInterpreter = await new ContractFactory(
     MultiAssetMultiPartyCoinTransferInterpreter.abi,
-    MultiAssetMultiPartyCoinTransferInterpreter.bytecode,
+    MultiAssetMultiPartyCoinTransferInterpreter.evm.bytecode,
     wallet
   ).deploy();
 
   const twoPartyFixedOutcomeInterpreter = await new ContractFactory(
     TwoPartyFixedOutcomeInterpreter.abi,
-    TwoPartyFixedOutcomeInterpreter.bytecode,
+    TwoPartyFixedOutcomeInterpreter.evm.bytecode,
     wallet
   ).deploy();
 
   const challengeRegistry = await new ContractFactory(
     ChallengeRegistry.abi,
-    ChallengeRegistry.bytecode,
+    ChallengeRegistry.evm.bytecode,
     wallet
   ).deploy();
 
   const conditionalTransactionDelegateTarget = await new ContractFactory(
     ConditionalTransactionDelegateTarget.abi,
-    ConditionalTransactionDelegateTarget.bytecode,
+    ConditionalTransactionDelegateTarget.evm.bytecode,
     wallet
   ).deploy();
 
   const twoPartyFixedOutcomeFromVirtualAppETHInterpreter = await new ContractFactory(
     TwoPartyFixedOutcomeFromVirtualAppInterpreter.abi,
-    TwoPartyFixedOutcomeFromVirtualAppInterpreter.bytecode,
+    TwoPartyFixedOutcomeFromVirtualAppInterpreter.evm.bytecode,
     wallet
   ).deploy();
 
   const tttContract = await new ContractFactory(
     TicTacToeApp.abi,
-    TicTacToeApp.bytecode,
+    TicTacToeApp.evm.bytecode,
+    wallet
+  ).deploy();
+
+  const transferContract = await new ContractFactory(
+    UnidirectionalTransferApp.abi,
+    UnidirectionalTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
+  const simpleTransferContract = await new ContractFactory(
+    SimpleTransferApp.abi,
+    SimpleTransferApp.evm.bytecode,
+    wallet
+  ).deploy();
+
+  const linkContract = await new ContractFactory(
+    UnidirectionalLinkedTransferApp.abi,
+    UnidirectionalLinkedTransferApp.evm.bytecode,
     wallet
   ).deploy();
 
   const timeLockedPassThrough = await new ContractFactory(
     TimeLockedPassThrough.abi,
-    TimeLockedPassThrough.bytecode,
+    TimeLockedPassThrough.evm.bytecode,
     wallet
   ).deploy();
 
   const singleAssetTwoPartyCoinTransferInterpreter = await new ContractFactory(
     SingleAssetTwoPartyCoinTransferInterpreter.abi,
-    SingleAssetTwoPartyCoinTransferInterpreter.bytecode,
+    SingleAssetTwoPartyCoinTransferInterpreter.evm.bytecode,
     wallet
   ).deploy();
 
@@ -111,10 +135,13 @@ export async function deployTestArtifactsToChain(wallet: Wallet) {
     ProxyFactory: proxyFactoryContract.address,
     SingleAssetTwoPartyCoinTransferInterpreter:
       singleAssetTwoPartyCoinTransferInterpreter.address,
+    SimpleTransferApp: simpleTransferContract.address,
     TicTacToeApp: tttContract.address,
     TimeLockedPassThrough: timeLockedPassThrough.address,
     TwoPartyFixedOutcomeInterpreter: twoPartyFixedOutcomeInterpreter.address,
     TwoPartyFixedOutcomeFromVirtualAppInterpreter:
-      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address
+      twoPartyFixedOutcomeFromVirtualAppETHInterpreter.address,
+    UnidirectionalLinkedTransferApp: linkContract.address,
+    UnidirectionalTransferApp: transferContract.address
   } as NetworkContextForTestSuite;
 }

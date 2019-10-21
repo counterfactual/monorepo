@@ -64,38 +64,6 @@ Errors: (TODO)
 
 - Not enough funds
 
-### Method: `proposeInstallVirtual`
-
-Requests that a peer start the install protocol for a virtual app instance. At the same time, authorize the installation of that app instance, and generate and return a fresh ID for it. If the peer accepts and the install protocol completes, its ID should be the generated appInstanceId.
-
-Params:
-
-- `proposedToIdentifier: string`
-  - Public identifier of the peer responding to the installation request of the app
-- `appDefinition: string`
-  - On-chain address of App Definition contract
-- `abiEncodings:`[`AppABIEncodings`](#data-type-appabiencodings)
-  - ABI encodings used for states and actions of this app
-- `initiatorDeposit: BigNumber`
-  - Amount of the asset deposited by this user
-- `responderDeposit: BigNumber`
-  - Amount of the asset deposited by the counterparty
-- `timeout: BigNumber`
-  - Number of blocks until a submitted state for this app is considered finalized
-- `initialState:`[`AppState`](#data-type-appstate)
-  - Initial state of app instance
-- `intermediaries: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through
-
-Result:
-
-- `appInstanceId: string`
-  - Generated appInstanceId
-
-Errors: (TODO)
-
-- Not enough funds
-
 ### Method: `rejectInstall`
 
 Reject an app instance installation.
@@ -139,8 +107,8 @@ Params:
 - `appInstanceId: string`
   - ID of the app instance to install
   - Counterparty must have called `proposedInstall` and generated this ID
-- `intermediaries: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through
+- `intermediaryIdentifier: string`
+  - Node identifier of hub to route the virtual app installation through
 
 Result:
 
@@ -246,7 +214,7 @@ TODO
 
 ### Method: `createChannel`
 
-Creates a channel by deploying a multisignature wallet contract.
+Creates a channel and returns the determined address of the multisig (does not deploy).
 
 Params:
 
@@ -256,6 +224,23 @@ Params:
 Result:
 
 - `CreateChannelTransactionResult`
+  - `multisigAddress: string`
+    - the address which will hold the state deposits
+
+### Method: `deployStateDepositHolder`
+
+Deploys a multisignature wallet contract for use by the channel participants. Required step before withdrawal.
+
+Params:
+
+- `multisigAddress: string`
+  - address of the multisignature wallet
+- `retryCount?: number`
+  - the number of times to retry _deploying the multisig_ using an expontential backoff period between each successive retry, starting with 1 second. This defaults to 3 if no retry count is provided.
+
+Result:
+
+- `DeployStateDepositHolderResult`
   - `transactionHash: string`
     - the hash of the multisig deployment transaction
       - This can be used to either register a listener for when the transaction has been mined or await the mining.
@@ -304,7 +289,7 @@ Result:
 
 ### Method: `withdraw`
 
-If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`
+If a token address is specified, withdraws the specified amount of said token from the channel. Otherwise it defaults to ETH (denominated in Wei). The address that the withdrawal is made to is either specified by the `recipient` parameter, or if none is specified defaults to `ethers.utils.computeAddress(ethers.utils.HDNode.fromExtendedKey(nodePublicIdentifier).derivePath("0").publicKey)`. `deployStateDepositHolder` must be called before this method can be used to withdraw funds.
 
 Params:
 
@@ -346,8 +331,7 @@ Error(s):
 
 ### Method: `getFreeBalance`
 
-Gets the free balance AppInstance of the specified channel for the specified
-token. Defaults to ETH if no token is specified.
+Gets the free balance AppInstance of the specified channel for the specified token. Defaults to ETH if no token is specified.
 
 Params:
 
@@ -364,8 +348,7 @@ Result:
 
 Returns a mapping from address to balance in wei. The address of a node with public identifier `publicIdentifier` is defined as `fromExtendedKey(publicIdentifier).derivePath("0").address`.
 
-Note: calling this a specific token address will return Zero even if the channel
-has never had any deposits/withdrawals of that token.
+Note: calling this with a specific token address will return Zero even if the channel has never had any deposits/withdrawals of that token.
 
 ### Method: `getTokenIndexedFreeBalanceStates`
 
@@ -482,8 +465,8 @@ An instance of an installed app.
   - Amount of the asset deposited by the counterparty
 - `timeout: BigNumber`
   - Number of blocks until a submitted state for this app is considered finalized
-- `intermediaries?: string[]`
-  - List of the Node identifiers of intermediaries to route the virtual app installation through. Undefined if app instance is not virtual.
+- `intermediaryIdentifier?: string`
+  - Xpub of a hub to route the virtual app installation through. Undefined if app instance is not virtual.
 
 ### Data Type: `AppABIEncodings`
 

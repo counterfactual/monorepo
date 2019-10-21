@@ -1,26 +1,23 @@
 import { Node } from "@counterfactual/types";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
-import { WithdrawController } from "../..";
 import { xkeyKthAddress } from "../../../machine";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
+import WithdrawController from "../withdraw/controller";
 import { runWithdrawProtocol } from "../withdraw/operation";
 
 // Note: This can't extend `WithdrawController` because the `methodName` static
 // members of each class are incompatible.
 export default class WithdrawCommitmentController extends NodeController {
-  public static readonly methodName = Node.MethodName.WITHDRAW_COMMITMENT;
-
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW_COMMITMENT)
   public executeMethod = super.executeMethod;
 
-  protected async enqueueByShard(
+  protected async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.WithdrawCommitmentParams
-  ): Promise<Queue[]> {
-    return WithdrawController.enqueueByShard(requestHandler, params);
+  ): Promise<string[]> {
+    return WithdrawController.getRequiredLockNames(requestHandler, params);
   }
 
   protected async executeMethodImplementation(

@@ -27,6 +27,9 @@ describe("Contracts get deployed as expected", () => {
     // in the context of the tests
     delete networkContext["TicTacToeApp"];
     delete networkContext["DolphinCoin"];
+    delete networkContext["UnidirectionalTransferApp"];
+    delete networkContext["UnidirectionalLinkedTransferApp"];
+    delete networkContext["SimpleTransferApp"];
 
     const contractNames = new Set(Object.keys(networkContext));
     const expectedContracts = new Set(

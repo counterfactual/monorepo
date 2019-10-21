@@ -1,6 +1,5 @@
 import { Node } from "@counterfactual/types";
 import { JsonRpcProvider, TransactionResponse } from "ethers/providers";
-import Queue from "p-queue";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
@@ -18,15 +17,13 @@ import {
 import { runWithdrawProtocol } from "./operation";
 
 export default class WithdrawController extends NodeController {
-  public static readonly methodName = Node.MethodName.WITHDRAW;
-
   @jsonRpcMethod(Node.RpcMethodName.WITHDRAW)
   public executeMethod = super.executeMethod;
 
-  public static async enqueueByShard(
+  public static async getRequiredLockNames(
     requestHandler: RequestHandler,
     params: Node.WithdrawParams
-  ): Promise<Queue[]> {
+  ): Promise<string[]> {
     const { store, publicIdentifier, networkContext } = requestHandler;
 
     const stateChannel = await store.getStateChannel(params.multisigAddress);
@@ -56,7 +53,7 @@ export default class WithdrawController extends NodeController {
       );
     }
 
-    return [requestHandler.getShardedQueue(params.multisigAddress)];
+    return [params.multisigAddress];
   }
 
   protected async executeMethodImplementation(
@@ -82,6 +79,10 @@ export default class WithdrawController extends NodeController {
 
     if (!commitment) {
       throw Error("No withdrawal commitment found");
+    }
+
+    if ((await provider.getCode(multisigAddress)) === "0x") {
+      throw Error("Multisig has not been deployed");
     }
 
     const tx = {
