@@ -13,14 +13,13 @@ import { v4 as generateUUID } from "uuid";
 
 import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
 import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
+import MemoryLockService from "../services/memory-lock-service";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
-import MemoryLockService from "../services/memory-lock-service";
 import {
   A_EXTENDED_PRIVATE_KEY,
   B_EXTENDED_PRIVATE_KEY
 } from "../test-constants.jest";
-
 
 export interface NodeContext {
   node: Node;
@@ -73,11 +72,14 @@ export async function setup(
 
   const provider = new JsonRpcProvider(global["ganacheURL"]);
 
-  let extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
+  const extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
   let extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
 
   if (newExtendedPrvKey) {
-    const newExtendedPrvKeys = await generateNewFundedExtendedPrvKeys(global["fundedPrivateKey"], provider);
+    const newExtendedPrvKeys = await generateNewFundedExtendedPrvKeys(
+      global["fundedPrivateKey"],
+      provider
+    );
     extendedPrvKeyB = newExtendedPrvKeys.B_EXTENDED_PRV_KEY;
   }
 

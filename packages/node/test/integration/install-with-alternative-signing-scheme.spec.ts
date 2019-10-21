@@ -8,6 +8,7 @@ import { generatePrivateKeyGeneratorAndXPubPair, Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
 import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
+import MemoryLockService from "../services/memory-lock-service";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
 import {
@@ -23,7 +24,6 @@ import {
   makeInstallCall,
   makeProposeCall
 } from "./utils";
-import MemoryLockService from "../services/memory-lock-service";
 
 expect.extend({ toBeLt });
 
@@ -130,7 +130,8 @@ describe("Uses a provided signing key generation function to sign channel state 
         nodeA.rpcRouter.dispatch(
           await makeProposeCall(
             nodeB,
-            (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+            (global["networkContext"] as NetworkContextForTestSuite)
+              .TicTacToeApp,
             undefined,
             One,
             CONVENTION_FOR_ETH_TOKEN_ADDRESS,
