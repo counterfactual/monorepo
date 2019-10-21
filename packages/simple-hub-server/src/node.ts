@@ -242,7 +242,7 @@ export class NodeWrapper {
       provider ||
         new JsonRpcProvider(
           `https://${networkOrNetworkContext}.infura.io/11f02c6889494cb8b8f1919a5c536098`
-        ),
+        )
     );
 
     return node;
