@@ -15,12 +15,12 @@ import { EXTENDED_PRIVATE_KEY_PATH, Node } from "../../src";
 import { computeRandomExtendedPrvKey } from "../../src/machine/xkeys";
 import { MemoryMessagingService } from "../services/memory-messaging-service";
 import { MemoryStoreServiceFactory } from "../services/memory-store-service";
+import MemoryLockService from "../services/memory-lock-service";
 import {
   A_EXTENDED_PRIVATE_KEY,
   B_EXTENDED_PRIVATE_KEY
 } from "../test-constants.jest";
 
-import MemoryLockService from "./memory-lock-service";
 
 export interface NodeContext {
   node: Node;
@@ -33,7 +33,8 @@ export interface SetupContext {
 
 export async function setupWithMemoryMessagingAndPostgresStore(
   global: any,
-  nodeCPresent: boolean = false
+  nodeCPresent: boolean = false,
+  newExtendedPrvKeys: boolean = false
 ): Promise<SetupContext> {
   const memoryMessagingService = new MemoryMessagingService();
 
@@ -51,6 +52,7 @@ export async function setupWithMemoryMessagingAndPostgresStore(
   return setup(
     global,
     nodeCPresent,
+    newExtendedPrvKeys,
     memoryMessagingService,
     postgresServiceFactory
   );
@@ -59,6 +61,7 @@ export async function setupWithMemoryMessagingAndPostgresStore(
 export async function setup(
   global: any,
   nodeCPresent: boolean = false,
+  newExtendedPrvKey: boolean = false,
   messagingService: NodeTypes.IMessagingService = new MemoryMessagingService(),
   storeServiceFactory: NodeTypes.ServiceFactory = new MemoryStoreServiceFactory()
 ): Promise<SetupContext> {
@@ -70,8 +73,13 @@ export async function setup(
 
   const provider = new JsonRpcProvider(global["ganacheURL"]);
 
-  const extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
-  const extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
+  let extendedPrvKeyA = A_EXTENDED_PRIVATE_KEY;
+  let extendedPrvKeyB = B_EXTENDED_PRIVATE_KEY;
+
+  if (newExtendedPrvKey) {
+    const newExtendedPrvKeys = await generateNewFundedExtendedPrvKeys(global["fundedPrivateKey"], provider);
+    extendedPrvKeyB = newExtendedPrvKeys.B_EXTENDED_PRV_KEY;
+  }
 
   const lockService = new MemoryLockService();
 
@@ -84,9 +92,9 @@ export async function setup(
   const nodeA = await Node.create(
     messagingService,
     storeServiceA,
+    global["networkContext"],
     nodeConfig,
     provider,
-    global["networkContext"],
     lockService
   );
 
@@ -104,9 +112,9 @@ export async function setup(
   const nodeB = await Node.create(
     messagingService,
     storeServiceB,
+    global["networkContext"],
     nodeConfig,
     provider,
-    global["networkContext"],
     lockService
   );
   setupContext["B"] = {
@@ -122,9 +130,9 @@ export async function setup(
     nodeC = await Node.create(
       messagingService,
       storeServiceC,
+      global["networkContext"],
       nodeConfig,
       provider,
-      global["networkContext"],
       lockService
     );
     setupContext["C"] = {
@@ -171,11 +179,11 @@ export async function generateNewFundedExtendedPrvKeys(
 
   const transactionToA: TransactionRequest = {
     to: signerAAddress,
-    value: parseEther("0.1").toHexString()
+    value: parseEther("1").toHexString()
   };
   const transactionToB: TransactionRequest = {
     to: signerBAddress,
-    value: parseEther("0.1").toHexString()
+    value: parseEther("1").toHexString()
   };
   await fundedWallet.sendTransaction(transactionToA);
   await fundedWallet.sendTransaction(transactionToB);

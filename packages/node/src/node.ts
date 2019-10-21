@@ -62,9 +62,9 @@ export class Node {
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     nodeConfig: NodeConfig,
     provider: BaseProvider,
+    lockService?: NodeTypes.ILockService,
     publicExtendedKey?: string,
     privateKeyGenerator?: NodeTypes.IPrivateKeyGenerator,
-    lockService?: NodeTypes.ILockService,
     blocksNeededForConfirmation?: number
   ): Promise<Node> {
     const [

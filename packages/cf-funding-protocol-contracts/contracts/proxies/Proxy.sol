@@ -1,4 +1,4 @@
-pragma solidity 0.5.11;
+pragma solidity 0.5.12;
 
 
 /// @title Proxy - Generic proxy contract allows to execute all transactions applying the code of a master contract.

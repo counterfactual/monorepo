@@ -23,10 +23,11 @@ import {
   makeInstallCall,
   makeProposeCall
 } from "./utils";
+import MemoryLockService from "../services/memory-lock-service";
 
 expect.extend({ toBeLt });
 
-log.setLevel(log.levels.INFO);
+log.disableAll();
 
 describe("Uses a provided signing key generation function to sign channel state updates", () => {
   let multisigAddress: string;
@@ -45,6 +46,8 @@ describe("Uses a provided signing key generation function to sign channel state 
           STORE_KEY_PREFIX: process.env.FIREBASE_STORE_PREFIX_KEY!
         };
 
+        const lockService = new MemoryLockService();
+
         const storeServiceA = new MemoryStoreServiceFactory().createStoreService();
         const [
           privateKeyGeneratorA,
@@ -53,9 +56,10 @@ describe("Uses a provided signing key generation function to sign channel state 
         nodeA = await Node.create(
           messagingService,
           storeServiceA,
+          global["networkContext"],
           nodeConfig,
           provider,
-          global["networkContext"],
+          lockService,
           xpubA,
           privateKeyGeneratorA
         );
@@ -68,9 +72,10 @@ describe("Uses a provided signing key generation function to sign channel state 
         nodeB = await Node.create(
           messagingService,
           storeServiceB,
+          global["networkContext"],
           nodeConfig,
           provider,
-          global["networkContext"],
+          lockService,
           xpubB,
           privateKeyGeneratorB
         );
@@ -79,7 +84,7 @@ describe("Uses a provided signing key generation function to sign channel state 
       });
 
       it("install app with ETH", async done => {
-        await collateralizeChannel(nodeA, nodeB, multisigAddress);
+        await collateralizeChannel(multisigAddress, nodeA, nodeB);
 
         let preInstallETHBalanceNodeA: BigNumber;
         let postInstallETHBalanceNodeA: BigNumber;
@@ -122,15 +127,16 @@ describe("Uses a provided signing key generation function to sign channel state 
           done();
         });
 
-        await makeProposeCall(
-          nodeA,
-          nodeB,
-          (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
-          undefined,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-          One,
-          CONVENTION_FOR_ETH_TOKEN_ADDRESS
+        nodeA.rpcRouter.dispatch(
+          await makeProposeCall(
+            nodeB,
+            (global["networkContext"] as NetworkContextForTestSuite).TicTacToeApp,
+            undefined,
+            One,
+            CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+            One,
+            CONVENTION_FOR_ETH_TOKEN_ADDRESS
+          )
         );
       });
     }

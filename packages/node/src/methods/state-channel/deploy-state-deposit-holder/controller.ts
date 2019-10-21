@@ -3,8 +3,8 @@ import ProxyFactory from "@counterfactual/cf-funding-protocol-contracts/expected
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Contract, Signer } from "ethers";
 import { HashZero } from "ethers/constants";
-import { Provider, TransactionResponse } from "ethers/providers";
-import { Interface } from "ethers/utils";
+import { Provider, TransactionResponse, JsonRpcProvider } from "ethers/providers";
+import { Interface, bigNumberify } from "ethers/utils";
 import log from "loglevel";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -69,7 +69,8 @@ async function sendMultisigDeployTx(
     signer
   );
 
-  const provider = signer.provider;
+
+  const provider = signer.provider as JsonRpcProvider;
 
   if (!provider) {
     throw Error("wallet must have a provider");
