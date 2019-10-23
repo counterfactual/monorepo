@@ -43,15 +43,7 @@ function sortAddresses(addrs: string[]) {
 
 export type SingleAssetTwoPartyIntermediaryAgreement = {
   timeLockedPassThroughIdentityHash: string;
-  capitalProvided: BigNumber;
-  capitalProvider: string;
-  virtualAppUser: string;
-  tokenAddress: string;
-};
-
-type SingleAssetTwoPartyIntermediaryAgreementJSON = {
-  timeLockedPassThroughIdentityHash: string;
-  capitalProvided: { _hex: string };
+  capitalProvided: string;
   capitalProvider: string;
   virtualAppUser: string;
   tokenAddress: string;
@@ -64,7 +56,7 @@ export type StateChannelJSON = {
   readonly appInstances: [string, AppInstanceJson][];
   readonly singleAssetTwoPartyIntermediaryAgreements: [
     string,
-    SingleAssetTwoPartyIntermediaryAgreementJSON
+    SingleAssetTwoPartyIntermediaryAgreement
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumProposedApps: number;
@@ -545,13 +537,7 @@ export class StateChannel {
       monotonicNumProposedApps: this.monotonicNumProposedApps,
       singleAssetTwoPartyIntermediaryAgreements: [
         ...this.singleAssetTwoPartyIntermediaryAgreements.entries()
-      ].map(([key, val]) => [
-        key,
-        {
-          ...val,
-          capitalProvided: { _hex: val.capitalProvided.toHexString() }
-        }
-      ]),
+      ],
       createdAt: this.createdAt
     };
   }
@@ -579,17 +565,7 @@ export class StateChannel {
           ];
         })
       ),
-      new Map(
-        (json.singleAssetTwoPartyIntermediaryAgreements || []).map(
-          ([key, val]) => [
-            key,
-            {
-              ...val,
-              capitalProvided: bigNumberify(val.capitalProvided._hex)
-            }
-          ]
-        )
-      ),
+      new Map(json.singleAssetTwoPartyIntermediaryAgreements || []),
       json.freeBalanceAppInstance
         ? AppInstance.fromJson(json.freeBalanceAppInstance)
         : undefined,

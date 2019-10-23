@@ -1130,9 +1130,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
       tokenAddress,
       timeLockedPassThroughIdentityHash:
         timeLockedPassThroughAppInstance.identityHash,
-      capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
+      capitalProvided: bigNumberify(initiatorBalanceDecrement)
+        .add(responderBalanceDecrement)
+        .toHexString(),
       capitalProvider: intermediaryAddress,
       virtualAppUser: initiatorAddress
     },
@@ -1227,9 +1227,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: initiatorAddress
       },
@@ -1246,9 +1246,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: responderAddress
       },
@@ -1332,9 +1332,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: responderAddress
       },

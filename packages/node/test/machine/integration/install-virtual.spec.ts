@@ -18,6 +18,7 @@ import {
 import { xkeysToSortedKthSigningKeys } from "../../../src/machine/xkeys";
 import { AppInstance, StateChannel } from "../../../src/models";
 import { FreeBalanceClass } from "../../../src/models/free-balance";
+import { SingleAssetTwoPartyIntermediaryAgreement } from "../../../src/models/state-channel";
 import { encodeSingleAssetTwoPartyIntermediaryAgreementParams } from "../../../src/protocol/install-virtual-app";
 import { transferERC20Tokens } from "../../integration/utils";
 
@@ -269,10 +270,10 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
 
       const targetAppInstance = createTargetAppInstance();
 
-      const agreement = {
+      const agreement: SingleAssetTwoPartyIntermediaryAgreement = {
         capitalProvider,
         virtualAppUser,
-        capitalProvided: parseEther("10"),
+        capitalProvided: parseEther("10").toHexString(),
         tokenAddress: erc20Contract.address,
         /**
          * Note that this test cases does _not_ use a TimeLockedPassThrough, contrary
@@ -340,10 +341,10 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
 
       const targetAppInstance = createTargetAppInstance();
 
-      const agreement = {
+      const agreement: SingleAssetTwoPartyIntermediaryAgreement = {
         capitalProvider,
         virtualAppUser,
-        capitalProvided: parseEther("10"),
+        capitalProvided: parseEther("10").toHexString(),
         tokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
         timeLockedPassThroughIdentityHash: HashZero
       };
