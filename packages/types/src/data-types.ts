@@ -119,15 +119,15 @@ export type AppInstanceProposal = {
   appSeqNo: number;
   identityHash: string;
   initialState: SolidityValueType;
-  initiatorDeposit: BigNumberish;
+  initiatorDeposit: string;
   initiatorDepositTokenAddress: string;
   intermediaryIdentifier?: string;
   outcomeType: OutcomeType;
   proposedByIdentifier: string;
   proposedToIdentifier: string;
-  responderDeposit: BigNumberish;
+  responderDeposit: string;
   responderDepositTokenAddress: string;
-  timeout: BigNumberish;
+  timeout: string;
 
   /**
    * Interpreter-related Fields
