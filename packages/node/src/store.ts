@@ -41,7 +41,6 @@ export class Store {
     return new Map(
       Object.values(channelsJSON)
         .map(StateChannel.fromJson)
-        .sort((a, b) => b.createdAt || 0 - a.createdAt || 0)
         .map(sc => [sc.multisigAddress, sc])
     );
   }

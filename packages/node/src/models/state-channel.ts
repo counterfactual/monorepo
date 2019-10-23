@@ -60,7 +60,6 @@ export type StateChannelJSON = {
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumProposedApps: number;
-  readonly createdAt: number;
 };
 
 export class StateChannel {
@@ -80,8 +79,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     > = new Map<string, SingleAssetTwoPartyIntermediaryAgreement>([]),
     private readonly freeBalanceAppInstance?: AppInstance,
-    private readonly monotonicNumProposedApps: number = 0,
-    public readonly createdAt: number = Date.now()
+    private readonly monotonicNumProposedApps: number = 0
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (!xpub.startsWith("xpub")) {
@@ -232,7 +230,6 @@ export class StateChannel {
     >;
     freeBalanceAppInstance?: AppInstance;
     monotonicNumProposedApps?: number;
-    createdAt?: number;
   }) {
     return new StateChannel(
       args.multisigAddress || this.multisigAddress,
@@ -242,8 +239,7 @@ export class StateChannel {
       args.singleAssetTwoPartyIntermediaryAgreements ||
         this.singleAssetTwoPartyIntermediaryAgreements,
       args.freeBalanceAppInstance || this.freeBalanceAppInstance,
-      args.monotonicNumProposedApps || this.monotonicNumProposedApps,
-      args.createdAt || this.createdAt
+      args.monotonicNumProposedApps || this.monotonicNumProposedApps
     );
   }
 
@@ -537,8 +533,7 @@ export class StateChannel {
       monotonicNumProposedApps: this.monotonicNumProposedApps,
       singleAssetTwoPartyIntermediaryAgreements: [
         ...this.singleAssetTwoPartyIntermediaryAgreements.entries()
-      ],
-      createdAt: this.createdAt
+      ]
     };
   }
 
@@ -569,8 +564,7 @@ export class StateChannel {
       json.freeBalanceAppInstance
         ? AppInstance.fromJson(json.freeBalanceAppInstance)
         : undefined,
-      json.monotonicNumProposedApps,
-      json.createdAt
+      json.monotonicNumProposedApps
     );
   }
 
