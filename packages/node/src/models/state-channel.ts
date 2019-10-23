@@ -9,7 +9,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
 import { prettyPrintObject } from "../utils";
 
-import { AppInstanceProposal, AppInstanceProposalJSON } from ".";
+import { AppInstanceProposal } from ".";
 import { AppInstance } from "./app-instance";
 import {
   CoinTransferMap,
@@ -60,7 +60,7 @@ type SingleAssetTwoPartyIntermediaryAgreementJSON = {
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly userNeuteredExtendedKeys: string[];
-  readonly proposedAppInstances: [string, AppInstanceProposalJSON][];
+  readonly proposedAppInstances: [string, AppInstanceProposal][];
   readonly appInstances: [string, AppInstanceJson][];
   readonly singleAssetTwoPartyIntermediaryAgreements: [
     string,
@@ -530,11 +530,7 @@ export class StateChannel {
     return {
       multisigAddress: this.multisigAddress,
       userNeuteredExtendedKeys: this.userNeuteredExtendedKeys,
-      proposedAppInstances: [...this.proposedAppInstances.entries()].map(
-        (proposal): [string, AppInstanceProposalJSON] => {
-          return [proposal[0], proposal[1].toJson()];
-        }
-      ),
+      proposedAppInstances: [...this.proposedAppInstances.entries()],
       appInstances: [...this.appInstances.entries()].map((appInstanceEntry): [
         string,
         AppInstanceJson
@@ -569,7 +565,7 @@ export class StateChannel {
           string,
           AppInstanceProposal
         ] => {
-          return [proposal[0], AppInstanceProposal.fromJson(proposal[1])];
+          return [proposal[0], proposal[1]];
         })
       ),
       new Map(

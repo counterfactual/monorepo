@@ -6,6 +6,7 @@ import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
   VIRTUAL_APP_INSTALLATION_FAIL
 } from "../../errors";
+import { bigNumberify } from "ethers/utils";
 
 export async function installVirtual(
   store: Store,
@@ -48,11 +49,11 @@ export async function installVirtual(
         initiatorXpub: proposedToIdentifier,
         responderXpub: proposedByIdentifier,
         intermediaryXpub: intermediaryIdentifier,
-        defaultTimeout: timeout.toNumber(),
+        defaultTimeout: bigNumberify(timeout).toNumber(),
         appInterface: { addr: appDefinition, ...abiEncodings },
         appSeqNo: proposal.appSeqNo,
-        initiatorBalanceDecrement: initiatorDeposit,
-        responderBalanceDecrement: responderDeposit,
+        initiatorBalanceDecrement: bigNumberify(initiatorDeposit),
+        responderBalanceDecrement: bigNumberify(responderDeposit),
         tokenAddress: initiatorDepositTokenAddress
       }
     );

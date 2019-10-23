@@ -14,30 +14,30 @@ import {
   StateChannel
 } from "../../src/models";
 
-export function createAppInstanceProposalForTest(appInstanceId: string) {
-  return new AppInstanceProposal(
-    {
-      proposedByIdentifier: computeRandomExtendedPrvKey(),
-      proposedToIdentifier: computeRandomExtendedPrvKey(),
-      appDefinition: AddressZero,
-      abiEncodings: {
-        stateEncoding: "tuple(address foo, uint256 bar)",
-        actionEncoding: undefined
-      } as AppABIEncodings,
-      initiatorDeposit: Zero,
-      responderDeposit: Zero,
-      timeout: One,
-      initialState: {
-        foo: AddressZero,
-        bar: 0
-      } as SolidityValueType,
-      outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
-      initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-      responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
-    },
-    undefined,
-    appInstanceId
-  );
+export function createAppInstanceProposalForTest(
+  appInstanceId: string
+): AppInstanceProposal {
+  return {
+    identityHash: appInstanceId,
+    proposedByIdentifier: computeRandomExtendedPrvKey(),
+    proposedToIdentifier: computeRandomExtendedPrvKey(),
+    appDefinition: AddressZero,
+    abiEncodings: {
+      stateEncoding: "tuple(address foo, uint256 bar)",
+      actionEncoding: undefined
+    } as AppABIEncodings,
+    initiatorDeposit: Zero,
+    responderDeposit: Zero,
+    timeout: One,
+    initialState: {
+      foo: AddressZero,
+      bar: 0
+    } as SolidityValueType,
+    appSeqNo: 0,
+    outcomeType: OutcomeType.TWO_PARTY_FIXED_OUTCOME,
+    initiatorDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+    responderDepositTokenAddress: CONVENTION_FOR_ETH_TOKEN_ADDRESS
+  };
 }
 
 export function createAppInstanceForTest(stateChannel?: StateChannel) {

@@ -1,5 +1,5 @@
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
-import { ProtocolExecutionFlow } from "../machine";
+import { appIdentityToHash, ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -47,25 +47,30 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
         responderXpub
       ]);
 
-    const appInstanceProposal = new AppInstanceProposal(
-      {
+    const appInstanceProposal: AppInstanceProposal = {
+      appDefinition,
+      abiEncodings,
+      initiatorDeposit,
+      responderDeposit,
+      timeout,
+      initialState,
+      outcomeType,
+      identityHash: appIdentityToHash({
         appDefinition,
-        abiEncodings,
-        initiatorDeposit,
-        responderDeposit,
-        timeout,
-        initialState,
-        outcomeType,
-        proposedByIdentifier: initiatorXpub,
-        proposedToIdentifier: responderXpub,
-        appSeqNo: preProtocolStateChannel.numProposedApps + 1,
-        initiatorDepositTokenAddress:
-          initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-        responderDepositTokenAddress:
-          responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      },
-      preProtocolStateChannel
-    );
+        channelNonce: preProtocolStateChannel.numProposedApps + 1,
+        participants: preProtocolStateChannel.getSigningKeysFor(
+          preProtocolStateChannel.numProposedApps + 1
+        ),
+        defaultTimeout: timeout.toNumber()
+      }),
+      proposedByIdentifier: initiatorXpub,
+      proposedToIdentifier: responderXpub,
+      appSeqNo: preProtocolStateChannel.numProposedApps + 1,
+      initiatorDepositTokenAddress:
+        initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress:
+        responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    };
 
     const postProtocolStateChannel = preProtocolStateChannel.addProposal(
       appInstanceProposal
@@ -122,25 +127,30 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
         responderXpub
       ]);
 
-    const appInstanceProposal = new AppInstanceProposal(
-      {
+    const appInstanceProposal: AppInstanceProposal = {
+      appDefinition,
+      abiEncodings,
+      timeout,
+      initialState,
+      outcomeType,
+      identityHash: appIdentityToHash({
         appDefinition,
-        abiEncodings,
-        timeout,
-        initialState,
-        outcomeType,
-        initiatorDeposit: responderDeposit,
-        responderDeposit: initiatorDeposit,
-        proposedByIdentifier: initiatorXpub,
-        proposedToIdentifier: responderXpub,
-        appSeqNo: preProtocolStateChannel.numProposedApps + 1,
-        initiatorDepositTokenAddress:
-          responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
-        responderDepositTokenAddress:
-          initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
-      },
-      preProtocolStateChannel
-    );
+        channelNonce: preProtocolStateChannel.numProposedApps + 1,
+        participants: preProtocolStateChannel.getSigningKeysFor(
+          preProtocolStateChannel.numProposedApps + 1
+        ),
+        defaultTimeout: timeout.toNumber()
+      }),
+      initiatorDeposit: responderDeposit,
+      responderDeposit: initiatorDeposit,
+      proposedByIdentifier: initiatorXpub,
+      proposedToIdentifier: responderXpub,
+      appSeqNo: preProtocolStateChannel.numProposedApps + 1,
+      initiatorDepositTokenAddress:
+        responderDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+      responderDepositTokenAddress:
+        initiatorDepositTokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS
+    };
 
     const postProtocolStateChannel = preProtocolStateChannel.addProposal(
       appInstanceProposal
