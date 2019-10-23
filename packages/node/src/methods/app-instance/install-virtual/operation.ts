@@ -1,4 +1,5 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
 import { Store } from "../../../store";
@@ -48,11 +49,11 @@ export async function installVirtual(
         initiatorXpub: proposedToIdentifier,
         responderXpub: proposedByIdentifier,
         intermediaryXpub: intermediaryIdentifier,
-        defaultTimeout: timeout.toNumber(),
+        defaultTimeout: bigNumberify(timeout).toNumber(),
         appInterface: { addr: appDefinition, ...abiEncodings },
         appSeqNo: proposal.appSeqNo,
-        initiatorBalanceDecrement: initiatorDeposit,
-        responderBalanceDecrement: responderDeposit,
+        initiatorBalanceDecrement: bigNumberify(initiatorDeposit),
+        responderBalanceDecrement: bigNumberify(responderDeposit),
         tokenAddress: initiatorDepositTokenAddress
       }
     );

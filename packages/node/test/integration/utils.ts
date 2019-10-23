@@ -123,9 +123,9 @@ export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceProposal> {
-  const candidates = (await getProposedAppInstances(node)).filter(proposal => {
-    return proposal.identityHash === appInstanceId;
-  });
+  const candidates = (await getProposedAppInstances(node)).filter(
+    proposal => proposal.identityHash === appInstanceId
+  );
 
   if (candidates.length === 0) {
     throw new Error("Could not find proposal");

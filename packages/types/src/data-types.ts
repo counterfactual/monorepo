@@ -1,5 +1,5 @@
 // https://github.com/counterfactual/monorepo/blob/master/packages/cf.js/API_REFERENCE.md#data-types
-import { BigNumber } from "ethers/utils";
+import { BigNumber, BigNumberish } from "ethers/utils";
 
 import { AppInterface, SolidityValueType } from ".";
 
@@ -114,17 +114,20 @@ export type AppInstanceInfo = {
 };
 
 export type AppInstanceProposal = {
-  identityHash: string;
-  appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumber;
+  appDefinition: string;
+  appSeqNo: number;
+  identityHash: string;
+  initialState: SolidityValueType;
+  initiatorDeposit: BigNumberish;
   initiatorDepositTokenAddress: string;
-  responderDeposit: BigNumber;
-  responderDepositTokenAddress: string;
-  timeout: BigNumber;
-  proposedByIdentifier: string; // xpub
-  proposedToIdentifier: string; // xpub
   intermediaryIdentifier?: string;
+  outcomeType: OutcomeType;
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  responderDeposit: BigNumberish;
+  responderDepositTokenAddress: string;
+  timeout: BigNumberish;
 
   /**
    * Interpreter-related Fields
@@ -133,6 +136,8 @@ export type AppInstanceProposal = {
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
   singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
+
+
 
 export type AppABIEncodings = {
   stateEncoding: string;

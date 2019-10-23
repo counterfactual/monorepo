@@ -1,4 +1,5 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
 import { StateChannel } from "../../../models";
@@ -31,8 +32,8 @@ export async function install(
     {
       initiatorXpub: proposal.proposedToIdentifier,
       responderXpub: proposal.proposedByIdentifier,
-      initiatorBalanceDecrement: proposal.initiatorDeposit,
-      responderBalanceDecrement: proposal.responderDeposit,
+      initiatorBalanceDecrement: bigNumberify(proposal.initiatorDeposit),
+      responderBalanceDecrement: bigNumberify(proposal.responderDeposit),
       multisigAddress: stateChannel.multisigAddress,
       participants: stateChannel.getSigningKeysFor(proposal.appSeqNo),
       initialState: proposal.initialState,
@@ -41,7 +42,7 @@ export async function install(
         addr: proposal.appDefinition
       },
       appSeqNo: proposal.appSeqNo,
-      defaultTimeout: proposal.timeout.toNumber(),
+      defaultTimeout: bigNumberify(proposal.timeout).toNumber(),
       outcomeType: proposal.outcomeType,
       initiatorDepositTokenAddress: proposal.initiatorDepositTokenAddress,
       responderDepositTokenAddress: proposal.responderDepositTokenAddress,
