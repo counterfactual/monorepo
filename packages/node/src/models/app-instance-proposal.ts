@@ -20,4 +20,4 @@ export interface AppInstanceProposal {
   proposedToIdentifier: string;
   intermediaryIdentifier?: string;
   outcomeType: OutcomeType;
-};
+}

@@ -1,4 +1,5 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
 import { Store } from "../../../store";
@@ -6,7 +7,6 @@ import {
   NO_APP_INSTANCE_ID_TO_INSTALL,
   VIRTUAL_APP_INSTALLATION_FAIL
 } from "../../errors";
-import { bigNumberify } from "ethers/utils";
 
 export async function installVirtual(
   store: Store,

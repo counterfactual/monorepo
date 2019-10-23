@@ -2,7 +2,10 @@ import { Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { appIdentityToHash, xkeysToSortedKthSigningKeys } from "../../../machine";
+import {
+  appIdentityToHash,
+  xkeysToSortedKthSigningKeys
+} from "../../../machine";
 import { AppInstanceProposal } from "../../../models";
 import { Store } from "../../../store";
 import { getCreate2MultisigAddress } from "../../../utils";
