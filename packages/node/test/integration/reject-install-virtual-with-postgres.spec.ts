@@ -11,7 +11,9 @@ import {
 import {
   confirmProposedAppInstance,
   constructRejectInstallRpc,
+  constructVirtualProposalRpc,
   createChannel,
+  getAppContext,
   getProposedAppInstances,
   makeVirtualProposeCall
 } from "./utils";
@@ -41,7 +43,13 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
         await createChannel(nodeA, nodeB);
         await createChannel(nodeB, nodeC);
 
-        let proposalParams: NodeTypes.ProposeInstallVirtualParams;
+        const proposalParams = constructVirtualProposalRpc(
+          nodeC.publicIdentifier,
+          nodeB.publicIdentifier,
+          getAppContext(TicTacToeApp).appDefinition,
+          getAppContext(TicTacToeApp).abiEncodings,
+          getAppContext(TicTacToeApp).initialState
+        ).parameters;
 
         nodeA.on(NODE_EVENTS.REJECT_INSTALL_VIRTUAL, async () => {
           expect((await getProposedAppInstances(nodeA)).length).toEqual(0);
@@ -75,14 +83,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
           }
         );
 
-        const result = await makeVirtualProposeCall(
-          nodeA,
-          nodeC,
-          nodeB,
-          TicTacToeApp
-        );
-
-        proposalParams = result.params;
+        await makeVirtualProposeCall(nodeA, nodeC, nodeB, TicTacToeApp);
       });
     }
   );

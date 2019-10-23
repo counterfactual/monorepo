@@ -124,6 +124,7 @@ export class Node {
     );
     log.info(`Node signer address: ${this.signer.address}`);
     log.info(`Node public identifier: ${this.publicIdentifier}`);
+
     this.requestHandler = new RequestHandler(
       this.publicIdentifier,
       this.incoming,
@@ -138,6 +139,9 @@ export class Node {
       this.blocksNeededForConfirmation!,
       new ProcessQueue(this.lockService)
     );
+
+    await this.requestHandler.store.connectDB();
+
     this.registerMessagingConnection();
     this.rpcRouter = createRpcRouter(this.requestHandler);
     this.requestHandler.injectRouter(this.rpcRouter);
