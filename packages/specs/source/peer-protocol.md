@@ -40,7 +40,7 @@ A protocol consists of the following components:
 
 ## JSON
 
-This type specifies a modification of JSON that disallows the following primitive types: `true`, `false`, `null`. Note that when represented in javascript, large numbers which fit into `uint256` must be represented as either `BigNumber`s or as serialized `BigNumber`s (e.g., `{ _hex: '0x01'}`).
+This type specifies a modification of JSON that disallows the following primitive types: `true`, `false`, `null`. Note that when represented in javascript, large numbers which fit into `uint256` must be represented as hex strings, e.g., `0x01`.
 
 **Type: `CfAppInterface`**
 

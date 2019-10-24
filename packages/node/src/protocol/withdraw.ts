@@ -566,7 +566,7 @@ function addRefundAppToStateChannel(
     OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER,
     undefined,
     undefined,
-    { tokenAddress, limit: MaxUint256 }
+    { tokenAddress, limit: MaxUint256.toHexString() }
   );
 
   return stateChannel.installApp(refundAppInstance, {

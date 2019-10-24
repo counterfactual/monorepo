@@ -443,7 +443,9 @@ function computeInterpreterParameters(
         twoPartyOutcomeInterpreterParams: {
           tokenAddress: initiatorDepositTokenAddress,
           playerAddrs: [initiatorFbAddress, responderFbAddress],
-          amount: initiatorBalanceDecrement.add(responderBalanceDecrement)
+          amount: initiatorBalanceDecrement
+            .add(responderBalanceDecrement)
+            .toHexString()
         }
       };
     }
@@ -452,13 +454,20 @@ function computeInterpreterParameters(
       return initiatorDepositTokenAddress === responderDepositTokenAddress
         ? {
             multiAssetMultiPartyCoinTransferInterpreterParams: {
-              limit: [initiatorBalanceDecrement.add(responderBalanceDecrement)],
+              limit: [
+                initiatorBalanceDecrement
+                  .add(responderBalanceDecrement)
+                  .toHexString()
+              ],
               tokenAddresses: [initiatorDepositTokenAddress]
             }
           }
         : {
             multiAssetMultiPartyCoinTransferInterpreterParams: {
-              limit: [initiatorBalanceDecrement, responderBalanceDecrement],
+              limit: [
+                initiatorBalanceDecrement.toHexString(),
+                responderBalanceDecrement.toHexString()
+              ],
               tokenAddresses: [
                 initiatorDepositTokenAddress,
                 responderDepositTokenAddress
@@ -480,8 +489,10 @@ function computeInterpreterParameters(
       return {
         singleAssetTwoPartyCoinTransferInterpreterParams: {
           limit: disableLimit
-            ? MaxUint256
-            : initiatorBalanceDecrement.add(responderBalanceDecrement),
+            ? MaxUint256.toHexString()
+            : initiatorBalanceDecrement
+                .add(responderBalanceDecrement)
+                .toHexString(),
           tokenAddress: initiatorDepositTokenAddress
         }
       };

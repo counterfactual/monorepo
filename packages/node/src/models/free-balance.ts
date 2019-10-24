@@ -31,9 +31,7 @@ Equivalent to the above type but with serialized BigNumbers
 */
 type CoinTransferJSON = {
   to: string;
-  amount: {
-    _hex: string;
-  };
+  amount: string;
 };
 
 type FreeBalanceState = {
@@ -85,7 +83,7 @@ export class FreeBalanceClass {
     };
   }
 
-  public toTokenIndexedCoinTransferMap() {
+  public toTokenIndexedCoinTransferMap(): TokenIndexedCoinTransferMap {
     const ret = {};
     for (const tokenAddress of Object.keys(this.balancesIndexedByToken)) {
       ret[tokenAddress] = convertCoinTransfersToCoinTransfersMap(
@@ -255,7 +253,7 @@ function deserializeFreeBalanceState(
         ...acc,
         [getAddress(tokenAddress)]: balances[idx].map(({ to, amount }) => ({
           to,
-          amount: bigNumberify(amount._hex)
+          amount: bigNumberify(amount)
         }))
       }),
       {}
@@ -277,9 +275,7 @@ function serializeFreeBalanceState(
       balances =>
         balances.map(({ to, amount }) => ({
           to,
-          amount: {
-            _hex: amount.toHexString()
-          }
+          amount: amount.toHexString()
         }))
     )
   };
