@@ -2,11 +2,6 @@ import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 
 import {
-  DB_NAMESPACE_ALL_COMMITMENTS,
-  DB_NAMESPACE_CHANNEL,
-  DB_NAMESPACE_WITHDRAWALS
-} from "./db-schema";
-import {
   NO_MULTISIG_FOR_APP_INSTANCE_ID,
   NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID,
   NO_STATE_CHANNEL_FOR_MULTISIG_ADDR
@@ -19,27 +14,49 @@ import {
 } from "./models";
 import { prettyPrintObject } from "./utils";
 
+interface SharedData {
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON };
+  commitments: { [specialHash: string]: any[] };
+  withdrawals: { [multisigAddress: string]: Node.MinimalTransaction };
+}
+
 /**
  * A simple ORM around StateChannels and AppInstances stored using the
  * StoreService.
  */
 export class Store {
+  private sharedData: SharedData = {
+    stateChannelsMap: {},
+    commitments: {},
+    withdrawals: {}
+  };
+
   constructor(
     private readonly storeService: Node.IStoreService,
     private readonly storeKeyPrefix: string
   ) {}
+
+  public async connectDB() {
+    this.sharedData = (await this.storeService.get(this.storeKeyPrefix)) || {
+      stateChannelsMap: {},
+      commitments: {},
+      withdrawals: {}
+    };
+  }
+
+  public async persistDB() {
+    await this.storeService.set([
+      { path: this.storeKeyPrefix, value: this.sharedData }
+    ]);
+  }
 
   /**
    * Returns an object with the keys being the multisig addresses and the
    * values being `StateChannel` instances.
    */
   public async getStateChannelsMap(): Promise<Map<string, StateChannel>> {
-    const channelsJSON = ((await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}`
-    )) || {}) as { [multisigAddress: string]: StateChannelJSON };
-
     return new Map(
-      Object.values(channelsJSON)
+      Object.values(this.sharedData.stateChannelsMap)
         .map(StateChannel.fromJson)
         .map(sc => [sc.multisigAddress, sc])
     );
@@ -50,25 +67,20 @@ export class Store {
    * @param multisigAddress
    */
   public async getStateChannel(multisigAddress: string): Promise<StateChannel> {
-    const stateChannelJson = await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
-    );
+    const stateChannelJson = this.sharedData.stateChannelsMap[multisigAddress];
 
     if (!stateChannelJson) {
       throw Error(NO_STATE_CHANNEL_FOR_MULTISIG_ADDR(multisigAddress));
     }
 
-    const channel = StateChannel.fromJson(stateChannelJson);
-    return channel;
+    return StateChannel.fromJson(stateChannelJson);
   }
 
   /**
    * Checks if a StateChannel is in the store
    */
   public async hasStateChannel(multisigAddress: string): Promise<boolean> {
-    return !!(await this.storeService.get(
-      `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${multisigAddress}`
-    ));
+    return !!this.sharedData.stateChannelsMap[multisigAddress];
   }
 
   /**
@@ -97,12 +109,10 @@ export class Store {
    * @param stateChannel
    */
   public async saveStateChannel(stateChannel: StateChannel) {
-    await this.storeService.set([
-      {
-        path: `${this.storeKeyPrefix}/${DB_NAMESPACE_CHANNEL}/${stateChannel.multisigAddress}`,
-        value: stateChannel.toJson()
-      }
-    ]);
+    this.sharedData.stateChannelsMap[
+      stateChannel.multisigAddress
+    ] = stateChannel.toJson();
+    await this.persistDB();
   }
 
   /**
@@ -169,41 +179,25 @@ export class Store {
   public async getWithdrawalCommitment(
     multisigAddress: string
   ): Promise<Node.MinimalTransaction> {
-    return this.storeService.get(
-      [this.storeKeyPrefix, DB_NAMESPACE_WITHDRAWALS, multisigAddress].join("/")
-    );
+    return this.sharedData.withdrawals[multisigAddress];
   }
 
   public async storeWithdrawalCommitment(
     multisigAddress: string,
     commitment: Node.MinimalTransaction
   ) {
-    return this.storeService.set([
-      {
-        path: [
-          this.storeKeyPrefix,
-          DB_NAMESPACE_WITHDRAWALS,
-          multisigAddress
-        ].join("/"),
-        value: commitment
-      }
-    ]);
+    this.sharedData.withdrawals[multisigAddress] = commitment;
+    await this.persistDB();
   }
 
   public async setCommitment(args: any[], commitment: Node.MinimalTransaction) {
-    return this.storeService.set([
-      {
-        path: [
-          this.storeKeyPrefix,
-          DB_NAMESPACE_ALL_COMMITMENTS,
-          solidityKeccak256(
-            ["address", "uint256", "bytes"],
-            [commitment.to, commitment.value, commitment.data]
-          )
-        ].join("/"),
-        value: args.concat([commitment])
-      }
-    ]);
+    this.sharedData.commitments[
+      solidityKeccak256(
+        ["address", "uint256", "bytes"],
+        [commitment.to, commitment.value, commitment.data]
+      )
+    ] = args.concat([commitment]);
+    await this.persistDB();
   }
 
   public async getAppInstance(appInstanceId: string): Promise<AppInstance> {
