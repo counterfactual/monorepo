@@ -83,7 +83,7 @@ export class FreeBalanceClass {
     };
   }
 
-  public toTokenIndexedCoinTransferMap() {
+  public toTokenIndexedCoinTransferMap(): TokenIndexedCoinTransferMap {
     const ret = {};
     for (const tokenAddress of Object.keys(this.balancesIndexedByToken)) {
       ret[tokenAddress] = convertCoinTransfersToCoinTransfersMap(
