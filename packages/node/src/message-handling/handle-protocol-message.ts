@@ -17,7 +17,11 @@ import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors"
 import { StateChannel } from "../models";
 import { RequestHandler } from "../request-handler";
 import RpcRouter from "../rpc-router";
-import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "../types";
+import {
+  DepositConfirmationMessage,
+  NODE_EVENTS,
+  NodeMessageWrappedProtocolMessage
+} from "../types";
 import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
 
 /**
@@ -42,6 +46,16 @@ export async function handleReceivedProtocolMessage(
   const { protocol, seq, params } = data;
 
   if (seq === UNASSIGNED_SEQ_NO) return;
+
+  // FIXME: Very ugly hack for this one-off "event" style use case
+  let thisIsADepositConfirmed = false;
+  if (protocol === Protocol.Uninstall) {
+    const appInstanceId = (data.params as UninstallParams).appIdentityHash;
+    const appInstance = await store.getAppInstance(appInstanceId);
+    if (appInstance.appInterface.addr === networkContext.CoinBalanceRefundApp) {
+      thisIsADepositConfirmed = true;
+    }
+  }
 
   await protocolRunner.runProtocolWithMessage(data);
 
@@ -81,6 +95,18 @@ export async function handleReceivedProtocolMessage(
         );
       }
     }
+  }
+
+  if (thisIsADepositConfirmed) {
+    router.emit(
+      NODE_EVENTS.DEPOSIT_CONFIRMED,
+      {
+        from: publicIdentifier,
+        type: NODE_EVENTS.DEPOSIT_CONFIRMED,
+        data: {} // TODO: Validate correct values for the amount, token, etc
+      } as DepositConfirmationMessage,
+      "outgoing"
+    );
   }
 
   if (outgoingEventData) {

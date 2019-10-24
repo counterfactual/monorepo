@@ -24,7 +24,6 @@ import { prettyPrintObject } from "./utils";
  */
 export class RequestHandler {
   private readonly methods = new Map();
-  public readonly processQueue = new ProcessQueue();
 
   router!: RpcRouter;
 
@@ -39,7 +38,7 @@ export class RequestHandler {
     readonly provider: BaseProvider,
     readonly wallet: Signer,
     readonly blocksNeededForConfirmation: number,
-    public readonly processQueue: ProcessQueue
+    readonly processQueue: ProcessQueue
   ) {}
 
   injectRouter(router: RpcRouter) {
@@ -113,12 +112,8 @@ export class RequestHandler {
   public async hasMessageHandler(event: NodeEvents) {
     return [
       NODE_EVENTS.PROTOCOL_MESSAGE_EVENT,
-      NODE_EVENTS.PROPOSE_INSTALL,
-      NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
       NODE_EVENTS.REJECT_INSTALL,
-      NODE_EVENTS.REJECT_INSTALL_VIRTUAL,
-      NODE_EVENTS.INSTALL,
-      NODE_EVENTS.INSTALL_VIRTUAL
+      NODE_EVENTS.REJECT_INSTALL_VIRTUAL
     ].includes(event);
   }
 
