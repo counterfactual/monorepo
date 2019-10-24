@@ -625,7 +625,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
      * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
      */
     timeLockedPassThroughAppInstance.setState({
-      ...timeLockedPassThroughAppInstance.state,
+      ...Object(timeLockedPassThroughAppInstance.state),
       switchesOutcomeAt: 0,
       defaultOutcome: targetOutcome
     })
@@ -743,7 +743,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
      * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
      */
     timeLockedPassThroughAppInstance.setState({
-      ...timeLockedPassThroughAppInstance.state,
+      ...Object(timeLockedPassThroughAppInstance.state),
       switchesOutcomeAt: 0,
       defaultOutcome: expectedOutcome
     })
@@ -862,7 +862,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
      * Remove the TimeLockedPassThrough AppInstance in the 3-way channel
      */
     timeLockedPassThroughAppInstance.setState({
-      ...timeLockedPassThroughAppInstance.state,
+      ...Object(timeLockedPassThroughAppInstance.state),
       switchesOutcomeAt: 0,
       defaultOutcome: targetOutcome
     })

@@ -56,7 +56,7 @@ export class AppInstance {
     public readonly appInterface: AppInterface,
     public readonly isVirtualApp: boolean,
     public readonly appSeqNo: number,
-    public readonly latestState: any,
+    public readonly latestState: SolidityValueType,
     public readonly latestVersionNumber: number,
     public readonly latestTimeout: number,
     public readonly outcomeType: OutcomeType,
@@ -328,7 +328,7 @@ export class AppInstance {
 
     // ethers returns an array of [ <each value by idx>, <each value by key> ]
     // so we need to clean this response before returning
-    for (const key in this.state) {
+    for (const key in Object(this.state)) {
       ret[key] = computedNextState[key];
     }
 
