@@ -12,14 +12,10 @@ export async function uninstallAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  await protocolRunner.initiateProtocol(
-    Protocol.Uninstall,
-    await store.getStateChannelsMap(),
-    {
-      initiatorXpub,
-      responderXpub,
-      multisigAddress: stateChannel.multisigAddress,
-      appIdentityHash: appInstance.identityHash
-    }
-  );
+  await protocolRunner.initiateProtocol(Protocol.Uninstall, {
+    initiatorXpub,
+    responderXpub,
+    multisigAddress: stateChannel.multisigAddress,
+    appIdentityHash: appInstance.identityHash
+  });
 }

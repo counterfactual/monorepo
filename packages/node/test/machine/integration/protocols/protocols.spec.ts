@@ -40,7 +40,6 @@ describe("Three mininodes", () => {
 
     await tr.mininodeA.protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
-      tr.mininodeA.scm,
       {
         initiatorXpub: tr.mininodeA.xpub,
         intermediaryXpub: tr.mininodeB.xpub,
@@ -68,38 +67,29 @@ describe("Three mininodes", () => {
 
     expect(virtualAppInstance.isVirtualApp);
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
-      Protocol.Update,
-      tr.mininodeA.scm,
-      {
-        initiatorXpub: tr.mininodeA.xpub,
-        responderXpub: tr.mininodeC.xpub,
-        multisigAddress: tr.multisigAC,
-        appIdentityHash: virtualAppInstance.identityHash,
-        newState: {
-          counter: 1
-        }
+    await tr.mininodeA.protocolRunner.initiateProtocol(Protocol.Update, {
+      initiatorXpub: tr.mininodeA.xpub,
+      responderXpub: tr.mininodeC.xpub,
+      multisigAddress: tr.multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
+      newState: {
+        counter: 1
       }
-    );
+    });
 
-    await tr.mininodeA.protocolRunner.initiateProtocol(
-      Protocol.TakeAction,
-      tr.mininodeA.scm,
-      {
-        initiatorXpub: tr.mininodeA.xpub,
-        responderXpub: tr.mininodeC.xpub,
-        multisigAddress: tr.multisigAC,
-        appIdentityHash: virtualAppInstance.identityHash,
-        action: {
-          actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
-          increment: 1
-        }
+    await tr.mininodeA.protocolRunner.initiateProtocol(Protocol.TakeAction, {
+      initiatorXpub: tr.mininodeA.xpub,
+      responderXpub: tr.mininodeC.xpub,
+      multisigAddress: tr.multisigAC,
+      appIdentityHash: virtualAppInstance.identityHash,
+      action: {
+        actionType: ActionType.SUBMIT_COUNTER_INCREMENT,
+        increment: 1
       }
-    );
+    });
 
     await tr.mininodeA.protocolRunner.initiateProtocol(
       Protocol.UninstallVirtualApp,
-      tr.mininodeA.scm,
       {
         initiatorXpub: tr.mininodeA.xpub,
         intermediaryXpub: tr.mininodeB.xpub,

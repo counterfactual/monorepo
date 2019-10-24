@@ -25,7 +25,7 @@ interface SharedData {
  * StoreService.
  */
 export class Store {
-  private sharedData: SharedData = {
+  public sharedData: SharedData = {
     stateChannelsMap: {},
     commitments: {},
     withdrawals: {}

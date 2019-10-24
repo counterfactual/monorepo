@@ -20,18 +20,12 @@ export async function runWithdrawProtocol(
     multisigAddress
   );
 
-  const stateChannel = await store.getStateChannel(multisigAddress);
-
-  await protocolRunner.initiateProtocol(
-    Protocol.Withdraw,
-    new Map([[stateChannel.multisigAddress, stateChannel]]),
-    {
-      amount,
-      tokenAddress,
-      recipient: params.recipient as string,
-      initiatorXpub: publicIdentifier,
-      responderXpub: peerAddress,
-      multisigAddress: stateChannel.multisigAddress
-    }
-  );
+  await protocolRunner.initiateProtocol(Protocol.Withdraw, {
+    amount,
+    tokenAddress,
+    multisigAddress,
+    recipient: params.recipient as string,
+    initiatorXpub: publicIdentifier,
+    responderXpub: peerAddress
+  });
 }

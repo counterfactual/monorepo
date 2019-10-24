@@ -89,17 +89,11 @@ async function runUpdateStateProtocol(
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  const stateChannelsMap = await protocolRunner.initiateProtocol(
-    Protocol.Update,
-    new Map<string, StateChannel>([
-      [stateChannel.multisigAddress, stateChannel]
-    ]),
-    {
-      initiatorXpub,
-      responderXpub,
-      appIdentityHash,
-      newState,
-      multisigAddress: stateChannel.multisigAddress
-    }
-  );
+  await protocolRunner.initiateProtocol(Protocol.Update, {
+    initiatorXpub,
+    responderXpub,
+    appIdentityHash,
+    newState,
+    multisigAddress: stateChannel.multisigAddress
+  });
 }
