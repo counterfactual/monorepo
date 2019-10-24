@@ -3,17 +3,16 @@ import {
   OutcomeType,
   SolidityValueType
 } from "@counterfactual/types";
-import { BigNumberish } from "ethers/utils";
 
 export interface AppInstanceProposal {
   identityHash: string;
   appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumberish;
+  initiatorDeposit: string;
   initiatorDepositTokenAddress: string;
-  responderDeposit: BigNumberish;
+  responderDeposit: string;
   responderDepositTokenAddress: string;
-  timeout: BigNumberish;
+  timeout: string;
   initialState: SolidityValueType;
   appSeqNo: number;
   proposedByIdentifier: string;

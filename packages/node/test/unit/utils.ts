@@ -3,7 +3,7 @@ import {
   OutcomeType,
   SolidityValueType
 } from "@counterfactual/types";
-import { AddressZero, One, Zero } from "ethers/constants";
+import { AddressZero, Zero } from "ethers/constants";
 import { bigNumberify, getAddress, hexlify, randomBytes } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
@@ -26,9 +26,9 @@ export function createAppInstanceProposalForTest(
       stateEncoding: "tuple(address foo, uint256 bar)",
       actionEncoding: undefined
     } as AppABIEncodings,
-    initiatorDeposit: Zero,
-    responderDeposit: Zero,
-    timeout: One,
+    initiatorDeposit: "0x00",
+    responderDeposit: "0x00",
+    timeout: "0x01",
     initialState: {
       foo: AddressZero,
       bar: 0

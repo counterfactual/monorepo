@@ -1,4 +1,4 @@
-import { defaultAbiCoder, keccak256 } from "ethers/utils";
+import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
 import { SetStateCommitment } from "../ethereum";
@@ -58,11 +58,11 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const appInstanceProposal: AppInstanceProposal = {
       appDefinition,
       abiEncodings,
-      initiatorDeposit,
-      responderDeposit,
-      timeout,
       initialState,
       outcomeType,
+      initiatorDeposit: initiatorDeposit.toHexString(),
+      responderDeposit: responderDeposit.toHexString(),
+      timeout: timeout.toHexString(),
       identityHash: appIdentityToHash({
         appDefinition,
         channelNonce: preProtocolStateChannel.numProposedApps + 1,
@@ -178,7 +178,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const appInstanceProposal: AppInstanceProposal = {
       appDefinition,
       abiEncodings,
-      timeout,
       initialState,
       outcomeType,
       identityHash: appIdentityToHash({
@@ -189,8 +188,9 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
         ),
         defaultTimeout: timeout.toNumber()
       }),
-      initiatorDeposit: responderDeposit,
-      responderDeposit: initiatorDeposit,
+      timeout: timeout.toHexString(),
+      initiatorDeposit: responderDeposit.toHexString(),
+      responderDeposit: initiatorDeposit.toHexString(),
       proposedByIdentifier: initiatorXpub,
       proposedToIdentifier: responderXpub,
       appSeqNo: preProtocolStateChannel.numProposedApps + 1,
