@@ -19,7 +19,7 @@ import { defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
 import { appIdentityToHash } from "../ethereum/utils/app-identity";
-import { bigNumberifyJson, prettyPrintObject } from "../utils";
+import { prettyPrintObject } from "../utils";
 
 /**
  * Representation of an AppInstance.
@@ -97,29 +97,24 @@ export class AppInstance {
     return this.singleAssetTwoPartyCoinTransferInterpreterParamsInternal!;
   }
   public static fromJson(json: AppInstanceJson) {
-    const deserialized = bigNumberifyJson(json);
-
     return new AppInstance(
-      deserialized.participants,
-      deserialized.defaultTimeout,
-      deserialized.appInterface,
-      deserialized.isVirtualApp,
-      deserialized.appSeqNo,
-      deserialized.latestState,
-      deserialized.latestVersionNumber,
-      deserialized.latestTimeout,
-      deserialized.outcomeType,
-      deserialized.twoPartyOutcomeInterpreterParams,
-      deserialized.multiAssetMultiPartyCoinTransferInterpreterParams,
-      deserialized.singleAssetTwoPartyCoinTransferInterpreterParams
+      json.participants,
+      json.defaultTimeout,
+      json.appInterface,
+      json.isVirtualApp,
+      json.appSeqNo,
+      json.latestState,
+      json.latestVersionNumber,
+      json.latestTimeout,
+      json.outcomeType,
+      json.twoPartyOutcomeInterpreterParams,
+      json.multiAssetMultiPartyCoinTransferInterpreterParams,
+      json.singleAssetTwoPartyCoinTransferInterpreterParams
     );
   }
 
   public toJson(): AppInstanceJson {
-    // removes any fields which have an `undefined` value, as that's invalid JSON
-    // an example would be having an `undefined` value for the `actionEncoding`
-    // of an AppInstance that's not turn based
-    return bigNumberifyJson({
+    return {
       participants: this.participants,
       defaultTimeout: this.defaultTimeout,
       appInterface: this.appInterface,
@@ -136,7 +131,7 @@ export class AppInstance {
       singleAssetTwoPartyCoinTransferInterpreterParams: this
         .singleAssetTwoPartyCoinTransferInterpreterParamsInternal,
       identityHash: this.identityHash
-    });
+    };
   }
 
   @Memoize()

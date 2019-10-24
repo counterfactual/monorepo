@@ -855,9 +855,9 @@ function computeInterpreterParameters(
       twoPartyOutcomeInterpreterParams = {
         tokenAddress,
         playerAddrs: [initiatingAddress, respondingAddress],
-        amount: bigNumberify(initiatingBalanceDecrement).add(
+        amount: initiatingBalanceDecrement.add(
           respondingBalanceDecrement
-        )
+        ).toHexString()
       };
       break;
     }
@@ -865,9 +865,9 @@ function computeInterpreterParameters(
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       singleAssetTwoPartyCoinTransferInterpreterParams = {
         tokenAddress,
-        limit: bigNumberify(initiatingBalanceDecrement).add(
+        limit: initiatingBalanceDecrement.add(
           respondingBalanceDecrement
-        )
+        ).toHexString()
       };
       break;
     }

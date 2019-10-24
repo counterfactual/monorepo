@@ -195,7 +195,7 @@ describe("Scenario: Install virtual app with and put on-chain", () => {
         /* outcomeType */ OutcomeType.TWO_PARTY_FIXED_OUTCOME,
         {
           playerAddrs: [AddressZero, AddressZero],
-          amount: Zero,
+          amount: "0x00",
           tokenAddress: AddressZero
         },
         undefined,
