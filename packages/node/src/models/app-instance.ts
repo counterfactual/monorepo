@@ -96,6 +96,7 @@ export class AppInstance {
 
     return this.singleAssetTwoPartyCoinTransferInterpreterParamsInternal!;
   }
+
   public static fromJson(json: AppInstanceJson) {
     return new AppInstance(
       json.participants,
