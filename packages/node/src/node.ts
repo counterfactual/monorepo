@@ -22,6 +22,7 @@ import {
 import ProcessQueue from "./process-queue";
 import { RequestHandler } from "./request-handler";
 import RpcRouter from "./rpc-router";
+import { Store } from "./store";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
 
@@ -37,7 +38,6 @@ export class Node {
   private readonly incoming: EventEmitter;
   private readonly outgoing: EventEmitter;
 
-  private readonly protocolRunner: ProtocolRunner;
   private readonly networkContext: NetworkContext;
 
   private readonly ioSendDeferrals = new Map<
@@ -52,9 +52,11 @@ export class Node {
    * via `create` which immediately calls `asynchronouslySetupUsingRemoteServices`, these are
    * always non-null when the Node is being used.
    */
+  private readonly store: Store;
   private signer!: SigningKey;
   protected requestHandler!: RequestHandler;
   public rpcRouter!: RpcRouter;
+  private readonly protocolRunner!: ProtocolRunner;
 
   static async create(
     messagingService: NodeTypes.IMessagingService,
@@ -110,6 +112,11 @@ export class Node {
         ? getNetworkContextForNetworkName(networkContext)
         : networkContext;
 
+    this.store = new Store(
+      storeService,
+      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`
+    );
+
     this.protocolRunner = this.buildProtocolRunner();
 
     log.info(
@@ -129,13 +136,12 @@ export class Node {
       this.publicIdentifier,
       this.incoming,
       this.outgoing,
-      this.storeService,
+      this.store,
       this.messagingService,
       this.protocolRunner,
       this.networkContext,
       this.provider,
       new AutoNonceWallet(this.signer.privateKey, this.provider),
-      `${this.nodeConfig.STORE_KEY_PREFIX}/${this.publicIdentifier}`,
       this.blocksNeededForConfirmation!,
       new ProcessQueue(this.lockService)
     );
@@ -170,6 +176,7 @@ export class Node {
    */
   private buildProtocolRunner(): ProtocolRunner {
     const protocolRunner = new ProtocolRunner(
+      this.store,
       this.networkContext,
       this.provider
     );

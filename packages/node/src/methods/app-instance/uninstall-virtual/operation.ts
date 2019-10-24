@@ -16,20 +16,14 @@ export async function uninstallVirtualAppInstanceFromChannel(
 
   const appInstance = stateChannel.getAppInstance(appInstanceId);
 
-  const currentChannels = await store.getStateChannelsMap();
-
-  await protocolRunner.initiateProtocol(
-    Protocol.UninstallVirtualApp,
-    currentChannels,
-    {
-      initiatorXpub,
-      responderXpub,
-      intermediaryXpub,
-      targetOutcome: await appInstance.computeOutcome(
-        appInstance.state,
-        provider
-      ),
-      targetAppIdentityHash: appInstance.identityHash
-    }
-  );
+  await protocolRunner.initiateProtocol(Protocol.UninstallVirtualApp, {
+    initiatorXpub,
+    responderXpub,
+    intermediaryXpub,
+    targetOutcome: await appInstance.computeOutcome(
+      appInstance.state,
+      provider
+    ),
+    targetAppIdentityHash: appInstance.identityHash
+  });
 }

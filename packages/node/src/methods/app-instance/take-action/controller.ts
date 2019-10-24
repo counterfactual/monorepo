@@ -3,7 +3,6 @@ import { INVALID_ARGUMENT } from "ethers/errors";
 import { jsonRpcMethod } from "rpc-server";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
-import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { Store } from "../../../store";
 import { NODE_EVENTS, UpdateStateMessage } from "../../../types";
@@ -114,22 +113,14 @@ async function runTakeActionProtocol(
 ) {
   const stateChannel = await store.getChannelFromAppInstanceID(appIdentityHash);
 
-  let stateChannelsMap: Map<string, StateChannel>;
-
   try {
-    stateChannelsMap = await protocolRunner.initiateProtocol(
-      Protocol.TakeAction,
-      new Map<string, StateChannel>([
-        [stateChannel.multisigAddress, stateChannel]
-      ]),
-      {
-        initiatorXpub,
-        responderXpub,
-        appIdentityHash,
-        action,
-        multisigAddress: stateChannel.multisigAddress
-      }
-    );
+    await protocolRunner.initiateProtocol(Protocol.TakeAction, {
+      initiatorXpub,
+      responderXpub,
+      appIdentityHash,
+      action,
+      multisigAddress: stateChannel.multisigAddress
+    });
   } catch (e) {
     if (e.toString().indexOf("VM Exception") !== -1) {
       // TODO: Fetch the revert reason
