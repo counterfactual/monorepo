@@ -7,19 +7,19 @@ export type TwoPartyFixedOutcomeInterpreterParams = {
   // Derived from:
   // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
   playerAddrs: [string, string];
-  amount: BigNumber;
+  amount: string;
   tokenAddress: string;
 };
 
 export type MultiAssetMultiPartyCoinTransferInterpreterParams = {
   // Derived from:
   // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
-  limit: BigNumber[];
+  limit: string[];
   tokenAddresses: string[];
 };
 
 export type SingleAssetTwoPartyCoinTransferInterpreterParams = {
-  limit: BigNumber;
+  limit: string;
   tokenAddress: string;
 };
 
@@ -56,7 +56,6 @@ export const multiAssetMultiPartyCoinTransferEncoding = `
 
 export type AppInstanceJson = {
   identityHash: string;
-  multisigAddress: string;
   participants: string[];
   defaultTimeout: number;
   appInterface: AppInterface;
@@ -66,30 +65,14 @@ export type AppInstanceJson = {
   latestVersionNumber: number;
   latestTimeout: number;
 
-  outcomeType: number;
+  outcomeType: OutcomeType;
 
   /**
    * Interpreter-related Fields
    */
-  twoPartyOutcomeInterpreterParams?: {
-    // Derived from:
-    // packages/cf-funding-protocol/contracts/interpreters/TwoPartyFixedOutcomeInterpreter.sol#L10
-    playerAddrs: [string, string];
-    amount: { _hex: string };
-    tokenAddress: string;
-  };
-
-  multiAssetMultiPartyCoinTransferInterpreterParams?: {
-    // Derived from:
-    // packages/cf-funding-protocol/contracts/interpreters/MultiAssetMultiPartyCoinTransferInterpreter.sol#L18
-    limit: { _hex: string }[];
-    tokenAddresses: string[];
-  };
-
-  singleAssetTwoPartyCoinTransferInterpreterParams?: {
-    limit: { _hex: string };
-    tokenAddress: string;
-  };
+  twoPartyOutcomeInterpreterParams?: TwoPartyFixedOutcomeInterpreterParams;
+  multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
+  singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
 
 export type AppInstanceInfo = {
@@ -114,17 +97,20 @@ export type AppInstanceInfo = {
 };
 
 export type AppInstanceProposal = {
-  identityHash: string;
-  appDefinition: string;
   abiEncodings: AppABIEncodings;
-  initiatorDeposit: BigNumber;
+  appDefinition: string;
+  appSeqNo: number;
+  identityHash: string;
+  initialState: SolidityValueType;
+  initiatorDeposit: string;
   initiatorDepositTokenAddress: string;
-  responderDeposit: BigNumber;
-  responderDepositTokenAddress: string;
-  timeout: BigNumber;
-  proposedByIdentifier: string; // xpub
-  proposedToIdentifier: string; // xpub
   intermediaryIdentifier?: string;
+  outcomeType: OutcomeType;
+  proposedByIdentifier: string;
+  proposedToIdentifier: string;
+  responderDeposit: string;
+  responderDepositTokenAddress: string;
+  timeout: string;
 
   /**
    * Interpreter-related Fields
@@ -133,6 +119,8 @@ export type AppInstanceProposal = {
   multiAssetMultiPartyCoinTransferInterpreterParams?: MultiAssetMultiPartyCoinTransferInterpreterParams;
   singleAssetTwoPartyCoinTransferInterpreterParams?: SingleAssetTwoPartyCoinTransferInterpreterParams;
 };
+
+
 
 export type AppABIEncodings = {
   stateEncoding: string;

@@ -22,9 +22,18 @@ We have [some diagrams](./diagram.md) explaining the Node's architecture and con
 
 ## Node Address and Signing Keys
 
-The Node is expected to have access to an [extended private key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which it uses to derive a "public identifier" used as the address of a Node instance. This key is also used to produce private keys at app-specific derivation paths.
+In order for the Node to produce state-update commitments, it needs access to some signing keys.
 
-This key is expected to be provided at the "EXTENDED_KEY" key of the Store service that is passed as an argument to the Node. If no such value exists for this key, the Node produces an extended key and sets it at this key.
+There are two ways in which this is supported:
+
+1.  An [extended private key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) string is provided to the `Node` at the "EXTENDED_PRIVATE_KEY_PATH" key of the store service that is passed as an argument to the `Node`. If no such value exists for this key, the `Node` produces an extended private key and sets it at this key. This extended private key is then used to generate a "public identifer" for the `Node` (the address by which the `Node` is known by). It is also used to generate private keys which are specific to `AppInstance`s.
+
+2.  Instead of supplying a mnemonic, the `Node` operator supplies two other arguments:
+
+- an [extended public key](https://bitcoin.org/en/wallets-guide#hierarchical-deterministic-key-creation) which will serve as the "public identifier" of the `Node`, and will be used to generate signer addresses at `AppInstance`-specific derivation paths for signature verification in the protocols.
+- a callback function that offers the generation of a private key given a specific derivation path. This enables the consumer of the `Node` (i.e. wallets) to not reveal any mnemonics but provide the ability to sign state isolated to specific `AppInstance`s.
+
+The `Node` package exposes a reference implementation of the second approach through a function named `generatePrivateKeyGeneratorAndXPubPair` which produces these 2 arguments given an extended private key.
 
 ## Apps and OutcomeTypes
 
@@ -49,4 +58,3 @@ The currently supported outcome types are:
 Any consumer of the Node should set up a handler for the event `DEPOSIT_CONFIRMED` so as to define how this Node behaves when a counter party has initiated a deposit and is asking this Node to make a counter deposit and collateralize the channel. The parameters passed with this event correspond to the same ones used by the initiator, tha is `DepositParams` (as defined in the `@counterfactual/types packages`).
 
 If no such handler is defined, `No event handler for counter depositing into channel <info>` is printed indicating the Node does not know how to handle a counter deposit request.
-

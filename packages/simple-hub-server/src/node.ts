@@ -235,14 +235,14 @@ export class NodeWrapper {
     const node = await Node.create(
       messaging,
       store,
+      networkOrNetworkContext,
       {
         STORE_KEY_PREFIX: "store"
       },
       provider ||
         new JsonRpcProvider(
           `https://${networkOrNetworkContext}.infura.io/11f02c6889494cb8b8f1919a5c536098`
-        ),
-      networkOrNetworkContext
+        )
     );
 
     return node;

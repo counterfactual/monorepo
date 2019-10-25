@@ -81,25 +81,19 @@ export class TestRunner {
   state channel maps accordingly
   */
   async setup() {
-    this.mininodeA.scm.set(
-      this.multisigAB,
-      (await this.mininodeA.protocolRunner.runSetupProtocol({
-        initiatorXpub: this.mininodeA.xpub,
-        responderXpub: this.mininodeB.xpub,
-        multisigAddress: this.multisigAB
-      })).get(this.multisigAB)!
-    );
+    await this.mininodeA.protocolRunner.runSetupProtocol({
+      initiatorXpub: this.mininodeA.xpub,
+      responderXpub: this.mininodeB.xpub,
+      multisigAddress: this.multisigAB
+    });
 
     await this.mr.waitForAllPendingPromises();
 
-    this.mininodeB.scm.set(
-      this.multisigBC,
-      (await this.mininodeB.protocolRunner.runSetupProtocol({
-        initiatorXpub: this.mininodeB.xpub,
-        responderXpub: this.mininodeC.xpub,
-        multisigAddress: this.multisigBC
-      })).get(this.multisigBC)!
-    );
+    await this.mininodeB.protocolRunner.runSetupProtocol({
+      initiatorXpub: this.mininodeB.xpub,
+      responderXpub: this.mininodeC.xpub,
+      multisigAddress: this.multisigBC
+    });
 
     await this.mr.waitForAllPendingPromises();
   }
@@ -142,6 +136,18 @@ export class TestRunner {
         })
       );
     }
+
+    this.mininodeA.store.sharedData.stateChannelsMap = Array.from(
+      this.mininodeA.scm.entries()
+    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
+
+    this.mininodeB.store.sharedData.stateChannelsMap = Array.from(
+      this.mininodeB.scm.entries()
+    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
+
+    this.mininodeC.store.sharedData.stateChannelsMap = Array.from(
+      this.mininodeC.scm.entries()
+    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
   }
 
   async installVirtualEqualDeposits(
@@ -184,7 +190,6 @@ export class TestRunner {
 
     await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.InstallVirtualApp,
-      this.mininodeA.scm,
       {
         outcomeType,
         tokenAddress,
@@ -245,30 +250,26 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.protocolRunner.initiateProtocol(
-      Protocol.Install,
-      this.mininodeA.scm,
-      {
-        participants,
-        outcomeType,
-        initialState,
-        initiatorXpub: this.mininodeA.xpub,
-        responderXpub: this.mininodeB.xpub,
-        multisigAddress: this.multisigAB,
-        initiatorBalanceDecrement: One,
-        responderBalanceDecrement: One,
-        appInterface: {
-          stateEncoding,
-          addr: this.identityApp.address,
-          actionEncoding: undefined
-        },
-        appSeqNo: 1,
-        defaultTimeout: 40,
-        initiatorDepositTokenAddress: tokenAddress,
-        responderDepositTokenAddress: tokenAddress,
-        disableLimit: false
-      }
-    );
+    await this.mininodeA.protocolRunner.initiateProtocol(Protocol.Install, {
+      participants,
+      outcomeType,
+      initialState,
+      initiatorXpub: this.mininodeA.xpub,
+      responderXpub: this.mininodeB.xpub,
+      multisigAddress: this.multisigAB,
+      initiatorBalanceDecrement: One,
+      responderBalanceDecrement: One,
+      appInterface: {
+        stateEncoding,
+        addr: this.identityApp.address,
+        actionEncoding: undefined
+      },
+      appSeqNo: 1,
+      defaultTimeout: 40,
+      initiatorDepositTokenAddress: tokenAddress,
+      responderDepositTokenAddress: tokenAddress,
+      disableLimit: false
+    });
   }
 
   async installSplitDeposits(
@@ -315,30 +316,26 @@ export class TestRunner {
       xkeyKthAddress(this.mininodeB.xpub, 1)
     ]);
 
-    await this.mininodeA.protocolRunner.initiateProtocol(
-      Protocol.Install,
-      this.mininodeA.scm,
-      {
-        participants,
-        outcomeType,
-        initialState,
-        initiatorXpub: this.mininodeA.xpub,
-        responderXpub: this.mininodeB.xpub,
-        multisigAddress: this.multisigAB,
-        initiatorBalanceDecrement: One,
-        responderBalanceDecrement: One,
-        appInterface: {
-          stateEncoding,
-          addr: this.identityApp.address,
-          actionEncoding: undefined
-        },
-        appSeqNo: 1,
-        defaultTimeout: 40,
-        initiatorDepositTokenAddress: tokenAddressA,
-        responderDepositTokenAddress: tokenAddressB,
-        disableLimit: false
-      }
-    );
+    await this.mininodeA.protocolRunner.initiateProtocol(Protocol.Install, {
+      participants,
+      outcomeType,
+      initialState,
+      initiatorXpub: this.mininodeA.xpub,
+      responderXpub: this.mininodeB.xpub,
+      multisigAddress: this.multisigAB,
+      initiatorBalanceDecrement: One,
+      responderBalanceDecrement: One,
+      appInterface: {
+        stateEncoding,
+        addr: this.identityApp.address,
+        actionEncoding: undefined
+      },
+      appSeqNo: 1,
+      defaultTimeout: 40,
+      initiatorDepositTokenAddress: tokenAddressA,
+      responderDepositTokenAddress: tokenAddressB,
+      disableLimit: false
+    });
   }
 
   async uninstallVirtual() {
@@ -348,7 +345,6 @@ export class TestRunner {
 
     await this.mininodeA.protocolRunner.initiateProtocol(
       Protocol.UninstallVirtualApp,
-      this.mininodeA.scm,
       {
         // todo(xuanji): this should be computed by the protocol
         targetOutcome: await virtualAppInstance.computeOutcome(
@@ -375,16 +371,12 @@ export class TestRunner {
       );
     });
 
-    await this.mininodeA.protocolRunner.initiateProtocol(
-      Protocol.Uninstall,
-      this.mininodeA.scm,
-      {
-        appIdentityHash: key,
-        initiatorXpub: this.mininodeA.xpub,
-        responderXpub: this.mininodeB.xpub,
-        multisigAddress: this.multisigAB
-      }
-    );
+    await this.mininodeA.protocolRunner.initiateProtocol(Protocol.Uninstall, {
+      appIdentityHash: key,
+      initiatorXpub: this.mininodeA.xpub,
+      responderXpub: this.mininodeB.xpub,
+      multisigAddress: this.multisigAB
+    });
 
     await this.mr.waitForAllPendingPromises();
   }

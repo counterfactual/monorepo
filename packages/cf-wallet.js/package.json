@@ -1,13 +1,13 @@
 {
   "name": "@counterfactual/cf-wallet.js",
-  "version": "0.2.4",
+  "version": "0.2.6",
   "description": "The bridge between web applications and Counterfactual wallets.",
   "types": "dist/src/index.d.ts",
   "main": "dist/index.js",
   "iife": "dist/index-iife.js",
   "engines": {
-    "yarn": "1.19.0",
-    "node": "^10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "files": [
     "dist"
@@ -33,8 +33,8 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/node-provider": "0.2.2",
-    "@counterfactual/types": "0.0.43",
+    "@counterfactual/node-provider": "0.2.3",
+    "@counterfactual/types": "0.0.45",
     "ethers": "4.0.38",
     "eventemitter3": "^4.0.0",
     "global": "^4.3.2",

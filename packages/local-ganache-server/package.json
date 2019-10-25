@@ -1,12 +1,12 @@
 {
   "name": "@counterfactual/local-ganache-server",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "Utility package to spin up a blockchain with deployed contracts for testing purposes",
   "main": "src/index.ts",
   "license": "MIT",
   "engines": {
-    "yarn": "1.19.0",
-    "node": "^10.15.3"
+    "yarn": ">=1.17.3",
+    "node": "^10 || ^12"
   },
   "scripts": {
     "build": "tsc -b .",
@@ -19,10 +19,10 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/apps": "0.1.12",
-    "@counterfactual/cf-adjudicator-contracts": "0.0.7",
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.11",
-    "@counterfactual/types": "0.0.43",
+    "@counterfactual/apps": "0.1.14",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.10",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.13",
+    "@counterfactual/types": "0.0.45",
     "ethers": "4.0.38",
     "ganache-core": "2.8.0"
   }

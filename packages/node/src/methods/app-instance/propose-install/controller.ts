@@ -116,15 +116,11 @@ export default class ProposeInstallController extends NodeController {
       networkContext.MinimumViableMultisig
     );
 
-    await protocolRunner.initiateProtocol(
-      Protocol.Propose,
-      await store.getStateChannelsMap(),
-      {
-        ...params,
-        initiatorXpub: publicIdentifier,
-        responderXpub: proposedToIdentifier
-      }
-    );
+    await protocolRunner.initiateProtocol(Protocol.Propose, {
+      ...params,
+      initiatorXpub: publicIdentifier,
+      responderXpub: proposedToIdentifier
+    });
 
     return {
       appInstanceId: (await store.getStateChannel(

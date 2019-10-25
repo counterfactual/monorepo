@@ -27,7 +27,7 @@ describe("AppInstance", () => {
       OutcomeType.TWO_PARTY_FIXED_OUTCOME,
       {
         playerAddrs: [AddressZero, AddressZero],
-        amount: Zero,
+        amount: "0x00",
         tokenAddress: AddressZero
       },
       undefined,

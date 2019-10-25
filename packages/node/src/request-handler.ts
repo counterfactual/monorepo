@@ -20,25 +20,21 @@ export class RequestHandler {
   private readonly methods = new Map();
   private readonly events = new Map();
 
-  store: Store;
   router!: RpcRouter;
 
   constructor(
     readonly publicIdentifier: string,
     readonly incoming: EventEmitter,
     readonly outgoing: EventEmitter,
-    readonly storeService: Node.IStoreService,
+    readonly store: Store,
     readonly messagingService: Node.IMessagingService,
     readonly protocolRunner: ProtocolRunner,
     readonly networkContext: NetworkContext,
     readonly provider: BaseProvider,
     readonly wallet: Signer,
-    storeKeyPrefix: string,
     readonly blocksNeededForConfirmation: number,
     public readonly processQueue: ProcessQueue
-  ) {
-    this.store = new Store(storeService, storeKeyPrefix);
-  }
+  ) {}
 
   injectRouter(router: RpcRouter) {
     this.router = router;

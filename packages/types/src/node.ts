@@ -64,6 +64,10 @@ export namespace Node {
     reset?(): Promise<void>;
   }
 
+  export interface IPrivateKeyGenerator {
+    (s: string): Promise<string>;
+  }
+
   /**
    * Centralized locking service (i.e. redis)
    */

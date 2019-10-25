@@ -8,7 +8,7 @@ import {
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
-import { BigNumber, defaultAbiCoder } from "ethers/utils";
+import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
 import {
@@ -123,21 +123,23 @@ function handleTwoPartyFixedOutcome(
     case TwoPartyFixedOutcome.SEND_TO_ADDR_ONE:
       return {
         [tokenAddress]: {
-          [playerAddrs[0]]: amount
+          [playerAddrs[0]]: bigNumberify(amount)
         }
       };
     case TwoPartyFixedOutcome.SEND_TO_ADDR_TWO:
       return {
         [tokenAddress]: {
-          [playerAddrs[1]]: amount
+          [playerAddrs[1]]: bigNumberify(amount)
         }
       };
     case TwoPartyFixedOutcome.SPLIT_AND_SEND_TO_BOTH_ADDRS:
     default:
       return {
         [tokenAddress]: {
-          [playerAddrs[0]]: amount.div(2),
-          [playerAddrs[1]]: amount.sub(amount.div(2))
+          [playerAddrs[0]]: bigNumberify(amount).div(2),
+          [playerAddrs[1]]: bigNumberify(amount).sub(
+            bigNumberify(amount).div(2)
+          )
         }
       };
   }

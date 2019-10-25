@@ -4,6 +4,7 @@ import uuid from "uuid";
 
 import { StateChannel } from "../models";
 import { getProtocolFromName } from "../protocol";
+import { Store } from "../store";
 
 import { Opcode, Protocol } from "./enums";
 import { MiddlewareContainer } from "./middleware";
@@ -76,8 +77,9 @@ export class ProtocolRunner {
   public middlewares: MiddlewareContainer;
 
   constructor(
-    public readonly network: NetworkContext,
-    public readonly provider: BaseProvider
+    private readonly store: Store,
+    private readonly network: NetworkContext,
+    private readonly provider: BaseProvider
   ) {
     this.middlewares = new MiddlewareContainer();
   }
@@ -89,10 +91,7 @@ export class ProtocolRunner {
   /// Starts executing a protocol in response to a message received. This
   /// function should not be called with messages that are waited for by
   /// `IO_SEND_AND_WAIT`
-  public async runProtocolWithMessage(
-    msg: ProtocolMessage,
-    sc: Map<string, StateChannel>
-  ) {
+  public async runProtocolWithMessage(msg: ProtocolMessage) {
     const protocol = getProtocolFromName(msg.protocol);
     const step = protocol[msg.seq];
     if (step === undefined) {
@@ -100,15 +99,14 @@ export class ProtocolRunner {
         `Received invalid seq ${msg.seq} for protocol ${msg.protocol}`
       );
     }
-    return this.runProtocol(sc, step, msg);
+    return this.runProtocol(step, msg);
   }
 
   public async initiateProtocol<T extends Protocol>(
     protocolName: T,
-    sc: Map<string, StateChannel>,
     params: ParamTypeOf<T>
   ) {
-    return this.runProtocol(sc, getProtocolFromName(protocolName)[0], {
+    return this.runProtocol(getProtocolFromName(protocolName)[0], {
       params,
       protocol: protocolName,
       processID: uuid.v1(),
@@ -120,28 +118,23 @@ export class ProtocolRunner {
 
   public async runSetupProtocol(params: SetupParams) {
     const protocol = Protocol.Setup;
-    return this.runProtocol(
-      new Map<string, StateChannel>(),
-      getProtocolFromName(protocol)[0],
-      {
-        protocol,
-        params,
-        processID: uuid.v1(),
-        seq: 0,
-        toXpub: params.responderXpub,
-        customData: {}
-      }
-    );
+    return this.runProtocol(getProtocolFromName(protocol)[0], {
+      protocol,
+      params,
+      processID: uuid.v1(),
+      seq: 0,
+      toXpub: params.responderXpub,
+      customData: {}
+    });
   }
 
   private async runProtocol(
-    stateChannelsMap: Map<string, StateChannel>,
     instruction: (context: Context) => AsyncIterableIterator<any>,
     message: ProtocolMessage
-  ): Promise<Map<string, StateChannel>> {
+  ) {
     const context: Context = {
       message,
-      stateChannelsMap,
+      stateChannelsMap: await this.store.getStateChannelsMap(),
       network: this.network,
       provider: this.provider
     };
@@ -156,10 +149,5 @@ export class ProtocolRunner {
       const [opcode, ...args] = ret.value;
       lastMiddlewareRet = await this.middlewares.run(opcode, args);
     }
-
-    // TODO: it is possible to compute a diff of the original state channel
-    //       objects and the new state channel objects at this point
-    //       probably useful!
-    return context.stateChannelsMap;
   }
 }

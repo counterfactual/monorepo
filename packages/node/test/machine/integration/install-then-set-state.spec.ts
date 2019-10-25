@@ -144,7 +144,7 @@ describe("Scenario: install AppInstance, set state, put on-chain", () => {
         undefined,
         {
           // total limit of ETH and ERC20 token that can be transferred
-          limit: [WeiPerEther, WeiPerEther],
+          limit: [WeiPerEther.toHexString(), WeiPerEther.toHexString()],
           // The only assets being transferred are ETH and the ERC20 token
           tokenAddresses: [CONVENTION_FOR_ETH_TOKEN_ADDRESS, erc20TokenAddress]
         } as MultiAssetMultiPartyCoinTransferInterpreterParams,

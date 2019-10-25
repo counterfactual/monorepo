@@ -13,9 +13,9 @@ describe("Node", () => {
     const node = await Node.create(
       mockMessagingService,
       new MemoryStoreService(),
+      global["networkContext"],
       { STORE_KEY_PREFIX: "./node.spec.ts-test-file" },
-      new JsonRpcProvider(global["ganacheURL"]),
-      global["networkContext"]
+      new JsonRpcProvider(global["ganacheURL"])
     );
 
     expect(node).toBeDefined();

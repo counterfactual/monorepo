@@ -21,7 +21,7 @@ describe("Node method follows spec - rejectInstallVirtual", () => {
   let nodeC: Node;
 
   beforeAll(async () => {
-    const context: SetupContext = await setup(global, true, false);
+    const context: SetupContext = await setup(global, true);
     nodeA = context["A"].node;
     nodeB = context["B"].node;
     nodeC = context["C"].node;

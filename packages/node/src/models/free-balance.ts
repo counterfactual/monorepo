@@ -31,9 +31,18 @@ Equivalent to the above type but with serialized BigNumbers
 */
 type CoinTransferJSON = {
   to: string;
-  amount: {
-    _hex: string;
-  };
+  amount: string;
+};
+
+type FreeBalanceState = {
+  activeAppsMap: ActiveAppsMap;
+  balancesIndexedByToken: { [tokenAddress: string]: CoinTransfer[] };
+};
+
+type FreeBalanceStateJSON = {
+  tokenAddresses: string[];
+  balances: CoinTransferJSON[][];
+  activeApps: string[];
 };
 
 /*
@@ -66,13 +75,15 @@ export class FreeBalanceClass {
       [tokenAddress: string]: CoinTransfer[];
     }
   ) {}
+
   public toFreeBalanceState(): FreeBalanceState {
     return {
       activeAppsMap: this.activeAppsMap,
       balancesIndexedByToken: this.balancesIndexedByToken
     };
   }
-  public toTokenIndexedCoinTransferMap() {
+
+  public toTokenIndexedCoinTransferMap(): TokenIndexedCoinTransferMap {
     const ret = {};
     for (const tokenAddress of Object.keys(this.balancesIndexedByToken)) {
       ret[tokenAddress] = convertCoinTransfersToCoinTransfersMap(
@@ -81,6 +92,7 @@ export class FreeBalanceClass {
     }
     return ret;
   }
+
   public toAppInstance(oldAppInstance: AppInstance) {
     return oldAppInstance.setState(
       serializeFreeBalanceState(this.toFreeBalanceState())
@@ -113,6 +125,7 @@ export class FreeBalanceClass {
       freeBalanceState.balancesIndexedByToken
     );
   }
+
   public getBalance(tokenAddress: string, beneficiary: string) {
     try {
       return convertCoinTransfersToCoinTransfersMap(
@@ -122,6 +135,7 @@ export class FreeBalanceClass {
       return Zero;
     }
   }
+
   public withTokenAddress(tokenAddress: string): CoinTransferMap {
     let balances: CoinTransferMap = {};
     balances = convertCoinTransfersToCoinTransfersMap(
@@ -139,14 +153,17 @@ export class FreeBalanceClass {
     }
     return balances;
   }
+
   public removeActiveApp(activeApp: string) {
     delete this.activeAppsMap[activeApp];
     return this;
   }
+
   public addActiveApp(activeApp: string) {
     this.activeAppsMap[activeApp] = true;
     return this;
   }
+
   public prettyPrint() {
     const balances = this.balancesIndexedByToken;
     const ret = {} as any;
@@ -159,6 +176,7 @@ export class FreeBalanceClass {
     }
     console.table(ret);
   }
+
   public increment(increments: TokenIndexedCoinTransferMap) {
     for (const tokenAddress of Object.keys(increments)) {
       const t1 = convertCoinTransfersToCoinTransfersMap(
@@ -184,17 +202,6 @@ export class FreeBalanceClass {
     return this;
   }
 }
-
-type FreeBalanceState = {
-  activeAppsMap: ActiveAppsMap;
-  balancesIndexedByToken: { [tokenAddress: string]: CoinTransfer[] };
-};
-
-type FreeBalanceStateJSON = {
-  tokenAddresses: string[];
-  balances: CoinTransferJSON[][];
-  activeApps: string[];
-};
 
 /**
  * Note that the state of the Free Balance is held as plain types
@@ -246,7 +253,7 @@ function deserializeFreeBalanceState(
         ...acc,
         [getAddress(tokenAddress)]: balances[idx].map(({ to, amount }) => ({
           to,
-          amount: bigNumberify(amount._hex)
+          amount: bigNumberify(amount)
         }))
       }),
       {}
@@ -268,9 +275,7 @@ function serializeFreeBalanceState(
       balances =>
         balances.map(({ to, amount }) => ({
           to,
-          amount: {
-            _hex: amount.toHexString()
-          }
+          amount: amount.toHexString()
         }))
     )
   };

@@ -9,7 +9,7 @@ import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
 import { prettyPrintObject } from "../utils";
 
-import { AppInstanceProposal, AppInstanceProposalJSON } from ".";
+import { AppInstanceProposal } from ".";
 import { AppInstance } from "./app-instance";
 import {
   CoinTransferMap,
@@ -43,15 +43,7 @@ function sortAddresses(addrs: string[]) {
 
 export type SingleAssetTwoPartyIntermediaryAgreement = {
   timeLockedPassThroughIdentityHash: string;
-  capitalProvided: BigNumber;
-  capitalProvider: string;
-  virtualAppUser: string;
-  tokenAddress: string;
-};
-
-type SingleAssetTwoPartyIntermediaryAgreementJSON = {
-  timeLockedPassThroughIdentityHash: string;
-  capitalProvided: { _hex: string };
+  capitalProvided: string;
   capitalProvider: string;
   virtualAppUser: string;
   tokenAddress: string;
@@ -60,15 +52,14 @@ type SingleAssetTwoPartyIntermediaryAgreementJSON = {
 export type StateChannelJSON = {
   readonly multisigAddress: string;
   readonly userNeuteredExtendedKeys: string[];
-  readonly proposedAppInstances: [string, AppInstanceProposalJSON][];
+  readonly proposedAppInstances: [string, AppInstanceProposal][];
   readonly appInstances: [string, AppInstanceJson][];
   readonly singleAssetTwoPartyIntermediaryAgreements: [
     string,
-    SingleAssetTwoPartyIntermediaryAgreementJSON
+    SingleAssetTwoPartyIntermediaryAgreement
   ][];
   readonly freeBalanceAppInstance: AppInstanceJson | undefined;
   readonly monotonicNumProposedApps: number;
-  readonly createdAt: number;
 };
 
 export class StateChannel {
@@ -88,8 +79,7 @@ export class StateChannel {
       SingleAssetTwoPartyIntermediaryAgreement
     > = new Map<string, SingleAssetTwoPartyIntermediaryAgreement>([]),
     private readonly freeBalanceAppInstance?: AppInstance,
-    private readonly monotonicNumProposedApps: number = 0,
-    public readonly createdAt: number = Date.now()
+    private readonly monotonicNumProposedApps: number = 0
   ) {
     userNeuteredExtendedKeys.forEach(xpub => {
       if (!xpub.startsWith("xpub")) {
@@ -240,7 +230,6 @@ export class StateChannel {
     >;
     freeBalanceAppInstance?: AppInstance;
     monotonicNumProposedApps?: number;
-    createdAt?: number;
   }) {
     return new StateChannel(
       args.multisigAddress || this.multisigAddress,
@@ -250,8 +239,7 @@ export class StateChannel {
       args.singleAssetTwoPartyIntermediaryAgreements ||
         this.singleAssetTwoPartyIntermediaryAgreements,
       args.freeBalanceAppInstance || this.freeBalanceAppInstance,
-      args.monotonicNumProposedApps || this.monotonicNumProposedApps,
-      args.createdAt || this.createdAt
+      args.monotonicNumProposedApps || this.monotonicNumProposedApps
     );
   }
 
@@ -530,11 +518,7 @@ export class StateChannel {
     return {
       multisigAddress: this.multisigAddress,
       userNeuteredExtendedKeys: this.userNeuteredExtendedKeys,
-      proposedAppInstances: [...this.proposedAppInstances.entries()].map(
-        (proposal): [string, AppInstanceProposalJSON] => {
-          return [proposal[0], proposal[1].toJson()];
-        }
-      ),
+      proposedAppInstances: [...this.proposedAppInstances.entries()],
       appInstances: [...this.appInstances.entries()].map((appInstanceEntry): [
         string,
         AppInstanceJson
@@ -549,14 +533,7 @@ export class StateChannel {
       monotonicNumProposedApps: this.monotonicNumProposedApps,
       singleAssetTwoPartyIntermediaryAgreements: [
         ...this.singleAssetTwoPartyIntermediaryAgreements.entries()
-      ].map(([key, val]) => [
-        key,
-        {
-          ...val,
-          capitalProvided: { _hex: val.capitalProvided.toHexString() }
-        }
-      ]),
-      createdAt: this.createdAt
+      ]
     };
   }
 
@@ -569,7 +546,7 @@ export class StateChannel {
           string,
           AppInstanceProposal
         ] => {
-          return [proposal[0], AppInstanceProposal.fromJson(proposal[1])];
+          return [proposal[0], proposal[1]];
         })
       ),
       new Map(
@@ -583,22 +560,11 @@ export class StateChannel {
           ];
         })
       ),
-      new Map(
-        (json.singleAssetTwoPartyIntermediaryAgreements || []).map(
-          ([key, val]) => [
-            key,
-            {
-              ...val,
-              capitalProvided: bigNumberify(val.capitalProvided._hex)
-            }
-          ]
-        )
-      ),
+      new Map(json.singleAssetTwoPartyIntermediaryAgreements || []),
       json.freeBalanceAppInstance
         ? AppInstance.fromJson(json.freeBalanceAppInstance)
         : undefined,
-      json.monotonicNumProposedApps,
-      json.createdAt
+      json.monotonicNumProposedApps
     );
   }
 

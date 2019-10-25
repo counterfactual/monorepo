@@ -46,7 +46,9 @@ export class LocalGanacheServer {
     extendedPrvKeys.forEach(xprv => {
       const entry = {
         balance,
-        secretKey: fromExtendedKey(xprv).derivePath(CF_PATH).privateKey
+        secretKey: fromExtendedKey(xprv)
+          .derivePath(CF_PATH)
+          .derivePath("0").privateKey
       };
       accounts.push(entry);
     });

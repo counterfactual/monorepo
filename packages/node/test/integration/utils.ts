@@ -12,7 +12,7 @@ import {
 import { Contract, Wallet } from "ethers";
 import { One, Zero } from "ethers/constants";
 import { JsonRpcProvider } from "ethers/providers";
-import { BigNumber } from "ethers/utils";
+import { BigNumber, bigNumberify } from "ethers/utils";
 
 import {
   CreateChannelMessage,
@@ -28,6 +28,7 @@ import {
   UninstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
+import { xkeyKthAddress } from "../../src/machine";
 
 import { initialLinkedState, linkedAbiEncodings } from "./linked-transfer";
 import {
@@ -122,9 +123,9 @@ export async function getAppInstanceProposal(
   node: Node,
   appInstanceId: string
 ): Promise<AppInstanceProposal> {
-  const candidates = (await getProposedAppInstances(node)).filter(proposal => {
-    return proposal.identityHash === appInstanceId;
-  });
+  const candidates = (await getProposedAppInstances(node)).filter(
+    proposal => proposal.identityHash === appInstanceId
+  );
 
   if (candidates.length === 0) {
     throw new Error("Could not find proposal");
@@ -262,6 +263,7 @@ export function constructWithdrawCommitmentRpc(
 
   withdrawCommitmentReq.methodName =
     NodeTypes.RpcMethodName.WITHDRAW_COMMITMENT;
+
   return withdrawCommitmentReq;
 }
 
@@ -403,20 +405,24 @@ export function confirmProposedAppInstance(
 
   if (nonInitiatingNode) {
     expect(proposalParams.initiatorDeposit).toEqual(
-      appInstanceProposal.responderDeposit
+      bigNumberify(appInstanceProposal.responderDeposit)
     );
     expect(proposalParams.responderDeposit).toEqual(
-      appInstanceProposal.initiatorDeposit
+      bigNumberify(appInstanceProposal.initiatorDeposit)
     );
   } else {
     expect(proposalParams.initiatorDeposit).toEqual(
-      appInstanceProposal.initiatorDeposit
+      bigNumberify(appInstanceProposal.initiatorDeposit)
     );
     expect(proposalParams.responderDeposit).toEqual(
-      appInstanceProposal.responderDeposit
+      bigNumberify(appInstanceProposal.responderDeposit)
     );
   }
-  expect(proposalParams.timeout).toEqual(appInstanceProposal.timeout);
+
+  expect(proposalParams.timeout).toEqual(
+    bigNumberify(appInstanceProposal.timeout)
+  );
+
   // TODO: uncomment when getState is implemented
   // expect(proposalParams.initialState).toEqual(appInstanceInitialState);
 }
@@ -939,4 +945,31 @@ export async function uninstallApp(
 export async function getApps(node: Node): Promise<AppInstanceJson[]> {
   return (await node.rpcRouter.dispatch(constructGetAppsRpc())).result.result
     .appInstances;
+}
+
+export async function getBalances(
+  nodeA: Node,
+  nodeB: Node,
+  multisigAddress: string,
+  tokenAddress: string
+): Promise<[BigNumber, BigNumber]> {
+  let tokenFreeBalanceState = await getFreeBalanceState(
+    nodeA,
+    multisigAddress,
+    tokenAddress
+  );
+
+  const tokenBalanceNodeA =
+    tokenFreeBalanceState[xkeyKthAddress(nodeA.publicIdentifier, 0)];
+
+  tokenFreeBalanceState = await getFreeBalanceState(
+    nodeB,
+    multisigAddress,
+    tokenAddress
+  );
+
+  const tokenBalanceNodeB =
+    tokenFreeBalanceState[xkeyKthAddress(nodeB.publicIdentifier, 0)];
+
+  return [tokenBalanceNodeA, tokenBalanceNodeB];
 }

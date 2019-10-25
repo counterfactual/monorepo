@@ -855,9 +855,9 @@ function computeInterpreterParameters(
       twoPartyOutcomeInterpreterParams = {
         tokenAddress,
         playerAddrs: [initiatingAddress, respondingAddress],
-        amount: bigNumberify(initiatingBalanceDecrement).add(
-          respondingBalanceDecrement
-        )
+        amount: initiatingBalanceDecrement
+          .add(respondingBalanceDecrement)
+          .toHexString()
       };
       break;
     }
@@ -865,9 +865,9 @@ function computeInterpreterParameters(
     case OutcomeType.SINGLE_ASSET_TWO_PARTY_COIN_TRANSFER: {
       singleAssetTwoPartyCoinTransferInterpreterParams = {
         tokenAddress,
-        limit: bigNumberify(initiatingBalanceDecrement).add(
-          respondingBalanceDecrement
-        )
+        limit: initiatingBalanceDecrement
+          .add(respondingBalanceDecrement)
+          .toHexString()
       };
       break;
     }
@@ -1130,9 +1130,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
       tokenAddress,
       timeLockedPassThroughIdentityHash:
         timeLockedPassThroughAppInstance.identityHash,
-      capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-        responderBalanceDecrement
-      ),
+      capitalProvided: bigNumberify(initiatorBalanceDecrement)
+        .add(responderBalanceDecrement)
+        .toHexString(),
       capitalProvider: intermediaryAddress,
       virtualAppUser: initiatorAddress
     },
@@ -1227,9 +1227,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: initiatorAddress
       },
@@ -1246,9 +1246,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: responderAddress
       },
@@ -1332,9 +1332,9 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
         tokenAddress,
         timeLockedPassThroughIdentityHash:
           timeLockedPassThroughAppInstance.identityHash,
-        capitalProvided: bigNumberify(initiatorBalanceDecrement).add(
-          responderBalanceDecrement
-        ),
+        capitalProvided: bigNumberify(initiatorBalanceDecrement)
+          .add(responderBalanceDecrement)
+          .toHexString(),
         capitalProvider: intermediaryAddress,
         virtualAppUser: responderAddress
       },

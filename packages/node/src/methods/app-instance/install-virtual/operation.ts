@@ -1,4 +1,5 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
+import { bigNumberify } from "ethers/utils";
 
 import { Protocol, ProtocolRunner } from "../../../machine";
 import { Store } from "../../../store";
@@ -39,23 +40,19 @@ export async function installVirtual(
   }
 
   try {
-    await protocolRunner.initiateProtocol(
-      Protocol.InstallVirtualApp,
-      await store.getStateChannelsMap(),
-      {
-        initialState,
-        outcomeType,
-        initiatorXpub: proposedToIdentifier,
-        responderXpub: proposedByIdentifier,
-        intermediaryXpub: intermediaryIdentifier,
-        defaultTimeout: timeout.toNumber(),
-        appInterface: { addr: appDefinition, ...abiEncodings },
-        appSeqNo: proposal.appSeqNo,
-        initiatorBalanceDecrement: initiatorDeposit,
-        responderBalanceDecrement: responderDeposit,
-        tokenAddress: initiatorDepositTokenAddress
-      }
-    );
+    await protocolRunner.initiateProtocol(Protocol.InstallVirtualApp, {
+      initialState,
+      outcomeType,
+      initiatorXpub: proposedToIdentifier,
+      responderXpub: proposedByIdentifier,
+      intermediaryXpub: intermediaryIdentifier,
+      defaultTimeout: bigNumberify(timeout).toNumber(),
+      appInterface: { addr: appDefinition, ...abiEncodings },
+      appSeqNo: proposal.appSeqNo,
+      initiatorBalanceDecrement: bigNumberify(initiatorDeposit),
+      responderBalanceDecrement: bigNumberify(responderDeposit),
+      tokenAddress: initiatorDepositTokenAddress
+    });
   } catch (e) {
     throw Error(
       // TODO: We should generalize this error handling style everywhere
