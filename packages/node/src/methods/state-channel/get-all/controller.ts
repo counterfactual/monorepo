@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { jsonRpcMethod } from "rpc-server";
 
-import { StateChannel } from "../../../models";
+import { StateChannelJSON } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 
@@ -12,9 +12,11 @@ export default class GetStateChannelController extends NodeController {
   protected async executeMethodImplementation(
     requestHandler: RequestHandler,
     params: { multisigAddress: string }
-  ): Promise<{ data: StateChannel }> {
+  ): Promise<{ data: StateChannelJSON }> {
     return {
-      data: await requestHandler.store.getStateChannel(params.multisigAddress)
+      data: (await requestHandler.store.getStateChannel(
+        params.multisigAddress
+      )).toJson()
     };
   }
 }
