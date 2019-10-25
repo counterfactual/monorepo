@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/cf-adjudicator-contracts",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Smart contracts for an State Channel AppInstance Adjudicator",
   "license": "MIT",
   "engines": {
@@ -32,7 +32,7 @@
     "solidity"
   ],
   "devDependencies": {
-    "@counterfactual/types": "0.0.44",
+    "@counterfactual/types": "0.0.45",
     "@counterfactual/typescript-typings": "0.1.3",
     "@types/node": "12.7.8",
     "@types/chai": "4.2.3",

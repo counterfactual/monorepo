@@ -19,10 +19,10 @@
     "typescript": "3.5.3"
   },
   "dependencies": {
-    "@counterfactual/apps": "0.1.13",
-    "@counterfactual/cf-adjudicator-contracts": "0.0.9",
-    "@counterfactual/cf-funding-protocol-contracts": "0.0.12",
-    "@counterfactual/types": "0.0.44",
+    "@counterfactual/apps": "0.1.14",
+    "@counterfactual/cf-adjudicator-contracts": "0.0.10",
+    "@counterfactual/cf-funding-protocol-contracts": "0.0.13",
+    "@counterfactual/types": "0.0.45",
     "ethers": "4.0.37",
     "ganache-core": "2.8.0"
   }
