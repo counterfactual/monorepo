@@ -48,7 +48,7 @@
     "escape-string-regexp": "^2.0.0",
     "firebase-server": "^1.0.2",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.19.1",
+    "knex": "^0.20.0",
     "koa": "^2.6.2",
     "koa-bodyparser": "^4.2.1",
     "koa-compose": "^4.1.0",
