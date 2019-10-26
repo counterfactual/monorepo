@@ -27,7 +27,7 @@
   },
   "devDependencies": {
     "@counterfactual/cf-adjudicator-contracts": "0.0.10",
-    "@types/chai": "4.2.3",
+    "@types/chai": "4.2.4",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
     "ethereum-waffle": "2.1.0",
