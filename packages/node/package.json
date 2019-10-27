@@ -30,7 +30,7 @@
     "ganache-core": "2.8.0",
     "jest": "24.8.0",
     "jest-cli": "24.8.0",
-    "jest-dot-reporter": "1.0.10",
+    "jest-dot-reporter": "1.0.12",
     "rollup": "1.26.0",
     "rollup-plugin-babel": "4.3.3",
     "rollup-plugin-commonjs": "10.1.0",
