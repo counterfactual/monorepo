@@ -1,4 +1,4 @@
-import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
+import { Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 
 import {
@@ -15,6 +15,7 @@ import {
 import { prettyPrintObject } from "./utils";
 
 interface SharedData {
+  version: 1; // TODO: Add better versioning & migrations tooling
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON };
   commitments: { [specialHash: string]: any[] };
   withdrawals: { [multisigAddress: string]: Node.MinimalTransaction };
