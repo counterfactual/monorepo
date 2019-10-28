@@ -43,8 +43,8 @@ export const migrateToPatch1 = async (
   const sharedData = {
     commitments,
     withdrawals,
-    version: 1,
-    stateChannelsMap: {}
+    stateChannelsMap,
+    version: 1
   };
 
   await this.storeService.set([{ path: storeKeyPrefix, value: sharedData }]);
