@@ -47,5 +47,5 @@ export const migrateToPatch1 = async (
     version: 1
   };
 
-  await this.storeService.set([{ path: storeKeyPrefix, value: sharedData }]);
+  await storeService.set([{ path: storeKeyPrefix, value: sharedData }]);
 };
