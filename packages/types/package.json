@@ -15,8 +15,8 @@
     "build": "tsc -b . && rollup -c"
   },
   "devDependencies": {
-    "ethers": "4.0.37",
-    "rollup": "1.22.0",
+    "ethers": "4.0.38",
+    "rollup": "1.26.0",
     "rollup-plugin-typescript2": "0.24.3",
     "rpc-server": "0.0.1",
     "typescript": "3.5.3"

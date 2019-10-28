@@ -14,5 +14,5 @@ RUN apt-get install -y curl && \
     curl -sL https://deb.nodesource.com/node_10.x/pool/main/n/nodejs/nodejs_10.15.3-1nodesource1_amd64.deb > nodejs-10.15.3.deb && \
     dpkg -i nodejs-10.15.3.deb && \
     rm /usr/local/bin/node && \
-    npm install -g yarn@1.12.3 && \
+    npm install -g yarn@1.19.0 && \
     rm /usr/local/bin/yarn
