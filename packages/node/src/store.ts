@@ -27,6 +27,7 @@ interface SharedData {
  */
 export class Store {
   public sharedData: SharedData = {
+    version: 1,
     stateChannelsMap: {},
     commitments: {},
     withdrawals: {}
