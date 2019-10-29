@@ -47,7 +47,6 @@ export class MiniNode {
       provider
     );
     this.protocolRunner.register(Opcode.OP_SIGN, makeSigner(this.hdNode));
-    this.protocolRunner.register(Opcode.WRITE_COMMITMENT, () => {});
   }
 
   public async dispatchMessage(message: any) {

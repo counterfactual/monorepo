@@ -244,19 +244,6 @@ export class Node {
       }
     );
 
-    protocolRunner.register(Opcode.WRITE_COMMITMENT, async (args: any[]) => {
-      const { store } = this.requestHandler;
-
-      const [protocol, commitment, ...key] = args;
-
-      if (protocol === Protocol.Withdraw) {
-        const [multisigAddress] = key;
-        await store.storeWithdrawalCommitment(multisigAddress, commitment);
-      } else {
-        await store.setCommitment([protocol, ...key], commitment);
-      }
-    });
-
     return protocolRunner;
   }
 
