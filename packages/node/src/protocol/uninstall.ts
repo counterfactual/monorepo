@@ -9,20 +9,14 @@ import {
   ProtocolMessage,
   UninstallParams
 } from "../machine/types";
-import { StateChannel } from "../models";
+import { StateChannel, StateChannelJSON } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Uninstall;
-const {
-  OP_SIGN,
-  IO_SEND,
-  IO_SEND_AND_WAIT,
-  PERSIST_STATE_CHANNEL,
-  WRITE_COMMITMENT
-} = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -31,7 +25,10 @@ const {
  */
 export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    const { message, provider, stateChannelsMap, network } = context;
+    const { message, provider, store, network } = context;
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
     const { params, processID } = message;
     const { responderXpub, appIdentityHash } = params as UninstallParams;
 
@@ -80,16 +77,14 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
+    await store.saveStateChannel(postProtocolStateChannel);
   },
 
   1 /* Responding */: async function*(context: Context) {
-    const { message, provider, stateChannelsMap, network } = context;
+    const { message, provider, store, network } = context;
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
     const { params, processID } = message;
     const { initiatorXpub, appIdentityHash } = params as UninstallParams;
 
@@ -126,7 +121,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+    await store.saveStateChannel(postProtocolStateChannel);
 
     yield [
       IO_SEND,
@@ -140,21 +135,16 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
         }
       } as ProtocolMessage
     ];
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
   }
 };
 
 async function computeStateTransition(
   params: UninstallParams,
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   provider: BaseProvider
 ) {
   const { appIdentityHash, multisigAddress } = params;
-  const stateChannel = stateChannelsMap.get(multisigAddress) as StateChannel;
+  const stateChannel = StateChannel.fromJson(stateChannelsMap[multisigAddress]);
   return stateChannel.uninstallApp(
     appIdentityHash,
     await computeTokenIndexedFreeBalanceIncrements(

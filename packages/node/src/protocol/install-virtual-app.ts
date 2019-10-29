@@ -26,7 +26,7 @@ import {
   ProtocolMessage
 } from "../machine/types";
 import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance, StateChannel, StateChannelJSON } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
@@ -37,13 +37,7 @@ export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>
 
 const protocol = Protocol.InstallVirtualApp;
 
-const {
-  OP_SIGN,
-  WRITE_COMMITMENT,
-  IO_SEND,
-  IO_SEND_AND_WAIT,
-  PERSIST_STATE_CHANNEL
-} = Opcode;
+const { OP_SIGN, WRITE_COMMITMENT, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * This exchange is described at the following URL:
@@ -54,10 +48,14 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
     const {
       message: { params, processID },
-      stateChannelsMap,
+      store,
       network,
       provider
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       intermediaryXpub,
@@ -266,33 +264,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       virtualAppInstance.identityHash
     ];
 
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelWithIntermediary,
-        stateChannelWithResponding,
-        stateChannelWithInitiatingAndIntermediary
-      ]
-    ];
-
-    context.stateChannelsMap.set(
-      stateChannelWithIntermediary.multisigAddress,
-      stateChannelWithIntermediary
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithResponding.multisigAddress,
-      stateChannelWithResponding
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithInitiatingAndIntermediary.multisigAddress,
-      stateChannelWithInitiatingAndIntermediary
-    );
+    await store.saveStateChannel(stateChannelWithIntermediary);
+    await store.saveStateChannel(stateChannelWithResponding);
+    await store.saveStateChannel(stateChannelWithInitiatingAndIntermediary);
   },
 
   1 /* Intermediary */: async function*(context: Context) {
-    const { message: m1, stateChannelsMap, network } = context;
+    const { message: m1, store, network } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       params,
@@ -568,33 +550,17 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [IO_SEND, m8];
 
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelBetweenVirtualAppUsers,
-        stateChannelWithResponding,
-        stateChannelWithInitiating
-      ]
-    ];
-
-    context.stateChannelsMap.set(
-      stateChannelBetweenVirtualAppUsers.multisigAddress,
-      stateChannelBetweenVirtualAppUsers
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithInitiating.multisigAddress,
-      stateChannelWithInitiating
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithResponding.multisigAddress,
-      stateChannelWithResponding
-    );
+    await store.saveStateChannel(stateChannelBetweenVirtualAppUsers);
+    await store.saveStateChannel(stateChannelWithResponding);
+    await store.saveStateChannel(stateChannelWithInitiating);
   },
 
   2 /* Responding */: async function*(context: Context) {
-    const { message: m2, stateChannelsMap, network, provider } = context;
+    const { message: m2, store, network, provider } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       params,
@@ -796,29 +762,9 @@ export const INSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
 
     yield [IO_SEND, m7];
 
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelWithIntermediary,
-        stateChannelWithRespondingAndIntermediary,
-        stateChannelWithInitiating
-      ]
-    ];
-
-    context.stateChannelsMap.set(
-      stateChannelWithIntermediary.multisigAddress,
-      stateChannelWithIntermediary
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithInitiating.multisigAddress,
-      stateChannelWithInitiating
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithRespondingAndIntermediary.multisigAddress,
-      stateChannelWithRespondingAndIntermediary
-    );
+    await store.saveStateChannel(stateChannelWithIntermediary);
+    await store.saveStateChannel(stateChannelWithRespondingAndIntermediary);
+    await store.saveStateChannel(stateChannelWithInitiating);
   }
 };
 
@@ -1045,14 +991,14 @@ function constructTimeLockedPassThroughAppInstance(
  * time then there will be an object in the stateChannelsMap that can be fetched by using
  * the unique identifier for the wrapper StateChannel.
  *
- * @param {Map<string, StateChannel>} stateChannelsMap - map of StateChannels to query
+ * @param {{ [multisigAddress: string]: StateChannelJSON }} stateChannelsMap - map of StateChannels to query
  * @param {[string, string]} userXpubs - List of users
  * @param {NetworkContext} network - Metadata on the current blockchain
  *
  * @returns {StateChannel} - a stateChannelWithAllThreeParties
  */
 function getOrCreateStateChannelWithUsers(
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   userXpubs: string[],
   network: NetworkContext
 ): StateChannel {
@@ -1062,15 +1008,14 @@ function getOrCreateStateChannelWithUsers(
     network.MinimumViableMultisig
   );
 
-  return (
-    stateChannelsMap.get(multisigAddress) ||
-    StateChannel.createEmptyChannel(multisigAddress, userXpubs)
-  );
+  return stateChannelsMap[multisigAddress]
+    ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
+    : StateChannel.createEmptyChannel(multisigAddress, userXpubs);
 }
 
 async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   params: InstallVirtualAppParams,
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   network: NetworkContext,
   provider: BaseProvider
 ): Promise<
@@ -1110,12 +1055,14 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   const initiatorAddress = xkeyKthAddress(initiatorXpub, 0);
   const intermediaryAddress = xkeyKthAddress(intermediaryXpub, 0);
 
-  const stateChannelWithIntermediary = stateChannelsMap.get(
-    getCreate2MultisigAddress(
-      [initiatorXpub, intermediaryXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    )
+  const stateChannelWithIntermediary = StateChannel.fromJson(
+    stateChannelsMap[
+      getCreate2MultisigAddress(
+        [initiatorXpub, intermediaryXpub],
+        network.ProxyFactory,
+        network.MinimumViableMultisig
+      )
+    ]
   );
 
   if (!stateChannelWithIntermediary) {
@@ -1156,7 +1103,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
 
 async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
   params: InstallVirtualAppParams,
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   virtualAppInstanceIdentityHash: string,
   virtualAppInstanceDefaultOutcome: string,
   network: NetworkContext
@@ -1184,12 +1131,14 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     params
   );
 
-  const channelWithInitiating = stateChannelsMap.get(
-    getCreate2MultisigAddress(
-      [initiatorXpub, intermediaryXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    )
+  const channelWithInitiating = StateChannel.fromJson(
+    stateChannelsMap[
+      getCreate2MultisigAddress(
+        [initiatorXpub, intermediaryXpub],
+        network.ProxyFactory,
+        network.MinimumViableMultisig
+      )
+    ]
   );
 
   if (!channelWithInitiating) {
@@ -1198,12 +1147,14 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
     );
   }
 
-  const channelWithResponding = stateChannelsMap.get(
-    getCreate2MultisigAddress(
-      [responderXpub, intermediaryXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    )
+  const channelWithResponding = StateChannel.fromJson(
+    stateChannelsMap[
+      getCreate2MultisigAddress(
+        [responderXpub, intermediaryXpub],
+        network.ProxyFactory,
+        network.MinimumViableMultisig
+      )
+    ]
   );
 
   if (!channelWithResponding) {
@@ -1265,7 +1216,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForIntermediary(
 
 async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   params: InstallVirtualAppParams,
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   network: NetworkContext,
   provider: BaseProvider
 ): Promise<
@@ -1302,12 +1253,14 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
     params
   );
 
-  const stateChannelWithIntermediary = stateChannelsMap.get(
-    getCreate2MultisigAddress(
-      [responderXpub, intermediaryXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    )
+  const stateChannelWithIntermediary = StateChannel.fromJson(
+    stateChannelsMap[
+      getCreate2MultisigAddress(
+        [responderXpub, intermediaryXpub],
+        network.ProxyFactory,
+        network.MinimumViableMultisig
+      )
+    ]
   );
 
   if (!stateChannelWithIntermediary) {

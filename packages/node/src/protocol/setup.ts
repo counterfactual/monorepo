@@ -13,7 +13,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Setup;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -22,7 +22,11 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
  */
 export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    const { message, network } = context;
+    const { message, network, store } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const { processID, params } = message;
 
@@ -69,13 +73,11 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
       responderSignature
     );
 
-    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
-
-    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
+    await store.saveStateChannel(stateChannel);
   },
 
   1 /* Responding */: async function*(context: Context) {
-    const { message, network } = context;
+    const { message, network, store } = context;
 
     const {
       processID,
@@ -110,7 +112,7 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
 
     const responderSignature = yield [OP_SIGN, setupCommitment];
 
-    yield [PERSIST_STATE_CHANNEL, [stateChannel]];
+    await store.saveStateChannel(stateChannel);
 
     yield [
       IO_SEND,
@@ -124,7 +126,5 @@ export const SETUP_PROTOCOL: ProtocolExecutionFlow = {
         }
       } as ProtocolMessage
     ];
-
-    context.stateChannelsMap.set(stateChannel.multisigAddress, stateChannel);
   }
 };

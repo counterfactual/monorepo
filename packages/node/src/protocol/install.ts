@@ -20,13 +20,7 @@ import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const {
-  OP_SIGN,
-  IO_SEND,
-  IO_SEND_AND_WAIT,
-  WRITE_COMMITMENT,
-  PERSIST_STATE_CHANNEL
-} = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
 const { Update, Install } = Protocol;
 
 /**
@@ -48,14 +42,20 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
   0 /* Initiating */: async function*(context: Context) {
     const {
-      stateChannelsMap,
+      store,
       message: { params, processID },
       network
     } = context;
 
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
+
     const { responderXpub, multisigAddress } = params as InstallParams;
 
-    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
+    const preProtocolStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const postProtocolStateChannel = computeStateChannelTransition(
       preProtocolStateChannel,
@@ -106,11 +106,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
-
     yield [
       WRITE_COMMITMENT,
       Install,
@@ -151,7 +146,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+    await store.saveStateChannel(postProtocolStateChannel);
 
     yield [
       IO_SEND_AND_WAIT,
@@ -178,7 +173,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
   1 /* Responding */: async function*(context: Context) {
     const {
-      stateChannelsMap,
+      store,
       message: {
         params,
         processID,
@@ -187,12 +182,18 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       network
     } = context;
 
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
+
     // Aliasing `signature` to this variable name for code clarity
     const counterpartySignatureOnConditionalTransaction = signature;
 
     const { initiatorXpub, multisigAddress } = params as InstallParams;
 
-    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
+    const preProtocolStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const postProtocolStateChannel = computeStateChannelTransition(
       preProtocolStateChannel,
@@ -222,11 +223,6 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
         mySignatureOnConditionalTransaction,
         counterpartySignatureOnConditionalTransaction
       ]
-    );
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
     );
 
     yield [
@@ -285,7 +281,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       postProtocolStateChannel.freeBalance.identityHash
     ];
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+    await store.saveStateChannel(postProtocolStateChannel);
 
     const m4 = {
       processID,
