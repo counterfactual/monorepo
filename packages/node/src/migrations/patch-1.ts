@@ -25,7 +25,7 @@ export const migrateToPatch1 = async (
 
     const proposals = stateChannelsMap[multisigAddress].proposedAppInstances;
 
-    for (let i = 0; i < proposals.length; i++) {
+    for (let i = 0; i < proposals.length; i += 1) {
       const proposal = proposals[i][1];
       stateChannelsMap[multisigAddress].proposedAppInstances[i][1] = {
         ...proposal,
@@ -42,7 +42,7 @@ export const migrateToPatch1 = async (
 
     const apps = stateChannelsMap[multisigAddress].appInstances;
 
-    for (let i = 0; i < apps.length; i++) {
+    for (let i = 0; i < apps.length; i += 1) {
       const app = apps[i][1];
 
       if (app.twoPartyOutcomeInterpreterParams) {
@@ -93,7 +93,7 @@ export const migrateToPatch1 = async (
       stateChannelsMap[multisigAddress]
         .singleAssetTwoPartyIntermediaryAgreements;
 
-    for (let i = 0; i < agreements.length; i++) {
+    for (let i = 0; i < agreements.length; i += 1) {
       const agreement = agreements[i][1];
       stateChannelsMap[
         multisigAddress
