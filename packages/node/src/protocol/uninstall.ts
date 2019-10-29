@@ -2,7 +2,6 @@ import { BaseProvider } from "ethers/providers";
 
 import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
-import { xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
@@ -10,6 +9,7 @@ import {
   ProtocolMessage,
   UninstallParams
 } from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
 import { StateChannel, StateChannelJSON } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";

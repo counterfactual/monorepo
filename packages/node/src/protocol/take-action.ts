@@ -1,8 +1,14 @@
 import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
-import { ProtocolExecutionFlow, xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
-import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
+import {
+  Context,
+  ProtocolExecutionFlow,
+  ProtocolMessage,
+  TakeActionParams
+} from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
+import { StateChannel } from "../models/state-channel";
 
 import { assertIsValidSignature } from "./utils/signature-validator";
 

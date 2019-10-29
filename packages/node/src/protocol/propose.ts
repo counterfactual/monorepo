@@ -1,21 +1,19 @@
-import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
   UNASSIGNED_SEQ_NO
 } from "../constants";
 import { SetStateCommitment } from "../ethereum";
-import {
-  appIdentityToHash,
-  ProtocolExecutionFlow,
-  xkeyKthAddress
-} from "../machine";
+import { appIdentityToHash } from "../ethereum/utils/app-identity";
 import { Opcode, Protocol } from "../machine/enums";
 import {
   Context,
   ProposeInstallParams,
+  ProtocolExecutionFlow,
   ProtocolMessage
 } from "../machine/types";
+import { xkeyKthAddress } from "../machine/xkeys";
 import { AppInstanceProposal, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
