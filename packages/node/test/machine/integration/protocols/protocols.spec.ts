@@ -6,6 +6,7 @@ import { bigNumberify } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { Protocol } from "../../../../src/machine";
+import { StateChannel } from "../../../../src/models";
 import { toBeEq } from "../bignumber-jest-matcher";
 import { connectToGanache } from "../connect-ganache";
 
@@ -62,7 +63,9 @@ describe("Three mininodes", () => {
     );
 
     const [virtualAppInstance] = [
-      ...tr.mininodeA.scm.get(tr.multisigAC)!.appInstances.values()
+      ...StateChannel.fromJson(
+        tr.mininodeA.store.sharedData.stateChannelsMap[tr.multisigAC]
+      ).appInstances.values()
     ];
 
     expect(virtualAppInstance.isVirtualApp);

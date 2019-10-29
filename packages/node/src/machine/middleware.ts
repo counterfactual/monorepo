@@ -6,8 +6,7 @@ export class MiddlewareContainer {
     [Opcode.IO_SEND]: [],
     [Opcode.IO_SEND_AND_WAIT]: [],
     [Opcode.OP_SIGN]: [],
-    [Opcode.WRITE_COMMITMENT]: [],
-    [Opcode.PERSIST_STATE_CHANNEL]: []
+    [Opcode.WRITE_COMMITMENT]: []
   };
 
   public add(scope: Opcode, method: Middleware) {

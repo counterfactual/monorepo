@@ -22,13 +22,7 @@ import { AppInstance, StateChannel } from "../models";
 import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const {
-  IO_SEND,
-  IO_SEND_AND_WAIT,
-  OP_SIGN,
-  PERSIST_STATE_CHANNEL,
-  WRITE_COMMITMENT
-} = Opcode;
+const { IO_SEND, IO_SEND_AND_WAIT, OP_SIGN, WRITE_COMMITMENT } = Opcode;
 const { Install, Update, Withdraw } = Protocol;
 /**
  * @description This exchange is described at the following URL:
@@ -56,10 +50,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
 
   0 /* Initiating */: async function*(context: Context) {
     const {
-      stateChannelsMap,
+      store,
       message: { params, processID },
       network
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       responderXpub,
@@ -69,9 +67,9 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       tokenAddress
     } = params as WithdrawParams;
 
-    const preInstallRefundAppStateChannel = stateChannelsMap.get(
-      multisigAddress
-    )!;
+    const preInstallRefundAppStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const responderAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
       responderXpub
@@ -125,11 +123,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         mySignatureOnConditionalTransaction,
         counterpartySignatureOnConditionalTransaction
       ]
-    );
-
-    context.stateChannelsMap.set(
-      postInstallRefundAppStateChannel.multisigAddress,
-      postInstallRefundAppStateChannel
     );
 
     yield [
@@ -214,11 +207,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {}
     );
 
-    context.stateChannelsMap.set(
-      postUninstallRefundAppStateChannel.multisigAddress,
-      postUninstallRefundAppStateChannel
-    );
-
     const uninstallRefundAppCommitment = new SetStateCommitment(
       network,
       postUninstallRefundAppStateChannel.freeBalance.identity,
@@ -232,6 +220,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       uninstallRefundAppCommitment,
       counterpartySignatureOnUninstallCommitment
     );
+
+    await store.saveStateChannel(postUninstallRefundAppStateChannel);
 
     const mySignatureOnUninstallCommitment = yield [
       OP_SIGN,
@@ -276,8 +266,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
-
-    yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
   },
 
   /**
@@ -295,10 +283,14 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
 
   1 /* Responding */: async function*(context: Context) {
     const {
-      stateChannelsMap,
+      store,
       message: { params, processID, customData },
       network
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     // Aliasing `signature` to this variable name for code clarity
     const counterpartySignatureOnConditionalTransaction = customData.signature;
@@ -311,9 +303,9 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       tokenAddress
     } = params as WithdrawParams;
 
-    const preInstallRefundAppStateChannel = stateChannelsMap.get(
-      multisigAddress
-    )!;
+    const preInstallRefundAppStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const initiatorAddress = preInstallRefundAppStateChannel.getFreeBalanceAddrOf(
       initiatorXpub
@@ -348,11 +340,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
         mySignatureOnConditionalTransaction,
         counterpartySignatureOnConditionalTransaction
       ]
-    );
-
-    context.stateChannelsMap.set(
-      postInstallRefundAppStateChannel.multisigAddress,
-      postInstallRefundAppStateChannel
     );
 
     yield [
@@ -449,11 +436,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       {}
     );
 
-    context.stateChannelsMap.set(
-      postUninstallRefundAppStateChannel.multisigAddress,
-      postUninstallRefundAppStateChannel
-    );
-
     const uninstallRefundAppCommitment = new SetStateCommitment(
       network,
       postUninstallRefundAppStateChannel.freeBalance.identity,
@@ -502,8 +484,6 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       signedUninstallCommitment,
       postUninstallRefundAppStateChannel.freeBalance.identityHash
     ];
-
-    yield [PERSIST_STATE_CHANNEL, [postUninstallRefundAppStateChannel]];
 
     yield [
       IO_SEND,

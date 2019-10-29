@@ -257,18 +257,6 @@ export class Node {
       }
     });
 
-    protocolRunner.register(
-      Opcode.PERSIST_STATE_CHANNEL,
-      async (args: [StateChannel[]]) => {
-        const { store } = this.requestHandler;
-        const [stateChannels] = args;
-
-        for (const stateChannel of stateChannels) {
-          await store.saveStateChannel(stateChannel);
-        }
-      }
-    );
-
     return protocolRunner;
   }
 

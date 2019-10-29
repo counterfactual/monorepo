@@ -13,7 +13,7 @@ import {
   UninstallVirtualAppParams
 } from "../machine/types";
 import { xkeyKthAddress } from "../machine/xkeys";
-import { AppInstance, StateChannel } from "../models";
+import { AppInstance, StateChannel, StateChannelJSON } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
@@ -27,8 +27,7 @@ function xkeyTo0thAddress(xpub: string) {
 const {
   OP_SIGN,
   IO_SEND_AND_WAIT,
-  IO_SEND,
-  PERSIST_STATE_CHANNEL
+  IO_SEND
   // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
 } = Opcode;
 
@@ -53,9 +52,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     const {
       message: { processID, params },
       provider,
-      stateChannelsMap,
+      store,
       network
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       intermediaryXpub,
@@ -159,29 +162,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnAliceIngridAppDisactivationCommitment
     );
 
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelWithIntermediary,
-        stateChannelWithAllThreeParties,
-        stateChannelWithResponding
-      ]
-    ];
-
-    context.stateChannelsMap.set(
-      stateChannelWithIntermediary.multisigAddress,
-      stateChannelWithIntermediary
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithAllThreeParties.multisigAddress,
-      stateChannelWithAllThreeParties
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithResponding.multisigAddress,
-      stateChannelWithResponding
-    );
+    await store.saveStateChannel(stateChannelWithIntermediary);
+    await store.saveStateChannel(stateChannelWithAllThreeParties);
+    await store.saveStateChannel(stateChannelWithResponding);
   },
 
   1 /* Intermediary */: async function*(context: Context) {
@@ -194,9 +177,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         }
       },
       provider,
-      stateChannelsMap,
+      store,
       network
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       initiatorXpub,
@@ -338,29 +325,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       respondingSignatureOnIngridBobAppDisactivationCommitment
     );
 
-    context.stateChannelsMap.set(
-      stateChannelWithInitiating.multisigAddress,
-      stateChannelWithInitiating
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithAllThreeParties.multisigAddress,
-      stateChannelWithAllThreeParties
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithResponding.multisigAddress,
-      stateChannelWithResponding
-    );
-
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelWithInitiating,
-        stateChannelWithAllThreeParties,
-        stateChannelWithResponding
-      ]
-    ];
+    await store.saveStateChannel(stateChannelWithInitiating);
+    await store.saveStateChannel(stateChannelWithAllThreeParties);
+    await store.saveStateChannel(stateChannelWithResponding);
 
     const m8 = {
       processID,
@@ -386,9 +353,13 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
         }
       },
       provider,
-      stateChannelsMap,
+      store,
       network
     } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       initiatorXpub,
@@ -472,14 +443,9 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       ingridBobAppDisactivationCommitment
     ];
 
-    yield [
-      PERSIST_STATE_CHANNEL,
-      [
-        stateChannelWithInitiating,
-        stateChannelWithAllThreeParties,
-        stateChannelWithIntermediary
-      ]
-    ];
+    await store.saveStateChannel(stateChannelWithIntermediary);
+    await store.saveStateChannel(stateChannelWithAllThreeParties);
+    await store.saveStateChannel(stateChannelWithInitiating);
 
     const m7 = {
       processID,
@@ -492,40 +458,27 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
     } as ProtocolMessage;
 
     yield [IO_SEND, m7];
-
-    context.stateChannelsMap.set(
-      stateChannelWithIntermediary.multisigAddress,
-      stateChannelWithIntermediary
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithAllThreeParties.multisigAddress,
-      stateChannelWithAllThreeParties
-    );
-
-    context.stateChannelsMap.set(
-      stateChannelWithInitiating.multisigAddress,
-      stateChannelWithInitiating
-    );
   }
 };
 
 function getStateChannelFromMapWithOwners(
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   userXpubs: string[],
   network: NetworkContext
 ): StateChannel {
-  return stateChannelsMap.get(
-    getCreate2MultisigAddress(
-      userXpubs,
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    )
-  )!;
+  return StateChannel.fromJson(
+    stateChannelsMap[
+      getCreate2MultisigAddress(
+        userXpubs,
+        network.ProxyFactory,
+        network.MinimumViableMultisig
+      )
+    ]
+  );
 }
 
 async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
   provider: BaseProvider,
   network: NetworkContext
@@ -633,7 +586,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
 }
 
 async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
   provider: BaseProvider,
   network: NetworkContext
@@ -751,7 +704,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
 }
 
 async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
-  stateChannelsMap: Map<string, StateChannel>,
+  stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
   provider: BaseProvider,
   network: NetworkContext

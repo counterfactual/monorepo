@@ -8,6 +8,7 @@ import { BigNumber } from "ethers/utils";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../../src/constants";
 import { Protocol, xkeyKthAddress } from "../../../../src/machine";
 import { sortAddresses } from "../../../../src/machine/xkeys";
+import { StateChannel } from "../../../../src/models";
 import { getCreate2MultisigAddress } from "../../../../src/utils";
 import { toBeEq } from "../bignumber-jest-matcher";
 import { connectToGanache } from "../connect-ganache";
@@ -104,10 +105,11 @@ export class TestRunner {
   */
   async unsafeFund() {
     for (const mininode of [this.mininodeA, this.mininodeB]) {
-      const sc = mininode.scm.get(this.multisigAB)!;
-      mininode.scm.set(
-        this.multisigAB,
-        sc.incrementFreeBalance({
+      const sc = StateChannel.fromJson(
+        mininode.store.sharedData.stateChannelsMap[this.multisigAB]
+      );
+      mininode.store.sharedData.stateChannelsMap[this.multisigAB] = sc
+        .incrementFreeBalance({
           [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
             [sc.getFreeBalanceAddrOf(this.mininodeA.xpub)]: One,
             [sc.getFreeBalanceAddrOf(this.mininodeB.xpub)]: One
@@ -117,14 +119,15 @@ export class TestRunner {
             [sc.getFreeBalanceAddrOf(this.mininodeB.xpub)]: One
           }
         })
-      );
+        .toJson();
     }
 
     for (const mininode of [this.mininodeB, this.mininodeC]) {
-      const sc = mininode.scm.get(this.multisigBC)!;
-      mininode.scm.set(
-        this.multisigBC,
-        sc.incrementFreeBalance({
+      const sc = StateChannel.fromJson(
+        mininode.store.sharedData.stateChannelsMap[this.multisigBC]
+      );
+      mininode.store.sharedData.stateChannelsMap[this.multisigBC] = sc
+        .incrementFreeBalance({
           [CONVENTION_FOR_ETH_TOKEN_ADDRESS]: {
             [sc.getFreeBalanceAddrOf(this.mininodeB.xpub)]: One,
             [sc.getFreeBalanceAddrOf(this.mininodeC.xpub)]: One
@@ -134,20 +137,8 @@ export class TestRunner {
             [sc.getFreeBalanceAddrOf(this.mininodeC.xpub)]: One
           }
         })
-      );
+        .toJson();
     }
-
-    this.mininodeA.store.sharedData.stateChannelsMap = Array.from(
-      this.mininodeA.scm.entries()
-    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
-
-    this.mininodeB.store.sharedData.stateChannelsMap = Array.from(
-      this.mininodeB.scm.entries()
-    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
-
-    this.mininodeC.store.sharedData.stateChannelsMap = Array.from(
-      this.mininodeC.scm.entries()
-    ).reduce((main, [key, value]) => ({ ...main, [key]: value.toJson() }), {});
   }
 
   async installVirtualEqualDeposits(
@@ -340,7 +331,9 @@ export class TestRunner {
 
   async uninstallVirtual() {
     const [virtualAppInstance] = [
-      ...this.mininodeA.scm.get(this.multisigAC)!.appInstances.values()
+      ...StateChannel.fromJson(
+        this.mininodeA.store.sharedData.stateChannelsMap[this.multisigAC]
+      ).appInstances.values()
     ];
 
     await this.mininodeA.protocolRunner.initiateProtocol(
@@ -362,12 +355,16 @@ export class TestRunner {
   }
 
   async uninstall() {
-    const appInstances = this.mininodeA.scm.get(this.multisigAB)!.appInstances;
+    const appInstances = StateChannel.fromJson(
+      this.mininodeA.store.sharedData.stateChannelsMap[this.multisigAB]
+    ).appInstances;
 
     const [key] = [...appInstances.keys()].filter(key => {
       return (
         key !==
-        this.mininodeA.scm.get(this.multisigAB)!.freeBalance.identityHash
+        StateChannel.fromJson(
+          this.mininodeA.store.sharedData.stateChannelsMap[this.multisigAB]
+        ).freeBalance.identityHash
       );
     });
 
@@ -396,10 +393,11 @@ export class TestRunner {
       this.multisigBC,
       this.multisigAC
     ]) {
-      if (mininode.scm.has(multisig)) {
+      if (mininode.store.sharedData.stateChannelsMap[multisig]) {
         expect(
-          mininode.scm
-            .get(multisig)!
+          StateChannel.fromJson(
+            mininode.store.sharedData.stateChannelsMap[multisig]
+          )
             .getFreeBalanceClass()
             .getBalance(tokenAddress, xkeyKthAddress(mininode.xpub, 0))
         ).toBeEq(expected);

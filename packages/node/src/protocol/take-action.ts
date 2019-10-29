@@ -8,7 +8,7 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.TakeAction;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -18,7 +18,11 @@ const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
  */
 export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    const { stateChannelsMap, provider, message, network } = context;
+    const { store, provider, message, network } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const { processID, params } = message;
 
@@ -29,7 +33,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       action
     } = params as TakeActionParams;
 
-    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
+    const preProtocolStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const postProtocolStateChannel = preProtocolStateChannel.setState(
       appIdentityHash,
@@ -78,16 +84,15 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       responderSignature
     );
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
+    await store.saveStateChannel(postProtocolStateChannel);
   },
 
   1 /* Responding */: async function*(context: Context) {
-    const { stateChannelsMap, provider, message, network } = context;
+    const { store, provider, message, network } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const {
       processID,
@@ -102,7 +107,9 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       action
     } = params as TakeActionParams;
 
-    const preProtocolStateChannel = stateChannelsMap.get(multisigAddress)!;
+    const preProtocolStateChannel = StateChannel.fromJson(
+      stateChannelsMap[multisigAddress]
+    );
 
     const postProtocolStateChannel = preProtocolStateChannel.setState(
       appIdentityHash,
@@ -135,7 +142,7 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
       appInstance.appSeqNo
     ];
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
+    await store.saveStateChannel(postProtocolStateChannel);
 
     yield [
       IO_SEND,
@@ -149,10 +156,5 @@ export const TAKE_ACTION_PROTOCOL: ProtocolExecutionFlow = {
         }
       } as ProtocolMessage
     ];
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
   }
 };

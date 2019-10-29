@@ -7,7 +7,7 @@ import {
 import { BaseProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
-import { StateChannel } from "../models";
+import { Store } from "../store";
 
 import { Opcode, Protocol } from "./enums";
 
@@ -24,7 +24,7 @@ export type Instruction = Function | Opcode;
 /// Arguments passed to a protocol execulion flow
 export interface Context {
   network: NetworkContext;
-  stateChannelsMap: Map<string, StateChannel>;
+  store: Store;
   message: ProtocolMessage;
   provider: BaseProvider;
 }

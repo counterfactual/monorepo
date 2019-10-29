@@ -20,11 +20,15 @@ import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Propose;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, PERSIST_STATE_CHANNEL } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
   0 /* Initiating */: async function*(context: Context) {
-    const { message, network, stateChannelsMap } = context;
+    const { message, network, store } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const { processID, params } = message;
 
@@ -48,12 +52,12 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       network.MinimumViableMultisig
     );
 
-    const preProtocolStateChannel =
-      stateChannelsMap.get(multisigAddress) ||
-      StateChannel.createEmptyChannel(multisigAddress, [
-        initiatorXpub,
-        responderXpub
-      ]);
+    const preProtocolStateChannel = stateChannelsMap[multisigAddress]
+      ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
+      : StateChannel.createEmptyChannel(multisigAddress, [
+          initiatorXpub,
+          responderXpub
+        ]);
 
     const appInstanceProposal: AppInstanceProposal = {
       appDefinition,
@@ -83,8 +87,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const postProtocolStateChannel = preProtocolStateChannel.addProposal(
       appInstanceProposal
     );
-
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
 
     const setStateCommitment = new SetStateCommitment(
       network,
@@ -132,15 +134,15 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       setStateCommitment,
       responderSignatureOnInitialState
     );
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
+    await store.saveStateChannel(postProtocolStateChannel);
   },
 
   1 /* Responding */: async function*(context: Context) {
-    const { message, network, stateChannelsMap } = context;
+    const { message, network, store } = context;
+
+    const {
+      sharedData: { stateChannelsMap }
+    } = store;
 
     const { params, processID } = message;
 
@@ -168,12 +170,12 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       network.MinimumViableMultisig
     );
 
-    const preProtocolStateChannel =
-      stateChannelsMap.get(multisigAddress) ||
-      StateChannel.createEmptyChannel(multisigAddress, [
-        initiatorXpub,
-        responderXpub
-      ]);
+    const preProtocolStateChannel = stateChannelsMap[multisigAddress]
+      ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
+      : StateChannel.createEmptyChannel(multisigAddress, [
+          initiatorXpub,
+          responderXpub
+        ]);
 
     const appInstanceProposal: AppInstanceProposal = {
       appDefinition,
@@ -229,12 +231,12 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       appInstanceProposal
     );
 
-    yield [PERSIST_STATE_CHANNEL, [postProtocolStateChannel]];
-
     const responderSignatureOnInitialState = yield [
       OP_SIGN,
       setStateCommitment
     ];
+
+    await store.saveStateChannel(postProtocolStateChannel);
 
     yield [
       IO_SEND,
@@ -248,10 +250,5 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
         }
       } as ProtocolMessage
     ];
-
-    context.stateChannelsMap.set(
-      postProtocolStateChannel.multisigAddress,
-      postProtocolStateChannel
-    );
   }
 };

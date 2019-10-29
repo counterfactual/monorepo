@@ -2,7 +2,6 @@ import { NetworkContext } from "@counterfactual/types";
 import { BaseProvider } from "ethers/providers";
 import uuid from "uuid";
 
-import { StateChannel } from "../models";
 import { getProtocolFromName } from "../protocol";
 import { Store } from "../store";
 
@@ -134,7 +133,7 @@ export class ProtocolRunner {
   ) {
     const context: Context = {
       message,
-      stateChannelsMap: await this.store.getStateChannelsMap(),
+      store: this.store,
       network: this.network,
       provider: this.provider
     };
