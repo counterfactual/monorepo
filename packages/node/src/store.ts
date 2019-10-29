@@ -39,12 +39,16 @@ export class Store {
   ) {}
 
   public async connectDB() {
-    this.sharedData = (await this.storeService.get(this.storeKeyPrefix)) || {
-      version: 1,
-      stateChannelsMap: {},
-      commitments: {},
-      withdrawals: {}
-    };
+    this.sharedData = Object.assign(
+      {},
+      await this.storeService.get(this.storeKeyPrefix),
+      {
+        version: 1,
+        stateChannelsMap: {},
+        commitments: {},
+        withdrawals: {}
+      }
+    );
   }
 
   public async persistDB() {
