@@ -1,4 +1,4 @@
-import { Deferred } from "../../../src/deferred";
+import { Deferred } from "../../../src/utils/deferred";
 import { Opcode } from "../../../src/machine";
 
 import { MiniNode } from "./mininode";

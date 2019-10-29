@@ -1,6 +1,6 @@
 import Queue, { Task } from "p-queue";
 
-import { Deferred } from "../deferred";
+import { Deferred } from "../utils/deferred";
 
 /**
  * Executes a function call and adds it to one or more promise queues.
