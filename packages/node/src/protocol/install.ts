@@ -163,6 +163,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
           signature: mySignatureOnFreeBalanceStateUpdate
         },
         seq: UNASSIGNED_SEQ_NO
+      }
     ];
   },
 
