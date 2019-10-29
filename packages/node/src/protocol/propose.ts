@@ -1,6 +1,9 @@
 import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  UNASSIGNED_SEQ_NO
+} from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import {
   appIdentityToHash,
@@ -16,7 +19,6 @@ import {
 import { AppInstanceProposal, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Propose;

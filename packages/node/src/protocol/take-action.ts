@@ -1,10 +1,9 @@
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow, xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, TakeActionParams } from "../machine/types";
-import { StateChannel } from "../models/state-channel";
 
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.TakeAction;

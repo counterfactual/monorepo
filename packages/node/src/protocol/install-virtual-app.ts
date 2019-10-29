@@ -17,6 +17,7 @@ import { MaxUint256 } from "ethers/constants";
 import { BaseProvider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import { ConditionalTransaction, SetStateCommitment } from "../ethereum";
 import { Opcode, Protocol } from "../machine/enums";
 import {
@@ -29,7 +30,6 @@ import { sortAddresses, xkeyKthAddress } from "../machine/xkeys";
 import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 export const encodeSingleAssetTwoPartyIntermediaryAgreementParams = params =>

@@ -3,6 +3,7 @@ import { BaseProvider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { ProtocolExecutionFlow } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
@@ -17,7 +18,6 @@ import { AppInstance, StateChannel } from "../models";
 import { getCreate2MultisigAddress } from "../utils";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 function xkeyTo0thAddress(xpub: string) {
