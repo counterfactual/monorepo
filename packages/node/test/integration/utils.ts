@@ -28,7 +28,7 @@ import {
   UninstallVirtualMessage
 } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { xkeyKthAddress } from "../../src/machine";
+import { xkeyKthAddress } from "../../src/engine";
 
 import { initialLinkedState, linkedAbiEncodings } from "./linked-transfer";
 import {

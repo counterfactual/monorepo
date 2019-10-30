@@ -1,7 +1,7 @@
 import { Node } from "@counterfactual/types";
 import { TransactionReceipt } from "ethers/providers";
 
-import { ProtocolMessage } from "./machine";
+import { ProtocolMessage } from "./engine";
 
 export type NodeEvents = Node.EventName;
 export const NODE_EVENTS = Node.EventName;

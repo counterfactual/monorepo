@@ -10,7 +10,7 @@ import {
 } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
-import { xkeysToSortedKthAddresses } from "../../../machine";
+import { xkeysToSortedKthAddresses } from "../../../engine";
 import { RequestHandler } from "../../../request-handler";
 import { NodeController } from "../../controller";
 

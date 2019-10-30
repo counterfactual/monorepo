@@ -5,7 +5,7 @@ import { parseEther } from "ethers/utils";
 import { Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { NODE_EVENTS, ProposeMessage } from "../../src/types";
-import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
+import { toBeLt } from "../engine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {

@@ -11,8 +11,8 @@ import {
   UninstallVirtualAppParams,
   UpdateParams,
   WithdrawParams
-} from "../machine";
-import { ProtocolParameters } from "../machine/types";
+} from "../engine";
+import { ProtocolParameters } from "../engine/types";
 import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
 import { StateChannel } from "../models";
 import { RequestHandler } from "../request-handler";

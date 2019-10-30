@@ -11,7 +11,7 @@ import {
   UninstallMessage,
   UpdateStateMessage
 } from "../../src/types";
-import { toBeLt } from "../machine/integration/bignumber-jest-matcher";
+import { toBeLt } from "../engine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import { validAction } from "./tic-tac-toe";

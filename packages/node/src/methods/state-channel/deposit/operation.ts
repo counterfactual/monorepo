@@ -18,7 +18,7 @@ import {
 import { bigNumberify } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { InstallParams, Protocol, xkeyKthAddress } from "../../../machine";
+import { InstallParams, Protocol, xkeyKthAddress } from "../../../engine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { NODE_EVENTS } from "../../../types";

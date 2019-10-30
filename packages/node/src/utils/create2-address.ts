@@ -7,7 +7,7 @@ import {
   solidityKeccak256
 } from "ethers/utils";
 
-import { xkeysToSortedKthAddresses } from "../machine/xkeys";
+import { xkeysToSortedKthAddresses } from "../engine/xkeys";
 
 /**
  * Computes the address of a counterfactual MinimumViableMultisig contract
