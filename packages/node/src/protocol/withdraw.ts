@@ -7,7 +7,10 @@ import {
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber, defaultAbiCoder } from "ethers/utils";
 
-import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
+import {
+  CONVENTION_FOR_ETH_TOKEN_ADDRESS,
+  UNASSIGNED_SEQ_NO
+} from "../constants";
 import {
   ConditionalTransaction,
   SetStateCommitment,
@@ -19,7 +22,6 @@ import { Opcode, Protocol } from "../machine/enums";
 import { Context, ProtocolMessage, WithdrawParams } from "../machine/types";
 import { AppInstance, StateChannel } from "../models";
 
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const { IO_SEND, IO_SEND_AND_WAIT, OP_SIGN, WRITE_COMMITMENT } = Opcode;

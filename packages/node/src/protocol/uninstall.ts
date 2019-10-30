@@ -1,5 +1,6 @@
 import { BaseProvider } from "ethers/providers";
 
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { xkeyKthAddress } from "../machine";
 import { Opcode, Protocol } from "../machine/enums";
@@ -12,7 +13,6 @@ import {
 import { StateChannel, StateChannelJSON } from "../models";
 
 import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-increments";
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Uninstall;

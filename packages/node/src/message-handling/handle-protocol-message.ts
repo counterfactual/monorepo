@@ -1,5 +1,6 @@
 import { NetworkContext, SolidityValueType } from "@counterfactual/types";
 
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import {
   InstallParams,
   InstallVirtualAppParams,
@@ -14,7 +15,6 @@ import {
 import { ProtocolParameters } from "../machine/types";
 import { NO_PROPOSED_APP_INSTANCE_FOR_APP_INSTANCE_ID } from "../methods/errors";
 import { StateChannel } from "../models";
-import { UNASSIGNED_SEQ_NO } from "../protocol/utils/signature-forwarder";
 import { RequestHandler } from "../request-handler";
 import RpcRouter from "../rpc-router";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "../types";

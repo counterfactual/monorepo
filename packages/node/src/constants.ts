@@ -15,3 +15,11 @@ export const CF_PATH = "m/44'/60'/0'/25446";
 
 // Adds indentation, white space, and line break characters to the return-value JSON text to make it easier to read
 export const JSON_STRINGIFY_SPACE = 2;
+
+/**
+ * @summary This is a `seq` value that messages can take on which
+ * _should not_ be submitted into the protocol execution. A message
+ * with seq === -1 should be considered a response to another message
+ * and this should continue after an IO_SEND_AND_WAIT opcode.
+ */
+export const UNASSIGNED_SEQ_NO = -1;

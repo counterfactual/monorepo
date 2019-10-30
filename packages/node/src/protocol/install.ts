@@ -8,6 +8,7 @@ import {
 import { MaxUint256 } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 
+import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { ConditionalTransaction } from "../ethereum/conditional-transaction-commitment";
 import { ProtocolExecutionFlow } from "../machine";
@@ -17,7 +18,6 @@ import { TWO_PARTY_OUTCOME_DIFFERENT_ASSETS } from "../methods/errors";
 import { AppInstance, StateChannel } from "../models";
 import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
-import { UNASSIGNED_SEQ_NO } from "./utils/signature-forwarder";
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
@@ -158,7 +158,7 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
           signature: mySignatureOnFreeBalanceStateUpdate
         },
         seq: UNASSIGNED_SEQ_NO
-      } as ProtocolMessage
+      }
     ];
   },
 
