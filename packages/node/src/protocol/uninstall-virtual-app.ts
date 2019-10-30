@@ -24,12 +24,7 @@ function xkeyTo0thAddress(xpub: string) {
   return fromExtendedKey(xpub).derivePath("0").address;
 }
 
-const {
-  OP_SIGN,
-  IO_SEND_AND_WAIT,
-  IO_SEND
-  // WRITE_COMMITMENT // TODO: add calls to WRITE_COMMITMENT after sigs collected
-} = Opcode;
+const { OP_SIGN, IO_SEND_AND_WAIT, IO_SEND } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -125,6 +120,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
+    await store.setCommitment(
+      [Protocol.Update, timeLockedPassThroughAppInstance.identityHash],
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        responderSignatureOnTimeLockedPassThroughSetStateCommitment
+      ])
+    );
+
     const aliceIngridAppDisactivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithIntermediary.freeBalance.identity,
@@ -160,6 +164,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       intermediaryAddress,
       aliceIngridAppDisactivationCommitment,
       intermediarySignatureOnAliceIngridAppDisactivationCommitment
+    );
+
+    await store.setCommitment(
+      [Protocol.Update, stateChannelWithIntermediary.freeBalance.identityHash],
+      aliceIngridAppDisactivationCommitment.getSignedTransaction([
+        initiatingSignatureOnAliceIngridAppDisactivationCommitment,
+        intermediarySignatureOnAliceIngridAppDisactivationCommitment
+      ])
     );
 
     await store.saveStateChannel(stateChannelWithIntermediary);
@@ -250,6 +262,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       respondingSignatureOnTimeLockedPassThroughSetStateCommitment
     );
 
+    await store.setCommitment(
+      [Protocol.Update, timeLockedPassThroughAppInstance.identityHash],
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment,
+        respondingSignatureOnTimeLockedPassThroughSetStateCommitment
+      ])
+    );
+
     const m4 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
@@ -288,6 +309,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       aliceIngridAppDisactivationCommitment
     ];
 
+    await store.setCommitment(
+      [Protocol.Update, stateChannelWithInitiating.freeBalance.identityHash],
+      aliceIngridAppDisactivationCommitment.getSignedTransaction([
+        initiatingSignatureOnAliceIngridAppDisactivationCommitment,
+        intermediarySignatureOnAliceIngridAppDisactivationCommitment
+      ])
+    );
+
     const ingridBobAppDisactivationCommitment = new SetStateCommitment(
       network,
       stateChannelWithResponding.freeBalance.identity,
@@ -323,6 +352,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       responderAddress,
       ingridBobAppDisactivationCommitment,
       respondingSignatureOnIngridBobAppDisactivationCommitment
+    );
+
+    await store.setCommitment(
+      [Protocol.Update, stateChannelWithResponding.freeBalance.identityHash],
+      ingridBobAppDisactivationCommitment.getSignedTransaction([
+        respondingSignatureOnIngridBobAppDisactivationCommitment,
+        intermediarySignatureOnIngridBobAppDisactivationCommitment
+      ])
     );
 
     await store.saveStateChannel(stateChannelWithInitiating);
@@ -406,6 +443,15 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       timeLockedPassThroughSetStateCommitment
     ];
 
+    await store.setCommitment(
+      [Protocol.Update, timeLockedPassThroughAppInstance.identityHash],
+      timeLockedPassThroughSetStateCommitment.getSignedTransaction([
+        respondingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        initiatingSignatureOnTimeLockedPassThroughSetStateCommitment,
+        intermediarySignatureOnTimeLockedPassThroughSetStateCommitment
+      ])
+    );
+
     const m3 = {
       processID,
       protocol: Protocol.UninstallVirtualApp,
@@ -442,6 +488,14 @@ export const UNINSTALL_VIRTUAL_APP_PROTOCOL: ProtocolExecutionFlow = {
       OP_SIGN,
       ingridBobAppDisactivationCommitment
     ];
+
+    await store.setCommitment(
+      [Protocol.Update, stateChannelWithIntermediary.freeBalance.identityHash],
+      ingridBobAppDisactivationCommitment.getSignedTransaction([
+        intermediarySignatureOnIngridBobAppDisactivationCommitment,
+        respondingSignatureOnIngridBobAppDisactivationCommitment
+      ])
+    );
 
     await store.saveStateChannel(stateChannelWithIntermediary);
     await store.saveStateChannel(stateChannelWithAllThreeParties);

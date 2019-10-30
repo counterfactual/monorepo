@@ -24,7 +24,7 @@ import { AppInstance, StateChannel } from "../models";
 
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const { IO_SEND, IO_SEND_AND_WAIT, OP_SIGN, WRITE_COMMITMENT } = Opcode;
+const { IO_SEND, IO_SEND_AND_WAIT, OP_SIGN } = Opcode;
 const { Install, Update, Withdraw } = Protocol;
 /**
  * @description This exchange is described at the following URL:
@@ -127,12 +127,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedConditionalTransaction,
-      refundApp.identityHash
-    ];
+    await store.setCommitment(
+      [Install, refundApp.identityHash],
+      signedConditionalTransaction
+    );
 
     const freeBalanceUpdateData = new SetStateCommitment(
       network,
@@ -160,12 +158,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedFreeBalanceStateUpdate,
-      postInstallRefundAppStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postInstallRefundAppStateChannel.freeBalance.identityHash],
+      signedFreeBalanceStateUpdate
+    );
 
     const withdrawCommitment = constructWithdrawalCommitment(
       postInstallRefundAppStateChannel,
@@ -248,12 +244,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnWithdrawalCommitment
     ]);
 
-    yield [
-      WRITE_COMMITMENT,
-      Withdraw,
-      signedWithdrawalCommitment,
-      multisigAddress
-    ];
+    await store.storeWithdrawalCommitment(
+      multisigAddress,
+      signedWithdrawalCommitment
+    );
 
     const signedUninstallCommitment = uninstallRefundAppCommitment.getSignedTransaction(
       [
@@ -262,12 +256,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedUninstallCommitment,
-      postUninstallRefundAppStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postUninstallRefundAppStateChannel.freeBalance.identityHash],
+      signedUninstallCommitment
+    );
   },
 
   /**
@@ -344,12 +336,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Install, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedConditionalTransaction,
-      refundApp.identityHash
-    ];
+    await store.setCommitment(
+      [Install, refundApp.identityHash],
+      signedConditionalTransaction
+    );
 
     const freeBalanceUpdateData = new SetStateCommitment(
       network,
@@ -396,12 +386,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedFreeBalanceStateUpdate,
-      postInstallRefundAppStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postInstallRefundAppStateChannel.freeBalance.identityHash],
+      signedFreeBalanceStateUpdate
+    );
 
     const withdrawCommitment = constructWithdrawalCommitment(
       postInstallRefundAppStateChannel,
@@ -426,12 +414,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       counterpartySignatureOnWithdrawalCommitment
     ]);
 
-    yield [
-      WRITE_COMMITMENT,
-      Withdraw,
-      signedWithdrawalCommitment,
-      multisigAddress
-    ];
+    await store.storeWithdrawalCommitment(
+      multisigAddress,
+      signedWithdrawalCommitment
+    );
 
     const postUninstallRefundAppStateChannel = postInstallRefundAppStateChannel.uninstallApp(
       refundApp.identityHash,
@@ -480,12 +466,10 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update, // NOTE: The WRITE_COMMITMENT API is awkward in this situation
-      signedUninstallCommitment,
-      postUninstallRefundAppStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postUninstallRefundAppStateChannel.freeBalance.identityHash],
+      signedUninstallCommitment
+    );
 
     yield [
       IO_SEND,

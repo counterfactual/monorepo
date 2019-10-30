@@ -16,7 +16,7 @@ import { computeTokenIndexedFreeBalanceIncrements } from "./utils/get-outcome-in
 import { assertIsValidSignature } from "./utils/signature-validator";
 
 const protocol = Protocol.Uninstall;
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 
 /**
  * @description This exchange is described at the following URL:
@@ -75,7 +75,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       responderSignature
     ]);
 
-    yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
+    await store.setCommitment([protocol, appIdentityHash], finalCommitment);
 
     await store.saveStateChannel(postProtocolStateChannel);
   },
@@ -119,7 +119,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
       initiatorSignature
     ]);
 
-    yield [WRITE_COMMITMENT, protocol, finalCommitment, appIdentityHash];
+    await store.setCommitment([protocol, appIdentityHash], finalCommitment);
 
     await store.saveStateChannel(postProtocolStateChannel);
 

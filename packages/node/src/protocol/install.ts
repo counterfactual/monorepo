@@ -20,7 +20,7 @@ import { TokenIndexedCoinTransferMap } from "../models/free-balance";
 
 import { assertIsValidSignature } from "./utils/signature-validator";
 
-const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT, WRITE_COMMITMENT } = Opcode;
+const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 const { Update, Install } = Protocol;
 
 /**
@@ -106,12 +106,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Install,
-      signedConditionalTransaction,
-      newAppInstance.identityHash
-    ];
+    await store.setCommitment(
+      [Install, newAppInstance.identityHash],
+      signedConditionalTransaction
+    );
 
     const freeBalanceUpdateData = new SetStateCommitment(
       network,
@@ -139,12 +137,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update,
-      signedFreeBalanceStateUpdate,
-      postProtocolStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postProtocolStateChannel.freeBalance.identityHash],
+      signedFreeBalanceStateUpdate
+    );
 
     await store.saveStateChannel(postProtocolStateChannel);
 
@@ -225,12 +221,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Install,
-      signedConditionalTransaction,
-      newAppInstance.identityHash
-    ];
+    await store.setCommitment(
+      [Install, newAppInstance.identityHash],
+      signedConditionalTransaction
+    );
 
     const freeBalanceUpdateData = new SetStateCommitment(
       network,
@@ -274,12 +268,10 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
-    yield [
-      WRITE_COMMITMENT,
-      Update,
-      signedFreeBalanceStateUpdate,
-      postProtocolStateChannel.freeBalance.identityHash
-    ];
+    await store.setCommitment(
+      [Update, postProtocolStateChannel.freeBalance.identityHash],
+      signedFreeBalanceStateUpdate
+    );
 
     await store.saveStateChannel(postProtocolStateChannel);
 
