@@ -8,7 +8,7 @@ import {
   Provider,
   TransactionResponse
 } from "ethers/providers";
-import { bigNumberify, Interface } from "ethers/utils";
+import { Interface } from "ethers/utils";
 import log from "loglevel";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -18,7 +18,7 @@ import { RequestHandler } from "../../../request-handler";
 import {
   getCreate2MultisigAddress,
   prettyPrintObject,
-  sleep
+  wait
 } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
@@ -114,7 +114,7 @@ async function sendMultisigDeployTx(
           `${CHANNEL_CREATION_FAILED}: Could not confirm, on the ${tryCount} try, that the deployed multisig contract has the expected owners`
         );
         // wait on a linear backoff interval before retrying
-        await sleep(1000 * tryCount);
+        await wait(1000 * tryCount);
         continue;
       }
 

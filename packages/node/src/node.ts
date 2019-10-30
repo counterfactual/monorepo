@@ -6,8 +6,6 @@ import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
-import AutoNonceWallet from "./auto-nonce-wallet";
-import { Deferred } from "./deferred";
 import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
@@ -25,6 +23,8 @@ import RpcRouter from "./rpc-router";
 import { Store } from "./store";
 import { NODE_EVENTS, NodeMessageWrappedProtocolMessage } from "./types";
 import { timeout } from "./utils";
+import AutoNonceWallet from "./utils/auto-nonce-wallet";
+import { Deferred } from "./utils/deferred";
 
 export interface NodeConfig {
   // The prefix for any keys used in the store by this Node depends on the
