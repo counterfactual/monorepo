@@ -5,7 +5,7 @@ import log from "loglevel";
 
 import { Node, NODE_EVENTS } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
-import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
+import { toBeEq } from "../engine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {

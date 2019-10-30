@@ -1,7 +1,7 @@
 import { AppInstanceProposal, Node } from "@counterfactual/types";
 import { bigNumberify } from "ethers/utils";
 
-import { Protocol, ProtocolRunner } from "../../../machine";
+import { Protocol, ProtocolRunner } from "../../../engine";
 import { Store } from "../../../store";
 import {
   NO_APP_INSTANCE_ID_TO_INSTALL,

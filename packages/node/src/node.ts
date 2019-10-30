@@ -6,7 +6,7 @@ import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
-import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./machine";
+import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./engine";
 import { StateChannel } from "./models";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {

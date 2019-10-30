@@ -18,11 +18,11 @@ import {
   Protocol,
   ProtocolRunner,
   xkeysToSortedKthAddresses
-} from "../../src/machine";
+} from "../../src/engine";
 import { install } from "../../src/methods/app-instance/install/operation";
 import { StateChannel } from "../../src/models";
 import { Store } from "../../src/store";
-import { getRandomExtendedPubKeys } from "../machine/integration/random-signing-keys";
+import { getRandomExtendedPubKeys } from "../engine/integration/random-signing-keys";
 import { MemoryStoreService } from "../services/memory-store-service";
 
 import { createAppInstanceProposalForTest } from "./utils";

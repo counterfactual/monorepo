@@ -1,11 +1,11 @@
 import { AppInstanceJson, SolidityValueType } from "@counterfactual/types";
 import { BigNumber, bigNumberify } from "ethers/utils";
 
+import { xkeyKthAddress } from "../engine/xkeys";
 import {
   flip,
   flipTokenIndexedBalances
 } from "../ethereum/utils/free-balance-app";
-import { xkeyKthAddress } from "../machine/xkeys";
 import { Store } from "../store";
 import { prettyPrintObject } from "../utils";
 

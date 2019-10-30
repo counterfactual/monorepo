@@ -3,7 +3,7 @@ import { BigNumber } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
-import { Protocol, xkeyKthAddress } from "../../../machine";
+import { Protocol, xkeyKthAddress } from "../../../engine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
 import { getCreate2MultisigAddress } from "../../../utils";

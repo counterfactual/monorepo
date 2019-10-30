@@ -3,11 +3,11 @@ import { Zero } from "ethers/constants";
 import { BigNumber, bigNumberify, getAddress } from "ethers/utils";
 
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../constants";
+import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../engine/xkeys";
 import {
   getFreeBalanceAppInterface,
   merge
 } from "../ethereum/utils/free-balance-app";
-import { xkeyKthAddress, xkeysToSortedKthAddresses } from "../machine/xkeys";
 import { prettyPrintObject } from "../utils";
 
 import { AppInstance } from "./app-instance";

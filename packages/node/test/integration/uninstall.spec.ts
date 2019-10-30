@@ -4,7 +4,7 @@ import { One, Two, Zero } from "ethers/constants";
 import { Node } from "../../src";
 import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../src/constants";
 import { NODE_EVENTS, UninstallMessage } from "../../src/types";
-import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
+import { toBeEq } from "../engine/integration/bignumber-jest-matcher";
 
 import { setup, SetupContext } from "./setup";
 import {

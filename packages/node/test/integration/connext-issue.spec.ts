@@ -2,7 +2,7 @@ import { Zero } from "ethers/constants";
 import { bigNumberify } from "ethers/utils";
 
 import { Node } from "../../src";
-import { toBeEq } from "../machine/integration/bignumber-jest-matcher";
+import { toBeEq } from "../engine/integration/bignumber-jest-matcher";
 
 import {
   installAndRedeemLink,
