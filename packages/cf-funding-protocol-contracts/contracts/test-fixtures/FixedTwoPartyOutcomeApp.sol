@@ -6,8 +6,8 @@ import "../libs/LibOutcome.sol";
 
 contract TwoPartyFixedOutcomeApp {
 
-  function computeOutcome(bytes calldata)
-    external
+  function computeOutcome(bytes memory)
+    public
     pure
     returns (bytes memory)
   {

@@ -33,8 +33,8 @@ contract TimeLockedPassThrough {
     bytes defaultOutcome;
   }
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     view
     returns (bytes memory)
   {

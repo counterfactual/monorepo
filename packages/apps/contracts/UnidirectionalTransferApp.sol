@@ -119,10 +119,10 @@ contract UnidirectionalTransferApp is CounterfactualApp {
   }
 
   function getTurnTaker(
-    bytes calldata encodedState,
-    address[] calldata participants
+    bytes memory encodedState,
+    address[] memory participants
   )
-    external
+    public
     pure
     returns (address)
   {
@@ -131,8 +131,8 @@ contract UnidirectionalTransferApp is CounterfactualApp {
     ];
   }
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     pure
     returns (
       bytes memory // Encoded version of a LibOutcome.CoinTransfer[2]
@@ -142,10 +142,10 @@ contract UnidirectionalTransferApp is CounterfactualApp {
   }
 
   function applyAction(
-    bytes calldata encodedState,
-    bytes calldata encodedAction
+    bytes memory encodedState,
+    bytes memory encodedAction
   )
-    external
+    public
     pure
     returns (bytes memory)
   {
@@ -210,8 +210,8 @@ contract UnidirectionalTransferApp is CounterfactualApp {
 
   }
 
-  function isStateTerminal(bytes calldata encodedState)
-    external
+  function isStateTerminal(bytes memory encodedState)
+    public
     pure
     returns (bool)
   {
