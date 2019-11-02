@@ -49,7 +49,7 @@
     "@counterfactual/cf.js": "0.2.7",
     "@counterfactual/firebase-client": "0.0.7",
     "@counterfactual/types": "0.0.45",
-    "ethers": "4.0.38",
+    "ethers": "4.0.39",
     "eventemitter3": "^4.0.0",
     "loglevel": "^1.6.1",
     "p-queue": "^5.0.0",
