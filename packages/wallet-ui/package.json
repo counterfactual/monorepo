@@ -4,7 +4,7 @@
   "private": true,
   "dependencies": {
     "eth-balance-checker": "0.1.1",
-    "ethers": "4.0.38",
+    "ethers": "4.0.39",
     "node-sass": "4.13.0",
     "react": "16.11.0",
     "react-dom": "16.11.0",
