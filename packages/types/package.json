@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "ethers": "4.0.39",
-    "rollup": "1.26.0",
+    "rollup": "1.26.2",
     "rollup-plugin-typescript2": "0.24.3",
     "rpc-server": "0.0.1",
     "typescript": "3.5.3"
