@@ -37,7 +37,7 @@
     "rollup-plugin-json": "4.0.0",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-typescript2": "0.24.3",
-    "truffle": "5.0.42",
+    "truffle": "5.0.43",
     "ts-jest": "24.0.2",
     "ts-mockito": "2.5.0",
     "tslint": "5.20.0",
