@@ -1,4 +1,4 @@
-import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
