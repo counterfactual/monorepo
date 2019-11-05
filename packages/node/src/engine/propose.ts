@@ -6,7 +6,6 @@ import {
 } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { AppInstanceProposal, StateChannel } from "../models";
-import { getCreate2MultisigAddress } from "../utils";
 
 import { appIdentityToHash, ProtocolExecutionFlow, xkeyKthAddress } from ".";
 import { Opcode, Protocol } from "./enums";
