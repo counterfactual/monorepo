@@ -28,11 +28,12 @@ export default class ProposeInstallController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.ProposeInstallParams
   ): Promise<string[]> {
-    const { publicIdentifier, networkContext } = requestHandler;
+    const { publicIdentifier, networkContext, store } = requestHandler;
     const { proposedToIdentifier } = params;
 
-    const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, proposedToIdentifier],
+    const multisigAddress = await store.getMultisigAddressWithCounterparty(
+      publicIdentifier,
+      proposedToIdentifier,
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -61,8 +62,9 @@ export default class ProposeInstallController extends NodeController {
 
     const myIdentifier = publicIdentifier;
 
-    const multisigAddress = getCreate2MultisigAddress(
-      [myIdentifier, proposedToIdentifier],
+    const multisigAddress = await store.getMultisigAddressWithCounterparty(
+      publicIdentifier,
+      proposedToIdentifier,
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
@@ -110,14 +112,16 @@ export default class ProposeInstallController extends NodeController {
 
     const { proposedToIdentifier } = params;
 
-    const multisigAddress = getCreate2MultisigAddress(
-      [publicIdentifier, proposedToIdentifier],
+    const multisigAddress = await store.getMultisigAddressWithCounterparty(
+      publicIdentifier,
+      proposedToIdentifier,
       networkContext.ProxyFactory,
       networkContext.MinimumViableMultisig
     );
 
     await protocolRunner.initiateProtocol(Protocol.Propose, {
       ...params,
+      multisigAddress,
       initiatorXpub: publicIdentifier,
       responderXpub: proposedToIdentifier
     });
