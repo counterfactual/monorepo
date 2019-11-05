@@ -27,6 +27,7 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const { processID, params } = message;
 
     const {
+      multisigAddress,
       initiatorXpub,
       responderXpub,
       appDefinition,
@@ -39,12 +40,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       initialState,
       outcomeType
     } = params as ProposeInstallParams;
-
-    const multisigAddress = getCreate2MultisigAddress(
-      [initiatorXpub, responderXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    );
 
     const preProtocolStateChannel = stateChannelsMap[multisigAddress]
       ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
@@ -141,6 +136,7 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const { params, processID } = message;
 
     const {
+      multisigAddress,
       initiatorXpub,
       responderXpub,
       appDefinition,
@@ -157,12 +153,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const {
       customData: { signature: initiatorSignatureOnInitialState }
     } = message;
-
-    const multisigAddress = getCreate2MultisigAddress(
-      [initiatorXpub, responderXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    );
 
     const preProtocolStateChannel = stateChannelsMap[multisigAddress]
       ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
