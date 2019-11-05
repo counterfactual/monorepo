@@ -214,7 +214,7 @@ export class Store {
     const stateChannelsMap = await this.getStateChannelsMap();
     for (const stateChannel of stateChannelsMap.values()) {
       if (
-        stateChannel.userNeuteredExtendedKeys.sort() ==
+        stateChannel.userNeuteredExtendedKeys.sort() ===
         [myIdentifier, theirIdentifier].sort()
       ) {
         return stateChannel.multisigAddress;
