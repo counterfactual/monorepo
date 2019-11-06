@@ -16,12 +16,9 @@ import {
   sortAddresses,
   xkeysToSortedKthAddresses
 } from "../../../engine/xkeys";
+import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import {
-  getCreate2MultisigAddress,
-  prettyPrintObject,
-  wait
-} from "../../../utils";
+import { prettyPrintObject, wait } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   CHANNEL_CREATION_FAILED,
@@ -53,7 +50,7 @@ export default class DeployStateDepositHolderController extends NodeController {
     if ((await provider.getCode(multisigAddress)) === "0x") {
       tx = await sendMultisigDeployTx(
         wallet,
-        channel.userNeuteredExtendedKeys,
+        channel,
         networkContext,
         retryCount
       );
@@ -65,7 +62,7 @@ export default class DeployStateDepositHolderController extends NodeController {
 
 async function sendMultisigDeployTx(
   signer: Signer,
-  owners: string[],
+  stateChannel: StateChannel,
   networkContext: NetworkContext,
   retryCount: number = 3
 ): Promise<TransactionResponse> {
@@ -74,6 +71,8 @@ async function sendMultisigDeployTx(
     ProxyFactory.abi,
     signer
   );
+
+  const owners = stateChannel.userNeuteredExtendedKeys;
 
   const provider = signer.provider as JsonRpcProvider;
 
@@ -108,7 +107,7 @@ async function sendMultisigDeployTx(
         tx!,
         provider,
         owners,
-        networkContext
+        stateChannel.multisigAddress
       );
 
       if (!ownersAreCorrectlySet) {
@@ -140,14 +139,8 @@ async function checkForCorrectOwners(
   tx: TransactionResponse,
   provider: Provider,
   xpubs: string[],
-  networkContext: NetworkContext
+  multisigAddress: string
 ): Promise<boolean> {
-  const multisigAddress = getCreate2MultisigAddress(
-    xpubs,
-    networkContext.ProxyFactory,
-    networkContext.MinimumViableMultisig
-  );
-
   await tx.wait();
 
   const contract = new Contract(
