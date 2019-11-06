@@ -14,7 +14,7 @@ import {
 } from "@counterfactual/node";
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
 import { JsonRpcProvider } from "ethers/providers";
-import { formatEther } from "ethers/utils";
+import { bigNumberify, formatEther } from "ethers/utils";
 import FirebaseServer from "firebase-server";
 import { Log } from "logepi";
 import { jsonRpcDeserialize } from "rpc-server";
@@ -296,7 +296,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
 
   informSlack(
     `💰 *USER_DEPOSITED* (_${username}_) | User deposited ${formatEther(
-      response.data.amount
+      bigNumberify(response.data.amount)
     )} ETH <http://kovan.etherscan.io/address/${
       response.data.multisigAddress
     }|_(view on etherscan)_>.`
@@ -319,7 +319,7 @@ export async function onDepositConfirmed(response: DepositConfirmationMessage) {
 
   informSlack(
     `💰 *HUB_DEPOSITED* (_${username}_) | Hub deposited ${formatEther(
-      response.data.amount
+      bigNumberify(response.data.amount)
     )} ETH <http://kovan.etherscan.io/address/${
       response.data.multisigAddress
     }|_(view on etherscan)_>.`
