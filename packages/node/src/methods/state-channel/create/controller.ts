@@ -1,6 +1,4 @@
 import { Node } from "@counterfactual/types";
-import { HashZero } from "ethers/constants";
-import { TransactionResponse } from "ethers/providers";
 import { jsonRpcMethod } from "rpc-server";
 
 import { RequestHandler } from "../../../request-handler";
