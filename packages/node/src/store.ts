@@ -1,4 +1,4 @@
-import { NetworkContext, Node, SolidityValueType } from "@counterfactual/types";
+import { Node, SolidityValueType } from "@counterfactual/types";
 import { solidityKeccak256 } from "ethers/utils";
 
 import {
@@ -15,6 +15,7 @@ import {
 import { getCreate2MultisigAddress, prettyPrintObject } from "./utils";
 
 interface SharedData {
+  version: 1; // TODO: Add better versioning & migrations tooling
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON };
   commitments: { [specialHash: string]: any[] };
   withdrawals: { [multisigAddress: string]: Node.MinimalTransaction };
@@ -26,6 +27,7 @@ interface SharedData {
  */
 export class Store {
   public sharedData: SharedData = {
+    version: 1,
     stateChannelsMap: {},
     commitments: {},
     withdrawals: {}
@@ -37,11 +39,16 @@ export class Store {
   ) {}
 
   public async connectDB() {
-    this.sharedData = (await this.storeService.get(this.storeKeyPrefix)) || {
-      stateChannelsMap: {},
-      commitments: {},
-      withdrawals: {}
-    };
+    this.sharedData = Object.assign(
+      {},
+      await this.storeService.get(this.storeKeyPrefix),
+      {
+        version: 1,
+        stateChannelsMap: {},
+        commitments: {},
+        withdrawals: {}
+      }
+    );
   }
 
   public async persistDB() {
