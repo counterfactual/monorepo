@@ -14,7 +14,7 @@ import {
   virtualAppAgreementEncoding
 } from "@counterfactual/types";
 import { MaxUint256 } from "ethers/constants";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { UNASSIGNED_SEQ_NO } from "../constants";
@@ -996,7 +996,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForInitiating(
   params: InstallVirtualAppParams,
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   network: NetworkContext,
-  provider: BaseProvider
+  provider: Provider
 ): Promise<
   [StateChannel, StateChannel, StateChannel, AppInstance, AppInstance]
 > {
@@ -1197,7 +1197,7 @@ async function getUpdatedStateChannelAndVirtualAppObjectsForResponding(
   params: InstallVirtualAppParams,
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   network: NetworkContext,
-  provider: BaseProvider
+  provider: Provider
 ): Promise<
   [StateChannel, StateChannel, StateChannel, AppInstance, AppInstance]
 > {

@@ -11,7 +11,7 @@ import {
 import { Contract } from "ethers";
 import { Zero } from "ethers/constants";
 import {
-  BaseProvider,
+  Provider,
   TransactionRequest,
   TransactionResponse
 } from "ethers/providers";
@@ -179,7 +179,7 @@ export async function uninstallBalanceRefundApp(
 async function getDepositContext(
   params: Node.DepositParams,
   publicIdentifier: string,
-  provider: BaseProvider,
+  provider: Provider,
   networkContext: NetworkContext,
   tokenAddress: string
 ): Promise<DepositContext> {

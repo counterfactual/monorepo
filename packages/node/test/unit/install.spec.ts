@@ -4,7 +4,7 @@ import {
 } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import { AddressZero, HashZero, Zero } from "ethers/constants";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { hexlify, randomBytes } from "ethers/utils";
 import { anything, instance, mock, when } from "ts-mockito";
 
@@ -44,7 +44,7 @@ describe("Can handle correct & incorrect installs", () => {
     protocolRunner = new ProtocolRunner(
       store,
       NETWORK_CONTEXT_OF_ALL_ZERO_ADDRESSES,
-      {} as BaseProvider
+      {} as Provider
     );
   });
 

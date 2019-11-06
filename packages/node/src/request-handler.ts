@@ -1,6 +1,6 @@
 import { NetworkContext, Node } from "@counterfactual/types";
 import { Signer } from "ethers";
-import { BaseProvider, JsonRpcProvider } from "ethers/providers";
+import { JsonRpcProvider, Provider } from "ethers/providers";
 import EventEmitter from "eventemitter3";
 import log from "loglevel";
 
@@ -30,7 +30,7 @@ export class RequestHandler {
     readonly messagingService: Node.IMessagingService,
     readonly protocolRunner: ProtocolRunner,
     readonly networkContext: NetworkContext,
-    readonly provider: BaseProvider,
+    readonly provider: Provider,
     readonly wallet: Signer,
     readonly blocksNeededForConfirmation: number,
     public readonly processQueue: ProcessQueue

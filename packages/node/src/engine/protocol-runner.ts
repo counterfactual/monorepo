@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import uuid from "uuid";
 
 import { Store } from "../store";
@@ -78,7 +78,7 @@ export class ProtocolRunner {
   constructor(
     private readonly store: Store,
     private readonly network: NetworkContext,
-    private readonly provider: BaseProvider
+    private readonly provider: Provider
   ) {
     this.middlewares = new MiddlewareContainer();
   }

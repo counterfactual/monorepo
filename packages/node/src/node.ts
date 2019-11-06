@@ -1,13 +1,12 @@
 import { NetworkContext, Node as NodeTypes } from "@counterfactual/types";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { SigningKey } from "ethers/utils";
 import EventEmitter from "eventemitter3";
 import log from "loglevel";
 import { Memoize } from "typescript-memoize";
 
 import { createRpcRouter } from "./api";
-import { Opcode, Protocol, ProtocolMessage, ProtocolRunner } from "./engine";
-import { StateChannel } from "./models";
+import { Opcode, ProtocolMessage, ProtocolRunner } from "./engine";
 import { getFreeBalanceAddress } from "./models/free-balance";
 import {
   EthereumNetworkName,
@@ -63,7 +62,7 @@ export class Node {
     storeService: NodeTypes.IStoreService,
     networkOrNetworkContext: EthereumNetworkName | NetworkContext,
     nodeConfig: NodeConfig,
-    provider: BaseProvider,
+    provider: Provider,
     lockService?: NodeTypes.ILockService,
     publicExtendedKey?: string,
     privateKeyGenerator?: NodeTypes.IPrivateKeyGenerator,
@@ -99,7 +98,7 @@ export class Node {
     private readonly messagingService: NodeTypes.IMessagingService,
     private readonly storeService: NodeTypes.IStoreService,
     private readonly nodeConfig: NodeConfig,
-    private readonly provider: BaseProvider,
+    private readonly provider: Provider,
     networkContext: EthereumNetworkName | NetworkContext,
     readonly blocksNeededForConfirmation: number = REASONABLE_NUM_BLOCKS_TO_WAIT,
     private readonly lockService?: NodeTypes.ILockService
