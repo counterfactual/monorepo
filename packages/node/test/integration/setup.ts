@@ -1,5 +1,4 @@
 import { CF_PATH } from "@counterfactual/local-ganache-server";
-import { PostgresServiceFactory } from "@counterfactual/postgresql-node-connector";
 import { Node as NodeTypes } from "@counterfactual/types";
 import { Wallet } from "ethers";
 import {
@@ -28,33 +27,6 @@ export interface NodeContext {
 
 export interface SetupContext {
   [nodeName: string]: NodeContext;
-}
-
-export async function setupWithMemoryMessagingAndPostgresStore(
-  global: any,
-  nodeCPresent: boolean = false,
-  newExtendedPrvKeys: boolean = false
-): Promise<SetupContext> {
-  const memoryMessagingService = new MemoryMessagingService();
-
-  const postgresServiceFactory = new PostgresServiceFactory({
-    type: "postgres",
-    database: process.env.POSTGRES_DATABASE!,
-    username: process.env.POSTGRES_USER!,
-    host: process.env.POSTGRES_HOST!,
-    password: process.env.POSTGRES_PASSWORD!,
-    port: Number(process.env.POSTGRES_PORT!)
-  });
-
-  await postgresServiceFactory.connectDb();
-
-  return setup(
-    global,
-    nodeCPresent,
-    newExtendedPrvKeys,
-    memoryMessagingService,
-    postgresServiceFactory
-  );
 }
 
 export async function setup(
