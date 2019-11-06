@@ -12,7 +12,7 @@ import {
   StateChannel,
   StateChannelJSON
 } from "./models";
-import { prettyPrintObject } from "./utils";
+import { getCreate2MultisigAddress, prettyPrintObject } from "./utils";
 
 interface SharedData {
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON };
@@ -203,6 +203,29 @@ export class Store {
   public async getAppInstance(appInstanceId: string): Promise<AppInstance> {
     const channel = await this.getChannelFromAppInstanceID(appInstanceId);
     return channel.getAppInstance(appInstanceId);
+  }
+
+  public async getMultisigAddressWithCounterparty(
+    myIdentifier: string,
+    theirIdentifier: string,
+    proxyFactoryAddress: string,
+    minimumViableMultisigAddress: string
+  ) {
+    const stateChannelsMap = await this.getStateChannelsMap();
+    for (const stateChannel of stateChannelsMap.values()) {
+      if (
+        stateChannel.userNeuteredExtendedKeys.sort() ===
+        [myIdentifier, theirIdentifier].sort()
+      ) {
+        return stateChannel.multisigAddress;
+      }
+    }
+
+    return getCreate2MultisigAddress(
+      [myIdentifier, theirIdentifier],
+      proxyFactoryAddress,
+      minimumViableMultisigAddress
+    );
   }
 
   public async getOrCreateStateChannelBetweenVirtualAppParticipants(

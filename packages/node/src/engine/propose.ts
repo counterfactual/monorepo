@@ -1,4 +1,4 @@
-import { bigNumberify, defaultAbiCoder, keccak256 } from "ethers/utils";
+import { defaultAbiCoder, keccak256 } from "ethers/utils";
 
 import {
   CONVENTION_FOR_ETH_TOKEN_ADDRESS,
@@ -6,7 +6,6 @@ import {
 } from "../constants";
 import { SetStateCommitment } from "../ethereum";
 import { AppInstanceProposal, StateChannel } from "../models";
-import { getCreate2MultisigAddress } from "../utils";
 
 import { appIdentityToHash, ProtocolExecutionFlow, xkeyKthAddress } from ".";
 import { Opcode, Protocol } from "./enums";
@@ -27,6 +26,7 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const { processID, params } = message;
 
     const {
+      multisigAddress,
       initiatorXpub,
       responderXpub,
       appDefinition,
@@ -39,12 +39,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
       initialState,
       outcomeType
     } = params as ProposeInstallParams;
-
-    const multisigAddress = getCreate2MultisigAddress(
-      [initiatorXpub, responderXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    );
 
     const preProtocolStateChannel = stateChannelsMap[multisigAddress]
       ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
@@ -141,6 +135,7 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const { params, processID } = message;
 
     const {
+      multisigAddress,
       initiatorXpub,
       responderXpub,
       appDefinition,
@@ -157,12 +152,6 @@ export const PROPOSE_PROTOCOL: ProtocolExecutionFlow = {
     const {
       customData: { signature: initiatorSignatureOnInitialState }
     } = message;
-
-    const multisigAddress = getCreate2MultisigAddress(
-      [initiatorXpub, responderXpub],
-      network.ProxyFactory,
-      network.MinimumViableMultisig
-    );
 
     const preProtocolStateChannel = stateChannelsMap[multisigAddress]
       ? StateChannel.fromJson(stateChannelsMap[multisigAddress])
