@@ -7,7 +7,7 @@ import {
   TwoPartyFixedOutcome,
   TwoPartyFixedOutcomeInterpreterParams
 } from "@counterfactual/types";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { BigNumber, bigNumberify, defaultAbiCoder } from "ethers/utils";
 
 import { AppInstance } from "../../models";
@@ -26,7 +26,7 @@ import { wait } from "../../utils";
  */
 export async function computeTokenIndexedFreeBalanceIncrements(
   appInstance: AppInstance,
-  provider: BaseProvider,
+  provider: Provider,
   encodedOutcomeOverride: string = ""
 ): Promise<TokenIndexedCoinTransferMap> {
   const { outcomeType } = appInstance;
@@ -84,7 +84,7 @@ export async function computeTokenIndexedFreeBalanceIncrements(
 async function handleRefundAppOutcomeSpecialCase(
   encodedOutcome: string,
   appInstance: AppInstance,
-  provider: BaseProvider
+  provider: Provider
 ): Promise<TokenIndexedCoinTransferMap> {
   let mutableOutcome = encodedOutcome;
   let attempts = 1;

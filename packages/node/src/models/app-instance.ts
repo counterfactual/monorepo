@@ -14,7 +14,7 @@ import {
   virtualAppAgreementEncoding
 } from "@counterfactual/types";
 import { Contract } from "ethers";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { defaultAbiCoder, keccak256 } from "ethers/utils";
 import { Memoize } from "typescript-memoize";
 
@@ -301,7 +301,7 @@ export class AppInstance {
 
   public async computeOutcome(
     state: SolidityValueType,
-    provider: BaseProvider
+    provider: Provider
   ): Promise<string> {
     return this.toEthersContract(provider).functions.computeOutcome(
       this.encodeState(state)
@@ -309,14 +309,14 @@ export class AppInstance {
   }
 
   public async computeOutcomeWithCurrentState(
-    provider: BaseProvider
+    provider: Provider
   ): Promise<string> {
     return this.computeOutcome(this.state, provider);
   }
 
   public async computeStateTransition(
     action: SolidityValueType,
-    provider: BaseProvider
+    provider: Provider
   ): Promise<SolidityValueType> {
     const ret: SolidityValueType = {};
 
@@ -354,7 +354,7 @@ export class AppInstance {
     )[0];
   }
 
-  public toEthersContract(provider: BaseProvider) {
+  public toEthersContract(provider: Provider) {
     return new Contract(
       this.appInterface.addr,
       CounterfactualApp.abi,

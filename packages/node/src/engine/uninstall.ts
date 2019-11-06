@@ -1,4 +1,4 @@
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 
 import { UNASSIGNED_SEQ_NO } from "../constants";
 import { SetStateCommitment } from "../ethereum";
@@ -141,7 +141,7 @@ export const UNINSTALL_PROTOCOL: ProtocolExecutionFlow = {
 async function computeStateTransition(
   params: UninstallParams,
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
-  provider: BaseProvider
+  provider: Provider
 ) {
   const { appIdentityHash, multisigAddress } = params;
   const stateChannel = StateChannel.fromJson(stateChannelsMap[multisigAddress]);

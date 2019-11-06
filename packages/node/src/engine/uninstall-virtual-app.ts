@@ -1,5 +1,5 @@
 import { NetworkContext } from "@counterfactual/types";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 import { fromExtendedKey } from "ethers/utils/hdnode";
 
@@ -534,7 +534,7 @@ function getStateChannelFromMapWithOwners(
 async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
-  provider: BaseProvider,
+  provider: Provider,
   network: NetworkContext
 ): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
@@ -642,7 +642,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForInitiating(
 async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
-  provider: BaseProvider,
+  provider: Provider,
   network: NetworkContext
 ): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {
@@ -760,7 +760,7 @@ async function getUpdatedStateChannelAndAppInstanceObjectsForResponding(
 async function getUpdatedStateChannelAndAppInstanceObjectsForIntermediary(
   stateChannelsMap: { [multisigAddress: string]: StateChannelJSON },
   params: ProtocolParameters,
-  provider: BaseProvider,
+  provider: Provider,
   network: NetworkContext
 ): Promise<[StateChannel, StateChannel, StateChannel, AppInstance]> {
   const {

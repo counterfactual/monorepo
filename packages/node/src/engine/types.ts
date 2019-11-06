@@ -4,7 +4,7 @@ import {
   OutcomeType,
   SolidityValueType
 } from "@counterfactual/types";
-import { BaseProvider } from "ethers/providers";
+import { Provider } from "ethers/providers";
 import { BigNumber } from "ethers/utils";
 
 import { Store } from "../store";
@@ -26,7 +26,7 @@ export interface Context {
   network: NetworkContext;
   store: Store;
   message: ProtocolMessage;
-  provider: BaseProvider;
+  provider: Provider;
 }
 
 export type ProtocolMessage = {
