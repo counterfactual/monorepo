@@ -73,15 +73,6 @@ jobs:
   run-tests:
     docker:
       - image: circleci/node:10.15.3
-        environment:
-          POSTGRES_HOST: 127.0.0.1
-          POSTGRES_USER: postgres
-          POSTGRES_DATABASE: postgres
-          POSTGRES_PORT: 5432
-
-      - image: circleci/postgres:9.6.15-alpine
-        environment:
-          POSTGRES_USER: postgres
 
     steps:
       - <<: *restore_code
