@@ -80,9 +80,7 @@ describe("CF.js AppFactory", () => {
       nodeProvider.onMethodRequest(
         Node.RpcMethodName.PROPOSE_INSTALL,
         request => {
-          expect(request.methodName).toBe(
-            Node.RpcMethodName.PROPOSE_INSTALL
-          );
+          expect(request.methodName).toBe(Node.RpcMethodName.PROPOSE_INSTALL);
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
           expect(params.intermediaryIdentifier).toBe(expectedHubIdentifier);
