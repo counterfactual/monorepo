@@ -15,6 +15,7 @@ import {
   getAppContext,
   getBalances,
   getInstalledAppInstances,
+  getProposedAppInstances,
   makeAndSendProposeCall,
   makeInstallCall,
   transferERC20Tokens
@@ -62,11 +63,26 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
+        // FIXME: still no symmetric events -- nodeB will never emit an
+        // `INSTALL` event
+        // let installEvents = 0;
+        // nodeB.once(NODE_EVENTS.INSTALL, async () => {
+        //   const proposedAppsB = await getProposedAppInstances(nodeB);
+        //   expect(proposedAppsB.length).toEqual(0);
+        //   installEvents += 1;
+        //   if (installEvents === 2) {
+        //     done();
+        //   }
+        // });
+
         nodeA.on(NODE_EVENTS.INSTALL, async () => {
           const [appInstanceNodeA] = await getInstalledAppInstances(nodeA);
           const [appInstanceNodeB] = await getInstalledAppInstances(nodeB);
           expect(appInstanceNodeA).toBeDefined();
           expect(appInstanceNodeA).toEqual(appInstanceNodeB);
+
+          const proposedAppsA = await getProposedAppInstances(nodeA);
+          expect(proposedAppsA.length).toBe(0);
 
           [
             postInstallETHBalanceNodeA,
@@ -81,8 +97,13 @@ describe("Node method follows spec - install", () => {
           expect(postInstallETHBalanceNodeA).toBeLt(preInstallETHBalanceNodeA);
 
           expect(postInstallETHBalanceNodeB).toBeLt(preInstallETHBalanceNodeB);
-
           done();
+
+          // FIXME: add the below when there are symmetric events
+          // installEvents += 1;
+          // if (installEvents === 2) {
+          //   done();
+          // }
         });
 
         await makeAndSendProposeCall(

@@ -62,7 +62,9 @@ export async function handleReceivedProtocolMessage(
     outgoingEventData &&
     (protocol === Protocol.Install || protocol === Protocol.InstallVirtualApp)
   ) {
-    const appInstanceId = outgoingEventData!.data["appInstanceId"];
+    const appInstanceId =
+      outgoingEventData!.data["appInstanceId"] ||
+      (outgoingEventData!.data as any).params["appInstanceId"];
     if (appInstanceId) {
       let proposal;
       try {
