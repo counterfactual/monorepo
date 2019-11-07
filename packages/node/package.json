@@ -1,6 +1,6 @@
 {
   "name": "@counterfactual/node",
-  "version": "0.3.0",
+  "version": "0.3.4",
   "main": "dist/index.js",
   "iife": "dist/index.iife.js",
   "types": "dist/src/index.d.ts",
