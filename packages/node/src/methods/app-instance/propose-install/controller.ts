@@ -21,7 +21,6 @@ import {
  */
 export default class ProposeInstallController extends NodeController {
   @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL)
-  @jsonRpcMethod(Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL)
   public executeMethod = super.executeMethod;
 
   protected async getRequiredLockNames(

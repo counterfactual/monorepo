@@ -78,10 +78,10 @@ describe("CF.js AppFactory", () => {
       const expectedHubIdentifier = TEST_XPUBS[1];
 
       nodeProvider.onMethodRequest(
-        Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+        Node.RpcMethodName.PROPOSE_INSTALL,
         request => {
           expect(request.methodName).toBe(
-            Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL
+            Node.RpcMethodName.PROPOSE_INSTALL
           );
           const params = request.parameters as Node.ProposeInstallVirtualParams;
           expect(params.initialState).toBe(expectedState);
@@ -90,7 +90,7 @@ describe("CF.js AppFactory", () => {
           nodeProvider.simulateMessageFromNode({
             jsonrpc: "2.0",
             result: {
-              type: Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+              type: Node.RpcMethodName.PROPOSE_INSTALL,
               result: {
                 appInstanceId: expectedAppInstanceId
               }
