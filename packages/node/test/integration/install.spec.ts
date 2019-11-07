@@ -15,10 +15,10 @@ import {
   getAppContext,
   getBalances,
   getInstalledAppInstances,
+  getProposedAppInstances,
   makeAndSendProposeCall,
   makeInstallCall,
-  transferERC20Tokens,
-  getProposedAppInstances
+  transferERC20Tokens
 } from "./utils";
 
 expect.extend({ toBeLt });
@@ -63,7 +63,7 @@ describe("Node method follows spec - install", () => {
           makeInstallCall(nodeB, msg.data.appInstanceId);
         });
 
-        // FIXME: still no symmetric events -- nodeB will never emit an 
+        // FIXME: still no symmetric events -- nodeB will never emit an
         // `INSTALL` event
         // let installEvents = 0;
         // nodeB.once(NODE_EVENTS.INSTALL, async () => {
