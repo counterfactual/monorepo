@@ -124,13 +124,7 @@ function getOutgoingEventDataFromProtocol(
           // remove it, but after telling all consumers about this change
           params: {
             appInstanceId: stateChannelsMap
-              .get(
-                getCreate2MultisigAddress(
-                  [params.responderXpub, params.initiatorXpub],
-                  networkContext.ProxyFactory,
-                  networkContext.MinimumViableMultisig
-                )
-              )!
+              .get((params as InstallParams).multisigAddress)!
               .mostRecentlyInstalledAppInstance().identityHash
           }
         }
