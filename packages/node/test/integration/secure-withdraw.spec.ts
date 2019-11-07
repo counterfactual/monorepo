@@ -17,8 +17,8 @@ import {
   createChannel,
   deployStateDepositHolder,
   deposit,
-  transferERC20Tokens,
-  getFreeBalanceState
+  getFreeBalanceState,
+  transferERC20Tokens
 } from "./utils";
 
 expect.extend({ toBeEq, toBeLt });
