@@ -466,6 +466,8 @@ export const WITHDRAW_PROTOCOL: ProtocolExecutionFlow = {
       ]
     );
 
+    await store.saveStateChannel(postUninstallRefundAppStateChannel);
+
     await store.setCommitment(
       [Update, postUninstallRefundAppStateChannel.freeBalance.identityHash],
       signedUninstallCommitment
