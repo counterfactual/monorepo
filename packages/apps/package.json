@@ -39,7 +39,7 @@
     "truffle-deploy-registry": "0.5.1",
     "truffle-hdwallet-provider": "1.0.17",
     "ts-mocha": "6.0.0",
-    "tslint": "5.20.0"
+    "tslint": "5.20.1"
   },
   "resolutions": {
     "ethereum-waffle/solc": "0.5.12"

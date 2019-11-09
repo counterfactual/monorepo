@@ -40,7 +40,7 @@
     "truffle": "5.0.44",
     "ts-jest": "24.0.2",
     "ts-mockito": "2.5.0",
-    "tslint": "5.20.0",
+    "tslint": "5.20.1",
     "typescript": "3.5.3"
   },
   "dependencies": {
