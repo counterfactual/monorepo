@@ -25,6 +25,7 @@ import { bigNumberifyJson, getCreate2MultisigAddress } from "../utils";
  * protocol execution directly to the protocolRunner's message handler:
  * `runProtocolWithMessage`
  */
+let installCount = 0;
 export async function handleReceivedProtocolMessage(
   requestHandler: RequestHandler,
   msg: NodeMessageWrappedProtocolMessage
@@ -43,6 +44,10 @@ export async function handleReceivedProtocolMessage(
 
   if (seq === UNASSIGNED_SEQ_NO) return;
 
+  if (protocol === Protocol.Install) {
+    installCount += 1;
+    console.error(`******** ${installCount} - running protocol: ${protocol}, with data: ${JSON.stringify(data, null, 2)}`);
+  }
   await protocolRunner.runProtocolWithMessage(data);
 
   const outgoingEventData = getOutgoingEventDataFromProtocol(

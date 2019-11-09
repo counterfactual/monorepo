@@ -933,6 +933,24 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@counterfactual/node@0.3.3":
+  version "0.3.3"
+  resolved "https://registry.yarnpkg.com/@counterfactual/node/-/node-0.3.3.tgz#eec52354515a7dcc99c5705581bb426b4c7e5336"
+  integrity sha512-I9B2UWfDkybuaI1cOiSXIW12+umUWqRCBlBPdRpKtwk33jofOD/rjLsmp4ccJpfm4vhRP3sZAq12KRxKs394Wg==
+  dependencies:
+    "@counterfactual/cf-adjudicator-contracts" "0.0.10"
+    "@counterfactual/cf-funding-protocol-contracts" "0.0.13"
+    "@counterfactual/cf.js" "0.2.7"
+    "@counterfactual/firebase-client" "0.0.7"
+    "@counterfactual/types" "0.0.45"
+    ethers "4.0.38"
+    eventemitter3 "^4.0.0"
+    loglevel "^1.6.1"
+    p-queue "^5.0.0"
+    rpc-server "0.0.1"
+    typescript-memoize "^1.0.0-alpha.3"
+    uuid "^3.3.2"
+
 "@csstools/convert-colors@^1.4.0":
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/@csstools/convert-colors/-/convert-colors-1.4.0.tgz#ad495dc41b12e75d588c6db8b9834f08fa131eb7"

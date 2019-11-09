@@ -21,6 +21,7 @@ export async function install(
 
   const stateChannel = await store.getChannelFromAppInstanceID(appInstanceId);
 
+  console.error(`initiating install protocol with appId: ${appInstanceId} against stateChannel: ${JSON.stringify(stateChannel, null, 2)}`)
   await protocolRunner.initiateProtocol(Protocol.Install, {
     initiatorXpub: proposal.proposedToIdentifier,
     responderXpub: proposal.proposedByIdentifier,

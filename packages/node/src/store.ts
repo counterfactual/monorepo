@@ -101,7 +101,7 @@ export class Store {
       }
     }
 
-    throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID);
+    throw new Error(NO_MULTISIG_FOR_APP_INSTANCE_ID + `: ${appInstanceId}`);
   }
 
   /**

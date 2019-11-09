@@ -34,6 +34,10 @@ export default class RpcRouter extends Router {
       throw Error(`Cannot execute ${rpc.methodName}: no controller`);
     }
 
+    if (rpc.methodName === "chan_install") {
+      console.error(`dispatching ${rpc.methodName} on controller type: ${controller.callback} with parameters ${JSON.stringify(rpc.parameters, null, 2)}`)
+    }
+
     const result = jsonRpcSerializeAsResponse(
       {
         result: await new controller.type()[controller.callback](
@@ -45,6 +49,7 @@ export default class RpcRouter extends Router {
       rpc.id as number
     );
 
+    console.warn(`emitting: ${rpc.methodName}`)
     this.requestHandler.outgoing.emit(rpc.methodName, result);
 
     return result;
@@ -69,7 +74,7 @@ export default class RpcRouter extends Router {
       // It's a legacy message. Reformat it to JSONRPC.
       eventData = jsonRpcSerializeAsResponse(eventData, Date.now());
     }
-
+    console.warn(`1:emitting: ${event}`)
     this.requestHandler[emitter].emit(event, eventData.result);
   }
 

@@ -70,6 +70,7 @@ export class RequestHandler {
       this.methods.set(methodName, methodNameToImplementation[methodName]);
 
       this.incoming.on(methodName, async (req: Node.MethodRequest) => {
+        console.warn(`got event emitted from incoming: ${methodName}`)
         const res: Node.MethodResponse = {
           type: req.type,
           requestId: req.requestId,

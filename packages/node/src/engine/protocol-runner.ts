@@ -137,7 +137,12 @@ export class ProtocolRunner {
       network: this.network,
       provider: this.provider
     };
-
+    if (message.protocol === Protocol.Install) {
+      const scMap = await this.store.getStateChannelsMap();
+      for (const sc of scMap.values()) {
+        console.log(`runProtocol with sc: ${sc.multisigAddress}`)
+      }  
+    }
     let lastMiddlewareRet: any = undefined;
     const process = instruction(context);
     while (true) {

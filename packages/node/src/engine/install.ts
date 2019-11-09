@@ -23,6 +23,9 @@ import { assertIsValidSignature } from "./utils/signature-validator";
 const { OP_SIGN, IO_SEND, IO_SEND_AND_WAIT } = Opcode;
 const { Update, Install } = Protocol;
 
+let responderCount = 0;
+let initiatorCount = 0;
+
 /**
  * @description This exchange is described at the following URL:
  *
@@ -41,6 +44,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
    */
 
   0 /* Initiating */: async function*(context: Context) {
+    initiatorCount += 1;
+    console.error(`started install initiator count: ${initiatorCount}`)
     const {
       store,
       message: { params, processID },
@@ -168,6 +173,8 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
    */
 
   1 /* Responding */: async function*(context: Context) {
+    responderCount += 1;
+    console.error(`started install responder count: ${responderCount}`)
     const {
       store,
       message: {
@@ -187,6 +194,14 @@ export const INSTALL_PROTOCOL: ProtocolExecutionFlow = {
 
     const { initiatorXpub, multisigAddress } = params as InstallParams;
 
+    try {
+      StateChannel.fromJson(
+        stateChannelsMap[multisigAddress]
+      );
+    } catch (e) {
+      console.error(`sharedData: ${JSON.stringify(store.sharedData, null, 2)}`)
+      throw e
+    }
     const preProtocolStateChannel = StateChannel.fromJson(
       stateChannelsMap[multisigAddress]
     );
