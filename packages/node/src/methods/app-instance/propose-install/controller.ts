@@ -142,9 +142,10 @@ function assertSufficientFundsWithinFreeBalance(
 ) {
   if (!channel.hasFreeBalance) return;
 
-  const freeBalanceForToken = channel
-    .getFreeBalanceClass()
-    .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0)) || Zero;
+  const freeBalanceForToken =
+    channel
+      .getFreeBalanceClass()
+      .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0)) || Zero;
 
   if (freeBalanceForToken.lt(depositAmount)) {
     throw Error(
