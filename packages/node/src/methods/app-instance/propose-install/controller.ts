@@ -1,4 +1,5 @@
 import { Node } from "@counterfactual/types";
+import { Zero } from "ethers/constants";
 import { BigNumber } from "ethers/utils";
 import { jsonRpcMethod } from "rpc-server";
 
@@ -6,7 +7,6 @@ import { CONVENTION_FOR_ETH_TOKEN_ADDRESS } from "../../../constants";
 import { Protocol, xkeyKthAddress } from "../../../engine";
 import { StateChannel } from "../../../models";
 import { RequestHandler } from "../../../request-handler";
-import { getCreate2MultisigAddress } from "../../../utils";
 import { NodeController } from "../../controller";
 import {
   INSUFFICIENT_FUNDS_IN_FREE_BALANCE_FOR_ASSET,
@@ -144,7 +144,7 @@ function assertSufficientFundsWithinFreeBalance(
 
   const freeBalanceForToken = channel
     .getFreeBalanceClass()
-    .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0));
+    .getBalance(tokenAddress, xkeyKthAddress(publicIdentifier, 0)) || Zero;
 
   if (freeBalanceForToken.lt(depositAmount)) {
     throw Error(
