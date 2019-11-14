@@ -7,8 +7,8 @@ import "@counterfactual/cf-adjudicator-contracts/contracts/interfaces/Counterfac
 
 contract IdentityApp is CounterfactualApp {
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     pure
     returns (bytes memory)
   {

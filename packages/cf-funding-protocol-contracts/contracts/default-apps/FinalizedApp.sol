@@ -6,8 +6,8 @@ import "./IdentityApp.sol";
 
 contract FinalizedApp is IdentityApp {
 
-  function isStateTerminal(bytes calldata)
-    external
+  function isStateTerminal(bytes memory)
+    public
     pure
     returns (bool)
   {

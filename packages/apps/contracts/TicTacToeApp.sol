@@ -52,8 +52,8 @@ contract TicTacToeApp is CounterfactualApp {
     WinClaim winClaim;
   }
 
-  function isStateTerminal(bytes calldata encodedState)
-    external
+  function isStateTerminal(bytes memory encodedState)
+    public
     pure
     returns (bool)
   {
@@ -63,10 +63,10 @@ contract TicTacToeApp is CounterfactualApp {
 
   // NOTE: Function is being deprecated soon, do not modify!
   function getTurnTaker(
-    bytes calldata encodedState,
-    address[] calldata participants
+    bytes memory encodedState,
+    address[] memory participants
   )
-    external
+    public
     pure
     returns (address)
   {
@@ -75,9 +75,9 @@ contract TicTacToeApp is CounterfactualApp {
   }
 
   function applyAction(
-    bytes calldata encodedState, bytes calldata encodedAction
+    bytes memory encodedState, bytes memory encodedAction
   )
-    external
+    public
     pure
     returns (bytes memory)
   {
@@ -106,8 +106,8 @@ contract TicTacToeApp is CounterfactualApp {
     return abi.encode(postState);
   }
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     pure
     returns (bytes memory)
   {

@@ -20,8 +20,8 @@ contract CoinBalanceRefundApp {
     address tokenAddress;
   }
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     view
     returns (bytes memory)
   {

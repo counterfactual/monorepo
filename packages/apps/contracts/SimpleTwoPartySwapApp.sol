@@ -18,8 +18,8 @@ contract SimpleTwoPartySwapApp is CounterfactualApp {
     LibOutcome.CoinTransfer[][] coinTransfers;
   }
 
-  function computeOutcome(bytes calldata encodedState)
-    external
+  function computeOutcome(bytes memory encodedState)
+    public
     pure
     returns (bytes memory)
   {
