@@ -2711,10 +2711,10 @@
     "@types/keygrip" "*"
     "@types/node" "*"
 
-"@types/dotenv-safe@5.0.4":
-  version "5.0.4"
-  resolved "https://registry.yarnpkg.com/@types/dotenv-safe/-/dotenv-safe-5.0.4.tgz#44b44b29d73fb5f16c4b7ab8ef66526627a1d085"
-  integrity sha512-FPwutMRGFHRA8GmQgVRu9T+VOhPgXcHJAcgeazTRmJ6UfCFFBCScoxGPQe28D+JadsVXxOOdHxBgSlo1YfE5zA==
+"@types/dotenv-safe@8.1.0":
+  version "8.1.0"
+  resolved "https://registry.yarnpkg.com/@types/dotenv-safe/-/dotenv-safe-8.1.0.tgz#751ef7ed9875b0d2978ff0b176514cce550e08ed"
+  integrity sha512-9jrQ3T4zlDWuP0kht7UgGA9M6D1/HS8feA0OMwzZtPEGrUPU333RWvIJ+DkbzrSazhnUQAjAi5PB69/JsMqShg==
   dependencies:
     dotenv "^8.2.0"
 
