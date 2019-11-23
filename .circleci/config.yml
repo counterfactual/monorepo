@@ -79,7 +79,7 @@ jobs:
           POSTGRES_DATABASE: postgres
           POSTGRES_PORT: 5432
 
-      - image: circleci/postgres:9.6.15-alpine
+      - image: circleci/postgres:9.6.16-alpine
         environment:
           POSTGRES_USER: postgres
 
