@@ -18,7 +18,7 @@
   },
   "dependencies": {
     "@counterfactual/types": "0.0.45",
-    "pg": "7.12.1",
+    "pg": "7.14.0",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.2.20"
   },
