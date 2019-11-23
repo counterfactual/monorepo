@@ -1417,10 +1417,10 @@
   dependencies:
     tslib "1.10.0"
 
-"@firebase/util@0.2.33":
-  version "0.2.33"
-  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.33.tgz#14861561931cdf73a2dd1b611e1af56edcccf583"
-  integrity sha512-Z4gUew2wtPhLU9SKrHL8c3H66+MjY2JKtrlGLNdIVJGgR4i7AoNPnPdi13mpTXPKVuHe9ANDq/O04GfY89WXug==
+"@firebase/util@0.2.34":
+  version "0.2.34"
+  resolved "https://registry.yarnpkg.com/@firebase/util/-/util-0.2.34.tgz#a84fc09a68e82012b650964944e8ffc956ec4912"
+  integrity sha512-k8pNIzNLncvxDrqYVZN6/lnqZWy0OCJuZmK5urodARwdLy3sVLw5p9PWce0v9qzMO8tLdrBbCpnm1KJ8jg/kBQ==
   dependencies:
     tslib "1.10.0"
 
