@@ -20,7 +20,7 @@
     "@firebase/app-types": "0.4.8",
     "@firebase/util": "0.2.34",
     "@types/firebase": "3.2.1",
-    "rollup": "1.27.4",
+    "rollup": "1.27.5",
     "typescript": "3.5.3"
   },
   "dependencies": {
