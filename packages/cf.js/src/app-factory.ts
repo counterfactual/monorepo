@@ -126,7 +126,7 @@ export class AppFactory {
     );
 
     const response = await this.provider.callRawNodeMethod(
-      Node.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+      Node.RpcMethodName.PROPOSE_INSTALL,
       {
         timeout,
         responderDeposit,

@@ -51,7 +51,7 @@ describe("Node method follows spec - proposeInstallVirtual", () => {
         });
 
         nodeC.once(
-          NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+          NODE_EVENTS.PROPOSE_INSTALL,
           async ({ data: { params, appInstanceId } }: ProposeMessage) => {
             const [proposedAppNodeC] = await getProposedAppInstances(nodeC);
 

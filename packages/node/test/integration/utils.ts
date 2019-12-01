@@ -383,7 +383,7 @@ export function constructVirtualProposalRpc(
   return jsonRpcDeserialize({
     params: installVirtualParams,
     id: Date.now(),
-    method: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+    method: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
     jsonrpc: "2.0"
   });
 }
@@ -591,7 +591,7 @@ export async function installVirtualApp(
   responderDeposit?: BigNumber
 ): Promise<string> {
   nodeC.on(
-    NODE_EVENTS.PROPOSE_INSTALL_VIRTUAL,
+    NODE_EVENTS.PROPOSE_INSTALL,
     async ({ data: { appInstanceId: eventAppInstanceId } }: ProposeMessage) => {
       const {
         appInstanceId,
@@ -704,7 +704,7 @@ export async function makeVirtualProposal(
     }
   } = await nodeA.rpcRouter.dispatch({
     parameters: params,
-    methodName: NodeTypes.RpcMethodName.PROPOSE_INSTALL_VIRTUAL,
+    methodName: NodeTypes.RpcMethodName.PROPOSE_INSTALL,
     id: Date.now()
   });
 

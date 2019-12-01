@@ -105,7 +105,6 @@ export namespace Node {
     INSTALL = "chan_install",
     INSTALL_VIRTUAL = "chan_installVirtual",
     PROPOSE_INSTALL = "chan_proposeInstall",
-    PROPOSE_INSTALL_VIRTUAL = "chan_proposeInstallVirtual",
     PROPOSE_STATE = "chan_proposeState",
     REJECT_INSTALL = "chan_rejectInstall",
     REJECT_STATE = "chan_rejectState",
@@ -136,7 +135,6 @@ export namespace Node {
     WITHDRAWAL_FAILED = "withdrawalFailed",
     WITHDRAWAL_STARTED = "withdrawalStartedEvent",
     PROPOSE_INSTALL = "proposeInstallEvent",
-    PROPOSE_INSTALL_VIRTUAL = "proposeInstallEvent",
     PROTOCOL_MESSAGE_EVENT = "protocolMessageEvent",
     WITHDRAW_EVENT = "withdrawEvent",
     REJECT_INSTALL_VIRTUAL = "rejectInstallEvent"
