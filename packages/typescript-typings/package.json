@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "copyfiles": "2.1.1",
-    "ethereum-waffle": "2.1.0",
+    "ethereum-waffle": "2.1.1",
     "ethers": "4.0.40",
     "tslint": "5.20.1",
     "typescript": "3.5.3"

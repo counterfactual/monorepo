@@ -30,7 +30,7 @@
     "@types/chai": "4.2.6",
     "@types/mocha": "5.2.7",
     "chai": "4.2.0",
-    "ethereum-waffle": "2.1.0",
+    "ethereum-waffle": "2.1.1",
     "ethers": "4.0.40",
     "ethlint": "1.2.5",
     "mocha": "6.2.2",
