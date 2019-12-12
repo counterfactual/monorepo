@@ -1,3 +1,5 @@
+**NOTE**: This repository has been moved. Work is continuing under the [@statechannels](https://github.com/statechannels) organization as part of [statechannels.org](http://statechannels.org) project to unify state channels initiatives.
+
 <h1 align="center">
   <br>
   <a href="https://counterfactual.com"><img src="./logo.svg" alt="Counterfactual" width="150"></a>
