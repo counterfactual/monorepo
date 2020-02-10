@@ -90,9 +90,3 @@ export const methodNameToImplementation = controllers.reduce(
 
 export const createRpcRouter = (requestHandler: RequestHandler) =>
   new RpcRouter({ controllers, requestHandler });
-
-export const eventNameToImplementation = {
-  [NODE_EVENTS.PROTOCOL_MESSAGE_EVENT]: handleReceivedProtocolMessage,
-  [NODE_EVENTS.REJECT_INSTALL]: handleRejectProposalMessage,
-  [NODE_EVENTS.REJECT_INSTALL_VIRTUAL]: handleRejectProposalMessage
-};

@@ -78,7 +78,7 @@ export default class DepositController extends NodeController {
     requestHandler: RequestHandler,
     params: Node.DepositParams
   ): Promise<Node.DepositResult> {
-    const { outgoing, provider } = requestHandler;
+    const { outgoing, provider, publicIdentifier } = requestHandler;
     const { multisigAddress, tokenAddress } = params;
 
     params.tokenAddress = tokenAddress || CONVENTION_FOR_ETH_TOKEN_ADDRESS;
@@ -87,25 +87,11 @@ export default class DepositController extends NodeController {
     await makeDeposit(requestHandler, params);
     await uninstallBalanceRefundApp(requestHandler, params);
 
-    // send deposit confirmation to counter party _after_ the balance refund
-    // app is installed so as to prevent needing to handle the case of
-    // the counter party hitting the issue of
-    // "Cannot deposit while another deposit is occurring in the channel."
-    const { messagingService, publicIdentifier, store } = requestHandler;
-    const [counterpartyAddress] = await StateChannel.getPeersAddressFromChannel(
-      publicIdentifier,
-      store,
-      multisigAddress
-    );
-
-    const payload: DepositConfirmationMessage = {
+    outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, {
       from: publicIdentifier,
       type: NODE_EVENTS.DEPOSIT_CONFIRMED,
       data: params
-    };
-
-    await messagingService.send(counterpartyAddress, payload);
-    outgoing.emit(NODE_EVENTS.DEPOSIT_CONFIRMED, payload);
+    });
 
     return {
       multisigBalance: await provider.getBalance(multisigAddress)
